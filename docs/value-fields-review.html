@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Value Fields — Post-Migration Preview</title>
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Post-Migration Preview</title>
 <style>
 :root{--bg:#0a0e17;--card:#111827;--card2:#1a2236;--border:#1e293b;--text:#e2e8f0;--muted:#94a3b8;--accent:#10b981;--green:#22c55e;--blue:#3b82f6;--orange:#f59e0b;--red:#ef4444}
 *{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;padding:24px}
@@ -18,13 +18,10 @@ th .st{display:block;font-size:.45rem;font-weight:400;letter-spacing:0;text-tran
 td{padding:4px 8px;border-bottom:1px solid var(--border);text-align:right;font-family:'SF Mono',monospace;font-size:.67rem}
 td:nth-child(1),td:nth-child(2){text-align:left;font-family:inherit;color:var(--text);max-width:200px;overflow:hidden;text-overflow:ellipsis}
 tr:hover td{background:rgba(16,185,129,.04)}
-td.g{color:var(--green)}
-td.m{color:var(--orange);font-weight:600}
-td.e{color:#1a1a1a}
-td.b{color:var(--blue)}
+td.g{color:var(--green)}td.m{color:var(--orange);font-weight:600}td.e{color:#1a1a1a}
 </style></head><body>
-<h1>Post-Migration Preview — Where Data Lands</h1>
-<div class="sub">3651 accounts — showing TARGET state after migration. Orange = data that moved from a dying field.</div>
+<h1>Post-Migration Preview — Corrected Mapping</h1>
+<div class="sub">3651 accounts — fund_value → account_value (annuity) / cash_value (life) — annuity_balance → surrender_value (both)</div>
 <div class="filters">
 <button class="fb a" onclick="fc('all',this)">All (3651)</button>
 <button class="fb" onclick="fc('Catholic Order of Foresters',this)">Catholic Order of Foresters (2323)</button>
@@ -40,23 +37,19 @@ td.b{color:var(--blue)}
 <button class="fb" onclick="fc('Equitable',this)">Equitable (29)</button>
 <button class="fb" onclick="fc('Corebridge',this)">Corebridge (25)</button>
 </div>
-<div class="legend">
-<span><div class="dot" style="background:var(--green)"></div>Native data (already in correct field)</span>
-<span><div class="dot" style="background:var(--orange)"></div>Moved here from a dying field</span>
-</div>
+<div class="legend"><span><div class="dot" style="background:var(--green)"></div>Native (already correct)</span><span><div class="dot" style="background:var(--orange)"></div>Moved from dying field</span></div>
 <div class="tbl-wrap"><table id="tbl"><thead><tr>
-<th onclick="st(0)" style="text-align:left">Carrier</th>
-<th onclick="st(1)" style="text-align:left">Product</th>
+<th onclick="st(0)" style="text-align:left">Carrier</th><th onclick="st(1)" style="text-align:left">Product</th>
 <th onclick="st(2)">face_amount<span class="st">In Type + UI</span></th>
-<th onclick="st(3)">account_value<span class="st">In Type + UI</span></th>
-<th onclick="st(4)">cash_value<span class="st">In Type + UI</span></th>
-<th onclick="st(5)">surrender_value<span class="st">In Type + UI</span></th>
+<th onclick="st(3)">account_value<span class="st">In Type + UI (annuities)</span></th>
+<th onclick="st(4)">cash_value<span class="st">In Type + UI (life)</span></th>
+<th onclick="st(5)">surrender_value<span class="st">In Type + UI (both)</span></th>
 <th onclick="st(6)">death_benefit<span class="st">In Type + UI</span></th>
 <th onclick="st(7)">premium<span class="st">In Type + UI</span></th>
 <th onclick="st(8)">annual_premium<span class="st">In Type + UI</span></th>
 <th onclick="st(9)">modal_premium<span class="st">In Type</span></th>
 <th onclick="st(10)">premium_mode<span class="st">In Type + UI</span></th>
-<th onclick="st(11)">net_deposits<span class="st">In Type + UI</span></th>
+<th onclick="st(11)">net_deposits<span class="st">In Type + UI (annuities)</span></th>
 </tr></thead><tbody>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Forester Life</td>
 <td class="m">$25,000.00</td>
@@ -229,8 +222,8 @@ td.b{color:var(--blue)}
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Secure4Life Single Premium UL</td>
 <td class="m">$50,000.00</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
+<td class="m">$37,904.20</td>
+<td class="m">$37,800.61</td>
 <td class="g">$52,407.70</td>
 <td class="m">$32,478.51</td>
 <td class="g">$32,478.51</td>
@@ -636,8 +629,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Forester Optimizer Flex Prem Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$21,149.85</td>
+<td class="e">&mdash;</td>
 <td class="m">$21,112.20</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -648,8 +641,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Forester Optimizer Flex Prem Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$36,563.19</td>
+<td class="e">&mdash;</td>
 <td class="m">$36,492.20</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -660,8 +653,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$180,714.71</td>
+<td class="e">&mdash;</td>
 <td class="m">$180,235.90</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -672,8 +665,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Forester Optimizer Flex Prem Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$40,359.41</td>
+<td class="e">&mdash;</td>
 <td class="m">$40,281.04</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -684,8 +677,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Annuity Assurance Single Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$113,434.86</td>
+<td class="e">&mdash;</td>
 <td class="m">$113,246.16</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -936,8 +929,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$211,201.98</td>
+<td class="e">&mdash;</td>
 <td class="m">$211,049.22</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -960,8 +953,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Forester Optimizer Flex Prem Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$62,317.55</td>
+<td class="e">&mdash;</td>
 <td class="m">$62,216.70</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -1188,8 +1181,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$11,462.35</td>
+<td class="e">&mdash;</td>
 <td class="m">$11,440.09</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -1212,8 +1205,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Advantage Flex Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$5,550.95</td>
+<td class="e">&mdash;</td>
 <td class="m">$5,547.96</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -1429,8 +1422,8 @@ td.b{color:var(--blue)}
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Universal Life 20 YR Guarantee</td>
 <td class="g">$50,000.00</td>
 <td class="e">&mdash;</td>
-<td class="g">$1,992.13</td>
-<td class="g">$1,132.63</td>
+<td class="m">$2,212.41</td>
+<td class="m">$2,186.26</td>
 <td class="g">$50,000.00</td>
 <td class="m">$297.00</td>
 <td class="g">$297.00</td>
@@ -1513,8 +1506,8 @@ td.b{color:var(--blue)}
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Secure4Life Universal Life</td>
 <td class="m">$50,000.00</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
+<td class="m">$5,310.86</td>
+<td class="m">$5,220.71</td>
 <td class="g">$50,000.00</td>
 <td class="m">$956.52</td>
 <td class="g">$956.52</td>
@@ -2293,8 +2286,8 @@ td.b{color:var(--blue)}
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Secure4Life Universal Life</td>
 <td class="m">$25,000.00</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
+<td class="m">$2,799.49</td>
+<td class="m">$2,756.97</td>
 <td class="g">$25,000.00</td>
 <td class="m">$527.76</td>
 <td class="g">$527.76</td>
@@ -2436,8 +2429,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Forester Optimizer Flex Prem Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$17,469.33</td>
+<td class="e">&mdash;</td>
 <td class="m">$17,456.60</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -2472,8 +2465,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Annuity Assurance Single Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$141,359.41</td>
+<td class="e">&mdash;</td>
 <td class="m">$141,186.10</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -3516,8 +3509,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$1,146.77</td>
+<td class="e">&mdash;</td>
 <td class="m">$1,144.39</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -3840,8 +3833,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$261,860.21</td>
+<td class="e">&mdash;</td>
 <td class="m">$261,166.40</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -3888,8 +3881,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$218.67</td>
+<td class="e">&mdash;</td>
 <td class="m">$218.22</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -4224,8 +4217,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Advantage Plus Single Prem Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$63,038.11</td>
+<td class="e">&mdash;</td>
 <td class="m">$62,974.17</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -4609,8 +4602,8 @@ td.b{color:var(--blue)}
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Secure4Life Universal Life</td>
 <td class="m">$150,000.00</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
+<td class="m">$36,858.34</td>
+<td class="m">$36,791.07</td>
 <td class="g">$150,000.00</td>
 <td class="m">$3,204.00</td>
 <td class="g">$3,204.00</td>
@@ -5028,8 +5021,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Advantage Plus Single Prem Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$291,715.60</td>
+<td class="e">&mdash;</td>
 <td class="m">$291,520.53</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -5268,8 +5261,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$196.51</td>
+<td class="e">&mdash;</td>
 <td class="m">$196.16</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -5952,8 +5945,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$156.38</td>
+<td class="e">&mdash;</td>
 <td class="m">$156.15</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -6768,8 +6761,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Forester Optimizer Flex Prem Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$32,409.65</td>
+<td class="e">&mdash;</td>
 <td class="m">$32,396.53</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -6997,8 +6990,8 @@ td.b{color:var(--blue)}
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Secure4Life Single Premium UL</td>
 <td class="m">$20,000.00</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
+<td class="m">$13,727.65</td>
+<td class="m">$13,690.13</td>
 <td class="g">$21,166.20</td>
 <td class="m">$11,012.02</td>
 <td class="g">$11,012.02</td>
@@ -7200,8 +7193,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Annuity Loyalty Single Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$26,920.86</td>
+<td class="e">&mdash;</td>
 <td class="m">$26,868.59</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -7344,8 +7337,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$1,043.87</td>
+<td class="e">&mdash;</td>
 <td class="m">$1,041.10</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -7536,8 +7529,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Advantage Plus Single Prem Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$30,606.03</td>
+<td class="e">&mdash;</td>
 <td class="m">$30,556.38</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -7572,8 +7565,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$6,189.84</td>
+<td class="e">&mdash;</td>
 <td class="m">$6,173.44</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -7668,8 +7661,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Forester Optimizer Flex Prem Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$20,421.84</td>
+<td class="e">&mdash;</td>
 <td class="m">$20,420.19</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -7680,8 +7673,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Forester Optimizer Flex Prem Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$35,652.13</td>
+<td class="e">&mdash;</td>
 <td class="m">$35,600.20</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -7776,8 +7769,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$16,277.99</td>
+<td class="e">&mdash;</td>
 <td class="m">$16,251.65</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -8316,8 +8309,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$308.97</td>
+<td class="e">&mdash;</td>
 <td class="m">$308.15</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -8496,8 +8489,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Advantage Plus Single Prem Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$27,789.11</td>
+<td class="e">&mdash;</td>
 <td class="m">$27,747.78</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -8532,8 +8525,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Advantage Flex Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$40,284.72</td>
+<td class="e">&mdash;</td>
 <td class="m">$40,268.48</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -9036,8 +9029,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Advantage Plus Single Prem Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$34,415.37</td>
+<td class="e">&mdash;</td>
 <td class="m">$34,373.49</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -9444,8 +9437,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Advantage Plus Single Prem Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$61,493.43</td>
+<td class="e">&mdash;</td>
 <td class="m">$61,431.06</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -9960,8 +9953,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$4,758.67</td>
+<td class="e">&mdash;</td>
 <td class="m">$4,746.06</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -10417,8 +10410,8 @@ td.b{color:var(--blue)}
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Secure4Life Universal Life</td>
 <td class="m">$250,000.00</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
+<td class="m">$60,702.49</td>
+<td class="m">$60,546.15</td>
 <td class="g">$250,000.00</td>
 <td class="m">$4,249.92</td>
 <td class="g">$4,249.92</td>
@@ -11064,8 +11057,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Annuity Loyalty Single Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$111,221.20</td>
+<td class="e">&mdash;</td>
 <td class="m">$111,007.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -11533,8 +11526,8 @@ td.b{color:var(--blue)}
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Secure4Life Single Premium UL</td>
 <td class="m">$25,033.00</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
+<td class="m">$12,745.84</td>
+<td class="m">$12,711.01</td>
 <td class="g">$26,322.61</td>
 <td class="m">$10,000.38</td>
 <td class="g">$10,000.38</td>
@@ -11676,8 +11669,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$156.38</td>
+<td class="e">&mdash;</td>
 <td class="m">$156.15</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -11893,8 +11886,8 @@ td.b{color:var(--blue)}
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Secure4Life Single Premium UL</td>
 <td class="m">$40,631.00</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
+<td class="m">$17,462.56</td>
+<td class="m">$17,452.61</td>
 <td class="g">$42,229.25</td>
 <td class="m">$14,191.01</td>
 <td class="g">$14,191.01</td>
@@ -12144,8 +12137,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Advantage Flex Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$11,208.55</td>
+<td class="e">&mdash;</td>
 <td class="m">$11,207.94</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -12324,8 +12317,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Advantage Flex Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$13,804.23</td>
+<td class="e">&mdash;</td>
 <td class="m">$13,798.04</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -12600,8 +12593,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$1,743.25</td>
+<td class="e">&mdash;</td>
 <td class="m">$1,742.77</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -12672,8 +12665,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$6,563.51</td>
+<td class="e">&mdash;</td>
 <td class="m">$6,549.91</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -12912,8 +12905,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Loyalty Optimizer Flex Prem Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$4,805.33</td>
+<td class="e">&mdash;</td>
 <td class="m">$4,796.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -13248,8 +13241,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Forester Optimizer Flex Prem Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$20,261.01</td>
+<td class="e">&mdash;</td>
 <td class="m">$20,257.73</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -13272,8 +13265,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Annuity Assurance Single Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$29,076.30</td>
+<td class="e">&mdash;</td>
 <td class="m">$29,053.38</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -13332,8 +13325,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$326.46</td>
+<td class="e">&mdash;</td>
 <td class="m">$326.39</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -13621,8 +13614,8 @@ td.b{color:var(--blue)}
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Secure4Life Single Premium UL</td>
 <td class="m">$50,000.00</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
+<td class="m">$34,443.18</td>
+<td class="m">$34,396.08</td>
 <td class="g">$52,444.82</td>
 <td class="m">$28,385.39</td>
 <td class="g">$28,385.39</td>
@@ -13980,8 +13973,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$28,843.45</td>
+<td class="e">&mdash;</td>
 <td class="m">$28,767.03</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -14196,8 +14189,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$271,898.84</td>
+<td class="e">&mdash;</td>
 <td class="m">$271,178.43</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -14208,8 +14201,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$59,820.31</td>
+<td class="e">&mdash;</td>
 <td class="m">$59,661.81</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -14220,8 +14213,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$51,516.96</td>
+<td class="e">&mdash;</td>
 <td class="m">$51,380.46</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -14232,8 +14225,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Forester Optimizer Flex Prem Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$214,562.02</td>
+<td class="e">&mdash;</td>
 <td class="m">$214,145.40</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -14244,8 +14237,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Forester Optimizer Flex Prem Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$272,434.49</td>
+<td class="e">&mdash;</td>
 <td class="m">$271,971.57</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -14256,8 +14249,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Forester Optimizer Flex Prem Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$87,062.58</td>
+<td class="e">&mdash;</td>
 <td class="m">$86,900.57</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -14268,8 +14261,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$5,733.10</td>
+<td class="e">&mdash;</td>
 <td class="m">$5,721.22</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -14328,8 +14321,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Forester Optimizer Flex Prem Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$26,796.98</td>
+<td class="e">&mdash;</td>
 <td class="m">$26,762.28</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -14341,8 +14334,8 @@ td.b{color:var(--blue)}
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Value4Life Universal Life</td>
 <td class="m">$388,724.00</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
+<td class="m">$94,251.84</td>
+<td class="m">$94,192.56</td>
 <td class="g">$388,724.00</td>
 <td class="m">$18,000.00</td>
 <td class="g">$18,000.00</td>
@@ -14353,8 +14346,8 @@ td.b{color:var(--blue)}
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Secure4Life Single Premium UL</td>
 <td class="m">$234,937.00</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
+<td class="m">$182,080.64</td>
+<td class="m">$181,703.02</td>
 <td class="g">$239,167.03</td>
 <td class="m">$200,000.31</td>
 <td class="g">$200,000.31</td>
@@ -14364,8 +14357,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Annuity Loyalty Single Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$114,903.10</td>
+<td class="e">&mdash;</td>
 <td class="m">$114,674.53</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -14760,8 +14753,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$3,179.77</td>
+<td class="e">&mdash;</td>
 <td class="m">$3,171.35</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -14772,8 +14765,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$5,702.94</td>
+<td class="e">&mdash;</td>
 <td class="m">$5,687.83</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -14784,8 +14777,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$1,361.39</td>
+<td class="e">&mdash;</td>
 <td class="m">$1,358.97</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -14928,8 +14921,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$2,956.87</td>
+<td class="e">&mdash;</td>
 <td class="m">$2,949.04</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -14940,8 +14933,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$827.07</td>
+<td class="e">&mdash;</td>
 <td class="m">$826.33</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -15852,8 +15845,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$459.47</td>
+<td class="e">&mdash;</td>
 <td class="m">$458.52</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -15889,8 +15882,8 @@ td.b{color:var(--blue)}
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Secure4Life Single Premium UL</td>
 <td class="m">$66,955.00</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
+<td class="m">$53,068.08</td>
+<td class="m">$52,923.04</td>
 <td class="g">$68,638.94</td>
 <td class="m">$50,000.15</td>
 <td class="g">$50,000.15</td>
@@ -15900,8 +15893,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Annuity Loyalty Single Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$119,277.01</td>
+<td class="e">&mdash;</td>
 <td class="m">$119,172.54</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -15924,8 +15917,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Forester Optimizer Flex Prem Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$3,637.29</td>
+<td class="e">&mdash;</td>
 <td class="m">$3,630.82</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -15937,8 +15930,8 @@ td.b{color:var(--blue)}
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Secure4Life Single Premium UL</td>
 <td class="m">$50,000.00</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
+<td class="m">$39,972.59</td>
+<td class="m">$39,863.34</td>
 <td class="g">$51,718.73</td>
 <td class="m">$36,451.49</td>
 <td class="g">$36,451.49</td>
@@ -16273,8 +16266,8 @@ td.b{color:var(--blue)}
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Universal Life 20 Yr Guarantee Juvenile</td>
 <td class="g">$50,000.00</td>
 <td class="e">&mdash;</td>
-<td class="g">$1,156.22</td>
-<td class="g">$422.22</td>
+<td class="m">$1,292.03</td>
+<td class="m">$1,274.18</td>
 <td class="g">$50,000.00</td>
 <td class="m">$180.00</td>
 <td class="g">$180.00</td>
@@ -16309,8 +16302,8 @@ td.b{color:var(--blue)}
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Value4Life Universal Life</td>
 <td class="m">$100,000.00</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
+<td class="m">$12,743.68</td>
+<td class="m">$12,731.36</td>
 <td class="g">$100,000.00</td>
 <td class="m">$1,481.00</td>
 <td class="g">$1,481.00</td>
@@ -16440,8 +16433,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Forester Optimizer Flex Prem Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$1,964.66</td>
+<td class="e">&mdash;</td>
 <td class="m">$1,963.23</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -16452,8 +16445,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Annuity Assurance Single Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$158,419.62</td>
+<td class="e">&mdash;</td>
 <td class="m">$158,128.38</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -16548,8 +16541,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$958.45</td>
+<td class="e">&mdash;</td>
 <td class="m">$956.46</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -16572,8 +16565,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Advantage Flex Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$11,448.15</td>
+<td class="e">&mdash;</td>
 <td class="m">$11,441.60</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -16836,8 +16829,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$1,555.30</td>
+<td class="e">&mdash;</td>
 <td class="m">$1,554.54</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -17244,8 +17237,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Forester Optimizer Flex Prem Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$241,333.16</td>
+<td class="e">&mdash;</td>
 <td class="m">$241,040.18</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -17304,8 +17297,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$15,276.71</td>
+<td class="e">&mdash;</td>
 <td class="m">$15,236.23</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -18084,8 +18077,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Advantage Flex Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$10,812.47</td>
+<td class="e">&mdash;</td>
 <td class="m">$10,808.64</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -18132,8 +18125,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$443,375.86</td>
+<td class="e">&mdash;</td>
 <td class="m">$442,457.47</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -18349,8 +18342,8 @@ td.b{color:var(--blue)}
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Secure4Life Single Premium UL</td>
 <td class="m">$40,000.00</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
+<td class="m">$28,900.91</td>
+<td class="m">$28,821.92</td>
 <td class="g">$41,365.77</td>
 <td class="m">$25,550.50</td>
 <td class="g">$25,550.50</td>
@@ -18528,8 +18521,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Annuity Loyalty Single Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$32,422.30</td>
+<td class="e">&mdash;</td>
 <td class="m">$32,367.21</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -19200,8 +19193,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Annuity Assurance Single Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$47,453.28</td>
+<td class="e">&mdash;</td>
 <td class="m">$47,440.81</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -19212,8 +19205,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Advantage Plus Single Prem Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$26,048.52</td>
+<td class="e">&mdash;</td>
 <td class="m">$26,011.54</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -19224,8 +19217,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$56,069.16</td>
+<td class="e">&mdash;</td>
 <td class="m">$55,920.60</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -19249,8 +19242,8 @@ td.b{color:var(--blue)}
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Secure4Life Single Premium UL</td>
 <td class="m">$50,000.00</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
+<td class="m">$44,079.00</td>
+<td class="m">$43,958.53</td>
 <td class="g">$52,622.96</td>
 <td class="m">$38,912.72</td>
 <td class="g">$38,912.72</td>
@@ -19260,8 +19253,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Annuity Assurance Single Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$158,520.06</td>
+<td class="e">&mdash;</td>
 <td class="m">$158,242.50</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -19297,8 +19290,8 @@ td.b{color:var(--blue)}
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Secure4Life Single Premium UL</td>
 <td class="m">$25,000.00</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
+<td class="m">$19,476.15</td>
+<td class="m">$19,453.95</td>
 <td class="g">$25,334.59</td>
 <td class="m">$19,711.51</td>
 <td class="g">$19,711.51</td>
@@ -19669,8 +19662,8 @@ td.b{color:var(--blue)}
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Secure4Life Single Premium UL</td>
 <td class="m">$26,764.00</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
+<td class="m">$12,489.27</td>
+<td class="m">$12,479.30</td>
 <td class="g">$28,012.37</td>
 <td class="m">$10,000.24</td>
 <td class="g">$10,000.24</td>
@@ -20616,8 +20609,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Advantage Flex Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$7,650.24</td>
+<td class="e">&mdash;</td>
 <td class="m">$7,645.90</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -20736,8 +20729,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$70,061.52</td>
+<td class="e">&mdash;</td>
 <td class="m">$69,875.89</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -21096,8 +21089,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$8,114.00</td>
+<td class="e">&mdash;</td>
 <td class="m">$8,100.21</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -22200,8 +22193,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Advantage Plus Single Prem Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$299,784.30</td>
+<td class="e">&mdash;</td>
 <td class="m">$299,762.02</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -22213,8 +22206,8 @@ td.b{color:var(--blue)}
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Secure4Life Single Premium UL</td>
 <td class="m">$25,000.00</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
+<td class="m">$14,846.87</td>
+<td class="m">$14,809.67</td>
 <td class="g">$25,325.15</td>
 <td class="m">$14,579.25</td>
 <td class="g">$14,579.25</td>
@@ -22224,8 +22217,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Advantage Plus Single Prem Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$34,346.35</td>
+<td class="e">&mdash;</td>
 <td class="m">$34,309.19</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -22657,8 +22650,8 @@ td.b{color:var(--blue)}
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Secure4Life Universal Life</td>
 <td class="m">$25,000.00</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
+<td class="m">$7,666.82</td>
+<td class="m">$7,649.54</td>
 <td class="g">$25,000.00</td>
 <td class="m">$1,600.25</td>
 <td class="g">$1,600.25</td>
@@ -22884,8 +22877,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$196.51</td>
+<td class="e">&mdash;</td>
 <td class="m">$196.16</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -22980,8 +22973,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$12,470.35</td>
+<td class="e">&mdash;</td>
 <td class="m">$12,437.31</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -23004,8 +22997,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Forester Optimizer Flex Prem Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$88,275.39</td>
+<td class="e">&mdash;</td>
 <td class="m">$88,103.99</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -23280,8 +23273,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Advantage Flex Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$32,838.35</td>
+<td class="e">&mdash;</td>
 <td class="m">$32,803.80</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -23760,8 +23753,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Forester Optimizer Flex Prem Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$29,591.75</td>
+<td class="e">&mdash;</td>
 <td class="m">$29,577.37</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -23808,8 +23801,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$6,169.94</td>
+<td class="e">&mdash;</td>
 <td class="m">$6,157.16</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -24072,8 +24065,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$948.75</td>
+<td class="e">&mdash;</td>
 <td class="m">$948.70</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -24169,8 +24162,8 @@ td.b{color:var(--blue)}
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Value4Life Universal Life</td>
 <td class="m">$25,000.00</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
+<td class="m">$2,969.58</td>
+<td class="m">$2,967.98</td>
 <td class="g">$25,000.00</td>
 <td class="m">$692.16</td>
 <td class="g">$692.16</td>
@@ -24420,8 +24413,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$336.97</td>
+<td class="e">&mdash;</td>
 <td class="m">$336.92</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -25465,8 +25458,8 @@ td.b{color:var(--blue)}
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Secure4Life Universal Life</td>
 <td class="m">$150,000.00</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
+<td class="m">$58,147.99</td>
+<td class="m">$58,091.78</td>
 <td class="g">$150,000.00</td>
 <td class="m">$4,672.44</td>
 <td class="g">$4,672.44</td>
@@ -25860,8 +25853,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$88,228.07</td>
+<td class="e">&mdash;</td>
 <td class="m">$87,994.30</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -25896,8 +25889,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$106,517.27</td>
+<td class="e">&mdash;</td>
 <td class="m">$106,235.05</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -26472,8 +26465,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$338.49</td>
+<td class="e">&mdash;</td>
 <td class="m">$338.42</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -26533,8 +26526,8 @@ td.b{color:var(--blue)}
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>UL 20YR Guarantee(IncreasingDB)</td>
 <td class="g">$50,000.00</td>
 <td class="e">&mdash;</td>
-<td class="g">$821.30</td>
-<td class="g">$259.80</td>
+<td class="m">$1,153.45</td>
+<td class="m">$1,152.71</td>
 <td class="g">$50,821.47</td>
 <td class="m">$121.50</td>
 <td class="g">$121.50</td>
@@ -26545,8 +26538,8 @@ td.b{color:var(--blue)}
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Universal Life 20 Yr Guarantee Juvenile</td>
 <td class="g">$50,000.00</td>
 <td class="e">&mdash;</td>
-<td class="g">$517.34</td>
-<td class="e">&mdash;</td>
+<td class="m">$604.12</td>
+<td class="m">$604.06</td>
 <td class="g">$50,000.00</td>
 <td class="m">$122.00</td>
 <td class="g">$122.00</td>
@@ -26569,8 +26562,8 @@ td.b{color:var(--blue)}
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>UL 20 Yr Guar (Increasing DB)-Juvenile</td>
 <td class="g">$50,000.00</td>
 <td class="e">&mdash;</td>
-<td class="g">$600.41</td>
-<td class="e">&mdash;</td>
+<td class="m">$575.42</td>
+<td class="m">$574.37</td>
 <td class="g">$50,600.54</td>
 <td class="m">$122.00</td>
 <td class="g">$122.00</td>
@@ -26808,8 +26801,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$1,321.28</td>
+<td class="e">&mdash;</td>
 <td class="m">$1,318.93</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -27252,8 +27245,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Advantage Flex Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$33,863.23</td>
+<td class="e">&mdash;</td>
 <td class="m">$33,852.26</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -27265,8 +27258,8 @@ td.b{color:var(--blue)}
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Universal Life 20 YR Guarantee</td>
 <td class="g">$50,000.00</td>
 <td class="e">&mdash;</td>
-<td class="g">$2,349.51</td>
-<td class="g">$1,279.51</td>
+<td class="m">$2,603.97</td>
+<td class="m">$2,603.97</td>
 <td class="g">$50,000.00</td>
 <td class="m">$336.00</td>
 <td class="g">$336.00</td>
@@ -27420,8 +27413,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$776.04</td>
+<td class="e">&mdash;</td>
 <td class="m">$774.66</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -27468,8 +27461,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$1,309.72</td>
+<td class="e">&mdash;</td>
 <td class="m">$1,309.61</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -27504,8 +27497,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$11,969.45</td>
+<td class="e">&mdash;</td>
 <td class="m">$11,937.74</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -27625,8 +27618,8 @@ td.b{color:var(--blue)}
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Secure4Life Single Premium UL</td>
 <td class="m">$25,000.00</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
+<td class="m">$17,854.82</td>
+<td class="m">$17,806.02</td>
 <td class="g">$26,030.27</td>
 <td class="m">$15,069.72</td>
 <td class="g">$15,069.72</td>
@@ -27852,8 +27845,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$4,929.64</td>
+<td class="e">&mdash;</td>
 <td class="m">$4,916.58</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -27876,8 +27869,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$1,231.52</td>
+<td class="e">&mdash;</td>
 <td class="m">$1,228.26</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -28692,8 +28685,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Advantage Plus Single Prem Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$74,590.02</td>
+<td class="e">&mdash;</td>
 <td class="m">$74,529.49</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -28704,8 +28697,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Annuity Loyalty Single Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$172,154.23</td>
+<td class="e">&mdash;</td>
 <td class="m">$172,048.79</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -28812,8 +28805,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Annuity Loyalty Single Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$74,518.36</td>
+<td class="e">&mdash;</td>
 <td class="m">$74,397.76</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -28824,8 +28817,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Advantage Flex Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$41,837.58</td>
+<td class="e">&mdash;</td>
 <td class="m">$41,806.26</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -28921,8 +28914,8 @@ td.b{color:var(--blue)}
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Secure4Life Single Premium UL</td>
 <td class="m">$11,760.00</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
+<td class="m">$9,058.30</td>
+<td class="m">$9,048.90</td>
 <td class="g">$11,941.07</td>
 <td class="m">$10,000.45</td>
 <td class="g">$10,000.45</td>
@@ -29628,8 +29621,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Forester Optimizer Flex Prem Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$105,529.00</td>
+<td class="e">&mdash;</td>
 <td class="m">$105,426.50</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -30013,8 +30006,8 @@ td.b{color:var(--blue)}
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>UL 20 Yr Guar (Increasing DB)-Juvenile</td>
 <td class="g">$50,000.00</td>
 <td class="e">&mdash;</td>
-<td class="g">$1,688.57</td>
-<td class="g">$999.57</td>
+<td class="m">$1,920.46</td>
+<td class="m">$1,916.34</td>
 <td class="g">$51,688.92</td>
 <td class="m">$300.00</td>
 <td class="g">$300.00</td>
@@ -30025,8 +30018,8 @@ td.b{color:var(--blue)}
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Value4Life Universal Life</td>
 <td class="m">$50,000.00</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
+<td class="m">$2,948.17</td>
+<td class="m">$2,947.22</td>
 <td class="g">$52,947.22</td>
 <td class="m">$300.00</td>
 <td class="g">$300.00</td>
@@ -30505,8 +30498,8 @@ td.b{color:var(--blue)}
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Secure4Life Universal Life</td>
 <td class="m">$25,000.00</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
+<td class="m">$5,272.55</td>
+<td class="m">$5,258.97</td>
 <td class="g">$25,000.00</td>
 <td class="m">$753.12</td>
 <td class="g">$753.12</td>
@@ -30517,8 +30510,8 @@ td.b{color:var(--blue)}
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Value4Life Universal Life</td>
 <td class="m">$50,000.00</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
+<td class="m">$25,910.57</td>
+<td class="m">$25,888.31</td>
 <td class="g">$50,000.00</td>
 <td class="m">$4,974.64</td>
 <td class="g">$4,974.64</td>
@@ -30529,8 +30522,8 @@ td.b{color:var(--blue)}
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Secure4Life Single Premium UL</td>
 <td class="m">$160,536.00</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
+<td class="m">$121,975.07</td>
+<td class="m">$121,660.91</td>
 <td class="g">$160,536.00</td>
 <td class="m">$100,000.00</td>
 <td class="g">$100,000.00</td>
@@ -30889,8 +30882,8 @@ td.b{color:var(--blue)}
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Secure4Life Single Premium UL</td>
 <td class="m">$24,283.00</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
+<td class="m">$12,219.07</td>
+<td class="m">$12,203.75</td>
 <td class="g">$25,254.88</td>
 <td class="m">$10,000.24</td>
 <td class="g">$10,000.24</td>
@@ -31008,8 +31001,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$28,828.46</td>
+<td class="e">&mdash;</td>
 <td class="m">$28,752.08</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -31296,8 +31289,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$335.95</td>
+<td class="e">&mdash;</td>
 <td class="m">$335.59</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -32208,8 +32201,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$313.70</td>
+<td class="e">&mdash;</td>
 <td class="m">$312.87</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -32232,8 +32225,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$5,930.31</td>
+<td class="e">&mdash;</td>
 <td class="m">$5,918.03</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -32604,8 +32597,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Annuity Loyalty Single Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$29,661.47</td>
+<td class="e">&mdash;</td>
 <td class="m">$29,661.47</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -33768,8 +33761,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$26,553.46</td>
+<td class="e">&mdash;</td>
 <td class="m">$26,521.46</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -33792,8 +33785,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$4,555.90</td>
+<td class="e">&mdash;</td>
 <td class="m">$4,549.26</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -33876,8 +33869,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$92,686.68</td>
+<td class="e">&mdash;</td>
 <td class="m">$92,521.69</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -33888,8 +33881,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Annuity Assurance Single Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$126,340.93</td>
+<td class="e">&mdash;</td>
 <td class="m">$126,307.72</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -33901,8 +33894,8 @@ td.b{color:var(--blue)}
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Secure4Life Single Premium UL</td>
 <td class="m">$150,000.00</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
+<td class="m">$97,609.10</td>
+<td class="m">$97,342.33</td>
 <td class="g">$153,825.11</td>
 <td class="m">$87,767.52</td>
 <td class="g">$87,767.52</td>
@@ -33912,8 +33905,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Annuity Loyalty Single Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$31,680.15</td>
+<td class="e">&mdash;</td>
 <td class="m">$31,573.74</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -33924,8 +33917,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$95,127.93</td>
+<td class="e">&mdash;</td>
 <td class="m">$94,875.88</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -33937,8 +33930,8 @@ td.b{color:var(--blue)}
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Secure4Life Single Premium UL</td>
 <td class="m">$100,000.00</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
+<td class="m">$67,539.38</td>
+<td class="m">$67,354.79</td>
 <td class="g">$105,781.50</td>
 <td class="m">$53,383.36</td>
 <td class="g">$53,383.36</td>
@@ -34068,8 +34061,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Forester Optimizer Flex Prem Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$14,268.21</td>
+<td class="e">&mdash;</td>
 <td class="m">$14,257.81</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -34080,8 +34073,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Forester Optimizer Flex Prem Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$20,421.84</td>
+<td class="e">&mdash;</td>
 <td class="m">$20,420.19</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -34141,8 +34134,8 @@ td.b{color:var(--blue)}
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Secure4Life Universal Life</td>
 <td class="m">$35,000.00</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
+<td class="m">$12,798.70</td>
+<td class="m">$12,769.85</td>
 <td class="g">$35,000.00</td>
 <td class="m">$720.00</td>
 <td class="g">$720.00</td>
@@ -34512,8 +34505,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$1,004.95</td>
+<td class="e">&mdash;</td>
 <td class="m">$1,002.29</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -34884,8 +34877,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$4,433.99</td>
+<td class="e">&mdash;</td>
 <td class="m">$4,424.81</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -35424,8 +35417,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$1,252.15</td>
+<td class="e">&mdash;</td>
 <td class="m">$1,250.94</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -35665,8 +35658,8 @@ td.b{color:var(--blue)}
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Universal Life Varying Guarantee</td>
 <td class="g">$50,000.00</td>
 <td class="e">&mdash;</td>
-<td class="g">$709.54</td>
-<td class="e">&mdash;</td>
+<td class="m">$801.84</td>
+<td class="m">$785.75</td>
 <td class="g">$50,000.00</td>
 <td class="m">$180.00</td>
 <td class="g">$180.00</td>
@@ -35688,8 +35681,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Advantage Plus Single Prem Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$61,588.64</td>
+<td class="e">&mdash;</td>
 <td class="m">$61,505.37</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -35700,8 +35693,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$320,311.39</td>
+<td class="e">&mdash;</td>
 <td class="m">$319,647.91</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -36036,8 +36029,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$314.93</td>
+<td class="e">&mdash;</td>
 <td class="m">$314.42</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -36109,8 +36102,8 @@ td.b{color:var(--blue)}
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Secure4Life Single Premium UL</td>
 <td class="m">$28,887.00</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
+<td class="m">$25,954.78</td>
+<td class="m">$25,931.11</td>
 <td class="g">$29,898.15</td>
 <td class="m">$25,000.26</td>
 <td class="g">$25,000.26</td>
@@ -36744,8 +36737,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Advantage Plus Single Prem Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$37,591.87</td>
+<td class="e">&mdash;</td>
 <td class="m">$37,553.74</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -37093,8 +37086,8 @@ td.b{color:var(--blue)}
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Secure4Life Single Premium UL</td>
 <td class="m">$100,000.00</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
+<td class="m">$49,877.26</td>
+<td class="m">$49,826.10</td>
 <td class="g">$103,831.55</td>
 <td class="m">$41,182.09</td>
 <td class="g">$41,182.09</td>
@@ -37356,8 +37349,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$155.55</td>
+<td class="e">&mdash;</td>
 <td class="m">$155.45</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -37429,8 +37422,8 @@ td.b{color:var(--blue)}
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Secure4Life Universal Life</td>
 <td class="m">$250,000.00</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
+<td class="m">$24,431.98</td>
+<td class="m">$24,110.13</td>
 <td class="g">$250,000.00</td>
 <td class="m">$3,237.48</td>
 <td class="g">$3,237.48</td>
@@ -37561,8 +37554,8 @@ td.b{color:var(--blue)}
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Universal Life 20 YR Guarantee</td>
 <td class="g">$50,000.00</td>
 <td class="e">&mdash;</td>
-<td class="g">$612.03</td>
-<td class="e">&mdash;</td>
+<td class="m">$663.94</td>
+<td class="m">$663.94</td>
 <td class="g">$50,000.00</td>
 <td class="m">$124.00</td>
 <td class="g">$124.00</td>
@@ -37644,8 +37637,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Advantage Flex Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$56,032.93</td>
+<td class="e">&mdash;</td>
 <td class="m">$55,981.31</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -38340,8 +38333,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$313.04</td>
+<td class="e">&mdash;</td>
 <td class="m">$312.21</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -38556,8 +38549,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$4,923.83</td>
+<td class="e">&mdash;</td>
 <td class="m">$4,923.83</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -38700,8 +38693,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$1,705.45</td>
+<td class="e">&mdash;</td>
 <td class="m">$1,700.93</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -38712,8 +38705,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Advantage Flex Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$37,155.47</td>
+<td class="e">&mdash;</td>
 <td class="m">$37,151.19</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -38760,8 +38753,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Forester Optimizer Flex Prem Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$10,191.64</td>
+<td class="e">&mdash;</td>
 <td class="m">$10,185.86</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -39397,8 +39390,8 @@ td.b{color:var(--blue)}
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Secure4Life Single Premium UL</td>
 <td class="m">$49,787.00</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
+<td class="m">$45,084.41</td>
+<td class="m">$44,961.19</td>
 <td class="g">$52,040.44</td>
 <td class="m">$43,085.70</td>
 <td class="g">$43,085.70</td>
@@ -39456,8 +39449,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$196.51</td>
+<td class="e">&mdash;</td>
 <td class="m">$196.16</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -40128,8 +40121,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$308.97</td>
+<td class="e">&mdash;</td>
 <td class="m">$308.15</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -40621,8 +40614,8 @@ td.b{color:var(--blue)}
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Universal Life 20 YR Guarantee</td>
 <td class="g">$50,000.00</td>
 <td class="e">&mdash;</td>
-<td class="g">$1,406.43</td>
-<td class="g">$1,241.43</td>
+<td class="m">$1,512.09</td>
+<td class="m">$1,493.66</td>
 <td class="g">$50,000.00</td>
 <td class="m">$180.00</td>
 <td class="g">$180.00</td>
@@ -40657,8 +40650,8 @@ td.b{color:var(--blue)}
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Value4Life Universal Life</td>
 <td class="m">$50,000.00</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
+<td class="m">$1,872.04</td>
+<td class="m">$1,867.22</td>
 <td class="g">$50,000.00</td>
 <td class="m">$180.00</td>
 <td class="g">$180.00</td>
@@ -40717,8 +40710,8 @@ td.b{color:var(--blue)}
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Universal Life 20 YR Guarantee</td>
 <td class="g">$50,000.00</td>
 <td class="e">&mdash;</td>
-<td class="g">$1,374.86</td>
-<td class="g">$1,209.36</td>
+<td class="m">$1,461.54</td>
+<td class="m">$1,443.24</td>
 <td class="g">$50,000.00</td>
 <td class="m">$180.00</td>
 <td class="g">$180.00</td>
@@ -40896,8 +40889,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Advantage Plus Single Prem Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$60,355.62</td>
+<td class="e">&mdash;</td>
 <td class="m">$60,318.88</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -40908,8 +40901,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Forester Optimizer Flex Prem Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$118,879.35</td>
+<td class="e">&mdash;</td>
 <td class="m">$118,677.35</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -41017,8 +41010,8 @@ td.b{color:var(--blue)}
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Secure4Life Universal Life</td>
 <td class="m">$25,000.00</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
+<td class="m">$3,767.09</td>
+<td class="m">$3,759.81</td>
 <td class="g">$25,000.00</td>
 <td class="m">$704.16</td>
 <td class="g">$704.16</td>
@@ -41088,8 +41081,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Annuity Loyalty Single Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$61,304.12</td>
+<td class="e">&mdash;</td>
 <td class="m">$61,224.74</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -41100,8 +41093,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Advantage Flex Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$11,993.79</td>
+<td class="e">&mdash;</td>
 <td class="m">$11,978.26</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -41184,8 +41177,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Annuity Assurance Single Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$113,554.12</td>
+<td class="e">&mdash;</td>
 <td class="m">$113,554.12</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -41196,8 +41189,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$178,624.14</td>
+<td class="e">&mdash;</td>
 <td class="m">$178,150.87</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -41208,8 +41201,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Forester Optimizer Flex Prem Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$7,340.37</td>
+<td class="e">&mdash;</td>
 <td class="m">$7,327.30</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -41220,8 +41213,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Forester Optimizer Flex Prem Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$28,005.89</td>
+<td class="e">&mdash;</td>
 <td class="m">$27,951.51</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -41244,8 +41237,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$1,596.55</td>
+<td class="e">&mdash;</td>
 <td class="m">$1,593.71</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -41364,8 +41357,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Forester Optimizer Flex Prem Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$33,041.99</td>
+<td class="e">&mdash;</td>
 <td class="m">$32,988.52</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -41376,8 +41369,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Annuity Assurance Single Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$338,727.77</td>
+<td class="e">&mdash;</td>
 <td class="m">$338,016.18</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -41568,8 +41561,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$1,116.12</td>
+<td class="e">&mdash;</td>
 <td class="m">$1,113.81</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -41677,8 +41670,8 @@ td.b{color:var(--blue)}
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Secure4Life Single Premium UL</td>
 <td class="m">$100,000.00</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
+<td class="m">$83,633.79</td>
+<td class="m">$83,405.22</td>
 <td class="g">$103,247.48</td>
 <td class="m">$76,578.67</td>
 <td class="g">$76,578.67</td>
@@ -41689,8 +41682,8 @@ td.b{color:var(--blue)}
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Secure4Life Single Premium UL</td>
 <td class="m">$120,000.00</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
+<td class="m">$98,358.88</td>
+<td class="m">$98,090.06</td>
 <td class="g">$121,596.90</td>
 <td class="m">$100,460.93</td>
 <td class="g">$100,460.93</td>
@@ -41701,8 +41694,8 @@ td.b{color:var(--blue)}
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Secure4Life Single Premium UL</td>
 <td class="m">$127,655.00</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
+<td class="m">$105,688.49</td>
+<td class="m">$105,447.73</td>
 <td class="g">$130,533.94</td>
 <td class="m">$100,000.30</td>
 <td class="g">$100,000.30</td>
@@ -41725,8 +41718,8 @@ td.b{color:var(--blue)}
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Secure4Life Single Premium UL</td>
 <td class="m">$73,441.00</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
+<td class="m">$44,972.28</td>
+<td class="m">$44,915.90</td>
 <td class="g">$76,132.12</td>
 <td class="m">$38,000.48</td>
 <td class="g">$38,000.48</td>
@@ -41796,8 +41789,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Annuity Loyalty Single Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$234,605.49</td>
+<td class="e">&mdash;</td>
 <td class="m">$234,112.63</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -41808,8 +41801,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Annuity Assurance Single Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$133,755.54</td>
+<td class="e">&mdash;</td>
 <td class="m">$133,696.95</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -43368,8 +43361,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$6,399.39</td>
+<td class="e">&mdash;</td>
 <td class="m">$6,382.43</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -43549,8 +43542,8 @@ td.b{color:var(--blue)}
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Value4Life Universal Life</td>
 <td class="m">$100,000.00</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
+<td class="m">$187.66</td>
+<td class="m">$187.14</td>
 <td class="g">$100,000.00</td>
 <td class="m">$1,026.40</td>
 <td class="g">$1,026.40</td>
@@ -43620,8 +43613,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Advantage Plus Single Prem Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$104,350.81</td>
+<td class="e">&mdash;</td>
 <td class="m">$104,257.78</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -43632,8 +43625,8 @@ td.b{color:var(--blue)}
 </tr>
 <tr data-carrier="Catholic Order of Foresters"><td>Catholic Order of Foresters</td><td>Annuity Loyalty Single Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
-<td class="e">&mdash;</td>
 <td class="m">$55,073.97</td>
+<td class="e">&mdash;</td>
 <td class="m">$55,069.51</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -43872,7 +43865,6 @@ td.b{color:var(--blue)}
 </tr>
 </tbody></table></div>
 <script>
-var sd={};
-function st(c){var t=document.getElementById('tbl').querySelector('tbody');var rs=Array.from(t.querySelectorAll('tr'));var d=sd[c]==='asc'?'desc':'asc';sd[c]=d;rs.sort(function(a,b){var av=a.cells[c].textContent.replace(/[$,—]/g,'').trim();var bv=b.cells[c].textContent.replace(/[$,—]/g,'').trim();var an=parseFloat(av);var bn=parseFloat(bv);if(!isNaN(an)&&!isNaN(bn))return d==='asc'?an-bn:bn-an;if(av==='—'&&bv!=='—')return d==='asc'?1:-1;if(bv==='—'&&av!=='—')return d==='asc'?-1:1;return d==='asc'?av.localeCompare(bv):bv.localeCompare(av)});rs.forEach(function(r){t.appendChild(r)})}
+var sd={};function st(c){var t=document.getElementById('tbl').querySelector('tbody');var rs=Array.from(t.querySelectorAll('tr'));var d=sd[c]==='asc'?'desc':'asc';sd[c]=d;rs.sort(function(a,b){var av=a.cells[c].textContent.replace(/[$,—]/g,'').trim();var bv=b.cells[c].textContent.replace(/[$,—]/g,'').trim();var an=parseFloat(av);var bn=parseFloat(bv);if(!isNaN(an)&&!isNaN(bn))return d==='asc'?an-bn:bn-an;if(av==='—'&&bv!=='—')return d==='asc'?1:-1;if(bv==='—'&&av!=='—')return d==='asc'?-1:1;return d==='asc'?av.localeCompare(bv):bv.localeCompare(av)});rs.forEach(function(r){t.appendChild(r)})}
 function fc(c,b){document.querySelectorAll('.fb').forEach(function(x){x.classList.remove('a')});b.classList.add('a');document.querySelectorAll('#tbl tbody tr').forEach(function(r){r.style.display=c==='all'?'':r.dataset.carrier===c?'':'none'})}
 </script></body></html>
