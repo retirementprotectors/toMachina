@@ -616,6 +616,12 @@ function DdupContent() {
     )
   }
 
+  // Extract parent clientId from composite account IDs (clientId::accountId)
+  const parentClientId = type === 'account' && effectiveIds[0]?.includes('::')
+    ? effectiveIds[0].slice(0, effectiveIds[0].indexOf('::'))
+    : null
+  const backHref = parentClientId ? `/contacts/${parentClientId}` : (type === 'account' ? '/accounts' : '/contacts')
+
   if (ignored) {
     return (
       <div className="mx-auto max-w-4xl py-20 text-center">
@@ -624,8 +630,8 @@ function DdupContent() {
         <p className="mt-2 text-sm text-[var(--text-muted)]">
           This pair has been marked as not a duplicate and removed from the duplicate list.
         </p>
-        <Link href={type === 'account' ? '/accounts' : '/contacts'} className="mt-6 inline-flex items-center gap-1.5 rounded-md h-[34px] px-5 text-sm font-medium bg-[var(--portal)] text-white">
-          Back to {type === 'account' ? 'Accounts' : 'Clients'}
+        <Link href={backHref} className="mt-6 inline-flex items-center gap-1.5 rounded-md h-[34px] px-5 text-sm font-medium bg-[var(--portal)] text-white">
+          Back to {parentClientId ? 'Client' : (type === 'account' ? 'Accounts' : 'Clients')}
         </Link>
       </div>
     )
@@ -650,10 +656,10 @@ function DdupContent() {
             </Link>
           )}
           <Link
-            href={type === 'account' ? '/accounts' : '/contacts'}
+            href={backHref}
             className="inline-flex items-center gap-1.5 rounded-md h-[34px] px-5 text-sm font-medium border border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--bg-surface)]"
           >
-            Back to {type === 'account' ? 'Accounts' : 'Clients'}
+            Back to {parentClientId ? 'Client' : (type === 'account' ? 'Accounts' : 'Clients')}
           </Link>
         </div>
       </div>
