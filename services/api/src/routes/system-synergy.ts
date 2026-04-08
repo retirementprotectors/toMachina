@@ -15,29 +15,6 @@ import { execSync } from 'child_process'
 
 export const systemSynergyRoutes = Router()
 
-// ─── Auth Guard ───────────────────────────────────────────────────────────────
-const ALLOWED_ROLES = ['EXECUTIVE', 'OWNER', 'SUPER_ADMIN']
-
-async function requireExecutive(req: Request, res: Response, next: NextFunction) {
-  try {
-    const email: string | undefined = (req as unknown as { user?: { email?: string } }).user?.email
-    if (!email) {
-      res.status(401).json(errorResponse('Authentication required'))
-      return
-    }
-    // Domain-gated: any @retireprotected.com user passes.
-    // Module-level access (OWNER) is enforced by the portal UI entitlements.
-    if (!email.endsWith('@retireprotected.com')) {
-      res.status(403).json(errorResponse('System Synergy requires @retireprotected.com domain'))
-      return
-    }
-    next()
-  } catch (err) {
-    console.error('[system-synergy] Auth check failed:', err)
-    res.status(500).json(errorResponse('Authorization check failed'))
-  }
-}
-
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const HOME = process.env.HOME || '/home/jdm'
 const CLAUDE_DIR = path.join(HOME, '.claude')
@@ -78,7 +55,7 @@ function tsToIso(val: unknown): string {
 }
 
 // ─── Tool 1: session-inventory ────────────────────────────────────────────────
-systemSynergyRoutes.get('/session-inventory', requireExecutive, async (_req: Request, res: Response) => {
+systemSynergyRoutes.get('/session-inventory', async (_req: Request, res: Response) => {
   try {
     const sessionsDir = path.join(CLAUDE_DIR, 'sessions')
     const sessionFiles = safeReadDir(sessionsDir).filter(f => f.endsWith('.json'))
@@ -130,7 +107,7 @@ systemSynergyRoutes.get('/session-inventory', requireExecutive, async (_req: Req
 })
 
 // ─── Tool 2: memory-inventory ─────────────────────────────────────────────────
-systemSynergyRoutes.get('/memory-inventory', requireExecutive, async (_req: Request, res: Response) => {
+systemSynergyRoutes.get('/memory-inventory', async (_req: Request, res: Response) => {
   try {
     const projectsDir = path.join(CLAUDE_DIR, 'projects')
     const projectDirs = safeReadDir(projectsDir)
@@ -186,7 +163,7 @@ systemSynergyRoutes.get('/memory-inventory', requireExecutive, async (_req: Requ
 })
 
 // ─── Tool 3: claude-md-diff ───────────────────────────────────────────────────
-systemSynergyRoutes.get('/claude-md-diff', requireExecutive, async (req: Request, res: Response) => {
+systemSynergyRoutes.get('/claude-md-diff', async (req: Request, res: Response) => {
   try {
     const days = parseInt(req.query.days as string) || 7
     const target = (req.query.target as string) || 'all'
@@ -232,7 +209,7 @@ systemSynergyRoutes.get('/claude-md-diff', requireExecutive, async (req: Request
 })
 
 // ─── Tool 4: brain-health ─────────────────────────────────────────────────────
-systemSynergyRoutes.get('/brain-health', requireExecutive, async (_req: Request, res: Response) => {
+systemSynergyRoutes.get('/brain-health', async (_req: Request, res: Response) => {
   try {
     const warriorDirs = safeReadDir(WARRIORS_DIR)
 
@@ -276,7 +253,7 @@ systemSynergyRoutes.get('/brain-health', requireExecutive, async (_req: Request,
 })
 
 // ─── Tool 5: knowledge-query ──────────────────────────────────────────────────
-systemSynergyRoutes.get('/knowledge-query', requireExecutive, async (req: Request, res: Response) => {
+systemSynergyRoutes.get('/knowledge-query', async (req: Request, res: Response) => {
   try {
     const db = getDb()
     const type = req.query.type as string | undefined
@@ -318,7 +295,7 @@ systemSynergyRoutes.get('/knowledge-query', requireExecutive, async (req: Reques
 })
 
 // ─── Tool 6: session-env-audit ────────────────────────────────────────────────
-systemSynergyRoutes.get('/session-env-audit', requireExecutive, async (_req: Request, res: Response) => {
+systemSynergyRoutes.get('/session-env-audit', async (_req: Request, res: Response) => {
   try {
     const sessionEnvDir = path.join(CLAUDE_DIR, 'session-env')
     const envDirs = safeReadDir(sessionEnvDir)
@@ -369,7 +346,7 @@ systemSynergyRoutes.get('/session-env-audit', requireExecutive, async (_req: Req
 })
 
 // ─── Tool 7: duplicate-detector ───────────────────────────────────────────────
-systemSynergyRoutes.get('/duplicate-detector', requireExecutive, async (_req: Request, res: Response) => {
+systemSynergyRoutes.get('/duplicate-detector', async (_req: Request, res: Response) => {
   try {
     const projectsDir = path.join(CLAUDE_DIR, 'projects')
     const projectDirs = safeReadDir(projectsDir)
@@ -425,7 +402,7 @@ systemSynergyRoutes.get('/duplicate-detector', requireExecutive, async (_req: Re
 })
 
 // ─── Tool 8: warrior-roster ───────────────────────────────────────────────────
-systemSynergyRoutes.get('/warrior-roster', requireExecutive, async (_req: Request, res: Response) => {
+systemSynergyRoutes.get('/warrior-roster', async (_req: Request, res: Response) => {
   try {
     // Check tmux sessions
     const tmuxOutput = safeExec('tmux list-sessions -F "#{session_name}:#{session_activity}:#{session_windows}" 2>/dev/null')
@@ -482,7 +459,7 @@ systemSynergyRoutes.get('/warrior-roster', requireExecutive, async (_req: Reques
 })
 
 // ─── Tool 9: deploy-status ────────────────────────────────────────────────────
-systemSynergyRoutes.get('/deploy-status', requireExecutive, async (_req: Request, res: Response) => {
+systemSynergyRoutes.get('/deploy-status', async (_req: Request, res: Response) => {
   try {
     const ghToken = process.env.GITHUB_TOKEN || ''
     const repo = 'retirementprotectors/toMachina'
@@ -528,7 +505,7 @@ systemSynergyRoutes.get('/deploy-status', requireExecutive, async (_req: Request
 })
 
 // ─── Tool 10: hook-audit ──────────────────────────────────────────────────────
-systemSynergyRoutes.get('/hook-audit', requireExecutive, async (_req: Request, res: Response) => {
+systemSynergyRoutes.get('/hook-audit', async (_req: Request, res: Response) => {
   try {
     const hookifySource = path.join(PROJECTS_DIR, '_RPI_STANDARDS', 'hookify')
     const sourceRules = safeReadDir(hookifySource).filter(f => f.endsWith('.local.md'))

@@ -1,40 +1,76 @@
 import { type Request, type Response, type NextFunction } from 'express'
 import { getAuth } from 'firebase-admin/auth'
+import { getFirestore } from 'firebase-admin/firestore'
+
+// ─── User Profile Enrichment (60s cache) ──────────────────────────────────────
+const enrichCache = new Map<string, { data: EnrichedUser; expires: number }>()
+const ENRICH_TTL_MS = 60_000
+
+interface EnrichedUser {
+  level: number
+  user_level: string
+  role_template?: string
+  module_permissions?: Record<string, string[]>
+}
+
+const LEVEL_NAMES: Record<number, string> = { 0: 'OWNER', 1: 'EXECUTIVE', 2: 'LEADER', 3: 'USER' }
+
+async function enrichUser(email: string): Promise<EnrichedUser> {
+  const now = Date.now()
+  const cached = enrichCache.get(email)
+  if (cached && cached.expires > now) return cached.data
+
+  const db = getFirestore()
+  const doc = await db.collection('users').doc(email).get()
+  if (!doc.exists) return { level: 3, user_level: 'USER' }
+
+  const data = doc.data()!
+  const numLevel = typeof data.level === 'number' ? data.level : 3
+  const enriched: EnrichedUser = {
+    level: numLevel,
+    user_level: LEVEL_NAMES[numLevel] || 'USER',
+    role_template: data.role_template,
+    module_permissions: data.module_permissions,
+  }
+
+  enrichCache.set(email, { data: enriched, expires: now + ENRICH_TTL_MS })
+  return enriched
+}
+
+// ─── Auth Middleware ───────────────────────────────────────────────────────────
 
 export async function requireAuth(req: Request, res: Response, next: NextFunction) {
-  // External webhook routes — called by third-party services (Twilio, SendGrid,
-  // DocuSign) without Firebase tokens. All routes under /webhooks/ and
-  // /comms/webhook/ are public webhook endpoints.
+  // External webhook routes
   if (req.path.startsWith('/webhooks/') || req.path.startsWith('/comms/webhook/')) {
     return next()
   }
 
-  // Public booking routes — called by unauthenticated clients via WordPress iframe.
-  // search-clients STAYS auth-gated (client PII). Config, busy, and POST booking are public.
+  // Public booking routes
   if (req.path.startsWith('/booking/config/') || req.path === '/booking/busy' || (req.path === '/booking' && req.method === 'POST')) {
     return next()
   }
 
-  // Cloud Scheduler routes — protected by Cloud Run IAM (OIDC), no Firebase token.
+  // Cloud Scheduler routes
   if (req.path.startsWith('/document-index/scan')) {
-    ;(req as any).user = { email: 'cron@retireprotected.com', name: 'Cloud Scheduler', uid: 'cron-service' }
+    ;(req as any).user = { email: 'cron@retireprotected.com', name: 'Cloud Scheduler', uid: 'cron-service', level: 0, user_level: 'OWNER' }
     return next()
   }
 
-  // VOLTRON Agent service auth — shared secret for server-to-server calls from VOLTRON
+  // VOLTRON Agent service auth
   const mdjAuth = req.headers['x-mdj-auth'] as string | undefined
   const mdjSecret = process.env.MDJ_AUTH_SECRET || 'mdj-alpha-shared-secret-2026'
   if (mdjAuth && mdjAuth === mdjSecret) {
-    // Set a synthetic user context for VOLTRON agent calls
     ;(req as any).user = {
       email: 'voltron@retireprotected.com',
       name: 'VOLTRON Agent',
       uid: 'voltron-agent-service',
+      level: 0,
+      user_level: 'OWNER',
     }
     return next()
   }
 
-  // TRK-13802: CI deploy registry regeneration — VOLTRON_CI_TOKEN from GitHub Actions
+  // CI deploy registry regeneration
   const ciToken = req.headers['x-voltron-ci-token'] as string | undefined
   const ciSecret = process.env.VOLTRON_CI_TOKEN
   if (ciToken && ciSecret && ciToken === ciSecret) {
@@ -42,7 +78,8 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
       email: 'ci-deploy@retireprotected.com',
       name: 'CI Registry Regenerator',
       uid: 'ci-deploy-service',
-      role: 'ADMIN',
+      level: 0,
+      user_level: 'OWNER',
     }
     return next()
   }
@@ -60,7 +97,17 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
       res.status(403).json({ success: false, error: 'Unauthorized domain' })
       return
     }
-    ;(req as any).user = decoded
+
+    // APR-01: Enrich with Firestore user profile (level, permissions, role_template)
+    const profile = await enrichUser(decoded.email)
+    ;(req as any).user = {
+      ...decoded,
+      level: profile.level,
+      user_level: profile.user_level,
+      role_template: profile.role_template,
+      module_permissions: profile.module_permissions,
+    }
+
     next()
   } catch (err) {
     res.status(401).json({ success: false, error: 'Invalid auth token' })
