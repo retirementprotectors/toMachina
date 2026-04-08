@@ -83,10 +83,10 @@ const TM_API_TOOLS: VoltronRegistryEntry[] = [
     type: 'object', properties: { clientId: { type: 'string' }, accountId: { type: 'string' } }, required: ['clientId', 'accountId'],
   }, true),
   entry('tm_accounts_create', 'Create a new financial account under a client. Requires account_type.', 'API_ROUTE', 'COORDINATOR', {
-    type: 'object', properties: { clientId: { type: 'string' }, account_type: { type: 'string' }, account_type_category: { type: 'string' }, carrier_name: { type: 'string' }, policy_number: { type: 'string' }, status: { type: 'string' }, premium: { type: 'number' }, face_amount: { type: 'number' } }, required: ['clientId', 'account_type'],
+    type: 'object', properties: { clientId: { type: 'string' }, account_type: { type: 'string' }, account_type_category: { type: 'string' }, carrier: { type: 'string' }, policy_number: { type: 'string' }, status: { type: 'string' }, premium: { type: 'number' }, face_amount: { type: 'number' } }, required: ['clientId', 'account_type'],
   }, true),
   entry('tm_accounts_update', 'Update an existing account record (partial update).', 'API_ROUTE', 'COORDINATOR', {
-    type: 'object', properties: { clientId: { type: 'string' }, accountId: { type: 'string' }, carrier_name: { type: 'string' }, policy_number: { type: 'string' }, status: { type: 'string' }, premium: { type: 'number' }, face_amount: { type: 'number' } }, required: ['clientId', 'accountId'],
+    type: 'object', properties: { clientId: { type: 'string' }, accountId: { type: 'string' }, carrier: { type: 'string' }, policy_number: { type: 'string' }, status: { type: 'string' }, premium: { type: 'number' }, face_amount: { type: 'number' } }, required: ['clientId', 'accountId'],
   }, true),
 
   // ── HOUSEHOLDS (3) ────────────────────────────────────────────────────────
@@ -176,7 +176,7 @@ const TM_API_TOOLS: VoltronRegistryEntry[] = [
     type: 'object', properties: { sessionId: { type: 'string', description: 'QUE session ID' } }, required: ['sessionId'],
   }, true),
   entry('tm_que_quote_add', 'Add a quote to a draft QUE session (no send, no client mutation).', 'API_ROUTE', 'COORDINATOR', {
-    type: 'object', properties: { sessionId: { type: 'string' }, carrier_name: { type: 'string' }, product_name: { type: 'string' }, premium: { type: 'number' }, benefits: { type: 'object' } }, required: ['sessionId', 'carrier_name', 'product_name'],
+    type: 'object', properties: { sessionId: { type: 'string' }, carrier: { type: 'string' }, product_name: { type: 'string' }, premium: { type: 'number' }, benefits: { type: 'object' } }, required: ['sessionId', 'carrier', 'product_name'],
   }, true),
   entry('tm_que_session_update', 'Update status/fields on a QUE session — internal only.', 'API_ROUTE', 'COORDINATOR', {
     type: 'object', properties: { sessionId: { type: 'string' }, status: { type: 'string' }, notes: { type: 'string' } }, required: ['sessionId'],

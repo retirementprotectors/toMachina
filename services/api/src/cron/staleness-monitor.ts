@@ -19,7 +19,7 @@ export interface StalenessResult {
   fresh: number
   stale_sources: Array<{
     source_id: string
-    carrier_name: string
+    carrier: string
     last_refresh: string | null
     days_stale: number
     severity: 'warning' | 'critical'
@@ -47,7 +47,7 @@ export async function runStalenessMonitor(): Promise<StalenessResult> {
       // No refresh date = treat as stale critical
       staleSources.push({
         source_id: doc.id,
-        carrier_name: String(data.carrier_name || doc.id),
+        carrier: String(data.carrier || doc.id),
         last_refresh: null,
         days_stale: 999,
         severity: 'critical',
@@ -59,7 +59,7 @@ export async function runStalenessMonitor(): Promise<StalenessResult> {
     if (isNaN(refreshTime)) {
       staleSources.push({
         source_id: doc.id,
-        carrier_name: String(data.carrier_name || doc.id),
+        carrier: String(data.carrier || doc.id),
         last_refresh: String(lastRefresh),
         days_stale: 999,
         severity: 'critical',
@@ -72,7 +72,7 @@ export async function runStalenessMonitor(): Promise<StalenessResult> {
     if (daysSince > STALE_CRITICAL_DAYS) {
       staleSources.push({
         source_id: doc.id,
-        carrier_name: String(data.carrier_name || doc.id),
+        carrier: String(data.carrier || doc.id),
         last_refresh: lastRefresh,
         days_stale: daysSince,
         severity: 'critical',
@@ -80,7 +80,7 @@ export async function runStalenessMonitor(): Promise<StalenessResult> {
     } else if (daysSince > STALE_WARNING_DAYS) {
       staleSources.push({
         source_id: doc.id,
-        carrier_name: String(data.carrier_name || doc.id),
+        carrier: String(data.carrier || doc.id),
         last_refresh: lastRefresh,
         days_stale: daysSince,
         severity: 'warning',
@@ -124,7 +124,7 @@ async function sendSlackNotifications(result: StalenessResult): Promise<void> {
     if (criticals.length > 0) {
       lines.push(`:red_circle: *${criticals.length} CRITICAL* (>60 days stale):`)
       for (const s of criticals) {
-        lines.push(`  • ${s.carrier_name} — ${s.days_stale === 999 ? 'never refreshed' : `${s.days_stale} days`}`)
+        lines.push(`  • ${s.carrier} — ${s.days_stale === 999 ? 'never refreshed' : `${s.days_stale} days`}`)
       }
       lines.push('')
     }
@@ -132,7 +132,7 @@ async function sendSlackNotifications(result: StalenessResult): Promise<void> {
     if (warnings.length > 0) {
       lines.push(`:large_yellow_circle: *${warnings.length} WARNING* (>30 days stale):`)
       for (const s of warnings) {
-        lines.push(`  • ${s.carrier_name} — ${s.days_stale} days`)
+        lines.push(`  • ${s.carrier} — ${s.days_stale} days`)
       }
       lines.push('')
     }

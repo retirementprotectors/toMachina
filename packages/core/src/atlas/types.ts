@@ -13,7 +13,7 @@ export type AutomationType = 'LAUNCHD' | 'GAS_TRIGGER' | 'CLOUD_FUNCTION' | 'CLO
 
 /**
  * AtlasSource is defined in ../types/index.ts with [key: string]: unknown.
- * Atlas-specific fields (carrier_name, gap_status, automation_pct, etc.)
+ * Atlas-specific fields (carrier, gap_status, automation_pct, etc.)
  * are accessed via the index signature. Re-export for convenience.
  */
 export type { AtlasSource } from '../types'
@@ -96,7 +96,7 @@ export interface GapGroup {
 export interface AtlasFormat {
   format_id: string
   carrier_export_type: string
-  carrier_name: string
+  carrier: string
   header_fingerprint: string
   column_map: Record<string, string>
   value_patterns: Record<string, { distinct_count: number; sample_values: unknown[]; dominant_type: string; null_rate: number }>

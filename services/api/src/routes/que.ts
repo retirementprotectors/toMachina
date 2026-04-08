@@ -98,15 +98,15 @@ queRoutes.post('/:sessionId/quote', async (req: Request, res: Response) => {
     const now = new Date().toISOString()
     const sessionDoc = await db.collection(SESSIONS).doc(sessionId).get()
     if (!sessionDoc.exists) { res.status(404).json(errorResponse('Session not found')); return }
-    const { carrier_name, product_name, premium_annual, premium_monthly, details, source_id } = req.body as {
-      carrier_name: string; product_name: string; premium_annual?: number; premium_monthly?: number
+    const { carrier, product_name, premium_annual, premium_monthly, details, source_id } = req.body as {
+      carrier: string; product_name: string; premium_annual?: number; premium_monthly?: number
       details?: Record<string, unknown>; source_id?: string
     }
-    if (!carrier_name || !product_name) { res.status(400).json(errorResponse('carrier_name and product_name are required')); return }
+    if (!carrier || !product_name) { res.status(400).json(errorResponse('carrier and product_name are required')); return }
     const quote_id = `QUOTE-${Date.now()}`
     const quoteData = {
       quote_id, session_id: sessionId, source_id: source_id || 'manual',
-      carrier_name, product_name, premium_annual: premium_annual || null,
+      carrier, product_name, premium_annual: premium_annual || null,
       premium_monthly: premium_monthly || null, details: details || {},
       score: null, rank: null, flags: [] as string[],
       _created_by: userEmail, fetched_at: now, created_at: now,
@@ -155,7 +155,7 @@ queRoutes.post('/:sessionId/recommendation', async (req: Request, res: Response)
     if (!sessionDoc.exists) { res.status(404).json(errorResponse('Session not found')); return }
     const { solution_category, selected_products, advisor_notes, product_line } = req.body as {
       solution_category: string; advisor_notes: string; product_line: string
-      selected_products: Array<{ quote_id: string; carrier_name: string; product_name: string; rationale: string }>
+      selected_products: Array<{ quote_id: string; carrier: string; product_name: string; rationale: string }>
     }
     const recommendation_id = `REC-${Date.now()}`
     const recData = {

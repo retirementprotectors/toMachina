@@ -258,7 +258,7 @@ async function carrierAudit(clientDocs: FirebaseFirestore.QueryDocumentSnapshot[
       const accountSnap = await db.collection('clients').doc(clientDoc.id).collection('accounts').get()
       for (const accDoc of accountSnap.docs) {
         totalAccounts++
-        const carrierName = accDoc.data().carrier_name as string | undefined
+        const carrierName = accDoc.data().carrier as string | undefined
         if (!carrierName) continue
 
         const norm = normalize(carrierName)

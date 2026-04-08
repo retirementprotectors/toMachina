@@ -284,7 +284,7 @@ atlasRoutes.get('/sources', async (req: Request, res: Response) => {
     if (req.query.current_method) query = query.where('current_method', '==', req.query.current_method)
     if (req.query.data_domain) query = query.where('data_domain', '==', req.query.data_domain)
     if (req.query.product_line) query = query.where('product_line', '==', req.query.product_line)
-    if (req.query.carrier_name) query = query.where('carrier_name', '==', req.query.carrier_name)
+    if (req.query.carrier) query = query.where('carrier', '==', req.query.carrier)
     if (req.query.priority) query = query.where('priority', '==', req.query.priority)
     if (req.query.portal) query = query.where('portal', '==', req.query.portal)
 
@@ -314,8 +314,8 @@ atlasRoutes.get('/sources/:id', async (req: Request, res: Response) => {
 })
 
 const sourceCreateValidation = validateWrite({
-  required: ['carrier_name', 'product_line', 'data_domain'],
-  types: { carrier_name: 'string', product_line: 'string', data_domain: 'string' },
+  required: ['carrier', 'product_line', 'data_domain'],
+  types: { carrier: 'string', product_line: 'string', data_domain: 'string' },
 })
 
 /**
@@ -433,7 +433,7 @@ atlasRoutes.post('/sources/bulk-register', async (req: Request, res: Response) =
 
         const data: Record<string, unknown> = {
           source_id: sourceId,
-          carrier_name: carrier.carrierName,
+          carrier: carrier.carrierName,
           product_line: carrier.productLine,
           data_domain: carrier.dataDomain,
           product_category: PRODUCT_CATEGORY_MAP[carrier.productLine] || 'OTHER',
@@ -613,11 +613,11 @@ atlasRoutes.get('/analytics', async (req: Request, res: Response) => {
     const groups: Record<string, Record<string, unknown>[]> = {}
     sources.forEach((s) => {
       let key: string
-      if (groupBy === 'carrier') key = String(s.carrier_name || 'Unknown')
+      if (groupBy === 'carrier') key = String(s.carrier || 'Unknown')
       else if (groupBy === 'category') key = String(s.product_category || 'Unknown')
       else if (groupBy === 'domain') key = String(s.data_domain || 'Unknown')
       else if (groupBy === 'portal') key = String(s.portal || 'ALL')
-      else key = String(s.carrier_name || 'Unknown')
+      else key = String(s.carrier || 'Unknown')
 
       if (!groups[key]) groups[key] = []
       groups[key].push(s)
@@ -669,7 +669,7 @@ atlasRoutes.get('/analytics/carriers', async (req: Request, res: Response) => {
     const carrierName = req.query.carrier as string
 
     let query: Query<DocumentData> = db.collection(SOURCE_COLLECTION).where('status', '==', 'ACTIVE')
-    if (carrierName) query = query.where('carrier_name', '==', carrierName)
+    if (carrierName) query = query.where('carrier', '==', carrierName)
 
     const snap = await query.get()
     const sources = snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Record<string, unknown>)
@@ -677,7 +677,7 @@ atlasRoutes.get('/analytics/carriers', async (req: Request, res: Response) => {
     // Group by carrier
     const carriers: Record<string, Record<string, unknown>[]> = {}
     sources.forEach((s) => {
-      const name = String(s.carrier_name || 'Unknown')
+      const name = String(s.carrier || 'Unknown')
       if (!carriers[name]) carriers[name] = []
       carriers[name].push(s)
     })
@@ -696,7 +696,7 @@ atlasRoutes.get('/analytics/carriers', async (req: Request, res: Response) => {
       })
 
       return {
-        carrier_name: name,
+        carrier: name,
         total_sources: carrierSources.length,
         gap_breakdown: gapBreakdown,
         avg_automation: autoCount > 0 ? Math.round(totalAuto / autoCount) : 0,
@@ -1299,13 +1299,13 @@ atlasRoutes.post('/import-runs/:id/retry', async (req: Request, res: Response) =
 
 /**
  * GET /api/atlas/formats
- * List saved formats. Filter by carrier_name, default_category.
+ * List saved formats. Filter by carrier, default_category.
  */
 atlasRoutes.get('/formats', async (req: Request, res: Response) => {
   try {
     const db = getFirestore()
     let query: Query<DocumentData> = db.collection('atlas').doc('formats').collection('items')
-    if (req.query.carrier_name) query = query.where('carrier_name', '==', req.query.carrier_name)
+    if (req.query.carrier) query = query.where('carrier', '==', req.query.carrier)
     if (req.query.default_category) query = query.where('default_category', '==', req.query.default_category)
     const limit = Math.min(parseInt(req.query.limit as string) || 50, 200)
     const snap = await query.orderBy('last_used_at', 'desc').limit(limit).get()
@@ -1418,7 +1418,7 @@ atlasRoutes.post('/introspect', async (req: Request, res: Response) => {
       res.json(successResponse<IntrospectResultData>({
         run_id: runId, match_method: 'fingerprint_exact', format_id: fpMatch.format.format_id,
         overall_confidence: 100, column_mappings: mappings,
-        carrier_detection: { detected_carrier: fpMatch.format.carrier_name, carrier_confidence: 100, default_category: fpMatch.format.default_category },
+        carrier_detection: { detected_carrier: fpMatch.format.carrier, carrier_confidence: 100, default_category: fpMatch.format.default_category },
         sample_normalized: [],
       } as unknown as IntrospectResultData))
       return
@@ -1447,7 +1447,7 @@ atlasRoutes.post('/introspect', async (req: Request, res: Response) => {
       res.json(successResponse<IntrospectResultData>({
         run_id: runId, match_method: 'carrier_detect', format_id: null,
         overall_confidence: overallConf, column_mappings: mappings,
-        carrier_detection: { detected_carrier: carrierMatch.carrier_name, carrier_confidence: overallConf, default_category: carrierMatch.default_category },
+        carrier_detection: { detected_carrier: carrierMatch.carrier, carrier_confidence: overallConf, default_category: carrierMatch.default_category },
         sample_normalized: [],
       } as unknown as IntrospectResultData))
       return
@@ -1539,7 +1539,7 @@ atlasRoutes.post('/introspect/confirm', async (req: Request, res: Response) => {
       const formatData = {
         format_id: formatId,
         carrier_export_type: carrier_export_type || 'unknown',
-        carrier_name: '',
+        carrier: '',
         header_fingerprint: runData.header_fingerprint,
         column_map: columnMap,
         value_patterns: {},

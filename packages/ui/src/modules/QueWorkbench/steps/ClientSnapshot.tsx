@@ -281,7 +281,7 @@ export function ClientSnapshot({ sessionId, productLine, onNext, onSessionCreate
                 className="flex items-center justify-between rounded-lg bg-[var(--bg-surface)] px-3 py-2 text-sm"
               >
                 <span className="text-[var(--text-primary)]">
-                  {(acct.carrier_name as string) ?? 'Unknown Carrier'} — {(acct.product_name as string) ?? (acct.account_type as string) ?? 'Account'}
+                  {(acct.carrier as string) ?? 'Unknown Carrier'} — {(acct.product_name as string) ?? (acct.account_type as string) ?? 'Account'}
                 </span>
                 {acct.account_value != null && (
                   <span className="font-medium text-[var(--text-secondary)]">

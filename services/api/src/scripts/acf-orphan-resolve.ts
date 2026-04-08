@@ -53,7 +53,7 @@ interface OrphanAccount {
   phone?: string
   ssn_last4?: string
   policy_number?: string
-  carrier_name?: string
+  carrier?: string
   [key: string]: unknown
 }
 
@@ -148,7 +148,7 @@ async function main(): Promise<OrphanResult> {
         phone: data.phone || data.client_phone,
         ssn_last4: data.ssn_last4,
         policy_number: data.policy_number || data.account_number || data.contract_number,
-        carrier_name: data.carrier_name || data.custodian,
+        carrier: data.carrier || data.custodian,
         ...data,
       } as OrphanAccount)
     }
@@ -212,7 +212,7 @@ async function main(): Promise<OrphanResult> {
         orphan.first_name,
         orphan.last_name,
         orphan.policy_number ? `policy:${orphan.policy_number}` : '',
-        orphan.carrier_name ? `carrier:${orphan.carrier_name}` : '',
+        orphan.carrier ? `carrier:${orphan.carrier}` : '',
       ]
         .filter(Boolean)
         .join(' '),

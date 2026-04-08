@@ -48,7 +48,7 @@ export const DEFAULT_COLUMN_MAP: CommissionColumnMap = {
     'process_date', 'effective_date', 'transaction_date',
   ],
   carrier: [
-    'carrier', 'carrier_name', 'company', 'company_name', 'insurer', 'issuer',
+    'carrier', 'carrier', 'company', 'company_name', 'insurer', 'issuer',
   ],
   policy_number: [
     'policy_number', 'policy', 'policy_no', 'contract_number', 'contract',

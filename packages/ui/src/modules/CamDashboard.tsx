@@ -21,7 +21,6 @@ interface RevenueRecord {
   agent_id?: string
   agent_name?: string
   writing_agent?: string
-  carrier_name?: string
   carrier?: string
   product_type?: string
   commission_type?: string
@@ -44,7 +43,7 @@ interface CompGridRecord {
   _id: string
   grid_id?: string
   carrier_id?: string
-  carrier_name?: string
+  carrier?: string
   product_type?: string
   product_name?: string
   rate?: number
@@ -253,7 +252,7 @@ export function CamDashboard({ portal }: CamDashboardProps) {
     revenue.forEach((r) => {
       const amount = parseAmt(r)
       totalAmount += amount
-      const carrier = str(r.carrier_name || r.carrier) || 'Unknown'
+      const carrier = str(r.carrier) || 'Unknown'
       if (!byCarrier[carrier]) byCarrier[carrier] = { total: 0, fyc: 0, renewal: 0, count: 0 }
       byCarrier[carrier].total += amount
       byCarrier[carrier].count += 1
@@ -521,7 +520,7 @@ export function CamDashboard({ portal }: CamDashboardProps) {
                 <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
                   {grids.sort((a, b) => (b.rate || 0) - (a.rate || 0)).map((cg) => (
                     <div key={cg._id} className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-3">
-                      <p className="text-sm font-medium text-[var(--text-primary)]">{cg.carrier_name || cg.carrier_id}</p>
+                      <p className="text-sm font-medium text-[var(--text-primary)]">{cg.carrier || cg.carrier_id}</p>
                       <p className="mt-1 text-xl font-bold" style={{ color: rateColor(cg.rate, cg.rate_type) }}>{rateDisplay(cg.rate, cg.rate_type)}</p>
                       <p className="mt-0.5 text-[10px] text-[var(--text-muted)]">{cg.rate_type === 'flat' ? 'per enrollment' : 'of premium'} · eff. {cg.effective_date || 'N/A'}</p>
                     </div>

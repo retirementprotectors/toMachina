@@ -101,7 +101,7 @@ export interface QueQuote {
   session_id: string
   source_id: string
   carrier_id?: string
-  carrier_name: string
+  carrier: string
   product_name: string
 
   premium_monthly?: number
@@ -136,7 +136,7 @@ export interface QueRecommendation {
 
   selected_products: {
     quote_id: string
-    carrier_name: string
+    carrier: string
     product_name: string
     rationale: string
   }[]

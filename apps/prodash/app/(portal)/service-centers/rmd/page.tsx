@@ -137,8 +137,8 @@ export default function RmdCenterPage() {
         }
         case 'age': return (a.age - b.age) * dir
         case 'carrier': {
-          const cA = String(a.account.carrier_name || a.account.carrier || '').toLowerCase()
-          const cB = String(b.account.carrier_name || b.account.carrier || '').toLowerCase()
+          const cA = String(a.account.carrier || a.account.carrier || '').toLowerCase()
+          const cB = String(b.account.carrier || b.account.carrier || '').toLowerCase()
           return cA.localeCompare(cB) * dir
         }
         case 'accountType': {
@@ -176,7 +176,7 @@ export default function RmdCenterPage() {
       const term = searchTerm.toLowerCase()
       list = list.filter((r) => {
         const name = [r.client.first_name, r.client.last_name].filter(Boolean).join(' ').toLowerCase()
-        return name.includes(term) || String(r.account.carrier_name || '').toLowerCase().includes(term)
+        return name.includes(term) || String(r.account.carrier || '').toLowerCase().includes(term)
       })
     }
     return sortRecords(list)
@@ -243,7 +243,7 @@ export default function RmdCenterPage() {
     const headers = ['Client', 'Age', 'Carrier', 'Account Type', 'Value', 'RMD Amount', 'Distributed', 'Remaining', 'Status', 'Deadline']
     const rows = filtered.map((r) => {
       const name = [r.client.first_name, r.client.last_name].filter(Boolean).join(' ')
-      const carrier = String(r.account.carrier_name || r.account.carrier || '')
+      const carrier = String(r.account.carrier || r.account.carrier || '')
       const acctType = String(r.account.account_type_category || r.account.product_type || '')
       const dist = parseFloat(String(r.account.rmd_taken || r.account.rmd_distributed || 0).replace(/[$,]/g, ''))
       return [name, String(r.age), carrier, acctType, fmtCurrency(r.balance), fmtCurrency(r.rmd.amount), fmtCurrency(dist), fmtCurrency(r.rmd.remaining), r.rmd.urgency, r.rmd.deadline]
@@ -452,7 +452,7 @@ export default function RmdCenterPage() {
                   </Link>
                 </div>
                 <DetailRow label="Age" value={String(selectedRecord.age)} />
-                <DetailRow label="Carrier" value={String(selectedRecord.account.carrier_name || selectedRecord.account.carrier || '—')} />
+                <DetailRow label="Carrier" value={String(selectedRecord.account.carrier || selectedRecord.account.carrier || '—')} />
                 <DetailRow label="Account Type" value={String(selectedRecord.account.account_type_category || selectedRecord.account.product_type || '—')} />
 
                 {/* Account link */}
@@ -608,7 +608,7 @@ function RmdTable({
         <tbody>
           {records.map((record, i) => {
             const name = [record.client.first_name, record.client.last_name].filter(Boolean).join(' ') || 'Unknown'
-            const carrier = String(record.account.carrier_name || record.account.carrier || '—')
+            const carrier = String(record.account.carrier || record.account.carrier || '—')
             const accountType = String(record.account.account_type_category || record.account.product_type || '—')
             const distributed = parseFloat(String(record.account.rmd_taken || record.account.rmd_distributed || 0).replace(/[$,]/g, ''))
             const isSelected = selectedRecord?.clientId === record.clientId && selectedRecord?.accountId === record.accountId
@@ -682,7 +682,7 @@ function RmdTable({
 
 function RmdRow({ record, isSelected, onSelect }: { record: RmdRecord; isSelected: boolean; onSelect: () => void }) {
   const name = [record.client.first_name, record.client.last_name].filter(Boolean).join(' ') || 'Unknown'
-  const carrier = String(record.account.carrier_name || record.account.carrier || '')
+  const carrier = String(record.account.carrier || record.account.carrier || '')
   const accountType = String(record.account.account_type_category || record.account.product_type || '')
   const distributed = parseFloat(String(record.account.rmd_taken || record.account.rmd_distributed || 0).replace(/[$,]/g, ''))
   const u = urgencyStyles(record.rmd.urgency)

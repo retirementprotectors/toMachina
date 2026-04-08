@@ -875,7 +875,7 @@ function AccountsTab({ household, householdId }: { household: Household; househo
                 className="cursor-pointer border-b border-[var(--border-subtle)] transition-colors hover:bg-[var(--bg-hover)]"
               >
                 <td className="px-3 py-2 text-xs text-[var(--portal)] font-medium">{String(acct._owner_name)}</td>
-                <td className="px-3 py-2 text-xs text-[var(--text-secondary)]">{String(acct.carrier_name || acct.carrier || '')}</td>
+                <td className="px-3 py-2 text-xs text-[var(--text-secondary)]">{String(acct.carrier || acct.carrier || '')}</td>
                 <td className="px-3 py-2 text-xs text-[var(--text-secondary)]">{String(acct.product_name || acct.product || '')}</td>
                 <td className="px-3 py-2 text-xs text-[var(--text-muted)]">{String(acct.account_type || '')}</td>
                 <td className="px-3 py-2 text-xs text-[var(--text-secondary)] font-mono">{String(acct.policy_number || acct.account_number || '')}</td>

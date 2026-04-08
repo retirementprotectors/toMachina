@@ -418,7 +418,7 @@ function AccountSummaryCard({
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
             <p className="text-xs uppercase tracking-wide text-[var(--text-muted)]">
-              {str(account.carrier_name) || str(account.carrier) || 'Unknown Carrier'}
+              {str(account.carrier) || str(account.carrier) || 'Unknown Carrier'}
             </p>
             {isDdup && (
               <span className="inline-flex items-center gap-0.5 rounded-full bg-[rgba(245,158,11,0.15)] px-2 py-0.5 text-[10px] font-medium text-[#f59e0b]">
@@ -552,7 +552,7 @@ function getSummaryFields(account: Account, category: CategoryKey): SummaryField
     case 'medicare':
       return [
         { label: 'Plan Type', value: str(account.plan_type || account.product_type) },
-        { label: 'Carrier', value: str(account.carrier_name) || str(account.carrier) },
+        { label: 'Carrier', value: str(account.carrier) || str(account.carrier) },
         { label: 'Effective Date', value: formatDate(account.effective_date) },
         { label: 'Premium', value: formatCurrency(account.premium) },
         { label: 'Plan ID', value: str(account.plan_id || account.policy_number), mono: true },
@@ -561,7 +561,7 @@ function getSummaryFields(account: Account, category: CategoryKey): SummaryField
     case 'investments':
       return [
         { label: 'Account Type', value: str(account.account_type) },
-        { label: 'Custodian', value: str(account.custodian) || str(account.carrier_name) },
+        { label: 'Custodian', value: str(account.custodian) || str(account.carrier) },
         { label: 'Value', value: formatCurrency(account.account_value) },
         { label: 'Advisor', value: str(account.advisor) },
         { label: 'Account #', value: str(account.account_number) || str(account.policy_number), mono: true },
@@ -569,7 +569,7 @@ function getSummaryFields(account: Account, category: CategoryKey): SummaryField
       ]
     case 'banking':
       return [
-        { label: 'Bank', value: str(account.bank_name) || str(account.carrier_name) },
+        { label: 'Bank', value: str(account.bank_name) || str(account.carrier) },
         { label: 'Account Type', value: str(account.account_subtype) || str(account.account_type) },
         { label: 'Balance', value: formatCurrency(account.account_value) },
         { label: 'APY', value: account.apy ? `${account.apy}%` : '—' },
@@ -578,7 +578,7 @@ function getSummaryFields(account: Account, category: CategoryKey): SummaryField
       ]
     case 'liabilities':
       return [
-        { label: 'Lender', value: str(account.lender) || str(account.carrier_name) },
+        { label: 'Lender', value: str(account.lender) || str(account.carrier) },
         { label: 'Loan Type', value: str(account.loan_type) || str(account.account_type) },
         { label: 'Balance', value: formatCurrency(account.current_balance || account.account_value) },
         { label: 'Rate', value: account.interest_rate ? `${account.interest_rate}%` : '—' },
@@ -622,7 +622,7 @@ function findDdupGroups(accounts: Account[]): Map<string, string[]> {
     const s = str(acct.status).toLowerCase()
     if (s === 'inactive' || s === 'terminated' || s === 'lapsed' || s === 'cancelled' || s === 'deleted' || s === 'merged') continue
 
-    const carrier = (str(acct.carrier_name) || str(acct.carrier)).toLowerCase().trim()
+    const carrier = (str(acct.carrier) || str(acct.carrier)).toLowerCase().trim()
     if (!carrier || carrier === 'unknown carrier') continue
 
     const acctId = str(acct.account_id) || str((acct as Record<string, unknown>)._id)

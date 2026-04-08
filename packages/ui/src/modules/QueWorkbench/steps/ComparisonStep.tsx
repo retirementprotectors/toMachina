@@ -12,7 +12,7 @@ interface ComparisonStepProps {
 
 interface QuoteData {
   quote_id: string
-  carrier_name: string
+  carrier: string
   product_name: string
   premium_annual?: number
   premium_monthly?: number
@@ -24,7 +24,7 @@ interface QuoteData {
   flags: string[]
 }
 
-type SortField = 'rank' | 'premium_annual' | 'premium_monthly' | 'score' | 'carrier_name'
+type SortField = 'rank' | 'premium_annual' | 'premium_monthly' | 'score' | 'carrier'
 
 export function ComparisonStep({ sessionId, onNext, onBack }: ComparisonStepProps) {
   const [quotes, setQuotes] = useState<QuoteData[]>([])
@@ -101,8 +101,8 @@ export function ComparisonStep({ sessionId, onNext, onBack }: ComparisonStepProp
         return (a.premium_monthly ?? Infinity) - (b.premium_monthly ?? Infinity)
       case 'score':
         return (b.score ?? 0) - (a.score ?? 0)
-      case 'carrier_name':
-        return a.carrier_name.localeCompare(b.carrier_name)
+      case 'carrier':
+        return a.carrier.localeCompare(b.carrier)
       default:
         return 0
     }
@@ -141,7 +141,7 @@ export function ComparisonStep({ sessionId, onNext, onBack }: ComparisonStepProp
             <option value="premium_annual">Premium (Annual)</option>
             <option value="premium_monthly">Premium (Monthly)</option>
             <option value="score">Score</option>
-            <option value="carrier_name">Carrier Name</option>
+            <option value="carrier">Carrier Name</option>
           </select>
         </div>
       </div>
@@ -163,7 +163,7 @@ export function ComparisonStep({ sessionId, onNext, onBack }: ComparisonStepProp
           {sortedQuotes.map((q) => (
             <QuoteCard
               key={q.quote_id}
-              carrierName={q.carrier_name}
+              carrierName={q.carrier}
               productName={q.product_name}
               premiumAnnual={q.premium_annual}
               premiumMonthly={q.premium_monthly}

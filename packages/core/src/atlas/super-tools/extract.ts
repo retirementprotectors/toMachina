@@ -214,7 +214,7 @@ Return JSON with this EXACT structure:
     "pipeline": "string - the pipeline shown next to your chosen type (PRO, REACTIVE, or NewBiz)",
     "owner_role": "string - the role shown next to your chosen type (COR, AST, or SPC)",
     "urgency": "urgent|normal|fyi",
-    "carrier_name": "string - insurance company or financial institution",
+    "carrier": "string - insurance company or financial institution",
     "policy_number": "string or null",
     "account_number": "string or null",
     "effective_date": "YYYY-MM-DD or null",

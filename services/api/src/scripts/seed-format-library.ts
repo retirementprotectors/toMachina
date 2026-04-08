@@ -142,7 +142,7 @@ const FORMATS: FormatDef[] = [
     column_map: {
       'Record ID': 'ghl_object_id',
       'Policy #': 'policy_number',
-      'Carrier Parent (Charter)': 'carrier_name',
+      'Carrier Parent (Charter)': 'carrier',
       'Plan Name (EXACT!)': 'plan_name',
       'Type- CORE': 'core_product_type',
       'Type- Ancillary': 'ancillary_type',
@@ -187,7 +187,7 @@ const FORMATS: FormatDef[] = [
     column_map: {
       'Record ID': 'ghl_object_id',
       'Policy #': 'policy_number',
-      'Carrier': 'carrier_name',
+      'Carrier': 'carrier',
       'Product Name': 'product_name',
       'Type': 'policy_type',
       'Issue Date ( CDT )': 'issue_date',
@@ -295,7 +295,7 @@ const FORMATS: FormatDef[] = [
     column_map: {
       'Record ID': 'ghl_object_id',
       'Account #': 'account_number',
-      'Carrier': 'carrier_name',
+      'Carrier': 'carrier',
       'Product Name': 'product_name',
       'Type': 'account_type',
       'Tax Status': 'tax_status',

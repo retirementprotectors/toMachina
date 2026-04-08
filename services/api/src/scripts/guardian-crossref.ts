@@ -310,7 +310,7 @@ async function checkCarrierCoverage(): Promise<CheckResult> {
     const accountSnap = await db.collection('clients').doc(clientDoc.id).collection('accounts').get()
     for (const accountDoc of accountSnap.docs) {
       totalAccounts++
-      const carrierName = accountDoc.data().carrier_name as string | undefined
+      const carrierName = accountDoc.data().carrier as string | undefined
       if (carrierName && !knownCarriers.has(carrierName.toLowerCase())) {
         unmatchedCarriers.set(carrierName, (unmatchedCarriers.get(carrierName) || 0) + 1)
       }
@@ -319,7 +319,7 @@ async function checkCarrierCoverage(): Promise<CheckResult> {
 
   const sorted = [...unmatchedCarriers.entries()].sort((a, b) => b[1] - a[1]).map(([name, count]) => `${name} (${count} accounts)`)
   return {
-    title: 'Carrier Coverage (account carrier_name not in carriers collection)',
+    title: 'Carrier Coverage (account carrier not in carriers collection)',
     total: totalAccounts,
     issues: sorted.length,
     sampleIds: sorted,
