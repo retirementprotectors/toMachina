@@ -567,6 +567,13 @@ service cloud.firestore {
       allow write: if isRPIUser();
     }
 
+    // ----------------------------------------------------------------
+    // Dedup — ignored match pairs (ddup comparison page)
+    // ----------------------------------------------------------------
+    match /ddup_ignored/{docId} {
+      allow read, write: if isRPIUser();
+    }
+
     // CMO Pipeline Jobs — MUSASHI creative pipeline tracking (MUS-O09)
     match /cmo_pipeline_jobs/{docId} {
       allow read: if isRPIUser();
