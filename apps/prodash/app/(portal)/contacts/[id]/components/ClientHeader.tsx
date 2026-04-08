@@ -270,7 +270,7 @@ export function ClientHeader({ client, clientId: _clientId, onCommsAction }: Cli
               )}
               {client.household_id && (
                 <Link
-                  href={`/households/${client.household_id}`}
+                  href={`/households/${client.household_id}?ref=/contacts/${client.client_id || _clientId}`}
                   className="inline-flex items-center gap-1 rounded-full border border-[var(--portal)]/30 bg-[var(--portal)]/10 px-2.5 py-0.5 text-xs font-medium text-[var(--portal)] transition-colors hover:bg-[var(--portal)]/20"
                   title="View Household"
                 >

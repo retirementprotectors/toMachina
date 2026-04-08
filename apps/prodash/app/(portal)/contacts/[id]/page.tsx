@@ -2,6 +2,7 @@
 
 import { use, useState, useMemo } from 'react'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import { useDocument, useCollection, getDb } from '@tomachina/db'
 import { collection } from 'firebase/firestore'
 import type { Client, Account } from '@tomachina/core'
@@ -160,6 +161,24 @@ export default function Client360Page({
 // ---------------------------------------------------------------------------
 
 function BackLink() {
+  const searchParams = useSearchParams()
+  const ref = searchParams.get('ref')
+
+  if (ref?.startsWith('/households/')) {
+    return (
+      <nav className="flex items-center gap-1.5 text-sm">
+        <Link href="/contacts" className="text-[var(--text-muted)] transition-colors hover:text-[var(--portal)]">
+          Contacts
+        </Link>
+        <span className="material-icons-outlined text-[14px] text-[var(--text-muted)]">chevron_right</span>
+        <Link href={ref} className="inline-flex items-center gap-1 text-[var(--text-muted)] transition-colors hover:text-[var(--portal)]">
+          <span className="material-icons-outlined text-[14px]">arrow_back</span>
+          Back to Household
+        </Link>
+      </nav>
+    )
+  }
+
   return (
     <Link
       href="/contacts"
