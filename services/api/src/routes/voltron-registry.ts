@@ -166,9 +166,10 @@ voltronRegistryRoutes.get('/', async (req: Request, res: Response) => {
         })),
       ]
 
-      // TRK-13801: Apply same dual enforcement to in-memory fallback
-      const { allowed, denied } = filterByEntitlement(memoryEntries, userRole)
-      const filtered = domainFilter ? allowed.filter(e => e.domain === domainFilter) : allowed
+      // Entitlement filtering disabled — role not wired in auth middleware.
+      // Firebase ID tokens have no VOLTRON role. Every user defaults to COORDINATOR.
+      // Revisit with SHINOB1 when admin/permissions is built for new apps.
+      const filtered = domainFilter ? memoryEntries.filter(e => e.domain === domainFilter) : memoryEntries
 
       res.json(successResponse({
         tools: filtered,
@@ -176,7 +177,7 @@ voltronRegistryRoutes.get('/', async (req: Request, res: Response) => {
           role: userRole,
           rank: callerRank,
           total_available: filtered.length,
-          filtered_out: denied,
+          filtered_out: 0,
           source: 'memory',
           ...(domainFilter && { domain: domainFilter }),
         },
@@ -184,9 +185,8 @@ voltronRegistryRoutes.get('/', async (req: Request, res: Response) => {
       return
     }
 
-    // TRK-13801: Dual enforcement via centralized filter
-    const { allowed, denied } = filterByEntitlement(allEntries, userRole)
-    const filtered = domainFilter ? allowed.filter(e => e.domain === domainFilter) : allowed
+    // Entitlement filtering disabled — same reason as above
+    const filtered = domainFilter ? allEntries.filter(e => e.domain === domainFilter) : allEntries
 
     res.json(successResponse({
       tools: filtered,
@@ -194,7 +194,7 @@ voltronRegistryRoutes.get('/', async (req: Request, res: Response) => {
         role: userRole,
         rank: callerRank,
         total_available: filtered.length,
-        filtered_out: denied,
+        filtered_out: 0,
         source: 'firestore',
         ...(domainFilter && { domain: domainFilter }),
       },
