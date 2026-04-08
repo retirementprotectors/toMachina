@@ -87,7 +87,7 @@ export function analyzeGroupGap(household: SuperToolHousehold): SuperToolOutput 
       summary: `Group: $${totalGroupCoverage.toLocaleString()} | Individual: $${totalIndividualCoverage.toLocaleString()} | Gap: $${preliminaryNeed.value.netNeed.toLocaleString()}`,
       findings,
       recommendation: gapExists ? `Coverage gap of $${preliminaryNeed.value.netNeed.toLocaleString()} identified. Full needs analysis recommended.` : 'Coverage appears adequate. Full needs analysis recommended to confirm.',
-      metrics: { totalGroupCoverage, totalIndividualCoverage, totalOffset: offset.value.totalOffset, preliminaryNeed: preliminaryNeed.value.grossNeed, coverageGap: preliminaryNeed.value.netNeed, groupDependencyPct: groupPct },
+      metrics: { totalGroupCoverage, totalIndividualCoverage, totalOffset: offset.value.totalOffset, preliminaryNeed: preliminaryNeed.value.grossNeed, coverageGap: preliminaryNeed.value.netNeed, groupDependencyPct: groupPct, totalEvaporating: totalGroupCoverage, totalNetGap: preliminaryNeed.value.netNeed, membersWithGap: memberGaps.filter((g: { netGap?: number }) => (g.netGap ?? 0) > 0).length },
       details: { memberGaps },
       warnings,
     },

@@ -106,7 +106,7 @@ export function analyzeLifeNeed(household: SuperToolHousehold): SuperToolOutput 
       summary: `Household life insurance gap: $${householdNetNeed.toLocaleString()} across ${memberBreakdowns.length} member(s)`,
       findings,
       recommendation: householdNetNeed > 0 ? `Total gap of $${householdNetNeed.toLocaleString()}. Run WIRE_LIFE_OPTIONS for product comparison.` : 'Current coverage meets estimated needs.',
-      metrics: { memberCount: memberBreakdowns.length, householdNetNeed, avgNeedPerMember: memberBreakdowns.length > 0 ? Math.round(householdNetNeed / memberBreakdowns.length) : 0 },
+      metrics: { memberCount: memberBreakdowns.length, householdNetNeed, avgNeedPerMember: memberBreakdowns.length > 0 ? Math.round(householdNetNeed / memberBreakdowns.length) : 0, totalHouseholdNeed: memberBreakdowns.reduce((s, m) => s + m.grossNeed, 0), totalExistingCoverage: memberBreakdowns.reduce((s, m) => s + m.existingCoverage, 0), totalNetNeed: householdNetNeed, coverageRatio: memberBreakdowns.length > 0 ? Math.round(memberBreakdowns.reduce((s, m) => s + m.existingCoverage, 0) / Math.max(1, memberBreakdowns.reduce((s, m) => s + m.grossNeed, 0)) * 100) : 0 },
       details: { memberBreakdowns },
       warnings,
     },
