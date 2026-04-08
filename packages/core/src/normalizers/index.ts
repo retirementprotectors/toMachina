@@ -213,8 +213,8 @@ import { resolveCharterIdentity, resolveDefaultCharter, type CarrierIdentity } f
 export type { CarrierIdentity }
 
 export interface CarrierNormResult {
-  /** Parent brand display name (e.g., "Aetna") — backward-compatible string */
-  carrier_name: string
+  /** Parent brand display name (e.g., "Aetna") */
+  carrier: string
   /** Underwriting charter legal entity (e.g., "Accendo Insurance Company") */
   charter: string | null
   /** Charter short code (e.g., "ACC") */
@@ -257,13 +257,13 @@ export function normalizeCarrierName(raw: string): string {
  * if parent is a single-charter carrier (auto-assign).
  */
 export function normalizeCarrierFull(raw: string): CarrierNormResult {
-  if (!raw) return { carrier_name: '', charter: null, charter_code: null, naic: null, carrier_id: null }
+  if (!raw) return { carrier: '', charter: null, charter_code: null, naic: null, carrier_id: null }
 
   // Step 1: Try direct charter resolution
   const charterMatch = resolveCharterIdentity(raw)
   if (charterMatch) {
     return {
-      carrier_name: charterMatch.parent,
+      carrier: charterMatch.parent,
       charter: charterMatch.charter,
       charter_code: charterMatch.charter_code,
       naic: charterMatch.naic ?? null,
@@ -278,7 +278,7 @@ export function normalizeCarrierFull(raw: string): CarrierNormResult {
   const defaultCharter = resolveDefaultCharter(parentName)
   if (defaultCharter) {
     return {
-      carrier_name: parentName,
+      carrier: parentName,
       charter: defaultCharter.charter,
       charter_code: defaultCharter.charter_code,
       naic: defaultCharter.naic ?? null,
@@ -288,7 +288,7 @@ export function normalizeCarrierFull(raw: string): CarrierNormResult {
 
   // Step 4: Multi-charter parent — can't determine charter from name alone
   return {
-    carrier_name: parentName,
+    carrier: parentName,
     charter: null,
     charter_code: null,
     naic: null,

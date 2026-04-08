@@ -179,15 +179,15 @@ importAgentRoutes.post('/naic', async (req: Request, res: Response) => {
 /**
  * Resolve a raw carrier name to its full two-layer identity.
  *
- * Body: { carrier_name: string }
+ * Body: { carrier: string }
  *
- * Returns: { carrier_name, charter, charter_code, naic, carrier_id }
+ * Returns: { carrier, charter, charter_code, naic, carrier_id }
  */
 importAgentRoutes.post('/resolve', async (req: Request, res: Response) => {
   try {
-    const rawName = req.body.carrier_name
+    const rawName = req.body.carrier
     if (!rawName || typeof rawName !== 'string') {
-      res.status(400).json(errorResponse('Missing required field: carrier_name'))
+      res.status(400).json(errorResponse('Missing required field: carrier'))
       return
     }
 

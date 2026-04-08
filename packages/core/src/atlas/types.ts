@@ -96,7 +96,7 @@ export interface GapGroup {
 export interface AtlasFormat {
   format_id: string
   carrier_export_type: string
-  carrier_name: string
+  carrier: string
   header_fingerprint: string
   column_map: Record<string, string>
   value_patterns: Record<string, { distinct_count: number; sample_values: unknown[]; dominant_type: string; null_rate: number }>

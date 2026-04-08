@@ -244,7 +244,7 @@ async function syncPolicy(
 
       const accountData: Record<string, unknown> = {
         client_id: clientDoc.id,
-        carrier_name: policy.carrier || '',
+        carrier: policy.carrier || '',
         plan_name: policy.name || '',
         plan_bid_id: policy.bid_id || '',
         core_product_type: policy.product_type || '',

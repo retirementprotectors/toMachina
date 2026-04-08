@@ -18,7 +18,7 @@ const NAME_FIELDS = [
   'first_name', 'last_name', 'middle_name', 'suffix', 'prefix',
   'spouse_first_name', 'spouse_last_name',
   'beneficiary_name', 'owner_name', 'agent_name',
-  'carrier_name', 'product_name', 'plan_name',
+  'carrier', 'product_name', 'plan_name',
   'city', 'employer_name', 'company_name',
 ]
 

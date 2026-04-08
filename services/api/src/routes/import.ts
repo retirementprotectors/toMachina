@@ -1988,7 +1988,7 @@ importRoutes.post('/carrier-detect', async (req: Request, res: Response) => {
         message: 'No carrier format matched (minimum 60% header signature required)',
         available_formats: CARRIER_FORMATS.map(f => ({
           carrier_id: f.carrier_id,
-          carrier_name: f.carrier_name,
+          carrier: f.carrier,
           signatures: f.header_signatures,
         })),
       } as unknown as CarrierDetectNotFoundResult))
@@ -2014,7 +2014,7 @@ importRoutes.post('/carrier-detect', async (req: Request, res: Response) => {
     res.json(successResponse<CarrierDetectFoundResult>({
       detected: true,
       carrier_id: format.carrier_id,
-      carrier_name: format.carrier_name,
+      carrier: format.carrier,
       default_category: format.default_category,
       dedup_keys: format.dedup_keys,
       mapped_headers: mappedHeaders,
@@ -2099,7 +2099,7 @@ importRoutes.post('/carrier-accounts', async (req: Request, res: Response) => {
       duplicates: 0,
       errors: 0,
       carrier_id: format.carrier_id,
-      carrier_name: format.carrier_name,
+      carrier: format.carrier,
       error_details: [] as Array<{ index: number; error: string }>,
     }
 

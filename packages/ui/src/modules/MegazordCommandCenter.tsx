@@ -17,7 +17,7 @@ import { MegazordMeshView } from './MegazordMeshView'
 // ---------------------------------------------------------------------------
 
 interface SourceRecord extends AtlasSource {
-  _id: string; source_name?: string; carrier_name?: string; product_line?: string
+  _id: string; source_name?: string; carrier?: string; product_line?: string
   product_category?: string; data_domain?: string; source_type?: string
   current_source?: string; current_method?: string; current_frequency?: string
   current_owner_email?: string; target_source?: string; target_method?: string
@@ -1571,7 +1571,7 @@ function SourcesTab({ sources }: { sources: SourceRecord[] }) {
     if (priF !== 'All' && (s.priority || '').toUpperCase() !== priF) return false
     if (search) {
       const q = search.toLowerCase()
-      if (!(s.name || s.source_name || '').toLowerCase().includes(q) && !(s.carrier_name || '').toLowerCase().includes(q)) return false
+      if (!(s.name || s.source_name || '').toLowerCase().includes(q) && !(s.carrier || '').toLowerCase().includes(q)) return false
     }
     return true
   }), [sources, gapF, domF, prodF, priF, search])
@@ -1618,7 +1618,7 @@ function SourcesTab({ sources }: { sources: SourceRecord[] }) {
                       className="cursor-pointer border-b border-[var(--border-subtle)] transition-colors hover:bg-[var(--bg-surface)]"
                       style={sel?._id === s._id ? { background: 'var(--bg-surface)' } : undefined}>
                       <td className="px-4 py-2.5">
-                        <p className="truncate font-medium text-[var(--text-primary)]" style={{ maxWidth: '200px' }}>{s.carrier_name || s.name || s.source_name || s._id}</p>
+                        <p className="truncate font-medium text-[var(--text-primary)]" style={{ maxWidth: '200px' }}>{s.carrier || s.name || s.source_name || s._id}</p>
                         <p className="truncate text-[11px] text-[var(--text-muted)]" style={{ maxWidth: '200px' }}>{s.name || s.source_name || ''}</p>
                       </td>
                       <td className="px-3 py-2.5 text-xs text-[var(--text-secondary)]">{s.product_line || '-'}</td>
@@ -1650,7 +1650,7 @@ function SourcesTab({ sources }: { sources: SourceRecord[] }) {
           <div className="flex items-start justify-between">
             <div className="min-w-0 flex-1">
               <h3 className="truncate text-base font-semibold text-[var(--text-primary)]">{sel.name || sel.source_name || sel._id}</h3>
-              <p className="mt-0.5 truncate text-xs text-[var(--text-muted)]">{sel.carrier_name}</p>
+              <p className="mt-0.5 truncate text-xs text-[var(--text-muted)]">{sel.carrier}</p>
             </div>
             <button onClick={() => setSel(null)} className="ml-2 shrink-0 text-[var(--text-muted)] hover:text-[var(--text-primary)]">
               <span className="material-icons-outlined" style={{ fontSize: '18px' }}>close</span>
@@ -1941,7 +1941,7 @@ function HealthTab({ sources }: { sources: SourceRecord[] }) {
               <div key={s._id} className="flex items-center gap-3 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-card)] p-3">
                 <span className="material-icons-outlined shrink-0" style={{ fontSize: '18px', color: 'rgb(245,158,11)' }}>warning</span>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium text-[var(--text-primary)]">{s.carrier_name || s.name || s._id}</p>
+                  <p className="truncate text-sm font-medium text-[var(--text-primary)]">{s.carrier || s.name || s._id}</p>
                   <p className="text-[11px] text-[var(--text-muted)]">Last pull: {fmtDate(s.last_pull_at || s.last_pull)} &middot; Expected: {s.current_frequency || s.frequency || 'Unknown'}</p>
                 </div>
                 <Badge text={s.gap_status || '-'} bg={gapColor(s.gap_status).bg} fg={gapColor(s.gap_status).text} />

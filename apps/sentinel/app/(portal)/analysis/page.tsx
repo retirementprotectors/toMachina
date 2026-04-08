@@ -12,7 +12,7 @@ interface RevenueRecord {
   _id: string
   agent_name?: string
   agent_id?: string
-  carrier_name?: string
+  carrier?: string
   product_type?: string
   premium?: number
   total_premium?: number
@@ -53,7 +53,7 @@ export default function AnalysisPage() {
       const amount = Number(r.total_premium || r.premium || r.amount || 0)
       if (isNaN(amount)) return
       total += amount
-      const carrier = r.carrier_name || 'Unknown'
+      const carrier = r.carrier || 'Unknown'
       byCarrier[carrier] = (byCarrier[carrier] || 0) + amount
       const agent = r.agent_name || 'Unassigned'
       byAgent[agent] = (byAgent[agent] || 0) + amount

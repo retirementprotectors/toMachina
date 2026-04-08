@@ -243,7 +243,7 @@ accessRoutes.post('/:clientId/auto-generate', async (req: Request, res: Response
     // 3. Derive portal access items from each account
     for (const accountDoc of accountsSnap.docs) {
       const account = accountDoc.data()
-      const serviceName = account.carrier || account.carrier_name || ''
+      const serviceName = account.carrier || account.carrier || ''
       if (!serviceName) continue
 
       const key = `${serviceName}::${clientId}`
@@ -285,7 +285,7 @@ accessRoutes.post('/:clientId/auto-generate', async (req: Request, res: Response
       const account = accountDoc.data()
       const cat = deriveCategory(account.account_type || account.account_type_category || '')
       if (cat === 'medicare') {
-        const carrier = account.carrier || account.carrier_name || ''
+        const carrier = account.carrier || account.carrier || ''
         if (carrier) medicareCarriers.add(carrier)
       }
     }

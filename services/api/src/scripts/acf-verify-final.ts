@@ -178,13 +178,13 @@ async function scanDuplicateAccounts(): Promise<number> {
   const snap = await db.collectionGroup('accounts').get()
   console.log(`  Loaded ${snap.size} total accounts across all clients`)
 
-  // Group by normalized policy_number + carrier_name
-  const groups = new Map<string, Array<{ docPath: string; policy_number: string; carrier_name: string; client_id: string }>>()
+  // Group by normalized policy_number + carrier
+  const groups = new Map<string, Array<{ docPath: string; policy_number: string; carrier: string; client_id: string }>>()
 
   for (const doc of snap.docs) {
     const d = doc.data()
     const policyNum = String(d.policy_number || '').trim().toUpperCase()
-    const carrier = String(d.carrier_name || '').trim().toLowerCase()
+    const carrier = String(d.carrier || '').trim().toLowerCase()
 
     if (!policyNum || policyNum === 'UNDEFINED' || policyNum === 'NULL') continue
 
@@ -198,7 +198,7 @@ async function scanDuplicateAccounts(): Promise<number> {
     groups.get(key)!.push({
       docPath: doc.ref.path,
       policy_number: policyNum,
-      carrier_name: d.carrier_name || '',
+      carrier: d.carrier || '',
       client_id: clientId,
     })
   }

@@ -33,7 +33,7 @@ accountRoutes.get('/', async (req: Request, res: Response) => {
     if (search) {
       const term = search.trim()
       const end = term.slice(0, -1) + String.fromCharCode(term.charCodeAt(term.length - 1) + 1)
-      query = query.where('carrier_name', '>=', term).where('carrier_name', '<', end)
+      query = query.where('carrier', '>=', term).where('carrier', '<', end)
     }
 
     const limit = params.limit

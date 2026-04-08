@@ -14,7 +14,7 @@ const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api'
 interface Carrier {
   id: string
   display_name: string
-  carrier_name: string
+  carrier: string
   name: string
 }
 
@@ -41,7 +41,7 @@ interface NewCaseForm {
   entity_id: string
   account_type_category: AccountTypeCategory | ''
   carrier_id: string
-  carrier_name: string
+  carrier: string
   assigned_to: string
   notes: string
 }
@@ -51,7 +51,7 @@ const EMPTY_FORM: NewCaseForm = {
   entity_id: '',
   account_type_category: '',
   carrier_id: '',
-  carrier_name: '',
+  carrier: '',
   assigned_to: '',
   notes: '',
 }
@@ -92,7 +92,7 @@ export default function PipelineKanbanPage() {
         if (cancelled) return
         const json = await res.json() as { success: boolean; data?: Carrier[] }
         if (!cancelled && json.success && json.data) {
-          setCarriers([...json.data].sort((a, b) => (a.display_name || a.name || a.carrier_name || '').localeCompare(b.display_name || b.name || b.carrier_name || '')))
+          setCarriers([...json.data].sort((a, b) => (a.display_name || a.name || a.carrier || '').localeCompare(b.display_name || b.name || b.carrier || '')))
         }
       } catch { /* non-fatal */ }
     }
@@ -185,12 +185,12 @@ export default function PipelineKanbanPage() {
           entity_data: {
             account_type_category: form.account_type_category,
             carrier_id: form.carrier_id,
-            carrier_name: form.carrier_name,
+            carrier: form.carrier,
             notes: form.notes || '',
             source: 'Manual — ProDashX',
           },
           custom_fields: {
-            carrier: form.carrier_name,
+            carrier: form.carrier,
             account_type_category: form.account_type_category,
           },
         }),
@@ -365,7 +365,7 @@ export default function PipelineKanbanPage() {
                       setForm((prev) => ({
                         ...prev,
                         carrier_id: e.target.value,
-                        carrier_name: selected?.display_name || selected?.name || selected?.carrier_name || '',
+                        carrier: selected?.display_name || selected?.name || selected?.carrier || '',
                       }))
                     }}
                     className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-primary)] px-3 py-2.5 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--portal)]"
@@ -375,7 +375,7 @@ export default function PipelineKanbanPage() {
                       {carriersLoading ? 'Loading carriers...' : 'Select carrier...'}
                     </option>
                     {carriers.map((c) => (
-                      <option key={c.id} value={c.id}>{c.display_name || c.name || c.carrier_name || c.id}</option>
+                      <option key={c.id} value={c.id}>{c.display_name || c.name || c.carrier || c.id}</option>
                     ))}
                   </select>
                 </div>

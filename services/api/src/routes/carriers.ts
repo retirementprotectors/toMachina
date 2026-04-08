@@ -57,7 +57,7 @@ carrierRoutes.post('/seed-from-accounts', async (req: Request, res: Response) =>
 
     for (const doc of accountSnap.docs) {
       const data = doc.data()
-      const name = (data.carrier_name as string) || (data.carrier as string) || ''
+      const name = (data.carrier as string) || (data.carrier as string) || ''
       if (name.trim()) {
         carrierNames.add(name.trim())
       }
@@ -70,7 +70,7 @@ carrierRoutes.post('/seed-from-accounts', async (req: Request, res: Response) =>
 
     // Check existing carriers to avoid duplicates
     const existingSnap = await db.collection(COLLECTION).get()
-    const existing = new Set(existingSnap.docs.map((d) => (d.data().carrier_name as string) || ''))
+    const existing = new Set(existingSnap.docs.map((d) => (d.data().carrier as string) || ''))
 
     const now = new Date().toISOString()
     const batch = db.batch()
@@ -81,7 +81,7 @@ carrierRoutes.post('/seed-from-accounts', async (req: Request, res: Response) =>
       const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
       const ref = db.collection(COLLECTION).doc(slug)
       batch.set(ref, {
-        carrier_name: name,
+        carrier: name,
         status: 'active',
         created_at: now,
         updated_at: now,

@@ -169,12 +169,12 @@ async function run() {
   const existingClients = await loadExistingClients()
   const existingAccounts = await loadExistingMedicareAccounts()
 
-  // Build dedup set from existing accounts: member_id::carrier_name::effective_date
+  // Build dedup set from existing accounts: member_id::carrier::effective_date
   const existingAccountKeys = new Set<string>()
   for (const acct of existingAccounts) {
     const key = [
       String(acct.member_id || acct.medicare_id || '').toLowerCase(),
-      String(acct.carrier_name || '').toLowerCase(),
+      String(acct.carrier || '').toLowerCase(),
       String(acct.effective_date || ''),
     ].join('::')
     if (key !== '::::') existingAccountKeys.add(key)
@@ -230,13 +230,13 @@ async function run() {
       console.log('  ✗ NO FORMAT MATCH — skipping file')
       continue
     }
-    console.log(`  ✓ Format: ${format.carrier_name} (${format.carrier_id})`)
+    console.log(`  ✓ Format: ${format.carrier} (${format.carrier_id})`)
 
     // Map all rows to canonical fields
     const canonicalRecords = rows.map(row => {
       const mapped = mapRowToCanonical(row, format)
       // Set carrier explicitly
-      mapped.carrier_name = file.carrier_override
+      mapped.carrier = file.carrier_override
       mapped.account_type_category = 'Medicare'
       return mapped
     })
@@ -288,7 +288,7 @@ async function run() {
     for (const rec of normalized) {
       const key = [
         String(rec.member_id || rec.medicare_id || '').toLowerCase(),
-        String(rec.carrier_name || '').toLowerCase(),
+        String(rec.carrier || '').toLowerCase(),
         String(rec.effective_date || ''),
       ].join('::')
       if (existingAccountKeys.has(key)) {
@@ -412,7 +412,7 @@ async function run() {
       console.log('  Sample write operations:')
       for (const op of samples) {
         const name = `${op.data.first_name} ${op.data.last_name}`
-        const carrier = op.data.carrier_name
+        const carrier = op.data.carrier
         const plan = op.data.plan_name || 'N/A'
         console.log(`    ${op.operation} | ${name} | ${carrier} | ${plan} | ${op.tag}`)
       }
@@ -474,7 +474,7 @@ async function run() {
           const accountData: Record<string, unknown> = {
             account_id: accountId,
             client_id: clientId,
-            carrier_name: op.data.carrier_name,
+            carrier: op.data.carrier,
             carrier_id: op.data.carrier_id,
             account_type_category: 'Medicare',
             plan_name: op.data.plan_name || '',
@@ -515,7 +515,7 @@ async function run() {
           const accountData: Record<string, unknown> = {
             account_id: accountId,
             client_id: op.clientId,
-            carrier_name: op.data.carrier_name,
+            carrier: op.data.carrier,
             carrier_id: op.data.carrier_id,
             account_type_category: 'Medicare',
             plan_name: op.data.plan_name || '',

@@ -14,7 +14,7 @@ interface QuoteResultsProps {
 
 interface QuoteData {
   quote_id: string
-  carrier_name: string
+  carrier: string
   product_name: string
   premium_annual?: number
   premium_monthly?: number
@@ -99,7 +99,7 @@ export function QuoteResults({ sessionId, productLine, onNext, onBack }: QuoteRe
         method: 'POST',
         body: JSON.stringify({
           source_id: 'manual',
-          carrier_name: manualCarrier.trim(),
+          carrier: manualCarrier.trim(),
           product_name: manualProduct.trim(),
           premium_annual: manualPremiumAnnual ? Number(manualPremiumAnnual) : undefined,
           premium_monthly: manualPremiumMonthly ? Number(manualPremiumMonthly) : undefined,
@@ -256,7 +256,7 @@ export function QuoteResults({ sessionId, productLine, onNext, onBack }: QuoteRe
           {quotes.map((q) => (
             <QuoteCard
               key={q.quote_id}
-              carrierName={q.carrier_name}
+              carrierName={q.carrier}
               productName={q.product_name}
               premiumAnnual={q.premium_annual}
               premiumMonthly={q.premium_monthly}

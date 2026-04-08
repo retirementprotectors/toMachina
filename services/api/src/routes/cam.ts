@@ -947,7 +947,7 @@ camRoutes.get('/agent/:agentId/statement', async (req: Request, res: Response) =
       const d = doc.data()
       return {
         revenue_id: doc.id,
-        carrier: d.carrier || d.carrier_name || '',
+        carrier: d.carrier || d.carrier || '',
         product_type: d.product_type || '',
         revenue_type: d.revenue_type || '',
         amount: parseFloat(String(d.amount)) || 0,
@@ -1137,7 +1137,7 @@ camRoutes.get('/analytics/carrier-rank', async (req: Request, res: Response) => 
     snap.docs.forEach((doc) => {
       const d = doc.data()
       const amount = parseFloat(String(d.amount)) || 0
-      const carrier = String(d.carrier || d.carrier_name || 'Unknown')
+      const carrier = String(d.carrier || d.carrier || 'Unknown')
       const rType = String(d.revenue_type || '').toLowerCase()
 
       if (!carriers[carrier]) carriers[carrier] = { carrier, fyc: 0, renewal: 0, total: 0, policy_count: 0 }

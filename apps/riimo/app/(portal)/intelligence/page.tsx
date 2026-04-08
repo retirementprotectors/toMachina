@@ -13,7 +13,7 @@ const agentsQuery: Query<DocumentData> = query(collections.agents())
 
 interface ClientRecord { _id: string; source?: string; status?: string; created_at?: string }
 interface OppRecord { _id: string; stage?: string; status?: string; deal_value?: number; estimated_value?: number; created_at?: string }
-interface RevenueRecord { _id: string; total_premium?: number; premium?: number; amount?: number; carrier_name?: string; product_type?: string; agent_name?: string; created_at?: string }
+interface RevenueRecord { _id: string; total_premium?: number; premium?: number; amount?: number; carrier?: string; product_type?: string; agent_name?: string; created_at?: string }
 interface AgentRecord { _id: string; agent_name?: string; first_name?: string; last_name?: string; status?: string; state?: string }
 
 function formatCurrency(value: number): string {
@@ -58,7 +58,7 @@ export default function IntelligencePage() {
     revenue.forEach((r) => {
       const amount = Number(r.total_premium || r.premium || r.amount || 0)
       if (!isNaN(amount)) total += amount
-      if (r.carrier_name) carriers.add(r.carrier_name)
+      if (r.carrier) carriers.add(r.carrier)
       if (r.product_type) products.add(r.product_type)
 
       // Monthly trend
