@@ -73,6 +73,8 @@ export function createRanger(config: RangerConfig): RangerExecutor {
       completedAt: null,
       duration_ms: 0,
       attempt: 0,
+      output: null,
+      error: null,
     }))
 
     // Write initial run doc
@@ -137,8 +139,8 @@ export function createRanger(config: RangerConfig): RangerExecutor {
           completedAt: stepCompleted,
           duration_ms: 0,
           attempt: 1,
-          output: wireStage?.output,
-          error: wireStage?.error,
+          output: wireStage?.output ?? null,
+          error: wireStage?.error ?? null,
         }
       })
 
