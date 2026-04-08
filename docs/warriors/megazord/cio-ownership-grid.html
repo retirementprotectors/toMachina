@@ -73,6 +73,7 @@ code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px;
     <div class="tab" data-tab="pipeline"><span class="dot" style="background:var(--cyan)"></span> Pipeline Studio</div>
     <div class="tab" data-tab="integrity"><span class="dot" style="background:var(--gold)"></span> Data Integrity</div>
     <div class="tab" data-tab="dispatchers"><span class="dot" style="background:var(--green)"></span> Hub Dispatchers</div>
+    <div class="tab" data-tab="migration"><span class="dot" style="background:var(--orange)"></span> Data Migration</div>
     <div class="tab" data-tab="hitlist"><span class="dot" style="background:var(--red)"></span> Hit List</div>
   </div>
 </div>
@@ -148,6 +149,13 @@ code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px;
   </div>
   <div class="rhythm-block">
     <div class="rhythm-num">9</div>
+    <div class="rhythm-body">
+      <h3>Data Migration &mdash; 7-Stage Protocol</h3>
+      <p>Any field rename, delete, or structural change in Firestore goes through the full protocol. No exceptions. Two JDM gates.</p>
+    </div>
+  </div>
+  <div class="rhythm-block">
+    <div class="rhythm-num">10</div>
     <div class="rhythm-body">
       <h3>Hit List &mdash; Concrete Task Queue</h3>
       <p>What's next? What's blocked? What got done this week?</p>
@@ -350,6 +358,119 @@ code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px;
       <tr><td><strong>memory-guardian</strong><br><span style="font-size:0.75rem;color:var(--muted)">OOM protection</span></td><td><span class="pill live">ACTIVE</span></td><td>Continuous</td><td>Any OOM kills?</td><td>Incremental (fixed path this session)</td></tr>
       <tr><td><strong>dojo-watchdog</strong><br><span style="font-size:0.75rem;color:var(--muted)">Warrior health + queue injection</span></td><td><span class="pill live">ACTIVE</span></td><td>60s timer</td><td>Warriors detected? Queue injecting?</td><td>Incremental (threshold fixed this session)</td></tr>
       <tr><td><strong>dojo-sync</strong><br><span style="font-size:0.75rem;color:var(--muted)">Config auto-sync</span></td><td><span class="pill live">ACTIVE</span></td><td>30min timer</td><td>Sync commits landing?</td><td>Incremental</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ======= DATA MIGRATION ======= -->
+<div class="tab-panel" id="migration">
+  <div class="card">
+    <div class="section-label">Data Migration Protocol</div>
+    <h2>7-Stage Pipeline &mdash; No Exceptions</h2>
+    <p>Every field rename, delete, or structural change in Firestore goes through all 7 stages. Two JDM approval gates. Hook-enforced (<code>gate-data-migration</code>).</p>
+  </div>
+
+  <div class="card" style="border-left: 3px solid var(--accent)">
+    <h3 style="color: var(--accent)">Stage 1 &mdash; INVENTORY</h3>
+    <table>
+      <tr><th>Check</th><th>How</th></tr>
+      <tr><td><strong>Code references</strong></td><td><code>grep -rn "field_name" apps/ packages/ services/</code> &mdash; count every file</td></tr>
+      <tr><td><strong>TypeScript types</strong></td><td>Check <code>packages/core/src/types/index.ts</code> + atlas types</td></tr>
+      <tr><td><strong>Firestore indexes</strong></td><td>Check Firebase Console &rarr; Firestore &rarr; Indexes for the field</td></tr>
+      <tr><td><strong>CollectionGroup queries</strong></td><td>grep for <code>orderBy('field')</code> and <code>where('field'</code> on collectionGroup</td></tr>
+      <tr><td><strong>API route queries</strong></td><td>grep <code>services/api/src/</code> for the field in Firestore reads</td></tr>
+      <tr><td><strong>Normalizers</strong></td><td>Check <code>packages/core/src/normalizers/</code> for field references</td></tr>
+      <tr><td><strong>Seed scripts</strong></td><td>Check <code>services/api/src/scripts/</code> for field references</td></tr>
+    </table>
+    <p style="margin-top: 12px; color: var(--orange); font-weight: 600">Output: File list + reference count + index list</p>
+  </div>
+
+  <div class="card" style="border-left: 3px solid var(--orange)">
+    <h3 style="color: var(--orange)">Stage 2 &mdash; IMPACT REPORT &nbsp;<span class="pill hot">JDM GATE</span></h3>
+    <table>
+      <tr><th>Deliverable</th><th>Format</th></tr>
+      <tr><td><strong>Blast radius table</strong></td><td>Every file that breaks if the field disappears</td></tr>
+      <tr><td><strong>Query impact</strong></td><td>Every <code>orderBy</code> / <code>where</code> that needs updating</td></tr>
+      <tr><td><strong>Index impact</strong></td><td>Every Firestore index that needs recreation</td></tr>
+      <tr><td><strong>UI impact</strong></td><td>Every page/component that renders this field</td></tr>
+    </table>
+    <p style="margin-top: 12px; color: var(--red); font-weight: 600">JDM reviews and approves before proceeding</p>
+  </div>
+
+  <div class="card" style="border-left: 3px solid var(--blue)">
+    <h3 style="color: var(--blue)">Stage 3 &mdash; CODE FIRST</h3>
+    <table>
+      <tr><th>Action</th><th>Detail</th></tr>
+      <tr><td><strong>Update all references</strong></td><td>Support BOTH old and new field names: <code>data.new_field || data.old_field</code></td></tr>
+      <tr><td><strong>Update TypeScript types</strong></td><td>Add new field to interface (keep old as optional)</td></tr>
+      <tr><td><strong>Create new Firestore indexes</strong></td><td>Any <code>orderBy</code> / <code>where</code> on the new field name needs an index BEFORE migration</td></tr>
+      <tr><td><strong>Deploy</strong></td><td>Push code, wait for deploy, verify live</td></tr>
+      <tr><td><strong>Verify</strong></td><td>Pages load, queries work, no errors in console</td></tr>
+    </table>
+    <p style="margin-top: 12px; color: var(--blue); font-weight: 600">Code is live and working with BOTH field names before touching data</p>
+  </div>
+
+  <div class="card" style="border-left: 3px solid var(--orange)">
+    <h3 style="color: var(--orange)">Stage 4 &mdash; DRY RUN &nbsp;<span class="pill hot">JDM GATE</span></h3>
+    <table>
+      <tr><th>Action</th><th>Detail</th></tr>
+      <tr><td><strong>Read-only migration</strong></td><td>Run migration logic without writing. Log what WOULD change.</td></tr>
+      <tr><td><strong>Sample output</strong></td><td>Show 10-15 before/after examples</td></tr>
+      <tr><td><strong>Counts</strong></td><td>Total documents affected, fields written, fields deleted</td></tr>
+    </table>
+    <p style="margin-top: 12px; color: var(--red); font-weight: 600">JDM reviews sample + counts and approves before execution</p>
+  </div>
+
+  <div class="card" style="border-left: 3px solid var(--green)">
+    <h3 style="color: var(--green)">Stage 5 &mdash; EXECUTE</h3>
+    <table>
+      <tr><th>Action</th><th>Detail</th></tr>
+      <tr><td><strong>Atomic writes</strong></td><td>SET new field + DELETE old field in SAME Firestore update (not separate ops)</td></tr>
+      <tr><td><strong>Batch size</strong></td><td>450 per batch (Firestore limit is 500)</td></tr>
+      <tr><td><strong>Progress logging</strong></td><td>Report every batch: updated count, errors</td></tr>
+      <tr><td><strong>Error handling</strong></td><td>Stop on first error, report which document failed</td></tr>
+    </table>
+  </div>
+
+  <div class="card" style="border-left: 3px solid var(--cyan)">
+    <h3 style="color: var(--cyan)">Stage 6 &mdash; VERIFY</h3>
+    <table>
+      <tr><th>Check</th><th>How</th></tr>
+      <tr><td><strong>Every affected page</strong></td><td>Open each page that renders the field &mdash; does it show data?</td></tr>
+      <tr><td><strong>Firestore queries</strong></td><td>Run the <code>orderBy</code> / <code>where</code> queries &mdash; do they return results?</td></tr>
+      <tr><td><strong>Record counts</strong></td><td>Compare total records before and after &mdash; same number?</td></tr>
+      <tr><td><strong>Data spot check</strong></td><td>Pull 5 random records, verify field values are correct</td></tr>
+    </table>
+    <p style="margin-top: 12px; color: var(--cyan); font-weight: 600">Nothing moves to cleanup until production is confirmed working</p>
+  </div>
+
+  <div class="card" style="border-left: 3px solid var(--muted)">
+    <h3 style="color: var(--muted)">Stage 7 &mdash; CLEANUP</h3>
+    <table>
+      <tr><th>Action</th><th>Detail</th></tr>
+      <tr><td><strong>Remove old field fallbacks</strong></td><td>Change <code>data.new || data.old</code> to just <code>data.new</code></td></tr>
+      <tr><td><strong>Remove old field from types</strong></td><td>Delete the optional old field from TypeScript interface</td></tr>
+      <tr><td><strong>Delete old Firestore indexes</strong></td><td>Remove indexes on the old field name</td></tr>
+      <tr><td><strong>Deploy final cleanup</strong></td><td>Push, verify, done</td></tr>
+    </table>
+  </div>
+
+  <div class="card" style="background: rgba(239,68,68,0.06); border: 1px solid rgba(239,68,68,0.2)">
+    <h3 style="color: var(--red)">Incident Record &mdash; 2026-04-08</h3>
+    <p><strong>What happened:</strong> MEGAZORD migrated <code>carrier_name</code> &rarr; <code>carrier</code> in Firestore (11,645 accounts) BEFORE updating 249 code references across 52 files. Skipped stages 1-3.</p>
+    <p><strong>Impact:</strong> Accounts page showed 35 records instead of 12,000+. Firestore index for <code>carrier</code> didn't exist. Three separate production issues from one migration.</p>
+    <p><strong>Root cause:</strong> Data first, code second. Should have been code first, data second.</p>
+    <p><strong>Gates added:</strong> Hookify rule <code>gate-data-migration</code> blocks <code>FieldValue.delete()</code>. This protocol tab. Firestore index check added to Stage 1.</p>
+  </div>
+
+  <div class="card">
+    <h3>Active Migrations</h3>
+    <table>
+      <tr><th>Migration</th><th>Stage</th><th>Status</th><th>Next</th></tr>
+      <tr><td><strong>carrier_name &rarr; carrier</strong></td><td>Stage 6</td><td><span class="pill hot">VERIFYING</span></td><td>Waiting for Firestore index to build, then verify accounts page</td></tr>
+      <tr><td><strong>Contact aliases (6 merges)</strong></td><td>Stage 1</td><td><span class="pill plan">QUEUED</span></td><td>Inventory code references for dob/date_of_birth, address/address_street, etc.</td></tr>
+      <tr><td><strong>face_value &rarr; face_amount</strong></td><td>Stage 1</td><td><span class="pill plan">QUEUED</span></td><td>Inventory code references</td></tr>
+      <tr><td><strong>status/client_status dedup</strong></td><td>Stage 1</td><td><span class="pill plan">QUEUED</span></td><td>Inventory code references</td></tr>
     </table>
   </div>
 </div>
