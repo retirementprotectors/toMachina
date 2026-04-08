@@ -82,22 +82,56 @@ const NAV_SECTIONS: NavSection[] = [
   },
 ]
 
-/* ─── Fixed Bottom: App Items (default order per spec) ─── */
-const APP_ITEMS: AppItem[] = [
-  { key: 'megazord', href: '/modules/megazord', moduleKey: 'MEGAZORD' },
-  { key: 'cam', href: '/modules/cam', moduleKey: 'CAM' },
-  { key: 'dex', href: '/modules/dex', moduleKey: 'DEX' },
-  { key: 'c3', href: '/modules/c3', moduleKey: 'C3' },
-  { key: 'command-center', href: '/modules/command-center', moduleKey: 'RPI_COMMAND_CENTER' },
-  { key: 'voltron', href: '/modules/voltron', moduleKey: 'VOLTRON' },
-  { key: 'musashi', href: '/modules/musashi', moduleKey: 'MUSASHI' },
-  { key: 'pipeline-studio', href: '/modules/pipeline-studio', moduleKey: 'PIPELINE_STUDIO' },
-  { key: 'forge', href: '/modules/forge', moduleKey: 'FORGE' },
-  { key: 'guardian', href: '/admin/guardian', moduleKey: 'GUARDIAN' },
-  { key: 'prozone', href: '/modules/prozone', moduleKey: 'PROZONE' },
-  { key: 'rsp', href: '/modules/rsp', moduleKey: 'RSP' },
-  { key: 'system-synergy', href: '/modules/system-synergy', moduleKey: 'SYSTEM_SYNERGY' },
+/* ─── Tray Definitions: 3 collapsible tiers above the fixed dock ─── */
+interface TrayDef {
+  key: string
+  label: string
+  color: string
+  minLevel: number  // 0=OWNER, 1=EXECUTIVE, 2=LEADER
+  items: AppItem[]
+}
+
+const TRAY_DEFS: TrayDef[] = [
+  {
+    key: 'owner-box',
+    label: "Owner's Box",
+    color: '#d4a44c',
+    minLevel: 0,
+    items: [
+      { key: 'system-synergy', href: '/modules/system-synergy', moduleKey: 'SYSTEM_SYNERGY' },
+      { key: 'command-center', href: '/modules/command-center', moduleKey: 'RPI_COMMAND_CENTER' },
+      { key: 'guardian', href: '/admin/guardian', moduleKey: 'GUARDIAN' },
+    ],
+  },
+  {
+    key: 'exec-floor',
+    label: 'Executive Floor',
+    color: '#e07c3e',
+    minLevel: 1,
+    items: [
+      { key: 'forge', href: '/modules/forge', moduleKey: 'FORGE' },
+      { key: 'megazord', href: '/modules/megazord', moduleKey: 'MEGAZORD' },
+      { key: 'voltron', href: '/modules/voltron', moduleKey: 'VOLTRON' },
+      { key: 'musashi', href: '/modules/musashi', moduleKey: 'MUSASHI' },
+    ],
+  },
+  {
+    key: 'leader-level',
+    label: 'Leader Level',
+    color: '#a855f7',
+    minLevel: 2,
+    items: [
+      { key: 'prozone', href: '/modules/prozone', moduleKey: 'PROZONE' },
+      { key: 'rsp', href: '/modules/rsp', moduleKey: 'RSP' },
+      { key: 'c3', href: '/modules/c3', moduleKey: 'C3' },
+      { key: 'cam', href: '/modules/cam', moduleKey: 'CAM' },
+      { key: 'dex', href: '/modules/dex', moduleKey: 'DEX' },
+      { key: 'pipeline-studio', href: '/modules/pipeline-studio', moduleKey: 'PIPELINE_STUDIO' },
+    ],
+  },
 ]
+
+const TRAY_STORAGE_KEY = 'prodash-tray-expanded'
 
 /* ─── Fixed Bottom: Connect + Admin ─── */
 const CONNECT_ITEM = {
@@ -258,10 +292,42 @@ export function PortalSidebar({ onCommsToggle, commsOpen, onConnectToggle, conne
 
   const visibleSections = sectionsWithPipelines
 
-  const visibleApps = useMemo(
-    () => filterAppItems(APP_ITEMS, entitlementCtx),
-    [entitlementCtx]
-  )
+  // Filter trays by user level + individual app entitlements
+  const userLevel = useMemo(() => {
+    const levelMap: Record<string, number> = { OWNER: 0, EXECUTIVE: 1, LEADER: 2, USER: 3 }
+    return levelMap[entitlementCtx.userLevel] ?? 3
+  }, [entitlementCtx.userLevel])
+
+  const visibleTrays = useMemo(() => {
+    return TRAY_DEFS
+      .filter(tray => userLevel <= tray.minLevel)
+      .map(tray => ({
+        ...tray,
+        items: tray.items.filter(item => !item.moduleKey || canAccessModule(entitlementCtx, item.moduleKey)),
+      }))
+      .filter(tray => tray.items.length > 0)
+  }, [entitlementCtx, userLevel])
+
+  const [trayExpanded, setTrayExpanded] = useState<Record<string, boolean>>({})
+
+  // Load tray collapse state from localStorage
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(TRAY_STORAGE_KEY)
+      if (saved) setTrayExpanded(JSON.parse(saved))
+      else setTrayExpanded(Object.fromEntries(TRAY_DEFS.map(t => [t.key, true])))
+    } catch {
+      setTrayExpanded(Object.fromEntries(TRAY_DEFS.map(t => [t.key, true])))
+    }
+  }, [])
+
+  const toggleTray = (key: string) => {
+    setTrayExpanded(prev => {
+      const next = { ...prev, [key]: !prev[key] }
+      try { localStorage.setItem(TRAY_STORAGE_KEY, JSON.stringify(next)) } catch { /* */ }
+      return next
+    })
+  }
 
   const showAdmin = useMemo(
     () => !ADMIN_ITEM.moduleKey || canAccessModule(entitlementCtx, ADMIN_ITEM.moduleKey),
@@ -500,63 +566,57 @@ export function PortalSidebar({ onCommsToggle, commsOpen, onConnectToggle, conne
       {/* ═══ Fixed Bottom Zone ═══ */}
       <div className="shrink-0">
 
-        {/* Apps — branded icons, fixed at bottom */}
-        {visibleApps.length > 0 && (
-          <div className="border-t border-[var(--border-subtle)] px-2 py-2">
-            {!collapsed && (
-              <button
-                onClick={toggleApps}
-                className="mb-1.5 flex w-full items-center gap-1.5 px-1 rounded-md hover:bg-[rgba(255,255,255,0.05)]"
-              >
-                <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '14px' }}>apps</span>
-                <span className="flex-1 text-left text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">
-                  Apps
-                </span>
-                <span
-                  className="material-icons-outlined text-sm transition-transform duration-200"
-                  style={{
-                    color: 'var(--text-muted)',
-                    transform: appsExpanded ? 'rotate(0deg)' : 'rotate(-90deg)',
-                  }}
+        {/* ═══ Collapsible Tray Tiers (grow upward from dock) ═══ */}
+        {visibleTrays.map((tray) => {
+          const isExpanded = trayExpanded[tray.key] ?? true
+          return (
+            <div key={tray.key} className="border-t border-[var(--border-subtle)] px-2 py-1.5">
+              {!collapsed && (
+                <button
+                  onClick={() => toggleTray(tray.key)}
+                  className="mb-1 flex w-full items-center gap-1.5 px-1 rounded-md hover:bg-[rgba(255,255,255,0.05)]"
                 >
-                  expand_more
-                </span>
-              </button>
-            )}
-            {(collapsed || appsExpanded) && (
-              <div className={collapsed ? 'flex flex-col items-center gap-1' : 'flex flex-col gap-0.5'}>
-                {visibleApps.map((app) => {
-                  const brand = APP_BRANDS[app.key]
-                  const active = isActive(app.href)
-                  return (
-                    <Link
-                      key={app.key}
-                      href={app.href}
-                      title={brand.label}
-                      className={`
-                        relative flex items-center gap-2.5 rounded-md transition-all duration-150
-                        ${collapsed ? 'justify-center p-1.5' : 'px-2.5 py-1.5'}
-                      `}
-                      style={{
-                        background: active
-                          ? `${brand.color}20`
-                          : `${brand.color}14`,
-                      }}
-                    >
-                      {/* No vertical bar on apps */}
-                      <AppIcon appKey={app.key} size={collapsed ? 28 : 22} />
-                      {!collapsed && (
-                        <span className="text-xs font-medium text-[var(--text-secondary)]">
-                          {brand.label}
-                        </span>
-                      )}
+                  <div className="h-2 w-2 rounded-full" style={{ background: tray.color }} />
+                  <span className="flex-1 text-left text-[10px] font-bold uppercase tracking-wider" style={{ color: tray.color }}>
+                    {tray.label}
+                  </span>
+                  <span
+                    className="material-icons-outlined text-sm transition-transform duration-200"
+                    style={{ color: 'var(--text-muted)', transform: isExpanded ? 'rotate(0deg)' : 'rotate(-90deg)' }}
+                  >
+                    expand_more
+                  </span>
+                </button>
+              )}
+              {(collapsed || isExpanded) && (
+                <div className={collapsed ? 'flex flex-col items-center gap-1' : 'flex flex-col gap-0.5'}>
+                  {tray.items.map((app) => {
+                    const brand = APP_BRANDS[app.key]
+                    if (!brand) return null
+                    const active = isActive(app.href)
+                    return (
+                      <Link key={app.key} href={app.href} title={brand.label}
+                        className={`relative flex items-center gap-2.5 rounded-md transition-all duration-150 ${collapsed ? 'justify-center p-1.5' : 'px-2.5 py-1.5'}`}
+                        style={{ background: active ? `${brand.color}20` : `${brand.color}14` }}>
+                        <AppIcon appKey={app.key} size={collapsed ? 28 : 22} />
+                        {!collapsed && <span className="text-xs font-medium text-[var(--text-secondary)]">{brand.label}</span>}
+                      </Link>
+                    )
+                  })}
+                  {/* Admin link in Owner's Box */}
+                  {tray.key === 'owner-box' && showAdmin && (
+                    <Link href={ADMIN_ITEM.href} title="Admin"
+                      className={`relative flex items-center gap-2.5 rounded-md transition-all duration-150 ${collapsed ? 'justify-center p-1.5' : 'px-2.5 py-1.5'}`}
+                      style={{ background: isActive(ADMIN_ITEM.href) ? 'rgba(220,38,38,0.12)' : 'rgba(220,38,38,0.08)' }}>
+                      <span className="material-icons-outlined" style={{ fontSize: collapsed ? '28px' : '22px', color: 'var(--admin-color)' }}>{ADMIN_ITEM.icon}</span>
+                      {!collapsed && <span className="text-xs font-medium" style={{ color: 'var(--admin-color)' }}>Admin</span>}
                     </Link>
-                  )
-                })}
-              </div>
-            )}
-          </div>
-        )}
+                  )}
+                </div>
+              )}
+            </div>
+          )
+        })}
 
         {/* ─── Compact Action Bar ─── */}
         <div
@@ -662,31 +722,7 @@ export function PortalSidebar({ onCommsToggle, commsOpen, onConnectToggle, conne
             )}
           </button>
 
-          {/* Admin */}
-          {showAdmin && (
-            <Link
-              href={ADMIN_ITEM.href}
-              title="Admin"
-              className={`flex flex-col items-center justify-center rounded-lg transition-all duration-150 ${
-                collapsed ? 'h-9 w-9' : 'h-9 w-9'
-              }`}
-              style={{
-                background: isActive(ADMIN_ITEM.href) ? 'rgba(220,38,38,0.12)' : 'transparent',
-              }}
-            >
-              <span
-                className="material-icons-outlined"
-                style={{ fontSize: '20px', color: 'var(--admin-color)' }}
-              >
-                {ADMIN_ITEM.icon}
-              </span>
-              {!collapsed && (
-                <span className="text-[9px] mt-0.5" style={{ color: 'var(--admin-color)' }}>
-                  Admin
-                </span>
-              )}
-            </Link>
-          )}
+          {/* Admin moved to Owner's Box tray */}
         </div>
       </div>
     </aside>
