@@ -83,9 +83,10 @@ bookingRoutes.get('/config/:slug', async (req: Request, res: Response) => {
     }
 
     // Look up individual agent by booking_slug
+    // Status field is 'Active' (capitalized) in Firestore — query both for safety
     const usersSnap = await db
       .collection('users')
-      .where('status', '==', 'active')
+      .where('status', 'in', ['active', 'Active'])
       .get()
 
     let agent: Record<string, unknown> | null = null
