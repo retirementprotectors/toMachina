@@ -987,29 +987,34 @@
       </div>
     </div>
 
-    <!-- What APPA means for CSO -->
+    <!-- What APPA means for CSO — corrected per JDM -->
     <div class="card">
-      <h3>What Each Stage Means in the CSO Domain</h3>
+      <h3>What Each Stage Means for VOLTRON</h3>
+      <p style="margin-bottom:16px">Each stage has a <strong>front</strong> (starting) and a <strong>back</strong> (completing). The back of one stage is the front of the next. The end state: SHINOB1 asks VOLTRON a question &rarr; VOLTRON dispatches Lions &rarr; Lions run wires &rarr; wires use QUE tools &rarr; results come back &rarr; VOLTRON reports. No human in the loop between question and answer.</p>
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin:16px 0">
         <div style="background:var(--card2);border:1px solid var(--border);border-top:3px solid var(--red);border-radius:8px;padding:16px">
           <div style="font-size:0.78rem;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Activity</div>
-          <p style="font-size:0.82rem;color:var(--muted);margin:0">Real client cases being worked by hand. Statements read. Accounts entered. Quotes pulled. Meetings prepped. The hands-on reps that expose what&rsquo;s actually needed &mdash; not what we think is needed.</p>
-          <p style="font-size:0.75rem;color:var(--red);margin:8px 0 0;font-weight:600">Earned by: doing the work at volume.</p>
+          <p style="font-size:0.78rem;color:var(--muted);margin:0"><strong style="color:var(--text)">Front (0%):</strong> Haven&rsquo;t done the work yet. Zero reps.</p>
+          <p style="font-size:0.78rem;color:var(--muted);margin:6px 0 0"><strong style="color:var(--text)">Back (100%):</strong> Done enough reps by hand that the patterns are clear. You know what tools need to be built because you&rsquo;ve done the work without them.</p>
+          <p style="font-size:0.72rem;color:var(--red);margin:10px 0 0;font-weight:600">Completing Activity &rarr; unlocks Process/Tools development.</p>
         </div>
         <div style="background:var(--card2);border:1px solid var(--border);border-top:3px solid var(--orange);border-radius:8px;padding:16px">
-          <div style="font-size:0.78rem;font-weight:700;color:var(--orange);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Process</div>
-          <p style="font-size:0.82rem;color:var(--muted);margin:0">Tools, wires, and registries that encode what we learned from Activity. QUE tools that calculate correctly. Templates that produce what Archer actually needs in front of a client. Ranger pipelines that process documents the way we did by hand.</p>
-          <p style="font-size:0.75rem;color:var(--orange);margin:8px 0 0;font-weight:600">Earned by: patterns emerging from enough Activity reps.</p>
+          <div style="font-size:0.78rem;font-weight:700;color:var(--orange);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Process / Tools</div>
+          <p style="font-size:0.78rem;color:var(--muted);margin:0"><strong style="color:var(--text)">Front (0%):</strong> Starting to codify what you learned from Activity into QUE tools, wires, templates.</p>
+          <p style="font-size:0.78rem;color:var(--muted);margin:6px 0 0"><strong style="color:var(--text)">Back (100%):</strong> Tools built, validated against real data, producing correct output. Ready for the Lions to use them.</p>
+          <p style="font-size:0.72rem;color:var(--orange);margin:10px 0 0;font-weight:600">Completing Process &rarr; unlocks People/Systems (Lions) development.</p>
         </div>
         <div style="background:var(--card2);border:1px solid var(--border);border-top:3px solid var(--blue);border-radius:8px;padding:16px">
-          <div style="font-size:0.78rem;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">People</div>
-          <p style="font-size:0.82rem;color:var(--muted);margin:0">The team (Archer, Vince, Nikki) actually using the tools daily. Not &ldquo;it exists in ProDash&rdquo; but &ldquo;Archer opens the Command Center before every client meeting.&rdquo; Adoption. Training. Muscle memory. The tools work because people trust them.</p>
-          <p style="font-size:0.75rem;color:var(--blue);margin:8px 0 0;font-weight:600">Earned by: Process proven reliable enough that people choose it over the old way.</p>
+          <div style="font-size:0.78rem;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">People / Systems</div>
+          <p style="font-size:0.78rem;color:var(--muted);margin:0"><strong style="color:var(--text)">Front (0%):</strong> Lions being developed to operate the tools. Routing configured, specialist prompts written, domain knowledge loaded.</p>
+          <p style="font-size:0.78rem;color:var(--muted);margin:6px 0 0"><strong style="color:var(--text)">Back (100%):</strong> Lions can receive a query, select the right tools, execute the wire, and produce a correct result. They operate the Process layer reliably.</p>
+          <p style="font-size:0.72rem;color:var(--blue);margin:10px 0 0;font-weight:600">Completing People &rarr; unlocks Automation (end-to-end wire execution).</p>
         </div>
         <div style="background:var(--card2);border:1px solid var(--border);border-top:3px solid var(--green);border-radius:8px;padding:16px">
           <div style="font-size:0.78rem;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Automation</div>
-          <p style="font-size:0.82rem;color:var(--muted);margin:0">Lions running proactively without being asked. RMD notifications firing 30 days before deadlines. AEP prep triggering Oct 1 for every Medicare client. 1035 opportunities flagged when surrender periods end. The system working without human initiation.</p>
-          <p style="font-size:0.75rem;color:var(--green);margin:8px 0 0;font-weight:600">Earned by: People stage so reliable that removing the human from the loop improves it.</p>
+          <p style="font-size:0.78rem;color:var(--muted);margin:0"><strong style="color:var(--text)">Front (0%):</strong> Lions executing wires but VOLTRON still supervising every step.</p>
+          <p style="font-size:0.78rem;color:var(--muted);margin:6px 0 0"><strong style="color:var(--text)">Back (100%):</strong> Proven end-to-end. SHINOB1 says &ldquo;what&rsquo;s up with these 5 things?&rdquo; &mdash; VOLTRON dispatches Lions, wires run, results come back, VOLTRON reports. Nobody touched anything in between.</p>
+          <p style="font-size:0.72rem;color:var(--green);margin:10px 0 0;font-weight:600">Completing Automation = the CSO is operational.</p>
         </div>
       </div>
     </div>
@@ -1095,35 +1100,35 @@
           </div>
         </div>
 
-        <!-- RSP Pipeline: Activity confirmed (solid), Process confirmed (solid) -->
+        <!-- RSP Pipeline: Activity not confirmed in new system, Process built (dim) -->
         <div style="display:grid;grid-template-columns:200px 1fr;gap:0;margin-bottom:6px;align-items:center">
           <div style="font-size:0.78rem;font-weight:600;color:var(--text);padding-right:12px">RSP Pipeline</div>
           <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:2px;height:28px">
-            <div style="background:var(--red);border-radius:4px 0 0 4px" title="Activity: CONFIRMED — pipeline work was done in old system first"></div>
-            <div style="background:var(--orange);border-radius:0" title="Process: CONFIRMED — documented, built into Flow Engine, live"></div>
-            <div style="background:var(--blue);opacity:0.15;border-radius:0" title="People: not started — team hasn't adopted yet"></div>
+            <div style="background:var(--red);opacity:0.2;border-radius:4px 0 0 4px" title="Activity: pipeline work done in old system but NOT confirmed in ProDash by any user"></div>
+            <div style="background:var(--orange);opacity:0.2;border-radius:0" title="Process: built into Flow Engine, live — but nobody has used it successfully"></div>
+            <div style="background:var(--card2);border-radius:0"></div>
             <div style="background:var(--card2);border-radius:0 4px 4px 0"></div>
           </div>
         </div>
 
-        <!-- RMD Center: Activity confirmed (old system), Process confirmed (built), People not started -->
+        <!-- RMD Center: Not confirmed by any user -->
         <div style="display:grid;grid-template-columns:200px 1fr;gap:0;margin-bottom:6px;align-items:center">
           <div style="font-size:0.78rem;font-weight:600;color:var(--text);padding-right:12px">RMD Center</div>
           <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:2px;height:28px">
-            <div style="background:var(--red);border-radius:4px 0 0 4px" title="Activity: CONFIRMED — RMD tracking was done manually before"></div>
-            <div style="background:var(--orange);border-radius:0" title="Process: CONFIRMED — built, live, renders real data"></div>
-            <div style="background:var(--blue);opacity:0.15;border-radius:0" title="People: not started — team still doing RMDs manually"></div>
+            <div style="background:var(--red);opacity:0.2;border-radius:4px 0 0 4px" title="Activity: RMD tracking done manually but NOT through this tool — nobody has used it"></div>
+            <div style="background:var(--orange);opacity:0.2;border-radius:0" title="Process: built, live in ProDash — but JDM confirms nobody has used it successfully"></div>
+            <div style="background:var(--card2);border-radius:0"></div>
             <div style="background:var(--card2);border-radius:0 4px 4px 0"></div>
           </div>
         </div>
 
-        <!-- Beni Center: same as RMD -->
+        <!-- Beni Center: Not confirmed by any user -->
         <div style="display:grid;grid-template-columns:200px 1fr;gap:0;margin-bottom:6px;align-items:center">
           <div style="font-size:0.78rem;font-weight:600;color:var(--text);padding-right:12px">Beni Center</div>
           <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:2px;height:28px">
-            <div style="background:var(--red);border-radius:4px 0 0 4px" title="Activity: CONFIRMED — beni reviews done manually"></div>
-            <div style="background:var(--orange);border-radius:0" title="Process: CONFIRMED — built, live"></div>
-            <div style="background:var(--blue);opacity:0.15;border-radius:0" title="People: not started — Ruth had 13 accounts with no beni, tool didn't catch it because nobody uses it"></div>
+            <div style="background:var(--red);opacity:0.2;border-radius:4px 0 0 4px" title="Activity: beni reviews done manually but NOT through this tool — nobody has used it"></div>
+            <div style="background:var(--orange);opacity:0.2;border-radius:0" title="Process: built, live — Ruth had 13 accounts with no beni and the tool didn't catch it because nobody uses it"></div>
+            <div style="background:var(--card2);border-radius:0"></div>
             <div style="background:var(--card2);border-radius:0 4px 4px 0"></div>
           </div>
         </div>
@@ -1216,23 +1221,23 @@
         <p><strong>Next:</strong> Run WIRE_LIFE_PRESENTATION against Ruth. See the output. Fix from there.</p>
       </div>
 
-      <div class="flag blue">
-        <div class="title">RSP Pipeline — Stage 2: PROCESS (complete) → Stage 3: PEOPLE (not started)</div>
-        <p>Live on main. Wired to Flow Engine. Actually went through the stages — Activity in old system, Process documented, built into tool. But the team hasn't adopted it.</p>
-        <p><strong>Next:</strong> Stage 3. Train the team. Get Vince and Archer using it for new business.</p>
+      <div class="flag orange">
+        <div class="title">RSP Pipeline &mdash; Stage 2: PROCESS/TOOLS (built, not confirmed)</div>
+        <p>Live on main. Wired to Flow Engine. But JDM confirms: nobody has used it successfully. The tool exists but the Activity of using it hasn&rsquo;t happened yet. Can&rsquo;t confirm Process works until someone runs a real pipeline through it.</p>
+        <p><strong>Next:</strong> Stage 1 first. Use the RSP Pipeline on a real new business case. Confirm it works. Then it earns the solid bar.</p>
       </div>
 
-      <div class="flag blue">
-        <div class="title">RMD Center + Beni Center — Stage 2: PROCESS (complete) → Stage 3: PEOPLE (not started)</div>
-        <p>Both live. UI works. But the Activity of RMD tracking and beni review is still manual. Ruth had 13 accounts with no beneficiary — Beni Center didn't flag it because nobody uses it.</p>
-        <p><strong>Next:</strong> Stage 3. Make it part of the team's daily workflow. Every review meeting should pull from these tools.</p>
+      <div class="flag orange">
+        <div class="title">RMD Center + Beni Center &mdash; Stage 2: PROCESS/TOOLS (built, not confirmed)</div>
+        <p>Both live in ProDash. UI renders. But JDM confirms: nobody has used either one successfully. Ruth had 13 accounts with no beneficiary &mdash; the Beni Center didn&rsquo;t catch it because nobody opens it. These are built tools with zero Activity through them.</p>
+        <p><strong>Next:</strong> Stage 1. Open RMD Center for the next IRA client. Open Beni Center for every case. Confirm they show the right data. Then they earn the solid bar.</p>
       </div>
     </div>
 
     <div class="card">
       <h3>The Lesson</h3>
       <div class="callout green">
-        <p><strong>We built a lot. We used almost none of it.</strong> The next 10 cases through the system matter more than the next 10 PRs. Activity earns Process. Process earns People. People earn Automation. We're trying to jump to Automation from Process without doing the Activity or training the People.</p>
+        <p><strong>Everything is dim. Nothing is solid.</strong> We have zero confirmed bars across the entire CSO domain. Every scope has tools built but none have been proven through real use. The bars earn their solid color one at a time &mdash; by doing the work, confirming the tools, building the Lions, and proving the wires. The end state is VOLTRON operating as CSO: receiving direction from SHINOB1, dispatching Lions, delivering results. We&rsquo;re not there. The next case is the next rep.</p>
       </div>
     </div>
   </div>
