@@ -55,7 +55,7 @@ code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px;
 
 <div class="header">
   <h1>Admin + Permissions + Sidebar Reorg</h1>
-  <div class="subtitle">Rewire what exists. Zero new features. One surgery.</div>
+  <div class="subtitle">4 tiers, 4 levels, 1:1. Rewire what exists. Zero new features.</div>
   <div class="badge">SHINOB1, CTO &mdash; Discovery Doc &mdash; 2026-04-08</div>
 </div>
 
@@ -80,7 +80,7 @@ code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px;
     <h2>One Surgery, Three Outcomes</h2>
     <p>This sprint rewires existing infrastructure to deliver three things simultaneously:</p>
     <ol>
-      <li><strong>Sidebar reorganization</strong> &mdash; flat icon list becomes 3 collapsible trays (Executive Floor, Leader Level, Team Tray), gated by user level</li>
+      <li><strong>Sidebar reorganization</strong> &mdash; flat icon list becomes 4 collapsible tiers (Owner's Box, Executive Floor, Leader Level, Team Tray), gated by user level</li>
       <li><strong>Permission enforcement</strong> &mdash; API routes actually respect what Admin panel sets (85 of 87 routes currently ignore permissions)</li>
       <li><strong>Admin config update</strong> &mdash; App Config and Team Config show tray groupings, defaults auto-populate from level assignment</li>
     </ol>
@@ -113,22 +113,30 @@ UI Component (V/E/A controls what buttons render)</div>
 <!-- ═══════════════════ 3 TRAYS ═══════════════════ -->
 <div class="tab-panel" id="trays">
   <div class="card">
-    <h2>Sidebar Layout &mdash; 3 Collapsible Trays</h2>
-    <p>Each tray is a collapsible section in the left sidebar. Click the tray header to expand/collapse. Users only see trays their level permits.</p>
+    <h2>Sidebar Layout &mdash; 4 Collapsible Tiers</h2>
+    <p>Each tier is a collapsible section in the left sidebar. Click the header to expand/collapse. Users only see tiers their level permits. Each level maps 1:1 to a tier.</p>
+  </div>
+
+  <div class="tray" style="border-left-color: var(--gold);">
+    <h3 style="color:var(--gold);">Owner's Box <span class="pill" style="background:rgba(212,164,76,0.12);color:var(--gold);">OWNER ONLY (Level 0)</span></h3>
+    <p>JDM + John Behn only. Platform administration, observability, operational command.</p>
+    <table>
+      <tr><th>App</th><th>Module Key</th><th>Min Level</th><th>Status</th></tr>
+      <tr><td><strong>System Synergy</strong></td><td><code>SYSTEM_SYNERGY</code></td><td>OWNER</td><td><span class="pill built">BUILT</span></td></tr>
+      <tr><td><strong>Admin</strong></td><td><code>PRODASH_ADMIN</code></td><td>OWNER</td><td><span class="pill built">BUILT</span></td></tr>
+      <tr><td><strong>Command Center</strong></td><td><code>RPI_COMMAND_CENTER</code></td><td>OWNER</td><td><span class="pill built">BUILT</span></td></tr>
+    </table>
   </div>
 
   <div class="tray exec">
-    <h3 style="color:var(--accent);">Executive Floor <span class="pill" style="background:rgba(224,124,62,0.12);color:var(--accent);">OWNER / EXECUTIVE</span></h3>
-    <p>JDM + leadership only. AI operations, platform management, warrior command centers.</p>
+    <h3 style="color:var(--accent);">Executive Floor <span class="pill" style="background:rgba(224,124,62,0.12);color:var(--accent);">EXECUTIVE+ (Level 1)</span></h3>
+    <p>CXO warrior command centers + AI operations. Executive leadership tools.</p>
     <table>
       <tr><th>App</th><th>Module Key</th><th>Min Level</th><th>Status</th></tr>
-      <tr><td><strong>Dojo</strong></td><td><code>FORGE</code></td><td>OWNER</td><td><span class="pill built">BUILT</span></td></tr>
-      <tr><td><strong>System Synergy</strong></td><td><code>SYSTEM_SYNERGY</code></td><td>OWNER</td><td><span class="pill built">BUILT</span></td></tr>
-      <tr><td><strong>Command Center</strong></td><td><code>RPI_COMMAND_CENTER</code></td><td>EXECUTIVE</td><td><span class="pill built">BUILT</span></td></tr>
+      <tr><td><strong>Dojo</strong></td><td><code>FORGE</code></td><td>EXECUTIVE</td><td><span class="pill built">BUILT</span></td></tr>
       <tr><td><strong>MEGAZORD</strong></td><td><code>MEGAZORD</code></td><td>EXECUTIVE</td><td><span class="pill built">BUILT</span></td></tr>
       <tr><td><strong>VOLTRON</strong></td><td><code>VOLTRON</code></td><td>EXECUTIVE</td><td><span class="pill built">BUILT</span></td></tr>
       <tr><td><strong>MUSASHI</strong></td><td><code>MUSASHI</code></td><td>EXECUTIVE</td><td><span class="pill built">BUILT</span></td></tr>
-      <tr><td><strong>Admin</strong></td><td><code>PRODASH_ADMIN</code></td><td>EXECUTIVE</td><td><span class="pill built">BUILT</span></td></tr>
     </table>
   </div>
 
@@ -169,15 +177,15 @@ UI Component (V/E/A controls what buttons render)</div>
   </div>
 
   <div class="card">
-    <h2>Level &rarr; Tray Visibility Defaults</h2>
+    <h2>Level &rarr; Tier Visibility (1:1 Mapping)</h2>
     <table>
-      <tr><th>Level</th><th>Numeric</th><th>Sees</th><th>Default V/E/A</th></tr>
-      <tr><td><strong>OWNER</strong></td><td>0</td><td>All 3 trays + toolbar</td><td>V/E/A on everything</td></tr>
-      <tr><td><strong>EXECUTIVE</strong></td><td>1</td><td>All 3 trays + toolbar</td><td>V/E/A on Exec + Leader, V/E on Team Tray</td></tr>
-      <tr><td><strong>LEADER</strong></td><td>2</td><td>Leader Level + Team Tray + toolbar</td><td>V/E/A on Leader, V/E on Team Tray</td></tr>
-      <tr><td><strong>USER</strong></td><td>3</td><td>Team Tray + toolbar only</td><td>V on Team Tray</td></tr>
+      <tr><th>Level</th><th>Numeric</th><th>Their Tier</th><th>Sees</th><th>Default V/E/A</th></tr>
+      <tr><td><strong>OWNER</strong></td><td>0</td><td style="color:var(--gold);">Owner's Box</td><td>All 4 tiers + toolbar</td><td>V/E/A on everything</td></tr>
+      <tr><td><strong>EXECUTIVE</strong></td><td>1</td><td style="color:var(--accent);">Executive Floor</td><td>Executive Floor + Leader Level + Team Tray + toolbar</td><td>V/E/A on Exec + Leader, V/E on Team Tray</td></tr>
+      <tr><td><strong>LEADER</strong></td><td>2</td><td style="color:var(--purple);">Leader Level</td><td>Leader Level + Team Tray + toolbar</td><td>V/E/A on Leader, V/E on Team Tray</td></tr>
+      <tr><td><strong>USER</strong></td><td>3</td><td style="color:var(--blue);">Team Tray</td><td>Team Tray + toolbar only</td><td>V on Team Tray</td></tr>
     </table>
-    <p>When a level is assigned in Team Config, the default V/E/A for that level auto-populates across all modules in the visible trays. JDM can then override individual apps per user.</p>
+    <p>4 levels, 4 tiers, 1:1. Each level sees their tier and everything below. When a level is assigned in Team Config, the default V/E/A for that level auto-populates across all modules in the visible tiers. JDM can then override individual apps per user.</p>
   </div>
 </div>
 
@@ -337,7 +345,7 @@ const voltronRole = LEVEL_TO_VOLTRON[req.user.level] || 'COORDINATOR'</div>
   <div class="card">
     <h3>Step 4: Sidebar &rarr; 3 Collapsible Trays</h3>
     <p><strong>File:</strong> <code>apps/prodash/app/(portal)/components/PortalSidebar.tsx</code></p>
-    <p>Restructure the app icons section from a flat list to 3 collapsible tray groups. Each tray:</p>
+    <p>Restructure the app icons section from a flat list to 4 collapsible tier groups. Each tray:</p>
     <ul>
       <li>Has a header bar (tray name + expand/collapse chevron)</li>
       <li>Only renders if <code>userLevel &lt;= tray.minLevel</code></li>
@@ -352,7 +360,7 @@ const voltronRole = LEVEL_TO_VOLTRON[req.user.level] || 'COORDINATOR'</div>
     <p><strong>File:</strong> <code>packages/ui/src/modules/AdminPanel.tsx</code></p>
     <p>In both Module Config and Team Config tabs:</p>
     <ul>
-      <li>Group modules by tray (Executive Floor / Leader Level / Team Tray)</li>
+      <li>Group modules by tray (Owner's Box / Executive Floor / Leader Level / Team Tray)</li>
       <li>Show tray label as section header</li>
       <li>When level is assigned, auto-populate default V/E/A for all modules in visible trays</li>
       <li>Allow per-module override after defaults populate</li>
@@ -409,7 +417,7 @@ const voltronRole = LEVEL_TO_VOLTRON[req.user.level] || 'COORDINATOR'</div>
     <h3>What Changes in AdminPanel.tsx</h3>
     <table>
       <tr><th>Change</th><th>What</th><th>LOE</th></tr>
-      <tr><td>Add <code>tray</code> to module definitions</td><td>New field in <code>modules.ts</code>: <code>tray: 'executive' | 'leader' | 'team'</code></td><td>10 min</td></tr>
+      <tr><td>Add <code>tray</code> to module definitions</td><td>New field in <code>modules.ts</code>: <code>tray: 'owner' | 'executive' | 'leader' | 'team'</code></td><td>10 min</td></tr>
       <tr><td>Group modules by tray in both config views</td><td>Section headers in the permission grid</td><td>30 min</td></tr>
       <tr><td>Auto-populate defaults on level change</td><td>When level dropdown changes, write default V/E/A per role template</td><td>30 min</td></tr>
       <tr><td>Show tray visibility per level</td><td>Visual indicator: "This user sees: Team Tray + Leader Level"</td><td>15 min</td></tr>
@@ -440,8 +448,8 @@ const voltronRole = LEVEL_TO_VOLTRON[req.user.level] || 'COORDINATOR'</div>
     <div class="section-label">Sidebar Reorg (3 tickets)</div>
     <table>
       <tr><th>Ticket</th><th>What</th><th>File(s)</th></tr>
-      <tr><td><strong>APR-06</strong></td><td>Add <code>tray</code> property to all 47 module definitions &mdash; <code>'executive' | 'leader' | 'team'</code></td><td><code>core/src/users/modules.ts</code></td></tr>
-      <tr><td><strong>APR-07</strong></td><td>Restructure PortalSidebar into 3 collapsible trays &mdash; group icons by tray, collapse/expand with localStorage persistence, tray-level visibility by user level</td><td><code>PortalSidebar.tsx</code></td></tr>
+      <tr><td><strong>APR-06</strong></td><td>Add <code>tray</code> property to all 47 module definitions &mdash; <code>'owner' | 'executive' | 'leader' | 'team'</code></td><td><code>core/src/users/modules.ts</code></td></tr>
+      <tr><td><strong>APR-07</strong></td><td>Restructure PortalSidebar into 4 collapsible tiers &mdash; group icons by tray, collapse/expand with localStorage persistence, tray-level visibility by user level</td><td><code>PortalSidebar.tsx</code></td></tr>
       <tr><td><strong>APR-08</strong></td><td>Add page-level guards to admin routes &mdash; <code>/admin</code>, <code>/admin/guardian</code>, <code>/admin/intake-queue</code> check <code>canAccessModule()</code> on mount, redirect if unauthorized</td><td>3 page files</td></tr>
     </table>
   </div>
@@ -450,7 +458,7 @@ const voltronRole = LEVEL_TO_VOLTRON[req.user.level] || 'COORDINATOR'</div>
     <div class="section-label">Admin UI Update (3 tickets)</div>
     <table>
       <tr><th>Ticket</th><th>What</th><th>File(s)</th></tr>
-      <tr><td><strong>APR-09</strong></td><td>Group module permissions by tray in Module Config tab &mdash; section headers for Executive Floor / Leader Level / Team Tray</td><td><code>AdminPanel.tsx</code></td></tr>
+      <tr><td><strong>APR-09</strong></td><td>Group module permissions by tray in Module Config tab &mdash; section headers for Owner's Box / Executive Floor / Leader Level / Team Tray</td><td><code>AdminPanel.tsx</code></td></tr>
       <tr><td><strong>APR-10</strong></td><td>Group module permissions by tray in Team Config tab &mdash; same grouping + show "This user sees: [tray list]" indicator based on level</td><td><code>AdminPanel.tsx</code></td></tr>
       <tr><td><strong>APR-11</strong></td><td>Auto-populate defaults on level assignment &mdash; when level dropdown changes, write default V/E/A from role template for all modules in visible trays</td><td><code>AdminPanel.tsx</code></td></tr>
     </table>
@@ -508,7 +516,7 @@ const voltronRole = LEVEL_TO_VOLTRON[req.user.level] || 'COORDINATOR'</div>
       <li><code>npm run build</code> &mdash; all pass</li>
       <li>Every route in <code>services/api/src/routes/</code> has an explicit <code>requireLevel()</code> guard (grep verification)</li>
       <li>Zero ad-hoc inline auth guards remain (grep for removed patterns)</li>
-      <li>Sidebar renders 3 trays, each collapsible, level-gated</li>
+      <li>Sidebar renders 4 tiers, each collapsible, level-gated (1:1 with user levels)</li>
       <li>Admin panel shows tray groupings in both config views</li>
     </ul>
   </div>
