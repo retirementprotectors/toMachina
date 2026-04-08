@@ -455,6 +455,19 @@ code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px;
     </table>
   </div>
 
+  <div class="card" style="border-left: 3px solid var(--gold)">
+    <h3 style="color: var(--gold)">Stage 8 &mdash; COMMUNICATE + MONITOR &nbsp;<span class="pill hot">JDM GATE</span></h3>
+    <table>
+      <tr><th>Action</th><th>Detail</th></tr>
+      <tr><td><strong>Draft team message</strong></td><td>What changed, why, what they should see differently in the system</td></tr>
+      <tr><td><strong>JDM approves message</strong></td><td>JDM reviews tone + content before it goes to the team</td></tr>
+      <tr><td><strong>Send to team</strong></td><td>Appropriate channel &mdash; Slack, email, or team call depending on impact</td></tr>
+      <tr><td><strong>Monitor window</strong></td><td>Team reports any issues for 3-5 business days. "If you see anything weird with [X], tell us immediately."</td></tr>
+      <tr><td><strong>Close migration</strong></td><td>After monitor window passes clean, migration is officially closed</td></tr>
+    </table>
+    <p style="margin-top: 12px; color: var(--red); font-weight: 600">Migration is NOT complete until the team has been notified and the monitor window passes clean</p>
+  </div>
+
   <div class="card" style="background: rgba(239,68,68,0.06); border: 1px solid rgba(239,68,68,0.2)">
     <h3 style="color: var(--red)">Incident Record &mdash; 2026-04-08</h3>
     <p><strong>What happened:</strong> MEGAZORD migrated <code>carrier_name</code> &rarr; <code>carrier</code> in Firestore (11,645 accounts) BEFORE updating 249 code references across 52 files. Skipped stages 1-3.</p>
