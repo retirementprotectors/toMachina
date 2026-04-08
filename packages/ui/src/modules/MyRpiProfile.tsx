@@ -30,6 +30,15 @@ interface BookingType {
   name: string
   duration_minutes: number
   category?: string
+  modes?: string[]
+}
+
+interface BookingAvailability {
+  timezone: string
+  business_hours: Record<number, { start: string; end: string } | null>
+  buffer_minutes: number
+  max_advance_days: number
+  slot_increment_minutes: number
 }
 
 interface CalendarSlotConfig {
@@ -41,6 +50,7 @@ interface EmployeeProfile {
   meet_room?: MeetRoom
   calendar_booking_types?: BookingType[]
   calendar_config?: CalendarSlotConfig
+  availability?: BookingAvailability
   drive_folder_url?: string
   booking_slug?: string
   profile_photo_url?: string
@@ -1000,6 +1010,25 @@ export function MyRpiProfile({ portal }: MyRpiProfileProps) {
   const [newMtCategory, setNewMtCategory] = useState('')
   const [mtSaving, setMtSaving] = useState(false)
   const [mtSaved, setMtSaved] = useState(false)
+  const [newMtModes, setNewMtModes] = useState<string[]>(['meet', 'call'])
+
+  // Availability config
+  const DEFAULT_AVAILABILITY: BookingAvailability = {
+    timezone: 'America/Chicago',
+    business_hours: {
+      1: { start: '09:00', end: '17:00' },
+      2: { start: '09:00', end: '17:00' },
+      3: { start: '09:00', end: '17:00' },
+      4: { start: '09:00', end: '17:00' },
+      5: { start: '09:00', end: '12:00' },
+    },
+    buffer_minutes: 15,
+    max_advance_days: 90,
+    slot_increment_minutes: 30,
+  }
+  const [availability, setAvailability] = useState<BookingAvailability>(DEFAULT_AVAILABILITY)
+  const [availSaving, setAvailSaving] = useState(false)
+  const [availSaved, setAvailSaved] = useState(false)
 
   // Build entitlement context for LEADER+ check
   const entitlementCtx = useMemo(() => buildEntitlementContext(user), [user])
@@ -1053,6 +1082,9 @@ export function MyRpiProfile({ portal }: MyRpiProfileProps) {
 
   // Initialize calendar config from Firestore
   useEffect(() => {
+    if (empProfile?.availability) {
+      setAvailability({ ...DEFAULT_AVAILABILITY, ...empProfile.availability })
+    }
     if (empProfile?.calendar_config) {
       setCalendarConfig(empProfile.calendar_config)
     }
@@ -1132,6 +1164,25 @@ export function MyRpiProfile({ portal }: MyRpiProfileProps) {
     }
   }, [profile, calendarConfig])
 
+  // Save availability settings
+  const saveAvailability = useCallback(async () => {
+    if (!profile?._id) return
+    setAvailSaving(true)
+    try {
+      const ref = doc(getDb(), 'users', profile._id)
+      await updateDoc(ref, {
+        'employee_profile.availability': availability,
+        updated_at: new Date().toISOString(),
+      })
+      setAvailSaved(true)
+      setTimeout(() => setAvailSaved(false), 2000)
+    } catch {
+      // Error
+    } finally {
+      setAvailSaving(false)
+    }
+  }, [profile, availability])
+
   // Save drop zone links
   const saveDropLinks = useCallback(async () => {
     if (!profile?._id) return
@@ -1208,6 +1259,7 @@ export function MyRpiProfile({ portal }: MyRpiProfileProps) {
     const newType: BookingType = {
       name,
       duration_minutes: newMtDuration,
+      modes: newMtModes.length > 0 ? newMtModes : ['meet', 'call'],
       ...(newMtCategory.trim() ? { category: newMtCategory.trim() } : {}),
     }
     const updated = [...localMeetingTypes, newType]
@@ -1215,8 +1267,9 @@ export function MyRpiProfile({ portal }: MyRpiProfileProps) {
     setNewMtName('')
     setNewMtDuration(30)
     setNewMtCategory('')
+    setNewMtModes(['meet', 'call'])
     await persistMeetingTypes(updated)
-  }, [newMtName, newMtDuration, newMtCategory, localMeetingTypes, persistMeetingTypes])
+  }, [newMtName, newMtDuration, newMtCategory, newMtModes, localMeetingTypes, persistMeetingTypes])
 
   // Remove meeting type
   const removeMeetingType = useCallback(async (idx: number) => {
@@ -1707,51 +1760,54 @@ export function MyRpiProfile({ portal }: MyRpiProfileProps) {
         </div>
       </div>
 
-      {/* ─── Section 5: Meeting Config ─── */}
+      {/* ─── Section 5: Booking Configuration ─── */}
       <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-6">
-        <div className="mb-4 flex items-center gap-2">
+        <div className="mb-5 flex items-center justify-between">
           <h3 className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-[var(--text-muted)]">
             <span className="material-icons-outlined" style={{ fontSize: '16px' }}>event_available</span>
-            Meeting Configuration
+            Booking Configuration
           </h3>
-          {mtSaving && (
-            <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-[var(--portal)] border-t-transparent" />
-          )}
-          {mtSaved && (
-            <span className="flex items-center gap-1 text-xs text-[var(--success)]">
-              <span className="material-icons-outlined" style={{ fontSize: '14px' }}>check_circle</span>
-              Saved
-            </span>
+          {bookingSlug && (
+            <a
+              href={`/book/${bookingSlug}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 rounded-lg border border-[var(--border-subtle)] px-3 py-1.5 text-xs font-medium text-[var(--portal)] transition-colors hover:bg-[var(--portal-glow)]"
+            >
+              <span className="material-icons-outlined" style={{ fontSize: '14px' }}>open_in_new</span>
+              Preview Booking Page
+            </a>
           )}
         </div>
 
-        {meetingTypes.length > 0 ? (
-          <div className="space-y-2">
-            {meetingTypes.map((mt, i) => (
-              <div
-                key={i}
-                className="flex items-center justify-between rounded-lg bg-[var(--bg-surface)] px-4 py-3"
-              >
-                <div className="flex items-center gap-3">
-                  <span
-                    className="flex h-8 w-8 items-center justify-center rounded-lg"
-                    style={{ background: 'var(--portal-glow)' }}
-                  >
-                    <span className="material-icons-outlined" style={{ fontSize: '16px', color: 'var(--portal)' }}>
-                      schedule
+        {/* Meeting Types */}
+        <div className="mb-6">
+          <div className="mb-3 flex items-center gap-2">
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">Meeting Types</h4>
+            {mtSaving && <div className="h-3 w-3 animate-spin rounded-full border-2 border-[var(--portal)] border-t-transparent" />}
+            {mtSaved && <span className="text-xs text-[var(--success)]">Saved</span>}
+          </div>
+
+          {meetingTypes.length > 0 ? (
+            <div className="space-y-2">
+              {meetingTypes.map((mt, i) => (
+                <div key={i} className="flex items-center justify-between rounded-lg bg-[var(--bg-surface)] px-4 py-3">
+                  <div className="flex items-center gap-3">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-lg" style={{ background: 'var(--portal-glow)' }}>
+                      <span className="material-icons-outlined" style={{ fontSize: '16px', color: 'var(--portal)' }}>schedule</span>
                     </span>
-                  </span>
-                  <div>
-                    <span className="text-sm font-medium text-[var(--text-primary)]">{mt.name}</span>
-                    {mt.category && (
-                      <p className="text-xs text-[var(--text-muted)]">{mt.category}</p>
-                    )}
+                    <div>
+                      <span className="text-sm font-medium text-[var(--text-primary)]">{mt.name}</span>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <span className="text-xs text-[var(--text-muted)]">{mt.duration_minutes} min</span>
+                        {(mt.modes || ['meet', 'call']).map(mode => (
+                          <span key={mode} className="material-icons-outlined" style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
+                            {mode === 'meet' ? 'videocam' : mode === 'call' ? 'phone' : 'person'}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="rounded-full bg-[var(--portal-glow)] px-2.5 py-0.5 text-xs font-medium text-[var(--portal-accent)]">
-                    {mt.duration_minutes} min
-                  </span>
                   {isOwnProfile && (
                     <button
                       onClick={() => void removeMeetingType(i)}
@@ -1762,171 +1818,176 @@ export function MyRpiProfile({ portal }: MyRpiProfileProps) {
                     </button>
                   )}
                 </div>
+              ))}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[var(--border-subtle)] py-6">
+              <span className="material-icons-outlined text-2xl text-[var(--text-muted)]">event_busy</span>
+              <p className="mt-2 text-sm text-[var(--text-muted)]">No meeting types configured.{isOwnProfile ? ' Add one below.' : ''}</p>
+            </div>
+          )}
+
+          {/* Add meeting type */}
+          {isOwnProfile && (
+            <div className="mt-3 rounded-lg border border-dashed border-[var(--border-subtle)] p-4">
+              <div className="flex flex-wrap items-end gap-3">
+                <div className="flex flex-col gap-1">
+                  <label className="text-[11px] font-medium uppercase tracking-wider text-[var(--text-muted)]">Name</label>
+                  <input type="text" value={newMtName} onChange={(e) => setNewMtName(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === 'Enter') void addMeetingType() }}
+                    placeholder="e.g. Discovery Call"
+                    className="w-44 rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2.5 py-1.5 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--portal)]" />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-[11px] font-medium uppercase tracking-wider text-[var(--text-muted)]">Duration</label>
+                  <select value={newMtDuration} onChange={(e) => setNewMtDuration(parseInt(e.target.value))}
+                    className="rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2.5 py-1.5 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--portal)]">
+                    <option value={15}>15 min</option>
+                    <option value={30}>30 min</option>
+                    <option value={45}>45 min</option>
+                    <option value={60}>60 min</option>
+                    <option value={90}>90 min</option>
+                  </select>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-[11px] font-medium uppercase tracking-wider text-[var(--text-muted)]">Modes</label>
+                  <div className="flex items-center gap-2">
+                    {[{ id: 'meet', icon: 'videocam', label: 'Video' }, { id: 'call', icon: 'phone', label: 'Phone' }].map(m => (
+                      <button key={m.id}
+                        onClick={() => setNewMtModes(prev => prev.includes(m.id) ? prev.filter(x => x !== m.id) : [...prev, m.id])}
+                        className={`flex items-center gap-1 rounded-md px-2 py-1.5 text-xs font-medium transition-colors ${newMtModes.includes(m.id) ? 'text-white' : 'bg-[var(--bg-surface)] text-[var(--text-muted)]'}`}
+                        style={newMtModes.includes(m.id) ? { background: 'var(--portal)' } : undefined}>
+                        <span className="material-icons-outlined" style={{ fontSize: '14px' }}>{m.icon}</span>
+                        {m.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <button onClick={() => void addMeetingType()} disabled={!newMtName.trim() || mtSaving}
+                  className="flex items-center gap-1.5 rounded-lg px-4 py-1.5 text-sm font-medium text-white transition-colors disabled:opacity-40"
+                  style={{ background: 'var(--portal)' }}>
+                  <span className="material-icons-outlined" style={{ fontSize: '14px' }}>add</span> Add
+                </button>
               </div>
-            ))}
-          </div>
-        ) : (
-          <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[var(--border-subtle)] py-8">
-            <span className="material-icons-outlined text-3xl text-[var(--text-muted)]">event_busy</span>
-            <p className="mt-2 text-sm text-[var(--text-muted)]">
-              No meeting types configured yet.{isOwnProfile ? ' Add one below.' : ''}
-            </p>
+            </div>
+          )}
+        </div>
+
+        {/* Business Hours */}
+        {isOwnProfile && (
+          <div className="mb-6 border-t border-[var(--border-subtle)] pt-5">
+            <div className="mb-3 flex items-center justify-between">
+              <h4 className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">Business Hours</h4>
+              <div className="flex items-center gap-2">
+                {availSaving && <div className="h-3 w-3 animate-spin rounded-full border-2 border-[var(--portal)] border-t-transparent" />}
+                {availSaved && <span className="text-xs text-[var(--success)]">Saved</span>}
+                <button onClick={() => void saveAvailability()} disabled={availSaving}
+                  className="flex items-center gap-1 rounded-lg px-3 py-1 text-xs font-medium text-white transition-colors disabled:opacity-50"
+                  style={{ background: 'var(--portal)' }}>
+                  <span className="material-icons-outlined" style={{ fontSize: '13px' }}>save</span> Save
+                </button>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              {[
+                { day: 0, label: 'Sunday' }, { day: 1, label: 'Monday' }, { day: 2, label: 'Tuesday' },
+                { day: 3, label: 'Wednesday' }, { day: 4, label: 'Thursday' }, { day: 5, label: 'Friday' },
+                { day: 6, label: 'Saturday' },
+              ].map(({ day, label }) => {
+                const hours = availability.business_hours[day]
+                const isEnabled = hours !== null && hours !== undefined
+                return (
+                  <div key={day} className="flex items-center gap-3 rounded-lg bg-[var(--bg-surface)] px-4 py-2.5">
+                    <button
+                      onClick={() => setAvailability(prev => ({
+                        ...prev,
+                        business_hours: { ...prev.business_hours, [day]: isEnabled ? null : { start: '09:00', end: '17:00' } },
+                      }))}
+                      className={`flex h-5 w-5 items-center justify-center rounded ${isEnabled ? 'text-white' : 'border border-[var(--border-subtle)] bg-[var(--bg-surface)]'}`}
+                      style={isEnabled ? { background: 'var(--portal)' } : undefined}>
+                      {isEnabled && <span className="material-icons-outlined" style={{ fontSize: '14px' }}>check</span>}
+                    </button>
+                    <span className={`w-24 text-sm ${isEnabled ? 'font-medium text-[var(--text-primary)]' : 'text-[var(--text-muted)]'}`}>
+                      {label}
+                    </span>
+                    {isEnabled && hours ? (
+                      <div className="flex items-center gap-2">
+                        <select value={hours.start}
+                          onChange={(e) => setAvailability(prev => ({
+                            ...prev,
+                            business_hours: { ...prev.business_hours, [day]: { ...hours, start: e.target.value } },
+                          }))}
+                          className="rounded border border-[var(--border-subtle)] bg-[var(--bg-card)] px-2 py-1 text-xs text-[var(--text-primary)] outline-none">
+                          {Array.from({ length: 24 }, (_, h) => [`${String(h).padStart(2, '0')}:00`, `${String(h).padStart(2, '0')}:30`]).flat().map(t => (
+                            <option key={t} value={t}>{t}</option>
+                          ))}
+                        </select>
+                        <span className="text-xs text-[var(--text-muted)]">to</span>
+                        <select value={hours.end}
+                          onChange={(e) => setAvailability(prev => ({
+                            ...prev,
+                            business_hours: { ...prev.business_hours, [day]: { ...hours, end: e.target.value } },
+                          }))}
+                          className="rounded border border-[var(--border-subtle)] bg-[var(--bg-card)] px-2 py-1 text-xs text-[var(--text-primary)] outline-none">
+                          {Array.from({ length: 24 }, (_, h) => [`${String(h).padStart(2, '0')}:00`, `${String(h).padStart(2, '0')}:30`]).flat().map(t => (
+                            <option key={t} value={t}>{t}</option>
+                          ))}
+                        </select>
+                      </div>
+                    ) : (
+                      <span className="text-xs text-[var(--text-muted)]">Unavailable</span>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
           </div>
         )}
 
-        {/* Add meeting type form */}
+        {/* Settings */}
         {isOwnProfile && (
-          <div className="mt-4 border-t border-[var(--border-subtle)] pt-4">
-            <div className="flex flex-wrap items-end gap-2">
+          <div className="border-t border-[var(--border-subtle)] pt-5">
+            <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">Settings</h4>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
               <div className="flex flex-col gap-1">
-                <label className="text-[11px] font-medium uppercase tracking-wider text-[var(--text-muted)]">
-                  Name
-                </label>
-                <input
-                  type="text"
-                  value={newMtName}
-                  onChange={(e) => setNewMtName(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === 'Enter') void addMeetingType() }}
-                  placeholder="e.g. Initial Consult"
-                  className="w-40 rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2.5 py-1.5 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--portal)]"
-                />
+                <label className="text-[11px] font-medium uppercase tracking-wider text-[var(--text-muted)]">Buffer Between Meetings</label>
+                <select value={availability.buffer_minutes}
+                  onChange={(e) => setAvailability(prev => ({ ...prev, buffer_minutes: parseInt(e.target.value) }))}
+                  className="rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2.5 py-1.5 text-sm text-[var(--text-primary)] outline-none">
+                  <option value={0}>None</option>
+                  <option value={5}>5 min</option>
+                  <option value={10}>10 min</option>
+                  <option value={15}>15 min</option>
+                  <option value={30}>30 min</option>
+                </select>
               </div>
               <div className="flex flex-col gap-1">
-                <label className="text-[11px] font-medium uppercase tracking-wider text-[var(--text-muted)]">
-                  Duration
-                </label>
-                <div className="flex items-center gap-1">
-                  <input
-                    type="number"
-                    value={newMtDuration}
-                    onChange={(e) => setNewMtDuration(Math.max(5, parseInt(e.target.value) || 5))}
-                    onKeyDown={(e) => { if (e.key === 'Enter') void addMeetingType() }}
-                    min={5}
-                    step={5}
-                    className="w-16 rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2.5 py-1.5 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--portal)]"
-                  />
-                  <span className="text-xs text-[var(--text-muted)]">min</span>
-                </div>
+                <label className="text-[11px] font-medium uppercase tracking-wider text-[var(--text-muted)]">Max Advance Booking</label>
+                <select value={availability.max_advance_days}
+                  onChange={(e) => setAvailability(prev => ({ ...prev, max_advance_days: parseInt(e.target.value) }))}
+                  className="rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2.5 py-1.5 text-sm text-[var(--text-primary)] outline-none">
+                  <option value={14}>2 weeks</option>
+                  <option value={30}>30 days</option>
+                  <option value={60}>60 days</option>
+                  <option value={90}>90 days</option>
+                </select>
               </div>
               <div className="flex flex-col gap-1">
-                <label className="text-[11px] font-medium uppercase tracking-wider text-[var(--text-muted)]">
-                  Category
-                </label>
-                <input
-                  type="text"
-                  value={newMtCategory}
-                  onChange={(e) => setNewMtCategory(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === 'Enter') void addMeetingType() }}
-                  placeholder="Optional"
-                  className="w-28 rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2.5 py-1.5 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--portal)]"
-                />
+                <label className="text-[11px] font-medium uppercase tracking-wider text-[var(--text-muted)]">Timezone</label>
+                <select value={availability.timezone}
+                  onChange={(e) => setAvailability(prev => ({ ...prev, timezone: e.target.value }))}
+                  className="rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2.5 py-1.5 text-sm text-[var(--text-primary)] outline-none">
+                  <option value="America/Chicago">Central (Chicago)</option>
+                  <option value="America/New_York">Eastern (New York)</option>
+                  <option value="America/Denver">Mountain (Denver)</option>
+                  <option value="America/Los_Angeles">Pacific (Los Angeles)</option>
+                </select>
               </div>
-              <button
-                onClick={() => void addMeetingType()}
-                disabled={!newMtName.trim() || mtSaving}
-                className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-white transition-colors disabled:opacity-40"
-                style={{ background: 'var(--portal)' }}
-              >
-                <span className="material-icons-outlined" style={{ fontSize: '14px' }}>add</span>
-                Add
-              </button>
             </div>
           </div>
         )}
       </div>
-
-      {/* ─── Section 6: Calendar Config ─── */}
-      {meetingTypes.length > 0 && isOwnProfile && (
-        <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-6">
-          <div className="mb-4 flex items-center justify-between">
-            <h3 className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-[var(--text-muted)]">
-              <span className="material-icons-outlined" style={{ fontSize: '16px' }}>date_range</span>
-              Weekly Availability
-            </h3>
-            <button
-              onClick={() => void saveCalendarConfig()}
-              disabled={calendarSaving}
-              className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-white transition-colors disabled:opacity-50"
-              style={{ background: 'var(--portal)' }}
-            >
-              {calendarSaving ? (
-                <>
-                  <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                  Saving...
-                </>
-              ) : calendarSaved ? (
-                <>
-                  <span className="material-icons-outlined" style={{ fontSize: '14px' }}>check</span>
-                  Saved
-                </>
-              ) : (
-                <>
-                  <span className="material-icons-outlined" style={{ fontSize: '14px' }}>save</span>
-                  Save
-                </>
-              )}
-            </button>
-          </div>
-
-          <p className="mb-4 text-xs text-[var(--text-muted)]">
-            Select which meeting types you accept for each time slot. Your Google Calendar availability is also checked when booking.
-          </p>
-
-          <div className="overflow-x-auto">
-            <table className="w-full text-xs">
-              <thead>
-                <tr>
-                  <th className="sticky left-0 z-10 bg-[var(--bg-card)] pb-2 pr-3 text-left font-medium text-[var(--text-muted)]">
-                    Time
-                  </th>
-                  {DAYS.map((day) => (
-                    <th key={day} className="pb-2 text-center font-medium text-[var(--text-muted)]" style={{ minWidth: '100px' }}>
-                      {day.slice(0, 3)}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {TIME_SLOTS.map((slot) => (
-                  <tr key={slot} className="border-t border-[var(--border-subtle)]">
-                    <td className="sticky left-0 z-10 bg-[var(--bg-card)] py-1.5 pr-3 text-[var(--text-muted)]">
-                      {slot}
-                    </td>
-                    {DAYS.map((day) => {
-                      const dayConfig = calendarConfig[day] || {}
-                      const slotTypes = dayConfig[slot] || []
-                      return (
-                        <td key={day} className="py-1.5 text-center">
-                          <div className="flex flex-wrap justify-center gap-0.5">
-                            {meetingTypes.map((mt) => {
-                              const isActive = slotTypes.includes(mt.name)
-                              return (
-                                <button
-                                  key={mt.name}
-                                  onClick={() => toggleCalendarSlot(day, slot, mt.name)}
-                                  className={`rounded px-1 py-0.5 text-[9px] font-medium transition-colors ${
-                                    isActive
-                                      ? 'text-white'
-                                      : 'bg-[var(--bg-surface)] text-[var(--text-muted)] hover:bg-[var(--bg-hover)]'
-                                  }`}
-                                  style={isActive ? { background: 'var(--portal)' } : undefined}
-                                  title={mt.name}
-                                >
-                                  {mt.name.slice(0, 4)}
-                                </button>
-                              )
-                            })}
-                          </div>
-                        </td>
-                      )
-                    })}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
 
       {/* Profile not found warning */}
       {!profile && (
