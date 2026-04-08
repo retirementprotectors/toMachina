@@ -47,8 +47,8 @@ export interface RangerStepResult {
   completedAt: string | null
   duration_ms: number
   attempt: number
-  output?: unknown
-  error?: string
+  output?: unknown | null
+  error?: string | null
   stats?: {
     records_in: number
     records_out: number
