@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { useBooking, type BookingConfigData } from './use-booking'
 import { StepType } from './steps/step-type'
 import { StepDatetime } from './steps/step-datetime'
@@ -7,7 +8,74 @@ import { StepContact } from './steps/step-contact'
 import { StepConfirm } from './steps/step-confirm'
 
 const STEPS = ['type', 'datetime', 'contact', 'confirm'] as const
-const STEP_LABELS = ['Type', 'Date & Time', 'Your Info', 'Confirmed']
+
+// ─── Loader: fetches config client-side via /api/ proxy ───────────────────────
+
+export function BookingLoader({ slug }: { slug: string }) {
+  const [config, setConfig] = useState<BookingConfigData | null>(null)
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function loadConfig() {
+      try {
+        const res = await fetch(`/api/booking/config/${slug}`)
+        if (res.ok) {
+          const json = await res.json()
+          if (json.success) setConfig(json.data)
+          else setError(json.error || 'Configuration not found')
+        } else if (res.status === 404) {
+          setError('not_found')
+        } else {
+          setError(`Unable to load booking page (${res.status})`)
+        }
+      } catch {
+        setError('Unable to connect to booking service')
+      }
+      setLoading(false)
+    }
+    loadConfig()
+  }, [slug])
+
+  if (loading) {
+    return (
+      <div style={{ textAlign: 'center', padding: '80px 20px' }}>
+        <div style={{
+          width: 32, height: 32, border: '3px solid #1e293b', borderTopColor: '#4a7ab5',
+          borderRadius: '50%', margin: '0 auto 16px',
+          animation: 'spin 0.8s linear infinite',
+        }} />
+        <p style={{ color: '#94a3b8', fontSize: '0.9rem' }}>Loading booking page...</p>
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      </div>
+    )
+  }
+
+  if (error === 'not_found') {
+    return (
+      <div style={{ textAlign: 'center', padding: '80px 20px' }}>
+        <div style={{ fontSize: 48, marginBottom: 16, opacity: 0.3 }}>404</div>
+        <h1 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: 8 }}>Booking Page Not Found</h1>
+        <p style={{ color: '#94a3b8', fontSize: '0.9rem' }}>
+          The booking link you followed may be outdated or incorrect.
+        </p>
+      </div>
+    )
+  }
+
+  if (error || !config) {
+    return (
+      <div style={{ textAlign: 'center', padding: '80px 20px' }}>
+        <h1 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: 8 }}>Something went wrong</h1>
+        <p style={{ color: '#94a3b8', fontSize: '0.9rem' }}>{error || 'Unable to load booking configuration'}</p>
+      </div>
+    )
+  }
+
+  return <BookingWizard config={config} slug={slug} />
+}
+
+// ─── Wizard ───────────────────────────────────────────────────────────────────
 
 interface BookingWizardProps {
   config: BookingConfigData
