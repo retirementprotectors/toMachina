@@ -202,8 +202,8 @@ bookingRoutes.post('/', bookingValidation, async (req: Request, res: Response) =
     const db = getFirestore()
     const { agentEmail, agentName, agentSlug, slot, meetingType, mode, client, allEmails } = req.body
 
-    if (!client.name || !client.email) {
-      res.status(400).json(errorResponse('Client name and email are required'))
+    if (!client.name || (!client.email && !client.phone)) {
+      res.status(400).json(errorResponse('Client name and at least one contact method (email or phone) are required'))
       return
     }
 
