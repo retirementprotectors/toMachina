@@ -5,6 +5,8 @@ import type { BookingHook } from '../use-booking'
 const MODE_ICONS: Record<string, string> = {
   meet: 'videocam',
   call: 'phone',
+  office: 'business',
+  home: 'home',
   'in-person': 'person',
 }
 
