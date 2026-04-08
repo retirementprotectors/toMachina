@@ -472,7 +472,7 @@ export default function AccountsPage() {
   const loadAllAccounts = useCallback(async () => {
     try {
       const db = getDb()
-      const q = query(collectionGroup(db, 'accounts'))
+      const q = query(collectionGroup(db, 'accounts'), orderBy('carrier'))
       const snap = await getDocs(q)
       const rows: AccountRow[] = snap.docs.map((d) => {
         const data = d.data() as unknown as Account
