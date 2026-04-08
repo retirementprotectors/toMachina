@@ -14,13 +14,9 @@ export function analyzeLifeOptions(household: SuperToolHousehold): SuperToolOutp
   const warnings: string[] = []
   const findings: string[] = []
 
-  // BUG 3c FIX: Output memberOptions matching template contract
-  const memberOptions: Array<{
-    member: string; age: number; totalNeed: number
-    optionA: { label: string; faceAmount: number; monthlyPremium: number; termYears: number | null; carrier: string; product: string; livingBenefits: boolean }
-    optionB: { label: string; faceAmount: number; monthlyPremium: number; termYears: number | null; carrier: string; product: string; livingBenefits: boolean }
-    optionC: { label: string; faceAmount: number; monthlyPremium: number; termYears: number | null; carrier: string; product: string; livingBenefits: boolean; cashValueAt10Years: number }
-  }> = []
+  // v2 FIX: Full template contract — description, annualPremium, pros, cons, cashValue, netOutlay
+  interface LifeOpt { label: string; description: string; faceAmount: number; monthlyPremium: number; annualPremium: number; termYears: number | null; carrier: string; product: string; livingBenefits: boolean; cashValueAt10Years: number; netOutlayAt10Years: number; pros: string[]; cons: string[] }
+  const memberOptions: Array<{ member: string; age: number; totalNeed: number; optionA: LifeOpt; optionB: LifeOpt; optionC: LifeOpt }> = []
 
   for (const member of household.members) {
     const existingCoverage = member.accounts
@@ -56,37 +52,34 @@ export function analyzeLifeOptions(household: SuperToolHousehold): SuperToolOutp
 
     const cashValueAt10Years = Math.round(iulRate.annualPremium * 10 * 0.6)
 
+    const feAnnual = Math.round(feRate.monthlyPremium * 12)
+    const termAnnual = Math.round(termRate.monthlyPremium * 12)
+    const iulAnnual = Math.round(iulRate.monthlyPremium * 12)
+
     memberOptions.push({
       member: member.name,
       age: member.age,
       totalNeed: roundedFace,
       optionA: {
-        label: 'Final Expense',
-        faceAmount: feFace,
-        monthlyPremium: feRate.monthlyPremium,
-        termYears: null,
-        carrier: feCarrier?.[0]?.carrier || 'Mutual of Omaha',
-        product: feCarrier?.[0]?.product || 'Living Promise',
-        livingBenefits: false,
+        label: 'Final Expense', description: 'Whole life policy covering final expenses. Guaranteed, permanent, builds cash value slowly.',
+        faceAmount: feFace, monthlyPremium: feRate.monthlyPremium, annualPremium: feAnnual, termYears: null,
+        carrier: feCarrier?.[0]?.carrier || 'Mutual of Omaha', product: feCarrier?.[0]?.product || 'Living Promise', livingBenefits: false,
+        cashValueAt10Years: Math.round(feAnnual * 10 * 0.35), netOutlayAt10Years: Math.round(feAnnual * 10 * 0.65),
+        pros: ['Guaranteed premiums for life', 'Builds cash value', 'No expiration'], cons: ['Lower face amount', 'Higher cost per dollar of coverage', 'Slow cash value growth'],
       },
       optionB: {
-        label: 'Income Replacement',
-        faceAmount: roundedFace,
-        monthlyPremium: termRate.monthlyPremium,
-        termYears: 20,
-        carrier: termCarrier?.[0]?.carrier || 'Protective',
-        product: termCarrier?.[0]?.product || 'Classic Choice Term',
-        livingBenefits: false,
+        label: 'Income Replacement', description: '20-year term covering income replacement need. Lowest cost, highest face amount, expires at term end.',
+        faceAmount: roundedFace, monthlyPremium: termRate.monthlyPremium, annualPremium: termAnnual, termYears: 20,
+        carrier: termCarrier?.[0]?.carrier || 'Protective', product: termCarrier?.[0]?.product || 'Classic Choice Term', livingBenefits: false,
+        cashValueAt10Years: 0, netOutlayAt10Years: termAnnual * 10,
+        pros: ['Lowest premium', 'Highest face amount per dollar', 'Convertible to permanent'], cons: ['Expires after 20 years', 'No cash value', 'No living benefits'],
       },
       optionC: {
-        label: 'Swiss-Army IUL',
-        faceAmount: iulFace,
-        monthlyPremium: iulRate.monthlyPremium,
-        termYears: null,
-        carrier: iulCarrier?.[0]?.carrier || 'John Hancock',
-        product: iulCarrier?.[0]?.product || 'Accumulation IUL',
-        livingBenefits: true,
-        cashValueAt10Years,
+        label: 'Swiss-Army IUL', description: 'Indexed universal life with living benefits. Death benefit + cash accumulation + chronic/terminal/critical illness access.',
+        faceAmount: iulFace, monthlyPremium: iulRate.monthlyPremium, annualPremium: iulAnnual, termYears: null,
+        carrier: iulCarrier?.[0]?.carrier || 'John Hancock', product: iulCarrier?.[0]?.product || 'Accumulation IUL', livingBenefits: true,
+        cashValueAt10Years, netOutlayAt10Years: netOutlay.value.netOutlay,
+        pros: ['Living benefits (chronic/terminal/critical)', 'Cash value accumulation', 'Flexible premiums', 'Tax-advantaged growth'], cons: ['Higher premium than term', 'Cash value depends on index performance', 'Requires ongoing funding'],
       },
     })
 
@@ -110,6 +103,9 @@ export function analyzeLifeOptions(household: SuperToolHousehold): SuperToolOutp
         optionAMonthly: primary?.optionA.monthlyPremium ?? 0,
         optionBMonthly: primary?.optionB.monthlyPremium ?? 0,
         optionCMonthly: primary?.optionC.monthlyPremium ?? 0,
+        totalOptionAMonthly: memberOptions.reduce((s, m) => s + m.optionA.monthlyPremium, 0),
+        totalOptionBMonthly: memberOptions.reduce((s, m) => s + m.optionB.monthlyPremium, 0),
+        totalOptionCMonthly: memberOptions.reduce((s, m) => s + m.optionC.monthlyPremium, 0),
       },
       details: { memberOptions },
       warnings,
