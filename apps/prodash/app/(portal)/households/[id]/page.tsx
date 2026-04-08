@@ -2,6 +2,7 @@
 
 import React, { use, useState, useMemo, useCallback, useEffect } from 'react'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import { useDocument } from '@tomachina/db'
 import { doc, getDoc, updateDoc, getFirestore } from 'firebase/firestore'
 import { getDb } from '@tomachina/db'
@@ -121,9 +122,9 @@ export default function HouseholdDetailPage({
 
       {/* Tab content */}
       <div className="min-h-[400px]">
-        {activeTab === 'overview' && <OverviewTab household={household} />}
+        {activeTab === 'overview' && <OverviewTab household={household} householdId={id} />}
         {activeTab === 'members' && <MembersTab household={household} householdId={id} />}
-        {activeTab === 'accounts' && <AccountsTab household={household} />}
+        {activeTab === 'accounts' && <AccountsTab household={household} householdId={id} />}
         {activeTab === 'financials' && <FinancialsTab household={household} householdId={id} />}
         {activeTab === 'activity' && <ActivityTab householdId={id} />}
         {activeTab === 'pipelines' && <PipelinesTab household={household} householdId={id} />}
@@ -367,7 +368,7 @@ function HouseholdHeader({ household, householdId }: { household: Household; hou
 // Overview Tab
 // ---------------------------------------------------------------------------
 
-function OverviewTab({ household }: { household: Household }) {
+function OverviewTab({ household, householdId }: { household: Household; householdId: string }) {
   const members = (household.members || []) as HouseholdMember[]
   const financials = household.aggregate_financials
 
@@ -390,7 +391,7 @@ function OverviewTab({ household }: { household: Household }) {
                   </div>
                   <div>
                     <Link
-                      href={`/contacts/${m.client_id}`}
+                      href={`/contacts/${m.client_id}?ref=/households/${householdId}`}
                       className="text-sm font-medium text-[var(--text-primary)] hover:text-[var(--portal)]"
                     >
                       {m.client_name || m.client_id}
@@ -559,7 +560,7 @@ function MembersTab({ household, householdId }: { household: Household; househol
               </div>
               <div>
                 <Link
-                  href={`/contacts/${m.client_id}`}
+                  href={`/contacts/${m.client_id}?ref=/households/${householdId}`}
                   className="text-sm font-medium text-[var(--text-primary)] hover:text-[var(--portal)]"
                 >
                   {m.client_name || m.client_id}
@@ -793,7 +794,7 @@ function FinancialsTab({ household, householdId }: { household: Household; house
 // Accounts Tab
 // ---------------------------------------------------------------------------
 
-function AccountsTab({ household }: { household: Household }) {
+function AccountsTab({ household, householdId }: { household: Household; householdId: string }) {
   const members = (household.members || []) as HouseholdMember[]
   const [accounts, setAccounts] = useState<Array<Record<string, unknown>>>([])
   const [loading, setLoading] = useState(true)
@@ -870,7 +871,7 @@ function AccountsTab({ household }: { household: Household }) {
             {accounts.map((acct) => (
               <tr
                 key={String(acct.id)}
-                onClick={() => { window.location.href = `/contacts/${acct._owner_client_id}` }}
+                onClick={() => { window.location.href = `/contacts/${acct._owner_client_id}?ref=/households/${householdId}` }}
                 className="cursor-pointer border-b border-[var(--border-subtle)] transition-colors hover:bg-[var(--bg-hover)]"
               >
                 <td className="px-3 py-2 text-xs text-[var(--portal)] font-medium">{String(acct._owner_name)}</td>
@@ -1099,6 +1100,24 @@ function PipelineCard({ instance, memberName }: { instance: Record<string, unkno
 // ---------------------------------------------------------------------------
 
 function BackLink() {
+  const searchParams = useSearchParams()
+  const ref = searchParams.get('ref')
+
+  if (ref?.startsWith('/contacts/')) {
+    return (
+      <nav className="flex items-center gap-1.5 text-sm">
+        <Link href="/households" className="text-[var(--text-muted)] transition-colors hover:text-[var(--portal)]">
+          Households
+        </Link>
+        <span className="material-icons-outlined text-[14px] text-[var(--text-muted)]">chevron_right</span>
+        <Link href={ref} className="inline-flex items-center gap-1 text-[var(--text-muted)] transition-colors hover:text-[var(--portal)]">
+          <span className="material-icons-outlined text-[14px]">arrow_back</span>
+          Back to Client
+        </Link>
+      </nav>
+    )
+  }
+
   return (
     <Link
       href="/households"
