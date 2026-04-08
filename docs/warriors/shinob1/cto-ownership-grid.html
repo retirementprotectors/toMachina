@@ -465,15 +465,15 @@ code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px;
         <th>Blocker</th>
         <th style="min-width:250px;">Action / Next Step</th>
       </tr>
-      <tr data-status="OPEN" data-owner="SHINOB1" data-priority="HIGH">
+      <tr data-status="PARKED" data-owner="SHINOB1" data-priority="MEDIUM">
         <td>1</td>
-        <td><a href="https://venturebeat.com/ai/arcee-ai-unveils-trinity-large-thinking-a-399b-open-source-reasoning-model/" target="_blank"><strong>Arcee Trinity (4 models)</strong></a><br><span style="font-size:0.75rem;color:var(--muted)">Mini $0.15/M, Large $0.90/M, Apache 2.0</span></td>
+        <td><a href="https://venturebeat.com/ai/arcee-ai-unveils-trinity-large-thinking-a-399b-open-source-reasoning-model/" target="_blank"><strong>Arcee Trinity (4 models)</strong></a><br><span style="font-size:0.75rem;color:var(--muted)">WIRED + PARKED. Key stored, benchmarked, proven.</span></td>
         <td>04-03</td>
-        <td><span class="pill hot">HIGH</span></td>
-        <td><span class="pill next">OPEN</span></td>
+        <td><span class="pill plan">MEDIUM</span></td>
+        <td><span class="pill hold">PARKED</span></td>
         <td>SHINOB1</td>
-        <td>None &mdash; key stored, benchmark running</td>
-        <td>RONIN benchmarking 4 models vs Sonnet + Haiku. Results imminent. Could save 90%+ on model routing.</td>
+        <td>Claude Code can't use non-Anthropic models</td>
+        <td>BENCHMARKED: Trinity-Large beat Sonnet (1.7x faster, 95% cheaper, 3/3 compile). But Claude Code sessions = Anthropic only. Useful for mdj-agent (VOLTRON), future CCSDK Rangers, custom scripts. ~$300-600/mo savings on custom agent side when we scale. Revisit as we grow.</td>
       </tr>
       <tr data-status="BLOCKED" data-owner="SHINOB1" data-priority="HIGH">
         <td>2</td>
@@ -485,15 +485,15 @@ code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px;
         <td>P40 GPU not installed</td>
         <td>Install Gemma 4 26B via Ollama on MDJ_SERVER. Test on carrier statements, client apps, compliance forms.</td>
       </tr>
-      <tr data-status="OPEN" data-owner="MUSASHI" data-priority="HIGH">
+      <tr data-status="PARKED" data-owner="MUSASHI" data-priority="MEDIUM">
         <td>3</td>
-        <td><a href="https://www.figma.com/blog/introducing-figma-mcp/" target="_blank"><strong>Figma Canvas MCP</strong></a><br><span style="font-size:0.75rem;color:var(--muted)">AI agents create/edit Figma designs</span></td>
+        <td><a href="https://www.figma.com/blog/introducing-figma-mcp/" target="_blank"><strong>Figma Canvas MCP</strong></a><br><span style="font-size:0.75rem;color:var(--muted)">WIRED + PARKED. Installed, read-only today.</span></td>
         <td>04-03</td>
-        <td><span class="pill hot">HIGH</span></td>
-        <td><span class="pill next">OPEN</span></td>
+        <td><span class="pill plan">MEDIUM</span></td>
+        <td><span class="pill hold">PARKED</span></td>
         <td>MUSASHI</td>
-        <td>None</td>
-        <td>Add Figma MCP to Claude Code. Create RPI Skills markdown files (--portal vars, shadcn, sidebar). Free beta.</td>
+        <td>Read-only &mdash; no write tools yet</td>
+        <td>INSTALLED: figma-developer-mcp v0.8.1 on MDJ_SERVER. 2 tools (get_figma_data, download_figma_images). RPI design system doc created. Canva + /frontend-design is the live pipeline. Figma becomes critical when they add write tools. Free, zero maintenance. Revisit on updates.</td>
       </tr>
       <tr data-status="PARKED" data-owner="SHINOB1" data-priority="MEDIUM">
         <td>4</td>
