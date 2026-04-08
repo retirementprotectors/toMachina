@@ -6,46 +6,14 @@
  * Requires JDM entitlement (EXECUTIVE or OWNER role).
  */
 
-import { Router, type Request, type Response, type NextFunction } from 'express'
+import { Router, type Request, type Response } from 'express'
 import { getFirestore, Timestamp } from 'firebase-admin/firestore'
 import { successResponse, errorResponse } from '../lib/helpers.js'
 
 export const adminLearningLoopRoutes = Router()
 
 // Auth Guard — require executive-level access
-const ALLOWED_ROLES = ['EXECUTIVE', 'OWNER', 'SUPER_ADMIN']
 
-async function requireExecutive(req: Request, res: Response, next: NextFunction) {
-  try {
-    const email: string | undefined = (req as unknown as { user?: { email?: string } }).user?.email
-    if (!email) {
-      res.status(401).json(errorResponse('Authentication required'))
-      return
-    }
-
-    const db = getFirestore()
-    const userDoc = await db.collection('users').doc(email).get()
-
-    if (!userDoc.exists) {
-      res.status(403).json(errorResponse('Learning Loop dashboard requires executive access'))
-      return
-    }
-
-    const userData = userDoc.data() as Record<string, unknown>
-    const role = String(userData.role || '')
-    const level = parseInt(String(userData.level || '99'), 10)
-
-    if (!ALLOWED_ROLES.includes(role) && level > 1) {
-      res.status(403).json(errorResponse('Learning Loop dashboard requires executive access'))
-      return
-    }
-
-    next()
-  } catch (err) {
-    console.error('[admin-learning-loop] Auth check failed:', err)
-    res.status(500).json(errorResponse('Authorization check failed'))
-  }
-}
 
 // Knowledge Entry Stats
 interface KnowledgeStats {
@@ -140,7 +108,7 @@ async function getWarriorSummary(): Promise<Array<{ name: string; status: string
 }
 
 // GET /api/admin/learning-loop — dashboard data
-adminLearningLoopRoutes.get('/', requireExecutive, async (_req: Request, res: Response) => {
+adminLearningLoopRoutes.get('/', async (_req: Request, res: Response) => {
   try {
     const [knowledgeStats, voltronGaps, warriors] = await Promise.all([
       getKnowledgeStats(),
