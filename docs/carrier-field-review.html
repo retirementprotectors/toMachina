@@ -1,1198 +1,664 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Carrier Field Parity v2</title>
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Carrier Parity v3</title>
 <style>
 :root{--bg:#0a0e17;--card:#111827;--card2:#1a2236;--border:#1e293b;--text:#e2e8f0;--muted:#94a3b8;--accent:#10b981;--green:#22c55e;--red:#ef4444;--orange:#f59e0b;--blue:#3b82f6;--cyan:#06b6d4;--purple:#a855f7}
-*{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;padding:24px}
-.header{text-align:center;margin-bottom:24px}.header h1{font-size:1.8rem;font-weight:800;background:linear-gradient(135deg,var(--accent),#34d399);-webkit-background-clip:text;-webkit-text-fill-color:transparent}.header p{color:var(--muted);font-size:.85rem;max-width:800px;margin:8px auto 0}
-.stats{display:flex;gap:12px;justify-content:center;margin:16px 0 24px;flex-wrap:wrap}.stat{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px 20px;text-align:center}.stat .num{font-size:1.3rem;font-weight:800;color:var(--accent)}.stat .label{font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
-.filters{display:flex;gap:8px;margin-bottom:16px;justify-content:center;flex-wrap:wrap}.fbtn{padding:5px 14px;border-radius:999px;border:1px solid var(--border);background:var(--card);color:var(--muted);cursor:pointer;font-size:.75rem;font-weight:600}.fbtn.active{background:var(--accent);color:#000;border-color:var(--accent)}.fbtn:hover{border-color:var(--accent)}
-.row{background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden}.row.decided{border-color:var(--green);opacity:.7}
-.row-top{display:flex;align-items:center;padding:12px 16px;gap:12px;flex-wrap:wrap}.row-count{background:var(--card2);border-radius:6px;padding:3px 10px;font-size:.72rem;font-weight:700;color:var(--accent)}
-.tp{padding:2px 8px;border-radius:999px;font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px}.tp.medicare{background:rgba(59,130,246,.15);color:var(--blue)}.tp.life{background:rgba(16,185,129,.15);color:var(--accent)}.tp.annuity{background:rgba(168,85,247,.15);color:var(--purple)}.tp.investment{background:rgba(245,158,11,.15);color:var(--orange)}.tp.unknown{background:rgba(148,163,184,.15);color:var(--muted)}
-.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;padding:0 16px 8px}.fb{background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:8px 12px}.fb.sel{border-color:var(--green);background:rgba(34,197,94,.08)}.fb.mt{opacity:.3}.fl{font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}.fv{color:var(--text);font-weight:500;font-size:.8rem;font-family:monospace;word-break:break-all}.fv.no{color:var(--muted);font-style:italic}
-.acts{display:flex;gap:6px;padding:4px 16px 12px;flex-wrap:wrap}.ab{padding:5px 12px;border-radius:6px;border:1px solid var(--border);background:var(--card2);color:var(--muted);cursor:pointer;font-size:.72rem;font-weight:600}.ab:hover{border-color:var(--accent);color:var(--text)}.ab.picked{background:var(--accent);color:#000;border-color:var(--accent)}
-.ebar{position:sticky;bottom:0;background:var(--card);border-top:1px solid var(--border);padding:14px 24px;display:flex;justify-content:space-between;align-items:center;margin:32px -24px -24px}.ebtn{padding:8px 24px;border-radius:8px;border:none;background:var(--accent);color:#000;font-weight:700;font-size:.85rem;cursor:pointer}.prog{color:var(--muted);font-size:.8rem}.prog strong{color:var(--accent)}
-.note{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);border-radius:8px;padding:12px 16px;margin-bottom:20px;font-size:.82rem;color:var(--muted)}.note strong{color:var(--orange)}
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;padding:24px;max-width:1100px;margin:0 auto}
+h1{font-size:1.8rem;font-weight:800;background:linear-gradient(135deg,var(--accent),#34d399);-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-align:center;margin-bottom:6px}
+.sub{color:var(--muted);font-size:.85rem;text-align:center;margin-bottom:24px}
+.stats{display:flex;gap:12px;justify-content:center;margin-bottom:24px;flex-wrap:wrap}.stat{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px 20px;text-align:center}.stat .n{font-size:1.3rem;font-weight:800;color:var(--accent)}.stat .l{font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+.filters{display:flex;gap:8px;margin-bottom:20px;justify-content:center;flex-wrap:wrap}.fb{padding:5px 14px;border-radius:999px;border:1px solid var(--border);background:var(--card);color:var(--muted);cursor:pointer;font-size:.75rem;font-weight:600}.fb.a{background:var(--accent);color:#000;border-color:var(--accent)}.fb:hover{border-color:var(--accent)}
+.carrier{background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:14px;padding:20px}.carrier.done{border-color:var(--green);opacity:.75}
+.carrier-head{display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.carrier-name{font-size:1.1rem;font-weight:700;color:var(--text);flex:1}
+.cnt{background:var(--card2);border-radius:6px;padding:3px 10px;font-size:.72rem;font-weight:700;color:var(--accent)}
+.tp{padding:2px 8px;border-radius:999px;font-size:.6rem;font-weight:700;text-transform:uppercase}.tp.Medicare{background:rgba(59,130,246,.15);color:var(--blue)}.tp.Life{background:rgba(16,185,129,.15);color:var(--accent)}.tp.Annuity{background:rgba(168,85,247,.15);color:var(--purple)}.tp.Investment{background:rgba(245,158,11,.15);color:var(--orange)}.tp.Unknown{background:rgba(148,163,184,.15);color:var(--muted)}
+.field-section{margin-bottom:10px}
+.field-title{font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.variants{display:flex;flex-wrap:wrap;gap:6px}
+.variant{background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-family:monospace;font-size:.8rem;cursor:pointer;transition:all .15s}
+.variant:hover{border-color:var(--accent)}
+.variant.sel{border-color:var(--green);background:rgba(34,197,94,.1);color:var(--green)}
+.variant.empty{opacity:.3;cursor:default;font-style:italic}
+.notes-row{margin-top:10px}
+.notes-row textarea{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:8px 12px;font-size:.82rem;font-family:inherit;resize:vertical;min-height:36px}
+.notes-row textarea::placeholder{color:var(--muted)}
+.notes-row textarea:focus{outline:none;border-color:var(--accent)}
+.bottom-bar{position:sticky;bottom:0;background:var(--card);border-top:1px solid var(--border);padding:14px 0;display:flex;justify-content:space-between;align-items:center;margin-top:32px}
+.ebtn{padding:8px 24px;border-radius:8px;border:none;background:var(--accent);color:#000;font-weight:700;font-size:.85rem;cursor:pointer}
+.prog{color:var(--muted);font-size:.8rem}.prog strong{color:var(--accent)}
 </style></head><body>
-<div class="header"><h1>Carrier Field Parity Review v2</h1><p>All 4 carrier fields shown per row. Medicare rows show carrier_charter + underwriting_charter. Filter by product type. Pick the correct value for carrier.</p></div>
-<div class="note"><strong>Medicare rows:</strong> Show all 4 fields — carrier_name, parent_carrier, carrier_charter, underwriting_charter. Pick which value should be canonical for <code>carrier</code>.</div>
+<h1>Carrier Field Parity v3</h1>
+<div class="sub">43 carriers, consolidated. Click the correct variant for each field. Add notes if neither option is right. Export when done.</div>
 <div class="stats">
-<div class="stat"><div class="num">90</div><div class="label">Combos</div></div>
-<div class="stat"><div class="num">305</div><div class="label">Medicare</div></div>
-<div class="stat"><div class="num">290</div><div class="label">Life</div></div>
-<div class="stat"><div class="num">59</div><div class="label">Annuity</div></div>
-<div class="stat"><div class="num">18</div><div class="label">Unknown</div></div>
-<div class="stat"><div class="num">1</div><div class="label">Investment</div></div>
-<div class="stat"><div class="num" id="dc">0</div><div class="label">Decided</div></div></div>
-<div class="filters">
-<button class="fbtn active" onclick="ft('all',this)">All (90)</button>
-<button class="fbtn" onclick="ft('Annuity',this)">Annuity (27)</button>
-<button class="fbtn" onclick="ft('Investment',this)">Investment (1)</button>
-<button class="fbtn" onclick="ft('Life',this)">Life (12)</button>
-<button class="fbtn" onclick="ft('Medicare',this)">Medicare (48)</button>
-<button class="fbtn" onclick="ft('Unknown',this)">Unknown (2)</button>
-<button class="fbtn" onclick="ft('undecided',this)">Undecided</button></div>
-<div id="rows">
-<div class="row" id="r0" data-type="Life">
-<div class="row-top"><div class="row-count">237x</div><span class="tp life">life</span></div>
-<div class="fields">
-<div class="fb " id="cn0"><div class="fl">carrier_name</div><div class="fv ">Catholic Order of Foresters</div></div>
-<div class="fb " id="pc0"><div class="fl">parent_carrier</div><div class="fv ">Catholic Order of Foresters</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(0,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(0,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(0,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(0,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r1" data-type="Medicare">
-<div class="row-top"><div class="row-count">48x</div><span class="tp medicare">medicare</span></div>
-<div class="fields">
-<div class="fb " id="cn1"><div class="fl">carrier_name</div><div class="fv ">AETNA (ACC)- ACCENDO</div></div>
-<div class="fb " id="pc1"><div class="fl">parent_carrier</div><div class="fv ">Aetna / CVS Health</div></div>
-<div class="fb " id="cc1"><div class="fl">carrier_charter</div><div class="fv ">Accendo Insurance Company</div></div>
-<div class="fb " id="uc1"><div class="fl">underwriting_charter</div><div class="fv ">Accendo Insurance Company</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(1,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(1,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(1,'carrier_charter')">Use carrier_charter</button>
-<button class="ab" onclick="d(1,'underwriting_charter')">Use underwriting_charter</button>
-<button class="ab" onclick="d(1,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(1,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r2" data-type="Life">
-<div class="row-top"><div class="row-count">30x</div><span class="tp life">life</span></div>
-<div class="fields">
-<div class="fb " id="cn2"><div class="fl">carrier_name</div><div class="fv ">Kansas City Life</div></div>
-<div class="fb " id="pc2"><div class="fl">parent_carrier</div><div class="fv ">Kansas City Life</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(2,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(2,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(2,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(2,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r3" data-type="Medicare">
-<div class="row-top"><div class="row-count">28x</div><span class="tp medicare">medicare</span></div>
-<div class="fields">
-<div class="fb " id="cn3"><div class="fl">carrier_name</div><div class="fv ">Aetna</div></div>
-<div class="fb " id="pc3"><div class="fl">parent_carrier</div><div class="fv ">Aetna / CVS Health</div></div>
-<div class="fb " id="cc3"><div class="fl">carrier_charter</div><div class="fv ">Aetna Health Insurance Company</div></div>
-<div class="fb mt" id="uc3"><div class="fl">underwriting_charter</div><div class="fv no">(empty)</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(3,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(3,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(3,'carrier_charter')">Use carrier_charter</button>
-<button class="ab" onclick="d(3,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(3,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r4" data-type="Medicare">
-<div class="row-top"><div class="row-count">22x</div><span class="tp medicare">medicare</span></div>
-<div class="fields">
-<div class="fb " id="cn4"><div class="fl">carrier_name</div><div class="fv ">United Healthcare</div></div>
-<div class="fb " id="pc4"><div class="fl">parent_carrier</div><div class="fv ">UnitedHealthcare</div></div>
-<div class="fb " id="cc4"><div class="fl">carrier_charter</div><div class="fv ">UnitedHealthcare Insurance Company</div></div>
-<div class="fb mt" id="uc4"><div class="fl">underwriting_charter</div><div class="fv no">(empty)</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(4,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(4,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(4,'carrier_charter')">Use carrier_charter</button>
-<button class="ab" onclick="d(4,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(4,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r5" data-type="Medicare">
-<div class="row-top"><div class="row-count">20x</div><span class="tp medicare">Medicare</span></div>
-<div class="fields">
-<div class="fb " id="cn5"><div class="fl">carrier_name</div><div class="fv ">Aetna</div></div>
-<div class="fb " id="pc5"><div class="fl">parent_carrier</div><div class="fv ">Aetna</div></div>
-<div class="fb " id="cc5"><div class="fl">carrier_charter</div><div class="fv ">Aetna Health Insurance Company</div></div>
-<div class="fb mt" id="uc5"><div class="fl">underwriting_charter</div><div class="fv no">(empty)</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(5,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(5,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(5,'carrier_charter')">Use carrier_charter</button>
-<button class="ab" onclick="d(5,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(5,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r6" data-type="Medicare">
-<div class="row-top"><div class="row-count">16x</div><span class="tp medicare">medicare</span></div>
-<div class="fields">
-<div class="fb " id="cn6"><div class="fl">carrier_name</div><div class="fv ">AETNA (AHIC)- AETNA Health Insurance Company</div></div>
-<div class="fb " id="pc6"><div class="fl">parent_carrier</div><div class="fv ">Aetna / CVS Health</div></div>
-<div class="fb " id="cc6"><div class="fl">carrier_charter</div><div class="fv ">Aetna Health Insurance Company</div></div>
-<div class="fb " id="uc6"><div class="fl">underwriting_charter</div><div class="fv ">Aetna Health Insurance Company</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(6,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(6,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(6,'carrier_charter')">Use carrier_charter</button>
-<button class="ab" onclick="d(6,'underwriting_charter')">Use underwriting_charter</button>
-<button class="ab" onclick="d(6,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(6,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r7" data-type="Unknown">
-<div class="row-top"><div class="row-count">16x</div><span class="tp unknown">unknown</span></div>
-<div class="fields">
-<div class="fb " id="cn7"><div class="fl">carrier_name</div><div class="fv ">Kansas City Life</div></div>
-<div class="fb mt" id="pc7"><div class="fl">parent_carrier</div><div class="fv no">(empty)</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(7,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(7,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(7,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r8" data-type="Medicare">
-<div class="row-top"><div class="row-count">16x</div><span class="tp medicare">medicare</span></div>
-<div class="fields">
-<div class="fb " id="cn8"><div class="fl">carrier_name</div><div class="fv ">AETNA (MAPD)</div></div>
-<div class="fb " id="pc8"><div class="fl">parent_carrier</div><div class="fv ">Aetna / CVS Health</div></div>
-<div class="fb " id="cc8"><div class="fl">carrier_charter</div><div class="fv ">Aetna Health Insurance Company</div></div>
-<div class="fb mt" id="uc8"><div class="fl">underwriting_charter</div><div class="fv no">(empty)</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(8,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(8,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(8,'carrier_charter')">Use carrier_charter</button>
-<button class="ab" onclick="d(8,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(8,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r9" data-type="Medicare">
-<div class="row-top"><div class="row-count">15x</div><span class="tp medicare">medicare</span></div>
-<div class="fields">
-<div class="fb " id="cn9"><div class="fl">carrier_name</div><div class="fv ">Wellmark (BCBS of Iowa)</div></div>
-<div class="fb " id="pc9"><div class="fl">parent_carrier</div><div class="fv ">Wellmark BCBS of Iowa</div></div>
-<div class="fb " id="cc9"><div class="fl">carrier_charter</div><div class="fv ">Wellmark Blue Cross Blue Shield of Iowa</div></div>
-<div class="fb mt" id="uc9"><div class="fl">underwriting_charter</div><div class="fv no">(empty)</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(9,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(9,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(9,'carrier_charter')">Use carrier_charter</button>
-<button class="ab" onclick="d(9,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(9,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r10" data-type="Annuity">
-<div class="row-top"><div class="row-count">15x</div><span class="tp annuity">FIA (Fixed Indexed)</span></div>
-<div class="fields">
-<div class="fb " id="cn10"><div class="fl">carrier_name</div><div class="fv ">North American</div></div>
-<div class="fb " id="pc10"><div class="fl">parent_carrier</div><div class="fv ">North American</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(10,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(10,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(10,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(10,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r11" data-type="Medicare">
-<div class="row-top"><div class="row-count">14x</div><span class="tp medicare">medicare</span></div>
-<div class="fields">
-<div class="fb " id="cn11"><div class="fl">carrier_name</div><div class="fv ">UnitedHealthcare</div></div>
-<div class="fb " id="pc11"><div class="fl">parent_carrier</div><div class="fv ">UnitedHealthcare</div></div>
-<div class="fb " id="cc11"><div class="fl">carrier_charter</div><div class="fv ">UnitedHealthcare Insurance Company</div></div>
-<div class="fb mt" id="uc11"><div class="fl">underwriting_charter</div><div class="fv no">(empty)</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(11,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(11,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(11,'carrier_charter')">Use carrier_charter</button>
-<button class="ab" onclick="d(11,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(11,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r12" data-type="Medicare">
-<div class="row-top"><div class="row-count">13x</div><span class="tp medicare">medicare</span></div>
-<div class="fields">
-<div class="fb " id="cn12"><div class="fl">carrier_name</div><div class="fv ">Wellabe (M1)- Medico Insurance Company</div></div>
-<div class="fb " id="pc12"><div class="fl">parent_carrier</div><div class="fv ">Wellabe / Medico</div></div>
-<div class="fb " id="cc12"><div class="fl">carrier_charter</div><div class="fv ">Medico Insurance Company</div></div>
-<div class="fb " id="uc12"><div class="fl">underwriting_charter</div><div class="fv ">Medico Insurance Company</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(12,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(12,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(12,'carrier_charter')">Use carrier_charter</button>
-<button class="ab" onclick="d(12,'underwriting_charter')">Use underwriting_charter</button>
-<button class="ab" onclick="d(12,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(12,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r13" data-type="Medicare">
-<div class="row-top"><div class="row-count">11x</div><span class="tp medicare">medicare</span></div>
-<div class="fields">
-<div class="fb " id="cn13"><div class="fl">carrier_name</div><div class="fv ">Humana</div></div>
-<div class="fb " id="pc13"><div class="fl">parent_carrier</div><div class="fv ">Humana</div></div>
-<div class="fb " id="cc13"><div class="fl">carrier_charter</div><div class="fv ">Humana Insurance Company</div></div>
-<div class="fb mt" id="uc13"><div class="fl">underwriting_charter</div><div class="fv no">(empty)</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(13,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(13,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(13,'carrier_charter')">Use carrier_charter</button>
-<button class="ab" onclick="d(13,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(13,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r14" data-type="Medicare">
-<div class="row-top"><div class="row-count">11x</div><span class="tp medicare">medicare</span></div>
-<div class="fields">
-<div class="fb " id="cn14"><div class="fl">carrier_name</div><div class="fv ">Wellcare</div></div>
-<div class="fb " id="pc14"><div class="fl">parent_carrier</div><div class="fv ">WellCare / Centene</div></div>
-<div class="fb " id="cc14"><div class="fl">carrier_charter</div><div class="fv ">WellCare Health Plans</div></div>
-<div class="fb mt" id="uc14"><div class="fl">underwriting_charter</div><div class="fv no">(empty)</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(14,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(14,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(14,'carrier_charter')">Use carrier_charter</button>
-<button class="ab" onclick="d(14,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(14,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r15" data-type="Medicare">
-<div class="row-top"><div class="row-count">9x</div><span class="tp medicare">Medicare</span></div>
-<div class="fields">
-<div class="fb " id="cn15"><div class="fl">carrier_name</div><div class="fv ">Humana</div></div>
-<div class="fb " id="pc15"><div class="fl">parent_carrier</div><div class="fv ">Humana</div></div>
-<div class="fb " id="cc15"><div class="fl">carrier_charter</div><div class="fv ">Humana Insurance Company</div></div>
-<div class="fb mt" id="uc15"><div class="fl">underwriting_charter</div><div class="fv no">(empty)</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(15,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(15,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(15,'carrier_charter')">Use carrier_charter</button>
-<button class="ab" onclick="d(15,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(15,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r16" data-type="Medicare">
-<div class="row-top"><div class="row-count">8x</div><span class="tp medicare">medicare</span></div>
-<div class="fields">
-<div class="fb " id="cn16"><div class="fl">carrier_name</div><div class="fv ">Wellmark BCBS of Iowa</div></div>
-<div class="fb " id="pc16"><div class="fl">parent_carrier</div><div class="fv ">Wellmark BCBS of Iowa</div></div>
-<div class="fb " id="cc16"><div class="fl">carrier_charter</div><div class="fv ">Wellmark Blue Cross Blue Shield of Iowa</div></div>
-<div class="fb mt" id="uc16"><div class="fl">underwriting_charter</div><div class="fv no">(empty)</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(16,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(16,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(16,'carrier_charter')">Use carrier_charter</button>
-<button class="ab" onclick="d(16,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(16,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r17" data-type="Medicare">
-<div class="row-top"><div class="row-count">7x</div><span class="tp medicare">medicare</span></div>
-<div class="fields">
-<div class="fb " id="cn17"><div class="fl">carrier_name</div><div class="fv ">AETNA (PDP)</div></div>
-<div class="fb " id="pc17"><div class="fl">parent_carrier</div><div class="fv ">Aetna / CVS Health</div></div>
-<div class="fb " id="cc17"><div class="fl">carrier_charter</div><div class="fv ">Aetna Health Insurance Company</div></div>
-<div class="fb mt" id="uc17"><div class="fl">underwriting_charter</div><div class="fv no">(empty)</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(17,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(17,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(17,'carrier_charter')">Use carrier_charter</button>
-<button class="ab" onclick="d(17,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(17,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r18" data-type="Annuity">
-<div class="row-top"><div class="row-count">6x</div><span class="tp annuity">Fixed Indexed Annuity</span></div>
-<div class="fields">
-<div class="fb " id="cn18"><div class="fl">carrier_name</div><div class="fv ">Corebridge</div></div>
-<div class="fb " id="pc18"><div class="fl">parent_carrier</div><div class="fv ">Corebridge / AIG</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(18,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(18,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(18,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(18,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r19" data-type="Medicare">
-<div class="row-top"><div class="row-count">5x</div><span class="tp medicare">medicare</span></div>
-<div class="fields">
-<div class="fb " id="cn19"><div class="fl">carrier_name</div><div class="fv ">WellCare</div></div>
-<div class="fb " id="pc19"><div class="fl">parent_carrier</div><div class="fv ">WellCare / Centene</div></div>
-<div class="fb " id="cc19"><div class="fl">carrier_charter</div><div class="fv ">WellCare Health Plans</div></div>
-<div class="fb mt" id="uc19"><div class="fl">underwriting_charter</div><div class="fv no">(empty)</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(19,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(19,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(19,'carrier_charter')">Use carrier_charter</button>
-<button class="ab" onclick="d(19,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(19,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r20" data-type="Medicare">
-<div class="row-top"><div class="row-count">5x</div><span class="tp medicare">medicare</span></div>
-<div class="fields">
-<div class="fb " id="cn20"><div class="fl">carrier_name</div><div class="fv ">Central States Indemnity</div></div>
-<div class="fb " id="pc20"><div class="fl">parent_carrier</div><div class="fv ">Central States Indemnity</div></div>
-<div class="fb " id="cc20"><div class="fl">carrier_charter</div><div class="fv ">Central States Indemnity Company of Omaha</div></div>
-<div class="fb mt" id="uc20"><div class="fl">underwriting_charter</div><div class="fv no">(empty)</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(20,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(20,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(20,'carrier_charter')">Use carrier_charter</button>
-<button class="ab" onclick="d(20,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(20,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r21" data-type="Life">
-<div class="row-top"><div class="row-count">5x</div><span class="tp life">life</span></div>
-<div class="fields">
-<div class="fb " id="cn21"><div class="fl">carrier_name</div><div class="fv ">Mutual of Omaha</div></div>
-<div class="fb " id="pc21"><div class="fl">parent_carrier</div><div class="fv ">Mutual of Omaha</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(21,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(21,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(21,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(21,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r22" data-type="Medicare">
-<div class="row-top"><div class="row-count">5x</div><span class="tp medicare">medicare</span></div>
-<div class="fields">
-<div class="fb " id="cn22"><div class="fl">carrier_name</div><div class="fv ">Continental Life</div></div>
-<div class="fb " id="pc22"><div class="fl">parent_carrier</div><div class="fv ">Aetna / CVS Health</div></div>
-<div class="fb " id="cc22"><div class="fl">carrier_charter</div><div class="fv ">Continental Life Insurance Company</div></div>
-<div class="fb mt" id="uc22"><div class="fl">underwriting_charter</div><div class="fv no">(empty)</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(22,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(22,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(22,'carrier_charter')">Use carrier_charter</button>
-<button class="ab" onclick="d(22,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(22,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r23" data-type="Annuity">
-<div class="row-top"><div class="row-count">5x</div><span class="tp annuity">FIA (Fixed Indexed)</span></div>
-<div class="fields">
-<div class="fb " id="cn23"><div class="fl">carrier_name</div><div class="fv ">Corebridge (AIG)</div></div>
-<div class="fb " id="pc23"><div class="fl">parent_carrier</div><div class="fv ">Corebridge / AIG</div></div>
-<div class="fb mt" id="cc23"><div class="fl">carrier_charter</div><div class="fv no">(empty)</div></div>
-<div class="fb " id="uc23"><div class="fl">underwriting_charter</div><div class="fv ">Corebridge Financial (fka AIG)</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(23,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(23,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(23,'underwriting_charter')">Use underwriting_charter</button>
-<button class="ab" onclick="d(23,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(23,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r24" data-type="Life">
-<div class="row-top"><div class="row-count">4x</div><span class="tp life">life</span></div>
-<div class="fields">
-<div class="fb " id="cn24"><div class="fl">carrier_name</div><div class="fv ">Ameritas Life</div></div>
-<div class="fb " id="pc24"><div class="fl">parent_carrier</div><div class="fv ">Ameritas</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(24,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(24,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(24,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(24,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r25" data-type="Life">
-<div class="row-top"><div class="row-count">4x</div><span class="tp life">life</span></div>
-<div class="fields">
-<div class="fb " id="cn25"><div class="fl">carrier_name</div><div class="fv ">Americo Life</div></div>
-<div class="fb " id="pc25"><div class="fl">parent_carrier</div><div class="fv ">Americo</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(25,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(25,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(25,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(25,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r26" data-type="Medicare">
-<div class="row-top"><div class="row-count">4x</div><span class="tp medicare">medicare</span></div>
-<div class="fields">
-<div class="fb " id="cn26"><div class="fl">carrier_name</div><div class="fv ">Aetna</div></div>
-<div class="fb " id="pc26"><div class="fl">parent_carrier</div><div class="fv ">Aetna / CVS Health</div></div>
-<div class="fb " id="cc26"><div class="fl">carrier_charter</div><div class="fv ">Aetna PDP</div></div>
-<div class="fb mt" id="uc26"><div class="fl">underwriting_charter</div><div class="fv no">(empty)</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(26,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(26,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(26,'carrier_charter')">Use carrier_charter</button>
-<button class="ab" onclick="d(26,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(26,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r27" data-type="Medicare">
-<div class="row-top"><div class="row-count">4x</div><span class="tp medicare">medicare</span></div>
-<div class="fields">
-<div class="fb " id="cn27"><div class="fl">carrier_name</div><div class="fv ">Mutual of Omaha (MUT)- Mutual of Omaha</div></div>
-<div class="fb " id="pc27"><div class="fl">parent_carrier</div><div class="fv ">Mutual of Omaha</div></div>
-<div class="fb " id="cc27"><div class="fl">carrier_charter</div><div class="fv ">Mutual of Omaha Insurance Company</div></div>
-<div class="fb " id="uc27"><div class="fl">underwriting_charter</div><div class="fv ">Mutual of Omaha Insurance Company</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(27,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(27,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(27,'carrier_charter')">Use carrier_charter</button>
-<button class="ab" onclick="d(27,'underwriting_charter')">Use underwriting_charter</button>
-<button class="ab" onclick="d(27,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(27,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r28" data-type="Medicare">
-<div class="row-top"><div class="row-count">3x</div><span class="tp medicare">medicare</span></div>
-<div class="fields">
-<div class="fb " id="cn28"><div class="fl">carrier_name</div><div class="fv ">Wellabe</div></div>
-<div class="fb " id="pc28"><div class="fl">parent_carrier</div><div class="fv ">Wellabe / Medico</div></div>
-<div class="fb " id="cc28"><div class="fl">carrier_charter</div><div class="fv ">Medico Insurance Company</div></div>
-<div class="fb mt" id="uc28"><div class="fl">underwriting_charter</div><div class="fv no">(empty)</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(28,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(28,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(28,'carrier_charter')">Use carrier_charter</button>
-<button class="ab" onclick="d(28,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(28,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r29" data-type="Annuity">
-<div class="row-top"><div class="row-count">3x</div><span class="tp annuity">VARIABLE</span></div>
-<div class="fields">
-<div class="fb " id="cn29"><div class="fl">carrier_name</div><div class="fv ">Equitable (AXA)</div></div>
-<div class="fb " id="pc29"><div class="fl">parent_carrier</div><div class="fv ">Equitable</div></div>
-<div class="fb mt" id="cc29"><div class="fl">carrier_charter</div><div class="fv no">(empty)</div></div>
-<div class="fb " id="uc29"><div class="fl">underwriting_charter</div><div class="fv ">Equitable Financial Life Insurance Company</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(29,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(29,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(29,'underwriting_charter')">Use underwriting_charter</button>
-<button class="ab" onclick="d(29,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(29,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r30" data-type="Medicare">
-<div class="row-top"><div class="row-count">3x</div><span class="tp medicare">medicare</span></div>
-<div class="fields">
-<div class="fb " id="cn30"><div class="fl">carrier_name</div><div class="fv ">Mutual of Omaha (UO)- United of Omaha</div></div>
-<div class="fb " id="pc30"><div class="fl">parent_carrier</div><div class="fv ">Mutual of Omaha</div></div>
-<div class="fb " id="cc30"><div class="fl">carrier_charter</div><div class="fv ">United of Omaha Life Insurance Company</div></div>
-<div class="fb " id="uc30"><div class="fl">underwriting_charter</div><div class="fv ">United of Omaha Life Insurance Company</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(30,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(30,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(30,'carrier_charter')">Use carrier_charter</button>
-<button class="ab" onclick="d(30,'underwriting_charter')">Use underwriting_charter</button>
-<button class="ab" onclick="d(30,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(30,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r31" data-type="Life">
-<div class="row-top"><div class="row-count">3x</div><span class="tp life">life</span></div>
-<div class="fields">
-<div class="fb " id="cn31"><div class="fl">carrier_name</div><div class="fv ">Assurity Life</div></div>
-<div class="fb " id="pc31"><div class="fl">parent_carrier</div><div class="fv ">Assurity Life</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(31,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(31,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(31,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(31,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r32" data-type="Medicare">
-<div class="row-top"><div class="row-count">3x</div><span class="tp medicare">medicare</span></div>
-<div class="fields">
-<div class="fb " id="cn32"><div class="fl">carrier_name</div><div class="fv ">Aetna</div></div>
-<div class="fb " id="pc32"><div class="fl">parent_carrier</div><div class="fv ">Aetna / CVS Health</div></div>
-<div class="fb " id="cc32"><div class="fl">carrier_charter</div><div class="fv ">Continental Life Insurance Company</div></div>
-<div class="fb mt" id="uc32"><div class="fl">underwriting_charter</div><div class="fv no">(empty)</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(32,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(32,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(32,'carrier_charter')">Use carrier_charter</button>
-<button class="ab" onclick="d(32,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(32,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r33" data-type="Medicare">
-<div class="row-top"><div class="row-count">3x</div><span class="tp medicare">medicare</span></div>
-<div class="fields">
-<div class="fb " id="cn33"><div class="fl">carrier_name</div><div class="fv ">Allstate (NatGen)</div></div>
-<div class="fb " id="pc33"><div class="fl">parent_carrier</div><div class="fv ">Allstate / National General</div></div>
-<div class="fb " id="cc33"><div class="fl">carrier_charter</div><div class="fv ">National General Insurance</div></div>
-<div class="fb " id="uc33"><div class="fl">underwriting_charter</div><div class="fv ">National General Insurance</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(33,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(33,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(33,'carrier_charter')">Use carrier_charter</button>
-<button class="ab" onclick="d(33,'underwriting_charter')">Use underwriting_charter</button>
-<button class="ab" onclick="d(33,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(33,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r34" data-type="Medicare">
-<div class="row-top"><div class="row-count">3x</div><span class="tp medicare">medicare</span></div>
-<div class="fields">
-<div class="fb " id="cn34"><div class="fl">carrier_name</div><div class="fv ">CIGNA (CHLIC)- CIGNA Health + Life Insurance Company</div></div>
-<div class="fb " id="pc34"><div class="fl">parent_carrier</div><div class="fv ">CIGNA</div></div>
-<div class="fb " id="cc34"><div class="fl">carrier_charter</div><div class="fv ">CIGNA Health + Life Insurance Company</div></div>
-<div class="fb " id="uc34"><div class="fl">underwriting_charter</div><div class="fv ">CIGNA Health + Life Insurance Company</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(34,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(34,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(34,'carrier_charter')">Use carrier_charter</button>
-<button class="ab" onclick="d(34,'underwriting_charter')">Use underwriting_charter</button>
-<button class="ab" onclick="d(34,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(34,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r35" data-type="Unknown">
-<div class="row-top"><div class="row-count">2x</div><span class="tp unknown">unknown</span></div>
-<div class="fields">
-<div class="fb " id="cn35"><div class="fl">carrier_name</div><div class="fv ">Wellmark BCBS of Iowa</div></div>
-<div class="fb mt" id="pc35"><div class="fl">parent_carrier</div><div class="fv no">(empty)</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(35,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(35,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(35,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r36" data-type="Annuity">
-<div class="row-top"><div class="row-count">2x</div><span class="tp annuity">VARIABLE</span></div>
-<div class="fields">
-<div class="fb " id="cn36"><div class="fl">carrier_name</div><div class="fv ">Jackson National Life</div></div>
-<div class="fb " id="pc36"><div class="fl">parent_carrier</div><div class="fv ">Jackson National Life</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(36,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(36,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(36,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(36,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r37" data-type="Annuity">
-<div class="row-top"><div class="row-count">2x</div><span class="tp annuity">RILA (Registered Index-Linked)</span></div>
-<div class="fields">
-<div class="fb " id="cn37"><div class="fl">carrier_name</div><div class="fv ">Brighthouse (MET)</div></div>
-<div class="fb " id="pc37"><div class="fl">parent_carrier</div><div class="fv ">Brighthouse / MetLife</div></div>
-<div class="fb mt" id="cc37"><div class="fl">carrier_charter</div><div class="fv no">(empty)</div></div>
-<div class="fb " id="uc37"><div class="fl">underwriting_charter</div><div class="fv ">Brighthouse Life Insurance Company (fka MetLife)</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(37,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(37,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(37,'underwriting_charter')">Use underwriting_charter</button>
-<button class="ab" onclick="d(37,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(37,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r38" data-type="Medicare">
-<div class="row-top"><div class="row-count">2x</div><span class="tp medicare">medicare</span></div>
-<div class="fields">
-<div class="fb " id="cn38"><div class="fl">carrier_name</div><div class="fv ">AETNA (AHLC)- AETNA Health + Life Insurance Company</div></div>
-<div class="fb " id="pc38"><div class="fl">parent_carrier</div><div class="fv ">Aetna / CVS Health</div></div>
-<div class="fb " id="cc38"><div class="fl">carrier_charter</div><div class="fv ">Aetna Health + Life Insurance Company</div></div>
-<div class="fb " id="uc38"><div class="fl">underwriting_charter</div><div class="fv ">Aetna Health + Life Insurance Company</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(38,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(38,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(38,'carrier_charter')">Use carrier_charter</button>
-<button class="ab" onclick="d(38,'underwriting_charter')">Use underwriting_charter</button>
-<button class="ab" onclick="d(38,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(38,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r39" data-type="Annuity">
-<div class="row-top"><div class="row-count">2x</div><span class="tp annuity">SPIA (Single Premium Immediate)</span></div>
-<div class="fields">
-<div class="fb " id="cn39"><div class="fl">carrier_name</div><div class="fv ">Kansas City Life</div></div>
-<div class="fb " id="pc39"><div class="fl">parent_carrier</div><div class="fv ">Kansas City Life</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(39,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(39,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(39,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(39,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r40" data-type="Medicare">
-<div class="row-top"><div class="row-count">2x</div><span class="tp medicare">medicare</span></div>
-<div class="fields">
-<div class="fb " id="cn40"><div class="fl">carrier_name</div><div class="fv ">Lumico</div></div>
-<div class="fb " id="pc40"><div class="fl">parent_carrier</div><div class="fv ">Lumico / CUNA Mutual</div></div>
-<div class="fb " id="cc40"><div class="fl">carrier_charter</div><div class="fv ">Lumico Life Insurance Company</div></div>
-<div class="fb mt" id="uc40"><div class="fl">underwriting_charter</div><div class="fv no">(empty)</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(40,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(40,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(40,'carrier_charter')">Use carrier_charter</button>
-<button class="ab" onclick="d(40,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(40,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r41" data-type="Medicare">
-<div class="row-top"><div class="row-count">2x</div><span class="tp medicare">medicare</span></div>
-<div class="fields">
-<div class="fb " id="cn41"><div class="fl">carrier_name</div><div class="fv ">Devoted</div></div>
-<div class="fb " id="pc41"><div class="fl">parent_carrier</div><div class="fv ">Devoted Health</div></div>
-<div class="fb " id="cc41"><div class="fl">carrier_charter</div><div class="fv ">Devoted Health</div></div>
-<div class="fb mt" id="uc41"><div class="fl">underwriting_charter</div><div class="fv no">(empty)</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(41,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(41,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(41,'carrier_charter')">Use carrier_charter</button>
-<button class="ab" onclick="d(41,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(41,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r42" data-type="Medicare">
-<div class="row-top"><div class="row-count">2x</div><span class="tp medicare">medicare</span></div>
-<div class="fields">
-<div class="fb " id="cn42"><div class="fl">carrier_name</div><div class="fv ">AETNA (CLI)- Continental Life</div></div>
-<div class="fb " id="pc42"><div class="fl">parent_carrier</div><div class="fv ">Aetna / CVS Health</div></div>
-<div class="fb " id="cc42"><div class="fl">carrier_charter</div><div class="fv ">Continental Life Insurance Company</div></div>
-<div class="fb " id="uc42"><div class="fl">underwriting_charter</div><div class="fv ">Continental Life Insurance Company</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(42,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(42,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(42,'carrier_charter')">Use carrier_charter</button>
-<button class="ab" onclick="d(42,'underwriting_charter')">Use underwriting_charter</button>
-<button class="ab" onclick="d(42,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(42,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r43" data-type="Annuity">
-<div class="row-top"><div class="row-count">2x</div><span class="tp annuity">VARIABLE</span></div>
-<div class="fields">
-<div class="fb " id="cn43"><div class="fl">carrier_name</div><div class="fv ">Lincoln Financial Group</div></div>
-<div class="fb " id="pc43"><div class="fl">parent_carrier</div><div class="fv ">Lincoln Financial Group</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(43,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(43,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(43,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(43,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r44" data-type="Annuity">
-<div class="row-top"><div class="row-count">2x</div><span class="tp annuity">FIA</span></div>
-<div class="fields">
-<div class="fb " id="cn44"><div class="fl">carrier_name</div><div class="fv ">North American Company</div></div>
-<div class="fb " id="pc44"><div class="fl">parent_carrier</div><div class="fv ">North American</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(44,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(44,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(44,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(44,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r45" data-type="Annuity">
-<div class="row-top"><div class="row-count">2x</div><span class="tp annuity">FIA (Fixed Indexed)</span></div>
-<div class="fields">
-<div class="fb " id="cn45"><div class="fl">carrier_name</div><div class="fv ">Midland National Life</div></div>
-<div class="fb " id="pc45"><div class="fl">parent_carrier</div><div class="fv ">Midland National</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(45,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(45,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(45,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(45,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r46" data-type="Annuity">
-<div class="row-top"><div class="row-count">2x</div><span class="tp annuity">FIXED</span></div>
-<div class="fields">
-<div class="fb " id="cn46"><div class="fl">carrier_name</div><div class="fv ">Kansas City Life</div></div>
-<div class="fb " id="pc46"><div class="fl">parent_carrier</div><div class="fv ">Kansas City Life</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(46,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(46,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(46,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(46,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r47" data-type="Medicare">
-<div class="row-top"><div class="row-count">2x</div><span class="tp medicare">medicare</span></div>
-<div class="fields">
-<div class="fb " id="cn47"><div class="fl">carrier_name</div><div class="fv ">BlueKC</div></div>
-<div class="fb " id="pc47"><div class="fl">parent_carrier</div><div class="fv ">Blue KC</div></div>
-<div class="fb " id="cc47"><div class="fl">carrier_charter</div><div class="fv ">Blue Cross and Blue Shield of Kansas City</div></div>
-<div class="fb mt" id="uc47"><div class="fl">underwriting_charter</div><div class="fv no">(empty)</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(47,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(47,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(47,'carrier_charter')">Use carrier_charter</button>
-<button class="ab" onclick="d(47,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(47,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r48" data-type="Life">
-<div class="row-top"><div class="row-count">2x</div><span class="tp life">life</span></div>
-<div class="fields">
-<div class="fb " id="cn48"><div class="fl">carrier_name</div><div class="fv ">Ameritas</div></div>
-<div class="fb " id="pc48"><div class="fl">parent_carrier</div><div class="fv ">Ameritas</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(48,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(48,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(48,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(48,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r49" data-type="Medicare">
-<div class="row-top"><div class="row-count">1x</div><span class="tp medicare">medicare</span></div>
-<div class="fields">
-<div class="fb " id="cn49"><div class="fl">carrier_name</div><div class="fv ">Medmutual Protect</div></div>
-<div class="fb " id="pc49"><div class="fl">parent_carrier</div><div class="fv ">Medmutual Protect</div></div>
-<div class="fb " id="cc49"><div class="fl">carrier_charter</div><div class="fv ">Medical Mutual of Ohio</div></div>
-<div class="fb mt" id="uc49"><div class="fl">underwriting_charter</div><div class="fv no">(empty)</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(49,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(49,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(49,'carrier_charter')">Use carrier_charter</button>
-<button class="ab" onclick="d(49,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(49,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r50" data-type="Medicare">
-<div class="row-top"><div class="row-count">1x</div><span class="tp medicare">medicare</span></div>
-<div class="fields">
-<div class="fb " id="cn50"><div class="fl">carrier_name</div><div class="fv ">Prosperity (fka S.USA Life)</div></div>
-<div class="fb " id="pc50"><div class="fl">parent_carrier</div><div class="fv ">Prosperity Life (fka S.USA)</div></div>
-<div class="fb " id="cc50"><div class="fl">carrier_charter</div><div class="fv ">Prosperity Life Insurance Group</div></div>
-<div class="fb mt" id="uc50"><div class="fl">underwriting_charter</div><div class="fv no">(empty)</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(50,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(50,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(50,'carrier_charter')">Use carrier_charter</button>
-<button class="ab" onclick="d(50,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(50,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r51" data-type="Medicare">
-<div class="row-top"><div class="row-count">1x</div><span class="tp medicare">medicare</span></div>
-<div class="fields">
-<div class="fb " id="cn51"><div class="fl">carrier_name</div><div class="fv ">CIGNA (MAPD)</div></div>
-<div class="fb " id="pc51"><div class="fl">parent_carrier</div><div class="fv ">CIGNA</div></div>
-<div class="fb " id="cc51"><div class="fl">carrier_charter</div><div class="fv ">CIGNA Health + Life Insurance Company</div></div>
-<div class="fb mt" id="uc51"><div class="fl">underwriting_charter</div><div class="fv no">(empty)</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(51,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(51,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(51,'carrier_charter')">Use carrier_charter</button>
-<button class="ab" onclick="d(51,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(51,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r52" data-type="Medicare">
-<div class="row-top"><div class="row-count">1x</div><span class="tp medicare">medicare</span></div>
-<div class="fields">
-<div class="fb " id="cn52"><div class="fl">carrier_name</div><div class="fv ">CHUBB (ACE)</div></div>
-<div class="fb " id="pc52"><div class="fl">parent_carrier</div><div class="fv ">CHUBB</div></div>
-<div class="fb " id="cc52"><div class="fl">carrier_charter</div><div class="fv ">CHUBB (ACE)</div></div>
-<div class="fb " id="uc52"><div class="fl">underwriting_charter</div><div class="fv ">CHUBB (ACE)</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(52,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(52,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(52,'carrier_charter')">Use carrier_charter</button>
-<button class="ab" onclick="d(52,'underwriting_charter')">Use underwriting_charter</button>
-<button class="ab" onclick="d(52,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(52,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r53" data-type="Medicare">
-<div class="row-top"><div class="row-count">1x</div><span class="tp medicare">medicare</span></div>
-<div class="fields">
-<div class="fb " id="cn53"><div class="fl">carrier_name</div><div class="fv ">AFLAC (TierOne)</div></div>
-<div class="fb " id="pc53"><div class="fl">parent_carrier</div><div class="fv ">Aflac</div></div>
-<div class="fb " id="cc53"><div class="fl">carrier_charter</div><div class="fv ">Aflac TierOne</div></div>
-<div class="fb " id="uc53"><div class="fl">underwriting_charter</div><div class="fv ">Aflac TierOne</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(53,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(53,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(53,'carrier_charter')">Use carrier_charter</button>
-<button class="ab" onclick="d(53,'underwriting_charter')">Use underwriting_charter</button>
-<button class="ab" onclick="d(53,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(53,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r54" data-type="Annuity">
-<div class="row-top"><div class="row-count">1x</div><span class="tp annuity">Variable Annuity</span></div>
-<div class="fields">
-<div class="fb " id="cn54"><div class="fl">carrier_name</div><div class="fv ">Jackson National Life</div></div>
-<div class="fb " id="pc54"><div class="fl">parent_carrier</div><div class="fv ">Jackson National Life</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(54,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(54,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(54,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(54,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r55" data-type="Medicare">
-<div class="row-top"><div class="row-count">1x</div><span class="tp medicare">medicare</span></div>
-<div class="fields">
-<div class="fb " id="cn55"><div class="fl">carrier_name</div><div class="fv ">Manhattan Life</div></div>
-<div class="fb " id="pc55"><div class="fl">parent_carrier</div><div class="fv ">Manhattan Life</div></div>
-<div class="fb " id="cc55"><div class="fl">carrier_charter</div><div class="fv ">Manhattan Life Insurance Company</div></div>
-<div class="fb mt" id="uc55"><div class="fl">underwriting_charter</div><div class="fv no">(empty)</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(55,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(55,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(55,'carrier_charter')">Use carrier_charter</button>
-<button class="ab" onclick="d(55,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(55,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r56" data-type="Annuity">
-<div class="row-top"><div class="row-count">1x</div><span class="tp annuity">SPIA</span></div>
-<div class="fields">
-<div class="fb " id="cn56"><div class="fl">carrier_name</div><div class="fv ">Securian Financial</div></div>
-<div class="fb " id="pc56"><div class="fl">parent_carrier</div><div class="fv ">Securian Financial</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(56,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(56,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(56,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(56,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r57" data-type="Annuity">
-<div class="row-top"><div class="row-count">1x</div><span class="tp annuity">SPIA (Single Premium Immediate)</span></div>
-<div class="fields">
-<div class="fb " id="cn57"><div class="fl">carrier_name</div><div class="fv ">Securian Financial</div></div>
-<div class="fb " id="pc57"><div class="fl">parent_carrier</div><div class="fv ">Securian Financial</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(57,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(57,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(57,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(57,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r58" data-type="Life">
-<div class="row-top"><div class="row-count">1x</div><span class="tp life">life</span></div>
-<div class="fields">
-<div class="fb " id="cn58"><div class="fl">carrier_name</div><div class="fv ">John Hancock Life</div></div>
-<div class="fb " id="pc58"><div class="fl">parent_carrier</div><div class="fv ">John Hancock</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(58,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(58,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(58,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(58,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r59" data-type="Medicare">
-<div class="row-top"><div class="row-count">1x</div><span class="tp medicare">medicare</span></div>
-<div class="fields">
-<div class="fb " id="cn59"><div class="fl">carrier_name</div><div class="fv ">Aetna</div></div>
-<div class="fb " id="pc59"><div class="fl">parent_carrier</div><div class="fv ">Aetna / CVS Health</div></div>
-<div class="fb " id="cc59"><div class="fl">carrier_charter</div><div class="fv ">Aetna Health + Life Insurance Company</div></div>
-<div class="fb mt" id="uc59"><div class="fl">underwriting_charter</div><div class="fv no">(empty)</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(59,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(59,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(59,'carrier_charter')">Use carrier_charter</button>
-<button class="ab" onclick="d(59,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(59,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r60" data-type="Medicare">
-<div class="row-top"><div class="row-count">1x</div><span class="tp medicare">medicare</span></div>
-<div class="fields">
-<div class="fb " id="cn60"><div class="fl">carrier_name</div><div class="fv ">Aetna</div></div>
-<div class="fb " id="pc60"><div class="fl">parent_carrier</div><div class="fv ">Aetna / CVS Health</div></div>
-<div class="fb mt" id="cc60"><div class="fl">carrier_charter</div><div class="fv no">(empty)</div></div>
-<div class="fb mt" id="uc60"><div class="fl">underwriting_charter</div><div class="fv no">(empty)</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(60,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(60,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(60,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(60,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r61" data-type="Annuity">
-<div class="row-top"><div class="row-count">1x</div><span class="tp annuity">VARIABLE</span></div>
-<div class="fields">
-<div class="fb " id="cn61"><div class="fl">carrier_name</div><div class="fv ">Kansas City Life</div></div>
-<div class="fb " id="pc61"><div class="fl">parent_carrier</div><div class="fv ">Kansas City Life</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(61,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(61,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(61,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(61,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r62" data-type="Medicare">
-<div class="row-top"><div class="row-count">1x</div><span class="tp medicare">medicare</span></div>
-<div class="fields">
-<div class="fb " id="cn62"><div class="fl">carrier_name</div><div class="fv ">Lumico</div></div>
-<div class="fb " id="pc62"><div class="fl">parent_carrier</div><div class="fv ">Lumico / CUNA Mutual</div></div>
-<div class="fb " id="cc62"><div class="fl">carrier_charter</div><div class="fv ">Elips Life Insurance Company</div></div>
-<div class="fb mt" id="uc62"><div class="fl">underwriting_charter</div><div class="fv no">(empty)</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(62,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(62,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(62,'carrier_charter')">Use carrier_charter</button>
-<button class="ab" onclick="d(62,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(62,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r63" data-type="Life">
-<div class="row-top"><div class="row-count">1x</div><span class="tp life">life</span></div>
-<div class="fields">
-<div class="fb " id="cn63"><div class="fl">carrier_name</div><div class="fv ">North American</div></div>
-<div class="fb " id="pc63"><div class="fl">parent_carrier</div><div class="fv ">North American</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(63,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(63,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(63,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(63,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r64" data-type="Medicare">
-<div class="row-top"><div class="row-count">1x</div><span class="tp medicare">medicare</span></div>
-<div class="fields">
-<div class="fb " id="cn64"><div class="fl">carrier_name</div><div class="fv ">Mutual of Omaha (UW)- United World</div></div>
-<div class="fb " id="pc64"><div class="fl">parent_carrier</div><div class="fv ">Mutual of Omaha</div></div>
-<div class="fb " id="cc64"><div class="fl">carrier_charter</div><div class="fv ">United World Life Insurance Company</div></div>
-<div class="fb " id="uc64"><div class="fl">underwriting_charter</div><div class="fv ">United World Life Insurance Company</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(64,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(64,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(64,'carrier_charter')">Use carrier_charter</button>
-<button class="ab" onclick="d(64,'underwriting_charter')">Use underwriting_charter</button>
-<button class="ab" onclick="d(64,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(64,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r65" data-type="Medicare">
-<div class="row-top"><div class="row-count">1x</div><span class="tp medicare">medicare</span></div>
-<div class="fields">
-<div class="fb " id="cn65"><div class="fl">carrier_name</div><div class="fv ">Wellcare</div></div>
-<div class="fb " id="pc65"><div class="fl">parent_carrier</div><div class="fv ">WellCare / Centene</div></div>
-<div class="fb " id="cc65"><div class="fl">carrier_charter</div><div class="fv ">Aetna Medicare Premier (HMO-POS)</div></div>
-<div class="fb mt" id="uc65"><div class="fl">underwriting_charter</div><div class="fv no">(empty)</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(65,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(65,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(65,'carrier_charter')">Use carrier_charter</button>
-<button class="ab" onclick="d(65,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(65,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r66" data-type="Medicare">
-<div class="row-top"><div class="row-count">1x</div><span class="tp medicare">medicare</span></div>
-<div class="fields">
-<div class="fb " id="cn66"><div class="fl">carrier_name</div><div class="fv ">SilverScript</div></div>
-<div class="fb " id="pc66"><div class="fl">parent_carrier</div><div class="fv ">SilverScript</div></div>
-<div class="fb " id="cc66"><div class="fl">carrier_charter</div><div class="fv ">SilverScript Insurance Company</div></div>
-<div class="fb mt" id="uc66"><div class="fl">underwriting_charter</div><div class="fv no">(empty)</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(66,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(66,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(66,'carrier_charter')">Use carrier_charter</button>
-<button class="ab" onclick="d(66,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(66,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r67" data-type="Annuity">
-<div class="row-top"><div class="row-count">1x</div><span class="tp annuity">annuity</span></div>
-<div class="fields">
-<div class="fb " id="cn67"><div class="fl">carrier_name</div><div class="fv ">North American</div></div>
-<div class="fb " id="pc67"><div class="fl">parent_carrier</div><div class="fv ">North American</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(67,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(67,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(67,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(67,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r68" data-type="Medicare">
-<div class="row-top"><div class="row-count">1x</div><span class="tp medicare">medicare</span></div>
-<div class="fields">
-<div class="fb " id="cn68"><div class="fl">carrier_name</div><div class="fv ">Mutual of Omaha (OIC)- Omaha Insurance Company</div></div>
-<div class="fb " id="pc68"><div class="fl">parent_carrier</div><div class="fv ">Mutual of Omaha</div></div>
-<div class="fb " id="cc68"><div class="fl">carrier_charter</div><div class="fv ">Omaha Insurance Company</div></div>
-<div class="fb " id="uc68"><div class="fl">underwriting_charter</div><div class="fv ">Omaha Insurance Company</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(68,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(68,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(68,'carrier_charter')">Use carrier_charter</button>
-<button class="ab" onclick="d(68,'underwriting_charter')">Use underwriting_charter</button>
-<button class="ab" onclick="d(68,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(68,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r69" data-type="Annuity">
-<div class="row-top"><div class="row-count">1x</div><span class="tp annuity">RILA (Registered Index-Linked)</span></div>
-<div class="fields">
-<div class="fb " id="cn69"><div class="fl">carrier_name</div><div class="fv ">Lincoln Financial Group</div></div>
-<div class="fb " id="pc69"><div class="fl">parent_carrier</div><div class="fv ">Lincoln Financial Group</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(69,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(69,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(69,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(69,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r70" data-type="Investment">
-<div class="row-top"><div class="row-count">1x</div><span class="tp investment">IRA</span></div>
-<div class="fields">
-<div class="fb " id="cn70"><div class="fl">carrier_name</div><div class="fv ">Equitable</div></div>
-<div class="fb " id="pc70"><div class="fl">parent_carrier</div><div class="fv ">Equitable</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(70,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(70,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(70,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(70,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r71" data-type="Life">
-<div class="row-top"><div class="row-count">1x</div><span class="tp life">life</span></div>
-<div class="fields">
-<div class="fb " id="cn71"><div class="fl">carrier_name</div><div class="fv ">Consolidated</div></div>
-<div class="fb " id="pc71"><div class="fl">parent_carrier</div><div class="fv ">Consolidated</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(71,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(71,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(71,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(71,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r72" data-type="Annuity">
-<div class="row-top"><div class="row-count">1x</div><span class="tp annuity">annuity</span></div>
-<div class="fields">
-<div class="fb " id="cn72"><div class="fl">carrier_name</div><div class="fv ">Midland National</div></div>
-<div class="fb " id="pc72"><div class="fl">parent_carrier</div><div class="fv ">Midland National</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(72,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(72,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(72,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(72,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r73" data-type="Annuity">
-<div class="row-top"><div class="row-count">1x</div><span class="tp annuity">annuity</span></div>
-<div class="fields">
-<div class="fb " id="cn73"><div class="fl">carrier_name</div><div class="fv ">North American Company</div></div>
-<div class="fb " id="pc73"><div class="fl">parent_carrier</div><div class="fv ">North American</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(73,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(73,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(73,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(73,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r74" data-type="Medicare">
-<div class="row-top"><div class="row-count">1x</div><span class="tp medicare">medicare</span></div>
-<div class="fields">
-<div class="fb " id="cn74"><div class="fl">carrier_name</div><div class="fv ">SILAC (fka Equitable)</div></div>
-<div class="fb " id="pc74"><div class="fl">parent_carrier</div><div class="fv ">SILAC</div></div>
-<div class="fb " id="cc74"><div class="fl">carrier_charter</div><div class="fv ">SILAC Insurance Company</div></div>
-<div class="fb mt" id="uc74"><div class="fl">underwriting_charter</div><div class="fv no">(empty)</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(74,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(74,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(74,'carrier_charter')">Use carrier_charter</button>
-<button class="ab" onclick="d(74,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(74,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r75" data-type="Annuity">
-<div class="row-top"><div class="row-count">1x</div><span class="tp annuity">FIA</span></div>
-<div class="fields">
-<div class="fb " id="cn75"><div class="fl">carrier_name</div><div class="fv ">Delaware Life</div></div>
-<div class="fb " id="pc75"><div class="fl">parent_carrier</div><div class="fv ">Delaware Life</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(75,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(75,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(75,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(75,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r76" data-type="Annuity">
-<div class="row-top"><div class="row-count">1x</div><span class="tp annuity">FIA (Fixed Indexed)</span></div>
-<div class="fields">
-<div class="fb " id="cn76"><div class="fl">carrier_name</div><div class="fv ">Nassau</div></div>
-<div class="fb " id="pc76"><div class="fl">parent_carrier</div><div class="fv ">Nassau</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(76,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(76,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(76,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(76,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r77" data-type="Medicare">
-<div class="row-top"><div class="row-count">1x</div><span class="tp medicare">medicare</span></div>
-<div class="fields">
-<div class="fb " id="cn77"><div class="fl">carrier_name</div><div class="fv ">Alignment Health</div></div>
-<div class="fb " id="pc77"><div class="fl">parent_carrier</div><div class="fv ">Alignment Health</div></div>
-<div class="fb " id="cc77"><div class="fl">carrier_charter</div><div class="fv ">Alignment Health Plan</div></div>
-<div class="fb mt" id="uc77"><div class="fl">underwriting_charter</div><div class="fv no">(empty)</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(77,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(77,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(77,'carrier_charter')">Use carrier_charter</button>
-<button class="ab" onclick="d(77,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(77,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r78" data-type="Medicare">
-<div class="row-top"><div class="row-count">1x</div><span class="tp medicare">medicare</span></div>
-<div class="fields">
-<div class="fb " id="cn78"><div class="fl">carrier_name</div><div class="fv ">Medico</div></div>
-<div class="fb " id="pc78"><div class="fl">parent_carrier</div><div class="fv ">Wellabe / Medico</div></div>
-<div class="fb " id="cc78"><div class="fl">carrier_charter</div><div class="fv ">Medico Life and Health Insurance Company</div></div>
-<div class="fb mt" id="uc78"><div class="fl">underwriting_charter</div><div class="fv no">(empty)</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(78,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(78,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(78,'carrier_charter')">Use carrier_charter</button>
-<button class="ab" onclick="d(78,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(78,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r79" data-type="Life">
-<div class="row-top"><div class="row-count">1x</div><span class="tp life">life</span></div>
-<div class="fields">
-<div class="fb " id="cn79"><div class="fl">carrier_name</div><div class="fv ">Genworth Life</div></div>
-<div class="fb " id="pc79"><div class="fl">parent_carrier</div><div class="fv ">Genworth</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(79,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(79,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(79,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(79,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r80" data-type="Annuity">
-<div class="row-top"><div class="row-count">1x</div><span class="tp annuity">Fixed Indexed Annuity</span></div>
-<div class="fields">
-<div class="fb " id="cn80"><div class="fl">carrier_name</div><div class="fv ">Midland National</div></div>
-<div class="fb " id="pc80"><div class="fl">parent_carrier</div><div class="fv ">Midland National</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(80,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(80,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(80,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(80,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r81" data-type="Annuity">
-<div class="row-top"><div class="row-count">1x</div><span class="tp annuity">FIA (Fixed Indexed)</span></div>
-<div class="fields">
-<div class="fb " id="cn81"><div class="fl">carrier_name</div><div class="fv ">Fidelity & Guaranty Life</div></div>
-<div class="fb " id="pc81"><div class="fl">parent_carrier</div><div class="fv ">Fidelity & Guaranty Life</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(81,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(81,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(81,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(81,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r82" data-type="Medicare">
-<div class="row-top"><div class="row-count">1x</div><span class="tp medicare">medicare</span></div>
-<div class="fields">
-<div class="fb " id="cn82"><div class="fl">carrier_name</div><div class="fv ">Wellcare</div></div>
-<div class="fb " id="pc82"><div class="fl">parent_carrier</div><div class="fv ">WellCare / Centene</div></div>
-<div class="fb " id="cc82"><div class="fl">carrier_charter</div><div class="fv ">Aetna PDP</div></div>
-<div class="fb mt" id="uc82"><div class="fl">underwriting_charter</div><div class="fv no">(empty)</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(82,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(82,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(82,'carrier_charter')">Use carrier_charter</button>
-<button class="ab" onclick="d(82,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(82,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r83" data-type="Medicare">
-<div class="row-top"><div class="row-count">1x</div><span class="tp medicare">medicare</span></div>
-<div class="fields">
-<div class="fb " id="cn83"><div class="fl">carrier_name</div><div class="fv ">Medico</div></div>
-<div class="fb " id="pc83"><div class="fl">parent_carrier</div><div class="fv ">Wellabe / Medico</div></div>
-<div class="fb " id="cc83"><div class="fl">carrier_charter</div><div class="fv ">Medico Insurance Company</div></div>
-<div class="fb mt" id="uc83"><div class="fl">underwriting_charter</div><div class="fv no">(empty)</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(83,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(83,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(83,'carrier_charter')">Use carrier_charter</button>
-<button class="ab" onclick="d(83,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(83,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r84" data-type="Annuity">
-<div class="row-top"><div class="row-count">1x</div><span class="tp annuity">annuity</span></div>
-<div class="fields">
-<div class="fb " id="cn84"><div class="fl">carrier_name</div><div class="fv ">Allianz</div></div>
-<div class="fb " id="pc84"><div class="fl">parent_carrier</div><div class="fv ">Allianz</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(84,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(84,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(84,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(84,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r85" data-type="Annuity">
-<div class="row-top"><div class="row-count">1x</div><span class="tp annuity">FIA (Fixed Indexed)</span></div>
-<div class="fields">
-<div class="fb " id="cn85"><div class="fl">carrier_name</div><div class="fv ">Allianz</div></div>
-<div class="fb " id="pc85"><div class="fl">parent_carrier</div><div class="fv ">Allianz</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(85,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(85,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(85,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(85,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r86" data-type="Medicare">
-<div class="row-top"><div class="row-count">1x</div><span class="tp medicare">medicare</span></div>
-<div class="fields">
-<div class="fb " id="cn86"><div class="fl">carrier_name</div><div class="fv ">Mutual of Omaha</div></div>
-<div class="fb " id="pc86"><div class="fl">parent_carrier</div><div class="fv ">Mutual of Omaha</div></div>
-<div class="fb " id="cc86"><div class="fl">carrier_charter</div><div class="fv ">United World Life Insurance Company</div></div>
-<div class="fb mt" id="uc86"><div class="fl">underwriting_charter</div><div class="fv no">(empty)</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(86,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(86,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(86,'carrier_charter')">Use carrier_charter</button>
-<button class="ab" onclick="d(86,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(86,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r87" data-type="Annuity">
-<div class="row-top"><div class="row-count">1x</div><span class="tp annuity">annuity</span></div>
-<div class="fields">
-<div class="fb " id="cn87"><div class="fl">carrier_name</div><div class="fv ">Transamerica</div></div>
-<div class="fb " id="pc87"><div class="fl">parent_carrier</div><div class="fv ">TransAmerica</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(87,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(87,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(87,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(87,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r88" data-type="Life">
-<div class="row-top"><div class="row-count">1x</div><span class="tp life">life</span></div>
-<div class="fields">
-<div class="fb " id="cn88"><div class="fl">carrier_name</div><div class="fv ">TransAmerica</div></div>
-<div class="fb " id="pc88"><div class="fl">parent_carrier</div><div class="fv ">TransAmerica</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(88,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(88,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(88,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(88,'garbage')">Garbage</button>
-</div></div>
-<div class="row" id="r89" data-type="Annuity">
-<div class="row-top"><div class="row-count">1x</div><span class="tp annuity">VARIABLE</span></div>
-<div class="fields">
-<div class="fb " id="cn89"><div class="fl">carrier_name</div><div class="fv ">VOYA (ING)</div></div>
-<div class="fb " id="pc89"><div class="fl">parent_carrier</div><div class="fv ">VOYA / ING</div></div>
-<div class="fb mt" id="cc89"><div class="fl">carrier_charter</div><div class="fv no">(empty)</div></div>
-<div class="fb " id="uc89"><div class="fl">underwriting_charter</div><div class="fv ">VOYA Financial (fka ING)</div></div>
-</div><div class="acts">
-<button class="ab" onclick="d(89,'carrier_name')">Use carrier_name</button>
-<button class="ab" onclick="d(89,'parent_carrier')">Use parent_carrier</button>
-<button class="ab" onclick="d(89,'underwriting_charter')">Use underwriting_charter</button>
-<button class="ab" onclick="d(89,'keep_all')">Keep All</button>
-<button class="ab" onclick="d(89,'garbage')">Garbage</button>
-</div></div>
+<div class="stat"><div class="n">43</div><div class="l">Carriers</div></div>
+<div class="stat"><div class="n">673</div><div class="l">Records</div></div>
+<div class="stat"><div class="n" id="dc">0</div><div class="l">Decided</div></div>
 </div>
-<div class="ebar"><div class="prog"><strong id="pn">0</strong> / 90 decided</div><button class="ebtn" onclick="ex()">Export Decisions (JSON)</button></div>
-<script>var D={};var P=[{"carrier_name": "Catholic Order of Foresters", "parent_carrier": "Catholic Order of Foresters", "carrier_charter": "", "underwriting_charter": "", "account_type": "life", "count": 237, "type_group": "Life"}, {"carrier_name": "AETNA (ACC)- ACCENDO", "parent_carrier": "Aetna / CVS Health", "carrier_charter": "Accendo Insurance Company", "underwriting_charter": "Accendo Insurance Company", "account_type": "medicare", "count": 48, "type_group": "Medicare"}, {"carrier_name": "Kansas City Life", "parent_carrier": "Kansas City Life", "carrier_charter": "", "underwriting_charter": "", "account_type": "life", "count": 30, "type_group": "Life"}, {"carrier_name": "Aetna", "parent_carrier": "Aetna / CVS Health", "carrier_charter": "Aetna Health Insurance Company", "underwriting_charter": "", "account_type": "medicare", "count": 28, "type_group": "Medicare"}, {"carrier_name": "United Healthcare", "parent_carrier": "UnitedHealthcare", "carrier_charter": "UnitedHealthcare Insurance Company", "underwriting_charter": "", "account_type": "medicare", "count": 22, "type_group": "Medicare"}, {"carrier_name": "Aetna", "parent_carrier": "Aetna", "carrier_charter": "Aetna Health Insurance Company", "underwriting_charter": "", "account_type": "Medicare", "count": 20, "type_group": "Medicare"}, {"carrier_name": "AETNA (AHIC)- AETNA Health Insurance Company", "parent_carrier": "Aetna / CVS Health", "carrier_charter": "Aetna Health Insurance Company", "underwriting_charter": "Aetna Health Insurance Company", "account_type": "medicare", "count": 16, "type_group": "Medicare"}, {"carrier_name": "Kansas City Life", "parent_carrier": "", "carrier_charter": "", "underwriting_charter": "", "account_type": "unknown", "count": 16, "type_group": "Unknown"}, {"carrier_name": "AETNA (MAPD)", "parent_carrier": "Aetna / CVS Health", "carrier_charter": "Aetna Health Insurance Company", "underwriting_charter": "", "account_type": "medicare", "count": 16, "type_group": "Medicare"}, {"carrier_name": "Wellmark (BCBS of Iowa)", "parent_carrier": "Wellmark BCBS of Iowa", "carrier_charter": "Wellmark Blue Cross Blue Shield of Iowa", "underwriting_charter": "", "account_type": "medicare", "count": 15, "type_group": "Medicare"}, {"carrier_name": "North American", "parent_carrier": "North American", "carrier_charter": "", "underwriting_charter": "", "account_type": "FIA (Fixed Indexed)", "count": 15, "type_group": "Annuity"}, {"carrier_name": "UnitedHealthcare", "parent_carrier": "UnitedHealthcare", "carrier_charter": "UnitedHealthcare Insurance Company", "underwriting_charter": "", "account_type": "medicare", "count": 14, "type_group": "Medicare"}, {"carrier_name": "Wellabe (M1)- Medico Insurance Company", "parent_carrier": "Wellabe / Medico", "carrier_charter": "Medico Insurance Company", "underwriting_charter": "Medico Insurance Company", "account_type": "medicare", "count": 13, "type_group": "Medicare"}, {"carrier_name": "Humana", "parent_carrier": "Humana", "carrier_charter": "Humana Insurance Company", "underwriting_charter": "", "account_type": "medicare", "count": 11, "type_group": "Medicare"}, {"carrier_name": "Wellcare", "parent_carrier": "WellCare / Centene", "carrier_charter": "WellCare Health Plans", "underwriting_charter": "", "account_type": "medicare", "count": 11, "type_group": "Medicare"}, {"carrier_name": "Humana", "parent_carrier": "Humana", "carrier_charter": "Humana Insurance Company", "underwriting_charter": "", "account_type": "Medicare", "count": 9, "type_group": "Medicare"}, {"carrier_name": "Wellmark BCBS of Iowa", "parent_carrier": "Wellmark BCBS of Iowa", "carrier_charter": "Wellmark Blue Cross Blue Shield of Iowa", "underwriting_charter": "", "account_type": "medicare", "count": 8, "type_group": "Medicare"}, {"carrier_name": "AETNA (PDP)", "parent_carrier": "Aetna / CVS Health", "carrier_charter": "Aetna Health Insurance Company", "underwriting_charter": "", "account_type": "medicare", "count": 7, "type_group": "Medicare"}, {"carrier_name": "Corebridge", "parent_carrier": "Corebridge / AIG", "carrier_charter": "", "underwriting_charter": "", "account_type": "Fixed Indexed Annuity", "count": 6, "type_group": "Annuity"}, {"carrier_name": "WellCare", "parent_carrier": "WellCare / Centene", "carrier_charter": "WellCare Health Plans", "underwriting_charter": "", "account_type": "medicare", "count": 5, "type_group": "Medicare"}, {"carrier_name": "Central States Indemnity", "parent_carrier": "Central States Indemnity", "carrier_charter": "Central States Indemnity Company of Omaha", "underwriting_charter": "", "account_type": "medicare", "count": 5, "type_group": "Medicare"}, {"carrier_name": "Mutual of Omaha", "parent_carrier": "Mutual of Omaha", "carrier_charter": "", "underwriting_charter": "", "account_type": "life", "count": 5, "type_group": "Life"}, {"carrier_name": "Continental Life", "parent_carrier": "Aetna / CVS Health", "carrier_charter": "Continental Life Insurance Company", "underwriting_charter": "", "account_type": "medicare", "count": 5, "type_group": "Medicare"}, {"carrier_name": "Corebridge (AIG)", "parent_carrier": "Corebridge / AIG", "carrier_charter": "", "underwriting_charter": "Corebridge Financial (fka AIG)", "account_type": "FIA (Fixed Indexed)", "count": 5, "type_group": "Annuity"}, {"carrier_name": "Ameritas Life", "parent_carrier": "Ameritas", "carrier_charter": "", "underwriting_charter": "", "account_type": "life", "count": 4, "type_group": "Life"}, {"carrier_name": "Americo Life", "parent_carrier": "Americo", "carrier_charter": "", "underwriting_charter": "", "account_type": "life", "count": 4, "type_group": "Life"}, {"carrier_name": "Aetna", "parent_carrier": "Aetna / CVS Health", "carrier_charter": "Aetna PDP", "underwriting_charter": "", "account_type": "medicare", "count": 4, "type_group": "Medicare"}, {"carrier_name": "Mutual of Omaha (MUT)- Mutual of Omaha", "parent_carrier": "Mutual of Omaha", "carrier_charter": "Mutual of Omaha Insurance Company", "underwriting_charter": "Mutual of Omaha Insurance Company", "account_type": "medicare", "count": 4, "type_group": "Medicare"}, {"carrier_name": "Wellabe", "parent_carrier": "Wellabe / Medico", "carrier_charter": "Medico Insurance Company", "underwriting_charter": "", "account_type": "medicare", "count": 3, "type_group": "Medicare"}, {"carrier_name": "Equitable (AXA)", "parent_carrier": "Equitable", "carrier_charter": "", "underwriting_charter": "Equitable Financial Life Insurance Company", "account_type": "VARIABLE", "count": 3, "type_group": "Annuity"}, {"carrier_name": "Mutual of Omaha (UO)- United of Omaha", "parent_carrier": "Mutual of Omaha", "carrier_charter": "United of Omaha Life Insurance Company", "underwriting_charter": "United of Omaha Life Insurance Company", "account_type": "medicare", "count": 3, "type_group": "Medicare"}, {"carrier_name": "Assurity Life", "parent_carrier": "Assurity Life", "carrier_charter": "", "underwriting_charter": "", "account_type": "life", "count": 3, "type_group": "Life"}, {"carrier_name": "Aetna", "parent_carrier": "Aetna / CVS Health", "carrier_charter": "Continental Life Insurance Company", "underwriting_charter": "", "account_type": "medicare", "count": 3, "type_group": "Medicare"}, {"carrier_name": "Allstate (NatGen)", "parent_carrier": "Allstate / National General", "carrier_charter": "National General Insurance", "underwriting_charter": "National General Insurance", "account_type": "medicare", "count": 3, "type_group": "Medicare"}, {"carrier_name": "CIGNA (CHLIC)- CIGNA Health + Life Insurance Company", "parent_carrier": "CIGNA", "carrier_charter": "CIGNA Health + Life Insurance Company", "underwriting_charter": "CIGNA Health + Life Insurance Company", "account_type": "medicare", "count": 3, "type_group": "Medicare"}, {"carrier_name": "Wellmark BCBS of Iowa", "parent_carrier": "", "carrier_charter": "", "underwriting_charter": "", "account_type": "unknown", "count": 2, "type_group": "Unknown"}, {"carrier_name": "Jackson National Life", "parent_carrier": "Jackson National Life", "carrier_charter": "", "underwriting_charter": "", "account_type": "VARIABLE", "count": 2, "type_group": "Annuity"}, {"carrier_name": "Brighthouse (MET)", "parent_carrier": "Brighthouse / MetLife", "carrier_charter": "", "underwriting_charter": "Brighthouse Life Insurance Company (fka MetLife)", "account_type": "RILA (Registered Index-Linked)", "count": 2, "type_group": "Annuity"}, {"carrier_name": "AETNA (AHLC)- AETNA Health + Life Insurance Company", "parent_carrier": "Aetna / CVS Health", "carrier_charter": "Aetna Health + Life Insurance Company", "underwriting_charter": "Aetna Health + Life Insurance Company", "account_type": "medicare", "count": 2, "type_group": "Medicare"}, {"carrier_name": "Kansas City Life", "parent_carrier": "Kansas City Life", "carrier_charter": "", "underwriting_charter": "", "account_type": "SPIA (Single Premium Immediate)", "count": 2, "type_group": "Annuity"}, {"carrier_name": "Lumico", "parent_carrier": "Lumico / CUNA Mutual", "carrier_charter": "Lumico Life Insurance Company", "underwriting_charter": "", "account_type": "medicare", "count": 2, "type_group": "Medicare"}, {"carrier_name": "Devoted", "parent_carrier": "Devoted Health", "carrier_charter": "Devoted Health", "underwriting_charter": "", "account_type": "medicare", "count": 2, "type_group": "Medicare"}, {"carrier_name": "AETNA (CLI)- Continental Life", "parent_carrier": "Aetna / CVS Health", "carrier_charter": "Continental Life Insurance Company", "underwriting_charter": "Continental Life Insurance Company", "account_type": "medicare", "count": 2, "type_group": "Medicare"}, {"carrier_name": "Lincoln Financial Group", "parent_carrier": "Lincoln Financial Group", "carrier_charter": "", "underwriting_charter": "", "account_type": "VARIABLE", "count": 2, "type_group": "Annuity"}, {"carrier_name": "North American Company", "parent_carrier": "North American", "carrier_charter": "", "underwriting_charter": "", "account_type": "FIA", "count": 2, "type_group": "Annuity"}, {"carrier_name": "Midland National Life", "parent_carrier": "Midland National", "carrier_charter": "", "underwriting_charter": "", "account_type": "FIA (Fixed Indexed)", "count": 2, "type_group": "Annuity"}, {"carrier_name": "Kansas City Life", "parent_carrier": "Kansas City Life", "carrier_charter": "", "underwriting_charter": "", "account_type": "FIXED", "count": 2, "type_group": "Annuity"}, {"carrier_name": "BlueKC", "parent_carrier": "Blue KC", "carrier_charter": "Blue Cross and Blue Shield of Kansas City", "underwriting_charter": "", "account_type": "medicare", "count": 2, "type_group": "Medicare"}, {"carrier_name": "Ameritas", "parent_carrier": "Ameritas", "carrier_charter": "", "underwriting_charter": "", "account_type": "life", "count": 2, "type_group": "Life"}, {"carrier_name": "Medmutual Protect", "parent_carrier": "Medmutual Protect", "carrier_charter": "Medical Mutual of Ohio", "underwriting_charter": "", "account_type": "medicare", "count": 1, "type_group": "Medicare"}, {"carrier_name": "Prosperity (fka S.USA Life)", "parent_carrier": "Prosperity Life (fka S.USA)", "carrier_charter": "Prosperity Life Insurance Group", "underwriting_charter": "", "account_type": "medicare", "count": 1, "type_group": "Medicare"}, {"carrier_name": "CIGNA (MAPD)", "parent_carrier": "CIGNA", "carrier_charter": "CIGNA Health + Life Insurance Company", "underwriting_charter": "", "account_type": "medicare", "count": 1, "type_group": "Medicare"}, {"carrier_name": "CHUBB (ACE)", "parent_carrier": "CHUBB", "carrier_charter": "CHUBB (ACE)", "underwriting_charter": "CHUBB (ACE)", "account_type": "medicare", "count": 1, "type_group": "Medicare"}, {"carrier_name": "AFLAC (TierOne)", "parent_carrier": "Aflac", "carrier_charter": "Aflac TierOne", "underwriting_charter": "Aflac TierOne", "account_type": "medicare", "count": 1, "type_group": "Medicare"}, {"carrier_name": "Jackson National Life", "parent_carrier": "Jackson National Life", "carrier_charter": "", "underwriting_charter": "", "account_type": "Variable Annuity", "count": 1, "type_group": "Annuity"}, {"carrier_name": "Manhattan Life", "parent_carrier": "Manhattan Life", "carrier_charter": "Manhattan Life Insurance Company", "underwriting_charter": "", "account_type": "medicare", "count": 1, "type_group": "Medicare"}, {"carrier_name": "Securian Financial", "parent_carrier": "Securian Financial", "carrier_charter": "", "underwriting_charter": "", "account_type": "SPIA", "count": 1, "type_group": "Annuity"}, {"carrier_name": "Securian Financial", "parent_carrier": "Securian Financial", "carrier_charter": "", "underwriting_charter": "", "account_type": "SPIA (Single Premium Immediate)", "count": 1, "type_group": "Annuity"}, {"carrier_name": "John Hancock Life", "parent_carrier": "John Hancock", "carrier_charter": "", "underwriting_charter": "", "account_type": "life", "count": 1, "type_group": "Life"}, {"carrier_name": "Aetna", "parent_carrier": "Aetna / CVS Health", "carrier_charter": "Aetna Health + Life Insurance Company", "underwriting_charter": "", "account_type": "medicare", "count": 1, "type_group": "Medicare"}, {"carrier_name": "Aetna", "parent_carrier": "Aetna / CVS Health", "carrier_charter": "", "underwriting_charter": "", "account_type": "medicare", "count": 1, "type_group": "Medicare"}, {"carrier_name": "Kansas City Life", "parent_carrier": "Kansas City Life", "carrier_charter": "", "underwriting_charter": "", "account_type": "VARIABLE", "count": 1, "type_group": "Annuity"}, {"carrier_name": "Lumico", "parent_carrier": "Lumico / CUNA Mutual", "carrier_charter": "Elips Life Insurance Company", "underwriting_charter": "", "account_type": "medicare", "count": 1, "type_group": "Medicare"}, {"carrier_name": "North American", "parent_carrier": "North American", "carrier_charter": "", "underwriting_charter": "", "account_type": "life", "count": 1, "type_group": "Life"}, {"carrier_name": "Mutual of Omaha (UW)- United World", "parent_carrier": "Mutual of Omaha", "carrier_charter": "United World Life Insurance Company", "underwriting_charter": "United World Life Insurance Company", "account_type": "medicare", "count": 1, "type_group": "Medicare"}, {"carrier_name": "Wellcare", "parent_carrier": "WellCare / Centene", "carrier_charter": "Aetna Medicare Premier (HMO-POS)", "underwriting_charter": "", "account_type": "medicare", "count": 1, "type_group": "Medicare"}, {"carrier_name": "SilverScript", "parent_carrier": "SilverScript", "carrier_charter": "SilverScript Insurance Company", "underwriting_charter": "", "account_type": "medicare", "count": 1, "type_group": "Medicare"}, {"carrier_name": "North American", "parent_carrier": "North American", "carrier_charter": "", "underwriting_charter": "", "account_type": "annuity", "count": 1, "type_group": "Annuity"}, {"carrier_name": "Mutual of Omaha (OIC)- Omaha Insurance Company", "parent_carrier": "Mutual of Omaha", "carrier_charter": "Omaha Insurance Company", "underwriting_charter": "Omaha Insurance Company", "account_type": "medicare", "count": 1, "type_group": "Medicare"}, {"carrier_name": "Lincoln Financial Group", "parent_carrier": "Lincoln Financial Group", "carrier_charter": "", "underwriting_charter": "", "account_type": "RILA (Registered Index-Linked)", "count": 1, "type_group": "Annuity"}, {"carrier_name": "Equitable", "parent_carrier": "Equitable", "carrier_charter": "", "underwriting_charter": "", "account_type": "IRA", "count": 1, "type_group": "Investment"}, {"carrier_name": "Consolidated", "parent_carrier": "Consolidated", "carrier_charter": "", "underwriting_charter": "", "account_type": "life", "count": 1, "type_group": "Life"}, {"carrier_name": "Midland National", "parent_carrier": "Midland National", "carrier_charter": "", "underwriting_charter": "", "account_type": "annuity", "count": 1, "type_group": "Annuity"}, {"carrier_name": "North American Company", "parent_carrier": "North American", "carrier_charter": "", "underwriting_charter": "", "account_type": "annuity", "count": 1, "type_group": "Annuity"}, {"carrier_name": "SILAC (fka Equitable)", "parent_carrier": "SILAC", "carrier_charter": "SILAC Insurance Company", "underwriting_charter": "", "account_type": "medicare", "count": 1, "type_group": "Medicare"}, {"carrier_name": "Delaware Life", "parent_carrier": "Delaware Life", "carrier_charter": "", "underwriting_charter": "", "account_type": "FIA", "count": 1, "type_group": "Annuity"}, {"carrier_name": "Nassau", "parent_carrier": "Nassau", "carrier_charter": "", "underwriting_charter": "", "account_type": "FIA (Fixed Indexed)", "count": 1, "type_group": "Annuity"}, {"carrier_name": "Alignment Health", "parent_carrier": "Alignment Health", "carrier_charter": "Alignment Health Plan", "underwriting_charter": "", "account_type": "medicare", "count": 1, "type_group": "Medicare"}, {"carrier_name": "Medico", "parent_carrier": "Wellabe / Medico", "carrier_charter": "Medico Life and Health Insurance Company", "underwriting_charter": "", "account_type": "medicare", "count": 1, "type_group": "Medicare"}, {"carrier_name": "Genworth Life", "parent_carrier": "Genworth", "carrier_charter": "", "underwriting_charter": "", "account_type": "life", "count": 1, "type_group": "Life"}, {"carrier_name": "Midland National", "parent_carrier": "Midland National", "carrier_charter": "", "underwriting_charter": "", "account_type": "Fixed Indexed Annuity", "count": 1, "type_group": "Annuity"}, {"carrier_name": "Fidelity & Guaranty Life", "parent_carrier": "Fidelity & Guaranty Life", "carrier_charter": "", "underwriting_charter": "", "account_type": "FIA (Fixed Indexed)", "count": 1, "type_group": "Annuity"}, {"carrier_name": "Wellcare", "parent_carrier": "WellCare / Centene", "carrier_charter": "Aetna PDP", "underwriting_charter": "", "account_type": "medicare", "count": 1, "type_group": "Medicare"}, {"carrier_name": "Medico", "parent_carrier": "Wellabe / Medico", "carrier_charter": "Medico Insurance Company", "underwriting_charter": "", "account_type": "medicare", "count": 1, "type_group": "Medicare"}, {"carrier_name": "Allianz", "parent_carrier": "Allianz", "carrier_charter": "", "underwriting_charter": "", "account_type": "annuity", "count": 1, "type_group": "Annuity"}, {"carrier_name": "Allianz", "parent_carrier": "Allianz", "carrier_charter": "", "underwriting_charter": "", "account_type": "FIA (Fixed Indexed)", "count": 1, "type_group": "Annuity"}, {"carrier_name": "Mutual of Omaha", "parent_carrier": "Mutual of Omaha", "carrier_charter": "United World Life Insurance Company", "underwriting_charter": "", "account_type": "medicare", "count": 1, "type_group": "Medicare"}, {"carrier_name": "Transamerica", "parent_carrier": "TransAmerica", "carrier_charter": "", "underwriting_charter": "", "account_type": "annuity", "count": 1, "type_group": "Annuity"}, {"carrier_name": "TransAmerica", "parent_carrier": "TransAmerica", "carrier_charter": "", "underwriting_charter": "", "account_type": "life", "count": 1, "type_group": "Life"}, {"carrier_name": "VOYA (ING)", "parent_carrier": "VOYA / ING", "carrier_charter": "", "underwriting_charter": "VOYA Financial (fka ING)", "account_type": "VARIABLE", "count": 1, "type_group": "Annuity"}];
-function d(i,c){D[i]={choice:c,data:P[i]};var r=document.getElementById('r'+i);r.classList.add('decided');r.querySelectorAll('.ab').forEach(function(b){b.classList.remove('picked')});event.target.classList.add('picked');['cn','pc','cc','uc'].forEach(function(p){var e=document.getElementById(p+i);if(e)e.classList.remove('sel')});var m={carrier_name:'cn',parent_carrier:'pc',carrier_charter:'cc',underwriting_charter:'uc'};if(m[c]){var e=document.getElementById(m[c]+i);if(e)e.classList.add('sel')}up()}
-function up(){var c=Object.keys(D).length;document.getElementById('dc').textContent=c;document.getElementById('pn').textContent=c}
-function ft(t,b){document.querySelectorAll('.fbtn').forEach(function(x){x.classList.remove('active')});b.classList.add('active');document.querySelectorAll('.row').forEach(function(r){if(t==='all')r.style.display='';else if(t==='undecided')r.style.display=r.classList.contains('decided')?'none':'';else r.style.display=r.dataset.type===t?'':'none'})}
-function ex(){var b=new Blob([JSON.stringify(D,null,2)],{type:'application/json'});var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='carrier-decisions-v2.json';a.click()}
+<div class="filters">
+<button class="fb a" onclick="ft('all',this)">All (43)</button>
+<button class="fb" onclick="ft('Annuity',this)">Annuity (15)</button>
+<button class="fb" onclick="ft('Investment',this)">Investment (1)</button>
+<button class="fb" onclick="ft('Life',this)">Life (11)</button>
+<button class="fb" onclick="ft('Medicare',this)">Medicare (21)</button>
+<button class="fb" onclick="ft('Unknown',this)">Unknown (2)</button>
+<button class="fb" onclick="ft('undecided',this)">Undecided</button>
+</div>
+<div id="carriers">
+<div class="carrier" id="c0" data-types="Life">
+<div class="carrier-head"><div class="carrier-name">Cof</div><div class="cnt">237 records</div><span class="tp Life">Life</span></div>
+<div class="field-section"><div class="field-title">carrier_name variants</div><div class="variants">
+<div class="variant" onclick="pick(0,'carrier_name',this)">Catholic Order of Foresters</div>
+</div></div>
+<div class="field-section"><div class="field-title">parent_carrier variants</div><div class="variants">
+<div class="variant" onclick="pick(0,'parent_carrier',this)">Catholic Order of Foresters</div>
+</div></div>
+<div class="notes-row"><textarea id="notes0" placeholder="Notes — if none of the above are correct, write the correct value here" oninput="saveNote(0)"></textarea></div>
+</div>
+<div class="carrier" id="c1" data-types="Medicare">
+<div class="carrier-head"><div class="carrier-name">Aetna</div><div class="cnt">153 records</div><span class="tp Medicare">Medicare</span></div>
+<div class="field-section"><div class="field-title">carrier_name variants</div><div class="variants">
+<div class="variant" onclick="pick(1,'carrier_name',this)">AETNA (ACC)- ACCENDO</div>
+<div class="variant" onclick="pick(1,'carrier_name',this)">AETNA (AHIC)- AETNA Health Insurance Company</div>
+<div class="variant" onclick="pick(1,'carrier_name',this)">AETNA (AHLC)- AETNA Health + Life Insurance Company</div>
+<div class="variant" onclick="pick(1,'carrier_name',this)">AETNA (CLI)- Continental Life</div>
+<div class="variant" onclick="pick(1,'carrier_name',this)">AETNA (MAPD)</div>
+<div class="variant" onclick="pick(1,'carrier_name',this)">AETNA (PDP)</div>
+<div class="variant" onclick="pick(1,'carrier_name',this)">Aetna</div>
+<div class="variant" onclick="pick(1,'carrier_name',this)">Continental Life</div>
+</div></div>
+<div class="field-section"><div class="field-title">parent_carrier variants</div><div class="variants">
+<div class="variant" onclick="pick(1,'parent_carrier',this)">Aetna</div>
+<div class="variant" onclick="pick(1,'parent_carrier',this)">Aetna / CVS Health</div>
+</div></div>
+<div class="field-section"><div class="field-title">carrier_charter (Med Supp)</div><div class="variants">
+<div class="variant" onclick="pick(1,'carrier_charter',this)">Accendo Insurance Company</div>
+<div class="variant" onclick="pick(1,'carrier_charter',this)">Aetna Health + Life Insurance Company</div>
+<div class="variant" onclick="pick(1,'carrier_charter',this)">Aetna Health Insurance Company</div>
+<div class="variant" onclick="pick(1,'carrier_charter',this)">Aetna PDP</div>
+<div class="variant" onclick="pick(1,'carrier_charter',this)">Continental Life Insurance Company</div>
+</div></div>
+<div class="field-section"><div class="field-title">underwriting_charter</div><div class="variants">
+<div class="variant" onclick="pick(1,'underwriting_charter',this)">Accendo Insurance Company</div>
+<div class="variant" onclick="pick(1,'underwriting_charter',this)">Aetna Health + Life Insurance Company</div>
+<div class="variant" onclick="pick(1,'underwriting_charter',this)">Aetna Health Insurance Company</div>
+<div class="variant" onclick="pick(1,'underwriting_charter',this)">Continental Life Insurance Company</div>
+</div></div>
+<div class="notes-row"><textarea id="notes1" placeholder="Notes — if none of the above are correct, write the correct value here" oninput="saveNote(1)"></textarea></div>
+</div>
+<div class="carrier" id="c2" data-types="Annuity,Life,Unknown">
+<div class="carrier-head"><div class="carrier-name">Kansas</div><div class="cnt">51 records</div><span class="tp Annuity">Annuity</span><span class="tp Life">Life</span><span class="tp Unknown">Unknown</span></div>
+<div class="field-section"><div class="field-title">carrier_name variants</div><div class="variants">
+<div class="variant" onclick="pick(2,'carrier_name',this)">Kansas City Life</div>
+</div></div>
+<div class="field-section"><div class="field-title">parent_carrier variants</div><div class="variants">
+<div class="variant" onclick="pick(2,'parent_carrier',this)">Kansas City Life</div>
+</div></div>
+<div class="notes-row"><textarea id="notes2" placeholder="Notes — if none of the above are correct, write the correct value here" oninput="saveNote(2)"></textarea></div>
+</div>
+<div class="carrier" id="c3" data-types="Medicare">
+<div class="carrier-head"><div class="carrier-name">Unitedhealthcare</div><div class="cnt">40 records</div><span class="tp Medicare">Medicare</span></div>
+<div class="field-section"><div class="field-title">carrier_name variants</div><div class="variants">
+<div class="variant" onclick="pick(3,'carrier_name',this)">Mutual of Omaha (UO)- United of Omaha</div>
+<div class="variant" onclick="pick(3,'carrier_name',this)">Mutual of Omaha (UW)- United World</div>
+<div class="variant" onclick="pick(3,'carrier_name',this)">United Healthcare</div>
+<div class="variant" onclick="pick(3,'carrier_name',this)">UnitedHealthcare</div>
+</div></div>
+<div class="field-section"><div class="field-title">parent_carrier variants</div><div class="variants">
+<div class="variant" onclick="pick(3,'parent_carrier',this)">Mutual of Omaha</div>
+<div class="variant" onclick="pick(3,'parent_carrier',this)">UnitedHealthcare</div>
+</div></div>
+<div class="field-section"><div class="field-title">carrier_charter (Med Supp)</div><div class="variants">
+<div class="variant" onclick="pick(3,'carrier_charter',this)">United World Life Insurance Company</div>
+<div class="variant" onclick="pick(3,'carrier_charter',this)">United of Omaha Life Insurance Company</div>
+<div class="variant" onclick="pick(3,'carrier_charter',this)">UnitedHealthcare Insurance Company</div>
+</div></div>
+<div class="field-section"><div class="field-title">underwriting_charter</div><div class="variants">
+<div class="variant" onclick="pick(3,'underwriting_charter',this)">United World Life Insurance Company</div>
+<div class="variant" onclick="pick(3,'underwriting_charter',this)">United of Omaha Life Insurance Company</div>
+</div></div>
+<div class="notes-row"><textarea id="notes3" placeholder="Notes — if none of the above are correct, write the correct value here" oninput="saveNote(3)"></textarea></div>
+</div>
+<div class="carrier" id="c4" data-types="Medicare,Unknown">
+<div class="carrier-head"><div class="carrier-name">Wellmark</div><div class="cnt">25 records</div><span class="tp Medicare">Medicare</span><span class="tp Unknown">Unknown</span></div>
+<div class="field-section"><div class="field-title">carrier_name variants</div><div class="variants">
+<div class="variant" onclick="pick(4,'carrier_name',this)">Wellmark (BCBS of Iowa)</div>
+<div class="variant" onclick="pick(4,'carrier_name',this)">Wellmark BCBS of Iowa</div>
+</div></div>
+<div class="field-section"><div class="field-title">parent_carrier variants</div><div class="variants">
+<div class="variant" onclick="pick(4,'parent_carrier',this)">Wellmark BCBS of Iowa</div>
+</div></div>
+<div class="field-section"><div class="field-title">carrier_charter (Med Supp)</div><div class="variants">
+<div class="variant" onclick="pick(4,'carrier_charter',this)">Wellmark Blue Cross Blue Shield of Iowa</div>
+</div></div>
+<div class="notes-row"><textarea id="notes4" placeholder="Notes — if none of the above are correct, write the correct value here" oninput="saveNote(4)"></textarea></div>
+</div>
+<div class="carrier" id="c5" data-types="Annuity,Life">
+<div class="carrier-head"><div class="carrier-name">North American</div><div class="cnt">20 records</div><span class="tp Annuity">Annuity</span><span class="tp Life">Life</span></div>
+<div class="field-section"><div class="field-title">carrier_name variants</div><div class="variants">
+<div class="variant" onclick="pick(5,'carrier_name',this)">North American</div>
+<div class="variant" onclick="pick(5,'carrier_name',this)">North American Company</div>
+</div></div>
+<div class="field-section"><div class="field-title">parent_carrier variants</div><div class="variants">
+<div class="variant" onclick="pick(5,'parent_carrier',this)">North American</div>
+</div></div>
+<div class="notes-row"><textarea id="notes5" placeholder="Notes — if none of the above are correct, write the correct value here" oninput="saveNote(5)"></textarea></div>
+</div>
+<div class="carrier" id="c6" data-types="Medicare">
+<div class="carrier-head"><div class="carrier-name">Humana</div><div class="cnt">20 records</div><span class="tp Medicare">Medicare</span></div>
+<div class="field-section"><div class="field-title">carrier_name variants</div><div class="variants">
+<div class="variant" onclick="pick(6,'carrier_name',this)">Humana</div>
+</div></div>
+<div class="field-section"><div class="field-title">parent_carrier variants</div><div class="variants">
+<div class="variant" onclick="pick(6,'parent_carrier',this)">Humana</div>
+</div></div>
+<div class="field-section"><div class="field-title">carrier_charter (Med Supp)</div><div class="variants">
+<div class="variant" onclick="pick(6,'carrier_charter',this)">Humana Insurance Company</div>
+</div></div>
+<div class="notes-row"><textarea id="notes6" placeholder="Notes — if none of the above are correct, write the correct value here" oninput="saveNote(6)"></textarea></div>
+</div>
+<div class="carrier" id="c7" data-types="Medicare">
+<div class="carrier-head"><div class="carrier-name">Wellabe</div><div class="cnt">18 records</div><span class="tp Medicare">Medicare</span></div>
+<div class="field-section"><div class="field-title">carrier_name variants</div><div class="variants">
+<div class="variant" onclick="pick(7,'carrier_name',this)">Medico</div>
+<div class="variant" onclick="pick(7,'carrier_name',this)">Wellabe</div>
+<div class="variant" onclick="pick(7,'carrier_name',this)">Wellabe (M1)- Medico Insurance Company</div>
+</div></div>
+<div class="field-section"><div class="field-title">parent_carrier variants</div><div class="variants">
+<div class="variant" onclick="pick(7,'parent_carrier',this)">Wellabe / Medico</div>
+</div></div>
+<div class="field-section"><div class="field-title">carrier_charter (Med Supp)</div><div class="variants">
+<div class="variant" onclick="pick(7,'carrier_charter',this)">Medico Insurance Company</div>
+<div class="variant" onclick="pick(7,'carrier_charter',this)">Medico Life and Health Insurance Company</div>
+</div></div>
+<div class="field-section"><div class="field-title">underwriting_charter</div><div class="variants">
+<div class="variant" onclick="pick(7,'underwriting_charter',this)">Medico Insurance Company</div>
+</div></div>
+<div class="notes-row"><textarea id="notes7" placeholder="Notes — if none of the above are correct, write the correct value here" oninput="saveNote(7)"></textarea></div>
+</div>
+<div class="carrier" id="c8" data-types="Medicare">
+<div class="carrier-head"><div class="carrier-name">Wellcare</div><div class="cnt">18 records</div><span class="tp Medicare">Medicare</span></div>
+<div class="field-section"><div class="field-title">carrier_name variants</div><div class="variants">
+<div class="variant" onclick="pick(8,'carrier_name',this)">WellCare</div>
+<div class="variant" onclick="pick(8,'carrier_name',this)">Wellcare</div>
+</div></div>
+<div class="field-section"><div class="field-title">parent_carrier variants</div><div class="variants">
+<div class="variant" onclick="pick(8,'parent_carrier',this)">WellCare / Centene</div>
+</div></div>
+<div class="field-section"><div class="field-title">carrier_charter (Med Supp)</div><div class="variants">
+<div class="variant" onclick="pick(8,'carrier_charter',this)">Aetna Medicare Premier (HMO-POS)</div>
+<div class="variant" onclick="pick(8,'carrier_charter',this)">Aetna PDP</div>
+<div class="variant" onclick="pick(8,'carrier_charter',this)">WellCare Health Plans</div>
+</div></div>
+<div class="notes-row"><textarea id="notes8" placeholder="Notes — if none of the above are correct, write the correct value here" oninput="saveNote(8)"></textarea></div>
+</div>
+<div class="carrier" id="c9" data-types="Annuity">
+<div class="carrier-head"><div class="carrier-name">Corebridge</div><div class="cnt">11 records</div><span class="tp Annuity">Annuity</span></div>
+<div class="field-section"><div class="field-title">carrier_name variants</div><div class="variants">
+<div class="variant" onclick="pick(9,'carrier_name',this)">Corebridge</div>
+<div class="variant" onclick="pick(9,'carrier_name',this)">Corebridge (AIG)</div>
+</div></div>
+<div class="field-section"><div class="field-title">parent_carrier variants</div><div class="variants">
+<div class="variant" onclick="pick(9,'parent_carrier',this)">Corebridge / AIG</div>
+</div></div>
+<div class="field-section"><div class="field-title">underwriting_charter</div><div class="variants">
+<div class="variant" onclick="pick(9,'underwriting_charter',this)">Corebridge Financial (fka AIG)</div>
+</div></div>
+<div class="notes-row"><textarea id="notes9" placeholder="Notes — if none of the above are correct, write the correct value here" oninput="saveNote(9)"></textarea></div>
+</div>
+<div class="carrier" id="c10" data-types="Life,Medicare">
+<div class="carrier-head"><div class="carrier-name">Mutual Of Omaha</div><div class="cnt">11 records</div><span class="tp Life">Life</span><span class="tp Medicare">Medicare</span></div>
+<div class="field-section"><div class="field-title">carrier_name variants</div><div class="variants">
+<div class="variant" onclick="pick(10,'carrier_name',this)">Mutual of Omaha</div>
+<div class="variant" onclick="pick(10,'carrier_name',this)">Mutual of Omaha (MUT)- Mutual of Omaha</div>
+<div class="variant" onclick="pick(10,'carrier_name',this)">Mutual of Omaha (OIC)- Omaha Insurance Company</div>
+</div></div>
+<div class="field-section"><div class="field-title">parent_carrier variants</div><div class="variants">
+<div class="variant" onclick="pick(10,'parent_carrier',this)">Mutual of Omaha</div>
+</div></div>
+<div class="field-section"><div class="field-title">carrier_charter (Med Supp)</div><div class="variants">
+<div class="variant" onclick="pick(10,'carrier_charter',this)">Mutual of Omaha Insurance Company</div>
+<div class="variant" onclick="pick(10,'carrier_charter',this)">Omaha Insurance Company</div>
+<div class="variant" onclick="pick(10,'carrier_charter',this)">United World Life Insurance Company</div>
+</div></div>
+<div class="field-section"><div class="field-title">underwriting_charter</div><div class="variants">
+<div class="variant" onclick="pick(10,'underwriting_charter',this)">Mutual of Omaha Insurance Company</div>
+<div class="variant" onclick="pick(10,'underwriting_charter',this)">Omaha Insurance Company</div>
+</div></div>
+<div class="notes-row"><textarea id="notes10" placeholder="Notes — if none of the above are correct, write the correct value here" oninput="saveNote(10)"></textarea></div>
+</div>
+<div class="carrier" id="c11" data-types="Life">
+<div class="carrier-head"><div class="carrier-name">Ameritas</div><div class="cnt">6 records</div><span class="tp Life">Life</span></div>
+<div class="field-section"><div class="field-title">carrier_name variants</div><div class="variants">
+<div class="variant" onclick="pick(11,'carrier_name',this)">Ameritas</div>
+<div class="variant" onclick="pick(11,'carrier_name',this)">Ameritas Life</div>
+</div></div>
+<div class="field-section"><div class="field-title">parent_carrier variants</div><div class="variants">
+<div class="variant" onclick="pick(11,'parent_carrier',this)">Ameritas</div>
+</div></div>
+<div class="notes-row"><textarea id="notes11" placeholder="Notes — if none of the above are correct, write the correct value here" oninput="saveNote(11)"></textarea></div>
+</div>
+<div class="carrier" id="c12" data-types="Medicare">
+<div class="carrier-head"><div class="carrier-name">Central</div><div class="cnt">5 records</div><span class="tp Medicare">Medicare</span></div>
+<div class="field-section"><div class="field-title">carrier_name variants</div><div class="variants">
+<div class="variant" onclick="pick(12,'carrier_name',this)">Central States Indemnity</div>
+</div></div>
+<div class="field-section"><div class="field-title">parent_carrier variants</div><div class="variants">
+<div class="variant" onclick="pick(12,'parent_carrier',this)">Central States Indemnity</div>
+</div></div>
+<div class="field-section"><div class="field-title">carrier_charter (Med Supp)</div><div class="variants">
+<div class="variant" onclick="pick(12,'carrier_charter',this)">Central States Indemnity Company of Omaha</div>
+</div></div>
+<div class="notes-row"><textarea id="notes12" placeholder="Notes — if none of the above are correct, write the correct value here" oninput="saveNote(12)"></textarea></div>
+</div>
+<div class="carrier" id="c13" data-types="Life">
+<div class="carrier-head"><div class="carrier-name">Americo</div><div class="cnt">4 records</div><span class="tp Life">Life</span></div>
+<div class="field-section"><div class="field-title">carrier_name variants</div><div class="variants">
+<div class="variant" onclick="pick(13,'carrier_name',this)">Americo Life</div>
+</div></div>
+<div class="field-section"><div class="field-title">parent_carrier variants</div><div class="variants">
+<div class="variant" onclick="pick(13,'parent_carrier',this)">Americo</div>
+</div></div>
+<div class="notes-row"><textarea id="notes13" placeholder="Notes — if none of the above are correct, write the correct value here" oninput="saveNote(13)"></textarea></div>
+</div>
+<div class="carrier" id="c14" data-types="Annuity,Investment">
+<div class="carrier-head"><div class="carrier-name">Equitable</div><div class="cnt">4 records</div><span class="tp Annuity">Annuity</span><span class="tp Investment">Investment</span></div>
+<div class="field-section"><div class="field-title">carrier_name variants</div><div class="variants">
+<div class="variant" onclick="pick(14,'carrier_name',this)">Equitable</div>
+<div class="variant" onclick="pick(14,'carrier_name',this)">Equitable (AXA)</div>
+</div></div>
+<div class="field-section"><div class="field-title">parent_carrier variants</div><div class="variants">
+<div class="variant" onclick="pick(14,'parent_carrier',this)">Equitable</div>
+</div></div>
+<div class="field-section"><div class="field-title">underwriting_charter</div><div class="variants">
+<div class="variant" onclick="pick(14,'underwriting_charter',this)">Equitable Financial Life Insurance Company</div>
+</div></div>
+<div class="notes-row"><textarea id="notes14" placeholder="Notes — if none of the above are correct, write the correct value here" oninput="saveNote(14)"></textarea></div>
+</div>
+<div class="carrier" id="c15" data-types="Medicare">
+<div class="carrier-head"><div class="carrier-name">Cigna</div><div class="cnt">4 records</div><span class="tp Medicare">Medicare</span></div>
+<div class="field-section"><div class="field-title">carrier_name variants</div><div class="variants">
+<div class="variant" onclick="pick(15,'carrier_name',this)">CIGNA (CHLIC)- CIGNA Health + Life Insurance Company</div>
+<div class="variant" onclick="pick(15,'carrier_name',this)">CIGNA (MAPD)</div>
+</div></div>
+<div class="field-section"><div class="field-title">parent_carrier variants</div><div class="variants">
+<div class="variant" onclick="pick(15,'parent_carrier',this)">CIGNA</div>
+</div></div>
+<div class="field-section"><div class="field-title">carrier_charter (Med Supp)</div><div class="variants">
+<div class="variant" onclick="pick(15,'carrier_charter',this)">CIGNA Health + Life Insurance Company</div>
+</div></div>
+<div class="field-section"><div class="field-title">underwriting_charter</div><div class="variants">
+<div class="variant" onclick="pick(15,'underwriting_charter',this)">CIGNA Health + Life Insurance Company</div>
+</div></div>
+<div class="notes-row"><textarea id="notes15" placeholder="Notes — if none of the above are correct, write the correct value here" oninput="saveNote(15)"></textarea></div>
+</div>
+<div class="carrier" id="c16" data-types="Annuity">
+<div class="carrier-head"><div class="carrier-name">Midland</div><div class="cnt">4 records</div><span class="tp Annuity">Annuity</span></div>
+<div class="field-section"><div class="field-title">carrier_name variants</div><div class="variants">
+<div class="variant" onclick="pick(16,'carrier_name',this)">Midland National</div>
+<div class="variant" onclick="pick(16,'carrier_name',this)">Midland National Life</div>
+</div></div>
+<div class="field-section"><div class="field-title">parent_carrier variants</div><div class="variants">
+<div class="variant" onclick="pick(16,'parent_carrier',this)">Midland National</div>
+</div></div>
+<div class="notes-row"><textarea id="notes16" placeholder="Notes — if none of the above are correct, write the correct value here" oninput="saveNote(16)"></textarea></div>
+</div>
+<div class="carrier" id="c17" data-types="Life">
+<div class="carrier-head"><div class="carrier-name">Assurity</div><div class="cnt">3 records</div><span class="tp Life">Life</span></div>
+<div class="field-section"><div class="field-title">carrier_name variants</div><div class="variants">
+<div class="variant" onclick="pick(17,'carrier_name',this)">Assurity Life</div>
+</div></div>
+<div class="field-section"><div class="field-title">parent_carrier variants</div><div class="variants">
+<div class="variant" onclick="pick(17,'parent_carrier',this)">Assurity Life</div>
+</div></div>
+<div class="notes-row"><textarea id="notes17" placeholder="Notes — if none of the above are correct, write the correct value here" oninput="saveNote(17)"></textarea></div>
+</div>
+<div class="carrier" id="c18" data-types="Medicare">
+<div class="carrier-head"><div class="carrier-name">Allstate</div><div class="cnt">3 records</div><span class="tp Medicare">Medicare</span></div>
+<div class="field-section"><div class="field-title">carrier_name variants</div><div class="variants">
+<div class="variant" onclick="pick(18,'carrier_name',this)">Allstate (NatGen)</div>
+</div></div>
+<div class="field-section"><div class="field-title">parent_carrier variants</div><div class="variants">
+<div class="variant" onclick="pick(18,'parent_carrier',this)">Allstate / National General</div>
+</div></div>
+<div class="field-section"><div class="field-title">carrier_charter (Med Supp)</div><div class="variants">
+<div class="variant" onclick="pick(18,'carrier_charter',this)">National General Insurance</div>
+</div></div>
+<div class="field-section"><div class="field-title">underwriting_charter</div><div class="variants">
+<div class="variant" onclick="pick(18,'underwriting_charter',this)">National General Insurance</div>
+</div></div>
+<div class="notes-row"><textarea id="notes18" placeholder="Notes — if none of the above are correct, write the correct value here" oninput="saveNote(18)"></textarea></div>
+</div>
+<div class="carrier" id="c19" data-types="Annuity">
+<div class="carrier-head"><div class="carrier-name">Jackson</div><div class="cnt">3 records</div><span class="tp Annuity">Annuity</span></div>
+<div class="field-section"><div class="field-title">carrier_name variants</div><div class="variants">
+<div class="variant" onclick="pick(19,'carrier_name',this)">Jackson National Life</div>
+</div></div>
+<div class="field-section"><div class="field-title">parent_carrier variants</div><div class="variants">
+<div class="variant" onclick="pick(19,'parent_carrier',this)">Jackson National Life</div>
+</div></div>
+<div class="notes-row"><textarea id="notes19" placeholder="Notes — if none of the above are correct, write the correct value here" oninput="saveNote(19)"></textarea></div>
+</div>
+<div class="carrier" id="c20" data-types="Medicare">
+<div class="carrier-head"><div class="carrier-name">Lumico</div><div class="cnt">3 records</div><span class="tp Medicare">Medicare</span></div>
+<div class="field-section"><div class="field-title">carrier_name variants</div><div class="variants">
+<div class="variant" onclick="pick(20,'carrier_name',this)">Lumico</div>
+</div></div>
+<div class="field-section"><div class="field-title">parent_carrier variants</div><div class="variants">
+<div class="variant" onclick="pick(20,'parent_carrier',this)">Lumico / CUNA Mutual</div>
+</div></div>
+<div class="field-section"><div class="field-title">carrier_charter (Med Supp)</div><div class="variants">
+<div class="variant" onclick="pick(20,'carrier_charter',this)">Elips Life Insurance Company</div>
+<div class="variant" onclick="pick(20,'carrier_charter',this)">Lumico Life Insurance Company</div>
+</div></div>
+<div class="notes-row"><textarea id="notes20" placeholder="Notes — if none of the above are correct, write the correct value here" oninput="saveNote(20)"></textarea></div>
+</div>
+<div class="carrier" id="c21" data-types="Annuity">
+<div class="carrier-head"><div class="carrier-name">Lincoln</div><div class="cnt">3 records</div><span class="tp Annuity">Annuity</span></div>
+<div class="field-section"><div class="field-title">carrier_name variants</div><div class="variants">
+<div class="variant" onclick="pick(21,'carrier_name',this)">Lincoln Financial Group</div>
+</div></div>
+<div class="field-section"><div class="field-title">parent_carrier variants</div><div class="variants">
+<div class="variant" onclick="pick(21,'parent_carrier',this)">Lincoln Financial Group</div>
+</div></div>
+<div class="notes-row"><textarea id="notes21" placeholder="Notes — if none of the above are correct, write the correct value here" oninput="saveNote(21)"></textarea></div>
+</div>
+<div class="carrier" id="c22" data-types="Annuity">
+<div class="carrier-head"><div class="carrier-name">Brighthouse</div><div class="cnt">2 records</div><span class="tp Annuity">Annuity</span></div>
+<div class="field-section"><div class="field-title">carrier_name variants</div><div class="variants">
+<div class="variant" onclick="pick(22,'carrier_name',this)">Brighthouse (MET)</div>
+</div></div>
+<div class="field-section"><div class="field-title">parent_carrier variants</div><div class="variants">
+<div class="variant" onclick="pick(22,'parent_carrier',this)">Brighthouse / MetLife</div>
+</div></div>
+<div class="field-section"><div class="field-title">underwriting_charter</div><div class="variants">
+<div class="variant" onclick="pick(22,'underwriting_charter',this)">Brighthouse Life Insurance Company (fka MetLife)</div>
+</div></div>
+<div class="notes-row"><textarea id="notes22" placeholder="Notes — if none of the above are correct, write the correct value here" oninput="saveNote(22)"></textarea></div>
+</div>
+<div class="carrier" id="c23" data-types="Medicare">
+<div class="carrier-head"><div class="carrier-name">Devoted</div><div class="cnt">2 records</div><span class="tp Medicare">Medicare</span></div>
+<div class="field-section"><div class="field-title">carrier_name variants</div><div class="variants">
+<div class="variant" onclick="pick(23,'carrier_name',this)">Devoted</div>
+</div></div>
+<div class="field-section"><div class="field-title">parent_carrier variants</div><div class="variants">
+<div class="variant" onclick="pick(23,'parent_carrier',this)">Devoted Health</div>
+</div></div>
+<div class="field-section"><div class="field-title">carrier_charter (Med Supp)</div><div class="variants">
+<div class="variant" onclick="pick(23,'carrier_charter',this)">Devoted Health</div>
+</div></div>
+<div class="notes-row"><textarea id="notes23" placeholder="Notes — if none of the above are correct, write the correct value here" oninput="saveNote(23)"></textarea></div>
+</div>
+<div class="carrier" id="c24" data-types="Medicare">
+<div class="carrier-head"><div class="carrier-name">Bluekc</div><div class="cnt">2 records</div><span class="tp Medicare">Medicare</span></div>
+<div class="field-section"><div class="field-title">carrier_name variants</div><div class="variants">
+<div class="variant" onclick="pick(24,'carrier_name',this)">BlueKC</div>
+</div></div>
+<div class="field-section"><div class="field-title">parent_carrier variants</div><div class="variants">
+<div class="variant" onclick="pick(24,'parent_carrier',this)">Blue KC</div>
+</div></div>
+<div class="field-section"><div class="field-title">carrier_charter (Med Supp)</div><div class="variants">
+<div class="variant" onclick="pick(24,'carrier_charter',this)">Blue Cross and Blue Shield of Kansas City</div>
+</div></div>
+<div class="notes-row"><textarea id="notes24" placeholder="Notes — if none of the above are correct, write the correct value here" oninput="saveNote(24)"></textarea></div>
+</div>
+<div class="carrier" id="c25" data-types="Annuity">
+<div class="carrier-head"><div class="carrier-name">Securian</div><div class="cnt">2 records</div><span class="tp Annuity">Annuity</span></div>
+<div class="field-section"><div class="field-title">carrier_name variants</div><div class="variants">
+<div class="variant" onclick="pick(25,'carrier_name',this)">Securian Financial</div>
+</div></div>
+<div class="field-section"><div class="field-title">parent_carrier variants</div><div class="variants">
+<div class="variant" onclick="pick(25,'parent_carrier',this)">Securian Financial</div>
+</div></div>
+<div class="notes-row"><textarea id="notes25" placeholder="Notes — if none of the above are correct, write the correct value here" oninput="saveNote(25)"></textarea></div>
+</div>
+<div class="carrier" id="c26" data-types="Annuity">
+<div class="carrier-head"><div class="carrier-name">Allianz</div><div class="cnt">2 records</div><span class="tp Annuity">Annuity</span></div>
+<div class="field-section"><div class="field-title">carrier_name variants</div><div class="variants">
+<div class="variant" onclick="pick(26,'carrier_name',this)">Allianz</div>
+</div></div>
+<div class="field-section"><div class="field-title">parent_carrier variants</div><div class="variants">
+<div class="variant" onclick="pick(26,'parent_carrier',this)">Allianz</div>
+</div></div>
+<div class="notes-row"><textarea id="notes26" placeholder="Notes — if none of the above are correct, write the correct value here" oninput="saveNote(26)"></textarea></div>
+</div>
+<div class="carrier" id="c27" data-types="Annuity,Life">
+<div class="carrier-head"><div class="carrier-name">Transamerica</div><div class="cnt">2 records</div><span class="tp Annuity">Annuity</span><span class="tp Life">Life</span></div>
+<div class="field-section"><div class="field-title">carrier_name variants</div><div class="variants">
+<div class="variant" onclick="pick(27,'carrier_name',this)">TransAmerica</div>
+<div class="variant" onclick="pick(27,'carrier_name',this)">Transamerica</div>
+</div></div>
+<div class="field-section"><div class="field-title">parent_carrier variants</div><div class="variants">
+<div class="variant" onclick="pick(27,'parent_carrier',this)">TransAmerica</div>
+</div></div>
+<div class="notes-row"><textarea id="notes27" placeholder="Notes — if none of the above are correct, write the correct value here" oninput="saveNote(27)"></textarea></div>
+</div>
+<div class="carrier" id="c28" data-types="Medicare">
+<div class="carrier-head"><div class="carrier-name">Medmutual</div><div class="cnt">1 records</div><span class="tp Medicare">Medicare</span></div>
+<div class="field-section"><div class="field-title">carrier_name variants</div><div class="variants">
+<div class="variant" onclick="pick(28,'carrier_name',this)">Medmutual Protect</div>
+</div></div>
+<div class="field-section"><div class="field-title">parent_carrier variants</div><div class="variants">
+<div class="variant" onclick="pick(28,'parent_carrier',this)">Medmutual Protect</div>
+</div></div>
+<div class="field-section"><div class="field-title">carrier_charter (Med Supp)</div><div class="variants">
+<div class="variant" onclick="pick(28,'carrier_charter',this)">Medical Mutual of Ohio</div>
+</div></div>
+<div class="notes-row"><textarea id="notes28" placeholder="Notes — if none of the above are correct, write the correct value here" oninput="saveNote(28)"></textarea></div>
+</div>
+<div class="carrier" id="c29" data-types="Medicare">
+<div class="carrier-head"><div class="carrier-name">Prosperity</div><div class="cnt">1 records</div><span class="tp Medicare">Medicare</span></div>
+<div class="field-section"><div class="field-title">carrier_name variants</div><div class="variants">
+<div class="variant" onclick="pick(29,'carrier_name',this)">Prosperity (fka S.USA Life)</div>
+</div></div>
+<div class="field-section"><div class="field-title">parent_carrier variants</div><div class="variants">
+<div class="variant" onclick="pick(29,'parent_carrier',this)">Prosperity Life (fka S.USA)</div>
+</div></div>
+<div class="field-section"><div class="field-title">carrier_charter (Med Supp)</div><div class="variants">
+<div class="variant" onclick="pick(29,'carrier_charter',this)">Prosperity Life Insurance Group</div>
+</div></div>
+<div class="notes-row"><textarea id="notes29" placeholder="Notes — if none of the above are correct, write the correct value here" oninput="saveNote(29)"></textarea></div>
+</div>
+<div class="carrier" id="c30" data-types="Medicare">
+<div class="carrier-head"><div class="carrier-name">Chubb</div><div class="cnt">1 records</div><span class="tp Medicare">Medicare</span></div>
+<div class="field-section"><div class="field-title">carrier_name variants</div><div class="variants">
+<div class="variant" onclick="pick(30,'carrier_name',this)">CHUBB (ACE)</div>
+</div></div>
+<div class="field-section"><div class="field-title">parent_carrier variants</div><div class="variants">
+<div class="variant" onclick="pick(30,'parent_carrier',this)">CHUBB</div>
+</div></div>
+<div class="field-section"><div class="field-title">carrier_charter (Med Supp)</div><div class="variants">
+<div class="variant" onclick="pick(30,'carrier_charter',this)">CHUBB (ACE)</div>
+</div></div>
+<div class="field-section"><div class="field-title">underwriting_charter</div><div class="variants">
+<div class="variant" onclick="pick(30,'underwriting_charter',this)">CHUBB (ACE)</div>
+</div></div>
+<div class="notes-row"><textarea id="notes30" placeholder="Notes — if none of the above are correct, write the correct value here" oninput="saveNote(30)"></textarea></div>
+</div>
+<div class="carrier" id="c31" data-types="Medicare">
+<div class="carrier-head"><div class="carrier-name">Aflac</div><div class="cnt">1 records</div><span class="tp Medicare">Medicare</span></div>
+<div class="field-section"><div class="field-title">carrier_name variants</div><div class="variants">
+<div class="variant" onclick="pick(31,'carrier_name',this)">AFLAC (TierOne)</div>
+</div></div>
+<div class="field-section"><div class="field-title">parent_carrier variants</div><div class="variants">
+<div class="variant" onclick="pick(31,'parent_carrier',this)">Aflac</div>
+</div></div>
+<div class="field-section"><div class="field-title">carrier_charter (Med Supp)</div><div class="variants">
+<div class="variant" onclick="pick(31,'carrier_charter',this)">Aflac TierOne</div>
+</div></div>
+<div class="field-section"><div class="field-title">underwriting_charter</div><div class="variants">
+<div class="variant" onclick="pick(31,'underwriting_charter',this)">Aflac TierOne</div>
+</div></div>
+<div class="notes-row"><textarea id="notes31" placeholder="Notes — if none of the above are correct, write the correct value here" oninput="saveNote(31)"></textarea></div>
+</div>
+<div class="carrier" id="c32" data-types="Medicare">
+<div class="carrier-head"><div class="carrier-name">Manhattan</div><div class="cnt">1 records</div><span class="tp Medicare">Medicare</span></div>
+<div class="field-section"><div class="field-title">carrier_name variants</div><div class="variants">
+<div class="variant" onclick="pick(32,'carrier_name',this)">Manhattan Life</div>
+</div></div>
+<div class="field-section"><div class="field-title">parent_carrier variants</div><div class="variants">
+<div class="variant" onclick="pick(32,'parent_carrier',this)">Manhattan Life</div>
+</div></div>
+<div class="field-section"><div class="field-title">carrier_charter (Med Supp)</div><div class="variants">
+<div class="variant" onclick="pick(32,'carrier_charter',this)">Manhattan Life Insurance Company</div>
+</div></div>
+<div class="notes-row"><textarea id="notes32" placeholder="Notes — if none of the above are correct, write the correct value here" oninput="saveNote(32)"></textarea></div>
+</div>
+<div class="carrier" id="c33" data-types="Life">
+<div class="carrier-head"><div class="carrier-name">John</div><div class="cnt">1 records</div><span class="tp Life">Life</span></div>
+<div class="field-section"><div class="field-title">carrier_name variants</div><div class="variants">
+<div class="variant" onclick="pick(33,'carrier_name',this)">John Hancock Life</div>
+</div></div>
+<div class="field-section"><div class="field-title">parent_carrier variants</div><div class="variants">
+<div class="variant" onclick="pick(33,'parent_carrier',this)">John Hancock</div>
+</div></div>
+<div class="notes-row"><textarea id="notes33" placeholder="Notes — if none of the above are correct, write the correct value here" oninput="saveNote(33)"></textarea></div>
+</div>
+<div class="carrier" id="c34" data-types="Medicare">
+<div class="carrier-head"><div class="carrier-name">Silverscript</div><div class="cnt">1 records</div><span class="tp Medicare">Medicare</span></div>
+<div class="field-section"><div class="field-title">carrier_name variants</div><div class="variants">
+<div class="variant" onclick="pick(34,'carrier_name',this)">SilverScript</div>
+</div></div>
+<div class="field-section"><div class="field-title">parent_carrier variants</div><div class="variants">
+<div class="variant" onclick="pick(34,'parent_carrier',this)">SilverScript</div>
+</div></div>
+<div class="field-section"><div class="field-title">carrier_charter (Med Supp)</div><div class="variants">
+<div class="variant" onclick="pick(34,'carrier_charter',this)">SilverScript Insurance Company</div>
+</div></div>
+<div class="notes-row"><textarea id="notes34" placeholder="Notes — if none of the above are correct, write the correct value here" oninput="saveNote(34)"></textarea></div>
+</div>
+<div class="carrier" id="c35" data-types="Life">
+<div class="carrier-head"><div class="carrier-name">Consolidated</div><div class="cnt">1 records</div><span class="tp Life">Life</span></div>
+<div class="field-section"><div class="field-title">carrier_name variants</div><div class="variants">
+<div class="variant" onclick="pick(35,'carrier_name',this)">Consolidated</div>
+</div></div>
+<div class="field-section"><div class="field-title">parent_carrier variants</div><div class="variants">
+<div class="variant" onclick="pick(35,'parent_carrier',this)">Consolidated</div>
+</div></div>
+<div class="notes-row"><textarea id="notes35" placeholder="Notes — if none of the above are correct, write the correct value here" oninput="saveNote(35)"></textarea></div>
+</div>
+<div class="carrier" id="c36" data-types="Medicare">
+<div class="carrier-head"><div class="carrier-name">Silac</div><div class="cnt">1 records</div><span class="tp Medicare">Medicare</span></div>
+<div class="field-section"><div class="field-title">carrier_name variants</div><div class="variants">
+<div class="variant" onclick="pick(36,'carrier_name',this)">SILAC (fka Equitable)</div>
+</div></div>
+<div class="field-section"><div class="field-title">parent_carrier variants</div><div class="variants">
+<div class="variant" onclick="pick(36,'parent_carrier',this)">SILAC</div>
+</div></div>
+<div class="field-section"><div class="field-title">carrier_charter (Med Supp)</div><div class="variants">
+<div class="variant" onclick="pick(36,'carrier_charter',this)">SILAC Insurance Company</div>
+</div></div>
+<div class="notes-row"><textarea id="notes36" placeholder="Notes — if none of the above are correct, write the correct value here" oninput="saveNote(36)"></textarea></div>
+</div>
+<div class="carrier" id="c37" data-types="Annuity">
+<div class="carrier-head"><div class="carrier-name">Delaware</div><div class="cnt">1 records</div><span class="tp Annuity">Annuity</span></div>
+<div class="field-section"><div class="field-title">carrier_name variants</div><div class="variants">
+<div class="variant" onclick="pick(37,'carrier_name',this)">Delaware Life</div>
+</div></div>
+<div class="field-section"><div class="field-title">parent_carrier variants</div><div class="variants">
+<div class="variant" onclick="pick(37,'parent_carrier',this)">Delaware Life</div>
+</div></div>
+<div class="notes-row"><textarea id="notes37" placeholder="Notes — if none of the above are correct, write the correct value here" oninput="saveNote(37)"></textarea></div>
+</div>
+<div class="carrier" id="c38" data-types="Annuity">
+<div class="carrier-head"><div class="carrier-name">Nassau</div><div class="cnt">1 records</div><span class="tp Annuity">Annuity</span></div>
+<div class="field-section"><div class="field-title">carrier_name variants</div><div class="variants">
+<div class="variant" onclick="pick(38,'carrier_name',this)">Nassau</div>
+</div></div>
+<div class="field-section"><div class="field-title">parent_carrier variants</div><div class="variants">
+<div class="variant" onclick="pick(38,'parent_carrier',this)">Nassau</div>
+</div></div>
+<div class="notes-row"><textarea id="notes38" placeholder="Notes — if none of the above are correct, write the correct value here" oninput="saveNote(38)"></textarea></div>
+</div>
+<div class="carrier" id="c39" data-types="Medicare">
+<div class="carrier-head"><div class="carrier-name">Alignment</div><div class="cnt">1 records</div><span class="tp Medicare">Medicare</span></div>
+<div class="field-section"><div class="field-title">carrier_name variants</div><div class="variants">
+<div class="variant" onclick="pick(39,'carrier_name',this)">Alignment Health</div>
+</div></div>
+<div class="field-section"><div class="field-title">parent_carrier variants</div><div class="variants">
+<div class="variant" onclick="pick(39,'parent_carrier',this)">Alignment Health</div>
+</div></div>
+<div class="field-section"><div class="field-title">carrier_charter (Med Supp)</div><div class="variants">
+<div class="variant" onclick="pick(39,'carrier_charter',this)">Alignment Health Plan</div>
+</div></div>
+<div class="notes-row"><textarea id="notes39" placeholder="Notes — if none of the above are correct, write the correct value here" oninput="saveNote(39)"></textarea></div>
+</div>
+<div class="carrier" id="c40" data-types="Life">
+<div class="carrier-head"><div class="carrier-name">Genworth</div><div class="cnt">1 records</div><span class="tp Life">Life</span></div>
+<div class="field-section"><div class="field-title">carrier_name variants</div><div class="variants">
+<div class="variant" onclick="pick(40,'carrier_name',this)">Genworth Life</div>
+</div></div>
+<div class="field-section"><div class="field-title">parent_carrier variants</div><div class="variants">
+<div class="variant" onclick="pick(40,'parent_carrier',this)">Genworth</div>
+</div></div>
+<div class="notes-row"><textarea id="notes40" placeholder="Notes — if none of the above are correct, write the correct value here" oninput="saveNote(40)"></textarea></div>
+</div>
+<div class="carrier" id="c41" data-types="Annuity">
+<div class="carrier-head"><div class="carrier-name">Fidelity</div><div class="cnt">1 records</div><span class="tp Annuity">Annuity</span></div>
+<div class="field-section"><div class="field-title">carrier_name variants</div><div class="variants">
+<div class="variant" onclick="pick(41,'carrier_name',this)">Fidelity & Guaranty Life</div>
+</div></div>
+<div class="field-section"><div class="field-title">parent_carrier variants</div><div class="variants">
+<div class="variant" onclick="pick(41,'parent_carrier',this)">Fidelity & Guaranty Life</div>
+</div></div>
+<div class="notes-row"><textarea id="notes41" placeholder="Notes — if none of the above are correct, write the correct value here" oninput="saveNote(41)"></textarea></div>
+</div>
+<div class="carrier" id="c42" data-types="Annuity">
+<div class="carrier-head"><div class="carrier-name">Voya</div><div class="cnt">1 records</div><span class="tp Annuity">Annuity</span></div>
+<div class="field-section"><div class="field-title">carrier_name variants</div><div class="variants">
+<div class="variant" onclick="pick(42,'carrier_name',this)">VOYA (ING)</div>
+</div></div>
+<div class="field-section"><div class="field-title">parent_carrier variants</div><div class="variants">
+<div class="variant" onclick="pick(42,'parent_carrier',this)">VOYA / ING</div>
+</div></div>
+<div class="field-section"><div class="field-title">underwriting_charter</div><div class="variants">
+<div class="variant" onclick="pick(42,'underwriting_charter',this)">VOYA Financial (fka ING)</div>
+</div></div>
+<div class="notes-row"><textarea id="notes42" placeholder="Notes — if none of the above are correct, write the correct value here" oninput="saveNote(42)"></textarea></div>
+</div>
+</div>
+<div class="bottom-bar"><div class="prog"><strong id="pn">0</strong> / 43 decided</div><button class="ebtn" onclick="ex()">Export Decisions</button></div>
+<script>var D={};var total=43;
+
+function pick(i, field, el) {
+  if (!D[i]) D[i] = {};
+  D[i].carrier_value = el.textContent;
+  D[i].source_field = field;
+  // Clear other selections in this carrier
+  var card = document.getElementById('c' + i);
+  card.querySelectorAll('.variant').forEach(function(v) { v.classList.remove('sel'); });
+  el.classList.add('sel');
+  card.classList.add('done');
+  up();
+}
+function saveNote(i) {
+  if (!D[i]) D[i] = {};
+  D[i].notes = document.getElementById('notes' + i).value;
+  var card = document.getElementById('c' + i);
+  if (D[i].notes.trim()) card.classList.add('done');
+  up();
+}
+function up() {
+  var c = Object.keys(D).length;
+  document.getElementById('dc').textContent = c;
+  document.getElementById('pn').textContent = c;
+}
+function ft(t, b) {
+  document.querySelectorAll('.fb').forEach(function(x) { x.classList.remove('a'); });
+  b.classList.add('a');
+  document.querySelectorAll('.carrier').forEach(function(card) {
+    if (t === 'all') card.style.display = '';
+    else if (t === 'undecided') card.style.display = card.classList.contains('done') ? 'none' : '';
+    else {
+      var types = card.dataset.types.split(',');
+      card.style.display = types.indexOf(t) >= 0 ? '' : 'none';
+    }
+  });
+}
+function ex() {
+  var blob = new Blob([JSON.stringify(D, null, 2)], { type: 'application/json' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'carrier-decisions-v3.json';
+  a.click();
+}
+
 </script></body></html>
