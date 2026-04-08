@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kimberly K Ruth — Asset Inventory</title>
+<style>
+:root{--bg:#0a0e17;--card:#111827;--card2:#1a2236;--border:#1e293b;--text:#e2e8f0;--muted:#94a3b8;--green:#22c55e;--blue:#3b82f6;--red:#ef4444;--orange:#f59e0b;--gold:#d4a44c;--cyan:#06b6d4}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+.header{background:linear-gradient(135deg,#020b1a 0%,#0a1a0a 50%,#020b1a 100%);border-bottom:1px solid var(--border);padding:40px 32px;text-align:center;position:relative;overflow:hidden}
+.header::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(ellipse at 30% 50%,rgba(34,197,94,0.06) 0%,transparent 50%),radial-gradient(ellipse at 70% 50%,rgba(59,130,246,0.04) 0%,transparent 50%);pointer-events:none}
+.header h1{font-size:2.2rem;font-weight:800;background:linear-gradient(135deg,var(--green),var(--blue),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px;position:relative}
+.header .sub{font-size:0.95rem;color:var(--muted);position:relative}
+.header .badge{display:inline-block;margin-top:12px;padding:4px 16px;border-radius:999px;font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;background:rgba(34,197,94,0.1);color:var(--green);border:1px solid rgba(34,197,94,0.3);position:relative}
+.tab-bar{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px solid var(--border);overflow-x:auto;display:flex;max-width:1100px;margin:0 auto;padding:0 8px}
+.tab{padding:14px 18px;font-size:0.82rem;font-weight:600;color:var(--muted);cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;transition:all .2s}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--green);border-bottom-color:var(--green)}
+.content{max-width:1100px;margin:0 auto;padding:24px 16px}
+.panel{display:none}
+.panel.active{display:block}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:16px}
+.card h2{font-size:1.15rem;margin-bottom:12px}
+.card h3{font-size:0.95rem;margin:14px 0 8px;color:var(--green)}
+.card p,.card li{color:var(--muted);font-size:0.88rem;margin-bottom:6px}
+.card ul{margin-left:20px}
+.card strong{color:var(--text)}
+.stat-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:20px}
+.stat{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:18px;text-align:center}
+.stat .num{font-size:1.8rem;font-weight:800;color:var(--green);line-height:1}
+.stat .lbl{font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:4px}
+.stat.warn .num{color:var(--red)}
+table{width:100%;border-collapse:collapse;font-size:0.8rem;margin:10px 0}
+th{text-align:left;padding:8px 10px;background:var(--card2);color:var(--green);font-weight:700;font-size:0.7rem;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border)}
+td{padding:8px 10px;border-bottom:1px solid var(--border);color:var(--muted);vertical-align:top}
+td:first-child{color:var(--text);font-weight:500}
+tr:hover td{background:var(--card2)}
+tr.totals td{font-weight:700;color:var(--text);border-top:2px solid var(--border)}
+.none{color:var(--red);font-weight:700}
+.flag{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin-bottom:12px;border-left:4px solid var(--muted)}
+.flag.red{border-left-color:var(--red)}
+.flag.orange{border-left-color:var(--orange)}
+.flag.blue{border-left-color:var(--blue)}
+.flag .title{font-size:0.9rem;font-weight:700;margin-bottom:4px}
+.flag.red .title{color:var(--red)}
+.flag.orange .title{color:var(--orange)}
+.flag.blue .title{color:var(--blue)}
+.flag p{font-size:0.85rem;color:var(--muted);margin:4px 0}
+.flag .action{margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
+.flag .action strong{color:var(--green);font-size:0.78rem;text-transform:uppercase;letter-spacing:1px}
+.maturity-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin:16px 0}
+.mat-card{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:14px;text-align:center}
+.mat-card .mo{font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+.mat-card .amt{font-size:1.3rem;font-weight:800;color:var(--orange);margin:4px 0}
+.mat-card .ct{font-size:0.7rem;color:var(--muted)}
+.mat-card.empty{opacity:.3}
+.income-card{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+.income-card .src{font-size:0.9rem;font-weight:600}
+.income-card .val{font-size:1.2rem;font-weight:800;color:var(--green)}
+.income-card .detail{font-size:0.75rem;color:var(--muted)}
+.note{background:rgba(6,182,212,0.06);border:1px solid rgba(6,182,212,0.2);border-radius:8px;padding:14px 18px;margin:14px 0;font-size:0.85rem;color:var(--muted)}
+.note strong{color:var(--cyan)}
+.footer{text-align:center;padding:24px;color:var(--muted);font-size:0.72rem;border-top:1px solid var(--border);margin-top:32px}
+@media print{body{background:#fff;color:#000}.header{background:#f8f8f8;border-bottom:2px solid #000}.header h1{-webkit-text-fill-color:#000;color:#000}.tab-bar{display:none}.panel{display:block!important;page-break-inside:avoid}.card,.stat,.flag,.income-card,.mat-card{background:#fff;border-color:#ccc}th{background:#eee;color:#000}td,.card p,.card li,.flag p{color:#333}.stat .num{color:#000}.none{color:#c00}.footer{color:#666}}
+</style>
+</head>
+<body>
+
+<div class="header">
+<h1>Kimberly K Ruth &mdash; Asset Inventory</h1>
+<div class="sub">Age 71 &bull; Single &bull; No Children &bull; Riverside, IA 52327 &bull; (319) 648-2552<br>COF Member Since 1974 &bull; Sole Beneficiary: Karla S Ruth (Sister)<br>Purpose: Accumulation + Legacy</div>
+<div class="badge">VOLTRON CSO &bull; 2026-04-08</div>
+</div>
+
+<div class="tab-bar">
+<div class="tab active" onclick="showPanel('summary',this)">SUMMARY</div>
+<div class="tab" onclick="showPanel('annuities',this)">ANNUITIES</div>
+<div class="tab" onclick="showPanel('cds',this)">CDs</div>
+<div class="tab" onclick="showPanel('tax',this)">TAX BREAKDOWN</div>
+<div class="tab" onclick="showPanel('flags',this)">FLAGS</div>
+<div class="tab" onclick="showPanel('income',this)">INCOME</div>
+</div>
+
+<div class="content">
+
+<!-- SUMMARY -->
+<div id="summary" class="panel active">
+<div class="stat-row">
+<div class="stat"><div class="num">$1,870,556</div><div class="lbl">Total Assets</div></div>
+<div class="stat"><div class="num">$872,927</div><div class="lbl">Annuities (5)</div></div>
+<div class="stat"><div class="num">$997,629</div><div class="lbl">CDs (10)</div></div>
+<div class="stat warn"><div class="num">13 / 15</div><div class="lbl">Missing Beneficiary</div></div>
+</div>
+
+<div class="flag red">
+<div class="title">BENEFICIARY GAP</div>
+<p>13 of 15 accounts have no named beneficiary. $1,332,783 at probate risk.</p>
+</div>
+<div class="flag red">
+<div class="title">RMD PLANNING</div>
+<p>$95,829 in Traditional IRA. SECURE Act 2.0: RMD age 73. First RMD due 04/01/2028. Plan IRA CD maturities now.</p>
+</div>
+<div class="flag orange">
+<div class="title">CD MATURITY WAVE</div>
+<p>All 10 CDs ($997K) mature May&ndash;Nov 2026. Rollover strategy needed before first maturity.</p>
+</div>
+<div class="flag orange">
+<div class="title">1035 CANDIDATES</div>
+<p>Brighthouse NQ $135K + Prosperity NQ $185K = $320K fully liquid at 3.0%. Prime for 1035 exchange.</p>
+</div>
+<div class="flag blue">
+<div class="title">NO LIFE INSURANCE</div>
+<p>Confirmed via COF portal. No financial dependency on Karla. Not a gap unless farm creates estate tax exposure.</p>
+</div>
+</div>
+
+<!-- ANNUITIES -->
+<div id="annuities" class="panel">
+<div class="card">
+<h2>Annuities (5 Accounts &mdash; $872,927)</h2>
+<div style="overflow-x:auto">
+<table>
+<tr><th>Carrier</th><th>Product</th><th>Policy #</th><th>Tax</th><th>Value</th><th>CSV</th><th>Rate</th><th>Guar</th><th>Death Benefit</th><th>Issue</th><th>Maturity</th><th>Beneficiary</th></tr>
+<tr><td>Catholic Order of Foresters</td><td>Annuity Loyalty SPDA</td><td>4041671</td><td>Non-Qualified</td><td>$447,073</td><td>$418,866</td><td>3.25%</td><td>2.75%</td><td>$447,073</td><td>11/05/2023</td><td>11/05/2049</td><td>Karla S Ruth</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>Annuity Loyalty SPDA</td><td>4041673</td><td>Roth IRA</td><td>$90,560</td><td>$84,847</td><td>3.00%</td><td>2.75%</td><td>$90,560</td><td>11/05/2023</td><td>11/05/2049</td><td>Karla S Ruth</td></tr>
+<tr><td>Prosperity / S.USA Life</td><td>S.USA Annuity</td><td>920330879</td><td>Non-Qualified</td><td>$184,837</td><td>$184,837</td><td>3.00%</td><td>&mdash;</td><td>$184,837</td><td>05/04/2022</td><td>05/04/2028</td><td class="none">&#9888; NONE</td></tr>
+<tr><td>Brighthouse Financial</td><td>Fixed Annuity XR</td><td>940267409</td><td>Non-Qualified</td><td>$135,034</td><td>$135,034</td><td>3.00%</td><td>&mdash;</td><td>$135,034</td><td>06/08/2004</td><td>1yr Renew</td><td class="none">&#9888; NONE</td></tr>
+<tr><td>Brighthouse Financial</td><td>Fixed Annuity XR</td><td>9200553464</td><td>Trad IRA</td><td>$15,423</td><td>$15,423</td><td>3.00%</td><td>&mdash;</td><td>$15,423</td><td>06/11/2004</td><td>1yr Renew</td><td class="none">&#9888; NONE</td></tr>
+<tr class="totals"><td></td><td></td><td></td><td>TOTAL</td><td>$872,927</td><td>$839,007</td><td></td><td></td><td>$872,927</td><td></td><td></td><td></td></tr>
+</table>
+</div>
+</div>
+
+<div class="card">
+<h3>Surrender Notes</h3>
+<ul>
+<li><strong>COF 4041671 + 4041673:</strong> Year 3 of 7 surrender period. ~$34K in surrender charges if liquidated today.</li>
+<li><strong>Prosperity 920330879:</strong> Fully liquid. CSV = AV. $0 surrender charge.</li>
+<li><strong>Brighthouse 940267409 + 9200553464:</strong> Fully liquid. 20+ year contracts. 1-year guarantee renewals at 3.0%.</li>
+</ul>
+</div>
+</div>
+
+<!-- CDs -->
+<div id="cds" class="panel">
+<div class="card">
+<h2>Certificates of Deposit (10 Accounts &mdash; $997,629)</h2>
+<p>Sorted by maturity date. All 10 mature in 2026.</p>
+<div style="overflow-x:auto">
+<table>
+<tr><th>Bank</th><th>Acct #</th><th>Tax</th><th>Value</th><th>Cash Value</th><th>Penalty</th><th>APY</th><th>Issue</th><th>Maturity</th><th>Beneficiary</th></tr>
+<tr><td>Hills Bank</td><td>10521680</td><td>NQ</td><td>$97,333</td><td>$95,878</td><td>$1,455</td><td>3.60%</td><td>06/09/2025</td><td>05/09/2026</td><td class="none">&#9888; NONE</td></tr>
+<tr><td>Hills Bank</td><td>50102383</td><td>NQ</td><td>$120,603</td><td>$119,556</td><td>$1,044</td><td>3.60%</td><td>07/02/2025</td><td>06/02/2026</td><td class="none">&#9888; NONE</td></tr>
+<tr><td>Hills Bank</td><td>10402477</td><td>Trad IRA</td><td>$72,731</td><td>$72,055</td><td>$676</td><td>3.60%</td><td>07/05/2025</td><td>06/05/2026</td><td class="none">&#9888; NONE</td></tr>
+<tr><td>Hills Bank</td><td>10527117</td><td>NQ</td><td>$60,201</td><td>$59,648</td><td>$553</td><td>3.60%</td><td>01/07/2025</td><td>06/07/2026</td><td class="none">&#9888; NONE</td></tr>
+<tr><td>Hills Bank</td><td>80013907</td><td>Trad IRA</td><td>$7,675</td><td>$7,559</td><td>$116</td><td>3.48%</td><td>12/13/2025</td><td>06/13/2026</td><td class="none">&#9888; NONE</td></tr>
+<tr><td>Hills Bank</td><td>50127000</td><td>NQ</td><td>$46,501</td><td>$45,866</td><td>$635</td><td>3.50%</td><td>02/23/2026</td><td>08/23/2026</td><td class="none">&#9888; NONE</td></tr>
+<tr><td>Hills Bank</td><td>10142469</td><td>NQ</td><td>$50,706</td><td>$49,894</td><td>$812</td><td>3.49%</td><td>03/20/2026</td><td>09/20/2026</td><td class="none">&#9888; NONE</td></tr>
+<tr><td>Washington State Bank</td><td>89237</td><td>NQ</td><td>$115,585</td><td>$111,005</td><td>$4,500</td><td>4.00%</td><td>10/06/2025</td><td>10/06/2026</td><td class="none">&#9888; NONE</td></tr>
+<tr><td>Washington State Bank</td><td>89421</td><td>NQ</td><td>$165,895</td><td>$159,395</td><td>$6,500</td><td>4.00%</td><td>11/04/2025</td><td>11/04/2026</td><td class="none">&#9888; NONE</td></tr>
+<tr><td>Hills Bank</td><td>10424356</td><td>NQ</td><td>$260,399</td><td>$256,180</td><td>$4,218</td><td>3.40%</td><td>12/28/2025</td><td>11/28/2026</td><td class="none">&#9888; NONE</td></tr>
+<tr class="totals"><td></td><td></td><td>TOTAL</td><td>$997,629</td><td>$977,035</td><td>$20,510</td><td></td><td></td><td></td><td></td></tr>
+</table>
+</div>
+</div>
+
+<div class="card">
+<h3>Maturity Calendar &mdash; 2026</h3>
+<div class="maturity-grid">
+<div class="mat-card"><div class="mo">May</div><div class="amt">$97K</div><div class="ct">1 CD</div></div>
+<div class="mat-card"><div class="mo">Jun</div><div class="amt">$261K</div><div class="ct">4 CDs</div></div>
+<div class="mat-card empty"><div class="mo">Jul</div><div class="amt">&mdash;</div><div class="ct">0</div></div>
+<div class="mat-card"><div class="mo">Aug</div><div class="amt">$47K</div><div class="ct">1 CD</div></div>
+<div class="mat-card"><div class="mo">Sep</div><div class="amt">$51K</div><div class="ct">1 CD</div></div>
+<div class="mat-card"><div class="mo">Oct</div><div class="amt">$116K</div><div class="ct">1 CD</div></div>
+<div class="mat-card"><div class="mo">Nov</div><div class="amt">$426K</div><div class="ct">2 CDs</div></div>
+</div>
+</div>
+</div>
+
+<!-- TAX BREAKDOWN -->
+<div id="tax" class="panel">
+<div class="card">
+<h2>Tax Status Breakdown</h2>
+<table>
+<tr><th></th><th>Non-Qualified</th><th>Traditional IRA</th><th>Roth IRA</th><th>TOTAL</th></tr>
+<tr><td><strong>Annuities</strong></td><td>$766,944</td><td>$15,423</td><td>$90,560</td><td><strong>$872,927</strong></td></tr>
+<tr><td><strong>CDs</strong></td><td>$917,223</td><td>$80,406</td><td>$0</td><td><strong>$997,629</strong></td></tr>
+<tr class="totals"><td><strong>TOTAL</strong></td><td><strong>$1,684,167</strong></td><td><strong>$95,829</strong></td><td><strong>$90,560</strong></td><td><strong>$1,870,556</strong></td></tr>
+</table>
+</div>
+
+<div class="card">
+<h3>Tax Notes</h3>
+<ul>
+<li><strong>Non-Qualified (90% &mdash; $1.68M):</strong> No RMD requirements. No tax on withdrawal of cost basis. Interest/gains taxed as ordinary income when withdrawn.</li>
+<li><strong>Traditional IRA ($95.8K):</strong> RMD begins at age 73 (SECURE Act 2.0). Kimberly turns 73 in July 2027. First RMD due by 04/01/2028. All withdrawals taxed as ordinary income.</li>
+<li><strong>Roth IRA ($90.6K):</strong> No RMD requirement ever. Tax-free growth. Tax-free to Karla on inheritance. Do not touch this money &mdash; it&rsquo;s the most tax-efficient asset she owns.</li>
+</ul>
+</div>
+
+<div class="note">
+<strong>COF NQ Basis:</strong> Policy #4041671 has a post-Tefra basis of $240,500. This means $240,500 of the $447,073 account value is return of premium (not taxable on withdrawal). The gain ($206,573) is taxable as ordinary income. Important for any 1035 exchange &mdash; basis carries over.
+</div>
+</div>
+
+<!-- FLAGS -->
+<div id="flags" class="panel">
+
+<div class="flag red">
+<div class="title">FLAG 1 &mdash; BENEFICIARY GAP</div>
+<p>13 of 15 accounts have <strong>no named beneficiary</strong>. Total exposed to probate: <strong>$1,332,783</strong>.</p>
+<p>Missing on: All 10 CDs + Prosperity #920330879 + Brighthouse #940267409 + Brighthouse #9200553464</p>
+<p>Has beneficiary: COF #4041671 (Karla S Ruth 100%) + COF #4041673 (Karla S Ruth 100%)</p>
+<div class="action">
+<strong>Action Items:</strong>
+<ul>
+<li>Beneficiary designation forms for all 13 accounts. Name Karla S Ruth as primary beneficiary on everything.</li>
+<li>Archer can start this immediately &mdash; no second discovery needed.</li>
+<li>Hills Bank and Washington State Bank require POD (Payable on Death) designation forms for CDs.</li>
+<li>Brighthouse and Prosperity require carrier-specific beneficiary change forms.</li>
+</ul>
+</div>
+</div>
+
+<div class="flag red">
+<div class="title">FLAG 2 &mdash; RMD PLANNING</div>
+<p>3 Traditional IRA accounts totaling <strong>$95,829</strong>:</p>
+<ul>
+<li>Brighthouse IRA #9200553464: $15,423</li>
+<li>Hills Bank IRA CD #10402477: $72,731</li>
+<li>Hills Bank IRA CD #80013907: $7,675</li>
+</ul>
+<p>SECURE Act 2.0: RMD age is 73. Kimberly turns 73 in July 2027. First RMD due by 04/01/2028.</p>
+<div class="action">
+<strong>Action Items:</strong>
+<ul>
+<li>No RMD required in 2026. But the 2 IRA CDs ($80K) mature Jun 2026 &mdash; rollover decision should factor upcoming RMD needs.</li>
+<li>Consider: keep IRA CDs liquid (don&rsquo;t lock into long-term products) so RMD can be taken without penalty.</li>
+<li>Roth conversion of part/all of $95.8K before age 73 could eliminate future RMDs entirely &mdash; evaluate against her 32-35% bracket.</li>
+</ul>
+</div>
+</div>
+
+<div class="flag orange">
+<div class="title">FLAG 3 &mdash; CD MATURITY WAVE</div>
+<p><strong>$997,629</strong> in CDs all maturing May&ndash;November 2026. This is the biggest near-term decision.</p>
+<p>June is the heaviest month: 4 CDs ($261K) mature within 2 weeks of each other.</p>
+<div class="action">
+<strong>Action Items:</strong>
+<ul>
+<li><strong>Option A &mdash; Re-up:</strong> Roll into new CDs at Hills/WSB. Simple, known. Current rates 3.4-4.0%.</li>
+<li><strong>Option B &mdash; Redirect NQ:</strong> $917K NQ portion into MYGA/FIA. Higher rates available + tax deferral (CDs pay tax on interest annually, annuities defer).</li>
+<li><strong>Option C &mdash; Split:</strong> Keep IRA CDs as CDs (liquidity for RMDs). Redirect NQ CDs to annuities for tax efficiency.</li>
+<li>Decision needed before May 2026 (first maturity). Second discovery should address this directly.</li>
+</ul>
+</div>
+</div>
+
+<div class="flag orange">
+<div class="title">FLAG 4 &mdash; 1035 EXCHANGE CANDIDATES</div>
+<p>Two NQ annuities are fully liquid with no surrender charge, earning 3.0%:</p>
+<ul>
+<li><strong>Brighthouse #940267409:</strong> $135,034 &mdash; 20 years old. 1-year guarantee renewal. Zero reason to keep this contract at current rates.</li>
+<li><strong>Prosperity #920330879:</strong> $184,837 &mdash; Fully liquid. No surrender. 3.0% current rate.</li>
+</ul>
+<p>Combined: <strong>$319,871</strong> available for tax-free 1035 exchange into higher-crediting products.</p>
+<div class="action">
+<strong>Action Items:</strong>
+<ul>
+<li>Research current MYGA/FIA rates from RPI carrier partners. Target: 4.5%+ guaranteed for 3-5yr MYGA.</li>
+<li>COF #4041671 post-Tefra basis ($240,500) is relevant if recommending any NQ annuity repositioning.</li>
+<li>1035 exchange preserves basis and avoids taxable event.</li>
+</ul>
+</div>
+</div>
+
+<div class="flag blue">
+<div class="title">FLAG 5 &mdash; NO LIFE INSURANCE</div>
+<p>Confirmed via COF portal: zero life policies. The 7 ghost policies in ProDash were data artifacts from the COF member import &mdash; now deleted.</p>
+<p>Purpose is accumulation + legacy. No financial dependency on sister Karla. No health status for underwriting purposes.</p>
+<div class="action">
+<strong>Action Items:</strong>
+<ul>
+<li>Life insurance is <strong>not a gap</strong> for this client unless farm structure analysis reveals estate tax exposure (federal estate tax threshold: $13.61M in 2026).</li>
+<li>With ~$1.87M in financial assets + unknown farm value, estate tax is unlikely unless farm is valued at $11M+.</li>
+<li>JDM investigating farm structure &mdash; revisit after that information is available.</li>
+</ul>
+</div>
+</div>
+
+</div>
+
+<!-- INCOME -->
+<div id="income" class="panel">
+<div class="card">
+<h2>Income Sources</h2>
+</div>
+
+<div class="income-card">
+<div>
+<div class="src">Social Security</div>
+<div class="detail">Monthly benefit</div>
+</div>
+<div style="text-align:right">
+<div class="val">$2,632.50/mo</div>
+<div class="detail">$31,590/yr</div>
+</div>
+</div>
+
+<div class="income-card">
+<div>
+<div class="src">Farm Income</div>
+<div class="detail">Structure TBD &mdash; JDM investigating</div>
+</div>
+<div style="text-align:right">
+<div class="val">$200&ndash;300K/yr</div>
+<div class="detail">Varies annually</div>
+</div>
+</div>
+
+<div class="income-card">
+<div>
+<div class="src">Prosperity Annuity Benefit</div>
+<div class="detail">Paid-up monthly benefit &mdash; available but not currently drawn</div>
+</div>
+<div style="text-align:right">
+<div class="val">$1,007.35/mo</div>
+<div class="detail">$12,088/yr if activated</div>
+</div>
+</div>
+
+<div class="card" style="margin-top:16px">
+<h3>Estimated Total Annual Income</h3>
+<div class="stat-row">
+<div class="stat"><div class="num">$244K&ndash;$344K</div><div class="lbl">Without Annuity Benefit</div></div>
+<div class="stat"><div class="num">$256K&ndash;$356K</div><div class="lbl">With Annuity Benefit</div></div>
+</div>
+</div>
+
+<div class="note">
+<strong>Tax Bracket Implication:</strong> With $200&ndash;300K farm income + $31.6K SSI, Kimberly is in the <strong>32&ndash;35% federal marginal bracket</strong>. Roth conversions of the $95.8K Traditional IRA may be worth evaluating before RMDs begin in 2027 &mdash; but the high bracket makes conversions expensive. Best evaluated after farm structure is known (if farm income drops, a lower-bracket year creates a conversion window).
+</div>
+</div>
+
+</div>
+
+<div class="footer">
+VOLTRON CSO &bull; 2026-04-08 &bull; Source: COF, Brighthouse, Prosperity Policy Statements + Archer Discovery Notes<br>
+Client: Kimberly K Ruth &bull; ProDash: 2195c26e-b009-46b6-a2da-52229955eae6 &bull; #RunningOurOwnRACE
+</div>
+
+<script>
+function showPanel(id,el){document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active')});document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});document.getElementById(id).classList.add('active');el.classList.add('active')}
+</script>
+</body>
+</html>
