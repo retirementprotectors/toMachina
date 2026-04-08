@@ -143,10 +143,16 @@ export function BookingConfig({ meetingTypes: initialTypes, availability: initia
                   <span className="w-8 text-xs font-medium text-[var(--text-muted)]">{DAY_LABELS[dayNum]}</span>
                   <div className="relative flex-1 h-8 rounded-md overflow-hidden" style={{ background: 'var(--bg-surface)' }}>
                     <div className="absolute inset-y-0 rounded-md" style={{ left: `${((bhStart - scheduleRange.start) / scheduleRange.span) * 100}%`, width: `${((bhEnd - bhStart) / scheduleRange.span) * 100}%`, background: 'rgba(148,163,184,0.08)', borderLeft: '1px solid rgba(148,163,184,0.15)', borderRight: '1px solid rgba(148,163,184,0.15)' }} />
-                    {types.map((t, tIdx) => t.windows.filter(w => w.day === dayNum).map((w, wIdx) => {
-                      const wS = timeToMinutes(w.start), wE = timeToMinutes(w.end)
-                      return <div key={`${tIdx}-${wIdx}`} className="absolute inset-y-1 rounded" style={{ left: `${((wS - scheduleRange.start) / scheduleRange.span) * 100}%`, width: `${((wE - wS) / scheduleRange.span) * 100}%`, background: t.color || TYPE_COLORS[tIdx % TYPE_COLORS.length], opacity: 0.7 }}><span className="absolute inset-0 flex items-center justify-center text-[9px] font-semibold text-white truncate px-1">{t.name}</span></div>
-                    }))}
+                    {types.map((t, tIdx) => {
+                      // If no explicit windows, fill entire business hours for this day
+                      const effectiveWindows = t.windows.length > 0
+                        ? t.windows.filter(w => w.day === dayNum)
+                        : (bh ? [{ day: dayNum, start: bh.start, end: bh.end }] : [])
+                      return effectiveWindows.map((w, wIdx) => {
+                        const wS = timeToMinutes(w.start), wE = timeToMinutes(w.end)
+                        return <div key={`${tIdx}-${wIdx}`} className="absolute inset-y-1 rounded" style={{ left: `${((wS - scheduleRange.start) / scheduleRange.span) * 100}%`, width: `${((wE - wS) / scheduleRange.span) * 100}%`, background: t.color || TYPE_COLORS[tIdx % TYPE_COLORS.length], opacity: 0.7 }}><span className="absolute inset-0 flex items-center justify-center text-[9px] font-semibold text-white truncate px-1">{t.name}</span></div>
+                      })
+                    })}
                     <div className="absolute inset-0 flex items-center justify-between px-1.5 pointer-events-none"><span className="text-[9px] text-[var(--text-muted)]">{formatTime(bh.start)}</span><span className="text-[9px] text-[var(--text-muted)]">{formatTime(bh.end)}</span></div>
                   </div>
                 </div>

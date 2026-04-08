@@ -100,6 +100,7 @@ export interface UserProfile {
   first_name?: string
   last_name?: string
   display_name?: string
+  photo_url?: string
   /** Numeric level is the single source of truth: 0=OWNER, 1=EXECUTIVE, 2=LEADER, 3=USER */
   level?: number
   /** @deprecated Use `level` instead. Kept for backward compat reads only. */
