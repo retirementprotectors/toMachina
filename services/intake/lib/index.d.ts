@@ -59,4 +59,11 @@ export { onClientWrite, onAccountWrite };
  * Maps source field to wire ID and calls executeWire().
  */
 export { onIntakeQueueCreated };
+/**
+ * Calendar Busy Sync — BKG-08/09
+ * Syncs Google Calendar events to Firestore calendar_busy collection.
+ * HTTP trigger for manual runs + scheduled every 30 minutes.
+ */
+export declare const calendarBusySync: import("firebase-functions/v2/https").HttpsFunction;
+export declare const calendarBusySyncScheduled: import("firebase-functions/v2/scheduler").ScheduleFunction;
 //# sourceMappingURL=index.d.ts.map

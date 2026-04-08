@@ -8,7 +8,7 @@ import type { CollectionSchema } from '../types/guardian'
 
 export const COLLECTION_SCHEMAS: Record<string, CollectionSchema> = {
   clients: {
-    required: ['first_name', 'last_name', 'client_status'],
+    required: ['first_name', 'last_name', 'status'],
     neverNull: ['first_name', 'last_name'],
     immutableAfterCreate: ['client_id', 'created_at'],
     recommended: ['email', 'phone', 'dob', 'household_id'],

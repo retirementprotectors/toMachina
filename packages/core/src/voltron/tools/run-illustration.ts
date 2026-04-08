@@ -22,7 +22,7 @@ const SUPPORTED_CARRIERS: readonly IllustrationCarrier[] = ['north_american', 'a
 export interface IllustrationClientData {
   first_name: string
   last_name: string
-  date_of_birth: string
+  dob: string
   state: string
   gender: 'male' | 'female'
   age?: number
@@ -103,12 +103,12 @@ export const definition = {
         properties: {
           first_name: { type: 'string' },
           last_name: { type: 'string' },
-          date_of_birth: { type: 'string' },
+          dob: { type: 'string' },
           state: { type: 'string' },
           gender: { type: 'string', enum: ['male', 'female'] },
           age: { type: 'number' },
         },
-        required: ['first_name', 'last_name', 'date_of_birth', 'state', 'gender'],
+        required: ['first_name', 'last_name', 'dob', 'state', 'gender'],
       },
     },
     required: ['client_id', 'carrier', 'product_params', 'client_data'],
@@ -164,7 +164,7 @@ export async function execute(
     if (!input.client_data) {
       return {
         success: false,
-        error: 'client_data is required: { first_name, last_name, date_of_birth, state, gender }',
+        error: 'client_data is required: { first_name, last_name, dob, state, gender }',
         metadata: { duration_ms: Date.now() - start, tool_id: 'run_illustration' },
       }
     }
@@ -190,7 +190,7 @@ export async function execute(
         client_data: {
           first_name: input.client_data.first_name,
           last_name: input.client_data.last_name,
-          date_of_birth: input.client_data.date_of_birth,
+          dob: input.client_data.dob,
           state: input.client_data.state,
           gender: input.client_data.gender,
           age: input.client_data.age,

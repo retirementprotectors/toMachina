@@ -1,7 +1,7 @@
 // Campaign Send Orchestration Types
 
 export interface AudienceFilter {
-  client_status?: string[]
+  status?: string[]
   product_types?: string[]
   states?: string[]
   zip_range?: { min: string; max: string }
