@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useMemo } from 'react'
+import { useState, useCallback, useMemo, useEffect } from 'react'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -72,6 +72,15 @@ export function BookingConfig({ meetingTypes: initialTypes, availability: initia
   const [addingNew, setAddingNew] = useState(false)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+
+  // Sync internal state when parent passes new props (Firestore snapshot updates)
+  useEffect(() => {
+    setTypes(initialTypes.map((t, i) => ({ ...t, color: t.color || TYPE_COLORS[i % TYPE_COLORS.length] })))
+  }, [initialTypes])
+
+  useEffect(() => {
+    setAvail(initialAvail)
+  }, [initialAvail])
 
   const emptyForm: BookingTypeConfig = { name: '', duration_minutes: 30, buffer_minutes: 15, modes: ['meet', 'call'], windows: [], color: TYPE_COLORS[types.length % TYPE_COLORS.length] }
   const [form, setForm] = useState<BookingTypeConfig>(emptyForm)
