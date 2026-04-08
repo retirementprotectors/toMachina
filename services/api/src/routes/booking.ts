@@ -105,7 +105,7 @@ bookingRoutes.get('/config/:slug', async (req: Request, res: Response) => {
           display_name: `${data.first_name} ${data.last_name}`.trim(),
           job_title: data.job_title || '',
           slug,
-          photo_url: ep.profile_photo_url || null,
+          photo_url: ep.profile_photo_url || data.photo_url || data.photoURL || null,
           booking_types: ep.calendar_booking_types || STANDARD_BOOKING_TYPES,
           availability: ep.availability || DEFAULT_AVAILABILITY,
           office_address: ep.office_address || '',

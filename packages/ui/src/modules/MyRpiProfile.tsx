@@ -26,11 +26,16 @@ interface MeetRoom {
   status?: string
 }
 
+import { BookingConfig } from './BookingConfig'
+
 interface BookingType {
   name: string
   duration_minutes: number
   category?: string
   modes?: string[]
+  buffer_minutes?: number
+  windows?: Array<{ day: number; start: string; end: string }>
+  color?: string
 }
 
 interface BookingAvailability {
@@ -1760,234 +1765,31 @@ export function MyRpiProfile({ portal }: MyRpiProfileProps) {
         </div>
       </div>
 
-      {/* ─── Section 5: Booking Configuration ─── */}
-      <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-6">
-        <div className="mb-5 flex items-center justify-between">
-          <h3 className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-[var(--text-muted)]">
-            <span className="material-icons-outlined" style={{ fontSize: '16px' }}>event_available</span>
-            Booking Configuration
-          </h3>
-          {bookingSlug && (
-            <a
-              href={`/book/${bookingSlug}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1.5 rounded-lg border border-[var(--border-subtle)] px-3 py-1.5 text-xs font-medium text-[var(--portal)] transition-colors hover:bg-[var(--portal-glow)]"
-            >
-              <span className="material-icons-outlined" style={{ fontSize: '14px' }}>open_in_new</span>
-              Preview Booking Page
-            </a>
-          )}
-        </div>
 
-        {/* Meeting Types */}
-        <div className="mb-6">
-          <div className="mb-3 flex items-center gap-2">
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">Meeting Types</h4>
-            {mtSaving && <div className="h-3 w-3 animate-spin rounded-full border-2 border-[var(--portal)] border-t-transparent" />}
-            {mtSaved && <span className="text-xs text-[var(--success)]">Saved</span>}
-          </div>
-
-          {meetingTypes.length > 0 ? (
-            <div className="space-y-2">
-              {meetingTypes.map((mt, i) => (
-                <div key={i} className="flex items-center justify-between rounded-lg bg-[var(--bg-surface)] px-4 py-3">
-                  <div className="flex items-center gap-3">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-lg" style={{ background: 'var(--portal-glow)' }}>
-                      <span className="material-icons-outlined" style={{ fontSize: '16px', color: 'var(--portal)' }}>schedule</span>
-                    </span>
-                    <div>
-                      <span className="text-sm font-medium text-[var(--text-primary)]">{mt.name}</span>
-                      <div className="flex items-center gap-2 mt-0.5">
-                        <span className="text-xs text-[var(--text-muted)]">{mt.duration_minutes} min</span>
-                        {(mt.modes || ['meet', 'call']).map(mode => (
-                          <span key={mode} className="material-icons-outlined" style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
-                            {mode === 'meet' ? 'videocam' : mode === 'call' ? 'phone' : 'person'}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                  {isOwnProfile && (
-                    <button
-                      onClick={() => void removeMeetingType(i)}
-                      className="flex h-7 w-7 items-center justify-center rounded-md text-[var(--text-muted)] transition-colors hover:bg-[rgba(239,68,68,0.1)] hover:text-[var(--error)]"
-                      title={`Remove "${mt.name}"`}
-                    >
-                      <span className="material-icons-outlined" style={{ fontSize: '16px' }}>close</span>
-                    </button>
-                  )}
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[var(--border-subtle)] py-6">
-              <span className="material-icons-outlined text-2xl text-[var(--text-muted)]">event_busy</span>
-              <p className="mt-2 text-sm text-[var(--text-muted)]">No meeting types configured.{isOwnProfile ? ' Add one below.' : ''}</p>
-            </div>
-          )}
-
-          {/* Add meeting type */}
-          {isOwnProfile && (
-            <div className="mt-3 rounded-lg border border-dashed border-[var(--border-subtle)] p-4">
-              <div className="flex flex-wrap items-end gap-3">
-                <div className="flex flex-col gap-1">
-                  <label className="text-[11px] font-medium uppercase tracking-wider text-[var(--text-muted)]">Name</label>
-                  <input type="text" value={newMtName} onChange={(e) => setNewMtName(e.target.value)}
-                    onKeyDown={(e) => { if (e.key === 'Enter') void addMeetingType() }}
-                    placeholder="e.g. Discovery Call"
-                    className="w-44 rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2.5 py-1.5 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--portal)]" />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <label className="text-[11px] font-medium uppercase tracking-wider text-[var(--text-muted)]">Duration</label>
-                  <select value={newMtDuration} onChange={(e) => setNewMtDuration(parseInt(e.target.value))}
-                    className="rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2.5 py-1.5 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--portal)]">
-                    <option value={15}>15 min</option>
-                    <option value={30}>30 min</option>
-                    <option value={45}>45 min</option>
-                    <option value={60}>60 min</option>
-                    <option value={90}>90 min</option>
-                  </select>
-                </div>
-                <div className="flex flex-col gap-1">
-                  <label className="text-[11px] font-medium uppercase tracking-wider text-[var(--text-muted)]">Modes</label>
-                  <div className="flex items-center gap-2">
-                    {[{ id: 'meet', icon: 'videocam', label: 'Video' }, { id: 'call', icon: 'phone', label: 'Phone' }].map(m => (
-                      <button key={m.id}
-                        onClick={() => setNewMtModes(prev => prev.includes(m.id) ? prev.filter(x => x !== m.id) : [...prev, m.id])}
-                        className={`flex items-center gap-1 rounded-md px-2 py-1.5 text-xs font-medium transition-colors ${newMtModes.includes(m.id) ? 'text-white' : 'bg-[var(--bg-surface)] text-[var(--text-muted)]'}`}
-                        style={newMtModes.includes(m.id) ? { background: 'var(--portal)' } : undefined}>
-                        <span className="material-icons-outlined" style={{ fontSize: '14px' }}>{m.icon}</span>
-                        {m.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <button onClick={() => void addMeetingType()} disabled={!newMtName.trim() || mtSaving}
-                  className="flex items-center gap-1.5 rounded-lg px-4 py-1.5 text-sm font-medium text-white transition-colors disabled:opacity-40"
-                  style={{ background: 'var(--portal)' }}>
-                  <span className="material-icons-outlined" style={{ fontSize: '14px' }}>add</span> Add
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Business Hours */}
-        {isOwnProfile && (
-          <div className="mb-6 border-t border-[var(--border-subtle)] pt-5">
-            <div className="mb-3 flex items-center justify-between">
-              <h4 className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">Business Hours</h4>
-              <div className="flex items-center gap-2">
-                {availSaving && <div className="h-3 w-3 animate-spin rounded-full border-2 border-[var(--portal)] border-t-transparent" />}
-                {availSaved && <span className="text-xs text-[var(--success)]">Saved</span>}
-                <button onClick={() => void saveAvailability()} disabled={availSaving}
-                  className="flex items-center gap-1 rounded-lg px-3 py-1 text-xs font-medium text-white transition-colors disabled:opacity-50"
-                  style={{ background: 'var(--portal)' }}>
-                  <span className="material-icons-outlined" style={{ fontSize: '13px' }}>save</span> Save
-                </button>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              {[
-                { day: 0, label: 'Sunday' }, { day: 1, label: 'Monday' }, { day: 2, label: 'Tuesday' },
-                { day: 3, label: 'Wednesday' }, { day: 4, label: 'Thursday' }, { day: 5, label: 'Friday' },
-                { day: 6, label: 'Saturday' },
-              ].map(({ day, label }) => {
-                const hours = availability.business_hours[day]
-                const isEnabled = hours !== null && hours !== undefined
-                return (
-                  <div key={day} className="flex items-center gap-3 rounded-lg bg-[var(--bg-surface)] px-4 py-2.5">
-                    <button
-                      onClick={() => setAvailability(prev => ({
-                        ...prev,
-                        business_hours: { ...prev.business_hours, [day]: isEnabled ? null : { start: '09:00', end: '17:00' } },
-                      }))}
-                      className={`flex h-5 w-5 items-center justify-center rounded ${isEnabled ? 'text-white' : 'border border-[var(--border-subtle)] bg-[var(--bg-surface)]'}`}
-                      style={isEnabled ? { background: 'var(--portal)' } : undefined}>
-                      {isEnabled && <span className="material-icons-outlined" style={{ fontSize: '14px' }}>check</span>}
-                    </button>
-                    <span className={`w-24 text-sm ${isEnabled ? 'font-medium text-[var(--text-primary)]' : 'text-[var(--text-muted)]'}`}>
-                      {label}
-                    </span>
-                    {isEnabled && hours ? (
-                      <div className="flex items-center gap-2">
-                        <select value={hours.start}
-                          onChange={(e) => setAvailability(prev => ({
-                            ...prev,
-                            business_hours: { ...prev.business_hours, [day]: { ...hours, start: e.target.value } },
-                          }))}
-                          className="rounded border border-[var(--border-subtle)] bg-[var(--bg-card)] px-2 py-1 text-xs text-[var(--text-primary)] outline-none">
-                          {Array.from({ length: 24 }, (_, h) => [`${String(h).padStart(2, '0')}:00`, `${String(h).padStart(2, '0')}:30`]).flat().map(t => (
-                            <option key={t} value={t}>{t}</option>
-                          ))}
-                        </select>
-                        <span className="text-xs text-[var(--text-muted)]">to</span>
-                        <select value={hours.end}
-                          onChange={(e) => setAvailability(prev => ({
-                            ...prev,
-                            business_hours: { ...prev.business_hours, [day]: { ...hours, end: e.target.value } },
-                          }))}
-                          className="rounded border border-[var(--border-subtle)] bg-[var(--bg-card)] px-2 py-1 text-xs text-[var(--text-primary)] outline-none">
-                          {Array.from({ length: 24 }, (_, h) => [`${String(h).padStart(2, '0')}:00`, `${String(h).padStart(2, '0')}:30`]).flat().map(t => (
-                            <option key={t} value={t}>{t}</option>
-                          ))}
-                        </select>
-                      </div>
-                    ) : (
-                      <span className="text-xs text-[var(--text-muted)]">Unavailable</span>
-                    )}
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* Settings */}
-        {isOwnProfile && (
-          <div className="border-t border-[var(--border-subtle)] pt-5">
-            <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">Settings</h4>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-              <div className="flex flex-col gap-1">
-                <label className="text-[11px] font-medium uppercase tracking-wider text-[var(--text-muted)]">Buffer Between Meetings</label>
-                <select value={availability.buffer_minutes}
-                  onChange={(e) => setAvailability(prev => ({ ...prev, buffer_minutes: parseInt(e.target.value) }))}
-                  className="rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2.5 py-1.5 text-sm text-[var(--text-primary)] outline-none">
-                  <option value={0}>None</option>
-                  <option value={5}>5 min</option>
-                  <option value={10}>10 min</option>
-                  <option value={15}>15 min</option>
-                  <option value={30}>30 min</option>
-                </select>
-              </div>
-              <div className="flex flex-col gap-1">
-                <label className="text-[11px] font-medium uppercase tracking-wider text-[var(--text-muted)]">Max Advance Booking</label>
-                <select value={availability.max_advance_days}
-                  onChange={(e) => setAvailability(prev => ({ ...prev, max_advance_days: parseInt(e.target.value) }))}
-                  className="rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2.5 py-1.5 text-sm text-[var(--text-primary)] outline-none">
-                  <option value={14}>2 weeks</option>
-                  <option value={30}>30 days</option>
-                  <option value={60}>60 days</option>
-                  <option value={90}>90 days</option>
-                </select>
-              </div>
-              <div className="flex flex-col gap-1">
-                <label className="text-[11px] font-medium uppercase tracking-wider text-[var(--text-muted)]">Timezone</label>
-                <select value={availability.timezone}
-                  onChange={(e) => setAvailability(prev => ({ ...prev, timezone: e.target.value }))}
-                  className="rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2.5 py-1.5 text-sm text-[var(--text-primary)] outline-none">
-                  <option value="America/Chicago">Central (Chicago)</option>
-                  <option value="America/New_York">Eastern (New York)</option>
-                  <option value="America/Denver">Mountain (Denver)</option>
-                  <option value="America/Los_Angeles">Pacific (Los Angeles)</option>
-                </select>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
+      {/* ─── Section 5: Booking Configuration (v2) ─── */}
+      <BookingConfig
+        meetingTypes={(meetingTypes || []).map(mt => ({
+          ...mt,
+          buffer_minutes: mt.buffer_minutes ?? 15,
+          modes: mt.modes || ['meet', 'call'],
+          windows: mt.windows || [],
+        }))}
+        availability={{
+          timezone: availability.timezone,
+          business_hours: availability.business_hours,
+          max_advance_days: availability.max_advance_days,
+          slot_increment_minutes: availability.slot_increment_minutes,
+        }}
+        bookingSlug={bookingSlug}
+        isOwnProfile={isOwnProfile}
+        onSaveMeetingTypes={async (types) => {
+          await persistMeetingTypes(types as unknown as BookingType[])
+        }}
+        onSaveAvailability={async (avail) => {
+          setAvailability(avail as unknown as BookingAvailability)
+          await saveAvailability()
+        }}
+      />
 
       {/* Profile not found warning */}
       {!profile && (

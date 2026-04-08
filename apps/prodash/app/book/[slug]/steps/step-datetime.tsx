@@ -9,6 +9,8 @@ import { SlotPicker } from '../slot-picker'
 const MODE_LABELS: Record<string, { icon: string; label: string }> = {
   meet: { icon: 'videocam', label: 'Video Call' },
   call: { icon: 'phone', label: 'Phone Call' },
+  office: { icon: 'business', label: 'In-Office' },
+  home: { icon: 'home', label: 'At Your Home' },
   'in-person': { icon: 'person', label: 'In Person' },
 }
 
