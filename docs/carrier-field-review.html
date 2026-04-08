@@ -1,0 +1,1854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carrier Field Parity — JDM Review</title>
+<style>
+:root { --bg: #0a0e17; --card: #111827; --card2: #1a2236; --border: #1e293b; --text: #e2e8f0; --muted: #94a3b8; --accent: #10b981; --green: #22c55e; --red: #ef4444; --orange: #f59e0b; --blue: #3b82f6; --cyan: #06b6d4; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; padding: 24px; }
+.header { text-align: center; margin-bottom: 32px; }
+.header h1 { font-size: 2rem; font-weight: 800; background: linear-gradient(135deg, var(--accent), #34d399); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; }
+.header p { color: var(--muted); font-size: 0.9rem; max-width: 700px; margin: 0 auto; }
+.stats { display: flex; gap: 16px; justify-content: center; margin: 20px 0 32px; flex-wrap: wrap; }
+.stat { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 12px 24px; text-align: center; }
+.stat .num { font-size: 1.5rem; font-weight: 800; color: var(--accent); }
+.stat .label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+.filters { display: flex; gap: 12px; margin-bottom: 20px; justify-content: center; flex-wrap: wrap; }
+.filter-btn { padding: 6px 16px; border-radius: 999px; border: 1px solid var(--border); background: var(--card); color: var(--muted); cursor: pointer; font-size: 0.8rem; font-weight: 600; }
+.filter-btn.active { background: var(--accent); color: #000; border-color: var(--accent); }
+.filter-btn:hover { border-color: var(--accent); }
+.row { background: var(--card); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 10px; overflow: hidden; transition: border-color 0.2s; }
+.row.decided { border-color: var(--green); opacity: 0.7; }
+.row.same { border-left: 3px solid var(--green); }
+.row.different { border-left: 3px solid var(--orange); }
+.row-header { display: flex; align-items: center; padding: 14px 20px; gap: 16px; }
+.row-count { background: var(--card2); border-radius: 6px; padding: 4px 10px; font-size: 0.75rem; font-weight: 700; color: var(--accent); min-width: 50px; text-align: center; }
+.row-types { display: flex; gap: 4px; flex-wrap: wrap; }
+.type-pill { padding: 2px 8px; border-radius: 999px; font-size: 0.65rem; font-weight: 600; background: rgba(6,182,212,0.12); color: var(--cyan); }
+.fields { display: flex; gap: 12px; flex: 1; align-items: center; flex-wrap: wrap; }
+.field-box { background: var(--card2); border: 1px solid var(--border); border-radius: 6px; padding: 8px 14px; font-family: monospace; font-size: 0.82rem; min-width: 200px; }
+.field-box.selected { border-color: var(--green); background: rgba(34,197,94,0.08); }
+.field-label { font-size: 0.65rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
+.field-value { color: var(--text); font-weight: 500; }
+.vs { color: var(--muted); font-size: 0.8rem; font-weight: 700; }
+.match-badge { font-size: 0.65rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; }
+.match-badge.same { background: rgba(34,197,94,0.12); color: var(--green); }
+.match-badge.diff { background: rgba(245,158,11,0.12); color: var(--orange); }
+.actions { display: flex; gap: 8px; padding: 0 20px 14px; }
+.action-btn { padding: 6px 14px; border-radius: 6px; border: 1px solid var(--border); background: var(--card2); color: var(--muted); cursor: pointer; font-size: 0.78rem; font-weight: 600; transition: all 0.2s; }
+.action-btn:hover { border-color: var(--accent); color: var(--text); }
+.action-btn.picked { background: var(--accent); color: #000; border-color: var(--accent); }
+.export-bar { position: sticky; bottom: 0; background: var(--card); border-top: 1px solid var(--border); padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; margin: 32px -24px -24px; }
+.export-btn { padding: 10px 28px; border-radius: 8px; border: none; background: var(--accent); color: #000; font-weight: 700; font-size: 0.9rem; cursor: pointer; }
+.export-btn:hover { opacity: 0.9; }
+.progress { color: var(--muted); font-size: 0.85rem; }
+.progress strong { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Carrier Field Parity Review</h1>
+  <p>For each pair, pick the correct value for the <code>carrier</code> field. If they are the same concept, pick one. If they are different concepts (carrier vs parent company), select "Keep Both".</p>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="num" id="total-pairs">69</div><div class="label">Unique Pairs</div></div>
+  <div class="stat"><div class="num" id="same-count">26</div><div class="label">Same Value</div></div>
+  <div class="stat"><div class="num" id="diff-count">43</div><div class="label">Different</div></div>
+  <div class="stat"><div class="num" id="decided-count">0</div><div class="label">Decided</div></div>
+</div>
+
+<div class="filters">
+  <button class="filter-btn active" onclick="filterRows('all')">All (69)</button>
+  <button class="filter-btn" onclick="filterRows('different')">Different Only (43)</button>
+  <button class="filter-btn" onclick="filterRows('same')">Same Value (26)</button>
+  <button class="filter-btn" onclick="filterRows('undecided')">Undecided</button>
+</div>
+
+<div id="rows">
+
+  <div class="row same" id="row-0" data-same="true">
+    <div class="row-header">
+      <div class="row-count">237x</div>
+      <span class="match-badge same">SAME</span>
+      <div class="fields">
+        <div class="field-box" id="cn-0">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">Catholic Order of Foresters</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-0">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">Catholic Order of Foresters</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">life</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(0,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(0,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(0,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(0,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row different" id="row-1" data-same="false">
+    <div class="row-header">
+      <div class="row-count">48x</div>
+      <span class="match-badge diff">DIFFERENT</span>
+      <div class="fields">
+        <div class="field-box" id="cn-1">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">AETNA (ACC)- ACCENDO</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-1">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">Aetna / CVS Health</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">medicare</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(1,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(1,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(1,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(1,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row different" id="row-2" data-same="false">
+    <div class="row-header">
+      <div class="row-count">37x</div>
+      <span class="match-badge diff">DIFFERENT</span>
+      <div class="fields">
+        <div class="field-box" id="cn-2">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">Aetna</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-2">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">Aetna / CVS Health</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">medicare</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(2,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(2,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(2,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(2,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row same" id="row-3" data-same="true">
+    <div class="row-header">
+      <div class="row-count">35x</div>
+      <span class="match-badge same">SAME</span>
+      <div class="fields">
+        <div class="field-box" id="cn-3">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">Kansas City Life</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-3">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">Kansas City Life</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">life</span><span class="type-pill">SPIA (Single Premium Immediate)</span><span class="type-pill">VARIABLE</span><span class="type-pill">FIXED</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(3,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(3,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(3,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(3,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row different" id="row-4" data-same="false">
+    <div class="row-header">
+      <div class="row-count">22x</div>
+      <span class="match-badge diff">DIFFERENT</span>
+      <div class="fields">
+        <div class="field-box" id="cn-4">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">United Healthcare</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-4">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">UnitedHealthcare</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">medicare</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(4,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(4,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(4,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(4,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row same" id="row-5" data-same="true">
+    <div class="row-header">
+      <div class="row-count">20x</div>
+      <span class="match-badge same">SAME</span>
+      <div class="fields">
+        <div class="field-box" id="cn-5">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">Humana</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-5">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">Humana</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">medicare</span><span class="type-pill">Medicare</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(5,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(5,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(5,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(5,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row same" id="row-6" data-same="true">
+    <div class="row-header">
+      <div class="row-count">20x</div>
+      <span class="match-badge same">SAME</span>
+      <div class="fields">
+        <div class="field-box" id="cn-6">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">Aetna</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-6">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">Aetna</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">Medicare</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(6,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(6,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(6,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(6,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row same" id="row-7" data-same="true">
+    <div class="row-header">
+      <div class="row-count">17x</div>
+      <span class="match-badge same">SAME</span>
+      <div class="fields">
+        <div class="field-box" id="cn-7">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">North American</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-7">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">North American</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">FIA (Fixed Indexed)</span><span class="type-pill">life</span><span class="type-pill">annuity</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(7,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(7,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(7,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(7,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row different" id="row-8" data-same="false">
+    <div class="row-header">
+      <div class="row-count">16x</div>
+      <span class="match-badge diff">DIFFERENT</span>
+      <div class="fields">
+        <div class="field-box" id="cn-8">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">AETNA (AHIC)- AETNA Health Insurance Company</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-8">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">Aetna / CVS Health</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">medicare</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(8,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(8,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(8,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(8,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row different" id="row-9" data-same="false">
+    <div class="row-header">
+      <div class="row-count">16x</div>
+      <span class="match-badge diff">DIFFERENT</span>
+      <div class="fields">
+        <div class="field-box" id="cn-9">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">Kansas City Life</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-9">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">(empty)</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">unknown</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(9,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(9,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(9,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(9,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row different" id="row-10" data-same="false">
+    <div class="row-header">
+      <div class="row-count">16x</div>
+      <span class="match-badge diff">DIFFERENT</span>
+      <div class="fields">
+        <div class="field-box" id="cn-10">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">AETNA (MAPD)</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-10">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">Aetna / CVS Health</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">medicare</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(10,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(10,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(10,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(10,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row different" id="row-11" data-same="false">
+    <div class="row-header">
+      <div class="row-count">15x</div>
+      <span class="match-badge diff">DIFFERENT</span>
+      <div class="fields">
+        <div class="field-box" id="cn-11">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">Wellmark (BCBS of Iowa)</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-11">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">Wellmark BCBS of Iowa</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">medicare</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(11,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(11,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(11,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(11,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row same" id="row-12" data-same="true">
+    <div class="row-header">
+      <div class="row-count">14x</div>
+      <span class="match-badge same">SAME</span>
+      <div class="fields">
+        <div class="field-box" id="cn-12">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">UnitedHealthcare</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-12">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">UnitedHealthcare</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">medicare</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(12,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(12,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(12,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(12,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row different" id="row-13" data-same="false">
+    <div class="row-header">
+      <div class="row-count">13x</div>
+      <span class="match-badge diff">DIFFERENT</span>
+      <div class="fields">
+        <div class="field-box" id="cn-13">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">Wellcare</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-13">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">WellCare / Centene</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">medicare</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(13,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(13,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(13,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(13,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row different" id="row-14" data-same="false">
+    <div class="row-header">
+      <div class="row-count">13x</div>
+      <span class="match-badge diff">DIFFERENT</span>
+      <div class="fields">
+        <div class="field-box" id="cn-14">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">Wellabe (M1)- Medico Insurance Company</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-14">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">Wellabe / Medico</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">medicare</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(14,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(14,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(14,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(14,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row same" id="row-15" data-same="true">
+    <div class="row-header">
+      <div class="row-count">8x</div>
+      <span class="match-badge same">SAME</span>
+      <div class="fields">
+        <div class="field-box" id="cn-15">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">Wellmark BCBS of Iowa</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-15">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">Wellmark BCBS of Iowa</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">medicare</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(15,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(15,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(15,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(15,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row different" id="row-16" data-same="false">
+    <div class="row-header">
+      <div class="row-count">7x</div>
+      <span class="match-badge diff">DIFFERENT</span>
+      <div class="fields">
+        <div class="field-box" id="cn-16">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">AETNA (PDP)</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-16">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">Aetna / CVS Health</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">medicare</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(16,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(16,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(16,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(16,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row same" id="row-17" data-same="true">
+    <div class="row-header">
+      <div class="row-count">6x</div>
+      <span class="match-badge same">SAME</span>
+      <div class="fields">
+        <div class="field-box" id="cn-17">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">Mutual of Omaha</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-17">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">Mutual of Omaha</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">life</span><span class="type-pill">medicare</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(17,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(17,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(17,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(17,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row different" id="row-18" data-same="false">
+    <div class="row-header">
+      <div class="row-count">6x</div>
+      <span class="match-badge diff">DIFFERENT</span>
+      <div class="fields">
+        <div class="field-box" id="cn-18">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">Corebridge</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-18">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">Corebridge / AIG</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">Fixed Indexed Annuity</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(18,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(18,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(18,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(18,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row different" id="row-19" data-same="false">
+    <div class="row-header">
+      <div class="row-count">5x</div>
+      <span class="match-badge diff">DIFFERENT</span>
+      <div class="fields">
+        <div class="field-box" id="cn-19">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">WellCare</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-19">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">WellCare / Centene</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">medicare</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(19,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(19,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(19,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(19,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row same" id="row-20" data-same="true">
+    <div class="row-header">
+      <div class="row-count">5x</div>
+      <span class="match-badge same">SAME</span>
+      <div class="fields">
+        <div class="field-box" id="cn-20">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">Central States Indemnity</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-20">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">Central States Indemnity</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">medicare</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(20,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(20,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(20,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(20,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row different" id="row-21" data-same="false">
+    <div class="row-header">
+      <div class="row-count">5x</div>
+      <span class="match-badge diff">DIFFERENT</span>
+      <div class="fields">
+        <div class="field-box" id="cn-21">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">Continental Life</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-21">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">Aetna / CVS Health</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">medicare</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(21,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(21,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(21,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(21,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row different" id="row-22" data-same="false">
+    <div class="row-header">
+      <div class="row-count">5x</div>
+      <span class="match-badge diff">DIFFERENT</span>
+      <div class="fields">
+        <div class="field-box" id="cn-22">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">Corebridge (AIG)</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-22">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">Corebridge / AIG</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">FIA (Fixed Indexed)</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(22,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(22,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(22,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(22,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row different" id="row-23" data-same="false">
+    <div class="row-header">
+      <div class="row-count">4x</div>
+      <span class="match-badge diff">DIFFERENT</span>
+      <div class="fields">
+        <div class="field-box" id="cn-23">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">Ameritas Life</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-23">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">Ameritas</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">life</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(23,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(23,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(23,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(23,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row different" id="row-24" data-same="false">
+    <div class="row-header">
+      <div class="row-count">4x</div>
+      <span class="match-badge diff">DIFFERENT</span>
+      <div class="fields">
+        <div class="field-box" id="cn-24">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">Americo Life</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-24">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">Americo</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">life</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(24,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(24,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(24,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(24,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row different" id="row-25" data-same="false">
+    <div class="row-header">
+      <div class="row-count">4x</div>
+      <span class="match-badge diff">DIFFERENT</span>
+      <div class="fields">
+        <div class="field-box" id="cn-25">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">Mutual of Omaha (MUT)- Mutual of Omaha</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-25">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">Mutual of Omaha</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">medicare</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(25,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(25,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(25,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(25,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row different" id="row-26" data-same="false">
+    <div class="row-header">
+      <div class="row-count">3x</div>
+      <span class="match-badge diff">DIFFERENT</span>
+      <div class="fields">
+        <div class="field-box" id="cn-26">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">Wellabe</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-26">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">Wellabe / Medico</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">medicare</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(26,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(26,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(26,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(26,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row same" id="row-27" data-same="true">
+    <div class="row-header">
+      <div class="row-count">3x</div>
+      <span class="match-badge same">SAME</span>
+      <div class="fields">
+        <div class="field-box" id="cn-27">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">Jackson National Life</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-27">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">Jackson National Life</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">VARIABLE</span><span class="type-pill">Variable Annuity</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(27,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(27,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(27,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(27,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row different" id="row-28" data-same="false">
+    <div class="row-header">
+      <div class="row-count">3x</div>
+      <span class="match-badge diff">DIFFERENT</span>
+      <div class="fields">
+        <div class="field-box" id="cn-28">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">Equitable (AXA)</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-28">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">Equitable</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">VARIABLE</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(28,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(28,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(28,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(28,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row different" id="row-29" data-same="false">
+    <div class="row-header">
+      <div class="row-count">3x</div>
+      <span class="match-badge diff">DIFFERENT</span>
+      <div class="fields">
+        <div class="field-box" id="cn-29">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">Lumico</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-29">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">Lumico / CUNA Mutual</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">medicare</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(29,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(29,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(29,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(29,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row different" id="row-30" data-same="false">
+    <div class="row-header">
+      <div class="row-count">3x</div>
+      <span class="match-badge diff">DIFFERENT</span>
+      <div class="fields">
+        <div class="field-box" id="cn-30">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">Mutual of Omaha (UO)- United of Omaha</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-30">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">Mutual of Omaha</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">medicare</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(30,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(30,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(30,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(30,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row same" id="row-31" data-same="true">
+    <div class="row-header">
+      <div class="row-count">3x</div>
+      <span class="match-badge same">SAME</span>
+      <div class="fields">
+        <div class="field-box" id="cn-31">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">Assurity Life</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-31">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">Assurity Life</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">life</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(31,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(31,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(31,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(31,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row different" id="row-32" data-same="false">
+    <div class="row-header">
+      <div class="row-count">3x</div>
+      <span class="match-badge diff">DIFFERENT</span>
+      <div class="fields">
+        <div class="field-box" id="cn-32">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">Allstate (NatGen)</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-32">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">Allstate / National General</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">medicare</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(32,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(32,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(32,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(32,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row different" id="row-33" data-same="false">
+    <div class="row-header">
+      <div class="row-count">3x</div>
+      <span class="match-badge diff">DIFFERENT</span>
+      <div class="fields">
+        <div class="field-box" id="cn-33">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">CIGNA (CHLIC)- CIGNA Health + Life Insurance Company</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-33">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">CIGNA</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">medicare</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(33,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(33,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(33,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(33,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row same" id="row-34" data-same="true">
+    <div class="row-header">
+      <div class="row-count">3x</div>
+      <span class="match-badge same">SAME</span>
+      <div class="fields">
+        <div class="field-box" id="cn-34">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">Lincoln Financial Group</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-34">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">Lincoln Financial Group</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">VARIABLE</span><span class="type-pill">RILA (Registered Index-Linked)</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(34,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(34,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(34,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(34,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row different" id="row-35" data-same="false">
+    <div class="row-header">
+      <div class="row-count">3x</div>
+      <span class="match-badge diff">DIFFERENT</span>
+      <div class="fields">
+        <div class="field-box" id="cn-35">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">North American Company</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-35">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">North American</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">FIA</span><span class="type-pill">annuity</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(35,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(35,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(35,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(35,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row different" id="row-36" data-same="false">
+    <div class="row-header">
+      <div class="row-count">2x</div>
+      <span class="match-badge diff">DIFFERENT</span>
+      <div class="fields">
+        <div class="field-box" id="cn-36">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">Wellmark BCBS of Iowa</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-36">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">(empty)</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">unknown</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(36,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(36,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(36,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(36,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row different" id="row-37" data-same="false">
+    <div class="row-header">
+      <div class="row-count">2x</div>
+      <span class="match-badge diff">DIFFERENT</span>
+      <div class="fields">
+        <div class="field-box" id="cn-37">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">Brighthouse (MET)</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-37">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">Brighthouse / MetLife</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">RILA (Registered Index-Linked)</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(37,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(37,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(37,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(37,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row different" id="row-38" data-same="false">
+    <div class="row-header">
+      <div class="row-count">2x</div>
+      <span class="match-badge diff">DIFFERENT</span>
+      <div class="fields">
+        <div class="field-box" id="cn-38">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">AETNA (AHLC)- AETNA Health + Life Insurance Company</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-38">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">Aetna / CVS Health</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">medicare</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(38,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(38,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(38,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(38,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row different" id="row-39" data-same="false">
+    <div class="row-header">
+      <div class="row-count">2x</div>
+      <span class="match-badge diff">DIFFERENT</span>
+      <div class="fields">
+        <div class="field-box" id="cn-39">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">Devoted</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-39">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">Devoted Health</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">medicare</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(39,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(39,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(39,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(39,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row different" id="row-40" data-same="false">
+    <div class="row-header">
+      <div class="row-count">2x</div>
+      <span class="match-badge diff">DIFFERENT</span>
+      <div class="fields">
+        <div class="field-box" id="cn-40">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">AETNA (CLI)- Continental Life</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-40">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">Aetna / CVS Health</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">medicare</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(40,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(40,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(40,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(40,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row same" id="row-41" data-same="true">
+    <div class="row-header">
+      <div class="row-count">2x</div>
+      <span class="match-badge same">SAME</span>
+      <div class="fields">
+        <div class="field-box" id="cn-41">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">Securian Financial</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-41">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">Securian Financial</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">SPIA</span><span class="type-pill">SPIA (Single Premium Immediate)</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(41,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(41,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(41,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(41,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row same" id="row-42" data-same="true">
+    <div class="row-header">
+      <div class="row-count">2x</div>
+      <span class="match-badge same">SAME</span>
+      <div class="fields">
+        <div class="field-box" id="cn-42">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">Midland National</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-42">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">Midland National</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">annuity</span><span class="type-pill">Fixed Indexed Annuity</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(42,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(42,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(42,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(42,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row different" id="row-43" data-same="false">
+    <div class="row-header">
+      <div class="row-count">2x</div>
+      <span class="match-badge diff">DIFFERENT</span>
+      <div class="fields">
+        <div class="field-box" id="cn-43">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">Midland National Life</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-43">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">Midland National</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">FIA (Fixed Indexed)</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(43,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(43,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(43,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(43,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row different" id="row-44" data-same="false">
+    <div class="row-header">
+      <div class="row-count">2x</div>
+      <span class="match-badge diff">DIFFERENT</span>
+      <div class="fields">
+        <div class="field-box" id="cn-44">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">BlueKC</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-44">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">Blue KC</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">medicare</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(44,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(44,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(44,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(44,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row different" id="row-45" data-same="false">
+    <div class="row-header">
+      <div class="row-count">2x</div>
+      <span class="match-badge diff">DIFFERENT</span>
+      <div class="fields">
+        <div class="field-box" id="cn-45">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">Medico</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-45">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">Wellabe / Medico</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">medicare</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(45,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(45,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(45,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(45,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row same" id="row-46" data-same="true">
+    <div class="row-header">
+      <div class="row-count">2x</div>
+      <span class="match-badge same">SAME</span>
+      <div class="fields">
+        <div class="field-box" id="cn-46">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">Ameritas</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-46">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">Ameritas</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">life</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(46,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(46,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(46,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(46,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row same" id="row-47" data-same="true">
+    <div class="row-header">
+      <div class="row-count">2x</div>
+      <span class="match-badge same">SAME</span>
+      <div class="fields">
+        <div class="field-box" id="cn-47">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">Allianz</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-47">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">Allianz</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">annuity</span><span class="type-pill">FIA (Fixed Indexed)</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(47,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(47,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(47,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(47,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row same" id="row-48" data-same="true">
+    <div class="row-header">
+      <div class="row-count">1x</div>
+      <span class="match-badge same">SAME</span>
+      <div class="fields">
+        <div class="field-box" id="cn-48">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">Medmutual Protect</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-48">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">Medmutual Protect</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">medicare</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(48,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(48,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(48,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(48,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row different" id="row-49" data-same="false">
+    <div class="row-header">
+      <div class="row-count">1x</div>
+      <span class="match-badge diff">DIFFERENT</span>
+      <div class="fields">
+        <div class="field-box" id="cn-49">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">Prosperity (fka S.USA Life)</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-49">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">Prosperity Life (fka S.USA)</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">medicare</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(49,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(49,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(49,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(49,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row different" id="row-50" data-same="false">
+    <div class="row-header">
+      <div class="row-count">1x</div>
+      <span class="match-badge diff">DIFFERENT</span>
+      <div class="fields">
+        <div class="field-box" id="cn-50">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">CIGNA (MAPD)</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-50">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">CIGNA</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">medicare</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(50,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(50,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(50,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(50,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row different" id="row-51" data-same="false">
+    <div class="row-header">
+      <div class="row-count">1x</div>
+      <span class="match-badge diff">DIFFERENT</span>
+      <div class="fields">
+        <div class="field-box" id="cn-51">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">CHUBB (ACE)</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-51">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">CHUBB</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">medicare</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(51,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(51,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(51,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(51,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row different" id="row-52" data-same="false">
+    <div class="row-header">
+      <div class="row-count">1x</div>
+      <span class="match-badge diff">DIFFERENT</span>
+      <div class="fields">
+        <div class="field-box" id="cn-52">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">AFLAC (TierOne)</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-52">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">Aflac</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">medicare</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(52,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(52,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(52,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(52,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row same" id="row-53" data-same="true">
+    <div class="row-header">
+      <div class="row-count">1x</div>
+      <span class="match-badge same">SAME</span>
+      <div class="fields">
+        <div class="field-box" id="cn-53">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">Manhattan Life</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-53">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">Manhattan Life</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">medicare</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(53,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(53,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(53,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(53,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row different" id="row-54" data-same="false">
+    <div class="row-header">
+      <div class="row-count">1x</div>
+      <span class="match-badge diff">DIFFERENT</span>
+      <div class="fields">
+        <div class="field-box" id="cn-54">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">John Hancock Life</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-54">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">John Hancock</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">life</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(54,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(54,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(54,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(54,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row different" id="row-55" data-same="false">
+    <div class="row-header">
+      <div class="row-count">1x</div>
+      <span class="match-badge diff">DIFFERENT</span>
+      <div class="fields">
+        <div class="field-box" id="cn-55">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">Mutual of Omaha (UW)- United World</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-55">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">Mutual of Omaha</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">medicare</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(55,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(55,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(55,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(55,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row same" id="row-56" data-same="true">
+    <div class="row-header">
+      <div class="row-count">1x</div>
+      <span class="match-badge same">SAME</span>
+      <div class="fields">
+        <div class="field-box" id="cn-56">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">SilverScript</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-56">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">SilverScript</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">medicare</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(56,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(56,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(56,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(56,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row different" id="row-57" data-same="false">
+    <div class="row-header">
+      <div class="row-count">1x</div>
+      <span class="match-badge diff">DIFFERENT</span>
+      <div class="fields">
+        <div class="field-box" id="cn-57">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">Mutual of Omaha (OIC)- Omaha Insurance Company</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-57">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">Mutual of Omaha</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">medicare</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(57,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(57,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(57,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(57,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row same" id="row-58" data-same="true">
+    <div class="row-header">
+      <div class="row-count">1x</div>
+      <span class="match-badge same">SAME</span>
+      <div class="fields">
+        <div class="field-box" id="cn-58">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">Equitable</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-58">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">Equitable</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">IRA</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(58,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(58,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(58,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(58,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row same" id="row-59" data-same="true">
+    <div class="row-header">
+      <div class="row-count">1x</div>
+      <span class="match-badge same">SAME</span>
+      <div class="fields">
+        <div class="field-box" id="cn-59">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">Consolidated</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-59">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">Consolidated</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">life</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(59,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(59,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(59,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(59,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row different" id="row-60" data-same="false">
+    <div class="row-header">
+      <div class="row-count">1x</div>
+      <span class="match-badge diff">DIFFERENT</span>
+      <div class="fields">
+        <div class="field-box" id="cn-60">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">SILAC (fka Equitable)</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-60">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">SILAC</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">medicare</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(60,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(60,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(60,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(60,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row same" id="row-61" data-same="true">
+    <div class="row-header">
+      <div class="row-count">1x</div>
+      <span class="match-badge same">SAME</span>
+      <div class="fields">
+        <div class="field-box" id="cn-61">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">Delaware Life</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-61">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">Delaware Life</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">FIA</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(61,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(61,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(61,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(61,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row same" id="row-62" data-same="true">
+    <div class="row-header">
+      <div class="row-count">1x</div>
+      <span class="match-badge same">SAME</span>
+      <div class="fields">
+        <div class="field-box" id="cn-62">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">Nassau</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-62">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">Nassau</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">FIA (Fixed Indexed)</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(62,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(62,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(62,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(62,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row same" id="row-63" data-same="true">
+    <div class="row-header">
+      <div class="row-count">1x</div>
+      <span class="match-badge same">SAME</span>
+      <div class="fields">
+        <div class="field-box" id="cn-63">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">Alignment Health</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-63">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">Alignment Health</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">medicare</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(63,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(63,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(63,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(63,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row different" id="row-64" data-same="false">
+    <div class="row-header">
+      <div class="row-count">1x</div>
+      <span class="match-badge diff">DIFFERENT</span>
+      <div class="fields">
+        <div class="field-box" id="cn-64">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">Genworth Life</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-64">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">Genworth</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">life</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(64,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(64,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(64,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(64,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row same" id="row-65" data-same="true">
+    <div class="row-header">
+      <div class="row-count">1x</div>
+      <span class="match-badge same">SAME</span>
+      <div class="fields">
+        <div class="field-box" id="cn-65">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">Fidelity & Guaranty Life</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-65">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">Fidelity & Guaranty Life</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">FIA (Fixed Indexed)</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(65,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(65,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(65,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(65,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row different" id="row-66" data-same="false">
+    <div class="row-header">
+      <div class="row-count">1x</div>
+      <span class="match-badge diff">DIFFERENT</span>
+      <div class="fields">
+        <div class="field-box" id="cn-66">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">Transamerica</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-66">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">TransAmerica</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">annuity</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(66,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(66,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(66,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(66,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row same" id="row-67" data-same="true">
+    <div class="row-header">
+      <div class="row-count">1x</div>
+      <span class="match-badge same">SAME</span>
+      <div class="fields">
+        <div class="field-box" id="cn-67">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">TransAmerica</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-67">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">TransAmerica</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">life</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(67,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(67,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(67,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(67,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+  <div class="row different" id="row-68" data-same="false">
+    <div class="row-header">
+      <div class="row-count">1x</div>
+      <span class="match-badge diff">DIFFERENT</span>
+      <div class="fields">
+        <div class="field-box" id="cn-68">
+          <div class="field-label">carrier_name</div>
+          <div class="field-value">VOYA (ING)</div>
+        </div>
+        <span class="vs">vs</span>
+        <div class="field-box" id="pc-68">
+          <div class="field-label">parent_carrier</div>
+          <div class="field-value">VOYA / ING</div>
+        </div>
+      </div>
+      <div class="row-types"><span class="type-pill">VARIABLE</span></div>
+    </div>
+    <div class="actions">
+      <button class="action-btn" onclick="decide(68,'carrier_name')">Use carrier_name</button>
+      <button class="action-btn" onclick="decide(68,'parent_carrier')">Use parent_carrier</button>
+      <button class="action-btn" onclick="decide(68,'keep_both')">Keep Both (different concepts)</button>
+      <button class="action-btn" onclick="decide(68,'delete_both')">Delete Both (garbage)</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="export-bar">
+  <div class="progress"><strong id="progress-num">0</strong> / 69 decided</div>
+  <button class="export-btn" onclick="exportDecisions()">Export Decisions (JSON)</button>
+</div>
+
+<script>
+const decisions = {};
+const totalPairs = 69;
+
+function decide(idx, choice) {
+  decisions[idx] = choice;
+  const row = document.getElementById('row-' + idx);
+  row.classList.add('decided');
+  row.querySelectorAll('.action-btn').forEach(b => b.classList.remove('picked'));
+  event.target.classList.add('picked');
+  
+  // Highlight selected field
+  document.getElementById('cn-' + idx).classList.remove('selected');
+  document.getElementById('pc-' + idx).classList.remove('selected');
+  if (choice === 'carrier_name') document.getElementById('cn-' + idx).classList.add('selected');
+  if (choice === 'parent_carrier') document.getElementById('pc-' + idx).classList.add('selected');
+  
+  updateProgress();
+}
+
+function updateProgress() {
+  const count = Object.keys(decisions).length;
+  document.getElementById('decided-count').textContent = count;
+  document.getElementById('progress-num').textContent = count;
+}
+
+function filterRows(filter) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  document.querySelectorAll('.row').forEach(row => {
+    const isSame = row.dataset.same === 'true';
+    const isDecided = row.classList.contains('decided');
+    if (filter === 'all') row.style.display = '';
+    else if (filter === 'different') row.style.display = isSame ? 'none' : '';
+    else if (filter === 'same') row.style.display = isSame ? '' : 'none';
+    else if (filter === 'undecided') row.style.display = isDecided ? 'none' : '';
+  });
+}
+
+function exportDecisions() {
+  const blob = new Blob([JSON.stringify(decisions, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'carrier-field-decisions.json';
+  a.click();
+}
+</script>
+
+</body>
+</html>
