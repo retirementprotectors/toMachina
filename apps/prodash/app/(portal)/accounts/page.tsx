@@ -535,7 +535,7 @@ export default function AccountsPage() {
   // Unique carriers — from ALL accounts
   const carriers = useMemo(() => {
     const set = new Set<string>()
-    accounts.forEach((a) => { const c = str(a.carrier) || str(a.carrier); if (c) set.add(c) })
+    accounts.forEach((a) => { const c = str(a.carrier); if (c) set.add(c) })
     return Array.from(set).sort()
   }, [accounts])
 
@@ -548,7 +548,7 @@ export default function AccountsPage() {
     }
 
     if (carrierFilter !== 'All') {
-      result = result.filter((a) => (str(a.carrier) || str(a.carrier)) === carrierFilter)
+      result = result.filter((a) => (str(a.carrier)) === carrierFilter)
     }
 
     if (search.trim()) {
