@@ -980,22 +980,58 @@
   <!-- TAB: A.P.P.A. MATURITY -->
   <div id="appa" class="panel">
     <div class="card">
-      <h2>A.P.P.A. Maturity Map — VOLTRON CSO Domain</h2>
-      <p>Where every scope sits on the A.P.P.A. scale: <strong>Activity → Process → People → Automation</strong>. Honest assessment. Updated 2026-04-09.</p>
+      <h2>A.P.P.A. Maturity Map &mdash; VOLTRON CSO Domain</h2>
+      <p>Where every scope sits on the A.P.P.A. scale. Honest assessment. Updated 2026-04-09.</p>
       <div class="callout">
-        <p><strong>The Rule:</strong> You can't automate what you haven't done by hand enough times to see the pattern. Each stage earns the next. Skip a stage, the whole thing breaks.</p>
+        <p><strong>The Rule:</strong> You can&rsquo;t automate what you haven&rsquo;t done by hand enough times to see the pattern. Each stage earns the next. Skip a stage, the whole thing breaks.</p>
       </div>
     </div>
 
-    <!-- APPA Visual Grid -->
+    <!-- What APPA means for CSO -->
+    <div class="card">
+      <h3>What Each Stage Means in the CSO Domain</h3>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin:16px 0">
+        <div style="background:var(--card2);border:1px solid var(--border);border-top:3px solid var(--red);border-radius:8px;padding:16px">
+          <div style="font-size:0.78rem;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Activity</div>
+          <p style="font-size:0.82rem;color:var(--muted);margin:0">Real client cases being worked by hand. Statements read. Accounts entered. Quotes pulled. Meetings prepped. The hands-on reps that expose what&rsquo;s actually needed &mdash; not what we think is needed.</p>
+          <p style="font-size:0.75rem;color:var(--red);margin:8px 0 0;font-weight:600">Earned by: doing the work at volume.</p>
+        </div>
+        <div style="background:var(--card2);border:1px solid var(--border);border-top:3px solid var(--orange);border-radius:8px;padding:16px">
+          <div style="font-size:0.78rem;font-weight:700;color:var(--orange);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Process</div>
+          <p style="font-size:0.82rem;color:var(--muted);margin:0">Tools, wires, and registries that encode what we learned from Activity. QUE tools that calculate correctly. Templates that produce what Archer actually needs in front of a client. Ranger pipelines that process documents the way we did by hand.</p>
+          <p style="font-size:0.75rem;color:var(--orange);margin:8px 0 0;font-weight:600">Earned by: patterns emerging from enough Activity reps.</p>
+        </div>
+        <div style="background:var(--card2);border:1px solid var(--border);border-top:3px solid var(--blue);border-radius:8px;padding:16px">
+          <div style="font-size:0.78rem;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">People</div>
+          <p style="font-size:0.82rem;color:var(--muted);margin:0">The team (Archer, Vince, Nikki) actually using the tools daily. Not &ldquo;it exists in ProDash&rdquo; but &ldquo;Archer opens the Command Center before every client meeting.&rdquo; Adoption. Training. Muscle memory. The tools work because people trust them.</p>
+          <p style="font-size:0.75rem;color:var(--blue);margin:8px 0 0;font-weight:600">Earned by: Process proven reliable enough that people choose it over the old way.</p>
+        </div>
+        <div style="background:var(--card2);border:1px solid var(--border);border-top:3px solid var(--green);border-radius:8px;padding:16px">
+          <div style="font-size:0.78rem;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Automation</div>
+          <p style="font-size:0.82rem;color:var(--muted);margin:0">Lions running proactively without being asked. RMD notifications firing 30 days before deadlines. AEP prep triggering Oct 1 for every Medicare client. 1035 opportunities flagged when surrender periods end. The system working without human initiation.</p>
+          <p style="font-size:0.75rem;color:var(--green);margin:8px 0 0;font-weight:600">Earned by: People stage so reliable that removing the human from the loop improves it.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="card">
+      <h3>How to Read the Bars</h3>
+      <div style="display:flex;gap:20px;flex-wrap:wrap;margin:12px 0">
+        <div style="display:flex;align-items:center;gap:8px"><div style="width:40px;height:16px;border-radius:3px;background:var(--orange)"></div><span style="font-size:0.78rem;color:var(--text);font-weight:600">Solid = Confirmed through real use</span></div>
+        <div style="display:flex;align-items:center;gap:8px"><div style="width:40px;height:16px;border-radius:3px;background:var(--orange);opacity:0.25"></div><span style="font-size:0.78rem;color:var(--muted);font-weight:600">Dim = Built but not yet confirmed</span></div>
+        <div style="display:flex;align-items:center;gap:8px"><div style="width:40px;height:16px;border-radius:3px;background:var(--card2);border:1px solid var(--border)"></div><span style="font-size:0.78rem;color:var(--muted)">Empty = Not started</span></div>
+      </div>
+    </div>
+
+    <!-- APPA Visual Grid — Built (dim) vs Confirmed (solid) -->
     <div class="card">
       <h3>Maturity Grid</h3>
-      <p>Each bar shows where a scope sits. The fill represents progress within that stage.</p>
       <div style="margin:20px 0">
 
         <!-- Header row -->
-        <div style="display:grid;grid-template-columns:200px 1fr;gap:0;margin-bottom:4px">
-          <div style="font-size:0.7rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:1px"></div>
+        <div style="display:grid;grid-template-columns:200px 1fr;gap:0;margin-bottom:8px">
+          <div></div>
           <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:2px;text-align:center">
             <div style="font-size:0.65rem;color:var(--red);font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:4px">Activity</div>
             <div style="font-size:0.65rem;color:var(--orange);font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:4px">Process</div>
@@ -1004,122 +1040,122 @@
           </div>
         </div>
 
-        <!-- QUE Registry -->
+        <!-- QUE Registry: Activity not done (dim red), Process built not confirmed (dim orange) -->
         <div style="display:grid;grid-template-columns:200px 1fr;gap:0;margin-bottom:6px;align-items:center">
           <div style="font-size:0.78rem;font-weight:600;color:var(--text);padding-right:12px">QUE Registry</div>
           <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:2px;height:28px">
-            <div style="background:var(--red);opacity:0.3;border-radius:4px 0 0 4px"></div>
-            <div style="background:linear-gradient(90deg,var(--orange) 60%,var(--card2) 60%);border-radius:0"></div>
+            <div style="background:var(--red);opacity:0.2;border-radius:4px 0 0 4px" title="Activity: tools exist but never run on real data"></div>
+            <div style="background:var(--orange);opacity:0.2;border-radius:0" title="Process: 80 entries built from spec, not from activity"></div>
             <div style="background:var(--card2);border-radius:0"></div>
             <div style="background:var(--card2);border-radius:0 4px 4px 0"></div>
           </div>
         </div>
 
-        <!-- Command Center -->
+        <!-- Command Center: Activity started (partial solid), Process built (dim) -->
         <div style="display:grid;grid-template-columns:200px 1fr;gap:0;margin-bottom:6px;align-items:center">
           <div style="font-size:0.78rem;font-weight:600;color:var(--text);padding-right:12px">Command Center</div>
           <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:2px;height:28px">
-            <div style="background:linear-gradient(90deg,var(--red) 40%,var(--card2) 40%);border-radius:4px 0 0 4px"></div>
-            <div style="background:var(--card2);border-radius:0"></div>
+            <div style="background:linear-gradient(90deg,var(--red) 30%,rgba(239,68,68,0.2) 30%);border-radius:4px 0 0 4px" title="Activity: tabs load after fix, but nobody uses it daily yet. 30% = JDM looked at it."></div>
+            <div style="background:var(--orange);opacity:0.2;border-radius:0" title="Process: 6 tabs built, all rendering, but not validated through use"></div>
             <div style="background:var(--card2);border-radius:0"></div>
             <div style="background:var(--card2);border-radius:0 4px 4px 0"></div>
           </div>
         </div>
 
-        <!-- Cases Pipeline -->
+        <!-- Cases Pipeline: Activity barely started (solid sliver) -->
         <div style="display:grid;grid-template-columns:200px 1fr;gap:0;margin-bottom:6px;align-items:center">
           <div style="font-size:0.78rem;font-weight:600;color:var(--text);padding-right:12px">Cases Pipeline</div>
           <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:2px;height:28px">
-            <div style="background:linear-gradient(90deg,var(--red) 20%,var(--card2) 20%);border-radius:4px 0 0 4px"></div>
+            <div style="background:linear-gradient(90deg,var(--red) 10%,var(--card2) 10%);border-radius:4px 0 0 4px" title="Activity: 1 case (Ruth). Confirmed every gap. Need 9 more."></div>
             <div style="background:var(--card2);border-radius:0"></div>
             <div style="background:var(--card2);border-radius:0"></div>
             <div style="background:var(--card2);border-radius:0 4px 4px 0"></div>
           </div>
         </div>
 
-        <!-- Lions Mesh -->
+        <!-- Lions Mesh: No activity, Process built (dim) -->
         <div style="display:grid;grid-template-columns:200px 1fr;gap:0;margin-bottom:6px;align-items:center">
           <div style="font-size:0.78rem;font-weight:600;color:var(--text);padding-right:12px">Lions Mesh</div>
           <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:2px;height:28px">
-            <div style="background:var(--card2);border-radius:4px 0 0 4px"></div>
-            <div style="background:linear-gradient(90deg,var(--orange) 50%,var(--card2) 50%);border-radius:0"></div>
+            <div style="background:var(--card2);border-radius:4px 0 0 4px" title="Activity: zero real queries handled"></div>
+            <div style="background:var(--orange);opacity:0.2;border-radius:0" title="Process: 5 Lions configured, routing set, but never tested with real users"></div>
             <div style="background:var(--card2);border-radius:0"></div>
             <div style="background:var(--card2);border-radius:0 4px 4px 0"></div>
           </div>
         </div>
 
-        <!-- ProZONE -->
+        <!-- ProZONE: Nothing -->
         <div style="display:grid;grid-template-columns:200px 1fr;gap:0;margin-bottom:6px;align-items:center">
           <div style="font-size:0.78rem;font-weight:600;color:var(--text);padding-right:12px">ProZONE</div>
           <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:2px;height:28px">
-            <div style="background:var(--card2);border-radius:4px 0 0 4px"></div>
-            <div style="background:var(--card2);border-radius:0"></div>
+            <div style="background:var(--card2);border-radius:4px 0 0 4px" title="Activity: not started"></div>
+            <div style="background:var(--orange);opacity:0.15;border-radius:0" title="Process: UI scaffold exists (5 tabs) but no data or wiring"></div>
             <div style="background:var(--card2);border-radius:0"></div>
             <div style="background:var(--card2);border-radius:0 4px 4px 0"></div>
           </div>
         </div>
 
-        <!-- RSP Pipeline -->
+        <!-- RSP Pipeline: Activity confirmed (solid), Process confirmed (solid) -->
         <div style="display:grid;grid-template-columns:200px 1fr;gap:0;margin-bottom:6px;align-items:center">
           <div style="font-size:0.78rem;font-weight:600;color:var(--text);padding-right:12px">RSP Pipeline</div>
           <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:2px;height:28px">
-            <div style="background:var(--red);border-radius:4px 0 0 4px"></div>
-            <div style="background:var(--orange);border-radius:0"></div>
-            <div style="background:var(--card2);border-radius:0"></div>
+            <div style="background:var(--red);border-radius:4px 0 0 4px" title="Activity: CONFIRMED — pipeline work was done in old system first"></div>
+            <div style="background:var(--orange);border-radius:0" title="Process: CONFIRMED — documented, built into Flow Engine, live"></div>
+            <div style="background:var(--blue);opacity:0.15;border-radius:0" title="People: not started — team hasn't adopted yet"></div>
             <div style="background:var(--card2);border-radius:0 4px 4px 0"></div>
           </div>
         </div>
 
-        <!-- RMD Center -->
+        <!-- RMD Center: Activity confirmed (old system), Process confirmed (built), People not started -->
         <div style="display:grid;grid-template-columns:200px 1fr;gap:0;margin-bottom:6px;align-items:center">
           <div style="font-size:0.78rem;font-weight:600;color:var(--text);padding-right:12px">RMD Center</div>
           <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:2px;height:28px">
-            <div style="background:var(--red);border-radius:4px 0 0 4px"></div>
-            <div style="background:var(--orange);border-radius:0"></div>
-            <div style="background:var(--card2);border-radius:0"></div>
+            <div style="background:var(--red);border-radius:4px 0 0 4px" title="Activity: CONFIRMED — RMD tracking was done manually before"></div>
+            <div style="background:var(--orange);border-radius:0" title="Process: CONFIRMED — built, live, renders real data"></div>
+            <div style="background:var(--blue);opacity:0.15;border-radius:0" title="People: not started — team still doing RMDs manually"></div>
             <div style="background:var(--card2);border-radius:0 4px 4px 0"></div>
           </div>
         </div>
 
-        <!-- Beni Center -->
+        <!-- Beni Center: same as RMD -->
         <div style="display:grid;grid-template-columns:200px 1fr;gap:0;margin-bottom:6px;align-items:center">
           <div style="font-size:0.78rem;font-weight:600;color:var(--text);padding-right:12px">Beni Center</div>
           <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:2px;height:28px">
-            <div style="background:var(--red);border-radius:4px 0 0 4px"></div>
-            <div style="background:var(--orange);border-radius:0"></div>
-            <div style="background:var(--card2);border-radius:0"></div>
+            <div style="background:var(--red);border-radius:4px 0 0 4px" title="Activity: CONFIRMED — beni reviews done manually"></div>
+            <div style="background:var(--orange);border-radius:0" title="Process: CONFIRMED — built, live"></div>
+            <div style="background:var(--blue);opacity:0.15;border-radius:0" title="People: not started — Ruth had 13 accounts with no beni, tool didn't catch it because nobody uses it"></div>
             <div style="background:var(--card2);border-radius:0 4px 4px 0"></div>
           </div>
         </div>
 
-        <!-- SERFF / Medicare Quoting -->
+        <!-- SERFF: Activity barely started -->
         <div style="display:grid;grid-template-columns:200px 1fr;gap:0;margin-bottom:6px;align-items:center">
           <div style="font-size:0.78rem;font-weight:600;color:var(--text);padding-right:12px">SERFF / Med Quoting</div>
           <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:2px;height:28px">
-            <div style="background:linear-gradient(90deg,var(--red) 30%,var(--card2) 30%);border-radius:4px 0 0 4px"></div>
-            <div style="background:var(--card2);border-radius:0"></div>
+            <div style="background:linear-gradient(90deg,var(--red) 15%,rgba(239,68,68,0.2) 15%);border-radius:4px 0 0 4px" title="Activity: data loaded (confirmed), but never queried for a real client (dim). 15% = load confirmed."></div>
+            <div style="background:var(--orange);opacity:0.2;border-radius:0" title="Process: loader script exists (built), not formalized into ATLAS wire"></div>
             <div style="background:var(--card2);border-radius:0"></div>
             <div style="background:var(--card2);border-radius:0 4px 4px 0"></div>
           </div>
         </div>
 
-        <!-- Correspondence Ranger -->
+        <!-- Correspondence Ranger: No activity, Process built (dim) -->
         <div style="display:grid;grid-template-columns:200px 1fr;gap:0;margin-bottom:6px;align-items:center">
           <div style="font-size:0.78rem;font-weight:600;color:var(--text);padding-right:12px">Correspondence Ranger</div>
           <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:2px;height:28px">
-            <div style="background:var(--card2);border-radius:4px 0 0 4px"></div>
-            <div style="background:linear-gradient(90deg,var(--orange) 80%,var(--card2) 80%);border-radius:0"></div>
+            <div style="background:var(--card2);border-radius:4px 0 0 4px" title="Activity: zero documents processed end-to-end"></div>
+            <div style="background:var(--orange);opacity:0.2;border-radius:0" title="Process: all 8 super tools built, but SUPER_PREPARE failed on first real run"></div>
             <div style="background:var(--card2);border-radius:0"></div>
             <div style="background:var(--card2);border-radius:0 4px 4px 0"></div>
           </div>
         </div>
 
-        <!-- Life & Estate Wires -->
+        <!-- Life & Estate Wires: No activity, Process built (dim) -->
         <div style="display:grid;grid-template-columns:200px 1fr;gap:0;margin-bottom:6px;align-items:center">
-          <div style="font-size:0.78rem;font-weight:600;color:var(--text);padding-right:12px">Life & Estate Wires</div>
+          <div style="font-size:0.78rem;font-weight:600;color:var(--text);padding-right:12px">Life &amp; Estate Wires</div>
           <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:2px;height:28px">
-            <div style="background:var(--card2);border-radius:4px 0 0 4px"></div>
-            <div style="background:linear-gradient(90deg,var(--orange) 90%,var(--card2) 90%);border-radius:0"></div>
+            <div style="background:var(--card2);border-radius:4px 0 0 4px" title="Activity: zero executions against real data"></div>
+            <div style="background:var(--orange);opacity:0.2;border-radius:0" title="Process: 80 entries, 4 wires, templates resolved — but never produced real output"></div>
             <div style="background:var(--card2);border-radius:0"></div>
             <div style="background:var(--card2);border-radius:0 4px 4px 0"></div>
           </div>
