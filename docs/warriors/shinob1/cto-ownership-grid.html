@@ -413,34 +413,226 @@ code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px;
   <div class="card">
     <div class="section-label">Priority 5 — Intel Analysis</div>
     <h2>Articles / Reports / Competitive Intelligence</h2>
-    <p>JDM sends articles, industry reports, competitor news. SHINOB1 analyzes and routes implications.</p>
+    <p>Every article JDM sends gets analyzed, action items extracted, and tracked here until resolved. Search, filter by status/owner/priority. This is the permanent record.</p>
   </div>
 
-  <div class="card">
-    <h3>The Flow</h3>
-    <ol>
-      <li><strong>JDM shares an article/report</strong> (URL, PDF, screenshot)</li>
-      <li><strong>SHINOB1 analyzes:</strong>
-        <ul>
-          <li>What does this mean for RPI?</li>
-          <li>Competitive implications &mdash; threat or opportunity?</li>
-          <li>Action items &mdash; anything we should build, change, or prepare for?</li>
-          <li>Client impact &mdash; does this affect how we serve clients?</li>
-        </ul>
-      </li>
-      <li><strong>Output:</strong>
-        <ul>
-          <li>Executive brief &mdash; 3-5 bullet analysis to JDM DM</li>
-          <li>Action items &mdash; routed to the right warrior if needed</li>
-          <li>Knowledge promotion &mdash; insights that belong in CLAUDE.md or warrior context</li>
-        </ul>
-      </li>
-    </ol>
+  <div class="card" style="padding: 16px 24px;">
+    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px; align-items:center;">
+      <input type="text" id="intelSearch" placeholder="Search articles, actions, owners..." oninput="filterIntel()" style="flex:1; min-width:200px; background:var(--card2); border:1px solid var(--border); border-radius:8px; padding:10px 14px; color:var(--text); font-size:0.85rem; outline:none;">
+      <select id="intelStatus" onchange="filterIntel()" style="background:var(--card2); border:1px solid var(--border); border-radius:8px; padding:10px 14px; color:var(--text); font-size:0.82rem; cursor:pointer;">
+        <option value="">All Status</option>
+        <option value="OPEN">OPEN</option>
+        <option value="DONE">DONE</option>
+        <option value="BLOCKED">BLOCKED</option>
+        <option value="PARKED">PARKED</option>
+        <option value="NO ACTION">NO ACTION</option>
+      </select>
+      <select id="intelOwner" onchange="filterIntel()" style="background:var(--card2); border:1px solid var(--border); border-radius:8px; padding:10px 14px; color:var(--text); font-size:0.82rem; cursor:pointer;">
+        <option value="">All Owners</option>
+        <option value="SHINOB1">SHINOB1</option>
+        <option value="VOLTRON">VOLTRON</option>
+        <option value="MEGAZORD">MEGAZORD</option>
+        <option value="MUSASHI">MUSASHI</option>
+        <option value="RONIN">RONIN</option>
+      </select>
+      <select id="intelPriority" onchange="filterIntel()" style="background:var(--card2); border:1px solid var(--border); border-radius:8px; padding:10px 14px; color:var(--text); font-size:0.82rem; cursor:pointer;">
+        <option value="">All Priority</option>
+        <option value="CRITICAL">CRITICAL</option>
+        <option value="HIGH">HIGH</option>
+        <option value="MEDIUM">MEDIUM</option>
+        <option value="LOW">LOW</option>
+      </select>
+    </div>
+    <div style="font-size:0.72rem; color:var(--muted);" id="intelCount">17 items</div>
   </div>
 
-  <div class="card">
-    <h3>Same outputs as Monday IRL &mdash; different input source.</h3>
-    <p>Monday IRL = internal team intelligence. Intel Analysis = external market intelligence. Both produce: action items, decisions, warrior delegation, knowledge promotion.</p>
+  <div class="card" style="overflow-x:auto;">
+    <table id="intelTable">
+      <tr>
+        <th style="min-width:50px;">#</th>
+        <th style="min-width:200px;">Article</th>
+        <th>Date</th>
+        <th>Priority</th>
+        <th>Status</th>
+        <th>Owner</th>
+        <th>Blocker</th>
+        <th style="min-width:250px;">Action / Next Step</th>
+      </tr>
+      <tr data-status="BLOCKED" data-owner="SHINOB1" data-priority="HIGH">
+        <td>1</td>
+        <td><strong>Arcee Trinity-Large-Thinking</strong><br><span style="font-size:0.75rem;color:var(--muted)">399B MoE, $0.90/M, Apache 2.0</span></td>
+        <td>04-03</td>
+        <td><span class="pill hot">HIGH</span></td>
+        <td><span class="pill next">OPEN</span></td>
+        <td>SHINOB1</td>
+        <td>API key setup</td>
+        <td>Benchmark Trinity vs Sonnet on 3 RONIN tasks. Could save ~$2K/mo.</td>
+      </tr>
+      <tr data-status="BLOCKED" data-owner="SHINOB1" data-priority="HIGH">
+        <td>2</td>
+        <td><strong>Google Gemma 4 26B</strong><br><span style="font-size:0.75rem;color:var(--muted)">Local multimodal, Apache 2.0, fits P40</span></td>
+        <td>04-03</td>
+        <td><span class="pill hot">HIGH</span></td>
+        <td><span class="pill hold">BLOCKED</span></td>
+        <td>SHINOB1</td>
+        <td>P40 GPU not installed</td>
+        <td>Install Gemma 4 26B via Ollama on MDJ_SERVER. Test on carrier statements, client apps, compliance forms.</td>
+      </tr>
+      <tr data-status="OPEN" data-owner="MUSASHI" data-priority="HIGH">
+        <td>3</td>
+        <td><strong>Figma Canvas MCP</strong><br><span style="font-size:0.75rem;color:var(--muted)">AI agents create/edit Figma designs</span></td>
+        <td>04-03</td>
+        <td><span class="pill hot">HIGH</span></td>
+        <td><span class="pill next">OPEN</span></td>
+        <td>MUSASHI</td>
+        <td>None</td>
+        <td>Add Figma MCP to Claude Code. Create RPI Skills markdown files (--portal vars, shadcn, sidebar). Free beta.</td>
+      </tr>
+      <tr data-status="PARKED" data-owner="SHINOB1" data-priority="MEDIUM">
+        <td>4</td>
+        <td><strong>Mozilla CQ — Collective Agent Learning</strong><br><span style="font-size:0.75rem;color:var(--muted)">Open-source cross-agent knowledge sharing</span></td>
+        <td>04-03</td>
+        <td><span class="pill plan">MEDIUM</span></td>
+        <td><span class="pill hold">PARKED</span></td>
+        <td>SHINOB1</td>
+        <td>System Synergy covers this differently</td>
+        <td>Revisit after Learning Loop E2E validated. Our Firestore approach may be better for our use case.</td>
+      </tr>
+      <tr data-status="NO ACTION" data-owner="SHINOB1" data-priority="LOW">
+        <td>5</td>
+        <td><strong>Microsoft Agent Framework v1.0</strong><br><span style="font-size:0.75rem;color:var(--muted)">MS shipped what we built. We're ahead.</span></td>
+        <td>04-04</td>
+        <td><span class="pill plan">LOW</span></td>
+        <td><span class="pill live">NO ACTION</span></td>
+        <td>SHINOB1</td>
+        <td>&mdash;</td>
+        <td>Monitor A2A protocol only. Our stack already does everything theirs does.</td>
+      </tr>
+      <tr data-status="OPEN" data-owner="SHINOB1" data-priority="MEDIUM">
+        <td>6</td>
+        <td><strong>Claude Rate Limit Arbitrage</strong><br><span style="font-size:0.75rem;color:var(--muted)">MDJ_SERVER = rate limit arbitrage as business advantage</span></td>
+        <td>04-04</td>
+        <td><span class="pill plan">MEDIUM</span></td>
+        <td><span class="pill next">OPEN</span></td>
+        <td>SHINOB1</td>
+        <td>None</td>
+        <td>Add rate-limit arbitrage section to AgentX investor narrative (agentx-the-numbers.html).</td>
+      </tr>
+      <tr data-status="NO ACTION" data-owner="" data-priority="LOW">
+        <td>7</td>
+        <td><strong>Larry Ellison on Failure</strong><br><span style="font-size:0.75rem;color:var(--muted)">Oracle near-collapse became catalyst. JDM lives this.</span></td>
+        <td>04-04</td>
+        <td><span class="pill plan">LOW</span></td>
+        <td><span class="pill live">NO ACTION</span></td>
+        <td>&mdash;</td>
+        <td>&mdash;</td>
+        <td>Validation only. FORGE = failure-first, iteration-forward.</td>
+      </tr>
+      <tr data-status="PARKED" data-owner="MEGAZORD" data-priority="MEDIUM">
+        <td>8</td>
+        <td><strong>PgEdge MCP for Postgres</strong><br><span style="font-size:0.75rem;color:var(--muted)">Production-ready MCP for PostgreSQL</span></td>
+        <td>04-04</td>
+        <td><span class="pill plan">MEDIUM</span></td>
+        <td><span class="pill hold">PARKED</span></td>
+        <td>MEGAZORD</td>
+        <td>No Postgres layer yet</td>
+        <td>When ATLAS adds Postgres (analytics), use this MCP pattern. Zero custom tooling needed.</td>
+      </tr>
+      <tr data-status="NO ACTION" data-owner="" data-priority="LOW">
+        <td>9</td>
+        <td><strong>McKinsey: The Great Flattening</strong><br><span style="font-size:0.75rem;color:var(--muted)">AI agents collapse management layers. RPI already does this.</span></td>
+        <td>04-04</td>
+        <td><span class="pill plan">LOW</span></td>
+        <td><span class="pill live">NO ACTION</span></td>
+        <td>&mdash;</td>
+        <td>&mdash;</td>
+        <td>Validation. The Machine IS the flattened management layer.</td>
+      </tr>
+      <tr data-status="NO ACTION" data-owner="" data-priority="LOW">
+        <td>10</td>
+        <td><strong>Garry Tan: 37K Lines/Day = AI Slop</strong><br><span style="font-size:0.75rem;color:var(--muted)">Quantity metrics meaningless. FORGE prevents this.</span></td>
+        <td>04-04</td>
+        <td><span class="pill plan">LOW</span></td>
+        <td><span class="pill live">NO ACTION</span></td>
+        <td>&mdash;</td>
+        <td>&mdash;</td>
+        <td>Validation. FORGE = quality gates at every phase.</td>
+      </tr>
+      <tr data-status="NO ACTION" data-owner="" data-priority="LOW">
+        <td>11</td>
+        <td><strong>Anthropic Kills Claude Subs for 3rd-Party Agents</strong><br><span style="font-size:0.75rem;color:var(--muted)">Doesn't affect us — we're on API keys.</span></td>
+        <td>04-04</td>
+        <td><span class="pill plan">LOW</span></td>
+        <td><span class="pill live">NO ACTION</span></td>
+        <td>&mdash;</td>
+        <td>&mdash;</td>
+        <td>Infrastructure independence confirmed. API keys + Cloud Run = immune.</td>
+      </tr>
+      <tr data-status="BLOCKED" data-owner="SHINOB1" data-priority="HIGH">
+        <td>12</td>
+        <td><strong>Google Gemma 4 31B — Self-Hosted</strong><br><span style="font-size:0.75rem;color:var(--muted)">Apache 2.0, 256K context, multimodal, runs locally</span></td>
+        <td>04-04</td>
+        <td><span class="pill hot">HIGH</span></td>
+        <td><span class="pill hold">BLOCKED</span></td>
+        <td>SHINOB1</td>
+        <td>P40 GPU not installed</td>
+        <td>Weekend benchmark after GPU install. Cost hedge vs Anthropic pricing pressure.</td>
+      </tr>
+      <tr data-status="NO ACTION" data-owner="" data-priority="LOW">
+        <td>13</td>
+        <td><strong>AI Agents Scrambling Power Users' Brains</strong><br><span style="font-size:0.75rem;color:var(--muted)">Addiction patterns in AI power users. JDM: manage the load.</span></td>
+        <td>04-04</td>
+        <td><span class="pill plan">LOW</span></td>
+        <td><span class="pill live">NO ACTION</span></td>
+        <td>&mdash;</td>
+        <td>&mdash;</td>
+        <td>Awareness. Running 6 warriors in parallel is cognitively expensive.</td>
+      </tr>
+      <tr data-status="BLOCKED" data-owner="SHINOB1" data-priority="MEDIUM">
+        <td>14</td>
+        <td><strong>Docker: Ollama + Qdrant for Agent Infra</strong><br><span style="font-size:0.75rem;color:var(--muted)">Local LLM + vector DB for agent memory</span></td>
+        <td>04-04</td>
+        <td><span class="pill plan">MEDIUM</span></td>
+        <td><span class="pill hold">BLOCKED</span></td>
+        <td>SHINOB1</td>
+        <td>P40 GPU for Ollama</td>
+        <td>Install Ollama + Qdrant containers on MDJ_SERVER after GPU. VOLTRON memory + local model fallback.</td>
+      </tr>
+      <tr data-status="OPEN" data-owner="VOLTRON" data-priority="CRITICAL">
+        <td>15</td>
+        <td><strong>CMS Star Ratings Overhaul</strong><br><span style="font-size:0.75rem;color:var(--muted)">MAPD plan repricing before AEP 2026. MISSION CRITICAL.</span></td>
+        <td>04-04</td>
+        <td><span class="pill hot">CRITICAL</span></td>
+        <td><span class="pill next">OPEN</span></td>
+        <td>VOLTRON</td>
+        <td>Need updated CMS data</td>
+        <td>QUE-Medicare quoting data MUST reflect updated star ratings + plan valuations before AEP. Revenue impact.</td>
+      </tr>
+      <tr data-status="OPEN" data-owner="MUSASHI" data-priority="MEDIUM">
+        <td>16</td>
+        <td><strong>Meta CTO: Vibe Coding is Legit</strong><br><span style="font-size:0.75rem;color:var(--muted)">JDM is the proof of concept. DAVID positioning angle.</span></td>
+        <td>04-04</td>
+        <td><span class="pill plan">MEDIUM</span></td>
+        <td><span class="pill next">OPEN</span></td>
+        <td>MUSASHI</td>
+        <td>None</td>
+        <td>Add vibe coding positioning to DAVID/B2B materials. JDM's story = the pitch.</td>
+      </tr>
+      <tr data-status="NO ACTION" data-owner="" data-priority="LOW">
+        <td>17</td>
+        <td><strong>Cursor 3: Devs Become Agent Managers</strong><br><span style="font-size:0.75rem;color:var(--muted)">Commercial version of what The Dojo runs natively.</span></td>
+        <td>04-04</td>
+        <td><span class="pill plan">LOW</span></td>
+        <td><span class="pill live">NO ACTION</span></td>
+        <td>&mdash;</td>
+        <td>&mdash;</td>
+        <td>Validation. FORGE + RONIN already does this on MDJ_SERVER.</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="insight">
+    <strong>Weekly review:</strong> Filter by OPEN items. Walk each one: still blocked? Can we unblock it? Anything new from JDM's reading this week? Add rows as new articles come in.
   </div>
 </div>
 
@@ -615,6 +807,29 @@ document.querySelectorAll('.tab').forEach(function(tab) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 });
+
+function filterIntel() {
+  var search = document.getElementById('intelSearch').value.toLowerCase();
+  var status = document.getElementById('intelStatus').value;
+  var owner = document.getElementById('intelOwner').value;
+  var priority = document.getElementById('intelPriority').value;
+  var rows = document.querySelectorAll('#intelTable tr[data-status]');
+  var visible = 0;
+  rows.forEach(function(row) {
+    var text = row.textContent.toLowerCase();
+    var matchSearch = !search || text.indexOf(search) !== -1;
+    var matchStatus = !status || row.dataset.status === status;
+    var matchOwner = !owner || row.dataset.owner === owner;
+    var matchPriority = !priority || row.dataset.priority === priority;
+    if (matchSearch && matchStatus && matchOwner && matchPriority) {
+      row.style.display = '';
+      visible++;
+    } else {
+      row.style.display = 'none';
+    }
+  });
+  document.getElementById('intelCount').textContent = visible + ' of ' + rows.length + ' items';
+}
 </script>
 
 </body>
