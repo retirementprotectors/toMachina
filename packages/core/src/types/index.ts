@@ -72,12 +72,8 @@ export interface Account {
   effective_date: string
   /** Underwriting charter legal entity (e.g., "Accendo Insurance Company") */
   carrier_charter?: string
-  /** Charter short code (e.g., "ACC") */
-  charter_code?: string
   /** NAIC code for the underwriting charter */
   naic_code?: string
-  /** Parent brand (e.g., "Aetna / CVS Health") */
-  parent_carrier?: string
   /** Carrier doc ID in Firestore carriers collection */
   carrier_id?: string
   rider_name?: string
@@ -92,6 +88,19 @@ export interface Account {
   cash_value?: number
   surrender_value?: number
   account_value?: number
+  // Premium fields
+  /** Billing frequency — Monthly, Quarterly, Semi-Annual, Annual */
+  premium_mode?: string
+  /** Per-payment premium amount (e.g., $9.32/month) */
+  modal_premium?: number
+  /** Next scheduled premium payment amount */
+  scheduled_premium?: number
+  /** Cumulative lifetime premiums paid */
+  total_premiums_paid?: number
+  /** Annual premium — life/medicare only. For annuities, use net_deposits. */
+  annual_premium?: number
+  /** Net deposit amount — annuity products only */
+  net_deposits?: number
   // Banking fields
   bank_name?: string
   routing_number?: string

@@ -1,70 +1,51 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>CoF Value Fields</title>
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Value Fields v3</title>
 <style>
-:root{--bg:#0a0e17;--card:#111827;--card2:#1a2236;--border:#1e293b;--text:#e2e8f0;--muted:#94a3b8;--accent:#10b981;--green:#22c55e;--blue:#3b82f6;--orange:#f59e0b;--red:#ef4444;--purple:#a855f7;--cyan:#06b6d4}
+:root{--bg:#0a0e17;--card:#111827;--card2:#1a2236;--border:#1e293b;--text:#e2e8f0;--muted:#94a3b8;--accent:#10b981;--green:#22c55e;--blue:#3b82f6;--orange:#f59e0b;--red:#ef4444}
 *{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;padding:24px}
 h1{font-size:1.5rem;font-weight:800;color:var(--accent);text-align:center;margin-bottom:6px}
 .sub{color:var(--muted);font-size:.85rem;text-align:center;margin-bottom:20px}
-.stats{display:flex;gap:10px;justify-content:center;margin-bottom:16px;flex-wrap:wrap}
-.stat{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:6px 14px;text-align:center}
-.stat .n{font-size:1rem;font-weight:800;color:var(--accent)}.stat .l{font-size:.55rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
-.legend{display:flex;gap:14px;justify-content:center;margin-bottom:16px;font-size:.75rem;color:var(--muted);flex-wrap:wrap}
+.legend{display:flex;gap:14px;justify-content:center;margin-bottom:16px;font-size:.72rem;color:var(--muted);flex-wrap:wrap}
 .legend span{display:flex;align-items:center;gap:4px}
 .dot{width:10px;height:10px;border-radius:3px}
 .tbl-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:10px}
-table{width:100%;border-collapse:collapse;font-size:.73rem;white-space:nowrap}
-th{position:sticky;top:0;background:var(--card2);padding:8px 10px;text-align:right;font-size:.6rem;text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid var(--border);cursor:pointer;user-select:none}
+table{width:100%;border-collapse:collapse;font-size:.7rem;white-space:nowrap}
+th{position:sticky;top:0;background:var(--card2);padding:6px 8px;text-align:right;font-size:.55rem;text-transform:uppercase;letter-spacing:.3px;border-bottom:2px solid var(--border);cursor:pointer;user-select:none}
 th:hover{color:var(--accent)}
 th:first-child{text-align:left}
-th .sort{font-size:.7rem;margin-left:2px}
-th .status{display:block;font-size:.5rem;font-weight:400;letter-spacing:0;text-transform:none;margin-top:2px}
-th .status.typed{color:var(--green)}
-th .status.ui-only{color:var(--orange)}
-th .status.phantom{color:var(--red)}
-td{padding:6px 10px;border-bottom:1px solid var(--border);text-align:right;font-family:'SF Mono',monospace;font-size:.72rem}
-td:first-child{text-align:left;font-family:inherit;color:var(--text);max-width:280px;overflow:hidden;text-overflow:ellipsis}
+th .st{display:block;font-size:.45rem;font-weight:400;letter-spacing:0;text-transform:none;margin-top:1px}
+td{padding:5px 8px;border-bottom:1px solid var(--border);text-align:right;font-family:'SF Mono',monospace;font-size:.68rem}
+td:first-child{text-align:left;font-family:inherit;color:var(--text);max-width:250px;overflow:hidden;text-overflow:ellipsis}
 tr:hover td{background:rgba(16,185,129,.04)}
-td.g{color:var(--green)}
-td.o{color:var(--orange)}
-td.p{color:var(--red)}
-td.e{color:#262626}
+td.g{color:var(--green)}td.o{color:var(--orange)}td.r{color:var(--red)}td.e{color:#1a1a1a}td.b{color:var(--blue)}
 </style></head><body>
-<h1>CoF Account Value Fields</h1>
-<div class="sub">190 accounts &mdash; click column headers to sort</div>
-<div class="stats">
-<div class="stat"><div class="n">69</div><div class="l">face amount</div></div>
-<div class="stat"><div class="n">176</div><div class="l">face value</div></div>
-<div class="stat"><div class="n">0</div><div class="l">account value</div></div>
-<div class="stat"><div class="n">26</div><div class="l">fund value</div></div>
-<div class="stat"><div class="n">26</div><div class="l">annuity balance</div></div>
-<div class="stat"><div class="n">149</div><div class="l">cash value</div></div>
-<div class="stat"><div class="n">62</div><div class="l">surrender value</div></div>
-<div class="stat"><div class="n">12</div><div class="l">death benefit</div></div>
-<div class="stat"><div class="n">0</div><div class="l">premium</div></div>
-<div class="stat"><div class="n">171</div><div class="l">annual premium</div></div>
-</div>
+<h1>CoF Value + Premium Fields — Pre-Migration</h1>
+<div class="sub">216 accounts — click headers to sort — showing what will change</div>
 <div class="legend">
-<span><div class="dot" style="background:var(--green)"></div>In Type + UI</span>
-<span><div class="dot" style="background:var(--orange)"></div>UI only (not in TypeScript type)</span>
-<span><div class="dot" style="background:var(--red)"></div>PHANTOM (no type, no UI)</span>
-<span><div class="dot" style="background:#262626"></div>Empty</span>
+<span><div class="dot" style="background:var(--green)"></div>In Type + UI (stays)</span>
+<span><div class="dot" style="background:var(--blue)"></div>Just added to Type</span>
+<span><div class="dot" style="background:var(--orange)"></div>DYING (merge target shown)</span>
+<span><div class="dot" style="background:var(--red)"></div>PHANTOM (dying)</span>
+<span><div class="dot" style="background:#1a1a1a"></div>Empty</span>
 </div>
-<div class="tbl-wrap"><table id="tbl">
-<thead><tr>
-<th onclick="sortTable(0)" style="text-align:left">Product<span class="sort"></span></th>
-<th onclick="sortTable(1)" style="color:var(--green)">face_<wbr>amount<span class="status typed">In Type + UI</span><span class="sort"></span></th>
-<th onclick="sortTable(2)" style="color:var(--orange)">face_<wbr>value<span class="status ui-only">UI only (no type)</span><span class="sort"></span></th>
-<th onclick="sortTable(3)" style="color:var(--green)">account_<wbr>value<span class="status typed">In Type + UI</span><span class="sort"></span></th>
-<th onclick="sortTable(4)" style="color:var(--red)">fund_<wbr>value<span class="status phantom">PHANTOM</span><span class="sort"></span></th>
-<th onclick="sortTable(5)" style="color:var(--red)">annuity_<wbr>balance<span class="status phantom">PHANTOM</span><span class="sort"></span></th>
-<th onclick="sortTable(6)" style="color:var(--green)">cash_<wbr>value<span class="status typed">In Type + UI</span><span class="sort"></span></th>
-<th onclick="sortTable(7)" style="color:var(--green)">surrender_<wbr>value<span class="status typed">In Type + UI</span><span class="sort"></span></th>
-<th onclick="sortTable(8)" style="color:var(--green)">death_<wbr>benefit<span class="status typed">In Type + UI</span><span class="sort"></span></th>
-<th onclick="sortTable(9)" style="color:var(--green)">premium<span class="status typed">In Type + UI</span><span class="sort"></span></th>
-<th onclick="sortTable(10)" style="color:var(--orange)">annual_<wbr>premium<span class="status ui-only">UI only (no type)</span><span class="sort"></span></th>
+<div class="tbl-wrap"><table id="tbl"><thead><tr>
+<th onclick="st(0)" style="text-align:left">Product</th>
+<th onclick="st(1)" style="color:var(--green)">face_amount<span class="st">In Type + UI</span></th>
+<th onclick="st(2)" style="color:var(--red)">face_value<span class="st">DYING → face_amount</span></th>
+<th onclick="st(3)" style="color:var(--green)">account_value<span class="st">In Type + UI</span></th>
+<th onclick="st(4)" style="color:var(--red)">fund_value<span class="st">DYING → cash_value</span></th>
+<th onclick="st(5)" style="color:var(--red)">annuity_balance<span class="st">DYING → surrender_value</span></th>
+<th onclick="st(6)" style="color:var(--green)">cash_value<span class="st">In Type + UI</span></th>
+<th onclick="st(7)" style="color:var(--green)">surrender_value<span class="st">In Type + UI</span></th>
+<th onclick="st(8)" style="color:var(--green)">death_benefit<span class="st">In Type + UI</span></th>
+<th onclick="st(9)" style="color:var(--green)">premium<span class="st">In Type + UI</span></th>
+<th onclick="st(10)" style="color:var(--blue)">annual_premium<span class="st">NOW IN TYPE — split: life→premium, annuity→net_deposits</span></th>
+<th onclick="st(11)" style="color:var(--blue)">modal_premium<span class="st">NOW IN TYPE</span></th>
+<th onclick="st(12)" style="color:var(--blue)">premium_mode<span class="st">NOW IN TYPE + UI</span></th>
+<th onclick="st(13)" style="color:var(--blue)">net_deposits<span class="st">NOW IN TYPE + UI</span></th>
 </tr></thead><tbody>
 <tr><td>Forester Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$25,000.00</td>
+<td class="o">$25,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -72,11 +53,14 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$106.50</td>
+<td class="b">$106.50</td>
+<td class="b">$9.32</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Whole Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$25,000.00</td>
+<td class="o">$25,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -84,11 +68,14 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$237.50</td>
+<td class="b">$237.50</td>
+<td class="b">$20.79</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Whole Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$25,000.00</td>
+<td class="o">$25,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -96,7 +83,10 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$91.50</td>
+<td class="b">$91.50</td>
+<td class="b">$8.01</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>20 YEAR RENEWABLE TERM 2001 CSO 4%</td>
 <td class="o">$500,000.00</td>
@@ -108,11 +98,14 @@ td.e{color:#262626}
 <td class="g">$26.95</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$770.00</td>
+<td class="b">$770.00</td>
+<td class="b">$67.38</td>
+<td class="b" style="text-align:center">Monthly</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Whole Life & Term</td>
 <td class="e">&mdash;</td>
-<td class="g">$7,500.00</td>
+<td class="o">$7,500.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -120,7 +113,10 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$187.05</td>
+<td class="b">$187.05</td>
+<td class="b">$187.05</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Modified W/L PD 65 80CSO 5%</td>
 <td class="o">$10,000.00</td>
@@ -132,7 +128,40 @@ td.e{color:#262626}
 <td class="g">$706.51</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$115.00</td>
+<td class="b">$115.00</td>
+<td class="b">$115.00</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
+</tr>
+<tr><td>-</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="b">$348.05</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+</tr>
+<tr><td>-</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="b">$1,886.04</td>
+<td class="e">&mdash;</td>
+<td class="b" style="text-align:center">Monthly (EFT)</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Forester Life (1400 Series)</td>
 <td class="o">$5,000.00</td>
@@ -144,7 +173,10 @@ td.e{color:#262626}
 <td class="g">$758.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$52.10</td>
+<td class="b">$52.10</td>
+<td class="b">$52.10</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Forester Life (1600 Series)</td>
 <td class="o">$7,500.00</td>
@@ -156,7 +188,10 @@ td.e{color:#262626}
 <td class="g">$832.18</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$53.13</td>
+<td class="b">$53.13</td>
+<td class="b">$53.13</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Forester Life (1400 Series)</td>
 <td class="o">$5,000.00</td>
@@ -168,35 +203,44 @@ td.e{color:#262626}
 <td class="g">$832.38</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$56.00</td>
+<td class="b">$56.00</td>
+<td class="b">$56.00</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Flexible Premium Life</td>
 <td class="o">$50,000.00</td>
 <td class="o">$50,000.00</td>
 <td class="e">&mdash;</td>
-<td class="p">$381.94</td>
-<td class="p">$366.93</td>
+<td class="o">$381.94</td>
+<td class="o">$366.93</td>
 <td class="g">$349.15</td>
 <td class="e">&mdash;</td>
 <td class="g">$50,000.00</td>
 <td class="e">&mdash;</td>
-<td class="g">$169.20</td>
+<td class="b">$169.20</td>
+<td class="b">$14.10</td>
+<td class="b" style="text-align:center">Monthly</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Secure4Life Single Premium UL</td>
 <td class="e">&mdash;</td>
-<td class="g">$50,000.00</td>
+<td class="o">$50,000.00</td>
 <td class="e">&mdash;</td>
-<td class="p">$37,904.20</td>
-<td class="p">$37,800.61</td>
+<td class="o">$37,904.20</td>
+<td class="o">$37,800.61</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="g">$52,407.70</td>
 <td class="e">&mdash;</td>
-<td class="g">$32,478.51</td>
+<td class="b">$32,478.51</td>
+<td class="b">$32,478.51</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Whole Life Paid at Age 65</td>
 <td class="e">&mdash;</td>
-<td class="g">$5,000.00</td>
+<td class="o">$5,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -204,15 +248,21 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$176.15</td>
+<td class="b">$176.15</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Single Premium Whole Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$4,194.00</td>
+<td class="o">$4,194.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="g">$3,389.24</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -229,10 +279,13 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Forester Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$15,000.00</td>
+<td class="o">$15,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -240,7 +293,10 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$330.45</td>
+<td class="b">$330.45</td>
+<td class="b">$28.91</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Basic Value Life-2001 CSO 4%</td>
 <td class="o">$25,000.00</td>
@@ -252,7 +308,10 @@ td.e{color:#262626}
 <td class="g">$653.99</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$204.50</td>
+<td class="b">$204.50</td>
+<td class="b">$17.89</td>
+<td class="b" style="text-align:center">Monthly</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>5 YR REN TERM 80CSO 5% (200's)</td>
 <td class="o">$30,000.00</td>
@@ -264,11 +323,14 @@ td.e{color:#262626}
 <td class="g">$90.11</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$364.00</td>
+<td class="b">$364.00</td>
+<td class="b">$31.85</td>
+<td class="b" style="text-align:center">Monthly</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Forester Basic 10 Pay Whole Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$18,000.00</td>
+<td class="o">$18,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -276,11 +338,29 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$253.80</td>
+<td class="b">$253.80</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+</tr>
+<tr><td>Term to 35 01CSO (cont'd comm)</td>
+<td class="g">$10,000.00</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="g">$5.58</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="b">$37.00</td>
+<td class="e">&mdash;</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Whole Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$10,000.00</td>
+<td class="o">$10,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -288,7 +368,10 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$134.20</td>
+<td class="b">$134.20</td>
+<td class="b">$134.20</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Life Paid 65 80CSO 5%</td>
 <td class="o">$1,000.00</td>
@@ -300,7 +383,10 @@ td.e{color:#262626}
 <td class="g">$226.84</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$9.29</td>
+<td class="b">$9.29</td>
+<td class="b">$9.29</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Life Paid 65 80CSO 5%</td>
 <td class="o">$1,000.00</td>
@@ -312,11 +398,14 @@ td.e{color:#262626}
 <td class="g">$239.75</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$9.29</td>
+<td class="b">$9.29</td>
+<td class="b">$9.29</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Whole Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$100,000.00</td>
+<td class="o">$100,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -324,11 +413,14 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$1,633.00</td>
+<td class="b">$1,633.00</td>
+<td class="b">$1,633.00</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Whole Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$10,000.00</td>
+<td class="o">$10,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -336,15 +428,21 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$127.50</td>
+<td class="b">$127.50</td>
+<td class="b">$127.50</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Whole Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$1,000.00</td>
+<td class="o">$1,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="g">$827.52</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -360,7 +458,10 @@ td.e{color:#262626}
 <td class="g">$774.95</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$57.10</td>
+<td class="b">$57.10</td>
+<td class="b">$57.10</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>WL AE 3% (500's)</td>
 <td class="o">$1,000.00</td>
@@ -373,6 +474,9 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Forester Life 2001 CSO 4%</td>
 <td class="o">$15,000.00</td>
@@ -384,7 +488,10 @@ td.e{color:#262626}
 <td class="g">$592.72</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$87.00</td>
+<td class="b">$87.00</td>
+<td class="b">$87.00</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>FL 80 CSO 4.5%</td>
 <td class="o">$15,000.00</td>
@@ -396,7 +503,10 @@ td.e{color:#262626}
 <td class="g">$753.02</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$81.85</td>
+<td class="b">$81.85</td>
+<td class="b">$81.85</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>TERM TO 25 (NO COMMISSIONS)</td>
 <td class="o">$10,000.00</td>
@@ -408,7 +518,10 @@ td.e{color:#262626}
 <td class="g">$10.07</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$25.00</td>
+<td class="b">$25.00</td>
+<td class="b">$25.00</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>WL Paid 65 58CSO 4%</td>
 <td class="o">$6,800.00</td>
@@ -421,6 +534,9 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Life Paid 65 80CSO 5%</td>
 <td class="o">$5,000.00</td>
@@ -432,11 +548,14 @@ td.e{color:#262626}
 <td class="g">$1,343.92</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$47.95</td>
+<td class="b">$47.95</td>
+<td class="b">$47.95</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Forester Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$15,000.00</td>
+<td class="o">$15,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -444,7 +563,10 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$135.85</td>
+<td class="b">$135.85</td>
+<td class="b">$135.85</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Term to 35 80CSO</td>
 <td class="o">$10,000.00</td>
@@ -456,11 +578,14 @@ td.e{color:#262626}
 <td class="g">$4.38</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$29.10</td>
+<td class="b">$29.10</td>
+<td class="b">$29.10</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Whole Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$1,000.00</td>
+<td class="o">$1,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -469,37 +594,49 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Forester Optimizer Flex Prem Deferred Annuity</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="p">$21,149.85</td>
-<td class="p">$21,112.20</td>
+<td class="o">$21,149.85</td>
+<td class="o">$21,112.20</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$100,000.00</td>
+<td class="b">$100,000.00</td>
+<td class="b">$100,000.00</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Forester Optimizer Flex Prem Deferred Annuity</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="p">$36,563.19</td>
-<td class="p">$36,492.20</td>
+<td class="o">$36,563.19</td>
+<td class="o">$36,492.20</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$100,000.00</td>
+<td class="b">$100,000.00</td>
+<td class="b">$100,000.00</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="p">$180,714.71</td>
-<td class="p">$180,235.90</td>
+<td class="o">$180,714.71</td>
+<td class="o">$180,235.90</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -510,25 +647,31 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="p">$40,359.41</td>
-<td class="p">$40,281.04</td>
+<td class="o">$40,359.41</td>
+<td class="o">$40,281.04</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$56,302.00</td>
+<td class="b">$56,302.00</td>
+<td class="b">$56,302.00</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Annuity Assurance Single Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="p">$113,434.86</td>
-<td class="p">$113,246.16</td>
+<td class="o">$113,434.86</td>
+<td class="o">$113,246.16</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$100,000.00</td>
+<td class="b">$100,000.00</td>
+<td class="b">$100,000.00</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>TERM TO 25</td>
 <td class="o">$5,000.00</td>
@@ -540,7 +683,10 @@ td.e{color:#262626}
 <td class="g">$12.25</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$15.00</td>
+<td class="b">$15.00</td>
+<td class="b">$15.00</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>TERM TO 25 (NO COMMISSIONS)</td>
 <td class="o">$10,000.00</td>
@@ -552,11 +698,29 @@ td.e{color:#262626}
 <td class="g">$18.49</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$25.00</td>
+<td class="b">$25.00</td>
+<td class="b">$25.00</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
+</tr>
+<tr><td>TERM TO 25</td>
+<td class="g">$5,000.00</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="g">$11.10</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="b">$15.00</td>
+<td class="e">&mdash;</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Whole Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$40,000.00</td>
+<td class="o">$40,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -564,19 +728,40 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$458.00</td>
+<td class="b">$458.00</td>
+<td class="b">$238.16</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+</tr>
+<tr><td>-</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="b">$154.94</td>
+<td class="e">&mdash;</td>
+<td class="b" style="text-align:center">Monthly (EFT)</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Flexible Premium Life - Juvenile</td>
 <td class="o">$25,000.00</td>
 <td class="o">$25,000.00</td>
 <td class="e">&mdash;</td>
-<td class="p">$1.93</td>
-<td class="p">$1.93</td>
+<td class="o">$1.93</td>
+<td class="o">$1.93</td>
 <td class="g">$0.64</td>
 <td class="e">&mdash;</td>
 <td class="g">$25,000.00</td>
 <td class="e">&mdash;</td>
-<td class="g">$63.96</td>
+<td class="b">$63.96</td>
+<td class="b">$5.33</td>
+<td class="b" style="text-align:center">Monthly</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>CLT (TERM TO AGE 25)</td>
 <td class="o">$10,000.00</td>
@@ -588,7 +773,10 @@ td.e{color:#262626}
 <td class="g">$1.68</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$25.00</td>
+<td class="b">$25.00</td>
+<td class="b">$2.19</td>
+<td class="b" style="text-align:center">Monthly</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Modified W/L PD 65 80CSO 5%</td>
 <td class="o">$5,000.00</td>
@@ -600,7 +788,10 @@ td.e{color:#262626}
 <td class="g">$660.55</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$65.00</td>
+<td class="b">$65.00</td>
+<td class="b">$65.00</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>W/L Paid 65 58CSO 2.5%</td>
 <td class="o">$1,000.00</td>
@@ -612,7 +803,25 @@ td.e{color:#262626}
 <td class="g">$475.09</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$11.15</td>
+<td class="b">$11.15</td>
+<td class="b">$11.15</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
+</tr>
+<tr><td>Travel Accidental Death</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="g">$3.26</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="b">$5.00</td>
+<td class="b">$5.00</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>W/L 58CSO 2.5%</td>
 <td class="o">$1,000.00</td>
@@ -625,10 +834,13 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Single Premium Whole Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$1,884.00</td>
+<td class="o">$1,884.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -637,10 +849,28 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+</tr>
+<tr><td>-</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="b">$1,324.32</td>
+<td class="e">&mdash;</td>
+<td class="b" style="text-align:center">Monthly (EFT)</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>10 Pay Whole Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$10,870.00</td>
+<td class="o">$10,870.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -648,19 +878,25 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$232.18</td>
+<td class="b">$232.18</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Flexible Premium Life</td>
 <td class="o">$250,000.00</td>
 <td class="o">$250,000.00</td>
 <td class="e">&mdash;</td>
-<td class="p">$810.69</td>
-<td class="p">$808.66</td>
+<td class="o">$810.69</td>
+<td class="o">$808.66</td>
 <td class="g">$740.84</td>
 <td class="e">&mdash;</td>
 <td class="g">$250,000.00</td>
 <td class="e">&mdash;</td>
-<td class="g">$216.84</td>
+<td class="b">$216.84</td>
+<td class="b">$18.07</td>
+<td class="b" style="text-align:center">Monthly</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Genesis Life-Minor 2017 CSO 4%</td>
 <td class="o">$45,043.51</td>
@@ -672,11 +908,14 @@ td.e{color:#262626}
 <td class="g">$376.47</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$196.84</td>
+<td class="b">$196.84</td>
+<td class="b">$17.22</td>
+<td class="b" style="text-align:center">Monthly</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Whole Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$10,000.00</td>
+<td class="o">$10,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -684,23 +923,29 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$125.80</td>
+<td class="b">$125.80</td>
+<td class="b">$125.80</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="p">$211,201.98</td>
-<td class="p">$211,049.22</td>
+<td class="o">$211,201.98</td>
+<td class="o">$211,049.22</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$6,480.00</td>
+<td class="b">$6,480.00</td>
+<td class="b">$540.00</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Forester Basic 10 Pay Whole Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$10,000.00</td>
+<td class="o">$10,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -708,23 +953,29 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$205.00</td>
+<td class="b">$205.00</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Forester Optimizer Flex Prem Deferred Annuity</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="p">$62,317.55</td>
-<td class="p">$62,216.70</td>
+<td class="o">$62,317.55</td>
+<td class="o">$62,216.70</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$5,000.00</td>
+<td class="b">$5,000.00</td>
+<td class="b">$5,000.00</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Whole Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$10,000.00</td>
+<td class="o">$10,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -732,11 +983,14 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$102.80</td>
+<td class="b">$102.80</td>
+<td class="b">$102.80</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Single Premium Whole Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$10,000.00</td>
+<td class="o">$10,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -745,10 +999,13 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Forester Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$10,000.00</td>
+<td class="o">$10,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -756,7 +1013,25 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$109.90</td>
+<td class="b">$109.90</td>
+<td class="b">$109.90</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+</tr>
+<tr><td>Protection Indexed UL</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="g">$7,915.09</td>
+<td class="e">&mdash;</td>
+<td class="g">$985,956.00</td>
+<td class="e">&mdash;</td>
+<td class="b">$22,000.00</td>
+<td class="e">&mdash;</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>10 Pay W/L 80 CSO 4.5%</td>
 <td class="o">$10,000.00</td>
@@ -768,11 +1043,14 @@ td.e{color:#262626}
 <td class="g">$1,530.46</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$91.00</td>
+<td class="b">$91.00</td>
+<td class="e">&mdash;</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Whole Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$10,000.00</td>
+<td class="o">$10,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -780,11 +1058,29 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$191.00</td>
+<td class="b">$191.00</td>
+<td class="b">$50.62</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+</tr>
+<tr><td>-</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="b">$6,271.20</td>
+<td class="e">&mdash;</td>
+<td class="b" style="text-align:center">Monthly (EFT)</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Genesis Whole Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$50,000.00</td>
+<td class="o">$50,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -792,11 +1088,14 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$1,107.00</td>
+<td class="b">$1,107.00</td>
+<td class="b">$96.86</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Final Expense Whole Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$10,000.00</td>
+<td class="o">$10,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -804,11 +1103,14 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$290.00</td>
+<td class="b">$290.00</td>
+<td class="b">$290.00</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Whole Life Paid at Age 65</td>
 <td class="e">&mdash;</td>
-<td class="g">$2,500.00</td>
+<td class="o">$2,500.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -816,19 +1118,25 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$54.56</td>
+<td class="b">$54.56</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="p">$11,462.35</td>
-<td class="p">$11,440.09</td>
+<td class="o">$11,462.35</td>
+<td class="o">$11,440.09</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$7,487.67</td>
+<td class="b">$7,487.67</td>
+<td class="b">$7,487.67</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>WL PD 65 58CSO 2.5%(916)</td>
 <td class="o">$1,325.10</td>
@@ -840,23 +1148,29 @@ td.e{color:#262626}
 <td class="g">$252.42</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$26.84</td>
+<td class="b">$26.84</td>
+<td class="b">$7.11</td>
+<td class="b" style="text-align:center">Quarterly</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Advantage Flex Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="p">$5,550.95</td>
-<td class="p">$5,547.96</td>
+<td class="o">$5,550.95</td>
+<td class="o">$5,547.96</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$2,000.00</td>
+<td class="b">$2,000.00</td>
+<td class="b">$2,000.00</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Whole Life Paid at Age 65</td>
 <td class="e">&mdash;</td>
-<td class="g">$5,000.00</td>
+<td class="o">$5,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -864,11 +1178,29 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$55.15</td>
+<td class="b">$55.15</td>
+<td class="b">$4.83</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+</tr>
+<tr><td>Travel Accidental Death</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="g">$4.08</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="b">$5.00</td>
+<td class="b">$5.00</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Whole Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$25,000.00</td>
+<td class="o">$25,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -876,11 +1208,14 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$225.00</td>
+<td class="b">$225.00</td>
+<td class="b">$59.63</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Forester Basic 10 Pay Whole Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$18,550.00</td>
+<td class="o">$18,550.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -888,11 +1223,14 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$819.16</td>
+<td class="b">$819.16</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Forester Basic 10 Pay Whole Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$22,000.00</td>
+<td class="o">$22,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -900,11 +1238,14 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$641.30</td>
+<td class="b">$641.30</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Whole Life Paid at Age 65</td>
 <td class="e">&mdash;</td>
-<td class="g">$10,000.00</td>
+<td class="o">$10,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -912,11 +1253,14 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$162.60</td>
+<td class="b">$162.60</td>
+<td class="b">$162.60</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Whole Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$10,000.00</td>
+<td class="o">$10,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -924,7 +1268,10 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$86.60</td>
+<td class="b">$86.60</td>
+<td class="b">$86.60</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>CLT (TERM TO AGE 25)</td>
 <td class="o">$10,000.00</td>
@@ -936,7 +1283,10 @@ td.e{color:#262626}
 <td class="g">$8.29</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$25.00</td>
+<td class="b">$25.00</td>
+<td class="b">$25.00</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>CLT (TERM TO AGE 25)</td>
 <td class="o">$10,000.00</td>
@@ -948,23 +1298,29 @@ td.e{color:#262626}
 <td class="g">$8.29</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$25.00</td>
+<td class="b">$25.00</td>
+<td class="b">$25.00</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Universal Life 20 YR Guarantee</td>
 <td class="o">$50,000.00</td>
 <td class="o">$50,000.00</td>
 <td class="e">&mdash;</td>
-<td class="p">$2,212.41</td>
-<td class="p">$2,186.26</td>
+<td class="o">$2,212.41</td>
+<td class="o">$2,186.26</td>
 <td class="g">$1,992.13</td>
 <td class="g">$1,132.63</td>
 <td class="g">$50,000.00</td>
 <td class="e">&mdash;</td>
-<td class="g">$297.00</td>
+<td class="b">$297.00</td>
+<td class="b">$24.75</td>
+<td class="b" style="text-align:center">Monthly</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Forester Basic 10 Pay Whole Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$15,000.00</td>
+<td class="o">$15,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -972,11 +1328,14 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$117.30</td>
+<td class="b">$117.30</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>10 Pay Whole Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$15,000.00</td>
+<td class="o">$15,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -984,11 +1343,14 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$102.50</td>
+<td class="b">$102.50</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>10 Pay Whole Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$15,000.00</td>
+<td class="o">$15,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -996,11 +1358,14 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$102.50</td>
+<td class="b">$102.50</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Forester Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$15,000.00</td>
+<td class="o">$15,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -1008,11 +1373,14 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$167.20</td>
+<td class="b">$167.20</td>
+<td class="b">$14.63</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>10 Pay Whole Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$10,000.00</td>
+<td class="o">$10,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -1020,23 +1388,29 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$117.20</td>
+<td class="b">$117.20</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Secure4Life Universal Life</td>
 <td class="e">&mdash;</td>
+<td class="o">$50,000.00</td>
+<td class="e">&mdash;</td>
+<td class="o">$5,310.86</td>
+<td class="o">$5,220.71</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 <td class="g">$50,000.00</td>
 <td class="e">&mdash;</td>
-<td class="p">$5,310.86</td>
-<td class="p">$5,220.71</td>
+<td class="b">$956.52</td>
+<td class="b">$79.71</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$50,000.00</td>
-<td class="e">&mdash;</td>
-<td class="g">$956.52</td>
 </tr>
 <tr><td>Whole Life Paid at Age 65</td>
 <td class="e">&mdash;</td>
-<td class="g">$5,000.00</td>
+<td class="o">$5,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -1044,11 +1418,14 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$72.05</td>
+<td class="b">$72.05</td>
+<td class="b">$72.05</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Whole Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$10,000.00</td>
+<td class="o">$10,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -1056,15 +1433,21 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$187.40</td>
+<td class="b">$187.40</td>
+<td class="b">$187.40</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Single Premium Whole Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$10,000.00</td>
+<td class="o">$10,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="g">$7,207.92</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -1074,17 +1457,20 @@ td.e{color:#262626}
 <td class="o">$250,000.00</td>
 <td class="o">$250,000.00</td>
 <td class="e">&mdash;</td>
-<td class="p">$1,499.97</td>
-<td class="p">$1,474.52</td>
+<td class="o">$1,499.97</td>
+<td class="o">$1,474.52</td>
 <td class="g">$1,355.70</td>
 <td class="e">&mdash;</td>
 <td class="g">$250,000.00</td>
 <td class="e">&mdash;</td>
-<td class="g">$289.68</td>
+<td class="b">$289.68</td>
+<td class="b">$24.14</td>
+<td class="b" style="text-align:center">Monthly</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Whole Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$10,000.00</td>
+<td class="o">$10,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -1092,11 +1478,14 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$133.40</td>
+<td class="b">$133.40</td>
+<td class="b">$133.40</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Whole Life Paid at Age 65</td>
 <td class="e">&mdash;</td>
-<td class="g">$10,000.00</td>
+<td class="o">$10,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -1104,11 +1493,29 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$101.50</td>
+<td class="b">$101.50</td>
+<td class="b">$101.50</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+</tr>
+<tr><td>-</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="b">$128.37</td>
+<td class="e">&mdash;</td>
+<td class="b" style="text-align:center">Monthly (EFT)</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Whole Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$2,500.00</td>
+<td class="o">$2,500.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -1117,10 +1524,43 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+</tr>
+<tr><td>Value 4 Life</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="g">$63,100,659.00</td>
+<td class="g">$580,137.84</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="b">$44,311.77</td>
+<td class="e">&mdash;</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
+</tr>
+<tr><td>Value 4 Life</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="g">$63,100,659.00</td>
+<td class="g">$580,137.84</td>
+<td class="g">$906,913.00</td>
+<td class="e">&mdash;</td>
+<td class="b">$44,311.77</td>
+<td class="e">&mdash;</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Whole Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$10,000.00</td>
+<td class="o">$10,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -1128,11 +1568,14 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$134.60</td>
+<td class="b">$134.60</td>
+<td class="b">$134.60</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Forester Basic 10 Pay Whole Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$24,141.00</td>
+<td class="o">$24,141.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -1140,11 +1583,14 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$1,298.91</td>
+<td class="b">$1,298.91</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Forester Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$25,000.00</td>
+<td class="o">$25,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -1152,11 +1598,29 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$122.75</td>
+<td class="b">$122.75</td>
+<td class="b">$10.74</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+</tr>
+<tr><td>-</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="b">$1,616.44</td>
+<td class="e">&mdash;</td>
+<td class="b" style="text-align:center">Monthly (EFT)</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Whole Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$10,000.00</td>
+<td class="o">$10,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -1164,7 +1628,10 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$150.40</td>
+<td class="b">$150.40</td>
+<td class="b">$150.40</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Modified W/L PD 65 80CSO 5%</td>
 <td class="o">$5,000.00</td>
@@ -1176,11 +1643,14 @@ td.e{color:#262626}
 <td class="g">$806.93</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$65.00</td>
+<td class="b">$65.00</td>
+<td class="b">$65.00</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Whole Life Paid at Age 65</td>
 <td class="e">&mdash;</td>
-<td class="g">$2,500.00</td>
+<td class="o">$2,500.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -1188,11 +1658,14 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$91.18</td>
+<td class="b">$91.18</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Whole Life Paid at Age 65</td>
 <td class="e">&mdash;</td>
-<td class="g">$2,000.00</td>
+<td class="o">$2,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -1200,11 +1673,14 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$54.58</td>
+<td class="b">$54.58</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Modified Whole Life-Paid at Age 65</td>
 <td class="e">&mdash;</td>
-<td class="g">$10,000.00</td>
+<td class="o">$10,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -1212,11 +1688,14 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$115.00</td>
+<td class="b">$115.00</td>
+<td class="b">$115.00</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Forester Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$25,000.00</td>
+<td class="o">$25,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -1224,11 +1703,14 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$106.50</td>
+<td class="b">$106.50</td>
+<td class="b">$106.50</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Whole Life Paid at Age 65</td>
 <td class="e">&mdash;</td>
-<td class="g">$5,000.00</td>
+<td class="o">$5,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -1236,11 +1718,14 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$93.05</td>
+<td class="b">$93.05</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Forester Basic 10 Pay Whole Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$24,000.00</td>
+<td class="o">$24,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -1248,11 +1733,14 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$669.60</td>
+<td class="b">$669.60</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Whole Life Paid at Age 65</td>
 <td class="e">&mdash;</td>
-<td class="g">$5,000.00</td>
+<td class="o">$5,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -1260,11 +1748,14 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$81.40</td>
+<td class="b">$81.40</td>
+<td class="b">$81.40</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Whole Life Paid at Age 65</td>
 <td class="e">&mdash;</td>
-<td class="g">$10,000.00</td>
+<td class="o">$10,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -1272,7 +1763,25 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$196.20</td>
+<td class="b">$196.20</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+</tr>
+<tr><td>-</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="b">$1,335.43</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Basic Value Life-Minor 2017 CSO4%</td>
 <td class="o">$25,000.00</td>
@@ -1284,11 +1793,14 @@ td.e{color:#262626}
 <td class="g">$109.53</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$159.75</td>
+<td class="b">$159.75</td>
+<td class="b">$159.75</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Forester Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$10,000.00</td>
+<td class="o">$10,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -1296,11 +1808,14 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$136.00</td>
+<td class="b">$136.00</td>
+<td class="b">$136.00</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Whole Life Paid at Age 65</td>
 <td class="e">&mdash;</td>
-<td class="g">$5,000.00</td>
+<td class="o">$5,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -1308,11 +1823,14 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$67.10</td>
+<td class="b">$67.10</td>
+<td class="b">$67.10</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Whole Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$10,000.00</td>
+<td class="o">$10,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -1320,7 +1838,10 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$171.50</td>
+<td class="b">$171.50</td>
+<td class="b">$171.50</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>20 YEAR RENEWABLE TERM 2001 CSO 4%</td>
 <td class="o">$150,000.00</td>
@@ -1332,23 +1853,29 @@ td.e{color:#262626}
 <td class="g">$290.49</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$346.50</td>
+<td class="b">$346.50</td>
+<td class="b">$346.50</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Secure4Life Universal Life</td>
 <td class="e">&mdash;</td>
+<td class="o">$25,000.00</td>
+<td class="e">&mdash;</td>
+<td class="o">$2,799.49</td>
+<td class="o">$2,756.97</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 <td class="g">$25,000.00</td>
 <td class="e">&mdash;</td>
-<td class="p">$2,799.49</td>
-<td class="p">$2,756.97</td>
+<td class="b">$527.76</td>
+<td class="b">$43.98</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$25,000.00</td>
-<td class="e">&mdash;</td>
-<td class="g">$527.76</td>
 </tr>
 <tr><td>Forester Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$27,565.00</td>
+<td class="o">$27,565.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -1356,11 +1883,14 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$492.34</td>
+<td class="b">$492.34</td>
+<td class="b">$492.34</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Forester Basic 10 Pay Whole Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$17,000.00</td>
+<td class="o">$17,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -1368,7 +1898,10 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$255.68</td>
+<td class="b">$255.68</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Basic Value Life-2001 CSO 4%</td>
 <td class="o">$25,000.00</td>
@@ -1380,7 +1913,10 @@ td.e{color:#262626}
 <td class="g">$629.62</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$222.50</td>
+<td class="b">$222.50</td>
+<td class="b">$222.50</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Basic Value Life-2001 CSO 4%</td>
 <td class="o">$25,000.00</td>
@@ -1392,7 +1928,10 @@ td.e{color:#262626}
 <td class="g">$706.93</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$248.00</td>
+<td class="b">$248.00</td>
+<td class="b">$248.00</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Basic Value Life-2001 CSO 4%</td>
 <td class="o">$25,000.00</td>
@@ -1404,7 +1943,10 @@ td.e{color:#262626}
 <td class="g">$473.80</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$193.50</td>
+<td class="b">$193.50</td>
+<td class="b">$193.50</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Basic Value Life-2001 CSO 4%</td>
 <td class="o">$25,000.00</td>
@@ -1416,11 +1958,14 @@ td.e{color:#262626}
 <td class="g">$629.62</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$222.50</td>
+<td class="b">$222.50</td>
+<td class="b">$222.50</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Whole Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$10,000.00</td>
+<td class="o">$10,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -1428,11 +1973,14 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$134.60</td>
+<td class="b">$134.60</td>
+<td class="b">$11.78</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>15 Pay Whole Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$103,891.00</td>
+<td class="o">$103,891.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -1440,23 +1988,29 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$2,505.14</td>
+<td class="b">$2,505.14</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Forester Optimizer Flex Prem Deferred Annuity</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="p">$17,469.33</td>
-<td class="p">$17,456.60</td>
+<td class="o">$17,469.33</td>
+<td class="o">$17,456.60</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$46,347.34</td>
+<td class="b">$46,347.34</td>
+<td class="b">$46,347.34</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Whole Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$50,000.00</td>
+<td class="o">$50,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -1464,11 +2018,14 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$394.50</td>
+<td class="b">$394.50</td>
+<td class="b">$205.14</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Forester Basic 10 Pay Whole Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$7,500.00</td>
+<td class="o">$7,500.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -1476,19 +2033,25 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$241.10</td>
+<td class="b">$241.10</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Annuity Assurance Single Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="p">$141,359.41</td>
-<td class="p">$141,186.10</td>
+<td class="o">$141,359.41</td>
+<td class="o">$141,186.10</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$125,000.00</td>
+<td class="b">$125,000.00</td>
+<td class="b">$125,000.00</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>10 PAY WHOLE LIFE 2001CSO 4%</td>
 <td class="o">$10,000.00</td>
@@ -1500,11 +2063,14 @@ td.e{color:#262626}
 <td class="g">$1,154.55</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$130.00</td>
+<td class="b">$130.00</td>
+<td class="e">&mdash;</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>10 Pay Whole Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$13,945.00</td>
+<td class="o">$13,945.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -1512,11 +2078,29 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$357.79</td>
+<td class="b">$357.79</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+</tr>
+<tr><td>Travel Accidental Death</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="g">$4.08</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="b">$5.00</td>
+<td class="b">$5.00</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Whole Life Paid at Age 65</td>
 <td class="e">&mdash;</td>
-<td class="g">$5,000.00</td>
+<td class="o">$5,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -1524,11 +2108,14 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$98.75</td>
+<td class="b">$98.75</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Whole Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$25,000.00</td>
+<td class="o">$25,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -1536,11 +2123,14 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$91.50</td>
+<td class="b">$91.50</td>
+<td class="b">$91.50</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Whole Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$10,000.00</td>
+<td class="o">$10,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -1548,7 +2138,10 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$118.60</td>
+<td class="b">$118.60</td>
+<td class="b">$61.67</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>CLT (TERM TO AGE 25)</td>
 <td class="o">$10,000.00</td>
@@ -1560,11 +2153,14 @@ td.e{color:#262626}
 <td class="g">$2.95</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$25.00</td>
+<td class="b">$25.00</td>
+<td class="b">$25.00</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Whole Life Paid at Age 65</td>
 <td class="e">&mdash;</td>
-<td class="g">$5,000.00</td>
+<td class="o">$5,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -1572,11 +2168,14 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$81.20</td>
+<td class="b">$81.20</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Whole Life Paid at Age 65</td>
 <td class="e">&mdash;</td>
-<td class="g">$5,000.00</td>
+<td class="o">$5,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -1584,7 +2183,25 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$70.20</td>
+<td class="b">$70.20</td>
+<td class="b">$70.20</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+</tr>
+<tr><td>SuperNOVA</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="g">$35,000.00</td>
+<td class="g">$35,000.00</td>
+<td class="g">$250,000.00</td>
+<td class="e">&mdash;</td>
+<td class="b">$3,000.00</td>
+<td class="e">&mdash;</td>
+<td class="b" style="text-align:center">Monthly (EFT)</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>CLT (TERM TO AGE 25)</td>
 <td class="o">$10,000.00</td>
@@ -1596,7 +2213,10 @@ td.e{color:#262626}
 <td class="g">$11.03</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$25.00</td>
+<td class="b">$25.00</td>
+<td class="b">$25.00</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>CLT (TERM TO AGE 25)</td>
 <td class="o">$10,000.00</td>
@@ -1608,7 +2228,10 @@ td.e{color:#262626}
 <td class="g">$11.03</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$25.00</td>
+<td class="b">$25.00</td>
+<td class="b">$25.00</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>CLT (TERM TO AGE 25)</td>
 <td class="o">$10,000.00</td>
@@ -1620,7 +2243,10 @@ td.e{color:#262626}
 <td class="g">$11.03</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$25.00</td>
+<td class="b">$25.00</td>
+<td class="b">$25.00</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>WL PD 85 58CSO 2.5%(917)</td>
 <td class="o">$2,000.00</td>
@@ -1632,11 +2258,14 @@ td.e{color:#262626}
 <td class="g">$583.62</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$24.54</td>
+<td class="b">$24.54</td>
+<td class="b">$24.54</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Whole Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$10,000.00</td>
+<td class="o">$10,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -1644,7 +2273,10 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$138.20</td>
+<td class="b">$138.20</td>
+<td class="b">$138.20</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>10 Pay W/L 80 CSO 4.5%</td>
 <td class="o">$15,000.00</td>
@@ -1656,11 +2288,14 @@ td.e{color:#262626}
 <td class="g">$957.06</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$342.60</td>
+<td class="b">$342.60</td>
+<td class="e">&mdash;</td>
+<td class="b" style="text-align:center">Monthly</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Whole Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$30,000.00</td>
+<td class="o">$30,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -1668,7 +2303,25 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$507.40</td>
+<td class="b">$507.40</td>
+<td class="b">$507.40</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+</tr>
+<tr><td>-</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="b">$1,266.96</td>
+<td class="e">&mdash;</td>
+<td class="b" style="text-align:center">Monthly (EFT)</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>10 PAY WHOLE LIFE 2001CSO 4%</td>
 <td class="o">$10,000.00</td>
@@ -1680,7 +2333,10 @@ td.e{color:#262626}
 <td class="g">$959.04</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$116.20</td>
+<td class="b">$116.20</td>
+<td class="e">&mdash;</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>10 PAY WHOLE LIFE 2001CSO 4%</td>
 <td class="o">$10,000.00</td>
@@ -1692,11 +2348,14 @@ td.e{color:#262626}
 <td class="g">$1,031.47</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$128.80</td>
+<td class="b">$128.80</td>
+<td class="e">&mdash;</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Single Premium Whole Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$3,423.00</td>
+<td class="o">$3,423.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -1704,11 +2363,14 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$1,986.11</td>
+<td class="b">$1,986.11</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Forester Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$15,000.00</td>
+<td class="o">$15,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -1716,7 +2378,10 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$156.40</td>
+<td class="b">$156.40</td>
+<td class="b">$156.40</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>TERM TO 25 (NO COMMISSIONS)</td>
 <td class="o">$10,000.00</td>
@@ -1728,11 +2393,29 @@ td.e{color:#262626}
 <td class="g">$5.89</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$25.00</td>
+<td class="b">$25.00</td>
+<td class="b">$25.00</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
+</tr>
+<tr><td>TERM TO 25 (NO COMMISSIONS)</td>
+<td class="g">$10,000.00</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="g">$5.89</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="b">$25.00</td>
+<td class="e">&mdash;</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Forester Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$15,000.00</td>
+<td class="o">$15,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -1740,11 +2423,14 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$92.20</td>
+<td class="b">$92.20</td>
+<td class="b">$92.20</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Whole Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$10,000.00</td>
+<td class="o">$10,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -1752,7 +2438,10 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$138.20</td>
+<td class="b">$138.20</td>
+<td class="b">$138.20</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>TERM TO 35 2001 CSO</td>
 <td class="o">$10,000.00</td>
@@ -1764,7 +2453,10 @@ td.e{color:#262626}
 <td class="g">$27.30</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$37.60</td>
+<td class="b">$37.60</td>
+<td class="b">$37.60</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>TERM TO 35 2001 CSO</td>
 <td class="o">$10,000.00</td>
@@ -1776,19 +2468,25 @@ td.e{color:#262626}
 <td class="g">$25.34</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$34.90</td>
+<td class="b">$34.90</td>
+<td class="b">$34.90</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Flexible Premium Life</td>
 <td class="o">$250,000.00</td>
 <td class="o">$250,000.00</td>
 <td class="e">&mdash;</td>
-<td class="p">$1,011.45</td>
-<td class="p">$992.96</td>
+<td class="o">$1,011.45</td>
+<td class="o">$992.96</td>
 <td class="g">$916.59</td>
 <td class="e">&mdash;</td>
 <td class="g">$250,000.00</td>
 <td class="e">&mdash;</td>
-<td class="g">$211.32</td>
+<td class="b">$211.32</td>
+<td class="b">$17.61</td>
+<td class="b" style="text-align:center">Monthly</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>TERM TO 35 2001 CSO</td>
 <td class="o">$10,000.00</td>
@@ -1800,7 +2498,10 @@ td.e{color:#262626}
 <td class="g">$26.94</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$37.10</td>
+<td class="b">$37.10</td>
+<td class="b">$37.10</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Modified W/L PD 65 80CSO 5%</td>
 <td class="o">$10,000.00</td>
@@ -1812,11 +2513,14 @@ td.e{color:#262626}
 <td class="g">$435.72</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$115.00</td>
+<td class="b">$115.00</td>
+<td class="b">$115.00</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Forester Heritage Plus Single Premium Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$6,623.00</td>
+<td class="o">$6,623.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -1824,7 +2528,10 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$2,709.46</td>
+<td class="b">$2,709.46</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Basic Value Life-Monor 2017 CSO3%</td>
 <td class="o">$25,000.00</td>
@@ -1836,11 +2543,14 @@ td.e{color:#262626}
 <td class="g">$124.23</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$204.25</td>
+<td class="b">$204.25</td>
+<td class="b">$204.25</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Whole Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$25,000.00</td>
+<td class="o">$25,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -1848,7 +2558,10 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$95.50</td>
+<td class="b">$95.50</td>
+<td class="b">$95.50</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Basic Value Life-Monor 2017 CSO3%</td>
 <td class="o">$25,000.00</td>
@@ -1860,7 +2573,10 @@ td.e{color:#262626}
 <td class="g">$124.23</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$204.25</td>
+<td class="b">$204.25</td>
+<td class="b">$204.25</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Basic Value Life-Monor 2017 CSO3%</td>
 <td class="o">$25,000.00</td>
@@ -1872,7 +2588,10 @@ td.e{color:#262626}
 <td class="g">$104.88</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$155.00</td>
+<td class="b">$155.00</td>
+<td class="b">$155.00</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Basic Value Life-Monor 2017 CSO3%</td>
 <td class="o">$25,000.00</td>
@@ -1884,11 +2603,14 @@ td.e{color:#262626}
 <td class="g">$114.53</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$169.25</td>
+<td class="b">$169.25</td>
+<td class="b">$169.25</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Whole Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$25,000.00</td>
+<td class="o">$25,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -1896,23 +2618,59 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$228.25</td>
+<td class="b">$228.25</td>
+<td class="b">$228.25</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+</tr>
+<tr><td>-</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="b">$1,837.46</td>
+<td class="e">&mdash;</td>
+<td class="b" style="text-align:center">Monthly (EFT)</td>
+<td class="e">&mdash;</td>
+</tr>
+<tr><td>-</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="b">$2,092.76</td>
+<td class="e">&mdash;</td>
+<td class="b" style="text-align:center">Monthly (EFT)</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Flexible Premium Life</td>
 <td class="e">&mdash;</td>
+<td class="o">$600,000.00</td>
+<td class="e">&mdash;</td>
+<td class="o">$41.79</td>
+<td class="o">$11.42</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 <td class="g">$600,000.00</td>
 <td class="e">&mdash;</td>
-<td class="p">$41.79</td>
-<td class="p">$11.42</td>
+<td class="b">$364.08</td>
+<td class="b">$30.34</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$600,000.00</td>
-<td class="e">&mdash;</td>
-<td class="g">$364.08</td>
 </tr>
 <tr><td>Whole Life Paid at Age 65</td>
 <td class="e">&mdash;</td>
-<td class="g">$5,000.00</td>
+<td class="o">$5,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -1920,7 +2678,10 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$73.95</td>
+<td class="b">$73.95</td>
+<td class="b">$73.95</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>EXTENDED TERM ( VARIOUS MORTALITY OLD)</td>
 <td class="o">$896.00</td>
@@ -1933,10 +2694,13 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Forester Basic 10 Pay Whole Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$24,999.00</td>
+<td class="o">$24,999.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -1944,7 +2708,10 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$342.99</td>
+<td class="b">$342.99</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>WL PD AGE 65 58CSO (837,838)</td>
 <td class="o">$2,500.00</td>
@@ -1956,11 +2723,14 @@ td.e{color:#262626}
 <td class="g">$1,266.32</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$26.88</td>
+<td class="b">$26.88</td>
+<td class="b">$26.88</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Whole Life & Term</td>
 <td class="e">&mdash;</td>
-<td class="g">$15,000.00</td>
+<td class="o">$15,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -1968,11 +2738,14 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$379.40</td>
+<td class="b">$379.40</td>
+<td class="b">$379.40</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Whole Life Paid at Age 60</td>
 <td class="e">&mdash;</td>
-<td class="g">$5,000.00</td>
+<td class="o">$5,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -1980,11 +2753,14 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$95.30</td>
+<td class="b">$95.30</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>10 Pay Whole Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$25,000.00</td>
+<td class="o">$25,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -1992,11 +2768,14 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$1,559.00</td>
+<td class="b">$1,559.00</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Forester Basic 10 Pay Whole Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$24,999.00</td>
+<td class="o">$24,999.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -2004,7 +2783,10 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$924.97</td>
+<td class="b">$924.97</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>W/L PD 60 (FEMALE) 911 58CSO 2.5%</td>
 <td class="o">$1,000.00</td>
@@ -2017,10 +2799,13 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>10 Pay Whole Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$6,995.00</td>
+<td class="o">$6,995.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -2028,11 +2813,29 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$171.57</td>
+<td class="b">$171.57</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+</tr>
+<tr><td>Life Protector</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="g">$4,528.00</td>
+<td class="g">$4,538.00</td>
+<td class="g">$50,000.00</td>
+<td class="e">&mdash;</td>
+<td class="b">$195.00</td>
+<td class="e">&mdash;</td>
+<td class="b" style="text-align:center">Monthly (EFT)</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Forester Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$25,000.00</td>
+<td class="o">$25,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -2040,14 +2843,20 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$106.50</td>
+<td class="b">$106.50</td>
+<td class="b">$106.50</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="p">$1,146.77</td>
-<td class="p">$1,144.39</td>
+<td class="o">$1,146.77</td>
+<td class="o">$1,144.39</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -2056,11 +2865,14 @@ td.e{color:#262626}
 </tr>
 <tr><td>Whole Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$5,000.00</td>
+<td class="o">$5,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="g">$2,535.06</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -2076,7 +2888,10 @@ td.e{color:#262626}
 <td class="g">$23.19</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$28.40</td>
+<td class="b">$28.40</td>
+<td class="b">$28.40</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Term to 35 80CSO</td>
 <td class="o">$10,000.00</td>
@@ -2088,7 +2903,10 @@ td.e{color:#262626}
 <td class="g">$11.72</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$29.10</td>
+<td class="b">$29.10</td>
+<td class="b">$29.10</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>TERM TO 25</td>
 <td class="o">$5,000.00</td>
@@ -2100,11 +2918,14 @@ td.e{color:#262626}
 <td class="g">$14.75</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$15.00</td>
+<td class="b">$15.00</td>
+<td class="b">$15.00</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Forester Basic 10 Pay Whole Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$15,000.00</td>
+<td class="o">$15,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -2112,11 +2933,14 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$326.40</td>
+<td class="b">$326.40</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Single Premium Whole Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$7,808.00</td>
+<td class="o">$7,808.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -2125,10 +2949,13 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Whole Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$25,000.00</td>
+<td class="o">$25,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -2136,11 +2963,14 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$257.50</td>
+<td class="b">$257.50</td>
+<td class="b">$257.50</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Whole Life Paid at Age 65</td>
 <td class="e">&mdash;</td>
-<td class="g">$5,000.00</td>
+<td class="o">$5,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -2148,11 +2978,14 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$74.30</td>
+<td class="b">$74.30</td>
+<td class="b">$74.30</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Single Premium Whole Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$10,000.00</td>
+<td class="o">$10,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -2161,10 +2994,13 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Whole Life Paid at Age 65</td>
 <td class="e">&mdash;</td>
-<td class="g">$5,000.00</td>
+<td class="o">$5,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -2172,11 +3008,14 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$102.20</td>
+<td class="b">$102.20</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Forester Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$12,544.00</td>
+<td class="o">$12,544.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -2184,11 +3023,14 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$490.28</td>
+<td class="b">$490.28</td>
+<td class="b">$490.28</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Forester Basic 10 Pay Whole Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$25,000.00</td>
+<td class="o">$25,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -2196,11 +3038,14 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$1,375.00</td>
+<td class="b">$1,375.00</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Forester Basic 10 Pay Whole Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$24,000.00</td>
+<td class="o">$24,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -2208,11 +3053,14 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$1,190.40</td>
+<td class="b">$1,190.40</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Whole Life Paid at Age 65</td>
 <td class="e">&mdash;</td>
-<td class="g">$5,000.00</td>
+<td class="o">$5,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -2220,11 +3068,14 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$81.20</td>
+<td class="b">$81.20</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Whole Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$25,000.00</td>
+<td class="o">$25,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -2232,50 +3083,65 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$470.50</td>
+<td class="b">$470.50</td>
+<td class="b">$470.50</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="p">$261,860.21</td>
-<td class="p">$261,166.40</td>
+<td class="o">$261,860.21</td>
+<td class="o">$261,166.40</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$2,368.42</td>
+<td class="b">$2,368.42</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Flexible Premium Life - Juvenile</td>
 <td class="o">$250,000.00</td>
 <td class="o">$250,000.00</td>
 <td class="e">&mdash;</td>
-<td class="p">$168.87</td>
-<td class="p">$168.74</td>
+<td class="o">$168.87</td>
+<td class="o">$168.74</td>
 <td class="g">$274.16</td>
 <td class="e">&mdash;</td>
 <td class="g">$250,000.00</td>
 <td class="e">&mdash;</td>
-<td class="g">$166.02</td>
+<td class="b">$166.02</td>
+<td class="b">$166.02</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Flexible Premium Life</td>
 <td class="o">$250,000.00</td>
 <td class="o">$250,000.00</td>
 <td class="e">&mdash;</td>
-<td class="p">$233.99</td>
-<td class="p">$233.40</td>
+<td class="o">$233.99</td>
+<td class="o">$233.40</td>
 <td class="g">$316.26</td>
 <td class="e">&mdash;</td>
 <td class="g">$250,000.00</td>
 <td class="e">&mdash;</td>
-<td class="g">$173.70</td>
+<td class="b">$173.70</td>
+<td class="b">$173.70</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Flexible Premium Deferred Annuity</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="p">$218.67</td>
-<td class="p">$218.22</td>
+<td class="o">$218.67</td>
+<td class="o">$218.22</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -2284,7 +3150,7 @@ td.e{color:#262626}
 </tr>
 <tr><td>10 Pay Whole Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$25,000.00</td>
+<td class="o">$25,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -2292,11 +3158,14 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$386.00</td>
+<td class="b">$386.00</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Forester Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$10,000.00</td>
+<td class="o">$10,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -2304,11 +3173,14 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$344.00</td>
+<td class="b">$344.00</td>
+<td class="b">$344.00</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Forester Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$25,000.00</td>
+<td class="o">$25,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -2316,7 +3188,10 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$106.50</td>
+<td class="b">$106.50</td>
+<td class="b">$106.50</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>CLT (TERM TO AGE 25)</td>
 <td class="o">$10,000.00</td>
@@ -2328,11 +3203,14 @@ td.e{color:#262626}
 <td class="g">$8.36</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$25.00</td>
+<td class="b">$25.00</td>
+<td class="b">$25.00</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
 </tr>
 <tr><td>Whole Life</td>
 <td class="e">&mdash;</td>
-<td class="g">$10,000.00</td>
+<td class="o">$10,000.00</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
@@ -2340,36 +3218,72 @@ td.e{color:#262626}
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
 <td class="e">&mdash;</td>
-<td class="g">$131.10</td>
+<td class="b">$131.10</td>
+<td class="b">$131.10</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+</tr>
+<tr><td>-</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="b">$1,502.36</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+</tr>
+<tr><td>-</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="b">$8,636.36</td>
+<td class="e">&mdash;</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
+</tr>
+<tr><td>Compass Elite IUL</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="g">$24,405.05</td>
+<td class="g">$23,404.64</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="b">$150.04</td>
+<td class="e">&mdash;</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
+</tr>
+<tr><td>COMPASS ELITE</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="e">&mdash;</td>
+<td class="g">$98,727.92</td>
+<td class="g">$95,754.37</td>
+<td class="g">$164,050.00</td>
+<td class="e">&mdash;</td>
+<td class="b">$223.56</td>
+<td class="e">&mdash;</td>
+<td class="b" style="text-align:center">Annual</td>
+<td class="e">&mdash;</td>
 </tr>
 </tbody></table></div>
 <script>
-var sortDir = {};
-function sortTable(col) {
-  var tbl = document.getElementById('tbl');
-  var tbody = tbl.querySelector('tbody');
-  var rows = Array.from(tbody.querySelectorAll('tr'));
-  var dir = sortDir[col] === 'asc' ? 'desc' : 'asc';
-  sortDir[col] = dir;
-  
-  rows.sort(function(a, b) {
-    var aVal = a.cells[col].textContent.replace(/[$,—]/g, '').trim();
-    var bVal = b.cells[col].textContent.replace(/[$,—]/g, '').trim();
-    var aNum = parseFloat(aVal);
-    var bNum = parseFloat(bVal);
-    if (!isNaN(aNum) && !isNaN(bNum)) {
-      return dir === 'asc' ? aNum - bNum : bNum - aNum;
-    }
-    if (aVal === '—' && bVal !== '—') return dir === 'asc' ? 1 : -1;
-    if (bVal === '—' && aVal !== '—') return dir === 'asc' ? -1 : 1;
-    return dir === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
-  });
-  
-  rows.forEach(function(r) { tbody.appendChild(r); });
-  
-  tbl.querySelectorAll('th .sort').forEach(function(s, i) {
-    s.textContent = i === col ? (dir === 'asc' ? ' ▲' : ' ▼') : '';
-  });
-}
-</script>
-</body></html>
+var sd={};function st(c){var t=document.getElementById('tbl').querySelector('tbody');var rs=Array.from(t.querySelectorAll('tr'));var d=sd[c]==='asc'?'desc':'asc';sd[c]=d;rs.sort(function(a,b){var av=a.cells[c].textContent.replace(/[$,—]/g,'').trim();var bv=b.cells[c].textContent.replace(/[$,—]/g,'').trim();var an=parseFloat(av);var bn=parseFloat(bv);if(!isNaN(an)&&!isNaN(bn))return d==='asc'?an-bn:bn-an;if(av==='—'&&bv!=='—')return d==='asc'?1:-1;if(bv==='—'&&av!=='—')return d==='asc'?-1:1;return d==='asc'?av.localeCompare(bv):bv.localeCompare(av)});rs.forEach(function(r){t.appendChild(r)})}
+</script></body></html>
