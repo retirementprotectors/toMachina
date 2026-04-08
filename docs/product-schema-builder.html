@@ -1,0 +1,628 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Product Schema Builder</title>
+<style>
+:root{--bg:#0a0e17;--card:#111827;--card2:#1a2236;--border:#1e293b;--text:#e2e8f0;--muted:#94a3b8;--accent:#10b981;--green:#22c55e;--blue:#3b82f6;--orange:#f59e0b;--red:#ef4444;--purple:#a855f7;--cyan:#06b6d4}
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;padding:24px}
+h1{font-size:1.8rem;font-weight:800;color:var(--accent);text-align:center;margin-bottom:6px}
+.sub{color:var(--muted);font-size:.85rem;text-align:center;margin-bottom:24px;max-width:800px;margin-left:auto;margin-right:auto}
+.tabs{display:flex;gap:0;overflow-x:auto;border-bottom:2px solid var(--border);margin-bottom:24px;position:sticky;top:0;z-index:10;background:var(--bg);padding-top:8px}
+.tab{padding:10px 16px;font-size:.75rem;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all .2s}
+.tab:hover{color:var(--text)}.tab.a{color:var(--accent);border-bottom-color:var(--accent)}
+.tab .cnt{font-size:.6rem;color:var(--muted);margin-left:4px}
+.panel{display:none}.panel.a{display:block}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:16px}
+.card h2{font-size:1.1rem;margin-bottom:12px}.card h3{font-size:.9rem;color:var(--accent);margin:16px 0 8px}
+.card p{color:var(--muted);font-size:.85rem;margin-bottom:10px}
+.field-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px;margin:12px 0}
+.field-item{display:flex;align-items:center;gap:8px;background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:8px 12px;cursor:pointer;transition:all .15s}
+.field-item:hover{border-color:var(--accent)}
+.field-item.yes{border-color:var(--green);background:rgba(34,197,94,.08)}
+.field-item.no{border-color:var(--red);background:rgba(239,68,68,.05);opacity:.5}
+.field-item.extra{border-color:var(--orange);background:rgba(245,158,11,.08)}
+.field-name{font-family:monospace;font-size:.8rem;flex:1}
+.field-count{font-size:.65rem;color:var(--muted)}
+.check{width:16px;height:16px;border-radius:4px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.7rem;flex-shrink:0}
+.field-item.yes .check{border-color:var(--green);background:var(--green);color:#000}
+.field-item.no .check{border-color:var(--red)}
+.field-item.extra .check{border-color:var(--orange);background:var(--orange);color:#000}
+.legend{display:flex;gap:14px;margin-bottom:16px;font-size:.72rem;color:var(--muted);flex-wrap:wrap}
+.legend span{display:flex;align-items:center;gap:4px}
+.dot{width:10px;height:10px;border-radius:3px}
+.ebar{position:sticky;bottom:0;background:var(--card);border-top:1px solid var(--border);padding:14px 24px;display:flex;justify-content:space-between;align-items:center;margin:32px -24px -24px}
+.ebtn{padding:8px 24px;border-radius:8px;border:none;background:var(--accent);color:#000;font-weight:700;font-size:.85rem;cursor:pointer}
+table{width:100%;border-collapse:collapse;font-size:.75rem;margin:10px 0}
+th{text-align:left;padding:8px 10px;background:var(--card2);color:var(--accent);font-size:.65rem;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border)}
+td{padding:6px 10px;border-bottom:1px solid var(--border);color:var(--muted)}
+td:first-child{color:var(--text);font-weight:500}
+</style></head><body>
+<h1>Product Schema Builder</h1>
+<div class="sub">13 product types across 12,160 accounts. Click fields to toggle ON/OFF per product type. Green = allowed. Red = not allowed. Orange = exists in data but not recommended. Export when done.</div>
+<div class="legend"><span><div class="dot" style="background:var(--green)"></div>Allowed (recommended)</span><span><div class="dot" style="background:var(--orange)"></div>In data but NOT recommended — review</span><span><div class="dot" style="background:var(--red)"></div>Not allowed</span></div>
+<div class="tabs">
+<div class="tab a" onclick="showTab('Medicare',this)">Medicare<span class="cnt">(5470)</span></div>
+<div class="tab" onclick="showTab('Life___Other',this)">Life — Other<span class="cnt">(2464)</span></div>
+<div class="tab" onclick="showTab('Life___Whole_Life',this)">Life — Whole Life<span class="cnt">(1527)</span></div>
+<div class="tab" onclick="showTab('Annuity___Other',this)">Annuity — Other<span class="cnt">(1137)</span></div>
+<div class="tab" onclick="showTab('Life___UL_Fixed_UL',this)">Life — UL/Fixed UL<span class="cnt">(499)</span></div>
+<div class="tab" onclick="showTab('Life___Term',this)">Life — Term<span class="cnt">(368)</span></div>
+<div class="tab" onclick="showTab('Investment',this)">Investment<span class="cnt">(240)</span></div>
+<div class="tab" onclick="showTab('Unknown',this)">Unknown<span class="cnt">(198)</span></div>
+<div class="tab" onclick="showTab('Life___Final_Expense',this)">Life — Final Expense<span class="cnt">(185)</span></div>
+<div class="tab" onclick="showTab('Life___IUL',this)">Life — IUL<span class="cnt">(60)</span></div>
+<div class="tab" onclick="showTab('Annuity___FIA',this)">Annuity — FIA<span class="cnt">(9)</span></div>
+<div class="tab" onclick="showTab('Annuity___Variable_RILA',this)">Annuity — Variable/RILA<span class="cnt">(3)</span></div>
+</div>
+<div class="panel a" id="p_Medicare">
+<div class="card"><h2>Medicare</h2><p>5470 accounts. Click fields to toggle allowed/not allowed for this product type.</p>
+<div class="field-grid">
+<div class="field-item no" onclick="toggleField(this,'Medicare','account_value')"><div class="check"></div><div class="field-name">account_value</div><div class="field-count"></div></div>
+<div class="field-item yes" onclick="toggleField(this,'Medicare','annual_premium')"><div class="check">✓</div><div class="field-name">annual_premium</div><div class="field-count">(196)</div></div>
+<div class="field-item no" onclick="toggleField(this,'Medicare','apy')"><div class="check"></div><div class="field-name">apy</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Medicare','cash_value')"><div class="check"></div><div class="field-name">cash_value</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Medicare','death_benefit')"><div class="check"></div><div class="field-name">death_benefit</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Medicare','face_amount')"><div class="check"></div><div class="field-name">face_amount</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Medicare','income_amount')"><div class="check"></div><div class="field-name">income_amount</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Medicare','income_base')"><div class="check"></div><div class="field-name">income_base</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Medicare','loan_balance')"><div class="check"></div><div class="field-name">loan_balance</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Medicare','loan_interest_rate')"><div class="check"></div><div class="field-name">loan_interest_rate</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Medicare','maturity_date')"><div class="check"></div><div class="field-name">maturity_date</div><div class="field-count"></div></div>
+<div class="field-item yes" onclick="toggleField(this,'Medicare','modal_premium')"><div class="check">✓</div><div class="field-name">modal_premium</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Medicare','net_deposits')"><div class="check"></div><div class="field-name">net_deposits</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Medicare','net_loan_amount')"><div class="check"></div><div class="field-name">net_loan_amount</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Medicare','payout_rate')"><div class="check"></div><div class="field-name">payout_rate</div><div class="field-count"></div></div>
+<div class="field-item yes" onclick="toggleField(this,'Medicare','premium_mode')"><div class="check">✓</div><div class="field-name">premium_mode</div><div class="field-count">(501)</div></div>
+<div class="field-item no" onclick="toggleField(this,'Medicare','rider_fee')"><div class="check"></div><div class="field-name">rider_fee</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Medicare','rider_name')"><div class="check"></div><div class="field-name">rider_name</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Medicare','rollup_rate')"><div class="check"></div><div class="field-name">rollup_rate</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Medicare','scheduled_premium')"><div class="check"></div><div class="field-name">scheduled_premium</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Medicare','surrender_value')"><div class="check"></div><div class="field-name">surrender_value</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Medicare','term_months')"><div class="check"></div><div class="field-name">term_months</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Medicare','total_premiums_paid')"><div class="check"></div><div class="field-name">total_premiums_paid</div><div class="field-count"></div></div>
+</div></div>
+<div class="card"><h3>Top Products in Category</h3><table><tr><th>Carrier</th><th>Product</th><th>Subtype</th><th>Count</th></tr>
+<tr><td>Aetna</td><td>-</td><td>Medicare</td><td>736</td></tr>
+<tr><td>Wellmark BCBS of Iowa</td><td>Blue Medicare Advantage PPO</td><td>Medicare</td><td>182</td></tr>
+<tr><td>Wellabe</td><td>-</td><td>Medicare</td><td>172</td></tr>
+<tr><td>Aetna</td><td>Aetna Medicare Signature (HMO-POS)</td><td>-</td><td>162</td></tr>
+<tr><td>Aetna</td><td>Medicare Advantage</td><td>Medicare</td><td>146</td></tr>
+<tr><td>Aetna</td><td>Aetna Medicare Premier (HMO-POS)</td><td>Medicare</td><td>119</td></tr>
+<tr><td>Aetna</td><td>Plan G</td><td>Medicare</td><td>112</td></tr>
+<tr><td>Aetna</td><td>Aetna Medicare Premier (HMO-POS)</td><td>-</td><td>78</td></tr>
+<tr><td>Mutual of Omaha</td><td>Plan G</td><td>Medicare</td><td>78</td></tr>
+<tr><td>Aetna</td><td>SilverScript Smart Rx</td><td>Medicare</td><td>76</td></tr>
+<tr><td>Aetna</td><td>Aetna Medicare Signature (PPO)</td><td>-</td><td>72</td></tr>
+<tr><td>Aetna</td><td>Part D</td><td>Medicare</td><td>68</td></tr>
+<tr><td>UnitedHealthcare</td><td>-</td><td>Medicare</td><td>66</td></tr>
+<tr><td>Aetna</td><td>Medicare Advantage</td><td>MAPD</td><td>65</td></tr>
+<tr><td>Aetna</td><td>Part D</td><td>PDP</td><td>63</td></tr>
+<tr><td>WellCare</td><td>WellCare Value Script (PDP)</td><td>-</td><td>62</td></tr>
+<tr><td>Humana</td><td>Part D</td><td>Medicare</td><td>60</td></tr>
+<tr><td>UnitedHealthcare</td><td>Medicare Advantage</td><td>Medicare</td><td>59</td></tr>
+<tr><td>WellCare</td><td>WellCare Value Script (PDP)</td><td>Medicare</td><td>58</td></tr>
+<tr><td>Mutual of Omaha</td><td>Plan F</td><td>Medicare</td><td>58</td></tr>
+</table></div>
+</div>
+<div class="panel" id="p_Life___Other">
+<div class="card"><h2>Life — Other</h2><p>2464 accounts. Click fields to toggle allowed/not allowed for this product type.</p>
+<div class="field-grid">
+<div class="field-item extra" onclick="toggleField(this,'Life___Other','account_value')"><div class="check">?</div><div class="field-name">account_value</div><div class="field-count">(57)</div></div>
+<div class="field-item yes" onclick="toggleField(this,'Life___Other','annual_premium')"><div class="check">✓</div><div class="field-name">annual_premium</div><div class="field-count">(238)</div></div>
+<div class="field-item no" onclick="toggleField(this,'Life___Other','apy')"><div class="check"></div><div class="field-name">apy</div><div class="field-count"></div></div>
+<div class="field-item yes" onclick="toggleField(this,'Life___Other','cash_value')"><div class="check">✓</div><div class="field-name">cash_value</div><div class="field-count">(367)</div></div>
+<div class="field-item yes" onclick="toggleField(this,'Life___Other','death_benefit')"><div class="check">✓</div><div class="field-name">death_benefit</div><div class="field-count">(174)</div></div>
+<div class="field-item yes" onclick="toggleField(this,'Life___Other','face_amount')"><div class="check">✓</div><div class="field-name">face_amount</div><div class="field-count">(70)</div></div>
+<div class="field-item no" onclick="toggleField(this,'Life___Other','income_amount')"><div class="check"></div><div class="field-name">income_amount</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Life___Other','income_base')"><div class="check"></div><div class="field-name">income_base</div><div class="field-count"></div></div>
+<div class="field-item yes" onclick="toggleField(this,'Life___Other','loan_balance')"><div class="check">✓</div><div class="field-name">loan_balance</div><div class="field-count">(75)</div></div>
+<div class="field-item yes" onclick="toggleField(this,'Life___Other','loan_interest_rate')"><div class="check">✓</div><div class="field-name">loan_interest_rate</div><div class="field-count">(1)</div></div>
+<div class="field-item extra" onclick="toggleField(this,'Life___Other','maturity_date')"><div class="check">?</div><div class="field-name">maturity_date</div><div class="field-count">(64)</div></div>
+<div class="field-item yes" onclick="toggleField(this,'Life___Other','modal_premium')"><div class="check">✓</div><div class="field-name">modal_premium</div><div class="field-count">(202)</div></div>
+<div class="field-item no" onclick="toggleField(this,'Life___Other','net_deposits')"><div class="check"></div><div class="field-name">net_deposits</div><div class="field-count"></div></div>
+<div class="field-item yes" onclick="toggleField(this,'Life___Other','net_loan_amount')"><div class="check">✓</div><div class="field-name">net_loan_amount</div><div class="field-count">(58)</div></div>
+<div class="field-item no" onclick="toggleField(this,'Life___Other','payout_rate')"><div class="check"></div><div class="field-name">payout_rate</div><div class="field-count"></div></div>
+<div class="field-item yes" onclick="toggleField(this,'Life___Other','premium_mode')"><div class="check">✓</div><div class="field-name">premium_mode</div><div class="field-count">(181)</div></div>
+<div class="field-item no" onclick="toggleField(this,'Life___Other','rider_fee')"><div class="check"></div><div class="field-name">rider_fee</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Life___Other','rider_name')"><div class="check"></div><div class="field-name">rider_name</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Life___Other','rollup_rate')"><div class="check"></div><div class="field-name">rollup_rate</div><div class="field-count"></div></div>
+<div class="field-item extra" onclick="toggleField(this,'Life___Other','scheduled_premium')"><div class="check">?</div><div class="field-name">scheduled_premium</div><div class="field-count">(111)</div></div>
+<div class="field-item yes" onclick="toggleField(this,'Life___Other','surrender_value')"><div class="check">✓</div><div class="field-name">surrender_value</div><div class="field-count">(184)</div></div>
+<div class="field-item no" onclick="toggleField(this,'Life___Other','term_months')"><div class="check"></div><div class="field-name">term_months</div><div class="field-count"></div></div>
+<div class="field-item yes" onclick="toggleField(this,'Life___Other','total_premiums_paid')"><div class="check">✓</div><div class="field-name">total_premiums_paid</div><div class="field-count">(58)</div></div>
+</div></div>
+<div class="card"><h3>Top Products in Category</h3><table><tr><th>Carrier</th><th>Product</th><th>Subtype</th><th>Count</th></tr>
+<tr><td>Catholic Order of Foresters</td><td>-</td><td>-</td><td>1691</td></tr>
+<tr><td>Kansas City Life</td><td>Life Protector</td><td>Life</td><td>148</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>Forester Life</td><td>-</td><td>130</td></tr>
+<tr><td>Kansas City Life</td><td>SuperNOVA</td><td>Life</td><td>78</td></tr>
+<tr><td>?</td><td>-</td><td>Life</td><td>77</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>Travel Accidental Death</td><td>Health</td><td>40</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>Secure4Life Single Premium UL</td><td>-</td><td>26</td></tr>
+<tr><td>Kansas City Life</td><td>Compass Elite</td><td>Life</td><td>24</td></tr>
+<tr><td>Kansas City Life</td><td>-</td><td>Life</td><td>23</td></tr>
+<tr><td>Kansas City Life</td><td>-</td><td>Life</td><td>18</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>Value 4 Life</td><td>Life</td><td>14</td></tr>
+<tr><td>John Hancock Life</td><td>Protection IUL</td><td>Life</td><td>12</td></tr>
+<tr><td>TransAmerica</td><td>TransACE</td><td>Life</td><td>11</td></tr>
+<tr><td>Mutual of Omaha</td><td>Income Advantage IUL</td><td>Life</td><td>10</td></tr>
+<tr><td>Kansas City Life</td><td>LVL2012</td><td>Life</td><td>9</td></tr>
+<tr><td>?</td><td>-</td><td>-</td><td>9</td></tr>
+<tr><td>F&G Life</td><td>Pathsetter</td><td>Life</td><td>8</td></tr>
+<tr><td>Kansas City Life</td><td>LVL2005</td><td>Life</td><td>7</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>Forester Heritage Plus Single Premium Life</td><td>-</td><td>5</td></tr>
+<tr><td>Kansas City Life</td><td>Compass</td><td>Life</td><td>5</td></tr>
+</table></div>
+</div>
+<div class="panel" id="p_Life___Whole_Life">
+<div class="card"><h2>Life — Whole Life</h2><p>1527 accounts. Click fields to toggle allowed/not allowed for this product type.</p>
+<div class="field-grid">
+<div class="field-item extra" onclick="toggleField(this,'Life___Whole_Life','account_value')"><div class="check">?</div><div class="field-name">account_value</div><div class="field-count">(9)</div></div>
+<div class="field-item yes" onclick="toggleField(this,'Life___Whole_Life','annual_premium')"><div class="check">✓</div><div class="field-name">annual_premium</div><div class="field-count">(1321)</div></div>
+<div class="field-item no" onclick="toggleField(this,'Life___Whole_Life','apy')"><div class="check"></div><div class="field-name">apy</div><div class="field-count"></div></div>
+<div class="field-item yes" onclick="toggleField(this,'Life___Whole_Life','cash_value')"><div class="check">✓</div><div class="field-name">cash_value</div><div class="field-count">(1431)</div></div>
+<div class="field-item yes" onclick="toggleField(this,'Life___Whole_Life','death_benefit')"><div class="check">✓</div><div class="field-name">death_benefit</div><div class="field-count">(22)</div></div>
+<div class="field-item yes" onclick="toggleField(this,'Life___Whole_Life','face_amount')"><div class="check">✓</div><div class="field-name">face_amount</div><div class="field-count">(543)</div></div>
+<div class="field-item no" onclick="toggleField(this,'Life___Whole_Life','income_amount')"><div class="check"></div><div class="field-name">income_amount</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Life___Whole_Life','income_base')"><div class="check"></div><div class="field-name">income_base</div><div class="field-count"></div></div>
+<div class="field-item yes" onclick="toggleField(this,'Life___Whole_Life','loan_balance')"><div class="check">✓</div><div class="field-name">loan_balance</div><div class="field-count">(139)</div></div>
+<div class="field-item yes" onclick="toggleField(this,'Life___Whole_Life','loan_interest_rate')"><div class="check">✓</div><div class="field-name">loan_interest_rate</div><div class="field-count">(2)</div></div>
+<div class="field-item extra" onclick="toggleField(this,'Life___Whole_Life','maturity_date')"><div class="check">?</div><div class="field-name">maturity_date</div><div class="field-count">(8)</div></div>
+<div class="field-item yes" onclick="toggleField(this,'Life___Whole_Life','modal_premium')"><div class="check">✓</div><div class="field-name">modal_premium</div><div class="field-count">(848)</div></div>
+<div class="field-item no" onclick="toggleField(this,'Life___Whole_Life','net_deposits')"><div class="check"></div><div class="field-name">net_deposits</div><div class="field-count"></div></div>
+<div class="field-item yes" onclick="toggleField(this,'Life___Whole_Life','net_loan_amount')"><div class="check">✓</div><div class="field-name">net_loan_amount</div><div class="field-count">(8)</div></div>
+<div class="field-item no" onclick="toggleField(this,'Life___Whole_Life','payout_rate')"><div class="check"></div><div class="field-name">payout_rate</div><div class="field-count"></div></div>
+<div class="field-item yes" onclick="toggleField(this,'Life___Whole_Life','premium_mode')"><div class="check">✓</div><div class="field-name">premium_mode</div><div class="field-count">(542)</div></div>
+<div class="field-item no" onclick="toggleField(this,'Life___Whole_Life','rider_fee')"><div class="check"></div><div class="field-name">rider_fee</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Life___Whole_Life','rider_name')"><div class="check"></div><div class="field-name">rider_name</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Life___Whole_Life','rollup_rate')"><div class="check"></div><div class="field-name">rollup_rate</div><div class="field-count"></div></div>
+<div class="field-item extra" onclick="toggleField(this,'Life___Whole_Life','scheduled_premium')"><div class="check">?</div><div class="field-name">scheduled_premium</div><div class="field-count">(397)</div></div>
+<div class="field-item yes" onclick="toggleField(this,'Life___Whole_Life','surrender_value')"><div class="check">✓</div><div class="field-name">surrender_value</div><div class="field-count">(534)</div></div>
+<div class="field-item no" onclick="toggleField(this,'Life___Whole_Life','term_months')"><div class="check"></div><div class="field-name">term_months</div><div class="field-count"></div></div>
+<div class="field-item yes" onclick="toggleField(this,'Life___Whole_Life','total_premiums_paid')"><div class="check">✓</div><div class="field-name">total_premiums_paid</div><div class="field-count">(7)</div></div>
+</div></div>
+<div class="card"><h3>Top Products in Category</h3><table><tr><th>Carrier</th><th>Product</th><th>Subtype</th><th>Count</th></tr>
+<tr><td>Catholic Order of Foresters</td><td>Whole Life</td><td>-</td><td>316</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>Whole Life Paid at Age 65</td><td>-</td><td>203</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>Forester Basic 10 Pay Whole Life</td><td>-</td><td>156</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>10 Pay Whole Life</td><td>-</td><td>66</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>Single Premium Whole Life</td><td>-</td><td>61</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>FL 80 CSO 4.5%</td><td>Whole Life</td><td>43</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>Forester Life 2001 CSO 4%</td><td>Whole Life</td><td>41</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>10 PAY WHOLE LIFE 2001CSO 4%</td><td>Whole Life</td><td>33</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>Genesis Life-Minor 2001 CSO4%</td><td>Whole Life</td><td>33</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>Genesis Whole Life</td><td>-</td><td>32</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>15 Pay Whole Life</td><td>-</td><td>31</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>Basic Value Life-Minor 2001 CSO4%</td><td>Whole Life</td><td>30</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>10 Pay W/L 80 CSO 4.5%</td><td>Whole Life</td><td>28</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>Life Paid 65 80CSO 5%</td><td>Whole Life</td><td>23</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>Basic Value Life-2001 CSO 4%</td><td>Whole Life</td><td>22</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>Whole Life & Decreasing Term</td><td>-</td><td>19</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>Modified W/L PD 65 80CSO 5%</td><td>Whole Life</td><td>18</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>Basic Value Life-Monor 2017 CSO3%</td><td>Whole Life</td><td>18</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>WL AE 3% (500's)</td><td>Whole Life</td><td>17</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>Forester Life (1400 Series)</td><td>Whole Life</td><td>15</td></tr>
+</table></div>
+</div>
+<div class="panel" id="p_Annuity___Other">
+<div class="card"><h2>Annuity — Other</h2><p>1137 accounts. Click fields to toggle allowed/not allowed for this product type.</p>
+<div class="field-grid">
+<div class="field-item yes" onclick="toggleField(this,'Annuity___Other','account_value')"><div class="check">✓</div><div class="field-name">account_value</div><div class="field-count">(481)</div></div>
+<div class="field-item extra" onclick="toggleField(this,'Annuity___Other','annual_premium')"><div class="check">?</div><div class="field-name">annual_premium</div><div class="field-count">(110)</div></div>
+<div class="field-item no" onclick="toggleField(this,'Annuity___Other','apy')"><div class="check"></div><div class="field-name">apy</div><div class="field-count"></div></div>
+<div class="field-item extra" onclick="toggleField(this,'Annuity___Other','cash_value')"><div class="check">?</div><div class="field-name">cash_value</div><div class="field-count">(23)</div></div>
+<div class="field-item yes" onclick="toggleField(this,'Annuity___Other','death_benefit')"><div class="check">✓</div><div class="field-name">death_benefit</div><div class="field-count">(322)</div></div>
+<div class="field-item extra" onclick="toggleField(this,'Annuity___Other','face_amount')"><div class="check">?</div><div class="field-name">face_amount</div><div class="field-count">(2)</div></div>
+<div class="field-item yes" onclick="toggleField(this,'Annuity___Other','income_amount')"><div class="check">✓</div><div class="field-name">income_amount</div><div class="field-count"></div></div>
+<div class="field-item yes" onclick="toggleField(this,'Annuity___Other','income_base')"><div class="check">✓</div><div class="field-name">income_base</div><div class="field-count">(1)</div></div>
+<div class="field-item extra" onclick="toggleField(this,'Annuity___Other','loan_balance')"><div class="check">?</div><div class="field-name">loan_balance</div><div class="field-count">(23)</div></div>
+<div class="field-item no" onclick="toggleField(this,'Annuity___Other','loan_interest_rate')"><div class="check"></div><div class="field-name">loan_interest_rate</div><div class="field-count"></div></div>
+<div class="field-item yes" onclick="toggleField(this,'Annuity___Other','maturity_date')"><div class="check">✓</div><div class="field-name">maturity_date</div><div class="field-count">(34)</div></div>
+<div class="field-item extra" onclick="toggleField(this,'Annuity___Other','modal_premium')"><div class="check">?</div><div class="field-name">modal_premium</div><div class="field-count">(110)</div></div>
+<div class="field-item yes" onclick="toggleField(this,'Annuity___Other','net_deposits')"><div class="check">✓</div><div class="field-name">net_deposits</div><div class="field-count">(392)</div></div>
+<div class="field-item extra" onclick="toggleField(this,'Annuity___Other','net_loan_amount')"><div class="check">?</div><div class="field-name">net_loan_amount</div><div class="field-count">(22)</div></div>
+<div class="field-item no" onclick="toggleField(this,'Annuity___Other','payout_rate')"><div class="check"></div><div class="field-name">payout_rate</div><div class="field-count"></div></div>
+<div class="field-item extra" onclick="toggleField(this,'Annuity___Other','premium_mode')"><div class="check">?</div><div class="field-name">premium_mode</div><div class="field-count">(42)</div></div>
+<div class="field-item yes" onclick="toggleField(this,'Annuity___Other','rider_fee')"><div class="check">✓</div><div class="field-name">rider_fee</div><div class="field-count">(2)</div></div>
+<div class="field-item yes" onclick="toggleField(this,'Annuity___Other','rider_name')"><div class="check">✓</div><div class="field-name">rider_name</div><div class="field-count">(3)</div></div>
+<div class="field-item no" onclick="toggleField(this,'Annuity___Other','rollup_rate')"><div class="check"></div><div class="field-name">rollup_rate</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Annuity___Other','scheduled_premium')"><div class="check"></div><div class="field-name">scheduled_premium</div><div class="field-count"></div></div>
+<div class="field-item yes" onclick="toggleField(this,'Annuity___Other','surrender_value')"><div class="check">✓</div><div class="field-name">surrender_value</div><div class="field-count">(425)</div></div>
+<div class="field-item no" onclick="toggleField(this,'Annuity___Other','term_months')"><div class="check"></div><div class="field-name">term_months</div><div class="field-count"></div></div>
+<div class="field-item extra" onclick="toggleField(this,'Annuity___Other','total_premiums_paid')"><div class="check">?</div><div class="field-name">total_premiums_paid</div><div class="field-count">(29)</div></div>
+</div></div>
+<div class="card"><h3>Top Products in Category</h3><table><tr><th>Carrier</th><th>Product</th><th>Subtype</th><th>Count</th></tr>
+<tr><td>Corebridge</td><td>AG Choice 10</td><td>Annuity</td><td>96</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>Flexible Premium Deferred Annuity</td><td>-</td><td>71</td></tr>
+<tr><td>Equitable</td><td>Retirement Cornerstone</td><td>Annuity</td><td>70</td></tr>
+<tr><td>Kansas City Life</td><td>GrowthTrack</td><td>Annuity</td><td>49</td></tr>
+<tr><td>North American</td><td>VersaChoice 10</td><td>Annuity</td><td>47</td></tr>
+<tr><td>Kansas City Life</td><td>SPIA</td><td>Annuity</td><td>40</td></tr>
+<tr><td>Nassau</td><td>Personal Income Annuity</td><td>Annuity</td><td>37</td></tr>
+<tr><td>Americo</td><td>Bonus Index-9</td><td>Annuity</td><td>28</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>Forester Optimizer Flex Prem Deferred Annuity</td><td>-</td><td>26</td></tr>
+<tr><td>Jackson National Life</td><td>Perspective II</td><td>Annuity</td><td>21</td></tr>
+<tr><td>Delaware Life</td><td>Retirement Chapters 10</td><td>Annuity</td><td>21</td></tr>
+<tr><td>North American</td><td>NAC Income Pay Pro</td><td>Annuity</td><td>21</td></tr>
+<tr><td>Corebridge</td><td>AG Choice 10</td><td>-</td><td>19</td></tr>
+<tr><td>Nassau</td><td>Income Accelerator</td><td>Annuity</td><td>18</td></tr>
+<tr><td>North American</td><td>BenefitSolutions 10</td><td>Annuity</td><td>17</td></tr>
+<tr><td>North American</td><td>Income Pay Pro</td><td>Annuity</td><td>17</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>Advantage Plus Single Prem Deferred Annuity</td><td>-</td><td>14</td></tr>
+<tr><td>North American</td><td>Control X</td><td>Annuity</td><td>13</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>Advantage Flex Premium Deferred Annuity</td><td>-</td><td>13</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>Flexible Premium Annuity (A2000)</td><td>-</td><td>13</td></tr>
+</table></div>
+</div>
+<div class="panel" id="p_Life___UL_Fixed_UL">
+<div class="card"><h2>Life — UL/Fixed UL</h2><p>499 accounts. Click fields to toggle allowed/not allowed for this product type.</p>
+<div class="field-grid">
+<div class="field-item extra" onclick="toggleField(this,'Life___UL_Fixed_UL','account_value')"><div class="check">?</div><div class="field-name">account_value</div><div class="field-count">(186)</div></div>
+<div class="field-item yes" onclick="toggleField(this,'Life___UL_Fixed_UL','annual_premium')"><div class="check">✓</div><div class="field-name">annual_premium</div><div class="field-count">(141)</div></div>
+<div class="field-item no" onclick="toggleField(this,'Life___UL_Fixed_UL','apy')"><div class="check"></div><div class="field-name">apy</div><div class="field-count"></div></div>
+<div class="field-item yes" onclick="toggleField(this,'Life___UL_Fixed_UL','cash_value')"><div class="check">✓</div><div class="field-name">cash_value</div><div class="field-count">(347)</div></div>
+<div class="field-item yes" onclick="toggleField(this,'Life___UL_Fixed_UL','death_benefit')"><div class="check">✓</div><div class="field-name">death_benefit</div><div class="field-count">(342)</div></div>
+<div class="field-item yes" onclick="toggleField(this,'Life___UL_Fixed_UL','face_amount')"><div class="check">✓</div><div class="field-name">face_amount</div><div class="field-count">(298)</div></div>
+<div class="field-item no" onclick="toggleField(this,'Life___UL_Fixed_UL','income_amount')"><div class="check"></div><div class="field-name">income_amount</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Life___UL_Fixed_UL','income_base')"><div class="check"></div><div class="field-name">income_base</div><div class="field-count"></div></div>
+<div class="field-item yes" onclick="toggleField(this,'Life___UL_Fixed_UL','loan_balance')"><div class="check">✓</div><div class="field-name">loan_balance</div><div class="field-count">(190)</div></div>
+<div class="field-item yes" onclick="toggleField(this,'Life___UL_Fixed_UL','loan_interest_rate')"><div class="check">✓</div><div class="field-name">loan_interest_rate</div><div class="field-count">(1)</div></div>
+<div class="field-item extra" onclick="toggleField(this,'Life___UL_Fixed_UL','maturity_date')"><div class="check">?</div><div class="field-name">maturity_date</div><div class="field-count">(186)</div></div>
+<div class="field-item yes" onclick="toggleField(this,'Life___UL_Fixed_UL','modal_premium')"><div class="check">✓</div><div class="field-name">modal_premium</div><div class="field-count">(116)</div></div>
+<div class="field-item no" onclick="toggleField(this,'Life___UL_Fixed_UL','net_deposits')"><div class="check"></div><div class="field-name">net_deposits</div><div class="field-count"></div></div>
+<div class="field-item yes" onclick="toggleField(this,'Life___UL_Fixed_UL','net_loan_amount')"><div class="check">✓</div><div class="field-name">net_loan_amount</div><div class="field-count">(186)</div></div>
+<div class="field-item no" onclick="toggleField(this,'Life___UL_Fixed_UL','payout_rate')"><div class="check"></div><div class="field-name">payout_rate</div><div class="field-count"></div></div>
+<div class="field-item yes" onclick="toggleField(this,'Life___UL_Fixed_UL','premium_mode')"><div class="check">✓</div><div class="field-name">premium_mode</div><div class="field-count">(322)</div></div>
+<div class="field-item no" onclick="toggleField(this,'Life___UL_Fixed_UL','rider_fee')"><div class="check"></div><div class="field-name">rider_fee</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Life___UL_Fixed_UL','rider_name')"><div class="check"></div><div class="field-name">rider_name</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Life___UL_Fixed_UL','rollup_rate')"><div class="check"></div><div class="field-name">rollup_rate</div><div class="field-count"></div></div>
+<div class="field-item yes" onclick="toggleField(this,'Life___UL_Fixed_UL','scheduled_premium')"><div class="check">✓</div><div class="field-name">scheduled_premium</div><div class="field-count">(131)</div></div>
+<div class="field-item yes" onclick="toggleField(this,'Life___UL_Fixed_UL','surrender_value')"><div class="check">✓</div><div class="field-name">surrender_value</div><div class="field-count">(237)</div></div>
+<div class="field-item no" onclick="toggleField(this,'Life___UL_Fixed_UL','term_months')"><div class="check"></div><div class="field-name">term_months</div><div class="field-count"></div></div>
+<div class="field-item yes" onclick="toggleField(this,'Life___UL_Fixed_UL','total_premiums_paid')"><div class="check">✓</div><div class="field-name">total_premiums_paid</div><div class="field-count">(287)</div></div>
+</div></div>
+<div class="card"><h3>Top Products in Category</h3><table><tr><th>Carrier</th><th>Product</th><th>Subtype</th><th>Count</th></tr>
+<tr><td>Kansas City Life</td><td>FlexWealth Advantage</td><td>Life</td><td>126</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>Flexible Premium Life</td><td>Universal Life</td><td>65</td></tr>
+<tr><td>Kansas City Life</td><td>LIFE PROTECTOR</td><td>Universal Life</td><td>50</td></tr>
+<tr><td>Kansas City Life</td><td>FLEX WEALTH ADVANTAGE</td><td>Universal Life</td><td>45</td></tr>
+<tr><td>Kansas City Life</td><td>SUPER NOVA</td><td>Universal Life</td><td>32</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>Flexible Premium Life - Juvenile</td><td>Universal Life</td><td>27</td></tr>
+<tr><td>Kansas City Life</td><td>EquiFlex</td><td>Life</td><td>25</td></tr>
+<tr><td>Kansas City Life</td><td>EQUIFLEX</td><td>Universal Life</td><td>12</td></tr>
+<tr><td>Kansas City Life</td><td>COMPASS ELITE</td><td>Universal Life</td><td>11</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>Secure4Life Universal Life</td><td>-</td><td>10</td></tr>
+<tr><td>Kansas City Life</td><td>Life Protector</td><td>Fixed Universal Life</td><td>10</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>Value4Life Universal Life</td><td>-</td><td>7</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>Universal Life 20 YR Guarantee</td><td>Universal Life</td><td>5</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>Flexible Premium Life</td><td>-</td><td>4</td></tr>
+<tr><td>Farm Bureau Life</td><td>Fixed Universal Life</td><td>Life</td><td>4</td></tr>
+<tr><td>Kansas City Life</td><td>SuperNOVA</td><td>Fixed Universal Life</td><td>4</td></tr>
+<tr><td>Kansas City Life</td><td>FlexWealth Advantage</td><td>Fixed Universal Life</td><td>3</td></tr>
+<tr><td>Kansas City Life</td><td>PREMIER PROTECTION</td><td>Universal Life</td><td>3</td></tr>
+<tr><td>Kansas City Life</td><td>Life Protector</td><td>Ul Fixed Universal Life</td><td>3</td></tr>
+<tr><td>Genworth Life</td><td>Fixed Universal Life</td><td>Life</td><td>2</td></tr>
+</table></div>
+</div>
+<div class="panel" id="p_Life___Term">
+<div class="card"><h2>Life — Term</h2><p>368 accounts. Click fields to toggle allowed/not allowed for this product type.</p>
+<div class="field-grid">
+<div class="field-item extra" onclick="toggleField(this,'Life___Term','account_value')"><div class="check">?</div><div class="field-name">account_value</div><div class="field-count">(14)</div></div>
+<div class="field-item yes" onclick="toggleField(this,'Life___Term','annual_premium')"><div class="check">✓</div><div class="field-name">annual_premium</div><div class="field-count">(307)</div></div>
+<div class="field-item no" onclick="toggleField(this,'Life___Term','apy')"><div class="check"></div><div class="field-name">apy</div><div class="field-count"></div></div>
+<div class="field-item extra" onclick="toggleField(this,'Life___Term','cash_value')"><div class="check">?</div><div class="field-name">cash_value</div><div class="field-count">(31)</div></div>
+<div class="field-item yes" onclick="toggleField(this,'Life___Term','death_benefit')"><div class="check">✓</div><div class="field-name">death_benefit</div><div class="field-count">(11)</div></div>
+<div class="field-item yes" onclick="toggleField(this,'Life___Term','face_amount')"><div class="check">✓</div><div class="field-name">face_amount</div><div class="field-count">(342)</div></div>
+<div class="field-item no" onclick="toggleField(this,'Life___Term','income_amount')"><div class="check"></div><div class="field-name">income_amount</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Life___Term','income_base')"><div class="check"></div><div class="field-name">income_base</div><div class="field-count"></div></div>
+<div class="field-item extra" onclick="toggleField(this,'Life___Term','loan_balance')"><div class="check">?</div><div class="field-name">loan_balance</div><div class="field-count">(18)</div></div>
+<div class="field-item no" onclick="toggleField(this,'Life___Term','loan_interest_rate')"><div class="check"></div><div class="field-name">loan_interest_rate</div><div class="field-count"></div></div>
+<div class="field-item extra" onclick="toggleField(this,'Life___Term','maturity_date')"><div class="check">?</div><div class="field-name">maturity_date</div><div class="field-count">(23)</div></div>
+<div class="field-item yes" onclick="toggleField(this,'Life___Term','modal_premium')"><div class="check">✓</div><div class="field-name">modal_premium</div><div class="field-count">(251)</div></div>
+<div class="field-item no" onclick="toggleField(this,'Life___Term','net_deposits')"><div class="check"></div><div class="field-name">net_deposits</div><div class="field-count"></div></div>
+<div class="field-item extra" onclick="toggleField(this,'Life___Term','net_loan_amount')"><div class="check">?</div><div class="field-name">net_loan_amount</div><div class="field-count">(17)</div></div>
+<div class="field-item no" onclick="toggleField(this,'Life___Term','payout_rate')"><div class="check"></div><div class="field-name">payout_rate</div><div class="field-count"></div></div>
+<div class="field-item yes" onclick="toggleField(this,'Life___Term','premium_mode')"><div class="check">✓</div><div class="field-name">premium_mode</div><div class="field-count">(342)</div></div>
+<div class="field-item no" onclick="toggleField(this,'Life___Term','rider_fee')"><div class="check"></div><div class="field-name">rider_fee</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Life___Term','rider_name')"><div class="check"></div><div class="field-name">rider_name</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Life___Term','rollup_rate')"><div class="check"></div><div class="field-name">rollup_rate</div><div class="field-count"></div></div>
+<div class="field-item extra" onclick="toggleField(this,'Life___Term','scheduled_premium')"><div class="check">?</div><div class="field-name">scheduled_premium</div><div class="field-count">(310)</div></div>
+<div class="field-item extra" onclick="toggleField(this,'Life___Term','surrender_value')"><div class="check">?</div><div class="field-name">surrender_value</div><div class="field-count">(318)</div></div>
+<div class="field-item no" onclick="toggleField(this,'Life___Term','term_months')"><div class="check"></div><div class="field-name">term_months</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Life___Term','total_premiums_paid')"><div class="check"></div><div class="field-name">total_premiums_paid</div><div class="field-count"></div></div>
+</div></div>
+<div class="card"><h3>Top Products in Category</h3><table><tr><th>Carrier</th><th>Product</th><th>Subtype</th><th>Count</th></tr>
+<tr><td>Catholic Order of Foresters</td><td>CLT (TERM TO AGE 25)</td><td>Term Life</td><td>121</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>TERM TO 25 (NO COMMISSIONS)</td><td>Term Life</td><td>51</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>20 YEAR RENEWABLE TERM 2001 CSO 4%</td><td>Term Life</td><td>38</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>TERM TO 35 2001 CSO</td><td>Term Life</td><td>22</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>Term to 35 80CSO</td><td>Term Life</td><td>18</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>TERM TO 25</td><td>Term Life</td><td>17</td></tr>
+<tr><td>Kansas City Life</td><td>Term Life</td><td>Life</td><td>11</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>30 YEAR RTL 2001 CSO 4%</td><td>Term Life</td><td>10</td></tr>
+<tr><td>Kansas City Life</td><td>ADJUSTABLE PREMIUM YEARLY RENEWABLE AND CONVERTIBLE TERM TO 95- 20 YR LEVEL PREMIUM-NONPAR</td><td>Term Life</td><td>8</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>EXTENDED TERM ( VARIOUS MORTALITY OLD)</td><td>Term Life</td><td>8</td></tr>
+<tr><td>Kansas City Life</td><td>ADJUSTABLE PREMIUM YEARLY RENEWABLE AND CONVERTIBLE TERM TO 95-20 YR LEVEL PREMIUM-NONPAR</td><td>Term Life</td><td>7</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>10 RTL 2001 CSO 4%</td><td>Term Life</td><td>6</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>Term to 35 01CSO (cont'd comm)</td><td>Term Life</td><td>5</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>5 YR REN TERM 80CSO 5% (200's)</td><td>Term Life</td><td>4</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>20 YR RENEWABLE TERM 01 CSO 4.5%</td><td>Term Life</td><td>4</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>20 YR ROP 2001CSO 4.5%</td><td>Term Life</td><td>3</td></tr>
+<tr><td>Corebridge (AIG) Life</td><td>Term Life</td><td>Life</td><td>3</td></tr>
+<tr><td>Ameritas</td><td>Term Life</td><td>Life</td><td>2</td></tr>
+<tr><td>Kansas City Life</td><td>ADJUSTABLE PREMIUM YEARLY RENEWABLE AND CONVERTIBLE TERM TO 95-30 YR LEVEL PREMIUM-NONPAR</td><td>Term Life</td><td>2</td></tr>
+<tr><td>Kansas City Life</td><td>ADJUSTABLE PREMIUM YEARLY RENEWABLE AND CONVERTIBLE TERM TO 95-15 YR LEVEL PREMIUM-NONPAR</td><td>Term Life</td><td>2</td></tr>
+</table></div>
+</div>
+<div class="panel" id="p_Investment">
+<div class="card"><h2>Investment</h2><p>240 accounts. Click fields to toggle allowed/not allowed for this product type.</p>
+<div class="field-grid">
+<div class="field-item yes" onclick="toggleField(this,'Investment','account_value')"><div class="check">✓</div><div class="field-name">account_value</div><div class="field-count">(21)</div></div>
+<div class="field-item extra" onclick="toggleField(this,'Investment','annual_premium')"><div class="check">?</div><div class="field-name">annual_premium</div><div class="field-count">(6)</div></div>
+<div class="field-item no" onclick="toggleField(this,'Investment','apy')"><div class="check"></div><div class="field-name">apy</div><div class="field-count"></div></div>
+<div class="field-item extra" onclick="toggleField(this,'Investment','cash_value')"><div class="check">?</div><div class="field-name">cash_value</div><div class="field-count">(6)</div></div>
+<div class="field-item yes" onclick="toggleField(this,'Investment','death_benefit')"><div class="check">✓</div><div class="field-name">death_benefit</div><div class="field-count">(7)</div></div>
+<div class="field-item no" onclick="toggleField(this,'Investment','face_amount')"><div class="check"></div><div class="field-name">face_amount</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Investment','income_amount')"><div class="check"></div><div class="field-name">income_amount</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Investment','income_base')"><div class="check"></div><div class="field-name">income_base</div><div class="field-count"></div></div>
+<div class="field-item extra" onclick="toggleField(this,'Investment','loan_balance')"><div class="check">?</div><div class="field-name">loan_balance</div><div class="field-count">(6)</div></div>
+<div class="field-item no" onclick="toggleField(this,'Investment','loan_interest_rate')"><div class="check"></div><div class="field-name">loan_interest_rate</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Investment','maturity_date')"><div class="check"></div><div class="field-name">maturity_date</div><div class="field-count"></div></div>
+<div class="field-item extra" onclick="toggleField(this,'Investment','modal_premium')"><div class="check">?</div><div class="field-name">modal_premium</div><div class="field-count">(6)</div></div>
+<div class="field-item yes" onclick="toggleField(this,'Investment','net_deposits')"><div class="check">✓</div><div class="field-name">net_deposits</div><div class="field-count">(4)</div></div>
+<div class="field-item no" onclick="toggleField(this,'Investment','net_loan_amount')"><div class="check"></div><div class="field-name">net_loan_amount</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Investment','payout_rate')"><div class="check"></div><div class="field-name">payout_rate</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Investment','premium_mode')"><div class="check"></div><div class="field-name">premium_mode</div><div class="field-count"></div></div>
+<div class="field-item extra" onclick="toggleField(this,'Investment','rider_fee')"><div class="check">?</div><div class="field-name">rider_fee</div><div class="field-count">(1)</div></div>
+<div class="field-item no" onclick="toggleField(this,'Investment','rider_name')"><div class="check"></div><div class="field-name">rider_name</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Investment','rollup_rate')"><div class="check"></div><div class="field-name">rollup_rate</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Investment','scheduled_premium')"><div class="check"></div><div class="field-name">scheduled_premium</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Investment','surrender_value')"><div class="check"></div><div class="field-name">surrender_value</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Investment','term_months')"><div class="check"></div><div class="field-name">term_months</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Investment','total_premiums_paid')"><div class="check"></div><div class="field-name">total_premiums_paid</div><div class="field-count"></div></div>
+</div></div>
+<div class="card"><h3>Top Products in Category</h3><table><tr><th>Carrier</th><th>Product</th><th>Subtype</th><th>Count</th></tr>
+<tr><td>?</td><td>-</td><td>-</td><td>127</td></tr>
+<tr><td>?</td><td>-</td><td>-</td><td>100</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>Supplemental Contract</td><td>Investment</td><td>6</td></tr>
+<tr><td>?</td><td>-</td><td>-</td><td>4</td></tr>
+<tr><td>Equitable</td><td>Retirement Cornerstone</td><td>-</td><td>1</td></tr>
+<tr><td>?</td><td>-</td><td>-</td><td>1</td></tr>
+<tr><td>Nassau</td><td>Nassau Income Accelerator</td><td>-</td><td>1</td></tr>
+</table></div>
+</div>
+<div class="panel" id="p_Unknown">
+<div class="card"><h2>Unknown</h2><p>198 accounts. Click fields to toggle allowed/not allowed for this product type.</p>
+<div class="field-grid">
+<div class="field-item extra" onclick="toggleField(this,'Unknown','account_value')"><div class="check">?</div><div class="field-name">account_value</div><div class="field-count">(50)</div></div>
+<div class="field-item extra" onclick="toggleField(this,'Unknown','annual_premium')"><div class="check">?</div><div class="field-name">annual_premium</div><div class="field-count">(1)</div></div>
+<div class="field-item extra" onclick="toggleField(this,'Unknown','apy')"><div class="check">?</div><div class="field-name">apy</div><div class="field-count">(10)</div></div>
+<div class="field-item no" onclick="toggleField(this,'Unknown','cash_value')"><div class="check"></div><div class="field-name">cash_value</div><div class="field-count"></div></div>
+<div class="field-item extra" onclick="toggleField(this,'Unknown','death_benefit')"><div class="check">?</div><div class="field-name">death_benefit</div><div class="field-count">(4)</div></div>
+<div class="field-item no" onclick="toggleField(this,'Unknown','face_amount')"><div class="check"></div><div class="field-name">face_amount</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Unknown','income_amount')"><div class="check"></div><div class="field-name">income_amount</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Unknown','income_base')"><div class="check"></div><div class="field-name">income_base</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Unknown','loan_balance')"><div class="check"></div><div class="field-name">loan_balance</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Unknown','loan_interest_rate')"><div class="check"></div><div class="field-name">loan_interest_rate</div><div class="field-count"></div></div>
+<div class="field-item extra" onclick="toggleField(this,'Unknown','maturity_date')"><div class="check">?</div><div class="field-name">maturity_date</div><div class="field-count">(10)</div></div>
+<div class="field-item no" onclick="toggleField(this,'Unknown','modal_premium')"><div class="check"></div><div class="field-name">modal_premium</div><div class="field-count"></div></div>
+<div class="field-item extra" onclick="toggleField(this,'Unknown','net_deposits')"><div class="check">?</div><div class="field-name">net_deposits</div><div class="field-count">(4)</div></div>
+<div class="field-item no" onclick="toggleField(this,'Unknown','net_loan_amount')"><div class="check"></div><div class="field-name">net_loan_amount</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Unknown','payout_rate')"><div class="check"></div><div class="field-name">payout_rate</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Unknown','premium_mode')"><div class="check"></div><div class="field-name">premium_mode</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Unknown','rider_fee')"><div class="check"></div><div class="field-name">rider_fee</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Unknown','rider_name')"><div class="check"></div><div class="field-name">rider_name</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Unknown','rollup_rate')"><div class="check"></div><div class="field-name">rollup_rate</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Unknown','scheduled_premium')"><div class="check"></div><div class="field-name">scheduled_premium</div><div class="field-count"></div></div>
+<div class="field-item extra" onclick="toggleField(this,'Unknown','surrender_value')"><div class="check">?</div><div class="field-name">surrender_value</div><div class="field-count">(23)</div></div>
+<div class="field-item no" onclick="toggleField(this,'Unknown','term_months')"><div class="check"></div><div class="field-name">term_months</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Unknown','total_premiums_paid')"><div class="check"></div><div class="field-name">total_premiums_paid</div><div class="field-count"></div></div>
+</div></div>
+<div class="card"><h3>Top Products in Category</h3><table><tr><th>Carrier</th><th>Product</th><th>Subtype</th><th>Count</th></tr>
+<tr><td>Kansas City Life</td><td>-</td><td>-</td><td>101</td></tr>
+<tr><td>Wellmark BCBS of Iowa</td><td>-</td><td>Over 65</td><td>40</td></tr>
+<tr><td>North American</td><td>NAC VersaChoice 10</td><td>-</td><td>9</td></tr>
+<tr><td>Hills Bank</td><td>Certificate of Deposit</td><td>-</td><td>8</td></tr>
+<tr><td>North American</td><td>NAC Income Pay Pro</td><td>-</td><td>6</td></tr>
+<tr><td>Corebridge</td><td>AG Choice 10</td><td>-</td><td>6</td></tr>
+<tr><td>North American</td><td>NAC BenefitSolutions 10</td><td>-</td><td>3</td></tr>
+<tr><td>Wellmark BCBS of Iowa</td><td>-</td><td>Dental</td><td>2</td></tr>
+<tr><td>F&G Life</td><td>Accumulator Plus 10</td><td>-</td><td>2</td></tr>
+<tr><td>Washington State Bank</td><td>Certificate of Deposit</td><td>-</td><td>2</td></tr>
+<tr><td>Securian Financial</td><td>Income Today</td><td>-</td><td>1</td></tr>
+<tr><td>Delaware Life</td><td>Retirement Chapters 10</td><td>-</td><td>1</td></tr>
+<tr><td>North American</td><td>NAC Control. X</td><td>-</td><td>1</td></tr>
+<tr><td>United Life</td><td>-</td><td>-</td><td>1</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>COF Long-Term Care Policy (FCLTC 2000)</td><td>LTC - Standalone</td><td>1</td></tr>
+<tr><td>North American</td><td>Term Point-to-Point with GAP</td><td>-</td><td>1</td></tr>
+<tr><td>Equitable</td><td>-</td><td>-</td><td>1</td></tr>
+<tr><td>Nationwide</td><td>EIA</td><td>-</td><td>1</td></tr>
+<tr><td>Jackson National Life</td><td>Perspective II</td><td>-</td><td>1</td></tr>
+<tr><td>Fg Life</td><td>Safe Income Advantage</td><td>-</td><td>1</td></tr>
+</table></div>
+</div>
+<div class="panel" id="p_Life___Final_Expense">
+<div class="card"><h2>Life — Final Expense</h2><p>185 accounts. Click fields to toggle allowed/not allowed for this product type.</p>
+<div class="field-grid">
+<div class="field-item no" onclick="toggleField(this,'Life___Final_Expense','account_value')"><div class="check"></div><div class="field-name">account_value</div><div class="field-count"></div></div>
+<div class="field-item yes" onclick="toggleField(this,'Life___Final_Expense','annual_premium')"><div class="check">✓</div><div class="field-name">annual_premium</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Life___Final_Expense','apy')"><div class="check"></div><div class="field-name">apy</div><div class="field-count"></div></div>
+<div class="field-item yes" onclick="toggleField(this,'Life___Final_Expense','cash_value')"><div class="check">✓</div><div class="field-name">cash_value</div><div class="field-count"></div></div>
+<div class="field-item yes" onclick="toggleField(this,'Life___Final_Expense','death_benefit')"><div class="check">✓</div><div class="field-name">death_benefit</div><div class="field-count">(18)</div></div>
+<div class="field-item yes" onclick="toggleField(this,'Life___Final_Expense','face_amount')"><div class="check">✓</div><div class="field-name">face_amount</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Life___Final_Expense','income_amount')"><div class="check"></div><div class="field-name">income_amount</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Life___Final_Expense','income_base')"><div class="check"></div><div class="field-name">income_base</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Life___Final_Expense','loan_balance')"><div class="check"></div><div class="field-name">loan_balance</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Life___Final_Expense','loan_interest_rate')"><div class="check"></div><div class="field-name">loan_interest_rate</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Life___Final_Expense','maturity_date')"><div class="check"></div><div class="field-name">maturity_date</div><div class="field-count"></div></div>
+<div class="field-item yes" onclick="toggleField(this,'Life___Final_Expense','modal_premium')"><div class="check">✓</div><div class="field-name">modal_premium</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Life___Final_Expense','net_deposits')"><div class="check"></div><div class="field-name">net_deposits</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Life___Final_Expense','net_loan_amount')"><div class="check"></div><div class="field-name">net_loan_amount</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Life___Final_Expense','payout_rate')"><div class="check"></div><div class="field-name">payout_rate</div><div class="field-count"></div></div>
+<div class="field-item yes" onclick="toggleField(this,'Life___Final_Expense','premium_mode')"><div class="check">✓</div><div class="field-name">premium_mode</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Life___Final_Expense','rider_fee')"><div class="check"></div><div class="field-name">rider_fee</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Life___Final_Expense','rider_name')"><div class="check"></div><div class="field-name">rider_name</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Life___Final_Expense','rollup_rate')"><div class="check"></div><div class="field-name">rollup_rate</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Life___Final_Expense','scheduled_premium')"><div class="check"></div><div class="field-name">scheduled_premium</div><div class="field-count"></div></div>
+<div class="field-item yes" onclick="toggleField(this,'Life___Final_Expense','surrender_value')"><div class="check">✓</div><div class="field-name">surrender_value</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Life___Final_Expense','term_months')"><div class="check"></div><div class="field-name">term_months</div><div class="field-count"></div></div>
+<div class="field-item yes" onclick="toggleField(this,'Life___Final_Expense','total_premiums_paid')"><div class="check">✓</div><div class="field-name">total_premiums_paid</div><div class="field-count">(1)</div></div>
+</div></div>
+<div class="card"><h3>Top Products in Category</h3><table><tr><th>Carrier</th><th>Product</th><th>Subtype</th><th>Count</th></tr>
+<tr><td>Americo Life</td><td>Final Expense Life</td><td>Life</td><td>77</td></tr>
+<tr><td>Assurity Life</td><td>Final Expense Life</td><td>Life</td><td>40</td></tr>
+<tr><td>Mutual of Omaha</td><td>Living Promise Final Expense</td><td>Life</td><td>37</td></tr>
+<tr><td>Mutual of Omaha</td><td>Living Promise Final Expense</td><td>Final Expense Life</td><td>25</td></tr>
+<tr><td>Aetna</td><td>Final Expense Life</td><td>Final Expense Life</td><td>2</td></tr>
+<tr><td>Americo</td><td>Final Expense Life</td><td>Final Expense Life</td><td>2</td></tr>
+<tr><td>Assurity Life</td><td>Final Expense Life</td><td>Final Expense Life</td><td>1</td></tr>
+<tr><td>Mutual of Omaha</td><td>Final Expense Life</td><td>Life</td><td>1</td></tr>
+</table></div>
+</div>
+<div class="panel" id="p_Life___IUL">
+<div class="card"><h2>Life — IUL</h2><p>60 accounts. Click fields to toggle allowed/not allowed for this product type.</p>
+<div class="field-grid">
+<div class="field-item extra" onclick="toggleField(this,'Life___IUL','account_value')"><div class="check">?</div><div class="field-name">account_value</div><div class="field-count">(1)</div></div>
+<div class="field-item yes" onclick="toggleField(this,'Life___IUL','annual_premium')"><div class="check">✓</div><div class="field-name">annual_premium</div><div class="field-count">(15)</div></div>
+<div class="field-item no" onclick="toggleField(this,'Life___IUL','apy')"><div class="check"></div><div class="field-name">apy</div><div class="field-count"></div></div>
+<div class="field-item yes" onclick="toggleField(this,'Life___IUL','cash_value')"><div class="check">✓</div><div class="field-name">cash_value</div><div class="field-count">(24)</div></div>
+<div class="field-item yes" onclick="toggleField(this,'Life___IUL','death_benefit')"><div class="check">✓</div><div class="field-name">death_benefit</div><div class="field-count">(19)</div></div>
+<div class="field-item yes" onclick="toggleField(this,'Life___IUL','face_amount')"><div class="check">✓</div><div class="field-name">face_amount</div><div class="field-count">(5)</div></div>
+<div class="field-item no" onclick="toggleField(this,'Life___IUL','income_amount')"><div class="check"></div><div class="field-name">income_amount</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Life___IUL','income_base')"><div class="check"></div><div class="field-name">income_base</div><div class="field-count"></div></div>
+<div class="field-item yes" onclick="toggleField(this,'Life___IUL','loan_balance')"><div class="check">✓</div><div class="field-name">loan_balance</div><div class="field-count">(1)</div></div>
+<div class="field-item yes" onclick="toggleField(this,'Life___IUL','loan_interest_rate')"><div class="check">✓</div><div class="field-name">loan_interest_rate</div><div class="field-count"></div></div>
+<div class="field-item extra" onclick="toggleField(this,'Life___IUL','maturity_date')"><div class="check">?</div><div class="field-name">maturity_date</div><div class="field-count">(1)</div></div>
+<div class="field-item yes" onclick="toggleField(this,'Life___IUL','modal_premium')"><div class="check">✓</div><div class="field-name">modal_premium</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Life___IUL','net_deposits')"><div class="check"></div><div class="field-name">net_deposits</div><div class="field-count"></div></div>
+<div class="field-item yes" onclick="toggleField(this,'Life___IUL','net_loan_amount')"><div class="check">✓</div><div class="field-name">net_loan_amount</div><div class="field-count">(1)</div></div>
+<div class="field-item no" onclick="toggleField(this,'Life___IUL','payout_rate')"><div class="check"></div><div class="field-name">payout_rate</div><div class="field-count"></div></div>
+<div class="field-item yes" onclick="toggleField(this,'Life___IUL','premium_mode')"><div class="check">✓</div><div class="field-name">premium_mode</div><div class="field-count">(27)</div></div>
+<div class="field-item no" onclick="toggleField(this,'Life___IUL','rider_fee')"><div class="check"></div><div class="field-name">rider_fee</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Life___IUL','rider_name')"><div class="check"></div><div class="field-name">rider_name</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Life___IUL','rollup_rate')"><div class="check"></div><div class="field-name">rollup_rate</div><div class="field-count"></div></div>
+<div class="field-item yes" onclick="toggleField(this,'Life___IUL','scheduled_premium')"><div class="check">✓</div><div class="field-name">scheduled_premium</div><div class="field-count">(20)</div></div>
+<div class="field-item yes" onclick="toggleField(this,'Life___IUL','surrender_value')"><div class="check">✓</div><div class="field-name">surrender_value</div><div class="field-count">(18)</div></div>
+<div class="field-item no" onclick="toggleField(this,'Life___IUL','term_months')"><div class="check"></div><div class="field-name">term_months</div><div class="field-count"></div></div>
+<div class="field-item yes" onclick="toggleField(this,'Life___IUL','total_premiums_paid')"><div class="check">✓</div><div class="field-name">total_premiums_paid</div><div class="field-count">(3)</div></div>
+</div></div>
+<div class="card"><h3>Top Products in Category</h3><table><tr><th>Carrier</th><th>Product</th><th>Subtype</th><th>Count</th></tr>
+<tr><td>Ameritas</td><td>Indexed Universal Life</td><td>Life</td><td>19</td></tr>
+<tr><td>Kansas City Life</td><td>EquiFlex</td><td>IUL</td><td>4</td></tr>
+<tr><td>F&G Life</td><td>Pathsetter</td><td>IUL</td><td>4</td></tr>
+<tr><td>John Hancock Life</td><td>Protection Indexed UL</td><td>Life</td><td>2</td></tr>
+<tr><td>Mutual of Omaha</td><td>Income Advantage IUL</td><td>Iul Indexed Universal Life</td><td>2</td></tr>
+<tr><td>Ameritas</td><td>Indexed Universal Life</td><td>IUL</td><td>2</td></tr>
+<tr><td>Kansas City Life</td><td>EquiFlex</td><td>Iul Indexed Universal Life</td><td>2</td></tr>
+<tr><td>John Hancock</td><td>Protection IUL</td><td>Iul Indexed Universal Life</td><td>2</td></tr>
+<tr><td>North American</td><td>-</td><td>IUL</td><td>2</td></tr>
+<tr><td>Mutual of Omaha</td><td>Indexed Universal Life</td><td>Life</td><td>2</td></tr>
+<tr><td>Ameritas</td><td>Indexed Universal Life</td><td>Iul Indexed Universal Life</td><td>1</td></tr>
+<tr><td>Kansas City Life</td><td>Compass Elite IUL</td><td>Iul Indexed Universal Life</td><td>1</td></tr>
+<tr><td>Mutual of Omaha</td><td>Income Accumulation</td><td>Iul Indexed Universal Life</td><td>1</td></tr>
+<tr><td>F&G Life</td><td>Indexed Universal Life</td><td>Life</td><td>1</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>Basic Value Whole Life</td><td>IUL (Indexed Universal Life)</td><td>1</td></tr>
+<tr><td>Kansas City Life</td><td>Compass Elite</td><td>IUL</td><td>1</td></tr>
+<tr><td>Accordia Life</td><td>Indexed Universal Life</td><td>Life</td><td>1</td></tr>
+<tr><td>John Hancock</td><td>Protection IUL with Vitality PLUS</td><td>IUL</td><td>1</td></tr>
+<tr><td>John Hancock</td><td>Protection Indexed Universal Life Insurance</td><td>IUL</td><td>1</td></tr>
+<tr><td>Mutual of Omaha</td><td>Income Advantage</td><td>IUL</td><td>1</td></tr>
+</table></div>
+</div>
+<div class="panel" id="p_Annuity___FIA">
+<div class="card"><h2>Annuity — FIA</h2><p>9 accounts. Click fields to toggle allowed/not allowed for this product type.</p>
+<div class="field-grid">
+<div class="field-item yes" onclick="toggleField(this,'Annuity___FIA','account_value')"><div class="check">✓</div><div class="field-name">account_value</div><div class="field-count">(1)</div></div>
+<div class="field-item no" onclick="toggleField(this,'Annuity___FIA','annual_premium')"><div class="check"></div><div class="field-name">annual_premium</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Annuity___FIA','apy')"><div class="check"></div><div class="field-name">apy</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Annuity___FIA','cash_value')"><div class="check"></div><div class="field-name">cash_value</div><div class="field-count"></div></div>
+<div class="field-item yes" onclick="toggleField(this,'Annuity___FIA','death_benefit')"><div class="check">✓</div><div class="field-name">death_benefit</div><div class="field-count">(1)</div></div>
+<div class="field-item no" onclick="toggleField(this,'Annuity___FIA','face_amount')"><div class="check"></div><div class="field-name">face_amount</div><div class="field-count"></div></div>
+<div class="field-item yes" onclick="toggleField(this,'Annuity___FIA','income_amount')"><div class="check">✓</div><div class="field-name">income_amount</div><div class="field-count"></div></div>
+<div class="field-item yes" onclick="toggleField(this,'Annuity___FIA','income_base')"><div class="check">✓</div><div class="field-name">income_base</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Annuity___FIA','loan_balance')"><div class="check"></div><div class="field-name">loan_balance</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Annuity___FIA','loan_interest_rate')"><div class="check"></div><div class="field-name">loan_interest_rate</div><div class="field-count"></div></div>
+<div class="field-item yes" onclick="toggleField(this,'Annuity___FIA','maturity_date')"><div class="check">✓</div><div class="field-name">maturity_date</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Annuity___FIA','modal_premium')"><div class="check"></div><div class="field-name">modal_premium</div><div class="field-count"></div></div>
+<div class="field-item yes" onclick="toggleField(this,'Annuity___FIA','net_deposits')"><div class="check">✓</div><div class="field-name">net_deposits</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Annuity___FIA','net_loan_amount')"><div class="check"></div><div class="field-name">net_loan_amount</div><div class="field-count"></div></div>
+<div class="field-item yes" onclick="toggleField(this,'Annuity___FIA','payout_rate')"><div class="check">✓</div><div class="field-name">payout_rate</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Annuity___FIA','premium_mode')"><div class="check"></div><div class="field-name">premium_mode</div><div class="field-count"></div></div>
+<div class="field-item yes" onclick="toggleField(this,'Annuity___FIA','rider_fee')"><div class="check">✓</div><div class="field-name">rider_fee</div><div class="field-count"></div></div>
+<div class="field-item yes" onclick="toggleField(this,'Annuity___FIA','rider_name')"><div class="check">✓</div><div class="field-name">rider_name</div><div class="field-count"></div></div>
+<div class="field-item yes" onclick="toggleField(this,'Annuity___FIA','rollup_rate')"><div class="check">✓</div><div class="field-name">rollup_rate</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Annuity___FIA','scheduled_premium')"><div class="check"></div><div class="field-name">scheduled_premium</div><div class="field-count"></div></div>
+<div class="field-item yes" onclick="toggleField(this,'Annuity___FIA','surrender_value')"><div class="check">✓</div><div class="field-name">surrender_value</div><div class="field-count">(1)</div></div>
+<div class="field-item no" onclick="toggleField(this,'Annuity___FIA','term_months')"><div class="check"></div><div class="field-name">term_months</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Annuity___FIA','total_premiums_paid')"><div class="check"></div><div class="field-name">total_premiums_paid</div><div class="field-count"></div></div>
+</div></div>
+<div class="card"><h3>Top Products in Category</h3><table><tr><th>Carrier</th><th>Product</th><th>Subtype</th><th>Count</th></tr>
+<tr><td>American Equity Life</td><td>Fixed Indexed Annuity</td><td>Annuity</td><td>3</td></tr>
+<tr><td>Athene</td><td>Fixed Indexed Annuity</td><td>-</td><td>2</td></tr>
+<tr><td>Allianz</td><td>Life Pro+ Elite Fixed Index Universal Life Insurance Policy</td><td>Annuity</td><td>1</td></tr>
+<tr><td>Federal Life</td><td>Fixed Indexed Annuity</td><td>Annuity</td><td>1</td></tr>
+<tr><td>Jackson National Life</td><td>Elite Choice Fixed Index Annuity</td><td>-</td><td>1</td></tr>
+<tr><td>Fidelity & Guaranty Life</td><td>Fixed Indexed Annuity</td><td>Annuity</td><td>1</td></tr>
+</table></div>
+</div>
+<div class="panel" id="p_Annuity___Variable_RILA">
+<div class="card"><h2>Annuity — Variable/RILA</h2><p>3 accounts. Click fields to toggle allowed/not allowed for this product type.</p>
+<div class="field-grid">
+<div class="field-item yes" onclick="toggleField(this,'Annuity___Variable_RILA','account_value')"><div class="check">✓</div><div class="field-name">account_value</div><div class="field-count">(1)</div></div>
+<div class="field-item no" onclick="toggleField(this,'Annuity___Variable_RILA','annual_premium')"><div class="check"></div><div class="field-name">annual_premium</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Annuity___Variable_RILA','apy')"><div class="check"></div><div class="field-name">apy</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Annuity___Variable_RILA','cash_value')"><div class="check"></div><div class="field-name">cash_value</div><div class="field-count"></div></div>
+<div class="field-item yes" onclick="toggleField(this,'Annuity___Variable_RILA','death_benefit')"><div class="check">✓</div><div class="field-name">death_benefit</div><div class="field-count">(1)</div></div>
+<div class="field-item no" onclick="toggleField(this,'Annuity___Variable_RILA','face_amount')"><div class="check"></div><div class="field-name">face_amount</div><div class="field-count"></div></div>
+<div class="field-item yes" onclick="toggleField(this,'Annuity___Variable_RILA','income_amount')"><div class="check">✓</div><div class="field-name">income_amount</div><div class="field-count"></div></div>
+<div class="field-item yes" onclick="toggleField(this,'Annuity___Variable_RILA','income_base')"><div class="check">✓</div><div class="field-name">income_base</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Annuity___Variable_RILA','loan_balance')"><div class="check"></div><div class="field-name">loan_balance</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Annuity___Variable_RILA','loan_interest_rate')"><div class="check"></div><div class="field-name">loan_interest_rate</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Annuity___Variable_RILA','maturity_date')"><div class="check"></div><div class="field-name">maturity_date</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Annuity___Variable_RILA','modal_premium')"><div class="check"></div><div class="field-name">modal_premium</div><div class="field-count"></div></div>
+<div class="field-item yes" onclick="toggleField(this,'Annuity___Variable_RILA','net_deposits')"><div class="check">✓</div><div class="field-name">net_deposits</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Annuity___Variable_RILA','net_loan_amount')"><div class="check"></div><div class="field-name">net_loan_amount</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Annuity___Variable_RILA','payout_rate')"><div class="check"></div><div class="field-name">payout_rate</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Annuity___Variable_RILA','premium_mode')"><div class="check"></div><div class="field-name">premium_mode</div><div class="field-count"></div></div>
+<div class="field-item yes" onclick="toggleField(this,'Annuity___Variable_RILA','rider_fee')"><div class="check">✓</div><div class="field-name">rider_fee</div><div class="field-count"></div></div>
+<div class="field-item yes" onclick="toggleField(this,'Annuity___Variable_RILA','rider_name')"><div class="check">✓</div><div class="field-name">rider_name</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Annuity___Variable_RILA','rollup_rate')"><div class="check"></div><div class="field-name">rollup_rate</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Annuity___Variable_RILA','scheduled_premium')"><div class="check"></div><div class="field-name">scheduled_premium</div><div class="field-count"></div></div>
+<div class="field-item yes" onclick="toggleField(this,'Annuity___Variable_RILA','surrender_value')"><div class="check">✓</div><div class="field-name">surrender_value</div><div class="field-count">(1)</div></div>
+<div class="field-item no" onclick="toggleField(this,'Annuity___Variable_RILA','term_months')"><div class="check"></div><div class="field-name">term_months</div><div class="field-count"></div></div>
+<div class="field-item no" onclick="toggleField(this,'Annuity___Variable_RILA','total_premiums_paid')"><div class="check"></div><div class="field-name">total_premiums_paid</div><div class="field-count"></div></div>
+</div></div>
+<div class="card"><h3>Top Products in Category</h3><table><tr><th>Carrier</th><th>Product</th><th>Subtype</th><th>Count</th></tr>
+<tr><td>Prudential</td><td>Variable Annuity</td><td>Annuity</td><td>1</td></tr>
+<tr><td>Delaware Life</td><td>Sun Life Financial Masters Variable Annuity</td><td>-</td><td>1</td></tr>
+<tr><td>Pacific Life</td><td>Variable Annuity</td><td>Annuity</td><td>1</td></tr>
+</table></div>
+</div>
+<div class="ebar"><div style="color:var(--muted);font-size:.8rem">Edit fields per product type, then export</div><button class="ebtn" onclick="exportSchema()">Export Schema (JSON)</button></div>
+<script>var schema={"Medicare": ["annual_premium", "premium_mode", "modal_premium"], "Life___Whole_Life": ["face_amount", "cash_value", "surrender_value", "death_benefit", "annual_premium", "modal_premium", "premium_mode", "total_premiums_paid", "loan_balance", "net_loan_amount", "loan_interest_rate"], "Life___Term": ["face_amount", "death_benefit", "annual_premium", "modal_premium", "premium_mode"], "Life___UL_Fixed_UL": ["face_amount", "cash_value", "surrender_value", "death_benefit", "annual_premium", "modal_premium", "premium_mode", "total_premiums_paid", "scheduled_premium", "loan_balance", "net_loan_amount", "loan_interest_rate"], "Life___IUL": ["face_amount", "cash_value", "surrender_value", "death_benefit", "annual_premium", "modal_premium", "premium_mode", "total_premiums_paid", "scheduled_premium", "loan_balance", "net_loan_amount", "loan_interest_rate"], "Life___VUL": ["face_amount", "cash_value", "surrender_value", "death_benefit", "annual_premium", "modal_premium", "premium_mode", "total_premiums_paid", "loan_balance", "net_loan_amount", "loan_interest_rate"], "Life___Final_Expense": ["face_amount", "death_benefit", "annual_premium", "modal_premium", "premium_mode", "total_premiums_paid", "cash_value", "surrender_value"], "Life___Other": ["face_amount", "cash_value", "surrender_value", "death_benefit", "annual_premium", "modal_premium", "premium_mode", "total_premiums_paid", "loan_balance", "net_loan_amount", "loan_interest_rate"], "Annuity___FIA": ["account_value", "surrender_value", "death_benefit", "net_deposits", "rider_name", "rider_fee", "income_base", "income_amount", "payout_rate", "rollup_rate", "maturity_date"], "Annuity___Variable_RILA": ["account_value", "surrender_value", "death_benefit", "net_deposits", "rider_name", "rider_fee", "income_base", "income_amount"], "Annuity___SPIA": ["account_value", "surrender_value", "death_benefit", "net_deposits", "income_amount", "income_base", "maturity_date", "rider_name", "rider_fee", "payout_rate"], "Annuity___Fixed_MYGA": ["account_value", "surrender_value", "death_benefit", "net_deposits", "maturity_date", "apy", "term_months"], "Annuity___Other": ["account_value", "surrender_value", "death_benefit", "net_deposits", "rider_name", "rider_fee", "income_base", "income_amount", "maturity_date"], "Investment": ["account_value", "net_deposits", "death_benefit"], "Unknown": []};
+
+function showTab(id, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('a'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('a'));
+  el.classList.add('a');
+  document.getElementById('p_' + id).classList.add('a');
+}
+function toggleField(el, cat, field) {
+  if (!schema[cat]) schema[cat] = [];
+  var idx = schema[cat].indexOf(field);
+  if (idx >= 0) {
+    schema[cat].splice(idx, 1);
+    el.className = 'field-item no';
+    el.querySelector('.check').textContent = '';
+  } else {
+    schema[cat].push(field);
+    el.className = 'field-item yes';
+    el.querySelector('.check').textContent = '✓';
+  }
+}
+function exportSchema() {
+  var blob = new Blob([JSON.stringify(schema, null, 2)], { type: 'application/json' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'product-field-schema.json';
+  a.click();
+}
+
+</script></body></html>
