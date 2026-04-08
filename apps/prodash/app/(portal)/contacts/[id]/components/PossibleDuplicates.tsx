@@ -163,7 +163,7 @@ export function PossibleDuplicates({ client, clientId }: PossibleDuplicatesProps
 
   const handleDdup = () => {
     const ids = [clientId, ...Array.from(selected)].join(',')
-    window.open(`/ddup?ids=${ids}&type=client`, '_blank', 'noopener,noreferrer')
+    window.open(`/ddup?ids=${ids}&type=client&ref=/contacts/${clientId}`, '_blank', 'noopener,noreferrer')
   }
 
   return (
