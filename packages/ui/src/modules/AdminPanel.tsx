@@ -581,7 +581,7 @@ function RoleUnitAssignment({
         </div>
       </div>
 
-      {/* Level preview */}
+      {/* Level preview + tray visibility indicator (APR-10) */}
       <div className="flex items-center gap-2 text-xs">
         <span className="text-[var(--text-muted)]">Derived level:</span>
         <span className="rounded-full bg-[var(--bg-surface)] px-2 py-0.5 text-[10px] font-medium text-[var(--text-primary)]">
@@ -589,6 +589,13 @@ function RoleUnitAssignment({
         </span>
         <span className="text-[var(--text-muted)]">|</span>
         <span className="text-[var(--text-muted)]">{previewModuleCount} modules</span>
+      </div>
+      <div className="flex items-center gap-1.5 text-[10px]">
+        <span className="text-[var(--text-muted)]">This user sees:</span>
+        {derivedLevelNum <= 0 && <span className="rounded-full px-1.5 py-0.5 font-medium" style={{ background: 'rgba(212,164,76,0.12)', color: '#d4a44c' }}>Owner&apos;s Box</span>}
+        {derivedLevelNum <= 1 && <span className="rounded-full px-1.5 py-0.5 font-medium" style={{ background: 'rgba(224,124,62,0.12)', color: '#e07c3e' }}>Executive Floor</span>}
+        {derivedLevelNum <= 2 && <span className="rounded-full px-1.5 py-0.5 font-medium" style={{ background: 'rgba(168,85,247,0.12)', color: '#a855f7' }}>Leader Level</span>}
+        <span className="rounded-full px-1.5 py-0.5 font-medium" style={{ background: 'rgba(59,130,246,0.12)', color: '#3b82f6' }}>Team Tray</span>
       </div>
 
       {/* Permissions preview */}
