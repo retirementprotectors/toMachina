@@ -113,8 +113,22 @@ UI Component (V/E/A controls what buttons render)</div>
 <!-- ═══════════════════ 3 TRAYS ═══════════════════ -->
 <div class="tab-panel" id="trays">
   <div class="card">
-    <h2>Sidebar Layout &mdash; 4 Collapsible Tiers</h2>
-    <p>Each tier is a collapsible section in the left sidebar. Click the header to expand/collapse. Users only see tiers their level permits. Each level maps 1:1 to a tier.</p>
+    <h2>Sidebar Layout &mdash; Fixed Dock + 3 Collapsible Tiers</h2>
+    <p>The <strong>Team Tray is a fixed dock</strong> at the bottom of the sidebar &mdash; always visible, never collapses. The other 3 tiers are collapsible vertical sections that stack ABOVE the dock. Your level determines how many tiers appear above the dock.</p>
+    <div class="flow-box">┌─────────────────────────────────┐
+│ ▼ Owner's Box    (collapsible)  │  ← OWNER only
+│   Synergy │ Admin │ CC          │
+├─────────────────────────────────┤
+│ ▼ Executive Floor (collapsible) │  ← EXECUTIVE+
+│   Dojo │ MEGA │ VOLT │ MUSA    │
+├─────────────────────────────────┤
+│ ▼ Leader Level    (collapsible) │  ← LEADER+
+│   ProZone │ RSP │ C3 │ CAM ... │
+╞═════════════════════════════════╡
+│ ═══ Team Tray ══ FIXED DOCK ══ │  ← ALL users
+│   COMMS │ Connect │ Alerts │MDJ │
+└─────────────────────────────────┘</div>
+    <p>USER sees just the dock. LEADER sees dock + 1 tier above. EXECUTIVE sees dock + 2. OWNER sees everything. The tiers grow upward from the dock based on level.</p>
   </div>
 
   <div class="tray" style="border-left-color: var(--gold);">
@@ -343,16 +357,17 @@ const voltronRole = LEVEL_TO_VOLTRON[req.user.level] || 'COORDINATOR'</div>
   </div>
 
   <div class="card">
-    <h3>Step 4: Sidebar &rarr; 3 Collapsible Trays</h3>
+    <h3>Step 4: Sidebar &rarr; Fixed Dock + 3 Collapsible Tiers</h3>
     <p><strong>File:</strong> <code>apps/prodash/app/(portal)/components/PortalSidebar.tsx</code></p>
-    <p>Restructure the app icons section from a flat list to 4 collapsible tier groups. Each tray:</p>
+    <p>Restructure the sidebar into two distinct zones:</p>
     <ul>
-      <li>Has a header bar (tray name + expand/collapse chevron)</li>
-      <li>Only renders if <code>userLevel &lt;= tray.minLevel</code></li>
-      <li>Remembers collapse state in localStorage</li>
-      <li>Icons within the tray still individually gated by <code>canAccessModule()</code></li>
+      <li><strong>Team Tray (fixed dock)</strong> &mdash; pinned to the bottom of the sidebar. Always visible. Never collapses. COMMS, Connect, Alerts, MDJ laid out across the dock.</li>
+      <li><strong>3 collapsible tiers above the dock</strong> &mdash; Owner's Box, Executive Floor, Leader Level. Each has a header bar (tier name + expand/collapse chevron). Click to expand/collapse. State persisted in localStorage.</li>
+      <li>Tiers only render if <code>userLevel &lt;= tier.minLevel</code></li>
+      <li>Icons within each tier still individually gated by <code>canAccessModule()</code></li>
+      <li>Tiers grow upward from the dock &mdash; USER sees just the dock, each level adds one tier above</li>
     </ul>
-    <p><strong>Change:</strong> Restructure the existing nav config array into 3 groups. Add collapse/expand state. No new components needed &mdash; just reorganize the render loop.</p>
+    <p><strong>Change:</strong> Split existing nav config into dock (fixed) + 3 collapsible groups. Add collapse/expand state. No new components &mdash; reorganize the render loop.</p>
   </div>
 
   <div class="card">
