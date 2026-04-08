@@ -1,6 +1,8 @@
 'use client'
 
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback, useEffect } from 'react'
+import { collection, getDocs } from 'firebase/firestore'
+import { getDb } from '@tomachina/db'
 import type { Account } from '@tomachina/core'
 import { formatCurrency, formatDate, str } from '../../lib/formatters'
 import { EmptyState } from '../../lib/ui-helpers'
@@ -67,6 +69,25 @@ export function AccountsTab({ accounts, loading, clientId, onAccountUpdated }: A
   const [showInactive, setShowInactive] = useState(false)
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [activeFilter, setActiveFilter] = useState<FilterKey>('all')
+  const [ignoredPairs, setIgnoredPairs] = useState<Set<string>>(new Set())
+
+  // Load ignored ddup pairs from Firestore
+  useEffect(() => {
+    async function loadIgnored() {
+      try {
+        const db = getDb()
+        const snap = await getDocs(collection(db, 'ddup_ignored'))
+        const pairs = new Set<string>()
+        snap.forEach((d) => {
+          const data = d.data()
+          if (data.record_a_id) pairs.add(data.record_a_id)
+          if (data.record_b_id) pairs.add(data.record_b_id)
+        })
+        setIgnoredPairs(pairs)
+      } catch { /* ddup_ignored may not exist yet */ }
+    }
+    loadIgnored()
+  }, [])
 
   // Filter inactive
   const visibleAccounts = useMemo(() => {
@@ -78,17 +99,21 @@ export function AccountsTab({ accounts, loading, clientId, onAccountUpdated }: A
     })
   }, [accounts, showInactive])
 
-  // Detect ddup groups among visible accounts
+  // Detect ddup groups among visible accounts, excluding ignored pairs
   const ddupAccountIds = useMemo(() => {
     const groups = findDdupGroups(visibleAccounts)
     const ids = new Set<string>()
     for (const accountIds of groups.values()) {
-      for (const id of accountIds) {
-        ids.add(id)
+      // Filter out accounts that are in ignored pairs
+      const nonIgnored = accountIds.filter(id => !ignoredPairs.has(id))
+      if (nonIgnored.length >= 2) {
+        for (const id of nonIgnored) {
+          ids.add(id)
+        }
       }
     }
     return ids
-  }, [visibleAccounts])
+  }, [visibleAccounts, ignoredPairs])
 
   // Count by category
   const categoryCounts = useMemo(() => {

@@ -399,22 +399,35 @@ function DdupContent() {
     setWinnerValues((prev) => ({ ...prev, [field]: recordId }))
   }, [])
 
-  // Ignore match
+  // Ignore match — write to ddup_ignored + dismissed_duplicates (for client type)
   const handleIgnore = useCallback(async () => {
     if (records.length < 2 || ignoring) return
     setIgnoring(true)
     try {
       const db = getDb()
-      const pairKey = [records[0].id, records[1].id].sort().join('__')
+      const idA = records[0].id
+      const idB = records[1].id
+      const pairKey = [idA, idB].sort().join('__')
       await setDoc(doc(db, 'ddup_ignored', pairKey), {
-        record_a_id: records[0].id,
-        record_b_id: records[1].id,
+        record_a_id: idA,
+        record_b_id: idB,
         type,
         ignored_at: new Date().toISOString(),
       })
+      // For client dedup, also write dismissed_duplicates so PossibleDuplicates.tsx filters them
+      if (type === 'client') {
+        await updateDoc(doc(db, 'clients', idA), {
+          dismissed_duplicates: arrayUnion(idB),
+          updated_at: new Date().toISOString(),
+        })
+        await updateDoc(doc(db, 'clients', idB), {
+          dismissed_duplicates: arrayUnion(idA),
+          updated_at: new Date().toISOString(),
+        })
+      }
       setIgnored(true)
-    } catch {
-      // swallow — non-critical
+    } catch (err) {
+      console.error('Failed to ignore match:', err)
     } finally {
       setIgnoring(false)
     }
