@@ -92,6 +92,24 @@ export interface Account {
   cash_value?: number
   surrender_value?: number
   account_value?: number
+  // Banking fields
+  bank_name?: string
+  routing_number?: string
+  account_number?: string
+  apy?: number
+  maturity_date?: string
+  term_months?: number
+  fdic_insured?: boolean
+  account_subtype?: string
+  // Liability fields
+  lender?: string
+  loan_type?: string
+  original_amount?: number
+  current_balance?: number
+  interest_rate?: number
+  monthly_payment?: number
+  payoff_date?: string
+  collateral?: string
   created_at: string
   updated_at: string
   [key: string]: unknown
@@ -504,6 +522,7 @@ export const ACCOUNT_TYPE_CATEGORIES = [
   'Medicare',
   'Investments',
   'Banking',
+  'Liabilities',
 ] as const
 
 export type AccountTypeCategory = typeof ACCOUNT_TYPE_CATEGORIES[number]
