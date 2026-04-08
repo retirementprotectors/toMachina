@@ -65,10 +65,18 @@ function timeToMinutes(t: string): number {
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-export function BookingConfig({ meetingTypes: initialTypes, availability: initialAvail, bookingSlug, isOwnProfile, onSaveMeetingTypes, onSaveAvailability }: BookingConfigProps) {
-  const [types, setTypes] = useState<BookingTypeConfig[]>(initialTypes.map((t, i) => ({ ...t, color: t.color || TYPE_COLORS[i % TYPE_COLORS.length] })))
-  const [avail, setAvail] = useState<BookingAvailabilityConfig>(initialAvail)
+export function BookingConfig({ meetingTypes: propTypes, availability: propAvail, bookingSlug, isOwnProfile, onSaveMeetingTypes, onSaveAvailability }: BookingConfigProps) {
+  const [types, setTypes] = useState<BookingTypeConfig[]>(propTypes.map((t, i) => ({ ...t, color: t.color || TYPE_COLORS[i % TYPE_COLORS.length] })))
+  const [avail, setAvail] = useState<BookingAvailabilityConfig>(propAvail)
   const [editingIdx, setEditingIdx] = useState<number | null>(null)
+
+  // Sync internal state when props change (e.g., Firestore snapshot update)
+  const [lastPropHash, setLastPropHash] = useState('')
+  const propHash = JSON.stringify(propTypes.map(t => t.name))
+  if (propHash !== lastPropHash) {
+    setLastPropHash(propHash)
+    setTypes(propTypes.map((t, i) => ({ ...t, color: t.color || TYPE_COLORS[i % TYPE_COLORS.length] })))
+  }
   const [addingNew, setAddingNew] = useState(false)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
