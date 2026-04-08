@@ -115,6 +115,7 @@ export const QUE_REGISTRY: QueRegistryEntry[] = [
   { id: 'lookup-life-rate', type: 'TOOL', domain: 'que', name: 'Life Rate Lookup', description: 'Premium lookup by product type, health class, age, and face amount' },
   { id: 'lookup-life-carrier-product', type: 'TOOL', domain: 'que', name: 'Life Carrier Product Lookup', description: 'Carrier product specs: term, UL, IUL, whole life offerings' },
 
+  { id: 'GENERATE_LIFE_CASEWORK', type: 'SUPER_TOOL', domain: 'que', name: 'Generate Life Casework', description: 'Assembles life analysis outputs into multi-tab HTML presentation', composedOf: ['generate-summary-html', 'generate-detail-html'] },
   // =============================================
   // LIFE & ESTATE EXPANSION — SUPER TOOLS (4)
   // =============================================
