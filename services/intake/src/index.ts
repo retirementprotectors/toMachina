@@ -17,6 +17,7 @@ import { scanEmailInboxes } from './email-intake.js'
 import { scanCommissionIntake } from './commission-intake.js'
 import { scanDriveIntake } from './drive-watcher.js'
 import { getQueueDepth, getQueueDepthBySource } from './queue.js'
+import { syncCalendarBusy } from './calendar-busy-sync.js'
 
 // Initialize Firebase Admin
 if (getApps().length === 0) {
@@ -175,3 +176,23 @@ export { onClientWrite, onAccountWrite }
  * Maps source field to wire ID and calls executeWire().
  */
 export { onIntakeQueueCreated }
+
+/**
+ * Calendar Busy Sync — BKG-08/09
+ * Syncs Google Calendar events to Firestore calendar_busy collection.
+ * HTTP trigger for manual runs + scheduled every 30 minutes.
+ */
+export const calendarBusySync = onRequest(
+  { region: 'us-central1', timeoutSeconds: 120, memory: '256MiB' },
+  async (_req, res) => {
+    const result = await syncCalendarBusy()
+    res.json({ success: result.success, data: result })
+  }
+)
+
+export const calendarBusySyncScheduled = onSchedule(
+  { schedule: 'every 30 minutes', region: 'us-central1', timeoutSeconds: 120, memory: '256MiB' },
+  async () => {
+    await syncCalendarBusy()
+  }
+)

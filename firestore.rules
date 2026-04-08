@@ -579,5 +579,18 @@ service cloud.firestore {
       allow read: if isRPIUser();
       allow write: if isRPIUser();
     }
+
+    // Calendar Busy — booking availability cache (BKG-10)
+    // Public read (booking pages are unauthenticated). Write via Cloud Function Admin SDK.
+    match /calendar_busy/{docId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Booking Log — appointment records (BKG-10)
+    match /booking_log/{docId} {
+      allow read: if isRPIUser();
+      allow write: if true;  // Public booking creates records
+    }
   }
 }

@@ -9,6 +9,12 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
     return next()
   }
 
+  // Public booking routes — called by unauthenticated clients via WordPress iframe.
+  // search-clients STAYS auth-gated (client PII). Config, busy, and POST booking are public.
+  if (req.path.startsWith('/booking/config/') || req.path === '/booking/busy' || (req.path === '/booking' && req.method === 'POST')) {
+    return next()
+  }
+
   // Cloud Scheduler routes — protected by Cloud Run IAM (OIDC), no Firebase token.
   if (req.path.startsWith('/document-index/scan')) {
     ;(req as any).user = { email: 'cron@retireprotected.com', name: 'Cloud Scheduler', uid: 'cron-service' }
