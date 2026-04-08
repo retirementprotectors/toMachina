@@ -296,7 +296,7 @@ async function run() {
       const sigMatched = detectedFormat.header_signatures.filter(sig =>
         headers.some(h => h.toLowerCase() === sig.toLowerCase())
       ).length
-      console.log(`  ✓ DETECTED: ${detectedFormat.carrier_name} (${detectedFormat.carrier_id})`)
+      console.log(`  ✓ DETECTED: ${detectedFormat.carrier} (${detectedFormat.carrier_id})`)
       console.log(`    Signature match: ${sigMatched}/${detectedFormat.header_signatures.length} headers`)
       console.log(`    Column map has ${Object.keys(detectedFormat.column_map).length} mappings`)
       console.log(`    Default category: ${detectedFormat.default_category}`)
@@ -333,7 +333,7 @@ async function run() {
     console.log('\n  [Step 3] Running matchProfiles()...')
     const carrierMaps = detectedFormat ? [detectedFormat.column_map] : []
     if (detectedFormat) {
-      console.log(`  Using column map from ${detectedFormat.carrier_name} (${Object.keys(detectedFormat.column_map).length} entries)`)
+      console.log(`  Using column map from ${detectedFormat.carrier} (${Object.keys(detectedFormat.column_map).length} entries)`)
     }
     const mappings = matchProfiles(csvProfiles, collProfiles, carrierMaps)
 

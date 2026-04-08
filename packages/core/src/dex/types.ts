@@ -254,7 +254,7 @@ export interface DexPackage {
 
 export interface TaxonomyCarrier {
   carrier_id: string
-  carrier_name: string
+  carrier: string
   carrier_type: CarrierType | string
   domain: TaxonomyDomain | string
   [key: string]: unknown

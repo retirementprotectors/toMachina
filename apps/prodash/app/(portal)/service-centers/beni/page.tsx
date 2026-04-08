@@ -82,7 +82,7 @@ export default function BeniCenterPage() {
             {
               accountId: acctDoc.id,
               accountType: String(account.account_type_category || account.product_type || ''),
-              carrierName: String(account.carrier_name || account.carrier || 'Unknown'),
+              carrierName: String(account.carrier || account.carrier || 'Unknown'),
               productName: String(account.product_name || account.product || ''),
               primaryBeneficiary: String(account.primary_beneficiary || '').trim(),
               primaryBeneficiaryPct: parseFloat(String(account.primary_beneficiary_pct || 0)),

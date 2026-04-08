@@ -104,7 +104,7 @@ export const FIELD_NORMALIZERS: Record<string, NormalizerType> = {
   mailing_zip: 'zip',
 
   // === Carrier fields -> normalizeCarrierName() ===
-  carrier_name: 'carrier',
+  carrier: 'carrier',
   custodian: 'carrier',
   institution_name: 'carrier',
   parent_carrier: 'skip',

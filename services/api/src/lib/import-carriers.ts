@@ -340,19 +340,19 @@ export async function populateNaicCodes(
  * Delegates to the core normalizer's two-layer resolution via normalizeCarrierFull().
  */
 export function resolveCarrier(rawName: string): {
-  carrier_name: string
+  carrier: string
   charter: string | null
   charter_code: string | null
   naic: number | null
   carrier_id: string | null
 } {
   if (!rawName) {
-    return { carrier_name: '', charter: null, charter_code: null, naic: null, carrier_id: null }
+    return { carrier: '', charter: null, charter_code: null, naic: null, carrier_id: null }
   }
 
   const resolved = normalizeCarrierFull(rawName)
   return {
-    carrier_name: resolved.carrier_name,
+    carrier: resolved.carrier,
     charter: resolved.charter,
     charter_code: resolved.charter_code,
     naic: resolved.naic,

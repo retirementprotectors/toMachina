@@ -10,7 +10,7 @@
 
 export interface CarrierFormatDefinition {
   carrier_id: string
-  carrier_name: string
+  carrier: string
   column_map: Record<string, string>
   dedup_keys: string[]
   header_signatures: string[]
@@ -23,7 +23,7 @@ export interface CarrierFormatDefinition {
 
 const NORTH_AMERICAN: CarrierFormatDefinition = {
   carrier_id: 'north_american',
-  carrier_name: 'North American (FIA/MYGA)',
+  carrier: 'North American (FIA/MYGA)',
   column_map: {
     'Policy Number': 'policy_number',
     'Contract Number': 'policy_number',
@@ -59,7 +59,7 @@ const NORTH_AMERICAN: CarrierFormatDefinition = {
 
 const NASSAU: CarrierFormatDefinition = {
   carrier_id: 'nassau',
-  carrier_name: 'Nassau (FIA)',
+  carrier: 'Nassau (FIA)',
   column_map: {
     'Contract #': 'policy_number',
     'Contract Number': 'policy_number',
@@ -94,7 +94,7 @@ const NASSAU: CarrierFormatDefinition = {
 
 const JOHN_HANCOCK: CarrierFormatDefinition = {
   carrier_id: 'john_hancock',
-  carrier_name: 'John Hancock (Life/IUL)',
+  carrier: 'John Hancock (Life/IUL)',
   column_map: {
     'Policy Number': 'policy_number',
     'Policy #': 'policy_number',
@@ -134,7 +134,7 @@ const JOHN_HANCOCK: CarrierFormatDefinition = {
 
 const CONSOLIDATED: CarrierFormatDefinition = {
   carrier_id: 'consolidated',
-  carrier_name: 'Consolidated (Multi-line)',
+  carrier: 'Consolidated (Multi-line)',
   column_map: {
     'Policy/Contract Number': 'policy_number',
     'Policy Number': 'policy_number',
@@ -147,8 +147,8 @@ const CONSOLIDATED: CarrierFormatDefinition = {
     'LOB': 'line_of_business',
     'Product Type': 'product_type',
     'Product Name': 'product_type',
-    'Carrier': 'carrier_name',
-    'Carrier Name': 'carrier_name',
+    'Carrier': 'carrier',
+    'Carrier Name': 'carrier',
     'Effective Date': 'effective_date',
     'Issue Date': 'effective_date',
     'Status': 'status',
@@ -164,7 +164,7 @@ const CONSOLIDATED: CarrierFormatDefinition = {
     'Client Email': 'email',
     'Client Phone': 'phone',
   },
-  dedup_keys: ['policy_number', 'carrier_name'],
+  dedup_keys: ['policy_number', 'carrier'],
   header_signatures: [
     'Policy/Contract Number', 'Client Name', 'Line of Business',
     'Carrier', 'Product Type', 'Effective Date', 'Account Value', 'Premium',
@@ -174,7 +174,7 @@ const CONSOLIDATED: CarrierFormatDefinition = {
 
 const SCHWAB: CarrierFormatDefinition = {
   carrier_id: 'schwab',
-  carrier_name: 'Schwab (Investments)',
+  carrier: 'Schwab (Investments)',
   column_map: {
     'Account Number': 'account_number',
     'Account #': 'account_number',
@@ -211,7 +211,7 @@ const SCHWAB: CarrierFormatDefinition = {
 
 const RBC: CarrierFormatDefinition = {
   carrier_id: 'rbc',
-  carrier_name: 'RBC (BD)',
+  carrier: 'RBC (BD)',
   column_map: {
     'Account Number': 'account_number',
     'Account #': 'account_number',
@@ -243,7 +243,7 @@ const RBC: CarrierFormatDefinition = {
 
 const DST_VISION: CarrierFormatDefinition = {
   carrier_id: 'dst_vision',
-  carrier_name: 'DST Vision (Mutual Fund/VA)',
+  carrier: 'DST Vision (Mutual Fund/VA)',
   column_map: {
     'Account Number': 'account_number',
     'Account #': 'account_number',
@@ -277,7 +277,7 @@ const DST_VISION: CarrierFormatDefinition = {
 
 const MEDICARE_GENERIC: CarrierFormatDefinition = {
   carrier_id: 'medicare_generic',
-  carrier_name: 'Medicare Generic',
+  carrier: 'Medicare Generic',
   column_map: {
     'Member ID': 'member_id',
     'Medicare ID': 'member_id',
@@ -287,8 +287,8 @@ const MEDICARE_GENERIC: CarrierFormatDefinition = {
     'Last Name': 'last_name',
     'Plan Name': 'product_type',
     'Plan Type': 'plan_type',
-    'Carrier': 'carrier_name',
-    'Carrier Name': 'carrier_name',
+    'Carrier': 'carrier',
+    'Carrier Name': 'carrier',
     'Effective Date': 'effective_date',
     'Enrollment Date': 'effective_date',
     'Disenrollment Date': 'termination_date',
@@ -306,7 +306,7 @@ const MEDICARE_GENERIC: CarrierFormatDefinition = {
     'Date of Birth': 'dob',
     'Phone': 'phone',
   },
-  dedup_keys: ['member_id', 'carrier_name', 'effective_date'],
+  dedup_keys: ['member_id', 'carrier', 'effective_date'],
   header_signatures: [
     'Member ID', 'Beneficiary Name', 'Plan Name', 'Plan Type',
     'Enrollment Date', 'Monthly Premium', 'Agent NPN', 'Enrollment Status',
@@ -316,7 +316,7 @@ const MEDICARE_GENERIC: CarrierFormatDefinition = {
 
 const HUMANA_MAPD: CarrierFormatDefinition = {
   carrier_id: 'humana_mapd',
-  carrier_name: 'Humana (MAPD/PDP)',
+  carrier: 'Humana (MAPD/PDP)',
   column_map: {
     // Member identity
     'MbrLastName': 'last_name',
@@ -389,7 +389,7 @@ const HUMANA_MAPD: CarrierFormatDefinition = {
 
 const AETNA_BOB: CarrierFormatDefinition = {
   carrier_id: 'aetna_bob',
-  carrier_name: 'Aetna (MedicareApprovedBOBReport)',
+  carrier: 'Aetna (MedicareApprovedBOBReport)',
   column_map: {
     // Member identity
     'Member ID': 'member_id',
@@ -471,7 +471,7 @@ const AETNA_BOB: CarrierFormatDefinition = {
 
 const KANSAS_CITY_LIFE: CarrierFormatDefinition = {
   carrier_id: 'kansas_city_life',
-  carrier_name: 'Kansas City Life (Life/Annuity)',
+  carrier: 'Kansas City Life (Life/Annuity)',
   column_map: {
     // Identity
     'Policy Number': 'policy_number',
@@ -535,7 +535,7 @@ const KANSAS_CITY_LIFE: CarrierFormatDefinition = {
 
 const CIGNA_MAPD: CarrierFormatDefinition = {
   carrier_id: 'cigna_mapd',
-  carrier_name: 'Cigna (MAPD)',
+  carrier: 'Cigna (MAPD)',
   column_map: {
     'Member ID': 'member_id',
     'Medicare ID': 'medicare_id',
@@ -574,7 +574,7 @@ const CIGNA_MAPD: CarrierFormatDefinition = {
 
 const WELLCARE_MAPD: CarrierFormatDefinition = {
   carrier_id: 'wellcare_mapd',
-  carrier_name: 'WellCare/Centene (MAPD)',
+  carrier: 'WellCare/Centene (MAPD)',
   column_map: {
     'Member Number': 'member_id',
     'Member ID': 'member_id',
@@ -612,7 +612,7 @@ const WELLCARE_MAPD: CarrierFormatDefinition = {
 
 const MUTUAL_OMAHA_MEDSUP: CarrierFormatDefinition = {
   carrier_id: 'mutual_omaha_medsup',
-  carrier_name: 'Mutual of Omaha (Med Supp)',
+  carrier: 'Mutual of Omaha (Med Supp)',
   column_map: {
     'Policy Number': 'policy_number',
     'Policy #': 'policy_number',
@@ -648,7 +648,7 @@ const MUTUAL_OMAHA_MEDSUP: CarrierFormatDefinition = {
 
 const DEVOTED_MAPD: CarrierFormatDefinition = {
   carrier_id: 'devoted_mapd',
-  carrier_name: 'Devoted Health (MAPD)',
+  carrier: 'Devoted Health (MAPD)',
   column_map: {
     'Member ID': 'member_id',
     'MBI': 'medicare_id',
@@ -682,7 +682,7 @@ const DEVOTED_MAPD: CarrierFormatDefinition = {
 
 const ATHENE_FIA: CarrierFormatDefinition = {
   carrier_id: 'athene_fia',
-  carrier_name: 'Athene (FIA/MYGA)',
+  carrier: 'Athene (FIA/MYGA)',
   column_map: {
     'Contract Number': 'policy_number',
     'Policy Number': 'policy_number',
@@ -716,7 +716,7 @@ const ATHENE_FIA: CarrierFormatDefinition = {
 
 const NATIONWIDE_FIA: CarrierFormatDefinition = {
   carrier_id: 'nationwide_fia',
-  carrier_name: 'Nationwide (FIA/MYGA)',
+  carrier: 'Nationwide (FIA/MYGA)',
   column_map: {
     'Contract Number': 'policy_number',
     'Policy Number': 'policy_number',
@@ -752,7 +752,7 @@ const NATIONWIDE_FIA: CarrierFormatDefinition = {
 
 const AMERICAN_EQUITY_FIA: CarrierFormatDefinition = {
   carrier_id: 'american_equity_fia',
-  carrier_name: 'American Equity (FIA)',
+  carrier: 'American Equity (FIA)',
   column_map: {
     'Policy Number': 'policy_number',
     'Contract Number': 'policy_number',
@@ -785,7 +785,7 @@ const AMERICAN_EQUITY_FIA: CarrierFormatDefinition = {
 
 const GLOBAL_ATLANTIC_FIA: CarrierFormatDefinition = {
   carrier_id: 'global_atlantic_fia',
-  carrier_name: 'Global Atlantic (FIA)',
+  carrier: 'Global Atlantic (FIA)',
   column_map: {
     'Policy Number': 'policy_number',
     'Contract Number': 'policy_number',
@@ -819,14 +819,14 @@ const GLOBAL_ATLANTIC_FIA: CarrierFormatDefinition = {
 
 const GRADIENT_COMMISSION: CarrierFormatDefinition = {
   carrier_id: 'gradient_commission',
-  carrier_name: 'Gradient (Commission Statement)',
+  carrier: 'Gradient (Commission Statement)',
   column_map: {
     'Transaction Date': 'transaction_date',
     'Pay Date': 'transaction_date',
     'Policy Number': 'policy_number',
     'Contract Number': 'policy_number',
-    'Carrier': 'carrier_name',
-    'Carrier Name': 'carrier_name',
+    'Carrier': 'carrier',
+    'Carrier Name': 'carrier',
     'Product': 'product_type',
     'Product Name': 'product_type',
     'Client Name': 'client_name',
@@ -857,14 +857,14 @@ const GRADIENT_COMMISSION: CarrierFormatDefinition = {
 
 const SIGNAL_COMMISSION: CarrierFormatDefinition = {
   carrier_id: 'signal_commission',
-  carrier_name: 'Signal (Commission Statement)',
+  carrier: 'Signal (Commission Statement)',
   column_map: {
     'Pay Date': 'transaction_date',
     'Transaction Date': 'transaction_date',
     'Policy #': 'policy_number',
     'Policy Number': 'policy_number',
-    'Insurance Company': 'carrier_name',
-    'Carrier': 'carrier_name',
+    'Insurance Company': 'carrier',
+    'Carrier': 'carrier',
     'Product Type': 'product_type',
     'Product': 'product_type',
     'Insured Name': 'client_name',
@@ -979,7 +979,7 @@ export function mapRowToCanonical(
 ): Record<string, unknown> {
   const result: Record<string, unknown> = {
     carrier_id: format.carrier_id,
-    carrier_name: format.carrier_name,
+    carrier: format.carrier,
     account_category: format.default_category,
   }
 

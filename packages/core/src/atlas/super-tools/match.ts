@@ -126,7 +126,7 @@ export async function execute(
         const accountResult = matchAccount(
           {
             policyNumber: String(record.policy_number || record.account_number || ''),
-            carrier: String(record.carrier_name || record.custodian || ''),
+            carrier: String(record.carrier || record.custodian || ''),
             clientId: String(record.client_id || ''),
             effectiveDate: String(record.effective_date || record.issue_date || ''),
           },

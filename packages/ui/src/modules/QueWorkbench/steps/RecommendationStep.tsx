@@ -14,7 +14,7 @@ interface RecommendationStepProps {
 
 interface SelectedProduct {
   quote_id: string
-  carrier_name: string
+  carrier: string
   product_name: string
   rationale: string
 }
@@ -38,7 +38,7 @@ export function RecommendationStep({ sessionId, productLine, onNext, onBack }: R
           advisor_notes?: string
         }
         selected_quote_ids?: string[]
-        quotes?: { quote_id: string; carrier_name: string; product_name: string }[]
+        quotes?: { quote_id: string; carrier: string; product_name: string }[]
       }>(`/api/que/${sessionId}`)
       if (!result.success) {
         setLoading(false)
@@ -57,7 +57,7 @@ export function RecommendationStep({ sessionId, productLine, onNext, onBack }: R
             .map((qid) => {
               const q = quotes.find((x) => x.quote_id === qid)
               return q
-                ? { quote_id: q.quote_id, carrier_name: q.carrier_name, product_name: q.product_name, rationale: '' }
+                ? { quote_id: q.quote_id, carrier: q.carrier, product_name: q.product_name, rationale: '' }
                 : null
             })
             .filter((p): p is SelectedProduct => p !== null)
@@ -157,7 +157,7 @@ export function RecommendationStep({ sessionId, productLine, onNext, onBack }: R
                     verified
                   </span>
                   <div>
-                    <p className="text-sm font-semibold text-[var(--text-primary)]">{product.carrier_name}</p>
+                    <p className="text-sm font-semibold text-[var(--text-primary)]">{product.carrier}</p>
                     <p className="text-xs text-[var(--text-secondary)]">{product.product_name}</p>
                   </div>
                 </div>

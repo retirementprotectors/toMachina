@@ -277,7 +277,7 @@ interface AccountRecord {
   policy_number?: string
   account_number?: string
   contract_number?: string
-  carrier_name?: string
+  carrier?: string
   custodian?: string
   client_id?: string
   effective_date?: string
@@ -333,7 +333,7 @@ export function matchAccount(
         return { match: account, score: 100, method: 'policy_number', sourceTab: tabName }
       }
 
-      const accountCarrierName = normCarrier(account.carrier_name || account.custodian || '')
+      const accountCarrierName = normCarrier(account.carrier || account.custodian || '')
       const accountDate = normDate(account.effective_date || account.issue_date || account.opened_date || '')
 
       // Client + Carrier + Date match

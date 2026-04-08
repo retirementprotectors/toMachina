@@ -27,7 +27,7 @@ export interface SlackCaseInput {
   summaryUrl?: string
   accounts?: Array<{
     custodian?: string
-    carrier_name?: string
+    carrier?: string
     account_type?: string
     product_type?: string
     account_value?: number | string
@@ -152,7 +152,7 @@ export async function notifySlackCase(
     const accountLines = accounts
       .slice(0, 5)
       .map((acc) => {
-        const name = acc.custodian || acc.carrier_name || 'Unknown'
+        const name = acc.custodian || acc.carrier || 'Unknown'
         const type = acc.account_type || acc.product_type || ''
         const value = parseFloat(String(acc.account_value || acc.cash_value || 0)) || 0
         return `\u2022 ${name} ${type}: $${value.toLocaleString()}`

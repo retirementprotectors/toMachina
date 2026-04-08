@@ -637,7 +637,7 @@ function NewAccountModal({ clientId, clientName, onClose }: NewAccountModalProps
     try {
       await addDoc(collection(getDb(), 'clients', clientId, 'accounts'), {
         client_id: clientId,
-        carrier_name: carrierName,
+        carrier: carrierName,
         product_type: productType,
         account_number: accountNumber.trim() || null,
         status,

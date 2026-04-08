@@ -322,7 +322,7 @@ async function createNewClientsAndAccounts(
           batch.set(ref, {
             account_id: accountId,
             client_id: firstMatch.client_id,
-            carrier_name: 'Catholic Order of Foresters',
+            carrier: 'Catholic Order of Foresters',
             policy_number: pol.policy_number,
             product_type: pol.product_type,
             product_name: pol.product_name,
@@ -388,7 +388,7 @@ async function createNewClientsAndAccounts(
       source: 'cof_bob_import',
       import_source: 'cof_bob_import',
       agent_id: 'shane@retireprotected.com',
-      carrier_name: 'Catholic Order of Foresters',
+      carrier: 'Catholic Order of Foresters',
       created_at: now,
       updated_at: now,
     })
@@ -402,7 +402,7 @@ async function createNewClientsAndAccounts(
       batch.set(accountRef, {
         account_id: accountId,
         client_id: clientId,
-        carrier_name: 'Catholic Order of Foresters',
+        carrier: 'Catholic Order of Foresters',
         policy_number: pol.policy_number,
         product_type: pol.product_type,
         product_name: pol.product_name,
@@ -587,7 +587,7 @@ async function dedupScan(): Promise<{ count: number; duplicates: Array<{ policy_
   console.log('\n[STEP 6] Running DeDup scan on CoF accounts...')
 
   const snap = await db.collectionGroup('accounts')
-    .where('carrier_name', '==', 'Catholic Order of Foresters')
+    .where('carrier', '==', 'Catholic Order of Foresters')
     .get()
 
   console.log(`  Total CoF accounts after import: ${snap.size}`)
@@ -685,7 +685,7 @@ async function registerInAtlas(): Promise<void> {
     source_name: 'Catholic Order of Foresters',
     source_type: 'carrier_bob_export',
     data_domain: 'ACCOUNTS',
-    carrier_name: 'Catholic Order of Foresters',
+    carrier: 'Catholic Order of Foresters',
     current_source: 'XLSX from carrier portal',
     current_method: 'Manual download',
     current_frequency: 'On-demand',
@@ -761,7 +761,7 @@ async function main() {
   // Count existing CoF accounts for report
   let existingCofCount = 0
   for (const [, acct] of existingAccounts) {
-    if (acct.data.carrier_name === 'Catholic Order of Foresters') existingCofCount++
+    if (acct.data.carrier === 'Catholic Order of Foresters') existingCofCount++
   }
   console.log(`  Existing CoF accounts: ${existingCofCount}`)
 

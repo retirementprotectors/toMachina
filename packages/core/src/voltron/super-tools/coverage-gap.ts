@@ -16,7 +16,7 @@ interface Account {
   account_id: string
   account_type: string
   account_type_category: string
-  carrier_name: string
+  carrier: string
   policy_number: string
   status: string
   premium: number

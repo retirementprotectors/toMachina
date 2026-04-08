@@ -16,7 +16,7 @@ interface Account {
   account_id: string
   account_type: string
   account_type_category: string
-  carrier_name: string
+  carrier: string
   policy_number: string
   status: string
   premium: number
@@ -28,7 +28,7 @@ interface Account {
 interface RmdCalculation {
   account_id: string
   account_type: string
-  carrier_name: string
+  carrier: string
   balance: number
   distribution_period: number
   rmd_amount: number
@@ -172,7 +172,7 @@ export async function execute(
       return {
         account_id: account.account_id,
         account_type: account.account_type,
-        carrier_name: account.carrier_name,
+        carrier: account.carrier,
         balance,
         distribution_period: distributionPeriod,
         rmd_amount: rmdAmount,

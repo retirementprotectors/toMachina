@@ -31,7 +31,7 @@ export interface CarrierIdentity {
 //
 // Keys are LOWERCASE variants of how charter names appear in:
 //   - Commission files (Legal Entity, Company, COMPANYCODE fields)
-//   - BoB exports (carrier_name, company_name fields)
+//   - BoB exports (carrier, company_name fields)
 //   - Policy number prefixes (CLI, AHC, 000M1, etc.)
 //   - GHL imports (compound carrier names)
 // ============================================================================
@@ -221,7 +221,7 @@ export const CHARTER_IDENTITY_MAP: Record<string, CarrierIdentity> = {
 // ============================================================================
 // Parent Brand → Default Charter (for single-charter carriers)
 //
-// When carrier_name resolves to a parent brand with only one charter,
+// When carrier resolves to a parent brand with only one charter,
 // we can auto-assign that charter. Multi-charter parents (Aetna, MutOmaha,
 // Humana, Cigna, Chubb) cannot be auto-resolved — charter stays null.
 // ============================================================================

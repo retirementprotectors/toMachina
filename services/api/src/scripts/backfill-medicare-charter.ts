@@ -2,7 +2,7 @@
  * Backfill Medicare accounts with underwriting charter + NAIC.
  *
  * Reads all Medicare accounts from Firestore, resolves charter identity
- * from carrier_name + policy_number patterns, and updates the records.
+ * from carrier + policy_number patterns, and updates the records.
  *
  * Resolution strategies (in order):
  *   1. Direct charter name match (CHARTER_IDENTITY_MAP)
@@ -195,7 +195,7 @@ async function main() {
 
   for (const doc of medicareAccounts) {
     const data = doc.data()
-    const carrierName = data.carrier_name || data.carrier || ''
+    const carrierName = data.carrier || data.carrier || ''
     const policyNumber = data.policy_number || ''
 
     // Skip if charter already populated
@@ -226,10 +226,10 @@ async function main() {
 
     // Strategy 3: Single-charter parent auto-assign
     if (!resolved) {
-      const parentName = data.parent_carrier || data.carrier_name || data.carrier || ''
+      const parentName = data.parent_carrier || data.carrier || data.carrier || ''
       const full = normalizeCarrierFull(parentName)
       if (full.charter) {
-        resolved = { charter: full.charter, charter_code: full.charter_code!, naic: full.naic ?? undefined, carrier_id: full.carrier_id!, parent: full.carrier_name }
+        resolved = { charter: full.charter, charter_code: full.charter_code!, naic: full.naic ?? undefined, carrier_id: full.carrier_id!, parent: full.carrier }
         resolvedBySingleCharter++
       }
     }

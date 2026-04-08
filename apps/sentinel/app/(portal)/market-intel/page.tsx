@@ -27,7 +27,7 @@ interface AgentRecord {
 interface CarrierRecord {
   _id: string
   name?: string
-  carrier_name?: string
+  carrier?: string
   status?: string
   product_lines?: string[]
   type?: string
@@ -47,7 +47,7 @@ interface ProducerRecord {
 interface RevenueRecord {
   _id: string
   agent_name?: string
-  carrier_name?: string
+  carrier?: string
   total_premium?: number
   premium?: number
   amount?: number
@@ -99,9 +99,9 @@ export default function MarketIntelPage() {
   const carrierRevenue = useMemo(() => {
     const map: Record<string, number> = {}
     revenue.forEach((r) => {
-      if (r.carrier_name) {
+      if (r.carrier) {
         const amt = Number(r.total_premium || r.premium || r.amount || 0)
-        if (!isNaN(amt)) map[r.carrier_name] = (map[r.carrier_name] || 0) + amt
+        if (!isNaN(amt)) map[r.carrier] = (map[r.carrier] || 0) + amt
       }
     })
     return map
@@ -109,7 +109,7 @@ export default function MarketIntelPage() {
 
   /* Unique carrier names for cross-reference filter */
   const carrierNames = useMemo(() => {
-    return carriers.map((c) => c.name || c.carrier_name || '').filter(Boolean).sort()
+    return carriers.map((c) => c.name || c.carrier || '').filter(Boolean).sort()
   }, [carriers])
 
   /* Filtered list based on tab */
@@ -132,7 +132,7 @@ export default function MarketIntelPage() {
     if (tab === 'carriers') {
       return carriers.filter((c) => {
         if (!search) return true
-        const name = `${c.name || ''} ${c.carrier_name || ''}`.toLowerCase()
+        const name = `${c.name || ''} ${c.carrier || ''}`.toLowerCase()
         return name.includes(lower)
       }).slice(0, 100)
     }
@@ -277,12 +277,12 @@ export default function MarketIntelPage() {
       )}
 
       {detail?.type === 'carrier' && (
-        <Modal open onClose={handleCloseDetail} title={detail.record.name || detail.record.carrier_name || 'Carrier'} size="lg">
+        <Modal open onClose={handleCloseDetail} title={detail.record.name || detail.record.carrier || 'Carrier'} size="lg">
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <InfoField label="Status" value={detail.record.status || 'active'} />
               <InfoField label="Type" value={detail.record.type || '-'} />
-              <InfoField label="Total Revenue" value={carrierRevenue[detail.record.name || detail.record.carrier_name || ''] ? formatCurrency(carrierRevenue[detail.record.name || detail.record.carrier_name || '']) : '-'} />
+              <InfoField label="Total Revenue" value={carrierRevenue[detail.record.name || detail.record.carrier || ''] ? formatCurrency(carrierRevenue[detail.record.name || detail.record.carrier || '']) : '-'} />
             </div>
             {detail.record.product_lines && detail.record.product_lines.length > 0 && (
               <div>
@@ -298,7 +298,7 @@ export default function MarketIntelPage() {
             <div>
               <p className="mb-1 text-[10px] font-medium uppercase tracking-wider text-[var(--text-muted)]">Agents with Appointments</p>
               <p className="text-sm text-[var(--text-primary)]">
-                {agents.filter((a) => a.carrier_appointments?.some((c) => c.toLowerCase().includes((detail.record.name || detail.record.carrier_name || '').toLowerCase()))).length} agents
+                {agents.filter((a) => a.carrier_appointments?.some((c) => c.toLowerCase().includes((detail.record.name || detail.record.carrier || '').toLowerCase()))).length} agents
               </p>
             </div>
           </div>
@@ -378,7 +378,7 @@ function CarrierTable({ items, total, carrierRevenue, onSelect, formatCurrency }
         </thead>
         <tbody>
           {items.map((c) => {
-            const name = c.name || c.carrier_name || c._id
+            const name = c.name || c.carrier || c._id
             return (
               <tr key={c._id} onClick={() => onSelect(c)} className="cursor-pointer border-b border-[var(--border-subtle)] transition-colors hover:bg-[var(--bg-hover)]">
                 <td className="py-2 pr-4 font-medium text-[var(--text-primary)]">{name}</td>
