@@ -92,7 +92,7 @@ export function StepType({ booking }: { booking: BookingHook }) {
               </div>
             </div>
             <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-              {type.modes.map(mode => (
+              {(type.modes || ['meet', 'call']).map(mode => (
                 <span
                   key={mode}
                   className="material-icons-outlined"

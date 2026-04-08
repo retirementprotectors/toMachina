@@ -99,7 +99,7 @@ export function StepDatetime({ booking }: { booking: BookingHook }) {
             How would you like to meet?
           </h3>
           <div style={{ display: 'flex', gap: 10 }}>
-            {selectedType.modes.map(mode => {
+            {(selectedType.modes || ['meet', 'call']).map(mode => {
               const info = MODE_LABELS[mode] || { icon: 'event', label: mode }
               return (
                 <button
