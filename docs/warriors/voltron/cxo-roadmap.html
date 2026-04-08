@@ -163,6 +163,7 @@
     <div class="tab" onclick="showPanel('cso-grid', this)">CSO GRID</div>
     <div class="tab" onclick="showPanel('sales', this)">SALES</div>
     <div class="tab" onclick="showPanel('service', this)">SERVICE</div>
+    <div class="tab" onclick="showPanel('appa', this)">A.P.P.A.</div>
     <div class="tab" onclick="showPanel('roadmap', this)">ROADMAP</div>
   </div>
 </div>
@@ -973,6 +974,230 @@
 
     <div class="callout blue" style="margin: 0 0 20px;">
       <p><strong>RMD Center and Beni Center are live and functional but not yet wired into the Lion proactive alert system.</strong> That's DEVOUR Track 3 work — Lions at Scale.</p>
+    </div>
+  </div>
+
+  <!-- TAB: A.P.P.A. MATURITY -->
+  <div id="appa" class="panel">
+    <div class="card">
+      <h2>A.P.P.A. Maturity Map — VOLTRON CSO Domain</h2>
+      <p>Where every scope sits on the A.P.P.A. scale: <strong>Activity → Process → People → Automation</strong>. Honest assessment. Updated 2026-04-09.</p>
+      <div class="callout">
+        <p><strong>The Rule:</strong> You can't automate what you haven't done by hand enough times to see the pattern. Each stage earns the next. Skip a stage, the whole thing breaks.</p>
+      </div>
+    </div>
+
+    <!-- APPA Visual Grid -->
+    <div class="card">
+      <h3>Maturity Grid</h3>
+      <p>Each bar shows where a scope sits. The fill represents progress within that stage.</p>
+      <div style="margin:20px 0">
+
+        <!-- Header row -->
+        <div style="display:grid;grid-template-columns:200px 1fr;gap:0;margin-bottom:4px">
+          <div style="font-size:0.7rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:1px"></div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:2px;text-align:center">
+            <div style="font-size:0.65rem;color:var(--red);font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:4px">Activity</div>
+            <div style="font-size:0.65rem;color:var(--orange);font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:4px">Process</div>
+            <div style="font-size:0.65rem;color:var(--blue);font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:4px">People</div>
+            <div style="font-size:0.65rem;color:var(--green);font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:4px">Automation</div>
+          </div>
+        </div>
+
+        <!-- QUE Registry -->
+        <div style="display:grid;grid-template-columns:200px 1fr;gap:0;margin-bottom:6px;align-items:center">
+          <div style="font-size:0.78rem;font-weight:600;color:var(--text);padding-right:12px">QUE Registry</div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:2px;height:28px">
+            <div style="background:var(--red);opacity:0.3;border-radius:4px 0 0 4px"></div>
+            <div style="background:linear-gradient(90deg,var(--orange) 60%,var(--card2) 60%);border-radius:0"></div>
+            <div style="background:var(--card2);border-radius:0"></div>
+            <div style="background:var(--card2);border-radius:0 4px 4px 0"></div>
+          </div>
+        </div>
+
+        <!-- Command Center -->
+        <div style="display:grid;grid-template-columns:200px 1fr;gap:0;margin-bottom:6px;align-items:center">
+          <div style="font-size:0.78rem;font-weight:600;color:var(--text);padding-right:12px">Command Center</div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:2px;height:28px">
+            <div style="background:linear-gradient(90deg,var(--red) 40%,var(--card2) 40%);border-radius:4px 0 0 4px"></div>
+            <div style="background:var(--card2);border-radius:0"></div>
+            <div style="background:var(--card2);border-radius:0"></div>
+            <div style="background:var(--card2);border-radius:0 4px 4px 0"></div>
+          </div>
+        </div>
+
+        <!-- Cases Pipeline -->
+        <div style="display:grid;grid-template-columns:200px 1fr;gap:0;margin-bottom:6px;align-items:center">
+          <div style="font-size:0.78rem;font-weight:600;color:var(--text);padding-right:12px">Cases Pipeline</div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:2px;height:28px">
+            <div style="background:linear-gradient(90deg,var(--red) 20%,var(--card2) 20%);border-radius:4px 0 0 4px"></div>
+            <div style="background:var(--card2);border-radius:0"></div>
+            <div style="background:var(--card2);border-radius:0"></div>
+            <div style="background:var(--card2);border-radius:0 4px 4px 0"></div>
+          </div>
+        </div>
+
+        <!-- Lions Mesh -->
+        <div style="display:grid;grid-template-columns:200px 1fr;gap:0;margin-bottom:6px;align-items:center">
+          <div style="font-size:0.78rem;font-weight:600;color:var(--text);padding-right:12px">Lions Mesh</div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:2px;height:28px">
+            <div style="background:var(--card2);border-radius:4px 0 0 4px"></div>
+            <div style="background:linear-gradient(90deg,var(--orange) 50%,var(--card2) 50%);border-radius:0"></div>
+            <div style="background:var(--card2);border-radius:0"></div>
+            <div style="background:var(--card2);border-radius:0 4px 4px 0"></div>
+          </div>
+        </div>
+
+        <!-- ProZONE -->
+        <div style="display:grid;grid-template-columns:200px 1fr;gap:0;margin-bottom:6px;align-items:center">
+          <div style="font-size:0.78rem;font-weight:600;color:var(--text);padding-right:12px">ProZONE</div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:2px;height:28px">
+            <div style="background:var(--card2);border-radius:4px 0 0 4px"></div>
+            <div style="background:var(--card2);border-radius:0"></div>
+            <div style="background:var(--card2);border-radius:0"></div>
+            <div style="background:var(--card2);border-radius:0 4px 4px 0"></div>
+          </div>
+        </div>
+
+        <!-- RSP Pipeline -->
+        <div style="display:grid;grid-template-columns:200px 1fr;gap:0;margin-bottom:6px;align-items:center">
+          <div style="font-size:0.78rem;font-weight:600;color:var(--text);padding-right:12px">RSP Pipeline</div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:2px;height:28px">
+            <div style="background:var(--red);border-radius:4px 0 0 4px"></div>
+            <div style="background:var(--orange);border-radius:0"></div>
+            <div style="background:var(--card2);border-radius:0"></div>
+            <div style="background:var(--card2);border-radius:0 4px 4px 0"></div>
+          </div>
+        </div>
+
+        <!-- RMD Center -->
+        <div style="display:grid;grid-template-columns:200px 1fr;gap:0;margin-bottom:6px;align-items:center">
+          <div style="font-size:0.78rem;font-weight:600;color:var(--text);padding-right:12px">RMD Center</div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:2px;height:28px">
+            <div style="background:var(--red);border-radius:4px 0 0 4px"></div>
+            <div style="background:var(--orange);border-radius:0"></div>
+            <div style="background:var(--card2);border-radius:0"></div>
+            <div style="background:var(--card2);border-radius:0 4px 4px 0"></div>
+          </div>
+        </div>
+
+        <!-- Beni Center -->
+        <div style="display:grid;grid-template-columns:200px 1fr;gap:0;margin-bottom:6px;align-items:center">
+          <div style="font-size:0.78rem;font-weight:600;color:var(--text);padding-right:12px">Beni Center</div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:2px;height:28px">
+            <div style="background:var(--red);border-radius:4px 0 0 4px"></div>
+            <div style="background:var(--orange);border-radius:0"></div>
+            <div style="background:var(--card2);border-radius:0"></div>
+            <div style="background:var(--card2);border-radius:0 4px 4px 0"></div>
+          </div>
+        </div>
+
+        <!-- SERFF / Medicare Quoting -->
+        <div style="display:grid;grid-template-columns:200px 1fr;gap:0;margin-bottom:6px;align-items:center">
+          <div style="font-size:0.78rem;font-weight:600;color:var(--text);padding-right:12px">SERFF / Med Quoting</div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:2px;height:28px">
+            <div style="background:linear-gradient(90deg,var(--red) 30%,var(--card2) 30%);border-radius:4px 0 0 4px"></div>
+            <div style="background:var(--card2);border-radius:0"></div>
+            <div style="background:var(--card2);border-radius:0"></div>
+            <div style="background:var(--card2);border-radius:0 4px 4px 0"></div>
+          </div>
+        </div>
+
+        <!-- Correspondence Ranger -->
+        <div style="display:grid;grid-template-columns:200px 1fr;gap:0;margin-bottom:6px;align-items:center">
+          <div style="font-size:0.78rem;font-weight:600;color:var(--text);padding-right:12px">Correspondence Ranger</div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:2px;height:28px">
+            <div style="background:var(--card2);border-radius:4px 0 0 4px"></div>
+            <div style="background:linear-gradient(90deg,var(--orange) 80%,var(--card2) 80%);border-radius:0"></div>
+            <div style="background:var(--card2);border-radius:0"></div>
+            <div style="background:var(--card2);border-radius:0 4px 4px 0"></div>
+          </div>
+        </div>
+
+        <!-- Life & Estate Wires -->
+        <div style="display:grid;grid-template-columns:200px 1fr;gap:0;margin-bottom:6px;align-items:center">
+          <div style="font-size:0.78rem;font-weight:600;color:var(--text);padding-right:12px">Life & Estate Wires</div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:2px;height:28px">
+            <div style="background:var(--card2);border-radius:4px 0 0 4px"></div>
+            <div style="background:linear-gradient(90deg,var(--orange) 90%,var(--card2) 90%);border-radius:0"></div>
+            <div style="background:var(--card2);border-radius:0"></div>
+            <div style="background:var(--card2);border-radius:0 4px 4px 0"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Detail Cards -->
+    <div class="card">
+      <h3>Detail by Scope</h3>
+
+      <div class="flag red">
+        <div class="title">Cases Pipeline — Stage 1: ACTIVITY (10%)</div>
+        <p>Ruth was the first real case. Exposed every gap: wrong field names, deleted valid data, didn't use the Ranger pipeline, no Banking category. Every one of those discoveries came from doing the work.</p>
+        <p><strong>Next:</strong> 5-10 more real cases. Do them by hand. Document what works before fixing code.</p>
+      </div>
+
+      <div class="flag red">
+        <div class="title">Command Center — Stage 1: ACTIVITY (40%)</div>
+        <p>Tabs render. Data loads (after role fix). But nobody has used it for daily operations. No wires executed through the UI. No cases reviewed. No Lions dispatched from the panel.</p>
+        <p><strong>Next:</strong> JDM + Archer use Command Center for the next 5 cases instead of working around it.</p>
+      </div>
+
+      <div class="flag red">
+        <div class="title">SERFF / Medicare Quoting — Stage 1: ACTIVITY (30%)</div>
+        <p>1.58M rows in BigQuery. Never queried for a real client. Nobody has pulled a live Med Supp quote through the system. The data is there but the Activity hasn't started.</p>
+        <p><strong>Next:</strong> Pull one real Iowa Med Supp quote by hand through BigQuery. See what the data looks like for a real 71-year-old.</p>
+      </div>
+
+      <div class="flag red">
+        <div class="title">ProZONE — NOT STARTED</div>
+        <p>UI scaffold exists (5 tabs). Zero data. Zero wiring. The Activity of territory management is happening in spreadsheets and heads. Sprint 12.</p>
+        <p><strong>Next:</strong> Don't build ProZONE until the team is doing territory management with enough volume to see the patterns.</p>
+      </div>
+
+      <div class="flag orange">
+        <div class="title">QUE Registry — Stage 2: PROCESS (60%)</div>
+        <p>80 entries registered. Tools, super tools, wires all coded. But they were built from spec, not from Activity. Today's case proved the tools exist but haven't been validated against real data.</p>
+        <p><strong>Next:</strong> Run every QUE wire against the Ruth household. See what the output actually looks like. Fix from output, not from code review.</p>
+      </div>
+
+      <div class="flag orange">
+        <div class="title">Lions Mesh — Stage 2: PROCESS (50%)</div>
+        <p>5 Lions configured. Routing keywords set. CCSDK agent running. But zero real queries handled. The Lions are process on paper, not process from experience.</p>
+        <p><strong>Next:</strong> Stage 1 first. A real team member asks a real question through the MDJ Panel. See what happens.</p>
+      </div>
+
+      <div class="flag orange">
+        <div class="title">Correspondence Ranger — Stage 2: PROCESS (80%)</div>
+        <p>All 8 super tools implemented. Pipeline defined. But SUPER_PREPARE failed on first real run (Drive download context). Has never processed one document end-to-end.</p>
+        <p><strong>Next:</strong> Get ONE document through the full pipeline. Then iterate.</p>
+      </div>
+
+      <div class="flag orange">
+        <div class="title">Life & Estate Wires — Stage 2: PROCESS (90%)</div>
+        <p>80 registry entries. 4 wires. Template contracts resolved. But zero executions against real data. Templates have never rendered a real client's information.</p>
+        <p><strong>Next:</strong> Run WIRE_LIFE_PRESENTATION against Ruth. See the output. Fix from there.</p>
+      </div>
+
+      <div class="flag blue">
+        <div class="title">RSP Pipeline — Stage 2: PROCESS (complete) → Stage 3: PEOPLE (not started)</div>
+        <p>Live on main. Wired to Flow Engine. Actually went through the stages — Activity in old system, Process documented, built into tool. But the team hasn't adopted it.</p>
+        <p><strong>Next:</strong> Stage 3. Train the team. Get Vince and Archer using it for new business.</p>
+      </div>
+
+      <div class="flag blue">
+        <div class="title">RMD Center + Beni Center — Stage 2: PROCESS (complete) → Stage 3: PEOPLE (not started)</div>
+        <p>Both live. UI works. But the Activity of RMD tracking and beni review is still manual. Ruth had 13 accounts with no beneficiary — Beni Center didn't flag it because nobody uses it.</p>
+        <p><strong>Next:</strong> Stage 3. Make it part of the team's daily workflow. Every review meeting should pull from these tools.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>The Lesson</h3>
+      <div class="callout green">
+        <p><strong>We built a lot. We used almost none of it.</strong> The next 10 cases through the system matter more than the next 10 PRs. Activity earns Process. Process earns People. People earn Automation. We're trying to jump to Automation from Process without doing the Activity or training the People.</p>
+      </div>
     </div>
   </div>
 
