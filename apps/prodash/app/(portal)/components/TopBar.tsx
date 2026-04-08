@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useAuth, type AuthUser } from '@tomachina/auth'
+import { useAuth, useEntitlements, type AuthUser } from '@tomachina/auth'
 import { PortalSwitcher } from '@tomachina/ui'
 import { InboundCallCard } from '@tomachina/ui/src/modules/CommsModule/InboundCallCard'
 import { SmartSearch } from './SmartSearch'
@@ -22,6 +22,8 @@ function getInitials(name: string): string {
 
 export function TopBar({ user }: TopBarProps) {
   const { signOut } = useAuth()
+  const { profile } = useEntitlements()
+  const avatarUrl = user.photoURL || profile?.photo_url || null
 
   return (
     <div className="shrink-0">
@@ -63,9 +65,9 @@ export function TopBar({ user }: TopBarProps) {
             className="flex items-center gap-2.5 rounded-lg px-2 py-1 transition-colors hover:bg-[rgba(74,122,181,0.08)] cursor-pointer"
             title="My RPI"
           >
-            {user.photoURL ? (
+            {avatarUrl ? (
               <img
-                src={user.photoURL}
+                src={avatarUrl}
                 alt={user.displayName}
                 className="h-[34px] w-[34px] rounded-full ring-2 ring-[rgba(74,122,181,0.2)]"
                 referrerPolicy="no-referrer"
