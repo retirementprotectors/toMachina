@@ -134,7 +134,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sa
       </div>
       <div class="example">
         <div class="team irl">IRL Team</div>
-        <p><strong>Nikki's service team</strong> handles COF client calls for months. Discovers that clients can't be found in the system because the data lives in GHL but not ProDash. The pattern &mdash; dual-system friction &mdash; only surfaced through volume of real calls.</p>
+        <p><strong>The service team</strong> handles client calls for months. Discovers that clients can't be found in one system because the data lives in another. The pattern &mdash; dual-system friction &mdash; only surfaced through volume of real calls.</p>
       </div>
     </div>
   </div>
@@ -207,13 +207,14 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sa
     <div class="stage-title">Automation <span>Only after everything is hardened.</span></div>
   </div>
   <div class="stage-body a2">
-    <p>Automation is the <strong>last</strong> thing, not the first. It can only be done through the hardening of People/Systems. Until those are proven, automation is a super fucking shitshow.</p>
-    <p>Imagine creating a Wire for an unproven Super Tool. Or a Super Tool for unproven Atomic Tools. Or a scheduled cron that runs a migration nobody's ever done manually. <strong>That's automation without APPA.</strong></p>
-    <p>The test for automation readiness: <strong>could a complete idiot follow this process and get it right?</strong> If yes &mdash; automate it. The dumber the executor can be, the better the process is. A Haiku-class AI or a P40 GPU should be able to handle it because the foundation is that strong.</p>
+    <p>Automation is the <strong>last</strong> thing, not the first. It can only be done through the hardening of People/Systems. Until those are proven, automation will multiply your problems instead of solving them.</p>
+    <p>Imagine creating an automated pipeline for an unproven process. Or a scheduled job that runs a migration nobody's ever done manually. <strong>That's automation without APPA.</strong></p>
+    <p>The test for automation readiness: <strong>could a brand-new hire with zero context follow this process and get it right on day one?</strong> If yes &mdash; automate it. The simpler the execution can be, the stronger the process is. That's the goal: a foundation so solid that the executor doesn't need to think &mdash; just follow the steps.</p>
+    <p>And here's the part people miss: <strong>automation doesn't replace people &mdash; it elevates them.</strong> When the repetitive work gets automated, the people who used to do it move into higher-value roles. Better work. Better pay. More impact. The automation handles the floor so your team can reach the ceiling.</p>
 
     <div class="rule">
       <div class="label success">The Goal</div>
-      <p>"Do this fucking thing this way. Tell me when you're done." That's what good automation sounds like. No judgment calls. No domain expertise needed. Just execution on a proven path.</p>
+      <p>"Follow these steps. Report the result." That's what good automation sounds like. No judgment calls. No domain expertise needed. Just execution on a proven path &mdash; freeing your people to do the work that actually requires their brain.</p>
     </div>
 
     <h3>What this looks like</h3>
@@ -242,29 +243,29 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sa
 <!-- THE TEST -->
 <div class="test">
   <h2>The Automation Readiness Test</h2>
-  <p>Before building ANY automation &mdash; wire, timer, ranger, cron, bot, sequence &mdash; ask one question:</p>
-  <div class="big">"Would I trust a fucking idiot to run this?"</div>
-  <p style="margin-top: 12px">If yes &mdash; automate it. If no &mdash; more activity first.</p>
+  <p>Before building ANY automation &mdash; pipeline, timer, bot, cron, sequence &mdash; ask one question:</p>
+  <div class="big">"Could someone with zero context follow this process and get it right on day one?"</div>
+  <p style="margin-top: 12px">If yes &mdash; automate it. If no &mdash; more activity first. The process isn't ready yet.</p>
 </div>
 
 <!-- REAL INCIDENT -->
 <div class="incident">
-  <h2>Real Example &mdash; April 8, 2026</h2>
+  <h2>Real Example &mdash; A Database Migration</h2>
 
   <h3>The Activity (Layer 1)</h3>
-  <p>MEGAZORD and JDM spent hours reviewing 12,124 account records. 9 carrier fields across every product type. They went carrier by carrier &mdash; Aetna, Mutual of Omaha, Wellmark, 43 total &mdash; deciding which field names stay and which die. Built an interactive HTML review tool. JDM made every decision.</p>
+  <p>The data team spent hours reviewing 12,000+ account records across 43 carriers. 9 redundant database fields needed to be consolidated into 4. Leadership reviewed every carrier, made every naming decision, and built an interactive review tool for the cleanup.</p>
 
   <h3>The Mistake</h3>
-  <p>MEGAZORD migrated the Firestore data (renamed carrier_name &rarr; carrier on 11,645 records) BEFORE updating the 249 code references across 52 files that still read the old field name. The accounts page broke immediately &mdash; showed 35 records instead of 12,000+. Then the Firestore index for the new field didn't exist, so even after the code fix, queries failed.</p>
+  <p>The team migrated the database (renamed a field on 11,000+ records) BEFORE updating the 249 code references across 52 application files that still read the old field name. The accounts page broke immediately &mdash; showed 35 records instead of 12,000+. Then the database index for the new field didn't exist, so even after the code fix, queries failed. Three production issues from one migration.</p>
 
   <h3>The Process/Tools (Layer 2)</h3>
   <p>From that one incident, three permanent artifacts were created:</p>
-  <p><strong>1. Data Migration Protocol</strong> &mdash; 7-stage pipeline with 2 JDM approval gates. Inventory &rarr; Impact Report &rarr; Code First &rarr; Dry Run &rarr; Execute &rarr; Verify &rarr; Cleanup.</p>
-  <p><strong>2. Hookify gate</strong> &mdash; <code>gate-data-migration</code> blocks any <code>FieldValue.delete()</code> without protocol acknowledgment.</p>
-  <p><strong>3. CIO Ownership Grid tab</strong> &mdash; Data Migration pipeline with active migrations tracker and incident record.</p>
+  <p><strong>1. Data Migration Protocol</strong> &mdash; 7-stage pipeline with 2 leadership approval gates. Inventory &rarr; Impact Report &rarr; Code First &rarr; Dry Run &rarr; Execute &rarr; Verify &rarr; Cleanup.</p>
+  <p><strong>2. Automated enforcement gate</strong> &mdash; blocks any field deletion without protocol acknowledgment.</p>
+  <p><strong>3. Operations dashboard tab</strong> &mdash; Data Migration pipeline with active migrations tracker and incident record.</p>
 
   <h3>Why This Matters</h3>
-  <p>None of those three things could have been designed from a whiteboard. The protocol is correct BECAUSE the migration failed. The gates exist BECAUSE the mistake happened. The next migration will be better &mdash; not because someone read a doc, but because the tools won't let you skip the steps.</p>
+  <p>None of those three things could have been designed from a whiteboard. The protocol is correct BECAUSE the migration failed. The gates exist BECAUSE the mistake happened. The next migration will be better &mdash; not because someone read a doc, but because the tools won't let you skip the steps. <strong>Every mistake, treated correctly, becomes a permanent improvement in speed and accuracy.</strong></p>
 </div>
 
 <!-- WHERE ARE WE -->
@@ -282,7 +283,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sa
     </div>
     <div style="display: flex; gap: 12px; align-items: flex-start; margin-bottom: 14px">
       <div class="stage-num p2" style="width: 36px; height: 36px; font-size: 1rem; min-width: 36px">P</div>
-      <p style="color: var(--muted); font-size: 0.88rem; margin: 0">"Nikki's team has been using the checklist for 2 weeks. Found one gap &mdash; fixed it. Ready to evaluate for automation."</p>
+      <p style="color: var(--muted); font-size: 0.88rem; margin: 0">"The team has been using the checklist for 2 weeks. Found one gap &mdash; fixed it. Ready to evaluate for automation."</p>
     </div>
     <div style="display: flex; gap: 12px; align-items: flex-start">
       <div class="stage-num a2" style="width: 36px; height: 36px; font-size: 1rem; min-width: 36px">A</div>
