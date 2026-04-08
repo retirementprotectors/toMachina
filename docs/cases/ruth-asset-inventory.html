@@ -62,6 +62,15 @@ tr.totals td{font-weight:700;color:var(--text);border-top:2px solid var(--border
 .note{background:rgba(6,182,212,0.06);border:1px solid rgba(6,182,212,0.2);border-radius:8px;padding:14px 18px;margin:14px 0;font-size:0.85rem;color:var(--muted)}
 .note strong{color:var(--cyan)}
 .footer{text-align:center;padding:24px;color:var(--muted);font-size:0.72rem;border-top:1px solid var(--border);margin-top:32px}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin:16px 0}
+.form-grid label{display:block;font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.form-grid input,.form-grid select{width:100%;padding:8px 10px;border-radius:6px;border:1px solid var(--border);background:var(--card2);color:var(--text);font-size:0.85rem;outline:none}
+.form-grid input:focus,.form-grid select:focus{border-color:var(--green)}
+.btn-add{display:inline-flex;align-items:center;gap:6px;padding:10px 20px;border-radius:8px;border:none;background:var(--green);color:#fff;font-size:0.85rem;font-weight:600;cursor:pointer;margin-top:12px}
+.btn-add:hover{filter:brightness(1.1)}
+.btn-copy{display:inline-flex;align-items:center;gap:4px;padding:6px 14px;border-radius:6px;border:1px solid var(--border);background:var(--card2);color:var(--muted);font-size:0.78rem;cursor:pointer;margin-left:8px}
+.btn-copy:hover{color:var(--text);border-color:var(--muted)}
+.life-count{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;border-radius:50%;background:var(--green);color:#fff;font-size:0.7rem;font-weight:700;margin-left:6px}
 @media print{body{background:#fff;color:#000}.header{background:#f8f8f8;border-bottom:2px solid #000}.header h1{-webkit-text-fill-color:#000;color:#000}.tab-bar{display:none}.panel{display:block!important;page-break-inside:avoid}.card,.stat,.flag,.income-card,.mat-card{background:#fff;border-color:#ccc}th{background:#eee;color:#000}td,.card p,.card li,.flag p{color:#333}.stat .num{color:#000}.none{color:#c00}.footer{color:#666}}
 </style>
 </head>
@@ -79,6 +88,7 @@ tr.totals td{font-weight:700;color:var(--text);border-top:2px solid var(--border
 <div class="tab" onclick="showPanel('cds',this)">CDs</div>
 <div class="tab" onclick="showPanel('tax',this)">TAX BREAKDOWN</div>
 <div class="tab" onclick="showPanel('flags',this)">FLAGS</div>
+<div class="tab" onclick="showPanel('life',this)">LIFE</div>
 <div class="tab" onclick="showPanel('income',this)">INCOME</div>
 </div>
 
@@ -292,6 +302,54 @@ tr.totals td{font-weight:700;color:var(--text);border-top:2px solid var(--border
 
 </div>
 
+<!-- LIFE -->
+<div id="life" class="panel">
+<div class="card">
+<h2>Life Insurance Policies <span id="lifeCount" class="life-count" style="display:none">0</span></h2>
+<p>Known carriers: Farm Bureau, MassMutual, Catholic Order of Foresters. Enter policy details as they come in.</p>
+</div>
+
+<div class="card">
+<h3>Add Life Policy</h3>
+<div class="form-grid">
+<div><label>Carrier</label><input id="lf-carrier" type="text" placeholder="e.g. Farm Bureau"></div>
+<div><label>Product Name</label><input id="lf-product" type="text" placeholder="e.g. Term Life 20"></div>
+<div><label>Policy Number</label><input id="lf-policy" type="text" placeholder="Policy #"></div>
+<div><label>Policy Type</label><select id="lf-type"><option value="">--</option><option>Term</option><option>Whole Life</option><option>Universal Life</option><option>IUL</option><option>VUL</option><option>GUL</option><option>Survivorship</option></select></div>
+<div><label>Face Amount</label><input id="lf-face" type="text" placeholder="$0"></div>
+<div><label>Death Benefit</label><input id="lf-db" type="text" placeholder="$0"></div>
+<div><label>Premium</label><input id="lf-premium" type="text" placeholder="$0/yr"></div>
+<div><label>Billing Mode</label><select id="lf-billing"><option value="">--</option><option>Annual</option><option>Semi-Annual</option><option>Quarterly</option><option>Monthly</option><option>Paid-Up</option></select></div>
+<div><label>Cash Value</label><input id="lf-cv" type="text" placeholder="$0"></div>
+<div><label>Surrender Value</label><input id="lf-sv" type="text" placeholder="$0"></div>
+<div><label>Loan Balance</label><input id="lf-loan" type="text" placeholder="$0"></div>
+<div><label>Issue Date</label><input id="lf-issue" type="date"></div>
+<div><label>Maturity / Expiration</label><input id="lf-maturity" type="date"></div>
+<div><label>Issue Age</label><input id="lf-age" type="text" placeholder="e.g. 45"></div>
+<div><label>Health Class</label><select id="lf-health"><option value="">--</option><option>Preferred Plus</option><option>Preferred</option><option>Standard Plus</option><option>Standard</option><option>Table Rated</option></select></div>
+<div><label>Insured</label><input id="lf-insured" type="text" placeholder="Kimberly K Ruth"></div>
+<div><label>Owner</label><input id="lf-owner" type="text" placeholder="Kimberly K Ruth"></div>
+<div><label>Beneficiary</label><input id="lf-beni" type="text" placeholder="Karla S Ruth"></div>
+<div><label>Status</label><select id="lf-status"><option>Active</option><option>In Force</option><option>Paid-Up</option><option>Lapsed</option><option>Terminated</option></select></div>
+<div><label>Notes</label><input id="lf-notes" type="text" placeholder="Any additional info"></div>
+</div>
+<button class="btn-add" onclick="addLifePolicy()">+ Add Policy</button>
+<button class="btn-copy" onclick="copyLifeTable()">Copy Table</button>
+</div>
+
+<div class="card" id="lifeTableCard" style="display:none">
+<h3>Entered Policies</h3>
+<div style="overflow-x:auto">
+<table>
+<thead>
+<tr><th>Carrier</th><th>Product</th><th>Policy #</th><th>Type</th><th>Face</th><th>DB</th><th>Premium</th><th>CV</th><th>SV</th><th>Issue</th><th>Insured</th><th>Beneficiary</th><th>Status</th></tr>
+</thead>
+<tbody id="lifeTableBody"></tbody>
+</table>
+</div>
+</div>
+</div>
+
 <!-- INCOME -->
 <div id="income" class="panel">
 <div class="card">
@@ -353,6 +411,51 @@ Client: Kimberly K Ruth &bull; ProDash: 2195c26e-b009-46b6-a2da-52229955eae6 &bu
 
 <script>
 function showPanel(id,el){document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active')});document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});document.getElementById(id).classList.add('active');el.classList.add('active')}
+
+var lifePolicies=[];
+
+function addLifePolicy(){
+  var fields=['carrier','product','policy','type','face','db','premium','billing','cv','sv','loan','issue','maturity','age','health','insured','owner','beni','status','notes'];
+  var p={};
+  fields.forEach(function(f){
+    var el=document.getElementById('lf-'+f);
+    p[f]=el.value||'';
+    if(el.tagName==='INPUT')el.value='';
+    if(el.tagName==='SELECT')el.selectedIndex=0;
+  });
+  if(!p.carrier&&!p.policy){return}
+  lifePolicies.push(p);
+
+  var tbody=document.getElementById('lifeTableBody');
+  var tr=document.createElement('tr');
+  tr.innerHTML='<td>'+esc(p.carrier)+'</td><td>'+esc(p.product)+'</td><td>'+esc(p.policy)+'</td><td>'+esc(p.type)+'</td><td>'+esc(p.face)+'</td><td>'+esc(p.db)+'</td><td>'+esc(p.premium)+'</td><td>'+esc(p.cv)+'</td><td>'+esc(p.sv)+'</td><td>'+esc(p.issue)+'</td><td>'+esc(p.insured)+'</td><td>'+(p.beni?esc(p.beni):'<span class="none">&#9888; NONE</span>')+'</td><td>'+esc(p.status)+'</td>';
+  tbody.appendChild(tr);
+
+  document.getElementById('lifeTableCard').style.display='block';
+  var countEl=document.getElementById('lifeCount');
+  countEl.textContent=lifePolicies.length;
+  countEl.style.display='inline-flex';
+
+  // Update Flag 5 text
+  var f5=document.querySelectorAll('.flag.blue .title');
+  if(f5.length>0)f5[0].textContent='LIFE INSURANCE — '+lifePolicies.length+' POLIC'+(lifePolicies.length===1?'Y':'IES')+' FOUND';
+}
+
+function esc(s){var d=document.createElement('div');d.textContent=s;return d.innerHTML}
+
+function copyLifeTable(){
+  var lines=['Carrier\tProduct\tPolicy #\tType\tFace\tDB\tPremium\tCV\tSV\tIssue\tInsured\tBeneficiary\tStatus'];
+  lifePolicies.forEach(function(p){
+    lines.push([p.carrier,p.product,p.policy,p.type,p.face,p.db,p.premium,p.cv,p.sv,p.issue,p.insured,p.beni,p.status].join('\t'));
+  });
+  var text=lines.join('\n');
+  navigator.clipboard.writeText(text).then(function(){
+    var btn=document.querySelector('.btn-copy');
+    var orig=btn.textContent;
+    btn.textContent='Copied!';
+    setTimeout(function(){btn.textContent=orig},2000);
+  });
+}
 </script>
 </body>
 </html>
