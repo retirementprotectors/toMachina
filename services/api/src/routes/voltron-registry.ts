@@ -56,10 +56,10 @@ function registryCol() {
  * Returns the validated role and whether it was normalized.
  */
 function validateRole(raw: string | undefined): { role: VoltronUserRole; normalized: boolean } {
-  if (!raw) return { role: 'COORDINATOR', normalized: true }
+  if (!raw) return { role: 'ADMIN', normalized: true }
   const upper = raw.toUpperCase().trim()
   if (VALID_ROLES.has(upper)) return { role: upper as VoltronUserRole, normalized: upper !== raw }
-  return { role: 'COORDINATOR', normalized: true }
+  return { role: 'ADMIN', normalized: true }
 }
 
 /* ─── Role rank resolution ─── */
