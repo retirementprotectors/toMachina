@@ -6,6 +6,11 @@ const ACCOUNT_TYPE_MAP: Record<string, { label: string; bg: string; text: string
   medicare: { label: 'M', bg: 'rgba(59, 130, 246, 0.15)', text: '#3b82f6' },
   investments: { label: 'I', bg: 'rgba(139, 92, 246, 0.15)', text: '#8b5cf6' },
   investment: { label: 'I', bg: 'rgba(139, 92, 246, 0.15)', text: '#8b5cf6' },
+  banking: { label: 'B', bg: 'rgba(6, 182, 212, 0.15)', text: '#06b6d4' },
+  bank: { label: 'B', bg: 'rgba(6, 182, 212, 0.15)', text: '#06b6d4' },
+  liabilities: { label: 'D', bg: 'rgba(239, 68, 68, 0.15)', text: '#ef4444' },
+  liability: { label: 'D', bg: 'rgba(239, 68, 68, 0.15)', text: '#ef4444' },
+  debt: { label: 'D', bg: 'rgba(239, 68, 68, 0.15)', text: '#ef4444' },
   // Legacy aliases — map to Investments
   'bd/ria': { label: 'I', bg: 'rgba(139, 92, 246, 0.15)', text: '#8b5cf6' },
   bdria: { label: 'I', bg: 'rgba(139, 92, 246, 0.15)', text: '#8b5cf6' },
@@ -54,7 +59,11 @@ export function AccountTypePills({ accountTypes }: AccountTypePillsProps) {
                   ? 'Medicare'
                   : pill.label === 'I'
                     ? 'Investment'
-                    : 'Other'
+                    : pill.label === 'B'
+                      ? 'Banking'
+                      : pill.label === 'D'
+                        ? 'Liabilities'
+                        : 'Other'
           }
         >
           {pill.label}

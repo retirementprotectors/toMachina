@@ -22,6 +22,7 @@ export type TargetTab =
   | '_ACCOUNT_ANNUITY'
   | '_ACCOUNT_MEDICARE'
   | '_ACCOUNT_BANKING'
+  | '_ACCOUNT_LIABILITIES'
   | '_PRODUCER_MASTER'
   | '_AGENT_MASTER'
   | '_REVENUE_MASTER'
@@ -30,7 +31,7 @@ export type TargetTab =
 export type ApiEndpoint = '/client' | '/account' | '/agent' | '/revenue'
 
 /** Account category canonical values */
-export type AccountCategory = 'investments' | 'life' | 'annuity' | 'medicare' | 'banking'
+export type AccountCategory = 'investments' | 'life' | 'annuity' | 'medicare' | 'banking' | 'liabilities'
 
 // ---------------------------------------------------------------------------
 // Approval Item — one field-level write
@@ -250,6 +251,9 @@ export const ACCOUNT_CATEGORY_TO_TAB: Record<string, TargetTab> = {
   'medicare': '_ACCOUNT_MEDICARE',
   'banking': '_ACCOUNT_BANKING',
   'bank': '_ACCOUNT_BANKING',
+  'liabilities': '_ACCOUNT_LIABILITIES',
+  'liability': '_ACCOUNT_LIABILITIES',
+  'debt': '_ACCOUNT_LIABILITIES',
 }
 
 /** Tab → canonical account category */
@@ -259,6 +263,7 @@ export const TAB_TO_CANONICAL_CATEGORY: Record<string, AccountCategory> = {
   '_ACCOUNT_ANNUITY': 'annuity',
   '_ACCOUNT_MEDICARE': 'medicare',
   '_ACCOUNT_BANKING': 'banking',
+  '_ACCOUNT_LIABILITIES': 'liabilities',
 }
 
 /** Tab → Firestore collection mapping */
@@ -269,6 +274,7 @@ export const TAB_TO_COLLECTION: Record<string, string> = {
   '_ACCOUNT_ANNUITY': 'accounts',
   '_ACCOUNT_MEDICARE': 'accounts',
   '_ACCOUNT_BANKING': 'accounts',
+  '_ACCOUNT_LIABILITIES': 'accounts',
   '_AGENT_MASTER': 'agents',
   '_PRODUCER_MASTER': 'agents',
   '_REVENUE_MASTER': 'revenue',

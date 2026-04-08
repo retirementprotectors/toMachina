@@ -18,7 +18,7 @@ interface AccountsTabProps {
   onAccountUpdated?: () => void
 }
 
-type CategoryKey = 'annuity' | 'life' | 'medicare' | 'investments'
+type CategoryKey = 'annuity' | 'life' | 'medicare' | 'investments' | 'banking' | 'liabilities'
 
 // ---------------------------------------------------------------------------
 // Document types per product category
@@ -38,6 +38,8 @@ const CATEGORY_DOCS: Record<CategoryKey, DocType[]> = {
   life: ['statement', 'application', 'illustration', 'policy'],
   medicare: ['statement', 'application', 'plan_summary'],
   investments: ['statement', 'application', 'prospectus'],
+  banking: ['statement', 'application'],
+  liabilities: ['statement', 'application', 'contract'],
 }
 
 const DOC_LABELS: Record<DocType, string> = {
@@ -55,6 +57,8 @@ const CATEGORY_CONFIG: Record<CategoryKey, { label: string; icon: string; color:
   life: { label: 'Life', icon: 'favorite', color: '#10b981' },
   medicare: { label: 'Medicare', icon: 'health_and_safety', color: '#3b82f6' },
   investments: { label: 'Investments', icon: 'show_chart', color: '#a78bfa' },
+  banking: { label: 'Banking', icon: 'account_balance', color: '#06b6d4' },
+  liabilities: { label: 'Liabilities', icon: 'credit_card', color: '#ef4444' },
 }
 
 type FilterKey = 'all' | CategoryKey
@@ -88,7 +92,7 @@ export function AccountsTab({ accounts, loading, clientId, onAccountUpdated }: A
 
   // Count by category
   const categoryCounts = useMemo(() => {
-    const counts: Record<CategoryKey, number> = { annuity: 0, life: 0, medicare: 0, investments: 0 }
+    const counts: Record<CategoryKey, number> = { annuity: 0, life: 0, medicare: 0, investments: 0, banking: 0, liabilities: 0 }
     for (const acct of visibleAccounts) {
       const cat = getCategory(acct) as CategoryKey
       if (cat in counts) counts[cat]++
@@ -109,6 +113,8 @@ export function AccountsTab({ accounts, loading, clientId, onAccountUpdated }: A
       life: [],
       medicare: [],
       investments: [],
+      banking: [],
+      liabilities: [],
     }
     for (const acct of filteredByCategory) {
       const cat = getCategory(acct)
@@ -536,6 +542,24 @@ function getSummaryFields(account: Account, category: CategoryKey): SummaryField
         { label: 'Account #', value: str(account.account_number) || str(account.policy_number), mono: true },
         { label: 'Status', value: str(account.status) },
       ]
+    case 'banking':
+      return [
+        { label: 'Bank', value: str(account.bank_name) || str(account.carrier_name) },
+        { label: 'Account Type', value: str(account.account_subtype) || str(account.account_type) },
+        { label: 'Balance', value: formatCurrency(account.account_value) },
+        { label: 'APY', value: account.apy ? `${account.apy}%` : '—' },
+        { label: 'Maturity', value: formatDate(account.maturity_date) || '—' },
+        { label: 'Account #', value: str(account.account_number), mono: true },
+      ]
+    case 'liabilities':
+      return [
+        { label: 'Lender', value: str(account.lender) || str(account.carrier_name) },
+        { label: 'Loan Type', value: str(account.loan_type) || str(account.account_type) },
+        { label: 'Balance', value: formatCurrency(account.current_balance || account.account_value) },
+        { label: 'Rate', value: account.interest_rate ? `${account.interest_rate}%` : '—' },
+        { label: 'Payment', value: formatCurrency(account.monthly_payment) },
+        { label: 'Payoff Date', value: formatDate(account.payoff_date) || '—' },
+      ]
     default:
       return []
   }
@@ -547,12 +571,16 @@ function getCategory(acct: Account): string {
   if (cat === 'life') return 'life'
   if (cat === 'medicare') return 'medicare'
   if (cat === 'bdria' || cat === 'investments') return 'investments'
+  if (cat === 'banking' || cat === 'bank') return 'banking'
+  if (cat === 'liabilities' || cat === 'liability' || cat === 'debt') return 'liabilities'
 
   const t = (str(acct.product_type) + ' ' + str(acct.account_type)).toLowerCase()
   if (t.includes('annuity') || t.includes('fia') || t.includes('myga')) return 'annuity'
   if (t.includes('life')) return 'life'
   if (t.includes('medicare') || t.includes('mapd') || t.includes('pdp') || t.includes('med supp')) return 'medicare'
   if (t.includes('bd') || t.includes('ria') || t.includes('advisory') || t.includes('brokerage')) return 'investments'
+  if (t.includes('cd') || t.includes('savings') || t.includes('checking') || t.includes('money market') || t.includes('bank')) return 'banking'
+  if (t.includes('mortgage') || t.includes('loan') || t.includes('debt') || t.includes('heloc') || t.includes('credit card')) return 'liabilities'
   return 'annuity' // default fallback
 }
 
