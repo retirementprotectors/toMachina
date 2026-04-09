@@ -1,0 +1,164 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Life Schema — Organized</title>
+<style>
+:root{--bg:#0a0e17;--card:#111827;--card2:#1a2236;--border:#1e293b;--text:#e2e8f0;--muted:#94a3b8;--accent:#10b981;--green:#22c55e;--blue:#3b82f6;--orange:#f59e0b;--red:#ef4444;--purple:#a855f7;--cyan:#06b6d4}
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;padding:24px;max-width:1100px;margin:0 auto}
+h1{font-size:1.6rem;font-weight:800;color:var(--accent);text-align:center;margin-bottom:4px}
+.sub{color:var(--muted);font-size:.82rem;text-align:center;margin-bottom:20px}
+h2{font-size:1rem;color:var(--accent);text-transform:uppercase;letter-spacing:1px;margin:24px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+h3{font-size:.85rem;color:var(--orange);margin:20px 0 8px}
+table{width:100%;border-collapse:collapse;font-size:.78rem;margin-bottom:12px}
+th{text-align:left;padding:6px 10px;background:var(--card2);color:var(--accent);font-size:.62rem;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border)}
+td{padding:5px 10px;border-bottom:1px solid var(--border);color:var(--muted)}
+td:first-child{color:var(--text);font-family:monospace;font-weight:500}
+tr:hover td{background:rgba(16,185,129,.03)}
+.k{color:var(--green);font-weight:600;font-size:.7rem}
+.m{color:var(--orange);font-weight:600;font-size:.72rem}
+.d{color:var(--red);text-decoration:line-through;opacity:.5}
+.incoming{background:rgba(245,158,11,.06);border-left:3px solid var(--orange)}
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:14px}
+.card p{color:var(--muted);font-size:.82rem}
+.footer{text-align:center;margin-top:40px;padding-top:20px;border-top:1px solid var(--border);color:var(--muted);font-size:.72rem}
+</style></head><body>
+<h1>Life Insurance — Organized Schema</h1>
+<div class="sub">First pass organized. Common merges consolidated. Review and take another swing.</div>
+<div class="card"><p><strong>25</strong> common merges across all life types. <strong>8</strong> common deletes. Fields organized into 8 sections.</p></div>
+<h2>General</h2>
+<table><tr><th>Field</th><th>Status</th><th>Incoming Merges</th></tr>
+<tr><td>carrier</td><td class="k">KEEP</td><td></td></tr>
+<tr><td>status</td><td class="k">KEEP</td><td></td></tr>
+<tr><td>product_type</td><td class="k">KEEP</td><td></td></tr>
+<tr class="incoming"><td><span class="m">account_category →</span> product_type</td><td class="m">MERGING IN</td><td></td></tr>
+<tr><td>policy_type</td><td class="k">KEEP</td><td></td></tr>
+<tr class="incoming"><td><span class="m">account_type →</span> policy_type</td><td class="m">MERGING IN</td><td></td></tr>
+<tr><td>effective_date</td><td class="k">KEEP</td><td></td></tr>
+<tr><td>issue_date</td><td class="k">KEEP</td><td></td></tr>
+<tr><td>submitted_date</td><td class="k">KEEP</td><td></td></tr>
+<tr><td>as_of_date</td><td class="k">KEEP</td><td></td></tr>
+<tr><td>market</td><td class="k">KEEP</td><td></td></tr>
+<tr><td>book_of_business</td><td class="k">KEEP</td><td></td></tr>
+<tr><td>policy_number</td><td class="k">KEEP</td><td></td></tr>
+<tr class="incoming"><td><span class="m">account_number →</span> policy_number</td><td class="m">MERGING IN</td><td></td></tr>
+<tr class="incoming"><td><span class="m">contract_number →</span> policy_number</td><td class="m">MERGING IN</td><td></td></tr>
+<tr><td>data_source</td><td class="k">KEEP</td><td></td></tr>
+</table>
+<h2>Values</h2>
+<table><tr><th>Field</th><th>Status</th><th>Incoming Merges</th></tr>
+<tr><td>face_amount</td><td class="k">KEEP</td><td></td></tr>
+<tr class="incoming"><td><span class="m">face_value →</span> face_amount</td><td class="m">MERGING IN</td><td></td></tr>
+<tr><td>cash_value</td><td class="k">KEEP</td><td></td></tr>
+<tr class="incoming"><td><span class="m">account_value →</span> cash_value</td><td class="m">MERGING IN</td><td></td></tr>
+<tr class="incoming"><td><span class="m">fund_value →</span> cash_value</td><td class="m">MERGING IN</td><td></td></tr>
+<tr class="incoming"><td><span class="m">annuity_balance →</span> cash_value</td><td class="m">MERGING IN</td><td></td></tr>
+<tr><td>surrender_value</td><td class="k">KEEP</td><td></td></tr>
+<tr class="incoming"><td><span class="m">net_csv →</span> surrender_value</td><td class="m">MERGING IN</td><td></td></tr>
+<tr class="incoming"><td><span class="m">net_surrender_value →</span> surrender_value</td><td class="m">MERGING IN</td><td></td></tr>
+<tr><td>death_benefit</td><td class="k">KEEP</td><td></td></tr>
+<tr><td>death_benefit_option</td><td class="k">KEEP</td><td></td></tr>
+<tr class="incoming"><td><span class="m">db_option →</span> death_benefit_option</td><td class="m">MERGING IN</td><td></td></tr>
+</table>
+<h2>Premiums</h2>
+<table><tr><th>Field</th><th>Status</th><th>Incoming Merges</th></tr>
+<tr><td>annualized_premium</td><td class="k">KEEP</td><td></td></tr>
+<tr class="incoming"><td><span class="m">annual_premium →</span> annualized_premium</td><td class="m">MERGING IN</td><td></td></tr>
+<tr><td>modal_premium</td><td class="k">KEEP</td><td></td></tr>
+<tr class="incoming"><td><span class="m">scheduled_premium →</span> modal_premium</td><td class="m">MERGING IN</td><td></td></tr>
+<tr class="incoming"><td><span class="m">premium →</span> modal_premium</td><td class="m">MERGING IN</td><td></td></tr>
+<tr><td>premium_mode</td><td class="k">KEEP</td><td></td></tr>
+<tr class="incoming"><td><span class="m">billing_mode →</span> premium_mode</td><td class="m">MERGING IN</td><td></td></tr>
+<tr class="incoming"><td><span class="m">premium_frequency →</span> premium_mode</td><td class="m">MERGING IN</td><td></td></tr>
+<tr><td>total_premiums_paid</td><td class="k">KEEP</td><td></td></tr>
+<tr><td>billing_status</td><td class="k">KEEP</td><td></td></tr>
+</table>
+<h2>Loan</h2>
+<table><tr><th>Field</th><th>Status</th><th>Incoming Merges</th></tr>
+<tr><td>loan_balance</td><td class="k">KEEP</td><td></td></tr>
+<tr><td>net_loan_amount</td><td class="k">KEEP</td><td></td></tr>
+<tr><td>loan_interest_rate</td><td class="k">KEEP</td><td></td></tr>
+<tr><td>loan_interest_balance</td><td class="k">KEEP</td><td></td></tr>
+</table>
+<h2>Insured & Owner</h2>
+<table><tr><th>Field</th><th>Status</th><th>Incoming Merges</th></tr>
+<tr><td>insured_name</td><td class="k">KEEP</td><td></td></tr>
+<tr class="incoming"><td><span class="m">insured →</span> insured_name</td><td class="m">MERGING IN</td><td></td></tr>
+<tr><td>insured_dob</td><td class="k">KEEP</td><td></td></tr>
+<tr><td>insured_gender</td><td class="k">KEEP</td><td></td></tr>
+<tr><td>owner_name</td><td class="k">KEEP</td><td></td></tr>
+<tr class="incoming"><td><span class="m">policy_owner →</span> owner_name</td><td class="m">MERGING IN</td><td></td></tr>
+<tr class="incoming"><td><span class="m">account_owner →</span> owner_name</td><td class="m">MERGING IN</td><td></td></tr>
+<tr><td>joint_owner_name</td><td class="k">KEEP</td><td></td></tr>
+<tr><td>primary_beneficiary</td><td class="k">KEEP</td><td></td></tr>
+<tr class="incoming"><td><span class="m">beneficiary →</span> primary_beneficiary</td><td class="m">MERGING IN</td><td></td></tr>
+<tr class="incoming"><td><span class="m">beneficiaries →</span> primary_beneficiary</td><td class="m">MERGING IN</td><td></td></tr>
+<tr><td>primary_beneficiary_pct</td><td class="k">KEEP</td><td></td></tr>
+</table>
+<h2>Underwriting</h2>
+<table><tr><th>Field</th><th>Status</th><th>Incoming Merges</th></tr>
+<tr><td>risk_class</td><td class="k">KEEP</td><td></td></tr>
+<tr class="incoming"><td><span class="m">underwriting_status →</span> risk_class</td><td class="m">MERGING IN</td><td></td></tr>
+<tr class="incoming"><td><span class="m">health_class →</span> risk_class</td><td class="m">MERGING IN</td><td></td></tr>
+<tr class="incoming"><td><span class="m">table_rating →</span> risk_class</td><td class="m">MERGING IN</td><td></td></tr>
+<tr><td>risk_level</td><td class="k">KEEP</td><td></td></tr>
+<tr><td>mec</td><td class="k">KEEP</td><td></td></tr>
+<tr class="incoming"><td><span class="m">is_mec →</span> mec</td><td class="m">MERGING IN</td><td></td></tr>
+<tr><td>paid_to_date</td><td class="k">KEEP</td><td></td></tr>
+</table>
+<h2>Agent</h2>
+<table><tr><th>Field</th><th>Status</th><th>Incoming Merges</th></tr>
+<tr><td>writing_agent_id</td><td class="k">KEEP</td><td></td></tr>
+<tr><td>agent_writing_number</td><td class="k">KEEP</td><td></td></tr>
+</table>
+<h2>Rider</h2>
+<table><tr><th>Field</th><th>Status</th><th>Incoming Merges</th></tr>
+<tr><td>rider_name</td><td class="k">KEEP</td><td></td></tr>
+<tr><td>rider_activated</td><td class="k">KEEP</td><td></td></tr>
+<tr><td>rider_fee</td><td class="k">KEEP</td><td></td></tr>
+<tr><td>income_base</td><td class="k">KEEP</td><td></td></tr>
+<tr><td>income_amount</td><td class="k">KEEP</td><td></td></tr>
+<tr><td>payout_rate</td><td class="k">KEEP</td><td></td></tr>
+<tr><td>rollup_rate</td><td class="k">KEEP</td><td></td></tr>
+</table>
+<h3>All Merges (Common Across Life Types)</h3>
+<table><tr><th>Source (dies)</th><th>→</th><th>Target (stays)</th></tr>
+<tr><td class="m">account_category</td><td style="color:var(--orange)">→</td><td class="k">product_type</td></tr>
+<tr><td class="m">account_number</td><td style="color:var(--orange)">→</td><td class="k">policy_number</td></tr>
+<tr><td class="m">account_owner</td><td style="color:var(--orange)">→</td><td class="k">owner_name</td></tr>
+<tr><td class="m">account_type</td><td style="color:var(--orange)">→</td><td class="k">policy_type</td></tr>
+<tr><td class="m">account_value</td><td style="color:var(--orange)">→</td><td class="k">cash_value</td></tr>
+<tr><td class="m">annual_premium</td><td style="color:var(--orange)">→</td><td class="k">annualized_premium</td></tr>
+<tr><td class="m">annuity_balance</td><td style="color:var(--orange)">→</td><td class="k">cash_value</td></tr>
+<tr><td class="m">beneficiaries</td><td style="color:var(--orange)">→</td><td class="k">primary_beneficiary</td></tr>
+<tr><td class="m">beneficiary</td><td style="color:var(--orange)">→</td><td class="k">primary_beneficiary</td></tr>
+<tr><td class="m">billing_mode</td><td style="color:var(--orange)">→</td><td class="k">premium_mode</td></tr>
+<tr><td class="m">contract_number</td><td style="color:var(--orange)">→</td><td class="k">policy_number</td></tr>
+<tr><td class="m">db_option</td><td style="color:var(--orange)">→</td><td class="k">death_benefit_option</td></tr>
+<tr><td class="m">face_value</td><td style="color:var(--orange)">→</td><td class="k">face_amount</td></tr>
+<tr><td class="m">fund_value</td><td style="color:var(--orange)">→</td><td class="k">cash_value</td></tr>
+<tr><td class="m">health_class</td><td style="color:var(--orange)">→</td><td class="k">risk_class</td></tr>
+<tr><td class="m">insured</td><td style="color:var(--orange)">→</td><td class="k">insured_name</td></tr>
+<tr><td class="m">is_mec</td><td style="color:var(--orange)">→</td><td class="k">mec</td></tr>
+<tr><td class="m">net_csv</td><td style="color:var(--orange)">→</td><td class="k">surrender_value</td></tr>
+<tr><td class="m">net_surrender_value</td><td style="color:var(--orange)">→</td><td class="k">surrender_value</td></tr>
+<tr><td class="m">policy_owner</td><td style="color:var(--orange)">→</td><td class="k">owner_name</td></tr>
+<tr><td class="m">premium</td><td style="color:var(--orange)">→</td><td class="k">modal_premium</td></tr>
+<tr><td class="m">premium_frequency</td><td style="color:var(--orange)">→</td><td class="k">premium_mode</td></tr>
+<tr><td class="m">scheduled_premium</td><td style="color:var(--orange)">→</td><td class="k">modal_premium</td></tr>
+<tr><td class="m">table_rating</td><td style="color:var(--orange)">→</td><td class="k">risk_class</td></tr>
+<tr><td class="m">underwriting_status</td><td style="color:var(--orange)">→</td><td class="k">risk_class</td></tr>
+</table>
+<h3>Common Deletes</h3>
+<table><tr><th>Field</th><th>Status</th></tr>
+<tr><td class="d">documents</td><td style="color:var(--red)">DELETE</td></tr>
+<tr><td class="d">draft_date</td><td style="color:var(--red)">DELETE</td></tr>
+<tr><td class="d">issue_age</td><td style="color:var(--red)">DELETE</td></tr>
+<tr><td class="d">last_transaction_date</td><td style="color:var(--red)">DELETE</td></tr>
+<tr><td class="d">masked_id_last4</td><td style="color:var(--red)">DELETE</td></tr>
+<tr><td class="d">maturity_date</td><td style="color:var(--red)">DELETE</td></tr>
+<tr><td class="d">source</td><td style="color:var(--red)">DELETE</td></tr>
+<tr><td class="d">total_transactions</td><td style="color:var(--red)">DELETE</td></tr>
+</table>
+<h3>Notes from JDM</h3>
+<table><tr><th>Field</th><th>Note</th></tr>
+<tr><td>policy_number</td><td style="color:var(--cyan)">TO GENERAL</td></tr>
+</table>
+<div class="footer">Life Insurance Schema — First Pass Organized — MEGAZORD, CIO<br>Take another swing!<br>🏯</div>
+</body></html>
