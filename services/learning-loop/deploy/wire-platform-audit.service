@@ -8,6 +8,7 @@
 Description=RPI Wire Platform Audit — Weekly platform health audit
 After=network-online.target
 Wants=network-online.target
+OnFailure=slack-alert@%p.service
 
 [Service]
 Type=oneshot

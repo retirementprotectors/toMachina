@@ -8,6 +8,7 @@
 Description=RPI Entity Extractor — Daily knowledge entity extraction
 After=network-online.target
 Wants=network-online.target
+OnFailure=slack-alert@%p.service
 
 [Service]
 Type=oneshot

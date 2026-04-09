@@ -8,6 +8,7 @@
 Description=RPI Gap Analyzer — Daily knowledge gap analysis
 After=network-online.target
 Wants=network-online.target
+OnFailure=slack-alert@%p.service
 
 [Service]
 Type=oneshot

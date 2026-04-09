@@ -8,6 +8,7 @@
 Description=RPI Wire Brain Sync — Daily cross-warrior brain synchronization
 After=network-online.target entity-extractor.service
 Wants=network-online.target
+OnFailure=slack-alert@%p.service
 
 [Service]
 Type=oneshot
