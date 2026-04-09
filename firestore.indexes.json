@@ -104,6 +104,14 @@
       "fields": [
         { "fieldPath": "phone", "order": "ASCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "knowledge_entries",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "promoted_to_claude_md", "order": "ASCENDING" },
+        { "fieldPath": "confidence", "order": "DESCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []

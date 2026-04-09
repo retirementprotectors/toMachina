@@ -20,14 +20,13 @@ import { KNOWLEDGE_ENTRIES_COLLECTION } from './types/knowledge-entry.js'
 import type { KnowledgeEntryType } from './types/knowledge-entry.js'
 
 // Firebase Init
-const saPath = process.env.GOOGLE_APPLICATION_CREDENTIALS || '/home/jdm/mdj-agent/sa-key.json'
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const sa = require(saPath)
+const saPath = process.env.GOOGLE_APPLICATION_CREDENTIALS || '/home/jdm/Projects/dojo-warriors/mdj-agent/sa-key.json'
+const sa = JSON.parse(fs.readFileSync(saPath, 'utf-8'))
 initializeApp({ credential: cert(sa) })
 const db = getFirestore()
 
 // Config
-const DOJO_WARRIORS_DIR = '/home/jdm/Projects/dojo-warriors'
+const DOJO_WARRIORS_DIR = '/home/jdm/Projects/dojo-warriors/warriors'
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY || ''
 
 interface ExtractedEntry {

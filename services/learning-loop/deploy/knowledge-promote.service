@@ -14,7 +14,7 @@ Type=oneshot
 User=jdm
 WorkingDirectory=/home/jdm/Projects/toMachina/services/learning-loop
 Environment="NODE_ENV=production"
-Environment="GOOGLE_APPLICATION_CREDENTIALS=/home/jdm/mdj-agent/sa-key.json"
+Environment="GOOGLE_APPLICATION_CREDENTIALS=/home/jdm/Projects/dojo-warriors/mdj-agent/sa-key.json"
 EnvironmentFile=/home/jdm/Projects/dojo-warriors/mdj-agent/.env
 ExecStart=/usr/bin/node dist/knowledge-promote.js
 StandardOutput=journal

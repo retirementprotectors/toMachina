@@ -13,13 +13,13 @@
 
 import { initializeApp, cert } from 'firebase-admin/app'
 import { getFirestore, FieldValue } from 'firebase-admin/firestore'
+import { readFileSync } from 'fs'
 import { KNOWLEDGE_ENTRIES_COLLECTION } from './types/knowledge-entry.js'
 import type { KnowledgeEntry, KnowledgeEntryType } from './types/knowledge-entry.js'
 
 // Firebase Init
-const saPath = process.env.GOOGLE_APPLICATION_CREDENTIALS || '/home/jdm/mdj-agent/sa-key.json'
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const sa = require(saPath)
+const saPath = process.env.GOOGLE_APPLICATION_CREDENTIALS || '/home/jdm/Projects/dojo-warriors/mdj-agent/sa-key.json'
+const sa = JSON.parse(readFileSync(saPath, 'utf-8'))
 initializeApp({ credential: cert(sa) })
 const db = getFirestore()
 

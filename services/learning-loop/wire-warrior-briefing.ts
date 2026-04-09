@@ -19,9 +19,8 @@ const KNOWLEDGE_COLLECTION = 'knowledge_entries'
 
 // Firebase Init
 try {
-  const saPath = process.env.GOOGLE_APPLICATION_CREDENTIALS || '/home/jdm/mdj-agent/sa-key.json'
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const sa = require(saPath)
+  const saPath = process.env.GOOGLE_APPLICATION_CREDENTIALS || '/home/jdm/Projects/dojo-warriors/mdj-agent/sa-key.json'
+  const sa = JSON.parse(fs.readFileSync(saPath, 'utf-8'))
   initializeApp({ credential: cert(sa) })
 } catch {
   // Firebase unavailable — fall back to soul.md only
