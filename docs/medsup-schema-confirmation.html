@@ -42,8 +42,7 @@ h3{font-size:.85rem;color:var(--red);margin:28px 0 12px}
 <tr><td>book_of_business</td><td style="color:var(--green)">KEEP</td><td></td></tr>
 <tr><td>policy_number</td><td style="color:var(--green)">KEEP</td><td><span class="note">Moved from Identifiers</span></td></tr>
 <tr class="incoming"><td><span class="arrow">account_number →</span> policy_number</td><td style="color:var(--orange)">MERGING IN</td><td></td></tr>
-<tr class="incoming"><td><span class="arrow">medicare_id →</span> policy_number</td><td style="color:var(--orange)">MERGING IN</td><td><span class="note">Med Supp policy # IS the Medicare ID</span></td></tr>
-<tr><td>member_id</td><td style="color:var(--green)">KEEP</td><td><span class="note">Moved from Identifiers</span></td></tr>
+<tr class="incoming"><td><span class="arrow">member_id →</span> policy_number</td><td style="color:var(--orange)">MERGING IN</td><td></td></tr>
 <tr><td>writing_agent_id</td><td style="color:var(--green)">KEEP</td><td><span class="note">Moved from Agent</span></td></tr>
 <tr class="incoming"><td><span class="arrow">agent_name →</span> writing_agent_id</td><td style="color:var(--orange)">MERGING IN</td><td></td></tr>
 </table>
@@ -68,6 +67,7 @@ h3{font-size:.85rem;color:var(--red);margin:28px 0 12px}
 </table>
 <h2 style="color:var(--purple)">Routed to Client Record</h2>
 <table><tr><th>Source Field (Account)</th><th></th><th>Destination</th></tr>
+<tr class="route"><td>medicare_id</td><td class="arrow">→</td><td style="color:var(--purple)">Contacts / Personal / Medicare Beneficiary ID</td></tr>
 <tr class="route"><td>medicare_beneficiary_id</td><td class="arrow">→</td><td style="color:var(--purple)">Contacts / Personal / Medicare Beneficiary ID</td></tr>
 </table>
 <h3>Fields Being Removed From Med Supp Accounts</h3>
