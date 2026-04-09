@@ -82,14 +82,23 @@ documentIndexRoutes.get('/account/:accountId', async (req: Request, res: Respons
     const accountId = param(req.params.accountId)
     const db = getFirestore()
 
-    // Get the account to find the client_id and product type
-    const accountDoc = await db.collection('accounts').doc(accountId).get()
-    if (!accountDoc.exists) {
+    // Resolve the account doc — supports both top-level and clients/{id}/accounts subcollection layouts
+    let accountDoc: FirebaseFirestore.DocumentSnapshot | undefined
+    const topLevel = await db.collection('accounts').doc(accountId).get()
+    if (topLevel.exists) {
+      accountDoc = topLevel
+    } else {
+      const cg = await db.collectionGroup('accounts').get()
+      const match = cg.docs.find((d) => d.id === accountId)
+      if (match) accountDoc = match
+    }
+
+    if (!accountDoc) {
       res.status(404).json(errorResponse('Account not found'))
       return
     }
     const account = accountDoc.data()!
-    const clientId = account.client_id as string
+    const clientId = (account.client_id as string) || accountDoc.ref.parent.parent?.id || ''
     const productType = (account.product_type as string) || (account.account_type as string) || '*'
 
     // Get document link configs for account_detail
