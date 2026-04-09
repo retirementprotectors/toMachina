@@ -7,7 +7,7 @@ h1{font-size:1.5rem;font-weight:800;color:var(--accent);text-align:center;margin
 .tbl-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:10px}
 table{width:100%;border-collapse:collapse;font-size:.72rem;min-width:700px}
 thead th{position:sticky;top:0;z-index:2;padding:10px 8px;background:var(--card2);border-bottom:2px solid var(--border);font-size:.65rem;text-transform:uppercase;letter-spacing:.5px;text-align:center}
-thead th:first-child{text-align:left;min-width:160px}
+thead th:first-child{text-align:left;min-width:180px}
 td{padding:5px 8px;border-bottom:1px solid var(--border);text-align:center;font-size:.72rem}
 td:first-child{text-align:left;font-family:monospace;font-size:.75rem;color:var(--text);font-weight:500}
 tr:hover td{background:rgba(16,185,129,.03)}
@@ -21,9 +21,21 @@ tr.dragging{opacity:.4}
 tr.drag-over td{border-top:2px solid var(--accent)}
 .ebar{position:sticky;bottom:0;background:var(--card);border-top:1px solid var(--border);padding:8px 16px;display:flex;justify-content:space-between;align-items:center;margin:16px -16px -16px}
 .ebtn{padding:6px 20px;border-radius:6px;border:none;background:var(--accent);color:#000;font-weight:700;font-size:.8rem;cursor:pointer}
+.changes{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:16px;margin:16px 0;font-size:.75rem}
+.changes h3{color:var(--orange);font-size:.8rem;margin-bottom:8px}
+.changes li{color:var(--muted);margin-bottom:4px}
+.changes strong{color:var(--text)}
 </style></head><body>
 <h1>Medicare Master Schema — Final</h1>
-<div class="sub">All 4 types locked + approved. Drag ⠿ to reorder rows. Export captures final field order.</div>
+<div class="sub">All 4 types locked. Drag ⠿ to reorder. Export captures field order.</div>
+<div class="changes"><h3>Changes from Previous Version</h3><ul>
+<li><strong>member_id → policy_number</strong> on Med Supp + Ancillary</li>
+<li><strong>writing_agent_id → agent_writing_number</strong> on MAPD, PDP, Med Supp</li>
+<li><strong>core_product_type</strong> — KILLED (product_type is the only type field)</li>
+<li><strong>ancillary_type</strong> — KILLED (product_type is the only type field)</li>
+<li><strong>CMS Plan Details</strong> — NEW section (MAPD/PDP plan + enrollment fields)</li>
+<li><strong>Non-CMS Plans</strong> — renamed from Plan Details, merged SERFF into it (Med Supp/Ancillary)</li>
+</ul></div>
 <div class="tbl-wrap"><table id="tbl"><thead><tr>
 <th style="color:var(--text)">Field</th>
 <th style="color:var(--green)">MAPD</th>
@@ -35,44 +47,39 @@ tr.drag-over td{border-top:2px solid var(--accent)}
 <tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>carrier</td><td><span class="k">✓</span></td><td><span class="k">✓</span></td><td><span class="k">✓</span></td><td><span class="k">✓</span></td></tr>
 <tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>status</td><td><span class="k">✓</span></td><td><span class="k">✓</span></td><td><span class="k">✓</span></td><td><span class="k">✓</span></td></tr>
 <tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>product_type</td><td><span class="k">✓</span></td><td><span class="k">✓</span></td><td><span class="k">✓</span></td><td><span class="k">✓</span></td></tr>
-<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>core_product_type</td><td><span class="k">✓</span></td><td><span class="k">✓</span></td><td><span class="k">✓</span></td><td><span class="n">—</span></td></tr>
 <tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>effective_date</td><td><span class="k">✓</span></td><td><span class="k">✓</span></td><td><span class="k">✓</span></td><td><span class="k">✓</span></td></tr>
 <tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>submitted_date</td><td><span class="k">✓</span></td><td><span class="k">✓</span></td><td><span class="k">✓</span></td><td><span class="k">✓</span></td></tr>
 <tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>market</td><td><span class="k">✓</span></td><td><span class="k">✓</span></td><td><span class="k">✓</span></td><td><span class="k">✓</span></td></tr>
 <tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>book_of_business</td><td><span class="k">✓</span></td><td><span class="k">✓</span></td><td><span class="k">✓</span></td><td><span class="k">✓</span></td></tr>
-<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>member_id</td><td><span class="k">✓</span></td><td><span class="k">✓</span></td><td><span class="k">✓</span></td><td><span class="k">✓</span></td></tr>
-<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>writing_agent_id</td><td><span class="k">✓</span></td><td><span class="k">✓</span></td><td><span class="k">✓</span></td><td><span class="n">—</span></td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>member_id</td><td><span class="k">✓</span></td><td><span class="k">✓</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>agent_writing_number</td><td><span class="k">✓</span></td><td><span class="k">✓</span></td><td><span class="k">✓</span></td><td><span class="k">✓</span></td></tr>
 <tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>policy_number</td><td><span class="n">—</span></td><td><span class="n">—</span></td><td><span class="k">✓</span></td><td><span class="k">✓</span></td></tr>
-<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>agent_writing_number</td><td><span class="n">—</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td><td><span class="k">✓</span></td></tr>
-<tr class="sec"><td colspan="5">Plan Details</td></tr>
+<tr class="sec"><td colspan="5">CMS Plan Details</td></tr>
 <tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>plan_name</td><td><span class="k">✓</span></td><td><span class="k">✓</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td></tr>
 <tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>mapd_type</td><td><span class="k">✓</span></td><td><span class="k">✓</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td></tr>
 <tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>monthly_premium</td><td><span class="k">✓</span></td><td><span class="k">✓</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td></tr>
 <tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>cms_plan_code</td><td><span class="k">✓</span></td><td><span class="k">✓</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td></tr>
 <tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>contract_id</td><td><span class="k">✓</span></td><td><span class="k">✓</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>election_type</td><td><span class="k">✓</span></td><td><span class="k">✓</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>termination_date</td><td><span class="k">✓</span></td><td><span class="k">✓</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>enrollment_period</td><td><span class="k">✓</span></td><td><span class="k">✓</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>termination_reason</td><td><span class="k">✓</span></td><td><span class="k">✓</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td></tr>
+<tr class="sec"><td colspan="5">Non-CMS Plans</td></tr>
 <tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>plan_letter</td><td><span class="n">—</span></td><td><span class="n">—</span></td><td><span class="k">✓</span></td><td><span class="n">—</span></td></tr>
 <tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>premium_mode</td><td><span class="n">—</span></td><td><span class="n">—</span></td><td><span class="k">✓</span></td><td><span class="k">✓</span></td></tr>
 <tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>annualized_premium</td><td><span class="n">—</span></td><td><span class="n">—</span></td><td><span class="k">✓</span></td><td><span class="k">✓</span></td></tr>
 <tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>discount_types</td><td><span class="n">—</span></td><td><span class="n">—</span></td><td><span class="k">✓</span></td><td><span class="n">—</span></td></tr>
 <tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>planned_premium</td><td><span class="n">—</span></td><td><span class="n">—</span></td><td><span class="k">✓</span></td><td><span class="k">✓</span></td></tr>
-<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>product_name</td><td><span class="n">—</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td><td><span class="k">✓</span></td></tr>
-<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>ancillary_type</td><td><span class="n">—</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td><td><span class="k">✓</span></td></tr>
-<tr class="sec"><td colspan="5">Enrollment</td></tr>
-<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>election_type</td><td><span class="k">✓</span></td><td><span class="k">✓</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td></tr>
-<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>termination_date</td><td><span class="k">✓</span></td><td><span class="k">✓</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td></tr>
-<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>enrollment_period</td><td><span class="k">✓</span></td><td><span class="k">✓</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td></tr>
-<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>termination_reason</td><td><span class="k">✓</span></td><td><span class="k">✓</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td></tr>
-<tr class="sec"><td colspan="5">SERFF</td></tr>
 <tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>carrier_charter</td><td><span class="n">—</span></td><td><span class="n">—</span></td><td><span class="k">✓</span></td><td><span class="n">—</span></td></tr>
 <tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>naic_code</td><td><span class="n">—</span></td><td><span class="n">—</span></td><td><span class="k">✓</span></td><td><span class="n">—</span></td></tr>
 <tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>commissionable_premium</td><td><span class="n">—</span></td><td><span class="n">—</span></td><td><span class="k">✓</span></td><td><span class="n">—</span></td></tr>
 <tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>cumulative_rate_increase</td><td><span class="n">—</span></td><td><span class="n">—</span></td><td><span class="k">✓</span></td><td><span class="n">—</span></td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>product_name</td><td><span class="n">—</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td><td><span class="k">✓</span></td></tr>
 <tr class="sec"><td colspan="5">Routes</td></tr>
 <tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>medicare_id → Client</td><td><span class="r">→ CLIENT</span></td><td><span class="r">→ CLIENT</span></td><td><span class="r">→ CLIENT</span></td><td><span class="r">→ CLIENT</span></td></tr>
 <tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>medicare_beneficiary_id → Client</td><td><span class="r">→ CLIENT</span></td><td><span class="r">→ CLIENT</span></td><td><span class="r">→ CLIENT</span></td><td><span class="r">→ CLIENT</span></td></tr>
 </tbody></table></div>
-<div class="ebar"><div style="color:var(--muted);font-size:.72rem">Drag to reorder → Export final order</div><button class="ebtn" onclick="exp()">Export Field Order</button></div>
-
+<div class="ebar"><div style="color:var(--muted);font-size:.72rem">Drag to reorder → Export</div><button class="ebtn" onclick="exp()">Export Field Order</button></div>
 <script>
 var dragRow=null;
 function ds(e){dragRow=e.target.closest('tr');if(dragRow.classList.contains('sec')){e.preventDefault();return;}e.dataTransfer.effectAllowed='move';dragRow.classList.add('dragging');}
