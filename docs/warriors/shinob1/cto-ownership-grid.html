@@ -62,7 +62,7 @@ code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px;
 <div class="header">
   <h1>CTO Ownership Grid</h1>
   <div class="subtitle">SHINOB1 + JDM — What we own, what's next, how we work the week</div>
-  <div class="badge">The OG Ninja &mdash; Updated 2026-04-07</div>
+  <div class="badge">The OG Ninja &mdash; Updated 2026-04-09</div>
 </div>
 
 <div class="tab-container">
@@ -446,7 +446,7 @@ code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px;
       </select>
     </div>
     <div style="display:flex; justify-content:space-between; align-items:center;">
-      <div style="font-size:0.72rem; color:var(--muted);" id="intelCount">17 items</div>
+      <div style="font-size:0.72rem; color:var(--muted);" id="intelCount">23 items</div>
       <label style="font-size:0.75rem; color:var(--muted); cursor:pointer; display:flex; align-items:center; gap:6px;">
         <input type="checkbox" id="showArchived" onchange="filterIntel()" style="cursor:pointer;"> Show Archived
       </label>
@@ -634,6 +634,66 @@ code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px;
         <td>JDM</td>
         <td>&mdash;</td>
         <td>Validation. FORGE + RONIN already does this on MDJ_SERVER.</td>
+      </tr>
+      <tr data-status="OPEN" data-owner="SHINOB1" data-priority="CRITICAL">
+        <td>18</td>
+        <td><a href="https://www.infoworld.com/article/4154973/enterprise-developers-question-claude-codes-reliability-for-complex-engineering.html" target="_blank"><strong>InfoWorld: Claude Code Reliability Concerns</strong></a><br><span style="font-size:0.75rem;color:var(--muted)">Enterprise devs report Opus quality regression after Feb update</span></td>
+        <td>04-09</td>
+        <td><span class="pill hot">CRITICAL</span></td>
+        <td><span class="pill next">OPEN</span></td>
+        <td>SHINOB1</td>
+        <td>&mdash;</td>
+        <td>Analysis of 17K thinking blocks + 234K tool calls across 6.8K sessions shows measurable degradation. AMD senior AI director documented quality drop on complex multi-file work. Failure pattern: "edit without reading, stop without finishing, dodge responsibility, take the simplest fix." Anthropic attributes it to GPU capacity, has implemented usage throttles. <strong>Our exposure:</strong> Opus is the GA layer in our model routing — if it's degrading, our CTO/strategy layer gets worse. <strong>Our mitigations already in place:</strong> (1) Hookify "if you didn't READ IT don't REPORT IT" is literally the anti-shallow-reasoning rule. (2) FORGE gates catch premature "done". (3) Dedicated MDJ_SERVER throughput insulates us from shared-tenant throttling. <strong>Action:</strong> Benchmark Opus on our hardest real tasks this week. If degraded, #12/#14 (Gemma 4 + Ollama/Qdrant) jump to IMMEDIATE priority — GPU install becomes the unblock.</td>
+      </tr>
+      <tr data-status="OPEN" data-owner="SHINOB1" data-priority="HIGH">
+        <td>19</td>
+        <td><a href="https://www.wired.com/story/anthropic-launches-claude-managed-agents/" target="_blank"><strong>Anthropic: Claude Managed Agents</strong></a><br><span style="font-size:0.75rem;color:var(--muted)">/v1/agents + /v1/sessions — Anthropic hosts agent state</span></td>
+        <td>04-09</td>
+        <td><span class="pill hot">HIGH</span></td>
+        <td><span class="pill next">OPEN</span></td>
+        <td>SHINOB1</td>
+        <td>Wired paywall &mdash; needs deep read</td>
+        <td>NEEDS DEEP READ (Wired 403'd me). From the claude-api skill description + endpoint names: Anthropic now hosts <code>/v1/agents</code> + <code>/v1/sessions</code> — meaning session state, tool registry, and lifecycle are managed by Anthropic instead of the developer. <strong>Implications:</strong> Could replace / supplement mdj-agent for some workloads. <strong>Tradeoff:</strong> lose tmux-based architecture + full control. <strong>Win:</strong> zero infra, unlimited horizontal scale, official SLA. <strong>Action:</strong> (1) Fetch full article via MUSASHI or browse Playwright. (2) Benchmark ONE VOLTRON specialist (Medicare) as managed agent vs our runner — compare cost, latency, tool availability. (3) Decide whether Managed Agents is a backup path, a cost-cut for light specialists, or irrelevant for our use case.</td>
+      </tr>
+      <tr data-status="OPEN" data-owner="SHINOB1" data-priority="MEDIUM">
+        <td>20</td>
+        <td><a href="https://blog.jetbrains.com/ai/2026/04/using-acp-deep-agents-to-demystify-modern-software-engineering/" target="_blank"><strong>JetBrains: ACP + Deep Agents</strong></a><br><span style="font-size:0.75rem;color:var(--muted)">Agent Client Protocol open standard + LangChain Deep Agents framework</span></td>
+        <td>04-09</td>
+        <td><span class="pill plan">MEDIUM</span></td>
+        <td><span class="pill next">OPEN</span></td>
+        <td>SHINOB1</td>
+        <td>&mdash;</td>
+        <td>ACP = open protocol for IDE &harr; agent communication (WebStorm, Zed are early adopters). Deep Agents (LangChain) = filesystem + shell + planning (<code>write_todos</code>) + HITL approvals + sub-agent spawning. <strong>This is the pattern we built from scratch in FORGE, now open-sourced.</strong> <strong>Action items:</strong> (1) Read Deep Agents source — they may have solved state management / sub-agent context partitioning better than we did. Steal what's good. (2) Evaluate exposing our warriors via ACP so JDM could run a warrior from inside WebStorm/Zed with <code>@file</code> mentions. (3) ACP could become the standard protocol for RONIN ingress — external Discovery Doc submissions via IDE.</td>
+      </tr>
+      <tr data-status="OPEN" data-owner="SHINOB1" data-priority="MEDIUM">
+        <td>21</td>
+        <td><a href="https://www.forbes.com/councils/forbestechcouncil/2026/04/08/the-ai-native-codebase-how-to-keep-up-quality-when-agents-code/" target="_blank"><strong>Forbes: AI-Native Codebase Quality</strong></a><br><span style="font-size:0.75rem;color:var(--muted)">Quality practices for codebases written by agents</span></td>
+        <td>04-09</td>
+        <td><span class="pill plan">MEDIUM</span></td>
+        <td><span class="pill next">OPEN</span></td>
+        <td>SHINOB1</td>
+        <td>Forbes 403 &mdash; needs deep read</td>
+        <td>NEEDS DEEP READ (Forbes blocked me). Title suggests quality gates + guardrails for AI-generated code. <strong>What we already run:</strong> Hookify (35 rules, tool-level enforcement), FORGE lifecycle (11-step audit at every phase), CI gates (type-check 13/13 + build 11/11), E2E (Playwright + Vitest), CodeQL + Dependabot, branch protection. <strong>Why it still matters:</strong> This is validation of the architecture and a chance to steal any new patterns we haven't adopted. <strong>Action:</strong> Ask MUSASHI or Playwright to fetch the full article, extract any patterns we don't already run, ticket gaps.</td>
+      </tr>
+      <tr data-status="OPEN" data-owner="SHINOB1" data-priority="LOW">
+        <td>22</td>
+        <td><a href="https://www.geekwire.com/2026/amazon-revamps-s3-cloud-storage-for-the-ai-era-removing-a-key-barrier-for-apps-and-agents/" target="_blank"><strong>GeekWire: Amazon S3 AI Revamp</strong></a><br><span style="font-size:0.75rem;color:var(--muted)">S3 changes "removing a key barrier for apps and agents"</span></td>
+        <td>04-09</td>
+        <td><span class="pill plan">LOW</span></td>
+        <td><span class="pill next">OPEN</span></td>
+        <td>SHINOB1</td>
+        <td>GeekWire 403 &mdash; needs deep read</td>
+        <td>NEEDS DEEP READ (GeekWire 403'd me). Likely candidates for the "key barrier": vector/semantic object queries, faster range reads for context loading, metadata search, or tiered hot/cold for agent memory. <strong>Our stack today:</strong> Firestore + Google Drive for client + doc storage. S3 is not in our dependency tree. <strong>Why still worth reading:</strong> If DAVID acquires an AWS-native firm, we'd inherit S3 dependencies. Also relevant if we spin up a high-scale vector/doc search layer later. <strong>Action:</strong> Low priority parse; archive if not directly applicable.</td>
+      </tr>
+      <tr data-status="ARCHIVED" data-owner="JDM" data-priority="LOW" style="opacity:0.5;">
+        <td>23</td>
+        <td><a href="https://www.forbes.com/sites/mattcraig/2026/04/07/dr-dre-is-now-a-billionaire/" target="_blank"><strong>Forbes: Dr. Dre Billionaire</strong></a><br><span style="font-size:0.75rem;color:var(--muted)">Beats + Apple acquisition playbook — brand &rarr; product &rarr; exit</span></td>
+        <td>04-09</td>
+        <td><span class="pill plan">LOW</span></td>
+        <td><span class="pill hold">ARCHIVED</span></td>
+        <td>JDM</td>
+        <td>&mdash;</td>
+        <td>NEEDS DEEP READ (Forbes 403) but the playbook is known: Brand (Beats by Dre) + Product (headphones/audio) + Strategic acquisition (Apple, 2014, ~$3B) = billion-dollar exit without a VC-funded tech career. Maps to RPI: Brand (The Machine + warrior identity) + Product (toMachina portals) + Strategic (DAVID acquisitions). Key difference: JDM owns the full stack, not just the brand. Validation / inspiration only.</td>
       </tr>
     </table>
   </div>
