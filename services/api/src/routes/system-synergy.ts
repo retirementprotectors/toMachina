@@ -565,3 +565,143 @@ systemSynergyRoutes.get('/hook-audit', async (_req: Request, res: Response) => {
     res.status(500).json(errorResponse('Failed to audit hooks'))
   }
 })
+
+// ─── Tool 11: wire-health ────────────────────────────────────────────────────
+// LL-07: System Synergy Dashboard tile data source. Queries the wire_runs
+// Firestore collection (populated by services/learning-loop/wire-run-tracker.ts)
+// and returns the latest run per wire + aggregate status. The tile subscribes
+// to this endpoint to show green/yellow/red per wire.
+//
+// Response shape matches WireHealthSnapshot — see packages/ui/src/modules/SystemSynergy.
+
+interface WireHealthSnapshot {
+  wires: WireHealthRow[]
+  all_healthy: boolean
+  total_runs_last_24h: number
+  failures_last_24h: number
+  last_snapshot_at: string
+}
+
+interface WireHealthRow {
+  wireName: string
+  lastRunAt: string | null
+  lastSuccessAt: string | null
+  lastFailureAt: string | null
+  status: 'unknown' | 'running' | 'success' | 'failure'
+  durationMs: number | null
+  entriesWritten: number | null
+  error: string | null
+  host: string | null
+}
+
+// The canonical list of wires expected to exist. Used so the dashboard shows
+// a row even if a wire has NEVER run (the thing that broke the Learning Loop
+// for 48 hours silently). "unknown" is a valid status — it means "nothing
+// has ever reported from this wire," which is a red flag, not an empty row.
+const EXPECTED_WIRES = [
+  'entity-extractor',
+  'wire-brain-sync',
+  'gap-analyzer',
+  'knowledge-promote',
+  'wire-platform-audit',
+  'wire-warrior-briefing',
+]
+
+systemSynergyRoutes.get('/wire-health', async (_req: Request, res: Response) => {
+  try {
+    const db = getDb()
+    const now = Date.now()
+    const oneDayAgoMs = now - 24 * 60 * 60 * 1000
+
+    // Pull the last ~200 runs across all wires, sorted newest first.
+    // Uses the wire_runs composite index on startedAt DESC.
+    const snapshot = await db
+      .collection('wire_runs')
+      .orderBy('startedAt', 'desc')
+      .limit(200)
+      .get()
+
+    const rowsByWire = new Map<string, WireHealthRow>()
+    let totalRunsLast24h = 0
+    let failuresLast24h = 0
+
+    for (const wire of EXPECTED_WIRES) {
+      rowsByWire.set(wire, {
+        wireName: wire,
+        lastRunAt: null,
+        lastSuccessAt: null,
+        lastFailureAt: null,
+        status: 'unknown',
+        durationMs: null,
+        entriesWritten: null,
+        error: null,
+        host: null,
+      })
+    }
+
+    for (const doc of snapshot.docs) {
+      const data = doc.data()
+      const wireName = String(data.wireName || '')
+      if (!wireName) continue
+
+      const startedAt = data.startedAt
+      const startedMs =
+        startedAt instanceof Timestamp ? startedAt.toMillis() : null
+
+      if (startedMs !== null && startedMs >= oneDayAgoMs) {
+        totalRunsLast24h++
+        if (data.status === 'failure') failuresLast24h++
+      }
+
+      const existing = rowsByWire.get(wireName)
+      const row: WireHealthRow = existing ?? {
+        wireName,
+        lastRunAt: null,
+        lastSuccessAt: null,
+        lastFailureAt: null,
+        status: 'unknown',
+        durationMs: null,
+        entriesWritten: null,
+        error: null,
+        host: null,
+      }
+
+      if (!row.lastRunAt) {
+        row.lastRunAt = tsToIso(startedAt)
+        row.status = (data.status as WireHealthRow['status']) ?? 'unknown'
+        row.durationMs = typeof data.durationMs === 'number' ? data.durationMs : null
+        row.entriesWritten =
+          typeof data.entriesWritten === 'number' ? data.entriesWritten : null
+        row.error = typeof data.error === 'string' ? data.error : null
+        row.host = typeof data.host === 'string' ? data.host : null
+      }
+
+      if (!row.lastSuccessAt && data.status === 'success') {
+        row.lastSuccessAt = tsToIso(startedAt)
+      }
+      if (!row.lastFailureAt && data.status === 'failure') {
+        row.lastFailureAt = tsToIso(startedAt)
+      }
+
+      rowsByWire.set(wireName, row)
+    }
+
+    const wires = Array.from(rowsByWire.values())
+    const allHealthy = wires.every(
+      w => w.status === 'success' || w.status === 'running',
+    )
+
+    const result: WireHealthSnapshot = {
+      wires,
+      all_healthy: allHealthy,
+      total_runs_last_24h: totalRunsLast24h,
+      failures_last_24h: failuresLast24h,
+      last_snapshot_at: new Date().toISOString(),
+    }
+
+    res.json(successResponse(result))
+  } catch (err) {
+    console.error('[system-synergy] wire-health failed:', err)
+    res.status(500).json(errorResponse('Failed to query wire_runs'))
+  }
+})
