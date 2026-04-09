@@ -105,7 +105,69 @@ tr:hover td{background:rgba(16,185,129,.03)}
 <tr><td>medicare_beneficiary_id → Client</td><td class="r">→</td><td class="r">→</td><td class="r">→</td><td class="r">→</td></tr>
 </table>
 </div>
-<div class="panel" id="p_life"><div class="card"><h2>Life Field Schema</h2><p style="color:var(--orange);font-size:1rem;text-align:center;padding:40px 0">IN PROGRESS — JDM reviewing in Product Schema Builder</p></div></div>
+<div class="panel" id="p_life"><div class="card">
+<h2>Life Field Schema <span style="color:var(--green);font-size:.7rem;font-weight:600;padding:3px 10px;background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.3);border-radius:10px;margin-left:8px;vertical-align:middle">LOCKED 2026-04-09</span></h2>
+<p>Unified schema across all 6 subtypes (Whole Life, Term, UL, IUL, VUL, Final Expense). 5 sections, 31 fields. Full builder: <a href="../../life-schema-organized.html" style="color:var(--cyan)">life-schema-organized.html</a> · Review: <a href="../../life-schema-final.html" style="color:var(--cyan)">life-schema-final.html</a></p>
+<h3>General (12)</h3>
+<table><tr><th>Field</th><th>Notes</th></tr>
+<tr><td>carrier</td><td class="k">✓</td></tr>
+<tr><td>status</td><td class="k">✓</td></tr>
+<tr><td>product_type</td><td class="k">✓</td></tr>
+<tr><td>policy_type</td><td class="k">✓ (Whole/Term/UL/IUL/VUL/Final Expense)</td></tr>
+<tr><td>issue_date</td><td class="k">✓ (effective_date merged in)</td></tr>
+<tr><td>submitted_date</td><td class="k">✓</td></tr>
+<tr><td>as_of_date</td><td class="k">✓</td></tr>
+<tr><td>market</td><td class="k">✓</td></tr>
+<tr><td>book_of_business</td><td class="k">✓</td></tr>
+<tr><td>policy_number</td><td class="k">✓</td></tr>
+<tr><td>data_source</td><td class="k">✓</td></tr>
+<tr><td>agent_writing_number</td><td class="k">✓</td></tr>
+</table>
+<h3>Current Values (12)</h3>
+<table><tr><th>Field</th><th>Notes</th></tr>
+<tr><td>face_amount</td><td class="k">✓</td></tr>
+<tr><td>cash_value</td><td class="k">✓</td></tr>
+<tr><td>surrender_value</td><td class="k">✓</td></tr>
+<tr><td>death_benefit</td><td class="k">✓</td></tr>
+<tr><td>death_benefit_option</td><td class="k">✓</td></tr>
+<tr><td>annualized_premium</td><td class="k">✓</td></tr>
+<tr><td>modal_premium</td><td class="k">✓</td></tr>
+<tr><td>premium_mode</td><td class="k">✓</td></tr>
+<tr><td>total_premiums_paid</td><td class="k">✓</td></tr>
+<tr><td>billing_status</td><td class="k">✓</td></tr>
+<tr><td>loan_balance</td><td class="m">MAX(loan_balance, net_loan_amount, loan_interest_balance)</td></tr>
+<tr><td>loan_interest_rate</td><td class="k">✓</td></tr>
+</table>
+<h3>Parties (5)</h3>
+<table><tr><th>Field</th><th>Notes</th></tr>
+<tr><td>insured_name</td><td class="k">✓</td></tr>
+<tr><td>owner_name</td><td class="k">✓</td></tr>
+<tr><td>joint_owner_name</td><td class="k">✓</td></tr>
+<tr><td>primary_beneficiary</td><td class="k">✓</td></tr>
+<tr><td>primary_beneficiary_pct</td><td class="k">✓</td></tr>
+</table>
+<h3>Contract Elements (2)</h3>
+<table><tr><th>Field</th><th>Notes</th></tr>
+<tr><td>risk_class</td><td class="k">✓</td></tr>
+<tr><td>mec</td><td class="k">✓ (Modified Endowment Contract flag)</td></tr>
+</table>
+<h3>Dividend Details (0)</h3>
+<table><tr><th>Field</th><th>Notes</th></tr>
+<tr><td style="color:var(--orange);font-family:inherit;font-style:italic">— TBD —</td><td>Awaiting JDM field list</td></tr>
+</table>
+<h3>Merges</h3>
+<table><tr><th>Source (dies)</th><th>→</th><th>Target (stays)</th><th>Rule</th></tr>
+<tr><td class="m">effective_date</td><td style="color:var(--orange)">→</td><td class="k">issue_date</td><td>Simple merge</td></tr>
+<tr><td class="m">net_loan_amount</td><td style="color:var(--orange)">→</td><td class="k">loan_balance</td><td>MAX of three</td></tr>
+<tr><td class="m">loan_interest_balance</td><td style="color:var(--orange)">→</td><td class="k">loan_balance</td><td>MAX of three</td></tr>
+</table>
+<h3>Dead Fields</h3>
+<table><tr><th>Field</th><th>Reason</th></tr>
+<tr><td class="d">insured_dob</td><td>Deleted per JDM — lives on client record, not account</td></tr>
+<tr><td class="d">insured_gender</td><td>Deleted per JDM — lives on client record, not account</td></tr>
+<tr><td class="d">paid_to_date</td><td>Deleted per JDM</td></tr>
+</table>
+</div></div>
 <div class="panel" id="p_annuity"><div class="card"><h2>Annuity Field Schema</h2><p style="color:var(--orange);font-size:1rem;text-align:center;padding:40px 0">IN PROGRESS — JDM reviewing in Product Schema Builder</p></div></div>
 <div class="panel" id="p_investment"><div class="card"><h2>Investment Field Schema</h2><p style="color:var(--orange);font-size:1rem;text-align:center;padding:40px 0">IN PROGRESS — JDM reviewing in Product Schema Builder</p></div></div>
 <div class="panel" id="p_merges"><div class="card">
