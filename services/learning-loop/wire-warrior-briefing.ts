@@ -52,7 +52,14 @@ function detectWarrior(): string {
 function readSoulHighlights(warrior: string): string[] {
   const soulPath = path.join(WARRIORS_DIR, warrior, 'soul.md')
   try {
-    const content = fs.readFileSync(soulPath, 'utf-8')
+    const rawContent = fs.readFileSync(soulPath, 'utf-8')
+    // ZRD-LL-019 bandaid: collapse multi-line markdown bullet continuations
+    // (lines starting with 2+ spaces after a newline) into the parent bullet.
+    // Without this, line-by-line extraction below silently drops continuation
+    // text, producing half-extracted highlights that read as complete —
+    // a knowledge-integrity bug, not cosmetic. Proper markdown parser deferred
+    // to a later pass; this regex fixes the visible symptom.
+    const content = rawContent.replace(/\n {2,}/g, ' ')
     const highlights: string[] = []
     let inRelevantSection = false
 
