@@ -22,10 +22,12 @@ tr.drag-over td{border-top:2px solid var(--accent)}
 .ebtn{padding:8px 24px;border-radius:6px;border:none;background:var(--accent);color:#000;font-weight:700;font-size:.85rem;cursor:pointer}
 </style></head><body>
 <h1>Life Insurance Schema — Final</h1>
-<div class="sub">6 sections. effective_date → issue_date. Drag ⠿ to reorder.</div>
+<div class="sub">5 sections. Loan Details collapsed into Current Values. Drag ⠿ to reorder.</div>
 <div class="changes"><strong>Latest changes:</strong><ul>
-<li>effective_date merged into issue_date</li>
-<li>Sections renamed: Current Values, Parties, Contract Elements, Loan Details, Dividend Details</li>
+<li><strong>Killed:</strong> insured_dob, insured_gender, paid_to_date</li>
+<li><strong>Merged into loan_balance</strong> (rule: <em>greater of the three</em>): net_loan_amount, loan_interest_balance</li>
+<li>loan_balance + loan_interest_rate moved into Current Values</li>
+<li>Loan Details section eliminated</li>
 <li>Dividend Details — empty, ready for you to define fields</li>
 </ul></div>
 <table id="tbl"><thead><tr><th></th><th>Field</th><th>Section</th></tr></thead><tbody id="tbody">
@@ -53,10 +55,10 @@ tr.drag-over td{border-top:2px solid var(--accent)}
 <tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span></td><td>premium_mode</td><td style="font-size:.7rem">Current Values</td></tr>
 <tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span></td><td>total_premiums_paid</td><td style="font-size:.7rem">Current Values</td></tr>
 <tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span></td><td>billing_status</td><td style="font-size:.7rem">Current Values</td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span></td><td>loan_balance <span style="color:var(--orange);font-size:.65rem">← max(loan_balance, net_loan_amount, loan_interest_balance)</span></td><td style="font-size:.7rem">Current Values</td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span></td><td>loan_interest_rate</td><td style="font-size:.7rem">Current Values</td></tr>
 <tr class="sec"><td colspan="3">Parties</td></tr>
 <tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span></td><td>insured_name</td><td style="font-size:.7rem">Parties</td></tr>
-<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span></td><td>insured_dob</td><td style="font-size:.7rem">Parties</td></tr>
-<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span></td><td>insured_gender</td><td style="font-size:.7rem">Parties</td></tr>
 <tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span></td><td>owner_name</td><td style="font-size:.7rem">Parties</td></tr>
 <tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span></td><td>joint_owner_name</td><td style="font-size:.7rem">Parties</td></tr>
 <tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span></td><td>primary_beneficiary</td><td style="font-size:.7rem">Parties</td></tr>
@@ -64,12 +66,6 @@ tr.drag-over td{border-top:2px solid var(--accent)}
 <tr class="sec"><td colspan="3">Contract Elements</td></tr>
 <tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span></td><td>risk_class</td><td style="font-size:.7rem">Contract Elements</td></tr>
 <tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span></td><td>mec</td><td style="font-size:.7rem">Contract Elements</td></tr>
-<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span></td><td>paid_to_date</td><td style="font-size:.7rem">Contract Elements</td></tr>
-<tr class="sec"><td colspan="3">Loan Details</td></tr>
-<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span></td><td>loan_balance</td><td style="font-size:.7rem">Loan Details</td></tr>
-<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span></td><td>net_loan_amount</td><td style="font-size:.7rem">Loan Details</td></tr>
-<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span></td><td>loan_interest_rate</td><td style="font-size:.7rem">Loan Details</td></tr>
-<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span></td><td>loan_interest_balance</td><td style="font-size:.7rem">Loan Details</td></tr>
 <tr class="sec"><td colspan="3">Dividend Details</td></tr>
 <tr class="empty"><td></td><td colspan="2">Fields TBD — what dividend fields do we have?</td></tr>
 </tbody></table>
