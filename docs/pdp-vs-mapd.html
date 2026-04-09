@@ -1,147 +1,167 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>PDP vs MAPD — Side by Side</title>
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>PDP Schema — Aligned to MAPD</title>
 <style>
 :root{--bg:#0a0e17;--card:#111827;--card2:#1a2236;--border:#1e293b;--text:#e2e8f0;--muted:#94a3b8;--accent:#10b981;--green:#22c55e;--blue:#3b82f6;--orange:#f59e0b;--red:#ef4444;--purple:#a855f7;--cyan:#06b6d4}
 *{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;padding:24px}
-h1{font-size:1.6rem;font-weight:800;color:var(--blue);text-align:center;margin-bottom:6px}
-.sub{color:var(--muted);font-size:.82rem;text-align:center;margin-bottom:24px}
-h2{font-size:.9rem;color:var(--accent);text-transform:uppercase;letter-spacing:1px;margin:24px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--border)}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:12px}
-.col-head{padding:8px 14px;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border)}
+h1{font-size:1.5rem;font-weight:800;color:var(--blue);text-align:center;margin-bottom:4px}
+.sub{color:var(--muted);font-size:.8rem;text-align:center;margin-bottom:20px}
+h2{font-size:.85rem;color:var(--accent);text-transform:uppercase;letter-spacing:1px;margin:20px 0 8px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:8px}
+.col-head{padding:6px 12px;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border)}
 .col-head.mapd{background:var(--card2);color:var(--green)}
 .col-head.pdp{background:var(--card2);color:var(--blue)}
-.row{display:contents}
-.cell{padding:5px 12px;border-bottom:1px solid var(--border);font-size:.78rem;font-family:monospace;display:flex;align-items:center;gap:6px}
-.cell.mapd{background:var(--card)}
+.cell{padding:4px 10px;border-bottom:1px solid var(--border);font-size:.75rem;display:flex;align-items:center;gap:6px;min-height:32px}
+.cell.mapd{background:var(--card);font-family:monospace}
 .cell.pdp{background:var(--card);border-left:1px solid var(--border)}
-.cell.has{color:var(--green)}
-.cell.miss{color:var(--red);opacity:.4;font-style:italic}
-.cell.same{color:var(--green)}
-.pill{font-size:.55rem;font-weight:600;padding:1px 6px;border-radius:999px}
+.cell.merged{color:var(--orange);font-style:italic;font-size:.7rem}
+.cell.route{color:var(--purple);font-style:italic;font-size:.7rem}
+.cell.miss{color:#333;font-style:italic;font-size:.7rem}
+.fname{font-family:monospace;font-size:.75rem}
+.pill{font-size:.5rem;font-weight:600;padding:1px 5px;border-radius:999px}
 .pill.k{background:rgba(34,197,94,.12);color:var(--green)}
 .pill.m{background:rgba(245,158,11,.12);color:var(--orange)}
-.pill.d{background:rgba(239,68,68,.12);color:var(--red)}
 .pill.r{background:rgba(168,85,247,.12);color:var(--purple)}
-.pill.q{background:rgba(6,182,212,.12);color:var(--cyan)}
-.legend{display:flex;gap:12px;justify-content:center;margin-bottom:20px;font-size:.7rem;color:var(--muted);flex-wrap:wrap}
-.legend span{display:flex;align-items:center;gap:4px}
-.dot{width:8px;height:8px;border-radius:2px}
-.footer{text-align:center;margin-top:32px;padding-top:16px;border-top:1px solid var(--border);color:var(--muted);font-size:.72rem}
+.acts{display:flex;gap:2px;margin-left:auto}
+.ab{width:20px;height:20px;border-radius:3px;border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.55rem;background:none;color:var(--muted)}
+.ab:hover{border-color:var(--accent)}
+.ab.ka{border-color:var(--green);background:var(--green);color:#000}
+.ab.ma{border-color:var(--orange);background:var(--orange);color:#000}
+.ab.da{border-color:var(--red);background:var(--red);color:#000}
+.mt select{background:var(--card2);border:1px solid var(--orange);color:var(--orange);border-radius:3px;padding:1px 4px;font-size:.6rem;font-family:monospace}
+.nt{background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:3px;padding:1px 4px;font-size:.6rem;width:80px}
+.nt:focus{border-color:var(--accent);outline:none}
+.ebar{position:sticky;bottom:0;background:var(--card);border-top:1px solid var(--border);padding:10px 24px;display:flex;justify-content:space-between;align-items:center;margin:24px -24px -24px}
+.ebtn{padding:8px 24px;border-radius:8px;border:none;background:var(--accent);color:#000;font-weight:700;font-size:.85rem;cursor:pointer}
 </style></head><body>
-<h1>PDP vs MAPD — Side by Side</h1>
-<div class="sub">MAPD (approved) on the left. PDP (to review) on the right. Green = PDP has it. Red = PDP missing. ? = needs decision.</div>
-<div class="legend">
-<span><div class="dot" style="background:var(--green)"></div>PDP has this field</span>
-<span><div class="dot" style="background:var(--red)"></div>PDP missing</span>
-<span><div class="dot" style="background:var(--cyan)"></div>Needs decision</span>
-</div>
+<h1>PDP Schema — Aligned to MAPD</h1>
+<div class="sub">MAPD (locked) left. PDP (interactive) right. Keep/Merge/Delete + notes on PDP side.</div>
+<script>var S={};
+
+var OPTS='<option value="">→ target</option><option value="carrier">carrier</option><option value="status">status</option><option value="product_type">product_type</option><option value="core_product_type">core_product_type</option><option value="effective_date">effective_date</option><option value="submitted_date">submitted_date</option><option value="market">market</option><option value="book_of_business">book_of_business</option><option value="member_id">member_id</option><option value="writing_agent_id">writing_agent_id</option><option value="plan_name">plan_name</option><option value="mapd_type">mapd_type</option><option value="monthly_premium">monthly_premium</option><option value="cms_plan_code">cms_plan_code</option><option value="contract_id">contract_id</option><option value="election_type">election_type</option><option value="termination_date">termination_date</option><option value="enrollment_period">enrollment_period</option><option value="termination_reason">termination_reason</option>';
+
+
+function act(f, action, btn) {
+  S[f] = S[f] || {action:'keep',merge_to:null,notes:''};
+  var row = document.getElementById('pdp_' + f);
+  if (!row) return;
+  row.querySelectorAll('.ab').forEach(function(b){b.classList.remove('ka','ma','da')});
+  btn.classList.add(action==='keep'?'ka':action==='merge'?'ma':'da');
+  S[f].action = action;
+  var mt = document.getElementById('mt_' + f);
+  if (mt) mt.innerHTML = action==='merge' ? '<select onchange="S[\''+f+'\'].merge_to=this.value">' + OPTS + '</select>' : '';
+}
+function sn(f, v) { S[f] = S[f] || {action:'keep',merge_to:null,notes:''}; S[f].notes = v; }
+function exp() {
+  var blob = new Blob([JSON.stringify(S, null, 2)], {type:'application/json'});
+  var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'pdp-schema.json'; a.click();
+}
+</script>
+
 <h2>General</h2>
 <div class="grid">
 <div class="col-head mapd">MAPD (Approved)</div>
-<div class="col-head pdp">PDP (Review)</div>
-<div class="cell mapd">carrier <span class="pill k">KEEP</span></div>
-<div class="cell pdp has">carrier <span class="pill q">? same as MAPD?</span></div>
-<div class="cell mapd">status <span class="pill k">KEEP</span></div>
-<div class="cell pdp has">status <span class="pill q">? same as MAPD?</span></div>
-<div class="cell mapd">product_type <span class="pill k">KEEP</span></div>
-<div class="cell pdp has">product_type <span class="pill q">? same as MAPD?</span></div>
-<div class="cell mapd">core_product_type <span class="pill k">KEEP</span></div>
-<div class="cell pdp has">core_product_type <span class="pill q">? same as MAPD?</span></div>
-<div class="cell mapd">effective_date <span class="pill k">KEEP</span></div>
-<div class="cell pdp has">effective_date <span class="pill q">? same as MAPD?</span></div>
-<div class="cell mapd">submitted_date <span class="pill k">KEEP</span></div>
-<div class="cell pdp has">submitted_date <span class="pill q">? same as MAPD?</span></div>
-<div class="cell mapd">market <span class="pill k">KEEP</span></div>
-<div class="cell pdp has">market <span class="pill q">? same as MAPD?</span></div>
-<div class="cell mapd">book_of_business <span class="pill k">KEEP</span></div>
-<div class="cell pdp has">book_of_business <span class="pill q">? same as MAPD?</span></div>
-<div class="cell mapd">member_id <span class="pill k">KEEP</span></div>
-<div class="cell pdp has">member_id <span class="pill q">? same as MAPD?</span></div>
-<div class="cell mapd">writing_agent_id <span class="pill k">KEEP</span></div>
-<div class="cell pdp has">writing_agent_id <span class="pill q">? same as MAPD?</span></div>
+<div class="col-head pdp">PDP (Your Call)</div>
+<div class="cell mapd"><span class="fname">carrier</span> <span class="pill k">KEEP</span></div>
+<div class="cell pdp" id="pdp_carrier"><span class="fname">carrier</span><span style="font-size:.6rem;color:var(--muted)"> (763/785)</span><div class="acts"><button class="ab ka" onclick="act('carrier','keep',this)">✓</button><button class="ab" onclick="act('carrier','merge',this)">→</button><button class="ab" onclick="act('carrier','delete',this)">✕</button></div><span id="mt_carrier"></span><input class="nt" placeholder="notes" oninput="sn('carrier',this.value)"></div>
+<div class="cell mapd merged">carrier_name → carrier <span class="pill m">MERGE</span></div>
+<div class="cell pdp merged">carrier_name → carrier (9/785)</div>
+<div class="cell mapd merged">parent_carrier → carrier <span class="pill m">MERGE</span></div>
+<div class="cell pdp merged">parent_carrier → carrier (9/785)</div>
+<div class="cell mapd"><span class="fname">status</span> <span class="pill k">KEEP</span></div>
+<div class="cell pdp" id="pdp_status"><span class="fname">status</span><span style="font-size:.6rem;color:var(--muted)"> (785/785)</span><div class="acts"><button class="ab ka" onclick="act('status','keep',this)">✓</button><button class="ab" onclick="act('status','merge',this)">→</button><button class="ab" onclick="act('status','delete',this)">✕</button></div><span id="mt_status"></span><input class="nt" placeholder="notes" oninput="sn('status',this.value)"></div>
+<div class="cell mapd"><span class="fname">product_type</span> <span class="pill k">KEEP</span></div>
+<div class="cell pdp" id="pdp_product_type"><span class="fname">product_type</span><span style="font-size:.6rem;color:var(--muted)"> (502/785)</span><div class="acts"><button class="ab ka" onclick="act('product_type','keep',this)">✓</button><button class="ab" onclick="act('product_type','merge',this)">→</button><button class="ab" onclick="act('product_type','delete',this)">✕</button></div><span id="mt_product_type"></span><input class="nt" placeholder="notes" oninput="sn('product_type',this.value)"></div>
+<div class="cell mapd"><span class="fname">core_product_type</span> <span class="pill k">KEEP</span></div>
+<div class="cell pdp" id="pdp_core_product_type"><span class="fname">core_product_type</span><span style="font-size:.6rem;color:var(--muted)"> (543/785)</span><div class="acts"><button class="ab ka" onclick="act('core_product_type','keep',this)">✓</button><button class="ab" onclick="act('core_product_type','merge',this)">→</button><button class="ab" onclick="act('core_product_type','delete',this)">✕</button></div><span id="mt_core_product_type"></span><input class="nt" placeholder="notes" oninput="sn('core_product_type',this.value)"></div>
+<div class="cell mapd"><span class="fname">effective_date</span> <span class="pill k">KEEP</span></div>
+<div class="cell pdp" id="pdp_effective_date"><span class="fname">effective_date</span><span style="font-size:.6rem;color:var(--muted)"> (418/785)</span><div class="acts"><button class="ab ka" onclick="act('effective_date','keep',this)">✓</button><button class="ab" onclick="act('effective_date','merge',this)">→</button><button class="ab" onclick="act('effective_date','delete',this)">✕</button></div><span id="mt_effective_date"></span><input class="nt" placeholder="notes" oninput="sn('effective_date',this.value)"></div>
+<div class="cell mapd"><span class="fname">submitted_date</span> <span class="pill k">KEEP</span></div>
+<div class="cell pdp" id="pdp_submitted_date"><span class="fname">submitted_date</span><span style="font-size:.6rem;color:var(--muted)"> (116/785)</span><div class="acts"><button class="ab ka" onclick="act('submitted_date','keep',this)">✓</button><button class="ab" onclick="act('submitted_date','merge',this)">→</button><button class="ab" onclick="act('submitted_date','delete',this)">✕</button></div><span id="mt_submitted_date"></span><input class="nt" placeholder="notes" oninput="sn('submitted_date',this.value)"></div>
+<div class="cell mapd"><span class="fname">market</span> <span class="pill k">KEEP</span></div>
+<div class="cell pdp" id="pdp_market"><span class="fname">market</span><span style="font-size:.6rem;color:var(--muted)"> (199/785)</span><div class="acts"><button class="ab ka" onclick="act('market','keep',this)">✓</button><button class="ab" onclick="act('market','merge',this)">→</button><button class="ab" onclick="act('market','delete',this)">✕</button></div><span id="mt_market"></span><input class="nt" placeholder="notes" oninput="sn('market',this.value)"></div>
+<div class="cell mapd"><span class="fname">book_of_business</span> <span class="pill k">KEEP</span></div>
+<div class="cell pdp" id="pdp_book_of_business"><span class="fname">book_of_business</span><span style="font-size:.6rem;color:var(--muted)"> (634/785)</span><div class="acts"><button class="ab ka" onclick="act('book_of_business','keep',this)">✓</button><button class="ab" onclick="act('book_of_business','merge',this)">→</button><button class="ab" onclick="act('book_of_business','delete',this)">✕</button></div><span id="mt_book_of_business"></span><input class="nt" placeholder="notes" oninput="sn('book_of_business',this.value)"></div>
+<div class="cell mapd"><span class="fname">member_id</span> <span class="pill k">KEEP</span></div>
+<div class="cell pdp" id="pdp_member_id"><span class="fname">member_id</span><span style="font-size:.6rem;color:var(--muted)"> (80/785)</span><div class="acts"><button class="ab ka" onclick="act('member_id','keep',this)">✓</button><button class="ab" onclick="act('member_id','merge',this)">→</button><button class="ab" onclick="act('member_id','delete',this)">✕</button></div><span id="mt_member_id"></span><input class="nt" placeholder="notes" oninput="sn('member_id',this.value)"></div>
+<div class="cell mapd merged">account_number → member_id <span class="pill m">MERGE</span></div>
+<div class="cell pdp merged">account_number → member_id (407/785)</div>
+<div class="cell mapd merged">policy_number → member_id <span class="pill m">MERGE</span></div>
+<div class="cell pdp merged">policy_number → member_id (702/785)</div>
+<div class="cell mapd"><span class="fname">writing_agent_id</span> <span class="pill k">KEEP</span></div>
+<div class="cell pdp" id="pdp_writing_agent_id"><span class="fname">writing_agent_id</span><span style="font-size:.6rem;color:var(--muted)"> (75/785)</span><div class="acts"><button class="ab ka" onclick="act('writing_agent_id','keep',this)">✓</button><button class="ab" onclick="act('writing_agent_id','merge',this)">→</button><button class="ab" onclick="act('writing_agent_id','delete',this)">✕</button></div><span id="mt_writing_agent_id"></span><input class="nt" placeholder="notes" oninput="sn('writing_agent_id',this.value)"></div>
+<div class="cell mapd merged">agent_name → writing_agent_id <span class="pill m">MERGE</span></div>
+<div class="cell pdp merged">agent_name → writing_agent_id (77/785)</div>
 </div>
 <h2>Plan Details</h2>
 <div class="grid">
 <div class="col-head mapd">MAPD (Approved)</div>
-<div class="col-head pdp">PDP (Review)</div>
-<div class="cell mapd">plan_name <span class="pill k">KEEP</span></div>
-<div class="cell pdp has">plan_name <span class="pill q">? same as MAPD?</span></div>
-<div class="cell mapd">mapd_type <span class="pill k">KEEP</span></div>
-<div class="cell pdp has">mapd_type <span class="pill q">? same as MAPD?</span></div>
-<div class="cell mapd">monthly_premium <span class="pill k">KEEP</span></div>
-<div class="cell pdp has">monthly_premium <span class="pill q">? same as MAPD?</span></div>
-<div class="cell mapd">cms_plan_code <span class="pill k">KEEP</span></div>
-<div class="cell pdp has">cms_plan_code <span class="pill q">? same as MAPD?</span></div>
-<div class="cell mapd">contract_id <span class="pill k">KEEP</span></div>
-<div class="cell pdp has">contract_id <span class="pill q">? same as MAPD?</span></div>
+<div class="col-head pdp">PDP (Your Call)</div>
+<div class="cell mapd"><span class="fname">plan_name</span> <span class="pill k">KEEP</span></div>
+<div class="cell pdp" id="pdp_plan_name"><span class="fname">plan_name</span><span style="font-size:.6rem;color:var(--muted)"> (738/785)</span><div class="acts"><button class="ab ka" onclick="act('plan_name','keep',this)">✓</button><button class="ab" onclick="act('plan_name','merge',this)">→</button><button class="ab" onclick="act('plan_name','delete',this)">✕</button></div><span id="mt_plan_name"></span><input class="nt" placeholder="notes" oninput="sn('plan_name',this.value)"></div>
+<div class="cell mapd merged">product_name → plan_name <span class="pill m">MERGE</span></div>
+<div class="cell pdp merged">product_name → plan_name (106/785)</div>
+<div class="cell mapd"><span class="fname">mapd_type</span> <span class="pill k">KEEP</span></div>
+<div class="cell pdp" id="pdp_mapd_type"><span class="fname">mapd_type</span><span style="font-size:.6rem;color:var(--muted)"> (2/785)</span><div class="acts"><button class="ab ka" onclick="act('mapd_type','keep',this)">✓</button><button class="ab" onclick="act('mapd_type','merge',this)">→</button><button class="ab" onclick="act('mapd_type','delete',this)">✕</button></div><span id="mt_mapd_type"></span><input class="nt" placeholder="notes" oninput="sn('mapd_type',this.value)"></div>
+<div class="cell mapd"><span class="fname">monthly_premium</span> <span class="pill k">KEEP</span></div>
+<div class="cell pdp" id="pdp_monthly_premium"><span class="fname">monthly_premium</span><span style="font-size:.6rem;color:var(--muted)"> (199/785)</span><div class="acts"><button class="ab ka" onclick="act('monthly_premium','keep',this)">✓</button><button class="ab" onclick="act('monthly_premium','merge',this)">→</button><button class="ab" onclick="act('monthly_premium','delete',this)">✕</button></div><span id="mt_monthly_premium"></span><input class="nt" placeholder="notes" oninput="sn('monthly_premium',this.value)"></div>
+<div class="cell mapd"><span class="fname">cms_plan_code</span> <span class="pill k">KEEP</span></div>
+<div class="cell pdp" id="pdp_cms_plan_code"><span class="fname">cms_plan_code</span><span style="font-size:.6rem;color:var(--muted)"> (244/785)</span><div class="acts"><button class="ab ka" onclick="act('cms_plan_code','keep',this)">✓</button><button class="ab" onclick="act('cms_plan_code','merge',this)">→</button><button class="ab" onclick="act('cms_plan_code','delete',this)">✕</button></div><span id="mt_cms_plan_code"></span><input class="nt" placeholder="notes" oninput="sn('cms_plan_code',this.value)"></div>
+<div class="cell mapd"><span class="fname">contract_id</span> <span class="pill k">KEEP</span></div>
+<div class="cell pdp" id="pdp_contract_id"><span class="fname">contract_id</span><span style="font-size:.6rem;color:var(--muted)"> (2/785)</span><div class="acts"><button class="ab ka" onclick="act('contract_id','keep',this)">✓</button><button class="ab" onclick="act('contract_id','merge',this)">→</button><button class="ab" onclick="act('contract_id','delete',this)">✕</button></div><span id="mt_contract_id"></span><input class="nt" placeholder="notes" oninput="sn('contract_id',this.value)"></div>
 </div>
 <h2>Enrollment Details</h2>
 <div class="grid">
 <div class="col-head mapd">MAPD (Approved)</div>
-<div class="col-head pdp">PDP (Review)</div>
-<div class="cell mapd">submitted_date <span class="pill k">KEEP</span></div>
-<div class="cell pdp has">submitted_date <span class="pill q">? same as MAPD?</span></div>
-<div class="cell mapd">election_type <span class="pill k">KEEP</span></div>
-<div class="cell pdp has">election_type <span class="pill q">? same as MAPD?</span></div>
-<div class="cell mapd">termination_date <span class="pill k">KEEP</span></div>
-<div class="cell pdp has">termination_date <span class="pill q">? same as MAPD?</span></div>
-<div class="cell mapd">enrollment_period <span class="pill k">KEEP</span></div>
-<div class="cell pdp has">enrollment_period <span class="pill q">? same as MAPD?</span></div>
-<div class="cell mapd">termination_reason <span class="pill k">KEEP</span></div>
-<div class="cell pdp has">termination_reason <span class="pill q">? same as MAPD?</span></div>
+<div class="col-head pdp">PDP (Your Call)</div>
+<div class="cell mapd"><span class="fname">election_type</span> <span class="pill k">KEEP</span></div>
+<div class="cell pdp" id="pdp_election_type"><span class="fname">election_type</span><span style="font-size:.6rem;color:var(--muted)"> (152/785)</span><div class="acts"><button class="ab ka" onclick="act('election_type','keep',this)">✓</button><button class="ab" onclick="act('election_type','merge',this)">→</button><button class="ab" onclick="act('election_type','delete',this)">✕</button></div><span id="mt_election_type"></span><input class="nt" placeholder="notes" oninput="sn('election_type',this.value)"></div>
+<div class="cell mapd"><span class="fname">termination_date</span> <span class="pill k">KEEP</span></div>
+<div class="cell pdp" id="pdp_termination_date"><span class="fname">termination_date</span><span style="font-size:.6rem;color:var(--muted)"> (3/785)</span><div class="acts"><button class="ab ka" onclick="act('termination_date','keep',this)">✓</button><button class="ab" onclick="act('termination_date','merge',this)">→</button><button class="ab" onclick="act('termination_date','delete',this)">✕</button></div><span id="mt_termination_date"></span><input class="nt" placeholder="notes" oninput="sn('termination_date',this.value)"></div>
+<div class="cell mapd merged">term_date → termination_date <span class="pill m">MERGE</span></div>
+<div class="cell pdp merged">term_date → termination_date (4/785)</div>
+<div class="cell mapd"><span class="fname">enrollment_period</span> <span class="pill k">KEEP</span></div>
+<div class="cell pdp" id="pdp_enrollment_period"><span class="fname">enrollment_period</span><span style="font-size:.6rem;color:var(--muted)"> (2/785)</span><div class="acts"><button class="ab ka" onclick="act('enrollment_period','keep',this)">✓</button><button class="ab" onclick="act('enrollment_period','merge',this)">→</button><button class="ab" onclick="act('enrollment_period','delete',this)">✕</button></div><span id="mt_enrollment_period"></span><input class="nt" placeholder="notes" oninput="sn('enrollment_period',this.value)"></div>
+<div class="cell mapd"><span class="fname">termination_reason</span> <span class="pill k">KEEP</span></div>
+<div class="cell pdp" id="pdp_termination_reason"><span class="fname">termination_reason</span><span style="font-size:.6rem;color:var(--muted)"> (1/785)</span><div class="acts"><button class="ab ka" onclick="act('termination_reason','keep',this)">✓</button><button class="ab" onclick="act('termination_reason','merge',this)">→</button><button class="ab" onclick="act('termination_reason','delete',this)">✕</button></div><span id="mt_termination_reason"></span><input class="nt" placeholder="notes" oninput="sn('termination_reason',this.value)"></div>
 </div>
 <h2>Routes to Client</h2>
 <div class="grid">
 <div class="col-head mapd">MAPD (Approved)</div>
-<div class="col-head pdp">PDP (Review)</div>
-<div class="cell mapd">medicare_id <span class="pill r">ROUTE → Client</span></div>
-<div class="cell pdp has">medicare_id <span class="pill q">? same as MAPD?</span></div>
-<div class="cell mapd">medicare_beneficiary_id <span class="pill r">ROUTE → Client</span></div>
-<div class="cell pdp has">medicare_beneficiary_id <span class="pill q">? same as MAPD?</span></div>
+<div class="col-head pdp">PDP (Your Call)</div>
+<div class="cell mapd route">medicare_id → Client <span class="pill r">ROUTE</span></div>
+<div class="cell pdp merged">medicare_id → Client (781/785)</div>
+<div class="cell mapd route">medicare_beneficiary_id → Client <span class="pill r">ROUTE</span></div>
+<div class="cell pdp merged">medicare_beneficiary_id → Client (217/785)</div>
 </div>
-<h2 style="color:var(--orange)">PDP Fields NOT in MAPD Schema</h2>
+<h2 style="color:var(--orange)">PDP Fields Not in MAPD</h2>
 <div class="grid">
 <div class="col-head mapd">MAPD</div>
 <div class="col-head pdp">PDP (Extra)</div>
-<div class="cell mapd miss">— not in MAPD</div>
-<div class="cell pdp" style="color:var(--orange)">account_number <span class="pill q">keep / merge / delete?</span></div>
-<div class="cell mapd miss">— not in MAPD</div>
-<div class="cell pdp" style="color:var(--orange)">agent_name <span class="pill q">keep / merge / delete?</span></div>
-<div class="cell mapd miss">— not in MAPD</div>
-<div class="cell pdp" style="color:var(--orange)">agent_npn <span class="pill q">keep / merge / delete?</span></div>
-<div class="cell mapd miss">— not in MAPD</div>
-<div class="cell pdp" style="color:var(--orange)">agent_writing_number <span class="pill q">keep / merge / delete?</span></div>
-<div class="cell mapd miss">— not in MAPD</div>
-<div class="cell pdp" style="color:var(--orange)">ancillary_type <span class="pill q">keep / merge / delete?</span></div>
-<div class="cell mapd miss">— not in MAPD</div>
-<div class="cell pdp" style="color:var(--orange)">annual_premium <span class="pill q">keep / merge / delete?</span></div>
-<div class="cell mapd miss">— not in MAPD</div>
-<div class="cell pdp" style="color:var(--orange)">carrier_application_status <span class="pill q">keep / merge / delete?</span></div>
-<div class="cell mapd miss">— not in MAPD</div>
-<div class="cell pdp" style="color:var(--orange)">carrier_charter <span class="pill q">keep / merge / delete?</span></div>
-<div class="cell mapd miss">— not in MAPD</div>
-<div class="cell pdp" style="color:var(--orange)">carrier_name <span class="pill q">keep / merge / delete?</span></div>
-<div class="cell mapd miss">— not in MAPD</div>
-<div class="cell pdp" style="color:var(--orange)">carrier_sales_type <span class="pill q">keep / merge / delete?</span></div>
-<div class="cell mapd miss">— not in MAPD</div>
-<div class="cell pdp" style="color:var(--orange)">charter_code <span class="pill q">keep / merge / delete?</span></div>
-<div class="cell mapd miss">— not in MAPD</div>
-<div class="cell pdp" style="color:var(--orange)">commissionable_premium <span class="pill q">keep / merge / delete?</span></div>
-<div class="cell mapd miss">— not in MAPD</div>
-<div class="cell pdp" style="color:var(--orange)">naic_code <span class="pill q">keep / merge / delete?</span></div>
-<div class="cell mapd miss">— not in MAPD</div>
-<div class="cell pdp" style="color:var(--orange)">parent_carrier <span class="pill q">keep / merge / delete?</span></div>
-<div class="cell mapd miss">— not in MAPD</div>
-<div class="cell pdp" style="color:var(--orange)">plan_letter <span class="pill q">keep / merge / delete?</span></div>
-<div class="cell mapd miss">— not in MAPD</div>
-<div class="cell pdp" style="color:var(--orange)">planned_premium <span class="pill q">keep / merge / delete?</span></div>
-<div class="cell mapd miss">— not in MAPD</div>
-<div class="cell pdp" style="color:var(--orange)">policy_number <span class="pill q">keep / merge / delete?</span></div>
-<div class="cell mapd miss">— not in MAPD</div>
-<div class="cell pdp" style="color:var(--orange)">premium_mode <span class="pill q">keep / merge / delete?</span></div>
-<div class="cell mapd miss">— not in MAPD</div>
-<div class="cell pdp" style="color:var(--orange)">product_name <span class="pill q">keep / merge / delete?</span></div>
-<div class="cell mapd miss">— not in MAPD</div>
-<div class="cell pdp" style="color:var(--orange)">term_date <span class="pill q">keep / merge / delete?</span></div>
+<div class="cell mapd miss">—</div>
+<div class="cell pdp" id="pdp_agent_npn"><span class="fname">agent_npn</span><span style="font-size:.6rem;color:var(--muted)"> (80/785)</span><div class="acts"><button class="ab ka" onclick="act('agent_npn','keep',this)">✓</button><button class="ab" onclick="act('agent_npn','merge',this)">→</button><button class="ab" onclick="act('agent_npn','delete',this)">✕</button></div><span id="mt_agent_npn"></span><input class="nt" placeholder="notes" oninput="sn('agent_npn',this.value)"></div>
+<div class="cell mapd miss">—</div>
+<div class="cell pdp" id="pdp_agent_writing_number"><span class="fname">agent_writing_number</span><span style="font-size:.6rem;color:var(--muted)"> (36/785)</span><div class="acts"><button class="ab ka" onclick="act('agent_writing_number','keep',this)">✓</button><button class="ab" onclick="act('agent_writing_number','merge',this)">→</button><button class="ab" onclick="act('agent_writing_number','delete',this)">✕</button></div><span id="mt_agent_writing_number"></span><input class="nt" placeholder="notes" oninput="sn('agent_writing_number',this.value)"></div>
+<div class="cell mapd miss">—</div>
+<div class="cell pdp" id="pdp_ancillary_type"><span class="fname">ancillary_type</span><span style="font-size:.6rem;color:var(--muted)"> (424/785)</span><div class="acts"><button class="ab ka" onclick="act('ancillary_type','keep',this)">✓</button><button class="ab" onclick="act('ancillary_type','merge',this)">→</button><button class="ab" onclick="act('ancillary_type','delete',this)">✕</button></div><span id="mt_ancillary_type"></span><input class="nt" placeholder="notes" oninput="sn('ancillary_type',this.value)"></div>
+<div class="cell mapd miss">—</div>
+<div class="cell pdp" id="pdp_annual_premium"><span class="fname">annual_premium</span><span style="font-size:.6rem;color:var(--muted)"> (12/785)</span><div class="acts"><button class="ab ka" onclick="act('annual_premium','keep',this)">✓</button><button class="ab" onclick="act('annual_premium','merge',this)">→</button><button class="ab" onclick="act('annual_premium','delete',this)">✕</button></div><span id="mt_annual_premium"></span><input class="nt" placeholder="notes" oninput="sn('annual_premium',this.value)"></div>
+<div class="cell mapd miss">—</div>
+<div class="cell pdp" id="pdp_carrier_application_status"><span class="fname">carrier_application_status</span><span style="font-size:.6rem;color:var(--muted)"> (8/785)</span><div class="acts"><button class="ab ka" onclick="act('carrier_application_status','keep',this)">✓</button><button class="ab" onclick="act('carrier_application_status','merge',this)">→</button><button class="ab" onclick="act('carrier_application_status','delete',this)">✕</button></div><span id="mt_carrier_application_status"></span><input class="nt" placeholder="notes" oninput="sn('carrier_application_status',this.value)"></div>
+<div class="cell mapd miss">—</div>
+<div class="cell pdp" id="pdp_carrier_charter"><span class="fname">carrier_charter</span><span style="font-size:.6rem;color:var(--muted)"> (772/785)</span><div class="acts"><button class="ab ka" onclick="act('carrier_charter','keep',this)">✓</button><button class="ab" onclick="act('carrier_charter','merge',this)">→</button><button class="ab" onclick="act('carrier_charter','delete',this)">✕</button></div><span id="mt_carrier_charter"></span><input class="nt" placeholder="notes" oninput="sn('carrier_charter',this.value)"></div>
+<div class="cell mapd miss">—</div>
+<div class="cell pdp" id="pdp_carrier_sales_type"><span class="fname">carrier_sales_type</span><span style="font-size:.6rem;color:var(--muted)"> (8/785)</span><div class="acts"><button class="ab ka" onclick="act('carrier_sales_type','keep',this)">✓</button><button class="ab" onclick="act('carrier_sales_type','merge',this)">→</button><button class="ab" onclick="act('carrier_sales_type','delete',this)">✕</button></div><span id="mt_carrier_sales_type"></span><input class="nt" placeholder="notes" oninput="sn('carrier_sales_type',this.value)"></div>
+<div class="cell mapd miss">—</div>
+<div class="cell pdp" id="pdp_charter_code"><span class="fname">charter_code</span><span style="font-size:.6rem;color:var(--muted)"> (9/785)</span><div class="acts"><button class="ab ka" onclick="act('charter_code','keep',this)">✓</button><button class="ab" onclick="act('charter_code','merge',this)">→</button><button class="ab" onclick="act('charter_code','delete',this)">✕</button></div><span id="mt_charter_code"></span><input class="nt" placeholder="notes" oninput="sn('charter_code',this.value)"></div>
+<div class="cell mapd miss">—</div>
+<div class="cell pdp" id="pdp_commissionable_premium"><span class="fname">commissionable_premium</span><span style="font-size:.6rem;color:var(--muted)"> (1/785)</span><div class="acts"><button class="ab ka" onclick="act('commissionable_premium','keep',this)">✓</button><button class="ab" onclick="act('commissionable_premium','merge',this)">→</button><button class="ab" onclick="act('commissionable_premium','delete',this)">✕</button></div><span id="mt_commissionable_premium"></span><input class="nt" placeholder="notes" oninput="sn('commissionable_premium',this.value)"></div>
+<div class="cell mapd miss">—</div>
+<div class="cell pdp" id="pdp_naic_code"><span class="fname">naic_code</span><span style="font-size:.6rem;color:var(--muted)"> (481/785)</span><div class="acts"><button class="ab ka" onclick="act('naic_code','keep',this)">✓</button><button class="ab" onclick="act('naic_code','merge',this)">→</button><button class="ab" onclick="act('naic_code','delete',this)">✕</button></div><span id="mt_naic_code"></span><input class="nt" placeholder="notes" oninput="sn('naic_code',this.value)"></div>
+<div class="cell mapd miss">—</div>
+<div class="cell pdp" id="pdp_plan_letter"><span class="fname">plan_letter</span><span style="font-size:.6rem;color:var(--muted)"> (3/785)</span><div class="acts"><button class="ab ka" onclick="act('plan_letter','keep',this)">✓</button><button class="ab" onclick="act('plan_letter','merge',this)">→</button><button class="ab" onclick="act('plan_letter','delete',this)">✕</button></div><span id="mt_plan_letter"></span><input class="nt" placeholder="notes" oninput="sn('plan_letter',this.value)"></div>
+<div class="cell mapd miss">—</div>
+<div class="cell pdp" id="pdp_planned_premium"><span class="fname">planned_premium</span><span style="font-size:.6rem;color:var(--muted)"> (2/785)</span><div class="acts"><button class="ab ka" onclick="act('planned_premium','keep',this)">✓</button><button class="ab" onclick="act('planned_premium','merge',this)">→</button><button class="ab" onclick="act('planned_premium','delete',this)">✕</button></div><span id="mt_planned_premium"></span><input class="nt" placeholder="notes" oninput="sn('planned_premium',this.value)"></div>
+<div class="cell mapd miss">—</div>
+<div class="cell pdp" id="pdp_premium_mode"><span class="fname">premium_mode</span><span style="font-size:.6rem;color:var(--muted)"> (3/785)</span><div class="acts"><button class="ab ka" onclick="act('premium_mode','keep',this)">✓</button><button class="ab" onclick="act('premium_mode','merge',this)">→</button><button class="ab" onclick="act('premium_mode','delete',this)">✕</button></div><span id="mt_premium_mode"></span><input class="nt" placeholder="notes" oninput="sn('premium_mode',this.value)"></div>
 </div>
-<div class="footer">PDP aligned to MAPD schema — MEGAZORD, CIO<br>🏯</div>
+<div class="ebar"><div style="color:var(--muted);font-size:.75rem">PDP decisions → Export</div><button class="ebtn" onclick="exp()">Export PDP Schema</button></div>
 </body></html>
