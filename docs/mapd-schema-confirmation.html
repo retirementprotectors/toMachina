@@ -33,6 +33,9 @@ h3{font-size:.85rem;color:var(--red);margin:28px 0 12px}
 <tr><td>effective_date</td><td style="color:var(--green)">KEEP</td><td></td></tr>
 <tr><td>market</td><td style="color:var(--green)">KEEP</td><td></td></tr>
 <tr><td>book_of_business</td><td style="color:var(--green)">KEEP</td><td></td></tr>
+<tr><td>member_id</td><td style="color:var(--green)">KEEP</td><td></td></tr>
+<tr class="incoming"><td><span class="arrow">account_number →</span> member_id</td><td style="color:var(--orange)">MERGING IN</td><td></td></tr>
+<tr class="incoming"><td><span class="arrow">policy_number →</span> member_id</td><td style="color:var(--orange)">MERGING IN</td><td></td></tr>
 </table>
 <h2>Plan Details</h2>
 <table><tr><th>Field</th><th>Status</th><th>Notes</th></tr>
@@ -51,13 +54,6 @@ h3{font-size:.85rem;color:var(--red);margin:28px 0 12px}
 <tr class="incoming"><td><span class="arrow">term_date →</span> termination_date</td><td style="color:var(--orange)">MERGING IN</td><td><span class="note">SECTION: Enrollment Details</span></td></tr>
 <tr><td>enrollment_period</td><td style="color:var(--green)">KEEP</td><td></td></tr>
 <tr><td>termination_reason</td><td style="color:var(--green)">KEEP</td><td></td></tr>
-</table>
-<h2>Identifiers</h2>
-<table><tr><th>Field</th><th>Status</th><th>Notes</th></tr>
-<tr><td>member_id</td><td style="color:var(--green)">KEEP</td><td></td></tr>
-<tr class="incoming"><td><span class="arrow">account_number →</span> member_id</td><td style="color:var(--orange)">MERGING IN</td><td></td></tr>
-<tr><td>medicare_id</td><td style="color:var(--green)">KEEP</td><td><span class="note">Contacts/ Personal/ Medicare Beneficiary ID</span></td></tr>
-<tr class="incoming"><td><span class="arrow">policy_number →</span> medicare_id</td><td style="color:var(--orange)">MERGING IN</td><td></td></tr>
 </table>
 <h2>Agent</h2>
 <table><tr><th>Field</th><th>Status</th><th>Notes</th></tr>
@@ -79,7 +75,7 @@ h3{font-size:.85rem;color:var(--red);margin:28px 0 12px}
 <tr class="dead"><td>medicare_beneficiary_id</td><td>Routed → Client</td><td><span class="note">Contacts/ Personal/ Medicare Beneficiary ID</span></td></tr>
 <tr class="dead"><td>medicare_id</td><td>Routed → Client</td><td><span class="note">Contacts/ Personal/ Medicare Beneficiary ID</span></td></tr>
 <tr class="dead"><td>naic_code</td><td>Deleted</td><td></td></tr>
-<tr class="dead"><td>policy_number</td><td>Merged → medicare_id</td><td></td></tr>
+<tr class="dead"><td>policy_number</td><td>Merged → member_id</td><td></td></tr>
 <tr class="dead"><td>premium_mode</td><td>Deleted</td><td></td></tr>
 <tr class="dead"><td>term_date</td><td>Merged → termination_date</td><td><span class="note">SECTION: Enrollment Details</span></td></tr>
 </table>
