@@ -9,6 +9,7 @@
 import * as fs from 'fs'
 import * as path from 'path'
 import { execSync } from 'child_process'
+import { trackRun } from './wire-run-tracker.js'
 
 const HOME = process.env.HOME || '/home/jdm'
 const DOJO_DIR = path.join(HOME, 'Projects', 'dojo-warriors')
@@ -168,6 +169,7 @@ async function run(): Promise<void> {
   console.log('[brain-sync] Complete')
 }
 
-run()
+// LL-07: wire-run-tracker wraps main() for dashboard visibility.
+trackRun('wire-brain-sync', run)
   .then(() => process.exit(0))
   .catch((err) => { console.error('[brain-sync] Fatal:', err); process.exit(1) })
