@@ -1,0 +1,97 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Med Supp Schema — Final</title>
+<style>
+:root{--bg:#0a0e17;--card:#111827;--card2:#1a2236;--border:#1e293b;--text:#e2e8f0;--muted:#94a3b8;--accent:#10b981;--green:#22c55e;--blue:#3b82f6;--orange:#f59e0b;--red:#ef4444;--purple:#a855f7;--cyan:#06b6d4}
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;padding:32px;max-width:900px;margin:0 auto}
+h1{font-size:1.8rem;font-weight:800;color:var(--blue);text-align:center;margin-bottom:6px}
+.sub{color:var(--muted);font-size:.85rem;text-align:center;margin-bottom:24px}
+.stats{display:flex;gap:12px;justify-content:center;margin-bottom:24px;flex-wrap:wrap}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px 20px;text-align:center}
+.stat .n{font-size:1.5rem;font-weight:800}.stat .l{font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+.stat.keep .n{color:var(--green)}.stat.merge .n{color:var(--orange)}.stat.del .n{color:var(--red)}
+h2{font-size:1rem;color:var(--accent);text-transform:uppercase;letter-spacing:1px;margin:28px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:.82rem;margin-bottom:12px}
+th{text-align:left;padding:6px 12px;background:var(--card2);color:var(--accent);font-size:.65rem;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border)}
+td{padding:6px 12px;border-bottom:1px solid var(--border);color:var(--muted)}
+td:first-child{color:var(--text);font-family:monospace;font-weight:500;font-size:.82rem}
+tr:hover td{background:rgba(16,185,129,.03)}
+.incoming{background:rgba(245,158,11,.06);border-left:3px solid var(--orange)}
+.incoming td:first-child{color:var(--orange)}
+.arrow{color:var(--orange);font-size:.7rem;font-weight:600}
+.route{background:rgba(168,85,247,.06);border-left:3px solid var(--purple)}
+.route td:first-child{color:var(--purple)}
+.dead{opacity:.4;text-decoration:line-through}
+.note{font-size:.72rem;color:var(--cyan);font-style:italic}
+.new-sec{color:var(--cyan)}
+h3{font-size:.85rem;color:var(--red);margin:28px 0 12px}
+.footer{text-align:center;margin-top:40px;padding-top:20px;border-top:1px solid var(--border);color:var(--muted);font-size:.75rem}
+</style></head><body>
+<h1>Med Supp — Final Schema</h1>
+<div class="sub">Medicare Supplement — Post-Migration Field Schema</div>
+<div class="stats"><div class="stat keep"><div class="n">9</div><div class="l">Keep</div></div><div class="stat merge"><div class="n">21</div><div class="l">Merge / Route</div></div><div class="stat del"><div class="n">6</div><div class="l">Delete</div></div></div>
+<h2>General</h2>
+<table><tr><th>Field</th><th>Status</th><th>Notes</th></tr>
+<tr><td>carrier</td><td style="color:var(--green)">KEEP</td><td></td></tr>
+<tr class="incoming"><td><span class="arrow">carrier_name →</span> carrier</td><td style="color:var(--orange)">MERGING IN</td><td></td></tr>
+<tr class="incoming"><td><span class="arrow">parent_carrier →</span> carrier</td><td style="color:var(--orange)">MERGING IN</td><td></td></tr>
+<tr><td>status</td><td style="color:var(--green)">KEEP</td><td></td></tr>
+<tr><td>product_type</td><td style="color:var(--green)">KEEP</td><td></td></tr>
+<tr><td>core_product_type</td><td style="color:var(--green)">KEEP</td><td></td></tr>
+<tr><td>effective_date</td><td style="color:var(--green)">KEEP</td><td></td></tr>
+<tr><td>submitted_date</td><td style="color:var(--green)">KEEP</td><td></td></tr>
+<tr><td>market</td><td style="color:var(--green)">KEEP</td><td></td></tr>
+<tr><td>book_of_business</td><td style="color:var(--green)">KEEP</td><td></td></tr>
+<tr><td>policy_number</td><td style="color:var(--green)">KEEP</td><td><span class="note">Moved from Identifiers</span></td></tr>
+<tr class="incoming"><td><span class="arrow">account_number →</span> policy_number</td><td style="color:var(--orange)">MERGING IN</td><td></td></tr>
+<tr><td>member_id</td><td style="color:var(--green)">KEEP</td><td><span class="note">Moved from Identifiers</span></td></tr>
+<tr><td>writing_agent_id</td><td style="color:var(--green)">KEEP</td><td><span class="note">Moved from Agent</span></td></tr>
+<tr class="incoming"><td><span class="arrow">agent_name →</span> writing_agent_id</td><td style="color:var(--orange)">MERGING IN</td><td></td></tr>
+</table>
+<h2>Plan Details</h2>
+<table><tr><th>Field</th><th>Status</th><th>Notes</th></tr>
+<tr><td>plan_letter</td><td style="color:var(--green)">KEEP</td><td></td></tr>
+<tr class="incoming"><td><span class="arrow">plan_name →</span> plan_letter</td><td style="color:var(--orange)">MERGING IN</td><td></td></tr>
+<tr class="incoming"><td><span class="arrow">product_name →</span> plan_letter</td><td style="color:var(--orange)">MERGING IN</td><td></td></tr>
+<tr><td>premium_mode</td><td style="color:var(--green)">KEEP</td><td><span class="note">Moved from Premiums</span></td></tr>
+<tr><td>annualized_premium</td><td style="color:var(--green)">KEEP</td><td><span class="note">Moved from Premiums</span></td></tr>
+<tr class="incoming"><td><span class="arrow">annual_premium →</span> annualized_premium</td><td style="color:var(--orange)">MERGING IN</td><td></td></tr>
+<tr><td>discount_types</td><td style="color:var(--green)">KEEP</td><td></td></tr>
+</table>
+<h2>Premiums</h2>
+<table><tr><th>Field</th><th>Status</th><th>Notes</th></tr>
+<tr><td>commissionable_premium</td><td style="color:var(--green)">KEEP</td><td><span class="note">Moved here per JDM</span></td></tr>
+<tr><td>planned_premium</td><td style="color:var(--green)">KEEP</td><td><span class="note">Moved here per JDM</span></td></tr>
+<tr><td>cumulative_rate_increase</td><td style="color:var(--green)">KEEP</td><td><span class="note">Moved here per JDM</span></td></tr>
+</table>
+<h2 class="new-sec">SERFF Data (New Section)</h2>
+<table><tr><th>Field</th><th>Status</th><th>Notes</th></tr>
+<tr><td>carrier_charter</td><td style="color:var(--green)">KEEP</td><td><span class="note">New section per JDM</span></td></tr>
+<tr><td>naic_code</td><td style="color:var(--green)">KEEP</td><td><span class="note">New section per JDM</span></td></tr>
+<tr class="incoming"><td><span class="arrow">charter_code →</span> carrier_charter</td><td style="color:var(--orange)">MERGING IN</td><td></td></tr>
+</table>
+<h2 style="color:var(--purple)">Routed to Client Record</h2>
+<table><tr><th>Source Field (Account)</th><th></th><th>Destination</th></tr>
+<tr class="route"><td>medicare_id</td><td class="arrow">→</td><td style="color:var(--purple)">Contacts / Personal / Medicare Beneficiary ID</td></tr>
+<tr class="route"><td>medicare_beneficiary_id</td><td class="arrow">→</td><td style="color:var(--purple)">Contacts / Personal / Medicare Beneficiary ID</td></tr>
+</table>
+<h3>Fields Being Removed From Med Supp Accounts</h3>
+<table><tr><th>Field</th><th>Reason</th></tr>
+<tr class="dead"><td>account_number</td><td>Merged → policy_number</td></tr>
+<tr class="dead"><td>agent_name</td><td>Merged → writing_agent_id</td></tr>
+<tr class="dead"><td>agent_npn</td><td>Deleted</td></tr>
+<tr class="dead"><td>ancillary_type</td><td>Deleted</td></tr>
+<tr class="dead"><td>annual_premium</td><td>Merged → annualized_premium</td></tr>
+<tr class="dead"><td>carrier_name</td><td>Merged → carrier</td></tr>
+<tr class="dead"><td>charter_code</td><td>Merged → carrier_charter</td></tr>
+<tr class="dead"><td>cms_plan_code</td><td>Deleted</td></tr>
+<tr class="dead"><td>election_type</td><td>Deleted</td></tr>
+<tr class="dead"><td>medicare_beneficiary_id</td><td>Routed → Client</td></tr>
+<tr class="dead"><td>medicare_id</td><td>Routed → Client</td></tr>
+<tr class="dead"><td>monthly_premium</td><td>Deleted</td></tr>
+<tr class="dead"><td>parent_carrier</td><td>Merged → carrier</td></tr>
+<tr class="dead"><td>plan_name</td><td>Merged → plan_letter</td></tr>
+<tr class="dead"><td>product_name</td><td>Merged → plan_letter</td></tr>
+<tr class="dead"><td>term_date</td><td>Deleted</td></tr>
+<tr class="dead"><td>termination_reason</td><td>Deleted</td></tr>
+</table>
+<div class="footer">Med Supp Field Schema — MEGAZORD, CIO — Pending JDM Final Confirmation<br>🏯</div>
+</body></html>
