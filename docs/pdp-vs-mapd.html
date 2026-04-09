@@ -1,0 +1,147 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>PDP vs MAPD — Side by Side</title>
+<style>
+:root{--bg:#0a0e17;--card:#111827;--card2:#1a2236;--border:#1e293b;--text:#e2e8f0;--muted:#94a3b8;--accent:#10b981;--green:#22c55e;--blue:#3b82f6;--orange:#f59e0b;--red:#ef4444;--purple:#a855f7;--cyan:#06b6d4}
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;padding:24px}
+h1{font-size:1.6rem;font-weight:800;color:var(--blue);text-align:center;margin-bottom:6px}
+.sub{color:var(--muted);font-size:.82rem;text-align:center;margin-bottom:24px}
+h2{font-size:.9rem;color:var(--accent);text-transform:uppercase;letter-spacing:1px;margin:24px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:12px}
+.col-head{padding:8px 14px;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border)}
+.col-head.mapd{background:var(--card2);color:var(--green)}
+.col-head.pdp{background:var(--card2);color:var(--blue)}
+.row{display:contents}
+.cell{padding:5px 12px;border-bottom:1px solid var(--border);font-size:.78rem;font-family:monospace;display:flex;align-items:center;gap:6px}
+.cell.mapd{background:var(--card)}
+.cell.pdp{background:var(--card);border-left:1px solid var(--border)}
+.cell.has{color:var(--green)}
+.cell.miss{color:var(--red);opacity:.4;font-style:italic}
+.cell.same{color:var(--green)}
+.pill{font-size:.55rem;font-weight:600;padding:1px 6px;border-radius:999px}
+.pill.k{background:rgba(34,197,94,.12);color:var(--green)}
+.pill.m{background:rgba(245,158,11,.12);color:var(--orange)}
+.pill.d{background:rgba(239,68,68,.12);color:var(--red)}
+.pill.r{background:rgba(168,85,247,.12);color:var(--purple)}
+.pill.q{background:rgba(6,182,212,.12);color:var(--cyan)}
+.legend{display:flex;gap:12px;justify-content:center;margin-bottom:20px;font-size:.7rem;color:var(--muted);flex-wrap:wrap}
+.legend span{display:flex;align-items:center;gap:4px}
+.dot{width:8px;height:8px;border-radius:2px}
+.footer{text-align:center;margin-top:32px;padding-top:16px;border-top:1px solid var(--border);color:var(--muted);font-size:.72rem}
+</style></head><body>
+<h1>PDP vs MAPD — Side by Side</h1>
+<div class="sub">MAPD (approved) on the left. PDP (to review) on the right. Green = PDP has it. Red = PDP missing. ? = needs decision.</div>
+<div class="legend">
+<span><div class="dot" style="background:var(--green)"></div>PDP has this field</span>
+<span><div class="dot" style="background:var(--red)"></div>PDP missing</span>
+<span><div class="dot" style="background:var(--cyan)"></div>Needs decision</span>
+</div>
+<h2>General</h2>
+<div class="grid">
+<div class="col-head mapd">MAPD (Approved)</div>
+<div class="col-head pdp">PDP (Review)</div>
+<div class="cell mapd">carrier <span class="pill k">KEEP</span></div>
+<div class="cell pdp has">carrier <span class="pill q">? same as MAPD?</span></div>
+<div class="cell mapd">status <span class="pill k">KEEP</span></div>
+<div class="cell pdp has">status <span class="pill q">? same as MAPD?</span></div>
+<div class="cell mapd">product_type <span class="pill k">KEEP</span></div>
+<div class="cell pdp has">product_type <span class="pill q">? same as MAPD?</span></div>
+<div class="cell mapd">core_product_type <span class="pill k">KEEP</span></div>
+<div class="cell pdp has">core_product_type <span class="pill q">? same as MAPD?</span></div>
+<div class="cell mapd">effective_date <span class="pill k">KEEP</span></div>
+<div class="cell pdp has">effective_date <span class="pill q">? same as MAPD?</span></div>
+<div class="cell mapd">submitted_date <span class="pill k">KEEP</span></div>
+<div class="cell pdp has">submitted_date <span class="pill q">? same as MAPD?</span></div>
+<div class="cell mapd">market <span class="pill k">KEEP</span></div>
+<div class="cell pdp has">market <span class="pill q">? same as MAPD?</span></div>
+<div class="cell mapd">book_of_business <span class="pill k">KEEP</span></div>
+<div class="cell pdp has">book_of_business <span class="pill q">? same as MAPD?</span></div>
+<div class="cell mapd">member_id <span class="pill k">KEEP</span></div>
+<div class="cell pdp has">member_id <span class="pill q">? same as MAPD?</span></div>
+<div class="cell mapd">writing_agent_id <span class="pill k">KEEP</span></div>
+<div class="cell pdp has">writing_agent_id <span class="pill q">? same as MAPD?</span></div>
+</div>
+<h2>Plan Details</h2>
+<div class="grid">
+<div class="col-head mapd">MAPD (Approved)</div>
+<div class="col-head pdp">PDP (Review)</div>
+<div class="cell mapd">plan_name <span class="pill k">KEEP</span></div>
+<div class="cell pdp has">plan_name <span class="pill q">? same as MAPD?</span></div>
+<div class="cell mapd">mapd_type <span class="pill k">KEEP</span></div>
+<div class="cell pdp has">mapd_type <span class="pill q">? same as MAPD?</span></div>
+<div class="cell mapd">monthly_premium <span class="pill k">KEEP</span></div>
+<div class="cell pdp has">monthly_premium <span class="pill q">? same as MAPD?</span></div>
+<div class="cell mapd">cms_plan_code <span class="pill k">KEEP</span></div>
+<div class="cell pdp has">cms_plan_code <span class="pill q">? same as MAPD?</span></div>
+<div class="cell mapd">contract_id <span class="pill k">KEEP</span></div>
+<div class="cell pdp has">contract_id <span class="pill q">? same as MAPD?</span></div>
+</div>
+<h2>Enrollment Details</h2>
+<div class="grid">
+<div class="col-head mapd">MAPD (Approved)</div>
+<div class="col-head pdp">PDP (Review)</div>
+<div class="cell mapd">submitted_date <span class="pill k">KEEP</span></div>
+<div class="cell pdp has">submitted_date <span class="pill q">? same as MAPD?</span></div>
+<div class="cell mapd">election_type <span class="pill k">KEEP</span></div>
+<div class="cell pdp has">election_type <span class="pill q">? same as MAPD?</span></div>
+<div class="cell mapd">termination_date <span class="pill k">KEEP</span></div>
+<div class="cell pdp has">termination_date <span class="pill q">? same as MAPD?</span></div>
+<div class="cell mapd">enrollment_period <span class="pill k">KEEP</span></div>
+<div class="cell pdp has">enrollment_period <span class="pill q">? same as MAPD?</span></div>
+<div class="cell mapd">termination_reason <span class="pill k">KEEP</span></div>
+<div class="cell pdp has">termination_reason <span class="pill q">? same as MAPD?</span></div>
+</div>
+<h2>Routes to Client</h2>
+<div class="grid">
+<div class="col-head mapd">MAPD (Approved)</div>
+<div class="col-head pdp">PDP (Review)</div>
+<div class="cell mapd">medicare_id <span class="pill r">ROUTE → Client</span></div>
+<div class="cell pdp has">medicare_id <span class="pill q">? same as MAPD?</span></div>
+<div class="cell mapd">medicare_beneficiary_id <span class="pill r">ROUTE → Client</span></div>
+<div class="cell pdp has">medicare_beneficiary_id <span class="pill q">? same as MAPD?</span></div>
+</div>
+<h2 style="color:var(--orange)">PDP Fields NOT in MAPD Schema</h2>
+<div class="grid">
+<div class="col-head mapd">MAPD</div>
+<div class="col-head pdp">PDP (Extra)</div>
+<div class="cell mapd miss">— not in MAPD</div>
+<div class="cell pdp" style="color:var(--orange)">account_number <span class="pill q">keep / merge / delete?</span></div>
+<div class="cell mapd miss">— not in MAPD</div>
+<div class="cell pdp" style="color:var(--orange)">agent_name <span class="pill q">keep / merge / delete?</span></div>
+<div class="cell mapd miss">— not in MAPD</div>
+<div class="cell pdp" style="color:var(--orange)">agent_npn <span class="pill q">keep / merge / delete?</span></div>
+<div class="cell mapd miss">— not in MAPD</div>
+<div class="cell pdp" style="color:var(--orange)">agent_writing_number <span class="pill q">keep / merge / delete?</span></div>
+<div class="cell mapd miss">— not in MAPD</div>
+<div class="cell pdp" style="color:var(--orange)">ancillary_type <span class="pill q">keep / merge / delete?</span></div>
+<div class="cell mapd miss">— not in MAPD</div>
+<div class="cell pdp" style="color:var(--orange)">annual_premium <span class="pill q">keep / merge / delete?</span></div>
+<div class="cell mapd miss">— not in MAPD</div>
+<div class="cell pdp" style="color:var(--orange)">carrier_application_status <span class="pill q">keep / merge / delete?</span></div>
+<div class="cell mapd miss">— not in MAPD</div>
+<div class="cell pdp" style="color:var(--orange)">carrier_charter <span class="pill q">keep / merge / delete?</span></div>
+<div class="cell mapd miss">— not in MAPD</div>
+<div class="cell pdp" style="color:var(--orange)">carrier_name <span class="pill q">keep / merge / delete?</span></div>
+<div class="cell mapd miss">— not in MAPD</div>
+<div class="cell pdp" style="color:var(--orange)">carrier_sales_type <span class="pill q">keep / merge / delete?</span></div>
+<div class="cell mapd miss">— not in MAPD</div>
+<div class="cell pdp" style="color:var(--orange)">charter_code <span class="pill q">keep / merge / delete?</span></div>
+<div class="cell mapd miss">— not in MAPD</div>
+<div class="cell pdp" style="color:var(--orange)">commissionable_premium <span class="pill q">keep / merge / delete?</span></div>
+<div class="cell mapd miss">— not in MAPD</div>
+<div class="cell pdp" style="color:var(--orange)">naic_code <span class="pill q">keep / merge / delete?</span></div>
+<div class="cell mapd miss">— not in MAPD</div>
+<div class="cell pdp" style="color:var(--orange)">parent_carrier <span class="pill q">keep / merge / delete?</span></div>
+<div class="cell mapd miss">— not in MAPD</div>
+<div class="cell pdp" style="color:var(--orange)">plan_letter <span class="pill q">keep / merge / delete?</span></div>
+<div class="cell mapd miss">— not in MAPD</div>
+<div class="cell pdp" style="color:var(--orange)">planned_premium <span class="pill q">keep / merge / delete?</span></div>
+<div class="cell mapd miss">— not in MAPD</div>
+<div class="cell pdp" style="color:var(--orange)">policy_number <span class="pill q">keep / merge / delete?</span></div>
+<div class="cell mapd miss">— not in MAPD</div>
+<div class="cell pdp" style="color:var(--orange)">premium_mode <span class="pill q">keep / merge / delete?</span></div>
+<div class="cell mapd miss">— not in MAPD</div>
+<div class="cell pdp" style="color:var(--orange)">product_name <span class="pill q">keep / merge / delete?</span></div>
+<div class="cell mapd miss">— not in MAPD</div>
+<div class="cell pdp" style="color:var(--orange)">term_date <span class="pill q">keep / merge / delete?</span></div>
+</div>
+<div class="footer">PDP aligned to MAPD schema — MEGAZORD, CIO<br>🏯</div>
+</body></html>
