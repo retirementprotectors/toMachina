@@ -74,6 +74,7 @@ code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px;
     <div class="tab" data-tab="integrity"><span class="dot" style="background:var(--gold)"></span> Data Integrity</div>
     <div class="tab" data-tab="dispatchers"><span class="dot" style="background:var(--green)"></span> Hub Dispatchers</div>
     <div class="tab" data-tab="migration"><span class="dot" style="background:var(--orange)"></span> Data Migration</div>
+    <div class="tab" data-tab="schema"><span class="dot" style="background:var(--accent)"></span> Product Schema</div>
     <div class="tab" data-tab="hitlist"><span class="dot" style="background:var(--red)"></span> Hit List</div>
   </div>
 </div>
@@ -156,6 +157,13 @@ code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px;
   </div>
   <div class="rhythm-block">
     <div class="rhythm-num">10</div>
+    <div class="rhythm-body">
+      <h3>Product Schema &mdash; Source of Truth</h3>
+      <p>Are all product types locked? Any pending reviews? Dropdowns populated? Schema matches what's in Firestore?</p>
+    </div>
+  </div>
+  <div class="rhythm-block">
+    <div class="rhythm-num">11</div>
     <div class="rhythm-body">
       <h3>Hit List &mdash; Concrete Task Queue</h3>
       <p>What's next? What's blocked? What got done this week?</p>
@@ -484,6 +492,40 @@ code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px;
       <tr><td><strong>Contact aliases (6 merges)</strong></td><td>Stage 1</td><td><span class="pill plan">QUEUED</span></td><td>Inventory code references for dob/date_of_birth, address/address_street, etc.</td></tr>
       <tr><td><strong>face_value &rarr; face_amount</strong></td><td>Stage 1</td><td><span class="pill plan">QUEUED</span></td><td>Inventory code references</td></tr>
       <tr><td><strong>status/client_status dedup</strong></td><td>Stage 1</td><td><span class="pill plan">QUEUED</span></td><td>Inventory code references</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ======= PRODUCT SCHEMA ======= -->
+<div class="tab-panel" id="schema">
+  <div class="card">
+    <div class="section-label">Product Field Schema — Source of Truth</div>
+    <h2>The Most Important Document MEGAZORD Owns</h2>
+    <p>Every ATLAS tool, super tool, wire, import normalizer, UI component, dropdown, and data validation references this schema. No field may be added, renamed, or deleted without the Data Migration Protocol.</p>
+  </div>
+  <div class="card">
+    <h3>Full Schema Document</h3>
+    <p><a href="product-field-schema.html" style="color: var(--accent); font-weight: 700; font-size: 1rem;">product-field-schema.html &rarr;</a></p>
+    <p>7 tabs: Process, Medicare (locked), Life (in progress), Annuity (in progress), Investment (in progress), Merges, Dead Fields.</p>
+  </div>
+  <div class="card">
+    <h3>Status by Product Type</h3>
+    <table>
+      <tr><th>Product Type</th><th>Subtypes</th><th>Status</th><th>Next Step</th></tr>
+      <tr><td><strong>Medicare</strong></td><td>MAPD, PDP, Med Supp, Ancillary</td><td><span class="pill live">LOCKED</span></td><td>Create dropdowns + lookup tables</td></tr>
+      <tr><td><strong>Life</strong></td><td>Whole Life, Term, UL, IUL, VUL, Final Expense</td><td><span class="pill next">IN REVIEW</span></td><td>JDM reviewing in Schema Builder</td></tr>
+      <tr><td><strong>Annuity</strong></td><td>Deferred, FIA, SPIA, Variable/RILA</td><td><span class="pill plan">QUEUED</span></td><td>After Life</td></tr>
+      <tr><td><strong>Investment</strong></td><td>Advisory, Brokerage, IRA</td><td><span class="pill plan">QUEUED</span></td><td>After Annuity</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h3>Supporting Tools</h3>
+    <table>
+      <tr><th>Tool</th><th>Purpose</th><th>Link</th></tr>
+      <tr><td><strong>Schema Builder</strong></td><td>Interactive field toggle per product type</td><td><a href="../../product-schema-builder.html" style="color:var(--cyan)">product-schema-builder.html</a></td></tr>
+      <tr><td><strong>Value Fields Review</strong></td><td>Post-migration preview of value/premium fields</td><td><a href="../../value-fields-review.html" style="color:var(--cyan)">value-fields-review.html</a></td></tr>
+      <tr><td><strong>Carrier Field Review</strong></td><td>Medicare carrier charter decisions</td><td><a href="../../carrier-field-review.html" style="color:var(--cyan)">carrier-field-review.html</a></td></tr>
+      <tr><td><strong>Medicare Master</strong></td><td>4-type side-by-side with drag reorder</td><td><a href="../../medicare-master-schema.html" style="color:var(--cyan)">medicare-master-schema.html</a></td></tr>
     </table>
   </div>
 </div>
