@@ -86,9 +86,11 @@ tr.totals td{font-weight:700;color:var(--text);border-top:2px solid var(--border
 <div class="tab active" onclick="showPanel('summary',this)">SUMMARY</div>
 <div class="tab" onclick="showPanel('annuities',this)">ANNUITIES</div>
 <div class="tab" onclick="showPanel('cds',this)">CDs</div>
+<div class="tab" onclick="showPanel('life',this)">LIFE</div>
+<div class="tab" onclick="showPanel('beni',this)">BENI CENTER</div>
+<div class="tab" onclick="showPanel('rmd',this)">RMD CENTER</div>
 <div class="tab" onclick="showPanel('tax',this)">TAX BREAKDOWN</div>
 <div class="tab" onclick="showPanel('flags',this)">FLAGS</div>
-<div class="tab" onclick="showPanel('life',this)">LIFE</div>
 <div class="tab" onclick="showPanel('income',this)">INCOME</div>
 </div>
 
@@ -143,13 +145,14 @@ tr.totals td{font-weight:700;color:var(--text);border-top:2px solid var(--border
 <h2>Annuities (5 Accounts &mdash; $872,927)</h2>
 <div style="overflow-x:auto">
 <table>
-<tr><th>Carrier</th><th>Product</th><th>Policy #</th><th>Tax</th><th>Value</th><th>CSV</th><th>Rate</th><th>Guar</th><th>Death Benefit</th><th>Issue</th><th>Maturity</th><th>Beneficiary</th></tr>
-<tr><td>Catholic Order of Foresters</td><td>Annuity Loyalty SPDA</td><td>4041671</td><td>Non-Qualified</td><td>$447,073</td><td>$418,866</td><td>3.25%</td><td>2.75%</td><td>$447,073</td><td>11/05/2023</td><td>11/05/2049</td><td>Karla S Ruth</td></tr>
-<tr><td>Catholic Order of Foresters</td><td>Annuity Loyalty SPDA</td><td>4041673</td><td>Roth IRA</td><td>$90,560</td><td>$84,847</td><td>3.00%</td><td>2.75%</td><td>$90,560</td><td>11/05/2023</td><td>11/05/2049</td><td>Karla S Ruth</td></tr>
-<tr><td>Prosperity / S.USA Life</td><td>S.USA Annuity</td><td>920330879</td><td>Non-Qualified</td><td>$184,837</td><td>$184,837</td><td>3.00%</td><td>&mdash;</td><td>$184,837</td><td>05/04/2022</td><td>05/04/2028</td><td class="none">&#9888; NONE</td></tr>
-<tr><td>Brighthouse Financial</td><td>Fixed Annuity XR</td><td>940267409</td><td>Non-Qualified</td><td>$135,034</td><td>$135,034</td><td>3.00%</td><td>&mdash;</td><td>$135,034</td><td>06/08/2004</td><td>1yr Renew</td><td class="none">&#9888; NONE</td></tr>
-<tr><td>Brighthouse Financial</td><td>Fixed Annuity XR</td><td>9200553464</td><td>Trad IRA</td><td>$15,423</td><td>$15,423</td><td>3.00%</td><td>&mdash;</td><td>$15,423</td><td>06/11/2004</td><td>1yr Renew</td><td class="none">&#9888; NONE</td></tr>
-<tr class="totals"><td></td><td></td><td></td><td>TOTAL</td><td>$872,927</td><td>$839,007</td><td></td><td></td><td>$872,927</td><td></td><td></td><td></td></tr>
+<tr><th>Carrier</th><th>Product</th><th>Policy #</th><th>Tax</th><th>Value</th><th>CSV</th><th>Rate</th><th>Death Benefit</th><th>Issue</th><th>Maturity</th><th>Beneficiary</th><th>Source</th></tr>
+<tr><td>Catholic Order of Foresters</td><td>Annuity Loyalty SPDA</td><td>4041671</td><td>NQ</td><td>$447,073</td><td>$418,866</td><td>3.25% (2.75% guar)</td><td>$447,073</td><td>11/05/2023</td><td>11/05/2049</td><td>Karla S Ruth</td><td>COF stmt 04/2025</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>Annuity Loyalty SPDA</td><td>4041673</td><td>Roth IRA</td><td>$90,560</td><td>$84,847</td><td>3.00% (2.75% guar)</td><td>$90,560</td><td>11/05/2023</td><td>11/05/2049</td><td>Karla S Ruth</td><td>COF stmt 04/2025</td></tr>
+<tr><td>Prosperity / S.USA Life</td><td>S.USA Annuity</td><td>920330879</td><td>NQ</td><td>$184,837</td><td>$184,837</td><td>3.00%</td><td>$184,837</td><td>05/04/2022</td><td>05/04/2028</td><td class="none">&#9888; NONE</td><td>Prosperity stmt 05/2025</td></tr>
+<tr><td>Brighthouse Financial</td><td>Fixed Annuity XR</td><td>940267409</td><td>NQ</td><td>$135,034</td><td>$135,034</td><td>3.00%</td><td>$135,034</td><td>06/08/2004</td><td>1yr renew</td><td class="none">&#9888; NONE</td><td>Brighthouse stmt</td></tr>
+<tr><td>Brighthouse Financial</td><td>Fixed Annuity XR</td><td>9200553464</td><td>Trad IRA</td><td>$15,423</td><td>$15,423</td><td>3.00%</td><td>$15,423</td><td>06/11/2004</td><td>1yr renew</td><td class="none">&#9888; NONE</td><td>Brighthouse stmt</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>SPIA (Karla annuitant)</td><td>1311997</td><td>NQ</td><td>$36,610 prem</td><td>&mdash;</td><td>3.00%</td><td>$1,603/yr lifetime to Karla</td><td>04/01/2004</td><td>Lifetime</td><td>Karla S Ruth (annuitant)</td><td>COF app 2004</td></tr>
+<tr class="totals"><td></td><td></td><td></td><td>TOTAL</td><td>$872,927</td><td>$839,007</td><td></td><td>$872,927</td><td></td><td></td><td></td><td></td></tr>
 </table>
 </div>
 </div>
@@ -176,7 +179,7 @@ tr.totals td{font-weight:700;color:var(--text);border-top:2px solid var(--border
 <tr><td>Hills Bank</td><td>50102383</td><td>NQ</td><td>$118,473</td><td>3.60%</td><td>11mo</td><td>07/03/2025</td><td>06/02/2026</td><td class="none">&#9888; NONE</td></tr>
 <tr><td>Hills Bank</td><td>10402477</td><td>Trad IRA</td><td>$96,314</td><td>3.60%</td><td>11mo</td><td>07/05/2025</td><td>06/05/2026</td><td class="none">&#9888; NONE</td></tr>
 <tr><td>Hills Bank</td><td>10527117</td><td>NQ</td><td>$59,138</td><td>3.60%</td><td>11mo</td><td>07/07/2025</td><td>06/07/2026</td><td class="none">&#9888; NONE</td></tr>
-<tr><td>Hills Bank</td><td>80013907</td><td>Trad IRA</td><td>$7,063</td><td>4.90%</td><td>&mdash;</td><td>&mdash;</td><td>06/13/2026?</td><td class="none">&#9888; NONE</td></tr>
+<tr><td>Hills Bank</td><td>80013907</td><td>Trad IRA</td><td>$7,675</td><td>3.48%</td><td>6mo</td><td>12/13/2025</td><td>06/13/2026</td><td class="none">&#9888; NONE</td></tr>
 <tr><td>Hills Bank</td><td>50127000</td><td>NQ</td><td>$46,501</td><td>3.49%</td><td>6mo</td><td>02/23/2026</td><td>08/23/2026</td><td class="none">&#9888; NONE</td></tr>
 <tr><td>Hills Bank</td><td>10242469</td><td>NQ</td><td>$50,706</td><td>3.49%</td><td>6mo</td><td>03/20/2026</td><td>09/20/2026</td><td class="none">&#9888; NONE</td></tr>
 <tr><td>Washington State Bank</td><td>89237</td><td>NQ</td><td>$115,585</td><td>4.00%</td><td>11mo</td><td>10/06/2025</td><td>10/06/2026</td><td class="none">&#9888; NONE</td></tr>
@@ -185,7 +188,15 @@ tr.totals td{font-weight:700;color:var(--text);border-top:2px solid var(--border
 <tr class="totals"><td></td><td></td><td>TOTAL</td><td>$1,012,727</td><td></td><td></td><td></td><td></td><td></td></tr>
 </table>
 </div>
-<div class="note" style="margin-top:14px"><strong>Updates from 2026-04-09 statements:</strong> Hills #10402477 IRA corrected from $73K (Archer estimate) to $96,314 (statement). Hills #10142469 account number corrected to <strong>10242469</strong>. Hills #80013907 IRA: handwritten renewed balance $7,063 with rate context 4.81%/4.90% APY &mdash; need fresh statement to confirm current maturity date.</div>
+<div class="note" style="margin-top:14px"><strong>Source notes:</strong>
+<ul style="margin-left:20px">
+<li>Hills Bank values: 2025/26 renewal statements (most are 11mo terms initiated mid-2025)</li>
+<li>Hills #10402477 IRA corrected from $73K (Archer estimate) to $96,314 (renewal statement 07/05/2025)</li>
+<li>Hills #10242469 account number corrected from 10142469 (was a typo) to 10242469</li>
+<li>Hills #80013907: confirmed via Archer's spreadsheet ($7,675 / 3.48% APY / 12/13/2025-06/13/2026). The handwritten 4.81% note in inbox is from an OLDER 01/13/2024 term that already renewed twice.</li>
+<li>Washington State Bank: per Archer's spreadsheet (4.00% APY 11mo terms, no renewal statements yet)</li>
+</ul>
+</div>
 </div>
 
 <div class="card">
@@ -341,16 +352,17 @@ tr.totals td{font-weight:700;color:var(--text);border-top:2px solid var(--border
 <h3>Policies</h3>
 <div style="overflow-x:auto">
 <table>
-<tr><th>Carrier</th><th>Product</th><th>Policy #</th><th>Face</th><th>Death Benefit</th><th>Cash Value</th><th>Premium</th><th>Mode</th><th>Issue</th><th>Issue Age</th><th>Primary Beni</th><th>Contingent</th></tr>
-<tr><td>Catholic Order of Foresters</td><td>Forester Life</td><td>1305586</td><td>$41,000</td><td>$58,908</td><td>$30,309</td><td>$2,418</td><td>Annual</td><td>08/01/2003</td><td>49</td><td>Karla Ruth (Sib)</td><td>Estate</td></tr>
-<tr><td>Catholic Order of Foresters</td><td>Forester Life</td><td>1299513</td><td>$40,000</td><td>$57,701</td><td>$29,728</td><td>$2,149 ($179/mo)</td><td>Monthly</td><td>10/01/2002</td><td>48</td><td>Karla Sue Roth (Sib)</td><td>Deb Nieuman</td></tr>
-<tr><td>Catholic Order of Foresters</td><td>Whole Life</td><td>1206927</td><td>$42,786</td><td>$43,089</td><td>$22,818</td><td>$535</td><td>Annual</td><td>11/01/1989</td><td>35</td><td>Karla Ruth (Sib)</td><td>Don Ruth (Parent) &#9888;</td></tr>
-<tr><td>Farm Bureau Life</td><td>Special Whole Life</td><td>04000678365</td><td>$30,000</td><td>$35,055</td><td>$18,755</td><td>$363</td><td>Annual</td><td>05/18/1985</td><td>30</td><td>Karla Sue Ruth (Sib)</td><td>Estate</td></tr>
-<tr><td>MassMutual (fka Conn. Mutual)</td><td>Limited Premium WL</td><td>3456086</td><td>$30,000</td><td>$65,866</td><td>$46,869</td><td>Paid-up?</td><td>&mdash;</td><td>05/23/1977</td><td>23</td><td>TBD</td><td>TBD</td></tr>
-<tr><td>MassMutual</td><td>Whole Life</td><td>5022977</td><td>$9,900</td><td>$9,900</td><td>TBD</td><td>$613 ($53/mo)</td><td>Monthly</td><td>01/02/2018</td><td>63</td><td>TBD</td><td>TBD</td></tr>
-<tr class="totals"><td></td><td></td><td>TOTAL</td><td>$193,686</td><td>$270,519</td><td>$148,479</td><td>~$5,678</td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><th>Carrier</th><th>Policy #</th><th>Face</th><th>Death Benefit</th><th>Cash Value</th><th>Premium</th><th>Issue</th><th>Beneficiary</th><th>Source</th></tr>
+<tr><td>Catholic Order of Foresters</td><td>1305586</td><td>$41,000</td><td>$58,908</td><td>$30,309</td><td>$2,418/yr (Annual)</td><td>08/01/2003 (age 49)</td><td>Karla Ruth (Sib) / Estate</td><td>COF stmt 04/09/2026</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>1299513</td><td>$40,000</td><td>$57,701</td><td>$29,728</td><td>$2,149/yr ($179/mo)</td><td>10/01/2002 (age 48)</td><td>Karla Sue Roth (Sib) / Deb Nieuman</td><td>COF stmt 04/09/2026</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>1206927</td><td>$42,786</td><td>$43,089</td><td>$22,818</td><td>$535/yr (Annual)</td><td>11/01/1989 (age 35)</td><td>Karla Ruth (Sib) / Don Ruth (Parent) &#9888;</td><td>COF stmt 04/09/2026</td></tr>
+<tr><td>Farm Bureau Life</td><td>04000678365</td><td>$30,000</td><td>$35,055</td><td>$18,755</td><td>$363/yr (Annual)</td><td>05/18/1985 (age 30)</td><td>Karla Sue Ruth (Sib) / Estate</td><td>FBFS Annual Report 04/21/2025</td></tr>
+<tr><td>MassMutual (fka Conn. Mutual)</td><td>3456086</td><td>$30,000</td><td>$65,866</td><td>$46,869</td><td>Paid-up?</td><td>05/23/1977 (age 23)</td><td class="none">&#9888; TBD</td><td>MassMutual stmt 04/27/2023</td></tr>
+<tr><td>MassMutual</td><td>5022977</td><td>$9,900</td><td>$9,900</td><td>TBD</td><td>$613/yr ($53/mo)</td><td>01/02/2018 (age 63)</td><td class="none">&#9888; TBD</td><td>MassMutual stmt 03/2018</td></tr>
+<tr class="totals"><td></td><td>TOTAL</td><td>$193,686</td><td>$270,519</td><td>$148,479</td><td>~$5,678/yr</td><td></td><td></td><td></td></tr>
 </table>
 </div>
+<p style="margin-top:8px;font-size:0.78rem;color:var(--muted)"><strong>Source notes:</strong> All COF + Farm Bureau values are CURRENT (statements within last 12 months). MassMutual #3456086 values are from 2023 statement &mdash; <em>actual 2026 values will be higher (2+ years of dividend accumulation)</em>. MassMutual #5022977 has no current cash value on file. <strong>Order in-force illustrations on all 6.</strong></p>
 </div>
 
 <div class="card">
@@ -374,6 +386,137 @@ tr.totals td{font-weight:700;color:var(--text);border-top:2px solid var(--border
 <li><strong>Don Ruth concern:</strong> COF #1206927 lists him as parent contingent &mdash; needs current status verification.</li>
 <li><strong>The LTC is a sleeper asset:</strong> $100/day base from 2002 with compound inflation = significant current daily benefit. JDM should request current values from COF.</li>
 </ul>
+</div>
+</div>
+
+<!-- BENI CENTER -->
+<div id="beni" class="panel">
+<div class="card">
+<h2>Beneficiary Center &mdash; All 23 Active Accounts</h2>
+<p>Sole intended beneficiary across the estate: <strong>Karla S Ruth (Sister)</strong>. Iowa inheritance tax repealed 01/01/2025 — Karla owes no state tax on inheritance.</p>
+</div>
+
+<div class="stat-row">
+<div class="stat"><div class="num" style="color:var(--green)">10</div><div class="lbl">Named Beneficiary</div></div>
+<div class="stat warn"><div class="num">13</div><div class="lbl">No Beneficiary</div></div>
+<div class="stat"><div class="num" style="color:var(--orange)">$1.48M</div><div class="lbl">Probate Risk</div></div>
+<div class="stat"><div class="num">$2.16M</div><div class="lbl">Total Death Benefit</div></div>
+</div>
+
+<div class="card">
+<h3>Accounts WITH Beneficiary (10)</h3>
+<div style="overflow-x:auto">
+<table>
+<tr><th>Carrier</th><th>Policy #</th><th>Type</th><th>Value</th><th>Primary Beneficiary</th><th>Contingent</th><th>Source</th></tr>
+<tr><td>Catholic Order of Foresters</td><td>4041671</td><td>NQ Annuity</td><td>$447,073</td><td>Karla S Ruth (Sib) 100%</td><td>&mdash;</td><td>COF stmt 04/2025</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>4041673</td><td>Roth IRA Annuity</td><td>$90,560</td><td>Karla S Ruth (Sib) 100%</td><td>&mdash;</td><td>COF stmt 04/2025</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>1305586</td><td>Whole Life</td><td>$58,908 DB</td><td>Karla Ruth (Sib)</td><td>Estate</td><td>COF stmt 04/09/2026</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>1299513</td><td>Whole Life</td><td>$57,701 DB</td><td>Karla Sue Roth (Sib)</td><td>Deb Nieuman</td><td>COF stmt 04/09/2026</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>1206927</td><td>Whole Life</td><td>$43,089 DB</td><td>Karla Ruth (Sib)</td><td><strong style="color:var(--orange)">Don Ruth (Parent) &#9888;</strong></td><td>COF stmt 04/09/2026</td></tr>
+<tr><td>Farm Bureau Life</td><td>04000678365</td><td>Special Whole Life</td><td>$35,055 DB</td><td>Karla Sue Ruth (Sib)</td><td>Estate of Insured</td><td>FBFS stmt 04/2025</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>1311997</td><td>Single Life Annuity (SPIA)</td><td>$36,610 single premium</td><td colspan="2" style="font-style:italic">Karla S Ruth is the annuitant — receives $1,603/yr lifetime income. Owner/beni TBD.</td><td>COF app 2004</td></tr>
+<tr><td>MassMutual (fka Conn. Mutual)</td><td>3456086</td><td>Whole Life</td><td>$65,866 DB</td><td colspan="2" class="none">&#9888; TBD &mdash; need current statement</td><td>2023 stmt</td></tr>
+<tr><td>MassMutual</td><td>5022977</td><td>Whole Life</td><td>$9,900 DB</td><td colspan="2" class="none">&#9888; TBD &mdash; need current statement</td><td>2018 stmt</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>1299491</td><td>LTC (no DB)</td><td>$100/day base</td><td colspan="2" style="font-style:italic">N/A &mdash; benefits paid to Kim during lifetime</td><td>COF app 2002</td></tr>
+</table>
+</div>
+</div>
+
+<div class="card">
+<h3 style="color:var(--red)">Accounts WITHOUT Beneficiary (13) &mdash; ALL probate-bound</h3>
+<div style="overflow-x:auto">
+<table>
+<tr><th>Carrier</th><th>Acct #</th><th>Type</th><th>Tax</th><th>Value</th><th>Action Required</th><th>Form Source</th></tr>
+<tr><td>Hills Bank</td><td>10521680</td><td>CD 11mo</td><td>NQ</td><td>$94,794</td><td>POD form (Hills Bank)</td><td>Bank in person</td></tr>
+<tr><td>Hills Bank</td><td>50102383</td><td>CD 11mo</td><td>NQ</td><td>$118,473</td><td>POD form (Hills Bank)</td><td>Bank in person</td></tr>
+<tr><td>Hills Bank</td><td>10402477</td><td>CD 11mo</td><td>Trad IRA</td><td>$96,314</td><td>IRA beneficiary form (Hills Bank)</td><td>Bank in person</td></tr>
+<tr><td>Hills Bank</td><td>10527117</td><td>CD 11mo</td><td>NQ</td><td>$59,138</td><td>POD form (Hills Bank)</td><td>Bank in person</td></tr>
+<tr><td>Hills Bank</td><td>80013907</td><td>CD 6mo</td><td>Trad IRA</td><td>$7,675</td><td>IRA beneficiary form (Hills Bank)</td><td>Bank in person</td></tr>
+<tr><td>Hills Bank</td><td>50127000</td><td>CD 6mo</td><td>NQ</td><td>$46,501</td><td>POD form (Hills Bank)</td><td>Bank in person</td></tr>
+<tr><td>Hills Bank</td><td>10242469</td><td>CD 6mo</td><td>NQ</td><td>$50,706</td><td>POD form (Hills Bank)</td><td>Bank in person</td></tr>
+<tr><td>Hills Bank</td><td>10424356</td><td>CD 11mo</td><td>NQ</td><td>$258,259</td><td>POD form (Hills Bank)</td><td>Bank in person</td></tr>
+<tr><td>Washington State Bank</td><td>89421</td><td>CD 11mo</td><td>NQ</td><td>$165,895</td><td>POD form (WSB)</td><td>Bank in person</td></tr>
+<tr><td>Washington State Bank</td><td>89237</td><td>CD 11mo</td><td>NQ</td><td>$115,585</td><td>POD form (WSB)</td><td>Bank in person</td></tr>
+<tr><td>Prosperity / S.USA Life</td><td>920330879</td><td>NQ Annuity</td><td>NQ</td><td>$184,837</td><td>Carrier beni change form</td><td>Prosperity carrier portal</td></tr>
+<tr><td>Brighthouse Financial</td><td>940267409</td><td>NQ Annuity</td><td>NQ</td><td>$135,034</td><td>Carrier beni change form</td><td>Brighthouse carrier portal</td></tr>
+<tr><td>Brighthouse Financial</td><td>9200553464</td><td>IRA Annuity</td><td>Trad IRA</td><td>$15,423</td><td>Carrier beni change form</td><td>Brighthouse carrier portal</td></tr>
+<tr class="totals"><td></td><td></td><td></td><td>TOTAL EXPOSED</td><td>$1,478,820</td><td></td><td></td></tr>
+</table>
+</div>
+</div>
+
+<div class="card">
+<h3>Action Plan</h3>
+<ol style="margin-left:20px;color:var(--muted)">
+<li><strong>Immediate (no second discovery needed):</strong> Print 13 beni forms. Have Kim sign at next meeting. Name Karla S Ruth as primary on all 13.</li>
+<li><strong>For the Hills Bank IRAs ($104K):</strong> IRA beneficiary forms are different from POD &mdash; ensure correct form. Hills will provide.</li>
+<li><strong>For Brighthouse + Prosperity:</strong> Each carrier has its own beni change form. Submit via carrier portal or fax.</li>
+<li><strong>Verify MassMutual #3456086 + #5022977 benis</strong> &mdash; request current statements to confirm. May already be Karla &mdash; just unconfirmed.</li>
+<li><strong>Verify Don Ruth status</strong> on COF #1206927 contingent &mdash; if deceased, file contingent change.</li>
+<li><strong>COF SPIA #1311997</strong> &mdash; verify owner and remainder beneficiary structure (Karla is the annuitant, but who owns the contract?).</li>
+</ol>
+</div>
+</div>
+
+<!-- RMD CENTER -->
+<div id="rmd" class="panel">
+<div class="card">
+<h2>RMD Center &mdash; Required Minimum Distributions</h2>
+<p>Kimberly K Ruth &bull; DOB 07/13/1954 &bull; <strong>Turns 73 on 07/13/2027</strong> &bull; First RMD year: <strong>2027</strong> &bull; Required Beginning Date: <strong>04/01/2028</strong></p>
+</div>
+
+<div class="stat-row">
+<div class="stat"><div class="num">$119,412</div><div class="lbl">Total Trad IRA Subject to RMD</div></div>
+<div class="stat"><div class="num">3</div><div class="lbl">IRA Accounts</div></div>
+<div class="stat"><div class="num" style="color:var(--orange)">$4,506</div><div class="lbl">Est. First RMD (2027)</div></div>
+<div class="stat"><div class="num">26.5</div><div class="lbl">Age 73 Divisor</div></div>
+</div>
+
+<div class="card">
+<h3>Traditional IRA Accounts (RMD Required)</h3>
+<div style="overflow-x:auto">
+<table>
+<tr><th>Carrier</th><th>Account #</th><th>Type</th><th>Value</th><th>Maturity</th><th>RMD Strategy Note</th><th>Source</th></tr>
+<tr><td>Hills Bank</td><td>10402477</td><td>IRA CD (11mo)</td><td>$96,314</td><td>06/05/2026</td><td>Largest IRA. Will mature before RMD trigger. Keep liquid for first RMD.</td><td>Hills renewal 07/05/2025</td></tr>
+<tr><td>Brighthouse Financial</td><td>9200553464</td><td>Fixed Annuity XR (IRA)</td><td>$15,423</td><td>1yr renew</td><td>Fully liquid annuity. Could fund RMD or be 1035'd to better product.</td><td>Brighthouse stmt</td></tr>
+<tr><td>Hills Bank</td><td>80013907</td><td>IRA CD (6mo)</td><td>$7,675</td><td>06/13/2026</td><td>Small balance. Could absorb full annual RMD without touching others.</td><td>Archer spreadsheet</td></tr>
+<tr class="totals"><td></td><td></td><td>TOTAL</td><td>$119,412</td><td></td><td></td><td></td></tr>
+</table>
+</div>
+</div>
+
+<div class="card">
+<h3>RMD Calculation (Projected)</h3>
+<div style="overflow-x:auto">
+<table>
+<tr><th>Year</th><th>Age</th><th>Account Balance</th><th>Divisor</th><th>RMD Amount</th><th>Notes</th></tr>
+<tr><td>2026</td><td>72</td><td>~$119,412</td><td>&mdash;</td><td>$0</td><td>No RMD &mdash; not yet 73</td></tr>
+<tr><td>2027</td><td>73</td><td>~$120K projected (assumes 0.5% net growth)</td><td>26.5</td><td><strong>~$4,528</strong></td><td>First RMD year. Can defer to 04/01/2028.</td></tr>
+<tr><td>2028</td><td>74</td><td>~$117K projected</td><td>25.5</td><td>~$4,580</td><td>Two RMDs in same calendar year if 2027 was deferred.</td></tr>
+<tr><td>2029</td><td>75</td><td>~$113K projected</td><td>24.6</td><td>~$4,591</td><td></td></tr>
+<tr><td>2030</td><td>76</td><td>~$109K projected</td><td>23.7</td><td>~$4,597</td><td></td></tr>
+</table>
+</div>
+<p style="margin-top:10px"><em>Divisors from IRS Uniform Lifetime Table (2022 update). Projections are illustrative &mdash; actual balances depend on growth + withdrawals.</em></p>
+</div>
+
+<div class="card">
+<h3>Key Decisions</h3>
+<ul>
+<li><strong>Roth Conversion Window:</strong> Kim is in the 32&ndash;35% bracket due to farm income. Roth conversion of all $119K would cost ~$38K&ndash;$42K in federal tax. <strong>BUT</strong> if farm income drops in any year before 2027, that creates a low-bracket conversion window.</li>
+<li><strong>CD Rollover Strategy:</strong> 2 of 3 IRAs mature June 2026. Don&rsquo;t lock into long-term products &mdash; keep IRA liquidity available for RMD years.</li>
+<li><strong>Inherited IRA for Karla:</strong> Under SECURE Act 2.0, Karla (non-spouse) must drain inherited IRA within 10 years. Plan accordingly.</li>
+<li><strong>QCD Option:</strong> At age 70.5+, Kim can do Qualified Charitable Distributions (up to $108K/yr in 2025) directly from IRA &mdash; satisfies RMD without taxable income. Useful if she has charitable intent.</li>
+<li><strong>1035 Exchange:</strong> The Brighthouse IRA could be 1035 exchanged into a higher-yielding annuity without triggering tax. Same product type, same tax status.</li>
+</ul>
+</div>
+
+<div class="card" style="background:rgba(34,197,94,0.04);border-color:rgba(34,197,94,0.2)">
+<h3 style="color:var(--green)">Roth IRA &mdash; NO RMD EVER</h3>
+<table>
+<tr><th>Carrier</th><th>Policy #</th><th>Type</th><th>Value</th><th>Notes</th></tr>
+<tr><td>Catholic Order of Foresters</td><td>4041673</td><td>Roth IRA Annuity</td><td>$90,560</td><td>Karla beneficiary. Tax-free growth + tax-free inheritance. <strong>Do not touch this asset.</strong></td></tr>
+</table>
 </div>
 </div>
 
