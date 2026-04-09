@@ -71,7 +71,7 @@ function clickTop(tk, el) {
     if (!C[sk]) continue;
     var cls = i === 0 ? 'st a' : 'st';
     var label = L2[sk] || sk;
-    html += '<div class="' + cls + '" onclick="clickSub('' + sk + '',this)">' + label + '<span class="c">(' + C[sk] + ')</span></div>';
+    html += '<div class="' + cls + '" data-sk="' + sk + '" onclick="clickSub(this.dataset.sk,this)">' + label + '<span class="c">(' + C[sk] + ')</span></div>';
   }
   document.getElementById('subTabs').innerHTML = html;
   var first = subs.find(function(s){ return !!C[s]; });
