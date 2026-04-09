@@ -36,6 +36,7 @@ table.s tr.merged td{opacity:.5}table.s tr.deleted td{opacity:.25}
 .ab.ka{border-color:var(--green);background:var(--green);color:#000}
 .ab.ma{border-color:var(--orange);background:var(--orange);color:#000}
 .ab.da{border-color:var(--red);background:var(--red);color:#000}
+.nt{background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:4px;padding:2px 6px;font-size:.65rem;width:120px;font-family:inherit}.nt:focus{border-color:var(--accent);outline:none}
 .mt select{background:var(--card2);border:1px solid var(--orange);color:var(--orange);border-radius:4px;padding:2px 6px;font-size:.68rem;font-family:monospace}
 .legend{display:flex;gap:12px;margin:8px 0 12px;font-size:.68rem;color:var(--muted);flex-wrap:wrap;justify-content:center}
 .legend span{display:flex;align-items:center;gap:4px}.dot{width:10px;height:10px;border-radius:3px}
@@ -118,7 +119,7 @@ function render(sk) {
       sb.className = 'sb';
       var tbl = document.createElement('table');
       tbl.className = 's';
-      tbl.innerHTML = '<tr><th style="width:85px">Action</th><th>Field</th><th>Where</th><th>Count</th><th>Sample</th><th>Merge&rarr;</th></tr>';
+      tbl.innerHTML = '<tr><th style="width:85px">Action</th><th>Field</th><th>Where</th><th>Count</th><th>Sample</th><th>Merge&rarr;</th><th>Notes</th></tr>';
       tbody = document.createElement('tbody');
       tbl.appendChild(tbody);
       sb.appendChild(tbl);
@@ -136,7 +137,8 @@ function render(sk) {
       '<td><span class="wb '+wc+'">' + r.w + '</span></td>' +
       '<td class="ct">' + r.c + '/' + r.t + '</td>' +
       '<td class="sm">' + (r.sm||'') + '</td>' +
-      '<td class="mt" id="mt_'+sk+'_'+r.f+'"></td>';
+      '<td class="mt" id="mt_'+sk+'_'+r.f+'"></td>' +
+      '<td><input type="text" class="nt" id="nt_'+sk+'_'+r.f+'" placeholder="notes" oninput="saveNote(\''+sk+'\',\''+r.f+'\',this.value)"></td>';
     if (tbody) tbody.appendChild(tr);
   });
 }
@@ -175,6 +177,8 @@ function act(btn, sk, f, action) {
     }
   }
 }
+
+function saveNote(sk,f,v){if(!S[sk])S[sk]={};if(!S[sk][f])S[sk][f]={action:"keep",merge_to:null};S[sk][f].notes=v||null;}
 
 function exp() {
   var blob = new Blob([JSON.stringify(S, null, 2)], {type:'application/json'});
