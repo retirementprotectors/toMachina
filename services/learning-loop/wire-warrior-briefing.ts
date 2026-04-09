@@ -12,6 +12,7 @@ import * as path from 'path'
 import { execSync } from 'child_process'
 import { initializeApp, cert } from 'firebase-admin/app'
 import { getFirestore, Timestamp } from 'firebase-admin/firestore'
+import { trackRun } from './wire-run-tracker.js'
 
 const HOME = process.env.HOME || '/home/jdm'
 const WARRIORS_DIR = path.join(HOME, 'Projects', 'dojo-warriors', 'warriors')
@@ -149,6 +150,9 @@ async function run(): Promise<void> {
   console.log(briefingParts.join('\n'))
 }
 
-run()
+// LL-07: wire-run-tracker wraps main() for dashboard visibility.
+// This wire is hook-triggered (Claude Code SessionStart), non-blocking,
+// and must always exit 0 even on failure to avoid blocking session startup.
+trackRun('wire-warrior-briefing', run)
   .then(() => process.exit(0))
   .catch(() => process.exit(0)) // Always exit 0 — non-blocking

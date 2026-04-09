@@ -16,6 +16,7 @@ import { getFirestore, FieldValue } from 'firebase-admin/firestore'
 import { readFileSync } from 'fs'
 import { KNOWLEDGE_ENTRIES_COLLECTION } from './types/knowledge-entry.js'
 import type { KnowledgeEntry, KnowledgeEntryType } from './types/knowledge-entry.js'
+import { trackRun } from './wire-run-tracker.js'
 
 // Firebase Init
 const saPath = process.env.GOOGLE_APPLICATION_CREDENTIALS || '/home/jdm/Projects/dojo-warriors/mdj-agent/sa-key.json'
@@ -101,6 +102,7 @@ async function promote(): Promise<void> {
   console.log(`[promote] ${snap.size} marked promoted`)
 }
 
-promote()
+// LL-07: wire-run-tracker wraps main() for dashboard visibility.
+trackRun('knowledge-promote', promote)
   .then(() => process.exit(0))
   .catch((err) => { console.error('[promote] Fatal:', err); process.exit(1) })

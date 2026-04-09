@@ -13,6 +13,7 @@ import { initializeApp, getApps } from 'firebase-admin/app'
 import { getFirestore, Timestamp } from 'firebase-admin/firestore'
 import Anthropic from '@anthropic-ai/sdk'
 import type { KnowledgeEntry } from './types/knowledge-entry.js'
+import { trackRun } from './wire-run-tracker.js'
 
 if (getApps().length === 0) {
   initializeApp({ projectId: 'claude-mcp-484718' })
@@ -188,7 +189,10 @@ async function main(): Promise<void> {
   console.log('[gap-analyzer] Done.')
 }
 
-main().catch((err) => {
-  console.error('[gap-analyzer] Fatal:', err)
-  process.exit(1)
-})
+// LL-07: wire-run-tracker wraps main() for dashboard visibility.
+trackRun('gap-analyzer', main)
+  .then(() => process.exit(0))
+  .catch((err) => {
+    console.error('[gap-analyzer] Fatal:', err)
+    process.exit(1)
+  })
