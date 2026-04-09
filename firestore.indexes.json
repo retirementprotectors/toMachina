@@ -112,6 +112,22 @@
         { "fieldPath": "promoted_to_claude_md", "order": "ASCENDING" },
         { "fieldPath": "confidence", "order": "DESCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "wire_runs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "wireName", "order": "ASCENDING" },
+        { "fieldPath": "startedAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "wire_runs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "startedAt", "order": "DESCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []

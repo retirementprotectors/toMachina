@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { fetchValidated } from '../fetchValidated'
+import { WireHealthCard } from './WireHealthCard'
 
 // ── Types ──────────────────────────────────────────────────────────────
 
@@ -672,6 +673,11 @@ export function DashboardView() {
           error={hooks.error}
           onRetry={load}
         />
+        {/* LL-07: 5th card — Learning Loop wire health. Self-fetching,
+            auto-refreshes every 30s. Reads from /api/system-synergy/wire-health
+            which queries the wire_runs Firestore collection populated by
+            wire-run-tracker.ts. */}
+        <WireHealthCard />
       </div>
     </div>
   )
