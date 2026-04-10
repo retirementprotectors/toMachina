@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RPI PRESERVE Stage Analysis — [Client Name]</title>
+<!--
+  TEMPLATE: RPI [PRESERVE STAGE] ANALYSIS
+  VERSION: v1 (2026-04-10)
+  OWNER: VOLTRON (CSO)
+  USE: Reusable client roadmap tab template. Parameterize the [BRACKETED] values per client.
+
+  STAGE MATRIX (PROSPER / PRESERVE / PROTECT):
+  PRESERVE stage uses all 8 VIEWs. PROSPER and PROTECT use different subsets — see tables at bottom.
+
+  REGISTRATION: docs/templates/REGISTRY.md tracks every registered template.
+-->
+<style>
+:root{
+  --bg:#0a0e17;--card:#111827;--card2:#1a2236;--border:#1e293b;
+  --text:#e2e8f0;--muted:#94a3b8;
+  --green:#22c55e;--blue:#3b82f6;--red:#ef4444;--orange:#f59e0b;--gold:#d4a44c;--cyan:#06b6d4;--purple:#a78bfa;
+  --rpi-blue:#4a7ab5;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+.header{background:linear-gradient(135deg,#020b1a 0%,#0f1a2a 50%,#020b1a 100%);border-bottom:1px solid var(--border);padding:40px 32px;text-align:center;position:relative;overflow:hidden}
+.header::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(ellipse at 30% 50%,rgba(74,122,181,0.08) 0%,transparent 50%),radial-gradient(ellipse at 70% 50%,rgba(34,197,94,0.04) 0%,transparent 50%);pointer-events:none}
+.header h1{font-size:2.2rem;font-weight:800;background:linear-gradient(135deg,var(--rpi-blue),var(--green),var(--rpi-blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px;position:relative}
+.header .stage-badge{display:inline-block;margin-top:12px;padding:6px 20px;border-radius:999px;font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;background:rgba(212,164,76,0.12);color:var(--gold);border:1px solid rgba(212,164,76,0.4);position:relative}
+.header .sub{font-size:0.95rem;color:var(--muted);position:relative;margin-top:14px}
+.stage-progression{display:flex;justify-content:center;gap:4px;margin-top:16px;position:relative}
+.stage-dot{display:flex;align-items:center;gap:8px;padding:6px 14px;border-radius:6px;font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;background:rgba(255,255,255,0.04);color:var(--muted);border:1px solid var(--border)}
+.stage-dot.active{background:rgba(212,164,76,0.12);color:var(--gold);border-color:rgba(212,164,76,0.4)}
+.stage-dot.inactive{opacity:.3}
+.tab-bar{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px solid var(--border);overflow-x:auto;display:flex;max-width:1200px;margin:0 auto;padding:0 8px}
+.tab{padding:14px 16px;font-size:0.78rem;font-weight:600;color:var(--muted);cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;transition:all .2s;text-transform:uppercase;letter-spacing:.5px}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+.content{max-width:1200px;margin:0 auto;padding:24px 16px}
+.panel{display:none}
+.panel.active{display:block}
+.view-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:28px;margin-bottom:20px;position:relative}
+.view-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:14px 14px 0 0;background:linear-gradient(90deg,var(--rpi-blue),var(--green))}
+.view-card h2{font-size:1.3rem;margin-bottom:6px;color:var(--text);display:flex;align-items:center;gap:10px}
+.view-card .view-num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:rgba(74,122,181,0.15);color:var(--rpi-blue);font-size:0.78rem;font-weight:800}
+.view-card .subtitle{color:var(--muted);font-size:0.88rem;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--border)}
+.view-card h3{font-size:0.82rem;text-transform:uppercase;letter-spacing:1px;color:var(--gold);margin:20px 0 10px}
+.placeholder{background:rgba(212,164,76,0.04);border:1px dashed rgba(212,164,76,0.3);border-radius:8px;padding:16px 20px;margin:12px 0;font-size:0.85rem;color:var(--muted);font-style:italic}
+.placeholder strong{color:var(--gold);font-style:normal}
+.data-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin:14px 0}
+.stat{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:18px;text-align:center}
+.stat .num{font-size:1.6rem;font-weight:800;color:var(--green);line-height:1.1}
+.stat .lbl{font-size:0.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:4px}
+table{width:100%;border-collapse:collapse;font-size:0.82rem;margin:10px 0}
+th{text-align:left;padding:10px 12px;background:var(--card2);color:var(--gold);font-weight:700;font-size:0.7rem;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border)}
+td{padding:10px 12px;border-bottom:1px solid var(--border);color:var(--muted);vertical-align:top}
+td:first-child{color:var(--text);font-weight:500}
+ul{margin-left:22px;color:var(--muted)}
+li{font-size:0.88rem;margin-bottom:6px}
+.team-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin:14px 0}
+.team-member{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:18px}
+.team-member .name{font-weight:700;color:var(--text);font-size:0.95rem}
+.team-member .role{font-size:0.72rem;color:var(--rpi-blue);text-transform:uppercase;letter-spacing:1px;margin-top:4px}
+.team-member .detail{font-size:0.78rem;color:var(--muted);margin-top:6px}
+.callout{background:rgba(6,182,212,0.06);border:1px solid rgba(6,182,212,0.25);border-radius:10px;padding:16px 20px;margin:14px 0;font-size:0.88rem;color:var(--muted)}
+.callout strong{color:var(--cyan)}
+.footer{text-align:center;padding:24px;color:var(--muted);font-size:0.72rem;border-top:1px solid var(--border);margin-top:32px}
+.matrix-table{margin-top:20px}
+.matrix-table td.stage-yes{text-align:center;color:var(--green);font-weight:700}
+.matrix-table td.stage-opt{text-align:center;color:var(--orange);font-weight:700}
+.matrix-table td.stage-no{text-align:center;color:var(--muted);opacity:.4}
+@media print{
+  body{background:#fff;color:#000}
+  .header{background:#f8f8f8;border-bottom:2px solid #000}
+  .header h1{-webkit-text-fill-color:#000;color:#000}
+  .tab-bar{display:none}
+  .panel{display:block!important;page-break-inside:avoid}
+  .view-card,.stat,.team-member,.callout{background:#fff;border-color:#ccc}
+  th{background:#eee;color:#000}
+  td,.subtitle,.placeholder{color:#333}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>RPI PRESERVE Stage Analysis</h1>
+  <div class="stage-badge">Analysis + Recommendations Meeting</div>
+  <div class="sub">[Client Name] &bull; [Age] &bull; [Location] &bull; Prepared by [Advisor] &bull; [Meeting Date]</div>
+  <div class="stage-progression">
+    <div class="stage-dot inactive">Prosper</div>
+    <div class="stage-dot active">Preserve &bull; current stage</div>
+    <div class="stage-dot inactive">Protect</div>
+  </div>
+</div>
+
+<div class="tab-bar">
+  <div class="tab active" onclick="showPanel('team',this)">Service Team</div>
+  <div class="tab" onclick="showPanel('healthcare',this)">Health Care</div>
+  <div class="tab" onclick="showPanel('extendedcare',this)">Extended Care</div>
+  <div class="tab" onclick="showPanel('portfolio',this)">Portfolio</div>
+  <div class="tab" onclick="showPanel('accumulation',this)">Accumulation</div>
+  <div class="tab" onclick="showPanel('income',this)">Income</div>
+  <div class="tab" onclick="showPanel('estate',this)">Estate</div>
+  <div class="tab" onclick="showPanel('legacy',this)">Legacy</div>
+  <div class="tab" onclick="showPanel('matrix',this)">Stage Matrix</div>
+</div>
+
+<div class="content">
+
+<!-- VIEW 1 — SERVICE TEAM -->
+<div id="team" class="panel active">
+  <div class="view-card">
+    <h2><span class="view-num">1</span>RPI — Meet Your Service Team</h2>
+    <div class="subtitle">The people behind your plan. Every client gets a dedicated team across sales, service, legacy, and ops.</div>
+
+    <h3>Your Team</h3>
+    <div class="team-grid">
+      <div class="team-member">
+        <div class="name">[Primary Advisor]</div>
+        <div class="role">Sales Division &bull; Primary Contact</div>
+        <div class="detail">[Phone] &bull; [Email]<br>Handles new business, discoveries, recommendations.</div>
+      </div>
+      <div class="team-member">
+        <div class="name">[Service Lead]</div>
+        <div class="role">Service Division</div>
+        <div class="detail">[Phone] &bull; [Email]<br>Day-to-day service requests, reactive support, policy changes.</div>
+      </div>
+      <div class="team-member">
+        <div class="name">[Legacy Contact]</div>
+        <div class="role">Legacy Services</div>
+        <div class="detail">[Phone] &bull; [Email]<br>Estate planning coordination, beneficiary updates, legacy strategy.</div>
+      </div>
+      <div class="team-member">
+        <div class="name">RPI Ops Center</div>
+        <div class="role">Proactive Service</div>
+        <div class="detail">(888) 620-8587<br>RMD tracking, rate reviews, annual check-ins, proactive outreach.</div>
+      </div>
+    </div>
+
+    <div class="callout"><strong>We're Your People™</strong> &mdash; our service promise across NewBiz, Reactive, and Proactive service tracks. See the <em>We're Your People™</em> 1-pager for the full framework.</div>
+  </div>
+</div>
+
+<!-- VIEW 2 — HEALTH CARE -->
+<div id="healthcare" class="panel">
+  <div class="view-card">
+    <h2><span class="view-num">2</span>Health Care VIEW</h2>
+    <div class="subtitle">Medicare status, supplement coverage, prescription drugs, provider network.</div>
+
+    <div class="data-grid">
+      <div class="stat"><div class="num">[Plan]</div><div class="lbl">Medicare Plan Type</div></div>
+      <div class="stat"><div class="num">[Carrier]</div><div class="lbl">Carrier</div></div>
+      <div class="stat"><div class="num">[$X]</div><div class="lbl">Monthly Premium</div></div>
+      <div class="stat"><div class="num">[Plan]</div><div class="lbl">Drug Coverage</div></div>
+    </div>
+
+    <h3>Current Coverage</h3>
+    <div class="placeholder"><strong>Populate:</strong> Medicare Part A/B/D status + effective date, Medigap/MAPD carrier + plan letter, supplement details, drug formulary fit, in-network providers, annual premium + deductible + MOOP.</div>
+
+    <h3>AEP Review</h3>
+    <div class="placeholder"><strong>Populate:</strong> Upcoming Annual Enrollment Period readiness. Is current plan still the best fit? Rate changes for next year? Drug formulary changes? Provider network changes? Any events (new diagnoses, new medications) that trigger a plan switch recommendation?</div>
+
+    <h3>Health Care Costs &mdash; Current vs Projected</h3>
+    <div class="placeholder"><strong>Populate:</strong> Current year OOP costs. Projected costs in retirement. Long-term care consideration trigger point. IRMAA (Income-Related Monthly Adjustment Amount) exposure based on tax bracket.</div>
+  </div>
+</div>
+
+<!-- VIEW 3 — EXTENDED CARE -->
+<div id="extendedcare" class="panel">
+  <div class="view-card">
+    <h2><span class="view-num">3</span>Extended Care VIEW</h2>
+    <div class="subtitle">Long-term care, chronic illness, aging in place, facility care readiness.</div>
+
+    <div class="data-grid">
+      <div class="stat"><div class="num">[$/day]</div><div class="lbl">LTC Daily Benefit</div></div>
+      <div class="stat"><div class="num">[Term]</div><div class="lbl">Benefit Period</div></div>
+      <div class="stat"><div class="num">[$X]</div><div class="lbl">Lifetime Max</div></div>
+      <div class="stat"><div class="num">[Yes/No]</div><div class="lbl">Inflation Rider</div></div>
+    </div>
+
+    <h3>Existing LTC Policy</h3>
+    <div class="placeholder"><strong>Populate:</strong> Carrier, policy #, issue date, elimination period, daily/monthly benefit, benefit period, inflation rider (simple vs compound, since when), facility vs home care coverage, premium + funding status, administrator contact (if serviced by third-party — e.g., Davies for COF LTC).</div>
+
+    <h3>Coverage Gap Analysis</h3>
+    <div class="placeholder"><strong>Populate:</strong> Current daily benefit vs current daily cost of care in client's state/county. Gap if any. Years of self-funding capacity before LTC policy kicks in. Years of policy coverage before self-funding resumes.</div>
+
+    <h3>Aging in Place Strategy</h3>
+    <div class="placeholder"><strong>Populate:</strong> Home modifications needed. Family/friend support network. Professional care team references. Facility preferences if needed. Funding sources layered (LTC insurance + annuity income + asset drawdown + family support).</div>
+
+    <h3>Chronic Illness / Terminal Illness Riders</h3>
+    <div class="placeholder"><strong>Populate:</strong> Existing life insurance policies with accelerated benefit riders. Income riders on annuities with LTC enhancements. Hybrid life/LTC products owned or candidates.</div>
+  </div>
+</div>
+
+<!-- VIEW 4 — PORTFOLIO -->
+<div id="portfolio" class="panel">
+  <div class="view-card">
+    <h2><span class="view-num">4</span>Portfolio VIEW</h2>
+    <div class="subtitle">Full asset picture across every account category. The complete financial snapshot.</div>
+
+    <div class="data-grid">
+      <div class="stat"><div class="num">[$Total]</div><div class="lbl">Total Assets</div></div>
+      <div class="stat"><div class="num">[$NQ]</div><div class="lbl">Non-Qualified</div></div>
+      <div class="stat"><div class="num">[$IRA]</div><div class="lbl">Traditional IRA</div></div>
+      <div class="stat"><div class="num">[$Roth]</div><div class="lbl">Roth IRA</div></div>
+    </div>
+
+    <h3>Asset Allocation by Category</h3>
+    <div class="placeholder"><strong>Populate:</strong> Banking (CDs, savings, checking). Annuities (fixed, indexed, variable, immediate). Life Insurance cash value. Investments (brokerage, advisory, retirement). Real estate (if tracked). Business interests (if applicable). Each with carrier/custodian, policy #, current value, tax status.</div>
+
+    <h3>Risk Profile</h3>
+    <div class="placeholder"><strong>Populate:</strong> Current risk exposure. % in guaranteed/principal-protected vs market-exposed. Rate sensitivity. Concentration risk. Liquidity ladder.</div>
+
+    <h3>Sub-Account Detail</h3>
+    <div class="placeholder"><strong>Populate:</strong> Reference link to Portfolio Detail tab (the full account-by-account table from Discovery).</div>
+  </div>
+</div>
+
+<!-- VIEW 5 — ACCUMULATION -->
+<div id="accumulation" class="panel">
+  <div class="view-card">
+    <h2><span class="view-num">5</span>Accumulation VIEW</h2>
+    <div class="subtitle">Growth assets, rates of return, tax-advantaged growth vehicles. What's still building.</div>
+
+    <div class="data-grid">
+      <div class="stat"><div class="num">[Rate]</div><div class="lbl">Blended Yield</div></div>
+      <div class="stat"><div class="num">[$Growth]</div><div class="lbl">Tax-Deferred</div></div>
+      <div class="stat"><div class="num">[$TaxFree]</div><div class="lbl">Tax-Free</div></div>
+      <div class="stat"><div class="num">[$Taxable]</div><div class="lbl">Taxable</div></div>
+    </div>
+
+    <h3>Growth Engines</h3>
+    <div class="placeholder"><strong>Populate:</strong> Each growth-oriented account with current rate, guaranteed rate, historical performance, upside cap, downside floor. Fixed index annuity participation rates. Whole life dividend history. CD renewal schedule.</div>
+
+    <h3>Tax-Bucket Strategy</h3>
+    <div class="placeholder"><strong>Populate:</strong> How assets are split across the three tax buckets: Taxable, Tax-Deferred, Tax-Free. Roth conversion opportunities. Tax-loss harvesting candidates. Capital gains timing.</div>
+
+    <h3>Growth Assumptions for Planning</h3>
+    <div class="placeholder"><strong>Populate:</strong> Conservative/Moderate/Optimistic projections. Rule-of-72 doubling timelines. Impact of fees and taxes on real returns.</div>
+  </div>
+</div>
+
+<!-- VIEW 6 — INCOME -->
+<div id="income" class="panel">
+  <div class="view-card">
+    <h2><span class="view-num">6</span>Income VIEW</h2>
+    <div class="subtitle">Cash flow picture. Guaranteed income vs discretionary. Income gaps and surpluses.</div>
+
+    <div class="data-grid">
+      <div class="stat"><div class="num">[$/mo]</div><div class="lbl">Monthly Income</div></div>
+      <div class="stat"><div class="num">[$/yr]</div><div class="lbl">Annual Income</div></div>
+      <div class="stat"><div class="num">[Yrs]</div><div class="lbl">Guaranteed Floor (yrs)</div></div>
+      <div class="stat"><div class="num">[$Surplus]</div><div class="lbl">Surplus/(Gap)</div></div>
+    </div>
+
+    <h3>Income Sources</h3>
+    <div class="placeholder"><strong>Populate:</strong> Social Security (client + spouse), pension, SPIA income, annuity GLWB income, rental income, business income, part-time employment, investment yield. Monthly and annual amounts. Taxable portion of each.</div>
+
+    <h3>Guaranteed vs Discretionary</h3>
+    <div class="placeholder"><strong>Populate:</strong> What's contractually guaranteed (SS, pension, SPIA). What depends on market performance. What needs to be drawn from principal. Income replacement ratio vs pre-retirement income.</div>
+
+    <h3>Cash Flow Needs</h3>
+    <div class="placeholder"><strong>Populate:</strong> Fixed expenses (housing, food, health). Discretionary (travel, charitable, lifestyle). Known future expenses (grandchildren's college, weddings, home repairs). Emergency fund target.</div>
+
+    <h3>RMD Income Impact</h3>
+    <div class="placeholder"><strong>Populate:</strong> Projected RMDs at age 73+. Whether client NEEDS the RMD income or prefers it stay tax-deferred. QCD candidates for charitable giving.</div>
+  </div>
+</div>
+
+<!-- VIEW 7 — ESTATE -->
+<div id="estate" class="panel">
+  <div class="view-card">
+    <h2><span class="view-num">7</span>Estate VIEW</h2>
+    <div class="subtitle">Legal documents, POA, trust, will, beneficiary status. The paperwork that controls the transfer.</div>
+
+    <div class="data-grid">
+      <div class="stat"><div class="num">[%]</div><div class="lbl">Estate Plan Completeness</div></div>
+      <div class="stat"><div class="num">[Y/N]</div><div class="lbl">Has Trust</div></div>
+      <div class="stat"><div class="num">[Y/N]</div><div class="lbl">Has Will</div></div>
+      <div class="stat"><div class="num">[#]</div><div class="lbl">Accounts Missing Beni</div></div>
+    </div>
+
+    <h3>Estate Documents (6 Questions)</h3>
+    <div class="placeholder"><strong>Populate from ProDashX EstateTab:</strong>
+      <ol style="margin-top:8px">
+        <li>Trust — exists? type (Revocable/Irrevocable/Testamentary), name, date</li>
+        <li>Will — exists? type (Simple/Pour-Over/Testamentary), executor</li>
+        <li>Financial POA — exists? name, durable or limited</li>
+        <li>Healthcare POA — exists? name, scope</li>
+        <li>Beneficiary Deed — exists? for which property</li>
+        <li>Living Will / Advance Directive — exists? location of document</li>
+      </ol>
+    </div>
+
+    <h3>Beneficiary Audit</h3>
+    <div class="placeholder"><strong>Populate:</strong> Every account with its primary + contingent beneficiary. Gap list (accounts with NO named beni = probate risk). Inconsistencies across accounts. Action items to close gaps.</div>
+
+    <h3>Estate Tax Exposure</h3>
+    <div class="placeholder"><strong>Populate:</strong> Total estate value vs federal estate tax exemption ($13.61M in 2026). State-specific inheritance/estate tax exposure (Iowa repealed 2025 &mdash; relevant for IA clients). Step-up in basis planning for appreciated assets.</div>
+
+    <h3>Transfer Mechanisms</h3>
+    <div class="placeholder"><strong>Populate:</strong> Named beneficiary transfers (annuities, life insurance, retirement accounts). POD/TOD designations (bank accounts). Deed-of-death transfers (real estate). Joint tenancy (if applicable). Trust distributions. Probate assets (the gap).</div>
+  </div>
+</div>
+
+<!-- VIEW 8 — LEGACY -->
+<div id="legacy" class="panel">
+  <div class="view-card">
+    <h2><span class="view-num">8</span>Legacy VIEW</h2>
+    <div class="subtitle">The transfer plan. Who gets what, when, how, and at what tax cost. The story behind the numbers.</div>
+
+    <h3>Intended Beneficiaries</h3>
+    <div class="placeholder"><strong>Populate:</strong> Who client wants to benefit. Family (children, grandchildren, siblings). Non-family (friends, partners). Charitable (church, foundations, causes). Equal vs proportional splits. Conditions on inheritances (age, milestones).</div>
+
+    <h3>Transfer Timeline</h3>
+    <div class="placeholder"><strong>Populate:</strong> Lifetime gifting (annual exclusion $18K in 2025, lifetime exemption). Death transfers. Deferred transfers (trust distributions). Charitable giving strategy (DAF, CRT, QCD).</div>
+
+    <h3>Tax Cost to Heirs</h3>
+    <div class="placeholder"><strong>Populate:</strong> Step-up in basis vs IRD (income in respect of decedent) on pre-tax accounts. Inherited IRA 10-year rule (SECURE Act 2.0) impact on non-spouse heirs. State inheritance tax if applicable.</div>
+
+    <h3>Legacy Optimization Opportunities</h3>
+    <div class="placeholder"><strong>Populate:</strong> Roth conversions to eliminate heirs' future RMDs. Life insurance as tax-free legacy vehicle. Charitable trusts. Family limited partnerships. Asset location strategy (what goes to which heir based on their tax situation).</div>
+
+    <h3>The Legacy Story</h3>
+    <div class="callout"><strong>RPI Engage Legacy™</strong> &mdash; our framework for translating the numbers into a legacy story: <strong>Children &bull; Care &bull; Charity</strong>. See the <em>RPI Engage Legacy™</em> 1-pager for the full framework.</div>
+  </div>
+</div>
+
+<!-- STAGE MATRIX -->
+<div id="matrix" class="panel">
+  <div class="view-card">
+    <h2><span class="view-num">S</span>RPI Stage Matrix &mdash; Which VIEWs at Each Stage</h2>
+    <div class="subtitle">The 8 VIEWs apply differently depending on the client's life stage. PROSPER, PRESERVE, PROTECT &mdash; each surfaces different priorities.</div>
+
+    <div style="overflow-x:auto">
+      <table class="matrix-table">
+        <tr>
+          <th>VIEW</th>
+          <th>Purpose at Stage</th>
+          <th style="text-align:center">PROSPER</th>
+          <th style="text-align:center">PRESERVE</th>
+          <th style="text-align:center">PROTECT</th>
+        </tr>
+        <tr>
+          <td>1. Service Team</td>
+          <td>Always shown — the people behind the plan</td>
+          <td class="stage-yes">&#10003;</td>
+          <td class="stage-yes">&#10003;</td>
+          <td class="stage-yes">&#10003;</td>
+        </tr>
+        <tr>
+          <td>2. Health Care</td>
+          <td>Medicare becomes relevant at 65; before that it's group/ACA</td>
+          <td class="stage-opt">◐</td>
+          <td class="stage-yes">&#10003;</td>
+          <td class="stage-yes">&#10003;</td>
+        </tr>
+        <tr>
+          <td>3. Extended Care</td>
+          <td>LTC planning — optimal age to buy is 50s/60s, active in 70s+</td>
+          <td class="stage-opt">◐</td>
+          <td class="stage-yes">&#10003;</td>
+          <td class="stage-yes">&#10003;</td>
+        </tr>
+        <tr>
+          <td>4. Portfolio</td>
+          <td>Always shown — the full snapshot of what's there</td>
+          <td class="stage-yes">&#10003;</td>
+          <td class="stage-yes">&#10003;</td>
+          <td class="stage-yes">&#10003;</td>
+        </tr>
+        <tr>
+          <td>5. Accumulation</td>
+          <td>Dominant focus in PROSPER, tapers in PROTECT</td>
+          <td class="stage-yes">&#10003;</td>
+          <td class="stage-yes">&#10003;</td>
+          <td class="stage-opt">◐</td>
+        </tr>
+        <tr>
+          <td>6. Income</td>
+          <td>Becomes dominant at retirement</td>
+          <td class="stage-opt">◐</td>
+          <td class="stage-yes">&#10003;</td>
+          <td class="stage-yes">&#10003;</td>
+        </tr>
+        <tr>
+          <td>7. Estate</td>
+          <td>Documents should exist in all stages; urgency increases with age</td>
+          <td class="stage-opt">◐</td>
+          <td class="stage-yes">&#10003;</td>
+          <td class="stage-yes">&#10003;</td>
+        </tr>
+        <tr>
+          <td>8. Legacy</td>
+          <td>Strategic focus in PROTECT; present but secondary in PRESERVE</td>
+          <td class="stage-no">&mdash;</td>
+          <td class="stage-yes">&#10003;</td>
+          <td class="stage-yes">&#10003;</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="callout" style="margin-top:20px">
+      <strong>Legend:</strong> &#10003; Core view for this stage &nbsp;&bull;&nbsp; ◐ Optional/contextual &nbsp;&bull;&nbsp; &mdash; Not typically surfaced
+    </div>
+
+    <h3>Stage Definitions</h3>
+    <ul>
+      <li><strong style="color:var(--green)">PROSPER</strong> &mdash; Accumulation phase. Client is building wealth, still working, growth is the priority. Typical age: 30s-50s.</li>
+      <li><strong style="color:var(--gold)">PRESERVE</strong> &mdash; Transition phase. Client is at or near retirement, protecting what they've built while still growing select assets. Income planning becomes critical. Typical age: 55-75.</li>
+      <li><strong style="color:var(--purple)">PROTECT</strong> &mdash; Distribution and legacy phase. Client is drawing income, focused on transfer strategy, estate completeness, and charitable intent. Typical age: 70+.</li>
+    </ul>
+  </div>
+</div>
+
+</div>
+
+<div class="footer">
+  RPI PRESERVE Stage Analysis Template &bull; v1 (2026-04-10) &bull; Registered by VOLTRON CSO<br>
+  [Client Name] &bull; [Meeting Date] &bull; Prepared by [Advisor] &bull; #RunningOurOwnRACE
+</div>
+
+<script>
+function showPanel(id,el){
+  document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active')});
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  document.getElementById(id).classList.add('active');
+  el.classList.add('active');
+}
+</script>
+</body>
+</html>
