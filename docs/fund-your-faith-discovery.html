@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en" data-cwd="/home/jdm/Projects/toMachina">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>#FundYourFAITH — Discovery Doc | MUSASHI x ARTxBLADE</title>
+<!--
+  DISCOVERY DOC: #FundYourFAITH
+  VERSION: v1 (2026-04-10)
+  AUTHOR: MUSASHI, ARTxBLADE (CMO)
+  METHODOLOGY: Step 1 artifact of the RPI 4-Step Methodology (Discovery)
+  BRAND FAMILY: RPI Engage Legacy (CHARITY pillar applied to Catholic parishes)
+  CONTEXT: JDM + Shane conversation re: Dubuque diocesan reorganization,
+           Catholic Order of Foresters partnership, charitable giving programs
+
+  LOGO NOTE: CoF logo not in our system. RPI shield at packages/ui/src/logos/rpi/rpi-shield-mark.png.
+  Using text labels per the absolute no-generated-logos rule. JDM art-directs logo placement.
+-->
+<style>
+:root {
+  --bg: #0a0e17; --card: #111827; --card2: #1a2236; --border: #1e293b;
+  --text: #e2e8f0; --muted: #94a3b8;
+  --gold: #d4a44c; --purple: #a78bfa; --green: #22c55e; --blue: #4a7ab5;
+  --red: #f87171; --cyan: #06b6d4; --orange: #f59e0b;
+  --faith-gold: #d4a44c; --faith-deep: #92700c;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+
+/* HEADER */
+.header { max-width: 1200px; margin: 0 auto; padding: 2.5rem 2rem 1.5rem; border-bottom: 2px solid var(--gold); }
+.header .hashtag { font-size: 2.8rem; font-weight: 900; background: linear-gradient(135deg, var(--gold), var(--orange), var(--gold)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1.1; }
+.header .subtitle { font-size: 1.1rem; color: var(--muted); margin-top: 0.5rem; }
+.header .tagline { font-size: 1rem; color: var(--gold); font-weight: 600; margin-top: 0.75rem; font-style: italic; }
+.badges { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1rem; }
+.badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 600; }
+.b-cof { background: rgba(212,164,76,0.15); color: var(--gold); }
+.b-rpi { background: rgba(74,122,181,0.15); color: var(--blue); }
+.b-parish { background: rgba(167,139,250,0.15); color: var(--purple); }
+.b-legacy { background: rgba(34,197,94,0.15); color: var(--green); }
+.b-urgent { background: rgba(248,113,113,0.15); color: var(--red); }
+.logo-row { display: flex; gap: 1.5rem; align-items: center; margin-top: 1rem; }
+.logo-placeholder { padding: 6px 16px; border: 1px dashed var(--border); border-radius: 8px; font-size: 0.75rem; color: var(--muted); font-weight: 600; }
+
+/* TABS */
+.tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); max-width: 1200px; margin: 0 auto; overflow-x: auto; padding: 0 2rem; }
+.tab { padding: 0.75rem 1.25rem; cursor: pointer; color: var(--muted); font-size: 0.82rem; font-weight: 600; border-bottom: 2px solid transparent; white-space: nowrap; transition: all 0.2s; }
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+/* CONTENT */
+.content { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+.panel { display: none; }
+.panel.active { display: block; }
+h2 { font-size: 1.5rem; color: var(--gold); margin: 1.5rem 0 1rem; border-left: 4px solid var(--gold); padding-left: 0.75rem; }
+h3 { font-size: 1.15rem; color: var(--purple); margin: 1.25rem 0 0.75rem; }
+h4 { font-size: 0.95rem; color: var(--green); margin: 1rem 0 0.5rem; }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; margin: 1rem 0; }
+.card-gold { border-left: 4px solid var(--gold); }
+.card-purple { border-left: 4px solid var(--purple); }
+.card-green { border-left: 4px solid var(--green); }
+.card-red { border-left: 4px solid var(--red); }
+.card-blue { border-left: 4px solid var(--blue); }
+table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.88rem; }
+th, td { padding: 0.5rem 0.75rem; border: 1px solid var(--border); text-align: left; }
+th { background: var(--card); color: var(--gold); font-weight: 600; }
+code { background: #1c2128; padding: 2px 6px; border-radius: 4px; font-size: 0.85em; color: var(--blue); }
+ul, ol { margin: 0.5rem 0 0.5rem 1.5rem; }
+li { margin: 0.25rem 0; }
+.highlight { color: var(--gold); font-weight: 700; }
+.pillar-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin: 1.5rem 0; }
+@media (max-width: 768px) { .pillar-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 480px) { .pillar-grid { grid-template-columns: 1fr; } }
+.pillar { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; position: relative; overflow: hidden; text-align: center; }
+.pillar::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--gold); }
+.pillar .num { font-size: 2rem; margin-bottom: 4px; }
+.pillar h3 { color: var(--gold); margin: 0.5rem 0; font-size: 1rem; }
+.pillar p { font-size: 0.82rem; color: var(--muted); }
+.flow { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; margin: 1rem 0; font-size: 0.88rem; }
+.flow-step { background: var(--card); padding: 0.5rem 1rem; border-radius: 8px; border: 1px solid var(--border); text-align: center; }
+.flow-arrow { color: var(--muted); font-size: 1.2rem; }
+.triangle { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 1.5rem 0; }
+.tri-node { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; text-align: center; }
+.tri-node .icon { font-size: 2.5rem; margin-bottom: 8px; }
+.tri-node h3 { margin: 0 0 0.5rem; font-size: 1.1rem; }
+.tri-node p { font-size: 0.82rem; color: var(--muted); }
+.phase-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; margin: 1rem 0; position: relative; }
+.phase-card .phase-label { position: absolute; top: -10px; left: 16px; background: var(--bg); padding: 0 8px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; }
+.p1 .phase-label { color: var(--red); }
+.p2 .phase-label { color: var(--orange); }
+.p3 .phase-label { color: var(--blue); }
+.p4 .phase-label { color: var(--green); }
+.p1 { border-left: 4px solid var(--red); }
+.p2 { border-left: 4px solid var(--orange); }
+.p3 { border-left: 4px solid var(--blue); }
+.p4 { border-left: 4px solid var(--green); }
+.quote-block { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; text-align: center; margin: 1.5rem 0; }
+.quote-block .quote { font-size: 1.3rem; font-style: italic; color: var(--text); font-weight: 600; line-height: 1.4; max-width: 680px; margin: 0 auto 0.75rem; }
+.quote-block .attrib { font-size: 0.82rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+.stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 1rem 0; }
+@media (max-width: 600px) { .stat-grid, .triangle { grid-template-columns: 1fr; } }
+.stat { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; text-align: center; }
+.stat .val { font-size: 2rem; font-weight: 800; color: var(--gold); }
+.stat .label { font-size: 0.78rem; color: var(--muted); margin-top: 4px; }
+.ticket { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem 1rem; margin: 0.5rem 0; display: flex; gap: 0.75rem; align-items: baseline; }
+.ticket .id { font-size: 0.78rem; font-weight: 700; color: var(--gold); white-space: nowrap; min-width: 80px; }
+.ticket .desc { font-size: 0.85rem; color: var(--text); }
+.ticket .owner { font-size: 0.72rem; color: var(--muted); margin-left: auto; white-space: nowrap; }
+
+/* FOOTER */
+.footer { max-width: 1200px; margin: 3rem auto 1rem; padding: 1rem 2rem; border-top: 1px solid var(--border); color: var(--muted); font-size: 0.78rem; text-align: center; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="hashtag">#FundYourFAITH</div>
+  <div class="subtitle">Charitable Giving Programs &mdash; Endorsed by Your Parish &mdash; Brought to You by CoF &mdash; Powered by RPI</div>
+  <div class="tagline">&ldquo;We can show your parishioners how to give MORE to the church &mdash; using money they were going to lose to taxes anyway.&rdquo;</div>
+  <div class="badges">
+    <span class="badge b-cof">Catholic Order of Foresters</span>
+    <span class="badge b-rpi">Powered by RPI</span>
+    <span class="badge b-parish">Parish-Endorsed</span>
+    <span class="badge b-legacy">Engage Legacy&trade; (CHARITY Pillar)</span>
+    <span class="badge b-urgent">Saturday: Dubuque Diocesan Reorganization</span>
+  </div>
+  <div class="logo-row">
+    <div class="logo-placeholder">[ CoF LOGO &mdash; not in system, needs JDM ]</div>
+    <div class="logo-placeholder">[ RPI SHIELD &mdash; packages/ui/src/logos/rpi/rpi-shield-mark.png ]</div>
+    <div class="logo-placeholder">[ #FundYourFAITH WORDMARK &mdash; needs JDM art direction ]</div>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab('vision')">Vision</div>
+  <div class="tab" onclick="showTab('program')">Program</div>
+  <div class="tab" onclick="showTab('model')">Model</div>
+  <div class="tab" onclick="showTab('marketing')">Marketing</div>
+  <div class="tab" onclick="showTab('calculators')">Calculators</div>
+  <div class="tab" onclick="showTab('phases')">Phases</div>
+  <div class="tab" onclick="showTab('engage')">Engage Legacy</div>
+  <div class="tab" onclick="showTab('sprint')">Sprint</div>
+</div>
+
+<div class="content">
+
+<!-- ════════════════════════════════════════════════════════════════ -->
+<!-- TAB 1: VISION -->
+<!-- ════════════════════════════════════════════════════════════════ -->
+<div class="panel active" id="tab-vision">
+  <h2>The Opportunity</h2>
+  <div class="card card-red">
+    <h3 style="color: var(--red);">The Problem</h3>
+    <p>The Archdiocese of Dubuque is announcing a major reorganization this Saturday. Roughly <strong>one-third of churches across the state</strong> are consolidating. Tithing has dropped for two consecutive years &mdash; parishioners stopped contributing when they heard their church might close. Don Bosco Catholic School receives nearly <strong>$100,000 per month</strong> from its parish just to keep operating.</p>
+    <p style="margin-top: 0.75rem;">After Saturday, surviving parishes will need to fundraise harder than they ever have. <strong>And they won&rsquo;t know how.</strong></p>
+    <p style="margin-top: 0.75rem; font-size: 0.82rem; color: var(--muted);">Source: <a href="https://www.dbqjourneyinfaith.org/" style="color: var(--blue);">Journey in Faith &mdash; dbqjourneyinfaith.org</a></p>
+  </div>
+
+  <div class="card card-gold">
+    <h3 style="color: var(--gold);">The Insight</h3>
+    <p>Most Catholic parishioners over 70&frac12; are <strong>already taking Required Minimum Distributions (RMDs)</strong> from their IRAs. That money gets taxed as ordinary income. But a <strong>Qualified Charitable Distribution (QCD)</strong> lets them redirect up to <strong>$105,000/year</strong> directly to their parish &mdash; tax-free. The money was leaving the IRA anyway. The only question is whether the IRS gets it or the church does.</p>
+    <p style="margin-top: 0.75rem;"><strong>That&rsquo;s not a pitch. That&rsquo;s a rescue.</strong></p>
+  </div>
+
+  <div class="quote-block">
+    <div class="quote">&ldquo;Dang. We could single-handedly save the Catholic Church.&rdquo;</div>
+    <div class="attrib">&mdash; JDM, 2026-04-09</div>
+  </div>
+
+  <h2>The Vision</h2>
+  <div class="card card-green">
+    <p><strong>#FundYourFAITH</strong> is a turn-key charitable giving program that RPI builds once and deploys to every Catholic parish in the region. Endorsed by the parish, brought to market through <strong>Catholic Order of Foresters (CoF)</strong>, and powered by RPI&rsquo;s financial strategy &mdash; specifically the <strong>CHARITY pillar of RPI Engage Legacy&trade;</strong>.</p>
+    <p style="margin-top: 0.75rem;">The program teaches parishioners how to give more &mdash; without spending more &mdash; by redirecting tax-obligated distributions into charitable vehicles. Every dollar that would have gone to the IRS goes to the church instead.</p>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat">
+      <div class="val">$105K</div>
+      <div class="label">Max QCD per person/year (2024, indexed)</div>
+    </div>
+    <div class="stat">
+      <div class="val">$0</div>
+      <div class="label">Out-of-pocket cost to the parishioner</div>
+    </div>
+    <div class="stat">
+      <div class="val">100%</div>
+      <div class="label">Tax-free transfer to qualifying charity</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════ -->
+<!-- TAB 2: PROGRAM -->
+<!-- ════════════════════════════════════════════════════════════════ -->
+<div class="panel" id="tab-program">
+  <h2>The Four Pillars</h2>
+  <div class="card">
+    <p>Four strategies, one program. Each pillar is a different way to redirect existing assets toward the church &mdash; no new money required from the parishioner.</p>
+  </div>
+
+  <div class="pillar-grid">
+    <div class="pillar">
+      <div class="num">1</div>
+      <h3>Charitable RMD</h3>
+      <p>Qualified Charitable Distribution &mdash; redirect required IRA distributions directly to the parish, tax-free. Available at 70&frac12;+. Up to $105K/year.</p>
+    </div>
+    <div class="pillar">
+      <div class="num">2</div>
+      <h3>RMD Maximization</h3>
+      <p>Strategic planning around RMDs to maximize charitable giving capacity while meeting income needs. Combines QCDs with Roth conversions and income sequencing.</p>
+    </div>
+    <div class="pillar">
+      <div class="num">3</div>
+      <h3>Charitable Remainder Trusts</h3>
+      <p>Transfer appreciated assets to a CRT &mdash; receive income for life, partial tax deduction now, remainder goes to the parish at the end. Higher-dollar strategy.</p>
+    </div>
+    <div class="pillar">
+      <div class="num">4</div>
+      <h3>Recognition</h3>
+      <p>Donor recognition programs that celebrate parishioner generosity. Bulletin acknowledgments, annual giving reports, memorial naming opportunities.</p>
+    </div>
+  </div>
+
+  <h2>How Each Pillar Works</h2>
+
+  <div class="card card-gold">
+    <h3 style="color: var(--gold);">Pillar 1: Charitable RMD (QCD)</h3>
+    <table>
+      <tr><th>Element</th><th>Detail</th></tr>
+      <tr><td>Eligibility</td><td>IRA owner, age 70&frac12; or older</td></tr>
+      <tr><td>Annual limit</td><td>$105,000 per person (2024, indexed for inflation)</td></tr>
+      <tr><td>Tax treatment</td><td>NOT included in taxable income. Satisfies RMD requirement.</td></tr>
+      <tr><td>Transfer method</td><td>Direct from IRA custodian to qualifying 501(c)(3) (the parish)</td></tr>
+      <tr><td>Out-of-pocket cost</td><td>$0 &mdash; this is money the IRA owner was required to withdraw anyway</td></tr>
+      <tr><td>Key selling point</td><td>&ldquo;The IRS gets it or the church gets it. You choose.&rdquo;</td></tr>
+    </table>
+  </div>
+
+  <div class="card card-gold">
+    <h3 style="color: var(--gold);">Pillar 2: RMD Maximization</h3>
+    <table>
+      <tr><th>Element</th><th>Detail</th></tr>
+      <tr><td>What it is</td><td>Strategic planning to optimize the mix of QCDs, Roth conversions, and income sequencing</td></tr>
+      <tr><td>Who benefits</td><td>Parishioners with multiple retirement accounts, high RMDs, or excess income</td></tr>
+      <tr><td>RPI&rsquo;s role</td><td>Financial analysis &mdash; which accounts to draw from, when, and how to maximize charitable capacity</td></tr>
+      <tr><td>Key selling point</td><td>&ldquo;Give more to the church and pay less in taxes &mdash; simultaneously.&rdquo;</td></tr>
+    </table>
+  </div>
+
+  <div class="card card-gold">
+    <h3 style="color: var(--gold);">Pillar 3: Charitable Remainder Trusts (CRT)</h3>
+    <table>
+      <tr><th>Element</th><th>Detail</th></tr>
+      <tr><td>What it is</td><td>Irrevocable trust: donor transfers assets, receives income stream for life, remainder goes to parish</td></tr>
+      <tr><td>Tax benefit</td><td>Immediate partial tax deduction + capital gains avoidance on appreciated assets</td></tr>
+      <tr><td>Ideal for</td><td>Higher-net-worth parishioners with appreciated stock, real estate, or large IRAs</td></tr>
+      <tr><td>Minimum practical size</td><td>~$100K+ (legal/admin costs make smaller trusts inefficient)</td></tr>
+      <tr><td>Key selling point</td><td>&ldquo;Income for you today. A legacy for your church forever.&rdquo;</td></tr>
+    </table>
+  </div>
+
+  <div class="card card-gold">
+    <h3 style="color: var(--gold);">Pillar 4: Recognition for Your Support</h3>
+    <table>
+      <tr><th>Element</th><th>Detail</th></tr>
+      <tr><td>What it is</td><td>Formalized donor recognition program at the parish level</td></tr>
+      <tr><td>Formats</td><td>Bulletin acknowledgments, annual giving reports, memorial plaques, named spaces, event recognition</td></tr>
+      <tr><td>Why it matters</td><td>Giving is contagious when it&rsquo;s visible. Recognition creates social proof and inspires others.</td></tr>
+      <tr><td>Key selling point</td><td>&ldquo;Your generosity deserves to be celebrated &mdash; and it inspires others to follow.&rdquo;</td></tr>
+    </table>
+  </div>
+
+  <div class="quote-block">
+    <div class="quote">&ldquo;Most people don&rsquo;t spend everything they have. The question isn&rsquo;t whether you&rsquo;ll leave a legacy &mdash; it&rsquo;s whether you&rsquo;ll leave the one you wanted.&rdquo;</div>
+    <div class="attrib">&mdash; RPI Engage Legacy&trade; (CHARITY Pillar)</div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════ -->
+<!-- TAB 3: MODEL -->
+<!-- ════════════════════════════════════════════════════════════════ -->
+<div class="panel" id="tab-model">
+  <h2>The B2B2C Model</h2>
+  <div class="card">
+    <p><strong>Three partners, one program.</strong> Each layer does what it does best. The parish endorses. CoF provides the product. RPI provides the strategy and marketing engine.</p>
+  </div>
+
+  <div class="triangle">
+    <div class="tri-node" style="border-top: 3px solid var(--purple);">
+      <div class="icon">&#9962;</div>
+      <h3 style="color: var(--purple);">Parish</h3>
+      <p><strong>Endorsement layer.</strong> The parish endorses the program from the pulpit, in the bulletin, and at events. Parishioners trust their parish &mdash; not a financial firm they&rsquo;ve never heard of. The endorsement IS the distribution channel.</p>
+    </div>
+    <div class="tri-node" style="border-top: 3px solid var(--gold);">
+      <div class="icon">&#9968;</div>
+      <h3 style="color: var(--gold);">CoF</h3>
+      <p><strong>Product layer.</strong> Catholic Order of Foresters is a Catholic-affiliated fraternal benefit society and life insurance carrier. Already in RPI&rsquo;s system. Provides life insurance products for legacy vehicles, annuities for CRT income streams, and brand credibility within Catholic communities.</p>
+    </div>
+    <div class="tri-node" style="border-top: 3px solid var(--blue);">
+      <div class="icon">&#9878;</div>
+      <h3 style="color: var(--blue);">RPI</h3>
+      <p><strong>Strategy + execution layer.</strong> Financial analysis, charitable giving strategy, client onboarding, proactive service. Plus the entire marketing engine: website, calculators, brochures, seminars, bulletin content. <em>Powered by RPI</em> means the machine runs behind the scenes.</p>
+    </div>
+  </div>
+
+  <h2>How It Flows</h2>
+  <div class="flow">
+    <div class="flow-step"><strong>Parish</strong><br>endorses in bulletin</div>
+    <span class="flow-arrow">&rarr;</span>
+    <div class="flow-step"><strong>Parishioner</strong><br>attends seminar / visits site</div>
+    <span class="flow-arrow">&rarr;</span>
+    <div class="flow-step"><strong>RPI</strong><br>runs Discovery meeting</div>
+    <span class="flow-arrow">&rarr;</span>
+    <div class="flow-step"><strong>RPI</strong><br>builds A+R with CoF products</div>
+    <span class="flow-arrow">&rarr;</span>
+    <div class="flow-step"><strong>Parishioner</strong><br>gives to parish tax-free</div>
+  </div>
+  <p style="color: var(--muted); font-size: 0.82rem; text-align: center; margin-top: 0.5rem;">That flow IS the RPI 4-Step Methodology applied to #FundYourFAITH: Discovery &rarr; Analysis + Recommendation &rarr; Implementation &rarr; Proactive Service Model&trade;</p>
+
+  <h2>Why This Model Wins</h2>
+  <div class="card card-green">
+    <table>
+      <tr><th>Challenge</th><th>#FundYourFAITH Solution</th></tr>
+      <tr><td>Parishes don&rsquo;t know financial strategy</td><td>They don&rsquo;t need to &mdash; RPI handles everything behind the endorsement</td></tr>
+      <tr><td>Parishioners don&rsquo;t trust cold financial pitches</td><td>The parish IS the trust layer &mdash; they&rsquo;re hearing it from their priest, not a salesman</td></tr>
+      <tr><td>CoF needs distribution beyond direct sales</td><td>Parish endorsement IS the distribution channel CoF doesn&rsquo;t have on its own</td></tr>
+      <tr><td>RPI needs deal flow in the Legacy market</td><td>Every parish is a pipeline of 70&frac12;+ IRA holders &mdash; and the CHARITY pillar of Engage Legacy&trade; is purpose-built for this</td></tr>
+      <tr><td>Churches are consolidating and losing revenue</td><td>#FundYourFAITH turns a crisis into a funding source that doesn&rsquo;t depend on traditional tithing</td></tr>
+    </table>
+  </div>
+
+  <h2>Scalability</h2>
+  <div class="card card-blue">
+    <p><strong>Build once. Deploy to every parish.</strong> The program is the same everywhere &mdash; only the parish name, local contacts, and demographic specifics change. Every agency Matt brings in via DAVID/SENTINEL can offer #FundYourFAITH to their local Catholic communities on Day 1.</p>
+    <ul>
+      <li><strong>Dubuque diocese</strong> &mdash; launch market (Saturday timing)</li>
+      <li><strong>Iowa statewide</strong> &mdash; immediate expansion after Dubuque proof-of-concept</li>
+      <li><strong>Regional</strong> &mdash; every diocese facing the same consolidation crisis</li>
+      <li><strong>National</strong> &mdash; via DAVID/SENTINEL agency partnerships</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════ -->
+<!-- TAB 4: MARKETING -->
+<!-- ════════════════════════════════════════════════════════════════ -->
+<div class="panel" id="tab-marketing">
+  <h2>The Marketing Stack</h2>
+  <div class="card">
+    <p><strong>Seven channels, one message.</strong> Build the #FundYourFAITH message once. Deliver it through every channel the parish already uses &mdash; plus the ones RPI builds for them.</p>
+  </div>
+
+  <table>
+    <tr><th>Channel</th><th>Format</th><th>Tool</th><th>Example</th></tr>
+    <tr><td><strong>Bulletin Insert</strong></td><td>Quarter-page or half-page print insert</td><td>Canva &rarr; PDF</td><td>Weekly parish bulletin &mdash; the #1 communication channel to parishioners</td></tr>
+    <tr><td><strong>Seminars</strong></td><td>In-person parish hall presentation</td><td>Google Slides + Canva</td><td>60-min &ldquo;Fund Your Faith&rdquo; workshop after Saturday Mass</td></tr>
+    <tr><td><strong>Webinars</strong></td><td>Virtual presentation</td><td>Google Meet + Slides</td><td>For parishioners who can&rsquo;t attend in person</td></tr>
+    <tr><td><strong>Brochures</strong></td><td>Tri-fold print + digital PDF</td><td>Canva &rarr; PDF + Portal</td><td>Leave-behind at seminars, available in vestibule</td></tr>
+    <tr><td><strong>Email</strong></td><td>HTML email campaign</td><td>C3 + SendGrid</td><td>Post-seminar follow-up sequence &mdash; 3-email drip</td></tr>
+    <tr><td><strong>Website</strong></td><td>Branded landing page(s)</td><td>WordPress + Elementor</td><td>fundyourfaith.retireprotected.com &mdash; calculators, program overview, booking</td></tr>
+    <tr><td><strong>Social / Video</strong></td><td>60-sec explainer videos</td><td>Veo 3.1 + Canva</td><td>&ldquo;Did you know your RMD could fund your church?&rdquo; social clips</td></tr>
+  </table>
+
+  <h2>The Bulletin Blurb (v1 &mdash; Immediate)</h2>
+  <div class="card card-gold">
+    <p style="font-size: 0.82rem; color: var(--muted); margin-bottom: 0.75rem;">Draft for Shane to hand to the parish bulletin coordinator. Tone: warm, faith-forward, zero financial jargon.</p>
+    <div style="background: var(--card2); padding: 1.25rem; border-radius: 8px; border: 1px solid var(--border);">
+      <p style="font-weight: 700; color: var(--gold); font-size: 1.05rem; margin-bottom: 0.5rem;">#FundYourFAITH &mdash; A New Way to Give</p>
+      <p style="font-size: 0.9rem;">Did you know you may be able to support our parish using money you&rsquo;re already required to withdraw from your retirement accounts &mdash; <strong>without paying taxes on it?</strong></p>
+      <p style="font-size: 0.9rem; margin-top: 0.5rem;">It&rsquo;s called a Qualified Charitable Distribution (QCD), and if you&rsquo;re 70&frac12; or older with an IRA, you may be eligible to redirect your Required Minimum Distribution directly to [Parish Name] &mdash; tax-free.</p>
+      <p style="font-size: 0.9rem; margin-top: 0.5rem;">To learn more about how your retirement savings can strengthen our parish community, contact <strong>[Name]</strong> at <strong>[Phone]</strong> or visit <strong>[URL]</strong>.</p>
+      <p style="font-size: 0.78rem; margin-top: 0.75rem; color: var(--muted); font-style: italic;">Brought to you in partnership with Catholic Order of Foresters and Retirement Protectors, Inc.</p>
+    </div>
+    <p style="font-size: 0.78rem; color: var(--muted); margin-top: 0.75rem;"><strong>Compliance note:</strong> This blurb describes a general tax strategy, not a specific product recommendation. No carrier names, no rate promises, no guarantees. Parish-safe. <em>Final compliance review by JDM before distribution.</em></p>
+  </div>
+
+  <h2>Seminar Deck Outline</h2>
+  <div class="card card-purple">
+    <ol>
+      <li><strong>Welcome + Parish Endorsement</strong> &mdash; Pastor or parish council member introduces the program (2 min)</li>
+      <li><strong>The Opportunity</strong> &mdash; &ldquo;Your RMD could fund your faith&rdquo; &mdash; plain-language QCD explanation (10 min)</li>
+      <li><strong>The Four Pillars</strong> &mdash; Charitable RMD, RMD Maximization, CRTs, Recognition (15 min)</li>
+      <li><strong>Calculator Demo</strong> &mdash; &ldquo;What could OUR parish generate?&rdquo; live calculator on screen (5 min)</li>
+      <li><strong>Individual Examples</strong> &mdash; 3 scenarios (modest IRA, mid-range, high-net-worth) &mdash; anonymized (10 min)</li>
+      <li><strong>Q&amp;A</strong> &mdash; open floor (15 min)</li>
+      <li><strong>Next Steps</strong> &mdash; individual consultations, sign-up sheet, brochure handout (3 min)</li>
+    </ol>
+    <p style="font-size: 0.82rem; color: var(--muted); margin-top: 0.75rem;">Total runtime: ~60 minutes. Works as post-Mass Saturday session or standalone weeknight event.</p>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════ -->
+<!-- TAB 5: CALCULATORS -->
+<!-- ════════════════════════════════════════════════════════════════ -->
+<div class="panel" id="tab-calculators">
+  <h2>Two Calculators, Two Audiences</h2>
+  <div class="card">
+    <p>The calculators are the viral engine of #FundYourFAITH. The parish calculator shows the pastor what&rsquo;s possible. The individual calculator shows each parishioner what&rsquo;s possible for THEM. Both drive conversion.</p>
+  </div>
+
+  <h2>Calculator 1: Parish Potential</h2>
+  <div class="card card-purple">
+    <h3 style="color: var(--purple);">&ldquo;What could our parish generate?&rdquo;</h3>
+    <p>Audience: Pastors, parish council, finance committees. Used in the pitch to get parish endorsement.</p>
+
+    <h4>Inputs</h4>
+    <table>
+      <tr><th>Field</th><th>Type</th><th>Default / Example</th></tr>
+      <tr><td>Number of registered parishioners</td><td>Number</td><td>500</td></tr>
+      <tr><td>Estimated % age 70&frac12;+</td><td>Slider (10-60%)</td><td>25%</td></tr>
+      <tr><td>Estimated % with IRAs</td><td>Slider (20-80%)</td><td>50%</td></tr>
+      <tr><td>Average IRA balance</td><td>Currency</td><td>$150,000</td></tr>
+      <tr><td>Average QCD participation rate</td><td>Slider (10-50%)</td><td>20%</td></tr>
+      <tr><td>Average QCD gift per participant</td><td>Currency</td><td>$5,000</td></tr>
+    </table>
+
+    <h4>Outputs</h4>
+    <table>
+      <tr><th>Metric</th><th>Calculation</th><th>Example Result</th></tr>
+      <tr><td>Eligible parishioners</td><td>Total &times; % 70&frac12;+ &times; % with IRAs</td><td>63</td></tr>
+      <tr><td>Projected participants</td><td>Eligible &times; participation rate</td><td>13</td></tr>
+      <tr><td>Annual QCD giving to parish</td><td>Participants &times; avg gift</td><td><strong style="color: var(--gold);">$65,000 / year</strong></td></tr>
+      <tr><td>5-year projection</td><td>Annual &times; 5 (with modest growth)</td><td><strong style="color: var(--gold);">$350,000+</strong></td></tr>
+    </table>
+    <p style="font-size: 0.82rem; color: var(--muted); margin-top: 0.75rem;"><strong>The hook:</strong> &ldquo;That&rsquo;s $65,000 a year your parish could receive &mdash; from money your parishioners were already required to withdraw. No new fundraising. No guilt. Just strategy.&rdquo;</p>
+  </div>
+
+  <h2>Calculator 2: Individual Capacity</h2>
+  <div class="card card-gold">
+    <h3 style="color: var(--gold);">&ldquo;How much could I give &mdash; without it costing me anything?&rdquo;</h3>
+    <p>Audience: Individual parishioners. Used on the website and at seminars. Drives discovery meeting bookings.</p>
+
+    <h4>Inputs</h4>
+    <table>
+      <tr><th>Field</th><th>Type</th><th>Default / Example</th></tr>
+      <tr><td>Age</td><td>Number</td><td>73</td></tr>
+      <tr><td>Total IRA balance</td><td>Currency</td><td>$200,000</td></tr>
+      <tr><td>Filing status</td><td>Select (Single / MFJ)</td><td>MFJ</td></tr>
+      <tr><td>Current marginal tax rate</td><td>Auto-calculated or select</td><td>22%</td></tr>
+      <tr><td>Do you take your full RMD each year?</td><td>Yes / No</td><td>Yes</td></tr>
+      <tr><td>How much do you currently give to your parish annually?</td><td>Currency</td><td>$2,000</td></tr>
+    </table>
+
+    <h4>Outputs</h4>
+    <table>
+      <tr><th>Metric</th><th>Calculation</th><th>Example Result</th></tr>
+      <tr><td>Your RMD this year</td><td>IRA balance &divide; IRS life expectancy factor</td><td>$7,874</td></tr>
+      <tr><td>Tax on your RMD (current path)</td><td>RMD &times; marginal rate</td><td>$1,732</td></tr>
+      <tr><td>If you QCD your full RMD to parish</td><td>RMD amount, tax-free</td><td><strong style="color: var(--gold);">$7,874 to your church</strong></td></tr>
+      <tr><td>Tax savings vs. taking RMD as income</td><td>Tax on RMD avoided</td><td><strong style="color: var(--green);">$1,732 saved</strong></td></tr>
+      <tr><td>Net increase in giving vs. current</td><td>QCD &minus; current giving</td><td><strong>$5,874 more to your parish</strong></td></tr>
+    </table>
+    <p style="font-size: 0.82rem; color: var(--muted); margin-top: 0.75rem;"><strong>The hook:</strong> &ldquo;You&rsquo;re already giving $2,000 a year out of pocket. With a QCD, you could give almost $8,000 &mdash; and save $1,700 in taxes. Your parish gets more, you pay less. Everyone wins.&rdquo;</p>
+  </div>
+
+  <h2>Technical Implementation</h2>
+  <div class="card card-blue">
+    <table>
+      <tr><th>Element</th><th>Approach</th></tr>
+      <tr><td>Hosting</td><td>WordPress page on retireprotected.com (or subdomain: fundyourfaith.retireprotected.com)</td></tr>
+      <tr><td>Calculator engine</td><td>Client-side JavaScript &mdash; no server calls, no PHI, instant results</td></tr>
+      <tr><td>RMD table</td><td>IRS Uniform Lifetime Table (Publication 590-B) &mdash; baked into JS</td></tr>
+      <tr><td>Mobile</td><td>Fully responsive &mdash; parishioners will use this on phones after hearing about it at Mass</td></tr>
+      <tr><td>CTA at bottom</td><td>&ldquo;Ready to learn more? Schedule a free consultation.&rdquo; &rarr; books RPI discovery meeting</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════ -->
+<!-- TAB 6: PHASES -->
+<!-- ════════════════════════════════════════════════════════════════ -->
+<div class="panel" id="tab-phases">
+  <h2>Rollout Phases</h2>
+  <div class="card">
+    <p><strong>Four phases. Each one builds on the last.</strong> Phase 1 catches the Saturday wave. Phase 4 goes national.</p>
+  </div>
+
+  <div class="phase-card p1">
+    <div class="phase-label">Phase 1 &mdash; This Week</div>
+    <h3 style="color: var(--red); margin-top: 0.5rem;">Bulletin Blurb + Program Framework</h3>
+    <p><strong>Goal:</strong> Get #FundYourFAITH into Shane&rsquo;s hands before the Saturday reorganization announcement.</p>
+    <ul>
+      <li>Finalize bulletin blurb copy (see Marketing tab &mdash; v1 draft ready)</li>
+      <li>Shane delivers to parish bulletin coordinator</li>
+      <li>This Discovery Doc serves as the program overview for Shane &amp; JDM</li>
+      <li>Identify first parish target (Shane&rsquo;s connection)</li>
+    </ul>
+    <p style="font-size: 0.82rem; color: var(--muted); margin-top: 0.5rem;"><strong>Deliverables:</strong> Bulletin blurb (print-ready text), Discovery Doc (this document), initial parish intro talking points for Shane.</p>
+  </div>
+
+  <div class="phase-card p2">
+    <div class="phase-label">Phase 2 &mdash; 30 Days</div>
+    <h3 style="color: var(--orange); margin-top: 0.5rem;">Collateral + First Seminar</h3>
+    <p><strong>Goal:</strong> Full marketing materials built and first parish seminar scheduled.</p>
+    <ul>
+      <li>Tri-fold brochure designed in Canva (print + digital PDF)</li>
+      <li>Seminar slide deck (Google Slides, branded #FundYourFAITH)</li>
+      <li>3-email post-seminar follow-up sequence in C3</li>
+      <li>First seminar scheduled at Shane&rsquo;s parish connection</li>
+      <li>CoF partnership formalized &mdash; product menu for #FundYourFAITH (which policies, which annuities)</li>
+    </ul>
+    <p style="font-size: 0.82rem; color: var(--muted); margin-top: 0.5rem;"><strong>Deliverables:</strong> Brochure (PDF), slide deck, email sequence, CoF product menu, seminar booking.</p>
+  </div>
+
+  <div class="phase-card p3">
+    <div class="phase-label">Phase 3 &mdash; 90 Days</div>
+    <h3 style="color: var(--blue); margin-top: 0.5rem;">Website + Calculators + Video</h3>
+    <p><strong>Goal:</strong> Digital presence live. Calculators driving discovery meeting bookings.</p>
+    <ul>
+      <li>fundyourfaith.retireprotected.com (or landing page on main site)</li>
+      <li>Parish Potential Calculator (live, interactive)</li>
+      <li>Individual Capacity Calculator (live, interactive)</li>
+      <li>60-sec explainer video (Veo 3.1) &mdash; &ldquo;Did you know your RMD could fund your church?&rdquo;</li>
+      <li>Social media clips (cut from explainer video)</li>
+      <li>First seminar results analyzed &mdash; refine pitch based on real parishioner questions</li>
+    </ul>
+    <p style="font-size: 0.82rem; color: var(--muted); margin-top: 0.5rem;"><strong>Deliverables:</strong> Live website, 2 calculators, explainer video, social clips, post-seminar analysis.</p>
+  </div>
+
+  <div class="phase-card p4">
+    <div class="phase-label">Phase 4 &mdash; Expansion</div>
+    <h3 style="color: var(--green); margin-top: 0.5rem;">Multi-Parish + DAVID Distribution</h3>
+    <p><strong>Goal:</strong> #FundYourFAITH becomes a repeatable program deployable to any parish via DAVID/SENTINEL agency network.</p>
+    <ul>
+      <li>Parish onboarding kit (turnkey &mdash; everything a new parish needs to launch)</li>
+      <li>DAVID/SENTINEL integration &mdash; partner agencies offer #FundYourFAITH in their markets</li>
+      <li>Diocese-level partnerships (pitch to diocesan leadership, not individual parishes)</li>
+      <li>National CoF partnership &mdash; co-branded materials for all CoF member parishes</li>
+      <li>Annual #FundYourFAITH impact report (total giving generated, parishes served, tax savings delivered)</li>
+    </ul>
+    <p style="font-size: 0.82rem; color: var(--muted); margin-top: 0.5rem;"><strong>Deliverables:</strong> Parish onboarding kit, DAVID playbook, diocese pitch deck, national CoF proposal, impact report template.</p>
+  </div>
+
+  <h2>Timeline Summary</h2>
+  <div class="flow">
+    <div class="flow-step" style="border-color: var(--red);"><strong>Phase 1</strong><br>This Week<br>Bulletin + Framework</div>
+    <span class="flow-arrow">&rarr;</span>
+    <div class="flow-step" style="border-color: var(--orange);"><strong>Phase 2</strong><br>30 Days<br>Collateral + Seminar</div>
+    <span class="flow-arrow">&rarr;</span>
+    <div class="flow-step" style="border-color: var(--blue);"><strong>Phase 3</strong><br>90 Days<br>Website + Calcs</div>
+    <span class="flow-arrow">&rarr;</span>
+    <div class="flow-step" style="border-color: var(--green);"><strong>Phase 4</strong><br>Expansion<br>Multi-Parish + DAVID</div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════ -->
+<!-- TAB 7: ENGAGE LEGACY -->
+<!-- ════════════════════════════════════════════════════════════════ -->
+<div class="panel" id="tab-engage">
+  <h2>Brand Architecture: Where #FundYourFAITH Lives</h2>
+  <div class="card card-purple">
+    <p><strong>#FundYourFAITH is the CHARITY pillar of RPI Engage Legacy&trade; applied to a specific vertical: Catholic parishes.</strong></p>
+    <p style="margin-top: 0.75rem;">VOLTRON&rsquo;s <code>tpl.story.engage-legacy</code> story pager already defines the three Legacy pillars: <strong>Children &bull; Care &bull; Charity</strong>. #FundYourFAITH IS the Charity pillar &mdash; productized, branded, and deployed to a market segment that desperately needs it right now.</p>
+  </div>
+
+  <h2>Pillar Mapping</h2>
+  <table>
+    <tr><th>Engage Legacy&trade; Pillar</th><th>General Market</th><th>#FundYourFAITH Application</th></tr>
+    <tr><td><strong>CHILDREN</strong></td><td>Heirs, grandchildren, designated people</td><td>(Not directly addressed &mdash; future expansion: parish scholarship funds for parishioners&rsquo; families)</td></tr>
+    <tr><td><strong>CARE</strong></td><td>LTC, hybrid life/LTC, self-funded care</td><td>(Not directly addressed &mdash; future expansion: CoF LTC products for aging parishioners)</td></tr>
+    <tr><td style="background: rgba(212,164,76,0.1);"><strong style="color: var(--gold);">CHARITY</strong></td><td>QCD, DAF, CRT, life insurance to charity</td><td style="background: rgba(212,164,76,0.1);"><strong style="color: var(--gold);">#FundYourFAITH &mdash; all four pillars map here</strong></td></tr>
+  </table>
+
+  <h2>Engage Legacy&trade; Vehicle Mapping</h2>
+  <table>
+    <tr><th>Engage Legacy Vehicle</th><th>#FundYourFAITH Pillar</th><th>Application</th></tr>
+    <tr><td>Qualified Charitable Distributions (QCD from IRA)</td><td>Pillar 1: Charitable RMD</td><td>Direct IRA &rarr; parish, tax-free</td></tr>
+    <tr><td>Charitable Remainder Trusts (CRT)</td><td>Pillar 3: CRTs</td><td>Income for life + remainder to parish</td></tr>
+    <tr><td>Named beneficiary of Traditional IRA (IRD-free)</td><td>Pillar 4: Recognition</td><td>Parish as beneficiary &mdash; estate gift</td></tr>
+    <tr><td>Life insurance with charity as beneficiary</td><td>Pillar 4: Recognition</td><td>CoF policy with parish as beneficiary</td></tr>
+    <tr><td>Donor-Advised Funds (DAF)</td><td>(Future expansion)</td><td>DAF for parishioners who want ongoing giving control</td></tr>
+  </table>
+
+  <h2>4-Step Methodology Mapping</h2>
+  <div class="card card-blue">
+    <p><strong>The RPI 4-Step Methodology is the backbone of #FundYourFAITH client engagement.</strong></p>
+    <table>
+      <tr><th>Step</th><th>Methodology</th><th>#FundYourFAITH Application</th></tr>
+      <tr><td>1</td><td>Discovery</td><td>Parish assessment: demographics, giving history, eligible parishioners. Individual: IRA balances, RMD status, current giving.</td></tr>
+      <tr><td>2</td><td>Analysis + Recommendation</td><td>Which pillar(s) fit? QCD only? CRT candidate? What&rsquo;s the optimal charitable strategy for this parishioner?</td></tr>
+      <tr><td>3</td><td>Implementation</td><td>Set up QCD with IRA custodian, establish CRT if applicable, designate parish as beneficiary on CoF policy.</td></tr>
+      <tr><td>4</td><td>Proactive Service Model&trade;</td><td>Annual RMD deadline notifications, QCD reminders before tax deadlines, giving impact reports to parishioner + parish.</td></tr>
+    </table>
+  </div>
+
+  <h2>Future Verticals</h2>
+  <div class="card card-green">
+    <p>If #FundYourFAITH works for Catholic parishes, the same model applies to:</p>
+    <ul>
+      <li><strong>Protestant churches</strong> &mdash; same QCD/CRT mechanics, different endorsement channel</li>
+      <li><strong>Synagogues</strong> &mdash; same mechanics, different community dynamics</li>
+      <li><strong>Private schools</strong> &mdash; Don Bosco model (school funded by congregation)</li>
+      <li><strong>Community foundations</strong> &mdash; local nonprofits with dedicated donor bases</li>
+      <li><strong>University alumni associations</strong> &mdash; QCD to alma mater</li>
+    </ul>
+    <p style="margin-top: 0.75rem; color: var(--muted); font-size: 0.82rem;">The brand stays #FundYourFAITH for religious organizations. A parallel brand (TBD) could serve secular nonprofits. Same engine, different paint job.</p>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════ -->
+<!-- TAB 8: SPRINT -->
+<!-- ════════════════════════════════════════════════════════════════ -->
+<div class="panel" id="tab-sprint">
+  <h2>CMO Sprint: #FundYourFAITH</h2>
+  <div class="card">
+    <p><strong>Tickets organized by phase.</strong> Phase 1 tickets are immediate. Phase 2+ tickets queue behind.</p>
+    <p style="font-size: 0.82rem; color: var(--muted); margin-top: 0.5rem;">Prefix: <code>FYF-</code>. Owner split: MUSASHI (creative/marketing), VOLTRON (content accuracy/compliance review), JDM (approvals/art direction).</p>
+  </div>
+
+  <h3 style="color: var(--red);">Phase 1 &mdash; This Week</h3>
+
+  <div class="ticket"><span class="id">FYF-001</span><span class="desc"><strong>Bulletin blurb &mdash; final copy.</strong> Take v1 draft from Marketing tab, get JDM approval, make print-ready for Shane.</span><span class="owner">MUSASHI</span></div>
+  <div class="ticket"><span class="id">FYF-002</span><span class="desc"><strong>Parish intro talking points.</strong> 1-page guide for Shane: what to say to the parish coordinator, what the program is, what it isn&rsquo;t.</span><span class="owner">MUSASHI</span></div>
+  <div class="ticket"><span class="id">FYF-003</span><span class="desc"><strong>CoF logo acquisition.</strong> Get the official Catholic Order of Foresters logo from CoF or their website. Stage for brand materials.</span><span class="owner">JDM</span></div>
+  <div class="ticket"><span class="id">FYF-004</span><span class="desc"><strong>#FundYourFAITH wordmark direction.</strong> Present 3 creative directions (typography + color) for the program brand. JDM selects.</span><span class="owner">MUSASHI + JDM</span></div>
+  <div class="ticket"><span class="id">FYF-005</span><span class="desc"><strong>Discovery Doc published.</strong> This document &mdash; finalized and live on GitHub Pages for reference.</span><span class="owner">MUSASHI</span></div>
+
+  <h3 style="color: var(--orange);">Phase 2 &mdash; 30 Days</h3>
+
+  <div class="ticket"><span class="id">FYF-006</span><span class="desc"><strong>Tri-fold brochure.</strong> Canva design, #FundYourFAITH branded. Print + digital PDF. 4 pillars + CTA.</span><span class="owner">MUSASHI</span></div>
+  <div class="ticket"><span class="id">FYF-007</span><span class="desc"><strong>Seminar slide deck.</strong> Google Slides, ~30 slides, branded. Follows the seminar outline from Marketing tab.</span><span class="owner">MUSASHI</span></div>
+  <div class="ticket"><span class="id">FYF-008</span><span class="desc"><strong>Post-seminar email sequence.</strong> 3-email C3 campaign: thank you + recap, deeper dive on QCDs, booking CTA.</span><span class="owner">MUSASHI</span></div>
+  <div class="ticket"><span class="id">FYF-009</span><span class="desc"><strong>CoF product menu.</strong> Which CoF life/annuity products fit #FundYourFAITH? Coordinate with JDM on carrier selection.</span><span class="owner">VOLTRON + JDM</span></div>
+  <div class="ticket"><span class="id">FYF-010</span><span class="desc"><strong>First seminar scheduled.</strong> Shane books the parish hall. Date, time, materials printed, RSVPs tracked.</span><span class="owner">JDM + Shane</span></div>
+
+  <h3 style="color: var(--blue);">Phase 3 &mdash; 90 Days</h3>
+
+  <div class="ticket"><span class="id">FYF-011</span><span class="desc"><strong>Website: fundyourfaith landing page.</strong> WordPress + Elementor on retireprotected.com. Program overview + calculator embeds + booking CTA.</span><span class="owner">MUSASHI</span></div>
+  <div class="ticket"><span class="id">FYF-012</span><span class="desc"><strong>Parish Potential Calculator.</strong> Client-side JS, IRS Uniform Lifetime Table baked in. Inputs/outputs per Calculator tab spec.</span><span class="owner">MUSASHI</span></div>
+  <div class="ticket"><span class="id">FYF-013</span><span class="desc"><strong>Individual Capacity Calculator.</strong> Client-side JS. RMD calculation + QCD capacity + tax savings display.</span><span class="owner">MUSASHI</span></div>
+  <div class="ticket"><span class="id">FYF-014</span><span class="desc"><strong>Explainer video.</strong> 60-sec Veo 3.1 video: &ldquo;Did you know your RMD could fund your church?&rdquo; Social-ready format.</span><span class="owner">MUSASHI</span></div>
+  <div class="ticket"><span class="id">FYF-015</span><span class="desc"><strong>Social media clips.</strong> 3-4 cuts from explainer video, sized for Facebook/Instagram (parish demographic).</span><span class="owner">MUSASHI</span></div>
+  <div class="ticket"><span class="id">FYF-016</span><span class="desc"><strong>Post-seminar analysis.</strong> First seminar results: attendance, questions asked, follow-up bookings, pitch refinements.</span><span class="owner">VOLTRON</span></div>
+
+  <h3 style="color: var(--green);">Phase 4 &mdash; Expansion</h3>
+
+  <div class="ticket"><span class="id">FYF-017</span><span class="desc"><strong>Parish onboarding kit.</strong> Turnkey package: bulletin insert, brochure, seminar deck, coordinator guide, calculator URLs, email templates.</span><span class="owner">MUSASHI</span></div>
+  <div class="ticket"><span class="id">FYF-018</span><span class="desc"><strong>DAVID/SENTINEL playbook.</strong> How partner agencies deploy #FundYourFAITH in their markets. White-label guidelines.</span><span class="owner">MUSASHI + VOLTRON</span></div>
+  <div class="ticket"><span class="id">FYF-019</span><span class="desc"><strong>Diocese pitch deck.</strong> Presentation for diocesan leadership: program overview, proof-of-concept results, partnership terms.</span><span class="owner">MUSASHI</span></div>
+  <div class="ticket"><span class="id">FYF-020</span><span class="desc"><strong>National CoF proposal.</strong> Co-branded program proposal for CoF national leadership. #FundYourFAITH as a standard offering across all CoF member parishes.</span><span class="owner">JDM</span></div>
+  <div class="ticket"><span class="id">FYF-021</span><span class="desc"><strong>Impact report template.</strong> Annual #FundYourFAITH report: total giving generated, parishes served, tax savings delivered, parishioner testimonials.</span><span class="owner">MUSASHI</span></div>
+
+  <h2>Sprint Summary</h2>
+  <table>
+    <tr><th>Phase</th><th>Tickets</th><th>Timeline</th><th>Gate</th></tr>
+    <tr><td style="color: var(--red);">Phase 1</td><td>FYF-001 through FYF-005</td><td>This week</td><td>Bulletin in Shane&rsquo;s hands before Saturday</td></tr>
+    <tr><td style="color: var(--orange);">Phase 2</td><td>FYF-006 through FYF-010</td><td>30 days</td><td>First seminar scheduled + CoF product menu locked</td></tr>
+    <tr><td style="color: var(--blue);">Phase 3</td><td>FYF-011 through FYF-016</td><td>90 days</td><td>Website + calculators live + first seminar completed</td></tr>
+    <tr><td style="color: var(--green);">Phase 4</td><td>FYF-017 through FYF-021</td><td>Expansion</td><td>Multi-parish deployment + DAVID distribution</td></tr>
+  </table>
+</div>
+
+</div><!-- .content -->
+
+<div class="footer">
+  #FundYourFAITH Discovery Doc &bull; MUSASHI, ARTxBLADE (CMO)<br>
+  Step 1 artifact of the RPI 4-Step Methodology &bull; RPI Engage Legacy&trade; (CHARITY Pillar)<br>
+  Retirement Protectors, Inc. &bull; Catholic Order of Foresters &bull; v1 2026-04-10<br>
+  #RunningOurOwnRACE
+</div>
+
+<script>
+function showTab(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+</script>
+</body>
+</html>
