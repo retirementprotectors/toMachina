@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RPI Engage Wealth™ — Safety | Liquidity | Growth</title>
+<!--
+  STORY 1-PAGER: RPI Engage Wealth™
+  VERSION: v1 content framework (2026-04-10)
+  OWNER: VOLTRON (CSO) — content | MUSASHI (CMO) — visual design + print + web CTA
+  USE: Recommendation tab | Print handout | Website CTA
+
+  *** CONTENT FRAMEWORK ONLY. MUSASHI owns visual design, brand voice, print layout, and web CTA.
+-->
+<style>
+:root{
+  --bg:#0a0e17;--card:#111827;--card2:#1a2236;--border:#1e293b;
+  --text:#e2e8f0;--muted:#94a3b8;
+  --rpi-blue:#4a7ab5;--green:#22c55e;--gold:#d4a44c;--cyan:#06b6d4;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+.page{max-width:850px;margin:0 auto;padding:48px 32px}
+.hero{text-align:center;padding:44px 24px;background:linear-gradient(135deg,rgba(74,122,181,0.08),rgba(6,182,212,0.05));border-radius:20px;border:1px solid var(--border);margin-bottom:32px}
+.hero .mark{font-size:0.72rem;text-transform:uppercase;letter-spacing:3px;color:var(--cyan);font-weight:700;margin-bottom:12px}
+.hero h1{font-size:2.8rem;font-weight:800;background:linear-gradient(135deg,var(--rpi-blue),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:10px;line-height:1.1}
+.hero .sub{font-size:1.1rem;color:var(--muted);max-width:600px;margin:0 auto 6px}
+.hero .tagline{font-size:0.88rem;color:var(--cyan);font-weight:600;letter-spacing:1px;margin-top:14px}
+.triangle-container{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:32px;margin-bottom:24px;text-align:center}
+.triangle-container h2{font-size:0.72rem;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:4px}
+.triangle-container .hook{font-size:1.15rem;color:var(--text);margin-bottom:24px}
+.pillar-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin:28px 0}
+@media(max-width:720px){.pillar-grid{grid-template-columns:1fr}}
+.pillar{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px;position:relative;overflow:hidden}
+.pillar::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.pillar.safety::before{background:var(--green)}
+.pillar.liquidity::before{background:var(--cyan)}
+.pillar.growth::before{background:var(--gold)}
+.pillar .icon{font-size:2.2rem;margin-bottom:8px}
+.pillar .label{font-size:0.68rem;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:4px}
+.pillar h3{font-size:1.25rem;margin-bottom:10px}
+.pillar.safety h3{color:var(--green)}
+.pillar.liquidity h3{color:var(--cyan)}
+.pillar.growth h3{color:var(--gold)}
+.pillar p{font-size:0.88rem;color:var(--muted);margin-bottom:14px}
+.pillar .stat-row{display:flex;justify-content:space-between;padding:10px 0;border-top:1px solid var(--border);font-size:0.78rem}
+.pillar .stat-row:first-of-type{border-top:none;padding-top:0}
+.pillar .stat-row .k{color:var(--muted)}
+.pillar .stat-row .v{color:var(--text);font-weight:600}
+.comparison-frame{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px;margin-bottom:24px}
+.comparison-frame h2{font-size:1rem;text-transform:uppercase;letter-spacing:1px;color:var(--gold);margin-bottom:14px}
+.placeholder{background:rgba(212,164,76,0.05);border:1px dashed rgba(212,164,76,0.3);border-radius:10px;padding:18px;color:var(--muted);font-style:italic;font-size:0.85rem}
+.placeholder strong{color:var(--gold);font-style:normal}
+.cta{background:linear-gradient(135deg,var(--rpi-blue),var(--cyan));border-radius:16px;padding:32px;text-align:center;color:#fff;margin-top:24px}
+.cta h3{font-size:1.5rem;margin-bottom:8px}
+.cta p{opacity:.92;margin-bottom:16px}
+.note{background:rgba(212,164,76,0.04);border:1px dashed rgba(212,164,76,0.3);border-radius:10px;padding:14px 18px;margin:16px 0;font-size:0.78rem;color:var(--muted);font-style:italic}
+.note strong{color:var(--gold);font-style:normal}
+.footer{text-align:center;padding:24px;color:var(--muted);font-size:0.7rem;border-top:1px solid var(--border);margin-top:40px}
+@media print{
+  body{background:#fff;color:#000}
+  .hero{background:#f4f8fb;border:2px solid var(--rpi-blue)}
+  .hero h1{-webkit-text-fill-color:#000;color:#000}
+  .pillar,.triangle-container,.comparison-frame{background:#fff;border:1px solid #ccc;color:#000}
+  .cta{background:var(--rpi-blue)}
+  p,.muted,.pillar .stat-row .k{color:#444}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="hero">
+    <div class="mark">RPI Product Recommendation</div>
+    <h1>RPI Engage Wealth<sup style="font-size:0.4em;vertical-align:super">™</sup></h1>
+    <div class="sub">The three things that matter when you're preserving what you've built.</div>
+    <div class="tagline">Safety &bull; Liquidity &bull; Growth</div>
+  </div>
+
+  <div class="triangle-container">
+    <h2>The Wealth Triangle</h2>
+    <div class="hook">You can't have all three at 100%. Every product makes a trade-off. <strong>Our job is to build your mix.</strong></div>
+  </div>
+
+  <div class="pillar-grid">
+
+    <div class="pillar safety">
+      <div class="icon">🛡️</div>
+      <div class="label">Pillar 1</div>
+      <h3>SAFETY</h3>
+      <p><strong>What it means:</strong> Principal protected from market loss. What you put in, you get back — plus contractual growth.</p>
+      <div class="stat-row"><span class="k">Downside floor</span><span class="v">0% loss</span></div>
+      <div class="stat-row"><span class="k">Guaranteed rate</span><span class="v">Contractual</span></div>
+      <div class="stat-row"><span class="k">Carrier strength</span><span class="v">A+ rated only</span></div>
+    </div>
+
+    <div class="pillar liquidity">
+      <div class="icon">💧</div>
+      <div class="label">Pillar 2</div>
+      <h3>LIQUIDITY</h3>
+      <p><strong>What it means:</strong> Your money is accessible when you need it. Emergencies, opportunities, RMDs &mdash; no penalty.</p>
+      <div class="stat-row"><span class="k">Free withdrawal</span><span class="v">10%/yr typical</span></div>
+      <div class="stat-row"><span class="k">GLWB rider</span><span class="v">Lifetime income</span></div>
+      <div class="stat-row"><span class="k">Emergency access</span><span class="v">Nursing/terminal</span></div>
+    </div>
+
+    <div class="pillar growth">
+      <div class="icon">📈</div>
+      <div class="label">Pillar 3</div>
+      <h3>GROWTH</h3>
+      <p><strong>What it means:</strong> Your money keeps up with inflation and outpaces CDs. Indexed to the market without market risk.</p>
+      <div class="stat-row"><span class="k">Index participation</span><span class="v">S&amp;P / NASDAQ / custom</span></div>
+      <div class="stat-row"><span class="k">Tax deferral</span><span class="v">Yes</span></div>
+      <div class="stat-row"><span class="k">Upside cap</span><span class="v">Product-specific</span></div>
+    </div>
+
+  </div>
+
+  <div class="comparison-frame">
+    <h2>Side-by-Side Comparison</h2>
+    <div class="placeholder"><strong>Populate:</strong> Carrier comparison grid for 3-5 candidates. Columns: Carrier + Product, Initial Premium, Free Withdrawal %, Surrender Schedule, Participation Rate or Cap, Guaranteed Rate, Income Rider Availability + Rollup, Death Benefit, AM Best Rating.</div>
+  </div>
+
+  <div class="comparison-frame">
+    <h2>Carrier Illustrations</h2>
+    <div class="placeholder"><strong>Populate:</strong> Links to (or embedded preview of) full carrier illustrations for each recommended product. Pull from DEX or carrier portal. Include year-by-year account value projections at guaranteed, current, and hypothetical 7% scenarios.</div>
+  </div>
+
+  <div class="cta">
+    <h3>Ready to rebuild your mix?</h3>
+    <p>RPI Engage Wealth™ isn't a product — it's a strategy. We build the right combination for where you are.</p>
+    <div style="font-size:1.3rem;font-weight:800">(888) 620-8587</div>
+  </div>
+
+  <div class="note">
+    <strong>Template Note:</strong> v1 content framework from VOLTRON (CSO). Visual design, final brand voice, typography, print layout, and website CTA copy are MUSASHI (CMO) scope.
+  </div>
+
+  <div class="footer">
+    RPI Engage Wealth™ &bull; Retirement Protectors Inc &bull; #RunningOurOwnRACE &bull; v1 2026-04-10
+  </div>
+
+</div>
+</body>
+</html>
