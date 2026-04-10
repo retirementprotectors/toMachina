@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Client Roadmap Template System — Discovery Doc</title>
+<style>
+:root { --bg: #0a0e17; --card: #111827; --card2: #1a2236; --border: #1e293b; --text: #e2e8f0; --muted: #94a3b8; --rpi-blue: #4a7ab5; --green: #22c55e; --gold: #d4a44c; --cyan: #06b6d4; --purple: #a855f7; --orange: #f59e0b; --red: #ef4444; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+.header { background: linear-gradient(135deg, #020b1a 0%, #0f1a2a 40%, #020b1a 80%); border-bottom: 1px solid var(--border); padding: 60px 32px; text-align: center; position: relative; overflow: hidden; }
+.header::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(ellipse at 30% 50%, rgba(74,122,181,0.1) 0%, transparent 50%), radial-gradient(ellipse at 70% 50%, rgba(212,164,76,0.05) 0%, transparent 50%); pointer-events: none; }
+.header h1 { font-size: 3rem; font-weight: 900; letter-spacing: 2px; background: linear-gradient(135deg, var(--rpi-blue), var(--gold), var(--rpi-blue)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 12px; position: relative; line-height: 1.1; }
+.header .subtitle { font-size: 1.15rem; color: var(--muted); position: relative; max-width: 620px; margin: 0 auto 16px; }
+.header .byline { font-size: 0.72rem; color: var(--rpi-blue); letter-spacing: 2px; text-transform: uppercase; font-weight: 700; position: relative; }
+.header .meta { font-size: 0.78rem; color: var(--muted); margin-top: 8px; position: relative; }
+.content { max-width: 960px; margin: 0 auto; padding: 40px 24px 60px; }
+section { margin-bottom: 48px; }
+section h2 { font-size: 1.6rem; font-weight: 800; color: var(--gold); margin-bottom: 8px; letter-spacing: 0.5px; }
+section .lead { color: var(--muted); font-size: 0.95rem; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 28px; margin-bottom: 18px; }
+.card h3 { font-size: 1.1rem; color: var(--text); margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+.card h3 .num { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; background: rgba(74,122,181,0.15); color: var(--rpi-blue); font-size: 0.78rem; font-weight: 800; }
+.card p { color: var(--muted); font-size: 0.92rem; margin-bottom: 12px; }
+.card p strong { color: var(--text); }
+.card ul { margin-left: 22px; color: var(--muted); font-size: 0.88rem; }
+.card ul li { margin-bottom: 6px; }
+.callout { background: rgba(6,182,212,0.06); border: 1px solid rgba(6,182,212,0.25); border-left: 4px solid var(--cyan); border-radius: 10px; padding: 16px 20px; margin: 16px 0; font-size: 0.88rem; color: var(--muted); }
+.callout strong { color: var(--cyan); }
+.warning { background: rgba(245,158,11,0.06); border: 1px solid rgba(245,158,11,0.3); border-left: 4px solid var(--orange); border-radius: 10px; padding: 16px 20px; margin: 16px 0; font-size: 0.88rem; color: var(--muted); }
+.warning strong { color: var(--orange); }
+.success { background: rgba(34,197,94,0.06); border: 1px solid rgba(34,197,94,0.3); border-left: 4px solid var(--green); border-radius: 10px; padding: 16px 20px; margin: 16px 0; font-size: 0.88rem; color: var(--muted); }
+.success strong { color: var(--green); }
+table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin: 14px 0; }
+th { text-align: left; padding: 10px 12px; background: var(--card2); color: var(--gold); font-weight: 700; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); }
+td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--muted); vertical-align: top; }
+td:first-child { color: var(--text); font-weight: 500; }
+.stage-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 20px 0; }
+@media (max-width: 720px) { .stage-grid { grid-template-columns: 1fr; } }
+.stage-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 24px; position: relative; overflow: hidden; }
+.stage-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+.stage-card.prosper::before { background: var(--green); }
+.stage-card.preserve::before { background: var(--gold); }
+.stage-card.protect::before { background: var(--purple); }
+.stage-card .stage-name { font-size: 1.3rem; font-weight: 900; letter-spacing: 1px; margin-bottom: 4px; }
+.stage-card.prosper .stage-name { color: var(--green); }
+.stage-card.preserve .stage-name { color: var(--gold); }
+.stage-card.protect .stage-name { color: var(--purple); }
+.stage-card .stage-age { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 12px; }
+.stage-card p { font-size: 0.85rem; color: var(--muted); }
+.story-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 20px 0; }
+@media (max-width: 720px) { .story-grid { grid-template-columns: 1fr; } }
+.story-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 22px; }
+.story-card .story-name { font-size: 1.1rem; font-weight: 800; margin-bottom: 4px; }
+.story-card .pillars { font-size: 0.78rem; color: var(--muted); margin-bottom: 12px; letter-spacing: 0.5px; }
+.story-card .pullquote { font-size: 0.88rem; color: var(--text); font-style: italic; padding: 10px 0; border-top: 1px solid var(--border); margin-top: 10px; }
+.alignment-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 10px 0; padding: 14px; background: var(--card2); border-radius: 10px; border: 1px solid var(--border); }
+@media (max-width: 720px) { .alignment-row { grid-template-columns: 1fr; } }
+.alignment-row .label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 4px; font-weight: 700; }
+.alignment-row .website { color: var(--green); }
+.alignment-row .template { color: var(--rpi-blue); }
+.alignment-row .value { font-size: 0.88rem; color: var(--text); }
+.question { background: var(--card2); border: 1px solid var(--border); border-left: 4px solid var(--orange); border-radius: 10px; padding: 18px 22px; margin: 16px 0; }
+.question .q-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: var(--orange); font-weight: 700; margin-bottom: 6px; }
+.question .q-body { font-size: 0.92rem; color: var(--text); margin-bottom: 10px; }
+.question .q-options { font-size: 0.85rem; color: var(--muted); }
+.question .q-options ul { margin-left: 18px; }
+.footer { text-align: center; padding: 28px; color: var(--muted); font-size: 0.72rem; border-top: 1px solid var(--border); margin-top: 40px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Client Roadmap Template System</h1>
+  <div class="subtitle">A registered library of reusable templates for every client meeting — Discovery, Analysis + Recommendations, and Implementation — anchored to the <em>RPI Way™</em>.</div>
+  <div class="byline">Discovery Doc · VOLTRON (CSO)</div>
+  <div class="meta">v1 · 2026-04-10 · Between JDM's vision and the execution</div>
+</div>
+
+<div class="content">
+
+<!-- THE WHY -->
+<section>
+  <h2>Why This Exists</h2>
+  <div class="lead">Every RPI client deserves the same quality of preparation. The current pattern — hand-building one-off HTML inventories per client — doesn&rsquo;t scale past 20 cases and loses the consistency that makes RPI&rsquo;s service promise credible.</div>
+
+  <div class="card">
+    <h3><span class="num">1</span>The Problem</h3>
+    <p>Kim Ruth's Client Roadmap (shipped 2026-04-09) was a <strong>one-off</strong>. 9 tabs, hand-crafted HTML, case-specific field names, ~800 lines of markup. Beautiful for one client. Impossible to replicate consistently for the next 100.</p>
+    <p>The same problem exists in Discovery meetings, Analysis + Recommendation meetings, and Implementation onboarding. Every time we build a client-facing artifact from scratch, we:</p>
+    <ul>
+      <li>Lose consistency (different Advisors produce different documents)</li>
+      <li>Lose brand voice (every pass drifts from The RPI Way™)</li>
+      <li>Duplicate effort (same structure rebuilt 100 times)</li>
+      <li>Block reuse across modalities (screen + print + web are separate workstreams)</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3><span class="num">2</span>The Approach</h3>
+    <p><strong>Create + Register WHILE Building.</strong> Every reusable pattern becomes a named template with an ID, an owner, a version, and a registry entry. When we find a new pattern — a new VIEW, a new meeting structure, a new story — we promote it to the registry and it becomes available to every future client case.</p>
+    <p>The Kim Ruth work becomes the <em>first populated instance</em> of the templates, not the templates themselves. The templates live in <code>docs/templates/</code> and are referenced (not copied) by individual client cases.</p>
+  </div>
+</section>
+
+<!-- WEBSITE ALIGNMENT -->
+<section>
+  <h2>Alignment to retireprotected.com</h2>
+  <div class="lead">The Template System isn&rsquo;t inventing language — it&rsquo;s systematizing what&rsquo;s already on the website. Every trademark, every pillar, every concept below is pulled directly from the existing site copy at <a href="https://retireprotected.com/" style="color:var(--cyan)">retireprotected.com</a>.</div>
+
+  <div class="success">
+    <strong>Verified on 2026-04-10:</strong> I fetched the live website and mapped every Story 1-Pager pillar to existing site language. <strong>It all lines up clean.</strong> Below is the alignment matrix.
+  </div>
+
+  <h3 style="color:var(--text); font-size:1rem; margin:20px 0 10px">Alignment Matrix</h3>
+
+  <div class="alignment-row">
+    <div>
+      <div class="label website">Website (retireprotected.com)</div>
+      <div class="value">Hero tagline: <em>"If You're Approaching Retirement, Recently Retired or Currently Living the Dream, <strong>We're Your People.™</strong>"</em></div>
+    </div>
+    <div>
+      <div class="label template">Template</div>
+      <div class="value"><code>tpl.story.were-your-people</code> — 3 pillars: NewBiz · Reactive · Proactive Service Model™</div>
+    </div>
+  </div>
+
+  <div class="alignment-row">
+    <div>
+      <div class="label website">Website</div>
+      <div class="value">Wealth pillar: <em>"Safety, liquidity or growth? With our strategies, you can have it all"</em></div>
+    </div>
+    <div>
+      <div class="label template">Template</div>
+      <div class="value"><code>tpl.story.engage-wealth</code> — 3 pillars: SAFETY · LIQUIDITY · GROWTH</div>
+    </div>
+  </div>
+
+  <div class="alignment-row">
+    <div>
+      <div class="label website">Website</div>
+      <div class="value">Legacy pillar: inheritance planning + protection from govt/LTC costs</div>
+    </div>
+    <div>
+      <div class="label template">Template</div>
+      <div class="value"><code>tpl.story.engage-legacy</code> — 3 pillars: CHILDREN · CARE · CHARITY (the CARE pillar is LTC, directly mapped from the site&rsquo;s protection-from-LTC-costs framing)</div>
+    </div>
+  </div>
+
+  <div class="alignment-row">
+    <div>
+      <div class="label website">Website</div>
+      <div class="value">4-Step Methodology: Discovery → Analysis &amp; Recommendation → Implementation → Proactive Service Model™</div>
+    </div>
+    <div>
+      <div class="label template">Template</div>
+      <div class="value">Template system is built around these 4 steps. Currently: PRESERVE Stage Analysis = step 2. Planned: Discovery Recap = step 1, NewBiz Process = step 3, Proactive = ongoing.</div>
+    </div>
+  </div>
+
+  <div class="alignment-row">
+    <div>
+      <div class="label website">Website</div>
+      <div class="value">Decision Framework: <em>Stage</em> (Pre-retirement / Active / Enrichment)</div>
+    </div>
+    <div>
+      <div class="label template">Template</div>
+      <div class="value">Stages renamed to <strong>PROSPER / PRESERVE / PROTECT</strong> — same concept, tighter language. Each stage surfaces a different subset of the 8 VIEWs.</div>
+    </div>
+  </div>
+
+  <div class="alignment-row">
+    <div>
+      <div class="label website">Website</div>
+      <div class="value">3 Service Areas: Health · Wealth · Legacy</div>
+    </div>
+    <div>
+      <div class="label template">Template</div>
+      <div class="value">8 VIEWs subdivide the 3 areas. Service Team + Health Care + Extended Care covers "Health". Portfolio + Accumulation + Income covers "Wealth". Estate + Legacy covers "Legacy".</div>
+    </div>
+  </div>
+</section>
+
+<!-- THE 3 STAGES -->
+<section>
+  <h2>The 3 Stages</h2>
+  <div class="lead">Every client is in one of three stages. The Analysis template adapts to the client's current stage — surfacing relevant VIEWs and suppressing irrelevant ones.</div>
+
+  <div class="stage-grid">
+    <div class="stage-card prosper">
+      <div class="stage-name">PROSPER</div>
+      <div class="stage-age">Accumulation Phase · typical age 30s–50s</div>
+      <p>Client is building wealth. Still working. Growth is the priority. Estate planning is present but not urgent.</p>
+    </div>
+    <div class="stage-card preserve">
+      <div class="stage-name">PRESERVE</div>
+      <div class="stage-age">Transition Phase · typical age 55–75</div>
+      <p>Client is at or near retirement. Protecting what they've built while still growing select assets. Income planning becomes critical. LTC readiness matters.</p>
+    </div>
+    <div class="stage-card protect">
+      <div class="stage-name">PROTECT</div>
+      <div class="stage-age">Distribution + Legacy Phase · typical age 70+</div>
+      <p>Client is drawing income. Focused on transfer strategy, estate completeness, and charitable intent. Growth is secondary to income durability and legacy optimization.</p>
+    </div>
+  </div>
+
+  <div class="callout">
+    <strong>Kim Ruth is in PRESERVE.</strong> 71-year-old farmer, single, no children, sister as sole beneficiary. His A+R meeting next week uses <code>tpl.preserve-stage-analysis</code> with all 8 VIEWs surfaced.
+  </div>
+</section>
+
+<!-- THE 8 VIEWS -->
+<section>
+  <h2>The 8 VIEWs</h2>
+  <div class="lead">Each VIEW is a self-contained analytical lens. The 8 VIEWs collectively form the complete picture of a client's financial life across Health, Wealth, and Legacy.</div>
+
+  <table>
+    <tr>
+      <th>#</th>
+      <th>VIEW</th>
+      <th>PROSPER</th>
+      <th>PRESERVE</th>
+      <th>PROTECT</th>
+      <th>Maps To (Website)</th>
+    </tr>
+    <tr><td>1</td><td>Service Team</td><td>✓</td><td>✓</td><td>✓</td><td>The RPI Way™</td></tr>
+    <tr><td>2</td><td>Health Care</td><td>◐</td><td>✓</td><td>✓</td><td>Health pillar</td></tr>
+    <tr><td>3</td><td>Extended Care</td><td>◐</td><td>✓</td><td>✓</td><td>Health + LTC</td></tr>
+    <tr><td>4</td><td>Portfolio</td><td>✓</td><td>✓</td><td>✓</td><td>Wealth pillar (snapshot)</td></tr>
+    <tr><td>5</td><td>Accumulation</td><td>✓</td><td>✓</td><td>◐</td><td>Wealth pillar (growth)</td></tr>
+    <tr><td>6</td><td>Income</td><td>◐</td><td>✓</td><td>✓</td><td>Wealth pillar (distribution)</td></tr>
+    <tr><td>7</td><td>Estate</td><td>◐</td><td>✓</td><td>✓</td><td>Legacy pillar (documents)</td></tr>
+    <tr><td>8</td><td>Legacy</td><td>—</td><td>✓</td><td>✓</td><td>Legacy pillar (transfer)</td></tr>
+  </table>
+  <p style="font-size:0.78rem; color:var(--muted); margin-top:8px">✓ Core · ◐ Contextual · — Not surfaced at this stage</p>
+</section>
+
+<!-- THE 3 STORIES -->
+<section>
+  <h2>The 3 Story 1-Pagers</h2>
+  <div class="lead">Three named stories that appear in three places: Client Roadmap tabs, printed meeting handouts, and retireprotected.com website CTAs. Same story, three surfaces, one voice.</div>
+
+  <div class="story-grid">
+    <div class="story-card">
+      <div class="story-name" style="color:var(--green)">We're Your People™</div>
+      <div class="pillars">NewBiz · Reactive · Proactive Service Model™</div>
+      <p style="font-size:0.85rem;color:var(--muted)">The service promise. How RPI shows up: on day one, when you call, and when you haven&rsquo;t.</p>
+      <div class="pullquote">"Most firms answer when you call. We call before you would have."</div>
+    </div>
+    <div class="story-card">
+      <div class="story-name" style="color:var(--cyan)">RPI Engage Wealth™</div>
+      <div class="pillars">SAFETY · LIQUIDITY · GROWTH</div>
+      <p style="font-size:0.85rem;color:var(--muted)">The wealth preservation story. You can&rsquo;t have all three at 100% — we build your mix.</p>
+      <div class="pullquote">"You can't have all three at 100%. Every product makes a trade-off. Our job is to build your mix."</div>
+    </div>
+    <div class="story-card">
+      <div class="story-name" style="color:var(--gold)">RPI Engage Legacy™</div>
+      <div class="pillars">CHILDREN · CARE · CHARITY</div>
+      <p style="font-size:0.85rem;color:var(--muted)">The legacy conversation. LTC belongs <em>inside</em> the legacy story, not outside it.</p>
+      <div class="pullquote">"The question isn't whether you'll leave a legacy — it's whether you'll leave the one you wanted."</div>
+    </div>
+  </div>
+
+  <div class="callout">
+    <strong>Cross-channel parity:</strong> Each story renders in all 3 surfaces — screen (Client Roadmap tab), print (meeting handout), and web (retireprotected.com CTA). VOLTRON owns the content framework, MUSASHI owns the visual + brand layer.
+  </div>
+</section>
+
+<!-- OWNERSHIP -->
+<section>
+  <h2>Ownership Split</h2>
+  <div class="lead">Clean scope lines so CSO and CMO don&rsquo;t collide. Content vs. creative is a hard boundary.</div>
+
+  <table>
+    <tr>
+      <th>Layer</th>
+      <th>Owner</th>
+      <th>Examples</th>
+    </tr>
+    <tr>
+      <td><strong style="color:var(--rpi-blue)">Content Framework</strong></td>
+      <td>VOLTRON (CSO)</td>
+      <td>Data structure, view definitions, headings, stat grids, technical accuracy, ProDashX data model alignment, compliance pre-flagging</td>
+    </tr>
+    <tr>
+      <td><strong style="color:var(--purple)">Visual Design</strong></td>
+      <td>MUSASHI (CMO)</td>
+      <td>Typography hierarchy, brand voice polish, final copy, print layout (bleed/margin/trim), CMYK palette, web CTA copy, photography direction</td>
+    </tr>
+    <tr>
+      <td><strong style="color:var(--gold)">Compliance</strong></td>
+      <td>MUSASHI (CMO) + Legal</td>
+      <td>Carrier-specific anchoring on stat-rows, disclosures, trademark treatment</td>
+    </tr>
+    <tr>
+      <td><strong style="color:var(--green)">Visual Assets</strong></td>
+      <td>JDM (art direction)</td>
+      <td>Logos, icons, brand marks. <strong>Absolute rule: no warrior generates these. Ever.</strong></td>
+    </tr>
+  </table>
+</section>
+
+<!-- REGISTRY -->
+<section>
+  <h2>The Registry</h2>
+  <div class="lead">Every template has an ID, an owner, a version, and a status. <code>docs/templates/REGISTRY.md</code> is the source of truth.</div>
+
+  <table>
+    <tr>
+      <th>ID</th>
+      <th>Name</th>
+      <th>Status</th>
+    </tr>
+    <tr><td><code>tpl.preserve-stage-analysis</code></td><td>RPI PRESERVE Stage Analysis</td><td style="color:var(--green)">v1 Active</td></tr>
+    <tr><td><code>tpl.story.were-your-people</code></td><td>We're Your People™</td><td style="color:var(--orange)">v1 Framed (awaiting design pass)</td></tr>
+    <tr><td><code>tpl.story.engage-wealth</code></td><td>RPI Engage Wealth™</td><td style="color:var(--orange)">v1 Framed</td></tr>
+    <tr><td><code>tpl.story.engage-legacy</code></td><td>RPI Engage Legacy™</td><td style="color:var(--orange)">v1 Framed</td></tr>
+    <tr><td><code>tpl.prosper-stage-analysis</code></td><td>PROSPER Stage Analysis</td><td style="color:var(--muted)">Planned</td></tr>
+    <tr><td><code>tpl.protect-stage-analysis</code></td><td>PROTECT Stage Analysis</td><td style="color:var(--muted)">Planned</td></tr>
+    <tr><td><code>tpl.ar-meeting-agenda</code></td><td>Analysis + Recommendations Agenda</td><td style="color:var(--muted)">Planned</td></tr>
+    <tr><td><code>tpl.discovery-recap</code></td><td>Discovery Needs/Concerns Recap</td><td style="color:var(--muted)">Planned</td></tr>
+    <tr><td><code>tpl.next-steps</code></td><td>Next Steps (NewBiz onboarding)</td><td style="color:var(--muted)">Planned</td></tr>
+  </table>
+</section>
+
+<!-- OPEN QUESTIONS -->
+<section>
+  <h2>Open Questions for Sensei</h2>
+  <div class="lead">Decisions I can&rsquo;t make alone. Each gates a downstream workstream.</div>
+
+  <div class="question">
+    <div class="q-label">Question 1 · Trademarks</div>
+    <div class="q-body">What is the legal status of the four trademarks on the story pagers? MUSASHI is holding final type until she knows how to treat each one.</div>
+    <div class="q-options">
+      <p>Per the website fetch, <strong>We're Your People™</strong>, <strong>The RPI Way™</strong>, <strong>Proactive Service Model™</strong>, and the <strong>Engage</strong> family (Engage Live™, Engage Direct™, Engage Insights™, Engage Alerts™) are already publicly used. But <strong>RPI Engage Wealth™</strong> and <strong>RPI Engage Legacy™</strong> are <em>not</em> currently on the website. Are they:</p>
+      <ul>
+        <li><strong>Filed</strong> — USPTO status, full trademark treatment</li>
+        <li><strong>Claimed</strong> — publicly used, common-law trademark posture</li>
+        <li><strong>Aspirational</strong> — stake being planted, intended for future filing</li>
+        <li><strong>Internal shorthand</strong> — not meant as legal marks at all</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="question">
+    <div class="q-label">Question 2 · Engage Product Family Conflict</div>
+    <div class="q-body">The website uses "Engage" as a <strong>client communication system family</strong> (Engage Live / Direct / Insights / Alerts). My Story 1-Pagers name them <strong>RPI Engage Wealth™</strong> and <strong>RPI Engage Legacy™</strong> as product stories.</div>
+    <div class="q-options">
+      <p>Is "Engage" meant to be the umbrella brand for both (client comms + product stories), or should the product stories get different branding to avoid collision with the comms family?</p>
+    </div>
+  </div>
+
+  <div class="question">
+    <div class="q-label">Question 3 · Stage Language</div>
+    <div class="q-body">The website uses <strong>"Pre-retirement / Active / Enrichment"</strong> as the 3 stage labels. The templates use <strong>PROSPER / PRESERVE / PROTECT</strong>.</div>
+    <div class="q-options">
+      <p>Is PROSPER/PRESERVE/PROTECT an evolution of the website language (should the website update to match), or should the templates use the existing website labels for consistency?</p>
+    </div>
+  </div>
+
+  <div class="question">
+    <div class="q-label">Question 4 · Scope Approval: CD Replacement Tool</div>
+    <div class="q-body">Ruth's $1M CD maturity wave needs a <code>calc-cd-vs-annuity</code> atomic tool + <code>ANALYZE_CD_REPLACEMENT</code> super tool. APPA says the activity (Ruth's case) justifies the build.</div>
+    <div class="q-options">
+      <p>Is this VOLTRON scope (CSO specifies + consumes) or MEGAZORD scope (CIO builds in ATLAS)? My read: atomic tool build = MEGAZORD, VOLTRON writes the Discovery Doc with the tool spec.</p>
+    </div>
+  </div>
+
+  <div class="question">
+    <div class="q-label">Question 5 · Living Will field in EstateTab</div>
+    <div class="q-body">The PRESERVE Stage Analysis Estate VIEW references 6 estate questions. ProDashX EstateTab currently has 5. Living Will / Advance Directive is the proposed 6th.</div>
+    <div class="q-options">
+      <p>Add the field to EstateTab now (trivial scope) or wait until a later sprint?</p>
+    </div>
+  </div>
+</section>
+
+<!-- NEXT STEPS -->
+<section>
+  <h2>What Happens Next</h2>
+  <div class="lead">Concrete path from v1 to production-ready, broken down by who&rsquo;s blocked on whom.</div>
+
+  <div class="card">
+    <h3><span class="num">1</span>Immediate (post-Kim-Ruth meeting data)</h3>
+    <ul>
+      <li>Archer's uploads populate Kim's PRESERVE template with real data (LTC from Davies, tax returns, land/estate/sister/friend details)</li>
+      <li>A+R Meeting tabs added to Kim's specific roadmap</li>
+      <li>First real run of <code>WIRE_MGE_DETAILED</code> against Kim's household to produce the Recommendation casework</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3><span class="num">2</span>Near-term (this week)</h3>
+    <ul>
+      <li>VOLTRON builds remaining template IDs: <code>tpl.prosper-stage-analysis</code>, <code>tpl.protect-stage-analysis</code>, <code>tpl.ar-meeting-agenda</code>, <code>tpl.discovery-recap</code>, <code>tpl.next-steps</code></li>
+      <li>MUSASHI (when released from standdown) takes v1 frames to v2: typography, brand voice polish, print specs, CMYK, web CTA copy</li>
+      <li>Sensei answers the 5 open questions above</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3><span class="num">3</span>Strategic (collapses two roadmap items)</h3>
+    <ul>
+      <li>MUSASHI flagged that the Engage Wealth + Engage Legacy pagers slot directly into her existing CMO Creative Roadmap Priority <strong>A1</strong> (POS Brochures digital parity) and <strong>B1</strong> (Website CTAs)</li>
+      <li>This work collapses two separate CMO roadmap items into one coherent framework</li>
+      <li>When v2 ships, the same source drives the Client Roadmap tab, the printed meeting handout, AND the retireprotected.com landing page — one source of truth</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3><span class="num">4</span>Long-term (APPA Stage 3 → Stage 4)</h3>
+    <ul>
+      <li>Template system matures into a <strong>generator</strong>: client data (from ProDashX) + template ID → populated HTML + PDF + web landing page automatically</li>
+      <li>Eventually wired into <code>WIRE_MGE_DETAILED</code> so the A+R meeting prep is an automated pipeline, not a manual build</li>
+      <li>VOLTRON specialists dispatch templates at runtime based on client stage, carrier, and product fit</li>
+    </ul>
+  </div>
+</section>
+
+<div class="footer">
+  Discovery Doc · VOLTRON (CSO) · 2026-04-10 · v1<br>
+  Filed in <code>docs/vision/</code> following existing Discovery Doc pattern<br>
+  #RunningOurOwnRACE
+</div>
+
+</div>
+</body>
+</html>
