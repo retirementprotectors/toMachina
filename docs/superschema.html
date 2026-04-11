@@ -1302,130 +1302,1384 @@ MEGAZORD CIO | 12,126 accounts scanned | All locked decisions preserved</div>
 <div class="panel" id="p_Orphaned Fields">
 <div class="orphan-title"><strong>💀 Orphaned Firestore Fields</strong> — these exist in our database but do NOT map to any GHL field JDM designed. Candidates for review: keep (platform-specific), rename (alias), or delete (garbage).</div>
 <div class="sec"><div class="sec-h">Annuity — 89 orphaned fields (showing top 30)<span>▼</span></div>
-<div><table><tr><th>Firestore Field</th><th>Count</th><th>Sample</th><th>Assessment</th></tr>
-<tr><td class="fs">account_type_category</td><td class="count">1019</td><td class="sample">annuity</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">client_id</td><td class="count">1019</td><td class="sample">00abef9f-5bde-40cb-b112-7ac51aabbe17</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">_source</td><td class="count">1016</td><td class="sample">ghl_export_20260316</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">import_source</td><td class="count">1008</td><td class="sample">GHL_BULK</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">carrier_id</td><td class="count">1008</td><td class="sample">jackson-national</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">_migrated_at</td><td class="count">1007</td><td class="sample">2026-03-10T22:10:57.883Z</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">annuity_id</td><td class="count">1005</td><td class="sample">accde153-9a19-4d33-8971-837994265563</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">_fixed_at</td><td class="count">979</td><td class="sample">2026-03-11T06:56:49.781Z</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">account_number</td><td class="count">959</td><td class="sample">1018545884</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">ghl_contact_id</td><td class="count">897</td><td class="sample">vcNCNAJiIOpS5Zfz8JjP</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">account_id</td><td class="count">889</td><td class="sample">1c3b7e4e-a7c9-4f3a-9526-d7c312bb1b5d</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">ghl_object_id</td><td class="count">811</td><td class="sample">6844073a5e0dad3310fc5acb</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">_import_source</td><td class="count">807</td><td class="sample">GHL_BULK</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">acf_link</td><td class="count">305</td><td class="sample">https://drive.google.com/drive/folders/1l0wz86_QCX</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">account_owner</td><td class="count">214</td><td class="sample">SHERLYN SILVERS</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">_normalized_at</td><td class="count">137</td><td class="sample">2026-03-11T06:56:15.865Z</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">_carrier_resolution_method</td><td class="count">39</td><td class="sample">fuzzy</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">_carrier_resolved_from</td><td class="count">39</td><td class="sample">F&G Life</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">annuitant</td><td class="count">39</td><td class="sample">Carolyn J Walker</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">contract_number</td><td class="count">38</td><td class="sample">1299163</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">fixed_rate</td><td class="count">37</td><td class="sample">3.5</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">writing_agent_id</td><td class="count">37</td><td class="sample">1346</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">_deactivated_at</td><td class="count">28</td><td class="sample">2026-03-18T02:33:49.863Z</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">_deactivated_reason</td><td class="count">28</td><td class="sample">KCL ghost review — client deleted</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">issue_age</td><td class="count">25</td><td class="sample">72</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">maturity_date</td><td class="count">22</td><td class="sample">2009-04-01</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">beneficiary</td><td class="count">20</td><td class="sample">P-JON HAMANN-SON</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">premium</td><td class="count">19</td><td class="sample">50000</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">total_transactions</td><td class="count">18</td><td class="sample">14</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">_extraction_tool</td><td class="count">18</td><td class="sample">super-extract-pdf</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
+<div><table><tr><th>Firestore Field</th><th>Count</th><th>Sample</th><th>Action</th><th>Rename→</th><th>Notes</th></tr>
+<tr id="o_account_type_category">
+<td class="fs">account_type_category</td>
+<td class="count">1019</td>
+<td class="sample">annuity</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('account_type_category','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('account_type_category','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('account_type_category','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_account_type_category" placeholder="rename to..." oninput="setOrphanRename('account_type_category',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_account_type_category" placeholder="notes..." oninput="setOrphanNote('account_type_category',this.value)"></td>
+</tr>
+<tr id="o_client_id">
+<td class="fs">client_id</td>
+<td class="count">1019</td>
+<td class="sample">00abef9f-5bde-40cb-b112-7ac51aabbe17</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('client_id','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('client_id','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('client_id','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_client_id" placeholder="rename to..." oninput="setOrphanRename('client_id',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_client_id" placeholder="notes..." oninput="setOrphanNote('client_id',this.value)"></td>
+</tr>
+<tr id="o__source">
+<td class="fs">_source</td>
+<td class="count">1016</td>
+<td class="sample">ghl_export_20260316</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_source','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_source','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_source','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn__source" placeholder="rename to..." oninput="setOrphanRename('_source',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt__source" placeholder="notes..." oninput="setOrphanNote('_source',this.value)"></td>
+</tr>
+<tr id="o_import_source">
+<td class="fs">import_source</td>
+<td class="count">1008</td>
+<td class="sample">GHL_BULK</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('import_source','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('import_source','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('import_source','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_import_source" placeholder="rename to..." oninput="setOrphanRename('import_source',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_import_source" placeholder="notes..." oninput="setOrphanNote('import_source',this.value)"></td>
+</tr>
+<tr id="o_carrier_id">
+<td class="fs">carrier_id</td>
+<td class="count">1008</td>
+<td class="sample">jackson-national</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('carrier_id','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('carrier_id','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('carrier_id','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_carrier_id" placeholder="rename to..." oninput="setOrphanRename('carrier_id',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_carrier_id" placeholder="notes..." oninput="setOrphanNote('carrier_id',this.value)"></td>
+</tr>
+<tr id="o__migrated_at">
+<td class="fs">_migrated_at</td>
+<td class="count">1007</td>
+<td class="sample">2026-03-10T22:10:57.883Z</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_migrated_at','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_migrated_at','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_migrated_at','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn__migrated_at" placeholder="rename to..." oninput="setOrphanRename('_migrated_at',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt__migrated_at" placeholder="notes..." oninput="setOrphanNote('_migrated_at',this.value)"></td>
+</tr>
+<tr id="o_annuity_id">
+<td class="fs">annuity_id</td>
+<td class="count">1005</td>
+<td class="sample">accde153-9a19-4d33-8971-837994265563</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('annuity_id','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('annuity_id','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('annuity_id','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_annuity_id" placeholder="rename to..." oninput="setOrphanRename('annuity_id',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_annuity_id" placeholder="notes..." oninput="setOrphanNote('annuity_id',this.value)"></td>
+</tr>
+<tr id="o__fixed_at">
+<td class="fs">_fixed_at</td>
+<td class="count">979</td>
+<td class="sample">2026-03-11T06:56:49.781Z</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_fixed_at','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_fixed_at','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_fixed_at','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn__fixed_at" placeholder="rename to..." oninput="setOrphanRename('_fixed_at',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt__fixed_at" placeholder="notes..." oninput="setOrphanNote('_fixed_at',this.value)"></td>
+</tr>
+<tr id="o_account_number">
+<td class="fs">account_number</td>
+<td class="count">959</td>
+<td class="sample">1018545884</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('account_number','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('account_number','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('account_number','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_account_number" placeholder="rename to..." oninput="setOrphanRename('account_number',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_account_number" placeholder="notes..." oninput="setOrphanNote('account_number',this.value)"></td>
+</tr>
+<tr id="o_ghl_contact_id">
+<td class="fs">ghl_contact_id</td>
+<td class="count">897</td>
+<td class="sample">vcNCNAJiIOpS5Zfz8JjP</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('ghl_contact_id','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('ghl_contact_id','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('ghl_contact_id','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_ghl_contact_id" placeholder="rename to..." oninput="setOrphanRename('ghl_contact_id',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_ghl_contact_id" placeholder="notes..." oninput="setOrphanNote('ghl_contact_id',this.value)"></td>
+</tr>
+<tr id="o_account_id">
+<td class="fs">account_id</td>
+<td class="count">889</td>
+<td class="sample">1c3b7e4e-a7c9-4f3a-9526-d7c312bb1b5d</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('account_id','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('account_id','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('account_id','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_account_id" placeholder="rename to..." oninput="setOrphanRename('account_id',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_account_id" placeholder="notes..." oninput="setOrphanNote('account_id',this.value)"></td>
+</tr>
+<tr id="o_ghl_object_id">
+<td class="fs">ghl_object_id</td>
+<td class="count">811</td>
+<td class="sample">6844073a5e0dad3310fc5acb</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('ghl_object_id','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('ghl_object_id','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('ghl_object_id','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_ghl_object_id" placeholder="rename to..." oninput="setOrphanRename('ghl_object_id',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_ghl_object_id" placeholder="notes..." oninput="setOrphanNote('ghl_object_id',this.value)"></td>
+</tr>
+<tr id="o__import_source">
+<td class="fs">_import_source</td>
+<td class="count">807</td>
+<td class="sample">GHL_BULK</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_import_source','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_import_source','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_import_source','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn__import_source" placeholder="rename to..." oninput="setOrphanRename('_import_source',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt__import_source" placeholder="notes..." oninput="setOrphanNote('_import_source',this.value)"></td>
+</tr>
+<tr id="o_acf_link">
+<td class="fs">acf_link</td>
+<td class="count">305</td>
+<td class="sample">https://drive.google.com/drive/folders/1l0wz86_QCX</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('acf_link','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('acf_link','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('acf_link','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_acf_link" placeholder="rename to..." oninput="setOrphanRename('acf_link',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_acf_link" placeholder="notes..." oninput="setOrphanNote('acf_link',this.value)"></td>
+</tr>
+<tr id="o_account_owner">
+<td class="fs">account_owner</td>
+<td class="count">214</td>
+<td class="sample">SHERLYN SILVERS</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('account_owner','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('account_owner','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('account_owner','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_account_owner" placeholder="rename to..." oninput="setOrphanRename('account_owner',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_account_owner" placeholder="notes..." oninput="setOrphanNote('account_owner',this.value)"></td>
+</tr>
+<tr id="o__normalized_at">
+<td class="fs">_normalized_at</td>
+<td class="count">137</td>
+<td class="sample">2026-03-11T06:56:15.865Z</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_normalized_at','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_normalized_at','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_normalized_at','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn__normalized_at" placeholder="rename to..." oninput="setOrphanRename('_normalized_at',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt__normalized_at" placeholder="notes..." oninput="setOrphanNote('_normalized_at',this.value)"></td>
+</tr>
+<tr id="o__carrier_resolution_method">
+<td class="fs">_carrier_resolution_method</td>
+<td class="count">39</td>
+<td class="sample">fuzzy</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_carrier_resolution_method','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_carrier_resolution_method','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_carrier_resolution_method','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn__carrier_resolution_method" placeholder="rename to..." oninput="setOrphanRename('_carrier_resolution_method',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt__carrier_resolution_method" placeholder="notes..." oninput="setOrphanNote('_carrier_resolution_method',this.value)"></td>
+</tr>
+<tr id="o__carrier_resolved_from">
+<td class="fs">_carrier_resolved_from</td>
+<td class="count">39</td>
+<td class="sample">F&G Life</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_carrier_resolved_from','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_carrier_resolved_from','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_carrier_resolved_from','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn__carrier_resolved_from" placeholder="rename to..." oninput="setOrphanRename('_carrier_resolved_from',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt__carrier_resolved_from" placeholder="notes..." oninput="setOrphanNote('_carrier_resolved_from',this.value)"></td>
+</tr>
+<tr id="o_annuitant">
+<td class="fs">annuitant</td>
+<td class="count">39</td>
+<td class="sample">Carolyn J Walker</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('annuitant','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('annuitant','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('annuitant','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_annuitant" placeholder="rename to..." oninput="setOrphanRename('annuitant',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_annuitant" placeholder="notes..." oninput="setOrphanNote('annuitant',this.value)"></td>
+</tr>
+<tr id="o_contract_number">
+<td class="fs">contract_number</td>
+<td class="count">38</td>
+<td class="sample">1299163</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('contract_number','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('contract_number','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('contract_number','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_contract_number" placeholder="rename to..." oninput="setOrphanRename('contract_number',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_contract_number" placeholder="notes..." oninput="setOrphanNote('contract_number',this.value)"></td>
+</tr>
+<tr id="o_fixed_rate">
+<td class="fs">fixed_rate</td>
+<td class="count">37</td>
+<td class="sample">3.5</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('fixed_rate','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('fixed_rate','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('fixed_rate','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_fixed_rate" placeholder="rename to..." oninput="setOrphanRename('fixed_rate',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_fixed_rate" placeholder="notes..." oninput="setOrphanNote('fixed_rate',this.value)"></td>
+</tr>
+<tr id="o_writing_agent_id">
+<td class="fs">writing_agent_id</td>
+<td class="count">37</td>
+<td class="sample">1346</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('writing_agent_id','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('writing_agent_id','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('writing_agent_id','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_writing_agent_id" placeholder="rename to..." oninput="setOrphanRename('writing_agent_id',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_writing_agent_id" placeholder="notes..." oninput="setOrphanNote('writing_agent_id',this.value)"></td>
+</tr>
+<tr id="o__deactivated_at">
+<td class="fs">_deactivated_at</td>
+<td class="count">28</td>
+<td class="sample">2026-03-18T02:33:49.863Z</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_deactivated_at','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_deactivated_at','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_deactivated_at','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn__deactivated_at" placeholder="rename to..." oninput="setOrphanRename('_deactivated_at',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt__deactivated_at" placeholder="notes..." oninput="setOrphanNote('_deactivated_at',this.value)"></td>
+</tr>
+<tr id="o__deactivated_reason">
+<td class="fs">_deactivated_reason</td>
+<td class="count">28</td>
+<td class="sample">KCL ghost review — client deleted</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_deactivated_reason','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_deactivated_reason','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_deactivated_reason','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn__deactivated_reason" placeholder="rename to..." oninput="setOrphanRename('_deactivated_reason',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt__deactivated_reason" placeholder="notes..." oninput="setOrphanNote('_deactivated_reason',this.value)"></td>
+</tr>
+<tr id="o_issue_age">
+<td class="fs">issue_age</td>
+<td class="count">25</td>
+<td class="sample">72</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('issue_age','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('issue_age','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('issue_age','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_issue_age" placeholder="rename to..." oninput="setOrphanRename('issue_age',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_issue_age" placeholder="notes..." oninput="setOrphanNote('issue_age',this.value)"></td>
+</tr>
+<tr id="o_maturity_date">
+<td class="fs">maturity_date</td>
+<td class="count">22</td>
+<td class="sample">2009-04-01</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('maturity_date','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('maturity_date','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('maturity_date','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_maturity_date" placeholder="rename to..." oninput="setOrphanRename('maturity_date',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_maturity_date" placeholder="notes..." oninput="setOrphanNote('maturity_date',this.value)"></td>
+</tr>
+<tr id="o_beneficiary">
+<td class="fs">beneficiary</td>
+<td class="count">20</td>
+<td class="sample">P-JON HAMANN-SON</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('beneficiary','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('beneficiary','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('beneficiary','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_beneficiary" placeholder="rename to..." oninput="setOrphanRename('beneficiary',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_beneficiary" placeholder="notes..." oninput="setOrphanNote('beneficiary',this.value)"></td>
+</tr>
+<tr id="o_premium">
+<td class="fs">premium</td>
+<td class="count">19</td>
+<td class="sample">50000</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('premium','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('premium','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('premium','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_premium" placeholder="rename to..." oninput="setOrphanRename('premium',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_premium" placeholder="notes..." oninput="setOrphanNote('premium',this.value)"></td>
+</tr>
+<tr id="o_total_transactions">
+<td class="fs">total_transactions</td>
+<td class="count">18</td>
+<td class="sample">14</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('total_transactions','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('total_transactions','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('total_transactions','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_total_transactions" placeholder="rename to..." oninput="setOrphanRename('total_transactions',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_total_transactions" placeholder="notes..." oninput="setOrphanNote('total_transactions',this.value)"></td>
+</tr>
+<tr id="o__extraction_tool">
+<td class="fs">_extraction_tool</td>
+<td class="count">18</td>
+<td class="sample">super-extract-pdf</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_extraction_tool','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_extraction_tool','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_extraction_tool','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn__extraction_tool" placeholder="rename to..." oninput="setOrphanRename('_extraction_tool',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt__extraction_tool" placeholder="notes..." oninput="setOrphanNote('_extraction_tool',this.value)"></td>
+</tr>
 </table></div></div>
 <div class="sec"><div class="sec-h">Life — 88 orphaned fields (showing top 30)<span>▼</span></div>
-<div><table><tr><th>Firestore Field</th><th>Count</th><th>Sample</th><th>Assessment</th></tr>
-<tr><td class="fs">_source</td><td class="count">5063</td><td class="sample">sheets_migration</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">account_type_category</td><td class="count">5048</td><td class="sample">life</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">client_id</td><td class="count">5048</td><td class="sample">001210db-1117-4eed-8581-df8279e71676</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">life_id</td><td class="count">5026</td><td class="sample">96d0e1d7-258c-4a6c-8fcc-c120dd84361c</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">import_source</td><td class="count">5026</td><td class="sample">cof_members_q126</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">_migrated_at</td><td class="count">5026</td><td class="sample">2026-03-10T22:11:18.698Z</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">carrier_id</td><td class="count">4970</td><td class="sample">cof</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">account_id</td><td class="count">4934</td><td class="sample">235787e6-0949-44cf-8d02-10e1786433ed</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">_fixed_at</td><td class="count">4911</td><td class="sample">2026-03-11T06:56:49.778Z</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">billing_mode</td><td class="count">2186</td><td class="sample">Annual</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">paid_to_date</td><td class="count">2184</td><td class="sample">2026-03-01</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">_cof_source</td><td class="count">2183</td><td class="sample">parmenter_agency_bob_2026-02-10</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">_cof_enriched_at</td><td class="count">2183</td><td class="sample">2026-03-15T23:40:17.153Z</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">annual_premium</td><td class="count">2133</td><td class="sample">106.5</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">face_value</td><td class="count">1992</td><td class="sample">25000</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">ghl_contact_id</td><td class="count">1011</td><td class="sample">XkWr1hJRqO3nSELzkxzS</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">health_class</td><td class="count">984</td><td class="sample">5</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">writing_agent_id</td><td class="count">980</td><td class="sample">1346</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">insured_gender</td><td class="count">978</td><td class="sample">M</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">insured_dob</td><td class="count">978</td><td class="sample">1965-10-06</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">ghl_object_id</td><td class="count">948</td><td class="sample">6853b7e0b50b263ca552f618</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">_import_source</td><td class="count">927</td><td class="sample">GHL_BULK</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">account_number</td><td class="count">927</td><td class="sample">66030</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">policy_owner</td><td class="count">713</td><td class="sample">TRUDY BREITBACH</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">commission_split</td><td class="count">492</td><td class="sample">NCP</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">_normalized_at</td><td class="count">356</td><td class="sample">2026-03-11T06:56:15.860Z</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">fund_value</td><td class="count">292</td><td class="sample">381.94</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">annuity_balance</td><td class="count">292</td><td class="sample">366.93</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">prior_year_dividend</td><td class="count">274</td><td class="sample">12.1</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">loan_interest_balance</td><td class="count">138</td><td class="sample">1.08</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
+<div><table><tr><th>Firestore Field</th><th>Count</th><th>Sample</th><th>Action</th><th>Rename→</th><th>Notes</th></tr>
+<tr id="o__source">
+<td class="fs">_source</td>
+<td class="count">5063</td>
+<td class="sample">sheets_migration</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_source','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_source','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_source','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn__source" placeholder="rename to..." oninput="setOrphanRename('_source',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt__source" placeholder="notes..." oninput="setOrphanNote('_source',this.value)"></td>
+</tr>
+<tr id="o_account_type_category">
+<td class="fs">account_type_category</td>
+<td class="count">5048</td>
+<td class="sample">life</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('account_type_category','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('account_type_category','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('account_type_category','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_account_type_category" placeholder="rename to..." oninput="setOrphanRename('account_type_category',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_account_type_category" placeholder="notes..." oninput="setOrphanNote('account_type_category',this.value)"></td>
+</tr>
+<tr id="o_client_id">
+<td class="fs">client_id</td>
+<td class="count">5048</td>
+<td class="sample">001210db-1117-4eed-8581-df8279e71676</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('client_id','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('client_id','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('client_id','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_client_id" placeholder="rename to..." oninput="setOrphanRename('client_id',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_client_id" placeholder="notes..." oninput="setOrphanNote('client_id',this.value)"></td>
+</tr>
+<tr id="o_life_id">
+<td class="fs">life_id</td>
+<td class="count">5026</td>
+<td class="sample">96d0e1d7-258c-4a6c-8fcc-c120dd84361c</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('life_id','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('life_id','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('life_id','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_life_id" placeholder="rename to..." oninput="setOrphanRename('life_id',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_life_id" placeholder="notes..." oninput="setOrphanNote('life_id',this.value)"></td>
+</tr>
+<tr id="o_import_source">
+<td class="fs">import_source</td>
+<td class="count">5026</td>
+<td class="sample">cof_members_q126</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('import_source','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('import_source','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('import_source','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_import_source" placeholder="rename to..." oninput="setOrphanRename('import_source',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_import_source" placeholder="notes..." oninput="setOrphanNote('import_source',this.value)"></td>
+</tr>
+<tr id="o__migrated_at">
+<td class="fs">_migrated_at</td>
+<td class="count">5026</td>
+<td class="sample">2026-03-10T22:11:18.698Z</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_migrated_at','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_migrated_at','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_migrated_at','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn__migrated_at" placeholder="rename to..." oninput="setOrphanRename('_migrated_at',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt__migrated_at" placeholder="notes..." oninput="setOrphanNote('_migrated_at',this.value)"></td>
+</tr>
+<tr id="o_carrier_id">
+<td class="fs">carrier_id</td>
+<td class="count">4970</td>
+<td class="sample">cof</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('carrier_id','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('carrier_id','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('carrier_id','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_carrier_id" placeholder="rename to..." oninput="setOrphanRename('carrier_id',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_carrier_id" placeholder="notes..." oninput="setOrphanNote('carrier_id',this.value)"></td>
+</tr>
+<tr id="o_account_id">
+<td class="fs">account_id</td>
+<td class="count">4934</td>
+<td class="sample">235787e6-0949-44cf-8d02-10e1786433ed</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('account_id','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('account_id','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('account_id','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_account_id" placeholder="rename to..." oninput="setOrphanRename('account_id',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_account_id" placeholder="notes..." oninput="setOrphanNote('account_id',this.value)"></td>
+</tr>
+<tr id="o__fixed_at">
+<td class="fs">_fixed_at</td>
+<td class="count">4911</td>
+<td class="sample">2026-03-11T06:56:49.778Z</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_fixed_at','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_fixed_at','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_fixed_at','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn__fixed_at" placeholder="rename to..." oninput="setOrphanRename('_fixed_at',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt__fixed_at" placeholder="notes..." oninput="setOrphanNote('_fixed_at',this.value)"></td>
+</tr>
+<tr id="o_billing_mode">
+<td class="fs">billing_mode</td>
+<td class="count">2186</td>
+<td class="sample">Annual</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('billing_mode','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('billing_mode','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('billing_mode','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_billing_mode" placeholder="rename to..." oninput="setOrphanRename('billing_mode',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_billing_mode" placeholder="notes..." oninput="setOrphanNote('billing_mode',this.value)"></td>
+</tr>
+<tr id="o_paid_to_date">
+<td class="fs">paid_to_date</td>
+<td class="count">2184</td>
+<td class="sample">2026-03-01</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('paid_to_date','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('paid_to_date','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('paid_to_date','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_paid_to_date" placeholder="rename to..." oninput="setOrphanRename('paid_to_date',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_paid_to_date" placeholder="notes..." oninput="setOrphanNote('paid_to_date',this.value)"></td>
+</tr>
+<tr id="o__cof_source">
+<td class="fs">_cof_source</td>
+<td class="count">2183</td>
+<td class="sample">parmenter_agency_bob_2026-02-10</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_cof_source','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_cof_source','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_cof_source','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn__cof_source" placeholder="rename to..." oninput="setOrphanRename('_cof_source',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt__cof_source" placeholder="notes..." oninput="setOrphanNote('_cof_source',this.value)"></td>
+</tr>
+<tr id="o__cof_enriched_at">
+<td class="fs">_cof_enriched_at</td>
+<td class="count">2183</td>
+<td class="sample">2026-03-15T23:40:17.153Z</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_cof_enriched_at','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_cof_enriched_at','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_cof_enriched_at','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn__cof_enriched_at" placeholder="rename to..." oninput="setOrphanRename('_cof_enriched_at',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt__cof_enriched_at" placeholder="notes..." oninput="setOrphanNote('_cof_enriched_at',this.value)"></td>
+</tr>
+<tr id="o_annual_premium">
+<td class="fs">annual_premium</td>
+<td class="count">2133</td>
+<td class="sample">106.5</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('annual_premium','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('annual_premium','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('annual_premium','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_annual_premium" placeholder="rename to..." oninput="setOrphanRename('annual_premium',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_annual_premium" placeholder="notes..." oninput="setOrphanNote('annual_premium',this.value)"></td>
+</tr>
+<tr id="o_face_value">
+<td class="fs">face_value</td>
+<td class="count">1992</td>
+<td class="sample">25000</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('face_value','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('face_value','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('face_value','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_face_value" placeholder="rename to..." oninput="setOrphanRename('face_value',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_face_value" placeholder="notes..." oninput="setOrphanNote('face_value',this.value)"></td>
+</tr>
+<tr id="o_ghl_contact_id">
+<td class="fs">ghl_contact_id</td>
+<td class="count">1011</td>
+<td class="sample">XkWr1hJRqO3nSELzkxzS</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('ghl_contact_id','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('ghl_contact_id','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('ghl_contact_id','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_ghl_contact_id" placeholder="rename to..." oninput="setOrphanRename('ghl_contact_id',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_ghl_contact_id" placeholder="notes..." oninput="setOrphanNote('ghl_contact_id',this.value)"></td>
+</tr>
+<tr id="o_health_class">
+<td class="fs">health_class</td>
+<td class="count">984</td>
+<td class="sample">5</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('health_class','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('health_class','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('health_class','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_health_class" placeholder="rename to..." oninput="setOrphanRename('health_class',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_health_class" placeholder="notes..." oninput="setOrphanNote('health_class',this.value)"></td>
+</tr>
+<tr id="o_writing_agent_id">
+<td class="fs">writing_agent_id</td>
+<td class="count">980</td>
+<td class="sample">1346</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('writing_agent_id','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('writing_agent_id','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('writing_agent_id','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_writing_agent_id" placeholder="rename to..." oninput="setOrphanRename('writing_agent_id',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_writing_agent_id" placeholder="notes..." oninput="setOrphanNote('writing_agent_id',this.value)"></td>
+</tr>
+<tr id="o_insured_gender">
+<td class="fs">insured_gender</td>
+<td class="count">978</td>
+<td class="sample">M</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('insured_gender','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('insured_gender','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('insured_gender','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_insured_gender" placeholder="rename to..." oninput="setOrphanRename('insured_gender',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_insured_gender" placeholder="notes..." oninput="setOrphanNote('insured_gender',this.value)"></td>
+</tr>
+<tr id="o_insured_dob">
+<td class="fs">insured_dob</td>
+<td class="count">978</td>
+<td class="sample">1965-10-06</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('insured_dob','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('insured_dob','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('insured_dob','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_insured_dob" placeholder="rename to..." oninput="setOrphanRename('insured_dob',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_insured_dob" placeholder="notes..." oninput="setOrphanNote('insured_dob',this.value)"></td>
+</tr>
+<tr id="o_ghl_object_id">
+<td class="fs">ghl_object_id</td>
+<td class="count">948</td>
+<td class="sample">6853b7e0b50b263ca552f618</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('ghl_object_id','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('ghl_object_id','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('ghl_object_id','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_ghl_object_id" placeholder="rename to..." oninput="setOrphanRename('ghl_object_id',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_ghl_object_id" placeholder="notes..." oninput="setOrphanNote('ghl_object_id',this.value)"></td>
+</tr>
+<tr id="o__import_source">
+<td class="fs">_import_source</td>
+<td class="count">927</td>
+<td class="sample">GHL_BULK</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_import_source','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_import_source','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_import_source','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn__import_source" placeholder="rename to..." oninput="setOrphanRename('_import_source',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt__import_source" placeholder="notes..." oninput="setOrphanNote('_import_source',this.value)"></td>
+</tr>
+<tr id="o_account_number">
+<td class="fs">account_number</td>
+<td class="count">927</td>
+<td class="sample">66030</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('account_number','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('account_number','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('account_number','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_account_number" placeholder="rename to..." oninput="setOrphanRename('account_number',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_account_number" placeholder="notes..." oninput="setOrphanNote('account_number',this.value)"></td>
+</tr>
+<tr id="o_policy_owner">
+<td class="fs">policy_owner</td>
+<td class="count">713</td>
+<td class="sample">TRUDY BREITBACH</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('policy_owner','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('policy_owner','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('policy_owner','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_policy_owner" placeholder="rename to..." oninput="setOrphanRename('policy_owner',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_policy_owner" placeholder="notes..." oninput="setOrphanNote('policy_owner',this.value)"></td>
+</tr>
+<tr id="o_commission_split">
+<td class="fs">commission_split</td>
+<td class="count">492</td>
+<td class="sample">NCP</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('commission_split','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('commission_split','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('commission_split','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_commission_split" placeholder="rename to..." oninput="setOrphanRename('commission_split',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_commission_split" placeholder="notes..." oninput="setOrphanNote('commission_split',this.value)"></td>
+</tr>
+<tr id="o__normalized_at">
+<td class="fs">_normalized_at</td>
+<td class="count">356</td>
+<td class="sample">2026-03-11T06:56:15.860Z</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_normalized_at','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_normalized_at','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_normalized_at','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn__normalized_at" placeholder="rename to..." oninput="setOrphanRename('_normalized_at',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt__normalized_at" placeholder="notes..." oninput="setOrphanNote('_normalized_at',this.value)"></td>
+</tr>
+<tr id="o_fund_value">
+<td class="fs">fund_value</td>
+<td class="count">292</td>
+<td class="sample">381.94</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('fund_value','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('fund_value','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('fund_value','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_fund_value" placeholder="rename to..." oninput="setOrphanRename('fund_value',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_fund_value" placeholder="notes..." oninput="setOrphanNote('fund_value',this.value)"></td>
+</tr>
+<tr id="o_annuity_balance">
+<td class="fs">annuity_balance</td>
+<td class="count">292</td>
+<td class="sample">366.93</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('annuity_balance','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('annuity_balance','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('annuity_balance','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_annuity_balance" placeholder="rename to..." oninput="setOrphanRename('annuity_balance',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_annuity_balance" placeholder="notes..." oninput="setOrphanNote('annuity_balance',this.value)"></td>
+</tr>
+<tr id="o_prior_year_dividend">
+<td class="fs">prior_year_dividend</td>
+<td class="count">274</td>
+<td class="sample">12.1</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('prior_year_dividend','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('prior_year_dividend','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('prior_year_dividend','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_prior_year_dividend" placeholder="rename to..." oninput="setOrphanRename('prior_year_dividend',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_prior_year_dividend" placeholder="notes..." oninput="setOrphanNote('prior_year_dividend',this.value)"></td>
+</tr>
+<tr id="o_loan_interest_balance">
+<td class="fs">loan_interest_balance</td>
+<td class="count">138</td>
+<td class="sample">1.08</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('loan_interest_balance','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('loan_interest_balance','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('loan_interest_balance','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_loan_interest_balance" placeholder="rename to..." oninput="setOrphanRename('loan_interest_balance',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_loan_interest_balance" placeholder="notes..." oninput="setOrphanNote('loan_interest_balance',this.value)"></td>
+</tr>
 </table></div></div>
 <div class="sec"><div class="sec-h">Medicare — 46 orphaned fields (showing top 30)<span>▼</span></div>
-<div><table><tr><th>Firestore Field</th><th>Count</th><th>Sample</th><th>Assessment</th></tr>
-<tr><td class="fs">account_type_category</td><td class="count">5296</td><td class="sample">medicare</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">client_id</td><td class="count">5296</td><td class="sample">0013fb65-52f1-40a4-b9f1-e003fe45142d</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">_source</td><td class="count">5296</td><td class="sample">sheets_migration</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">medicare_id</td><td class="count">5223</td><td class="sample">74255d4e-9721-4654-8c45-31792382a6f0</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">import_source</td><td class="count">5223</td><td class="sample">consolidated_bob_20250621</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">carrier_id</td><td class="count">5155</td><td class="sample">aetna-cvs</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">carrier_charter</td><td class="count">5152</td><td class="sample">AHIC - Aetna Health Insurance Company</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">_migrated_at</td><td class="count">4771</td><td class="sample">2026-03-10T22:12:32.526Z</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">account_id</td><td class="count">4446</td><td class="sample">6e04fedf-4abf-44db-b188-6842b27690d8</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">core_product_type</td><td class="count">4206</td><td class="sample">PDP</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">naic_code</td><td class="count">4187</td><td class="sample">72052</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">_fixed_at</td><td class="count">3749</td><td class="sample">2026-03-11T06:56:49.780Z</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">ghl_object_id</td><td class="count">3689</td><td class="sample">68442701d4034a54b085b5f9</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">ghl_contact_id</td><td class="count">3555</td><td class="sample">6RV7p0v0sYh2xO15CwS9</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">_import_source</td><td class="count">3425</td><td class="sample">GHL_BULK</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">account_number</td><td class="count">3425</td><td class="sample">CVGA2573109M (Aetna PDP)</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">ancillary_type</td><td class="count">2333</td><td class="sample">PDP (Prescription Drug Plan)</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">_normalized_at</td><td class="count">1786</td><td class="sample">2026-03-11T06:56:15.857Z</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">acf_link</td><td class="count">643</td><td class="sample">https://drive.google.com/drive/folders/1FEXXDo8iXx</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">submitted_date</td><td class="count">572</td><td class="sample">2021-11-21</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">_flagged_at</td><td class="count">511</td><td class="sample">2026-03-11T07:08:38.007Z</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">_dedup_kept</td><td class="count">511</td><td class="sample">d6a1da56-66f2-4d6b-973d-e929e517eacf</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">_flagged</td><td class="count">511</td><td class="sample">duplicate</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">_dedup_kept_path</td><td class="count">511</td><td class="sample">clients/003a7a34-888d-43a1-b809-97e6bb465f23/accou</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">medicare_beneficiary_id</td><td class="count">455</td><td class="sample">3HR0AC5MM01</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">termination_date</td><td class="count">452</td><td class="sample">3000-01-01</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">agent_npn</td><td class="count">452</td><td class="sample">16896424</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">commissionable_premium</td><td class="count">405</td><td class="sample">3825.6</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">planned_premium</td><td class="count">380</td><td class="sample">318.8</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">_deactivated_at</td><td class="count">308</td><td class="sample">2026-03-18T02:01:06.436Z</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
+<div><table><tr><th>Firestore Field</th><th>Count</th><th>Sample</th><th>Action</th><th>Rename→</th><th>Notes</th></tr>
+<tr id="o_account_type_category">
+<td class="fs">account_type_category</td>
+<td class="count">5296</td>
+<td class="sample">medicare</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('account_type_category','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('account_type_category','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('account_type_category','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_account_type_category" placeholder="rename to..." oninput="setOrphanRename('account_type_category',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_account_type_category" placeholder="notes..." oninput="setOrphanNote('account_type_category',this.value)"></td>
+</tr>
+<tr id="o_client_id">
+<td class="fs">client_id</td>
+<td class="count">5296</td>
+<td class="sample">0013fb65-52f1-40a4-b9f1-e003fe45142d</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('client_id','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('client_id','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('client_id','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_client_id" placeholder="rename to..." oninput="setOrphanRename('client_id',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_client_id" placeholder="notes..." oninput="setOrphanNote('client_id',this.value)"></td>
+</tr>
+<tr id="o__source">
+<td class="fs">_source</td>
+<td class="count">5296</td>
+<td class="sample">sheets_migration</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_source','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_source','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_source','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn__source" placeholder="rename to..." oninput="setOrphanRename('_source',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt__source" placeholder="notes..." oninput="setOrphanNote('_source',this.value)"></td>
+</tr>
+<tr id="o_medicare_id">
+<td class="fs">medicare_id</td>
+<td class="count">5223</td>
+<td class="sample">74255d4e-9721-4654-8c45-31792382a6f0</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('medicare_id','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('medicare_id','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('medicare_id','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_medicare_id" placeholder="rename to..." oninput="setOrphanRename('medicare_id',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_medicare_id" placeholder="notes..." oninput="setOrphanNote('medicare_id',this.value)"></td>
+</tr>
+<tr id="o_import_source">
+<td class="fs">import_source</td>
+<td class="count">5223</td>
+<td class="sample">consolidated_bob_20250621</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('import_source','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('import_source','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('import_source','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_import_source" placeholder="rename to..." oninput="setOrphanRename('import_source',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_import_source" placeholder="notes..." oninput="setOrphanNote('import_source',this.value)"></td>
+</tr>
+<tr id="o_carrier_id">
+<td class="fs">carrier_id</td>
+<td class="count">5155</td>
+<td class="sample">aetna-cvs</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('carrier_id','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('carrier_id','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('carrier_id','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_carrier_id" placeholder="rename to..." oninput="setOrphanRename('carrier_id',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_carrier_id" placeholder="notes..." oninput="setOrphanNote('carrier_id',this.value)"></td>
+</tr>
+<tr id="o_carrier_charter">
+<td class="fs">carrier_charter</td>
+<td class="count">5152</td>
+<td class="sample">AHIC - Aetna Health Insurance Company</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('carrier_charter','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('carrier_charter','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('carrier_charter','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_carrier_charter" placeholder="rename to..." oninput="setOrphanRename('carrier_charter',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_carrier_charter" placeholder="notes..." oninput="setOrphanNote('carrier_charter',this.value)"></td>
+</tr>
+<tr id="o__migrated_at">
+<td class="fs">_migrated_at</td>
+<td class="count">4771</td>
+<td class="sample">2026-03-10T22:12:32.526Z</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_migrated_at','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_migrated_at','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_migrated_at','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn__migrated_at" placeholder="rename to..." oninput="setOrphanRename('_migrated_at',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt__migrated_at" placeholder="notes..." oninput="setOrphanNote('_migrated_at',this.value)"></td>
+</tr>
+<tr id="o_account_id">
+<td class="fs">account_id</td>
+<td class="count">4446</td>
+<td class="sample">6e04fedf-4abf-44db-b188-6842b27690d8</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('account_id','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('account_id','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('account_id','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_account_id" placeholder="rename to..." oninput="setOrphanRename('account_id',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_account_id" placeholder="notes..." oninput="setOrphanNote('account_id',this.value)"></td>
+</tr>
+<tr id="o_core_product_type">
+<td class="fs">core_product_type</td>
+<td class="count">4206</td>
+<td class="sample">PDP</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('core_product_type','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('core_product_type','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('core_product_type','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_core_product_type" placeholder="rename to..." oninput="setOrphanRename('core_product_type',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_core_product_type" placeholder="notes..." oninput="setOrphanNote('core_product_type',this.value)"></td>
+</tr>
+<tr id="o_naic_code">
+<td class="fs">naic_code</td>
+<td class="count">4187</td>
+<td class="sample">72052</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('naic_code','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('naic_code','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('naic_code','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_naic_code" placeholder="rename to..." oninput="setOrphanRename('naic_code',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_naic_code" placeholder="notes..." oninput="setOrphanNote('naic_code',this.value)"></td>
+</tr>
+<tr id="o__fixed_at">
+<td class="fs">_fixed_at</td>
+<td class="count">3749</td>
+<td class="sample">2026-03-11T06:56:49.780Z</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_fixed_at','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_fixed_at','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_fixed_at','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn__fixed_at" placeholder="rename to..." oninput="setOrphanRename('_fixed_at',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt__fixed_at" placeholder="notes..." oninput="setOrphanNote('_fixed_at',this.value)"></td>
+</tr>
+<tr id="o_ghl_object_id">
+<td class="fs">ghl_object_id</td>
+<td class="count">3689</td>
+<td class="sample">68442701d4034a54b085b5f9</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('ghl_object_id','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('ghl_object_id','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('ghl_object_id','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_ghl_object_id" placeholder="rename to..." oninput="setOrphanRename('ghl_object_id',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_ghl_object_id" placeholder="notes..." oninput="setOrphanNote('ghl_object_id',this.value)"></td>
+</tr>
+<tr id="o_ghl_contact_id">
+<td class="fs">ghl_contact_id</td>
+<td class="count">3555</td>
+<td class="sample">6RV7p0v0sYh2xO15CwS9</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('ghl_contact_id','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('ghl_contact_id','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('ghl_contact_id','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_ghl_contact_id" placeholder="rename to..." oninput="setOrphanRename('ghl_contact_id',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_ghl_contact_id" placeholder="notes..." oninput="setOrphanNote('ghl_contact_id',this.value)"></td>
+</tr>
+<tr id="o__import_source">
+<td class="fs">_import_source</td>
+<td class="count">3425</td>
+<td class="sample">GHL_BULK</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_import_source','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_import_source','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_import_source','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn__import_source" placeholder="rename to..." oninput="setOrphanRename('_import_source',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt__import_source" placeholder="notes..." oninput="setOrphanNote('_import_source',this.value)"></td>
+</tr>
+<tr id="o_account_number">
+<td class="fs">account_number</td>
+<td class="count">3425</td>
+<td class="sample">CVGA2573109M (Aetna PDP)</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('account_number','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('account_number','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('account_number','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_account_number" placeholder="rename to..." oninput="setOrphanRename('account_number',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_account_number" placeholder="notes..." oninput="setOrphanNote('account_number',this.value)"></td>
+</tr>
+<tr id="o_ancillary_type">
+<td class="fs">ancillary_type</td>
+<td class="count">2333</td>
+<td class="sample">PDP (Prescription Drug Plan)</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('ancillary_type','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('ancillary_type','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('ancillary_type','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_ancillary_type" placeholder="rename to..." oninput="setOrphanRename('ancillary_type',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_ancillary_type" placeholder="notes..." oninput="setOrphanNote('ancillary_type',this.value)"></td>
+</tr>
+<tr id="o__normalized_at">
+<td class="fs">_normalized_at</td>
+<td class="count">1786</td>
+<td class="sample">2026-03-11T06:56:15.857Z</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_normalized_at','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_normalized_at','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_normalized_at','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn__normalized_at" placeholder="rename to..." oninput="setOrphanRename('_normalized_at',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt__normalized_at" placeholder="notes..." oninput="setOrphanNote('_normalized_at',this.value)"></td>
+</tr>
+<tr id="o_acf_link">
+<td class="fs">acf_link</td>
+<td class="count">643</td>
+<td class="sample">https://drive.google.com/drive/folders/1FEXXDo8iXx</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('acf_link','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('acf_link','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('acf_link','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_acf_link" placeholder="rename to..." oninput="setOrphanRename('acf_link',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_acf_link" placeholder="notes..." oninput="setOrphanNote('acf_link',this.value)"></td>
+</tr>
+<tr id="o_submitted_date">
+<td class="fs">submitted_date</td>
+<td class="count">572</td>
+<td class="sample">2021-11-21</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('submitted_date','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('submitted_date','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('submitted_date','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_submitted_date" placeholder="rename to..." oninput="setOrphanRename('submitted_date',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_submitted_date" placeholder="notes..." oninput="setOrphanNote('submitted_date',this.value)"></td>
+</tr>
+<tr id="o__flagged_at">
+<td class="fs">_flagged_at</td>
+<td class="count">511</td>
+<td class="sample">2026-03-11T07:08:38.007Z</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_flagged_at','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_flagged_at','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_flagged_at','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn__flagged_at" placeholder="rename to..." oninput="setOrphanRename('_flagged_at',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt__flagged_at" placeholder="notes..." oninput="setOrphanNote('_flagged_at',this.value)"></td>
+</tr>
+<tr id="o__dedup_kept">
+<td class="fs">_dedup_kept</td>
+<td class="count">511</td>
+<td class="sample">d6a1da56-66f2-4d6b-973d-e929e517eacf</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_dedup_kept','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_dedup_kept','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_dedup_kept','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn__dedup_kept" placeholder="rename to..." oninput="setOrphanRename('_dedup_kept',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt__dedup_kept" placeholder="notes..." oninput="setOrphanNote('_dedup_kept',this.value)"></td>
+</tr>
+<tr id="o__flagged">
+<td class="fs">_flagged</td>
+<td class="count">511</td>
+<td class="sample">duplicate</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_flagged','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_flagged','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_flagged','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn__flagged" placeholder="rename to..." oninput="setOrphanRename('_flagged',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt__flagged" placeholder="notes..." oninput="setOrphanNote('_flagged',this.value)"></td>
+</tr>
+<tr id="o__dedup_kept_path">
+<td class="fs">_dedup_kept_path</td>
+<td class="count">511</td>
+<td class="sample">clients/003a7a34-888d-43a1-b809-97e6bb465f23/accou</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_dedup_kept_path','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_dedup_kept_path','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_dedup_kept_path','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn__dedup_kept_path" placeholder="rename to..." oninput="setOrphanRename('_dedup_kept_path',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt__dedup_kept_path" placeholder="notes..." oninput="setOrphanNote('_dedup_kept_path',this.value)"></td>
+</tr>
+<tr id="o_medicare_beneficiary_id">
+<td class="fs">medicare_beneficiary_id</td>
+<td class="count">455</td>
+<td class="sample">3HR0AC5MM01</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('medicare_beneficiary_id','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('medicare_beneficiary_id','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('medicare_beneficiary_id','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_medicare_beneficiary_id" placeholder="rename to..." oninput="setOrphanRename('medicare_beneficiary_id',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_medicare_beneficiary_id" placeholder="notes..." oninput="setOrphanNote('medicare_beneficiary_id',this.value)"></td>
+</tr>
+<tr id="o_termination_date">
+<td class="fs">termination_date</td>
+<td class="count">452</td>
+<td class="sample">3000-01-01</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('termination_date','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('termination_date','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('termination_date','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_termination_date" placeholder="rename to..." oninput="setOrphanRename('termination_date',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_termination_date" placeholder="notes..." oninput="setOrphanNote('termination_date',this.value)"></td>
+</tr>
+<tr id="o_agent_npn">
+<td class="fs">agent_npn</td>
+<td class="count">452</td>
+<td class="sample">16896424</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('agent_npn','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('agent_npn','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('agent_npn','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_agent_npn" placeholder="rename to..." oninput="setOrphanRename('agent_npn',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_agent_npn" placeholder="notes..." oninput="setOrphanNote('agent_npn',this.value)"></td>
+</tr>
+<tr id="o_commissionable_premium">
+<td class="fs">commissionable_premium</td>
+<td class="count">405</td>
+<td class="sample">3825.6</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('commissionable_premium','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('commissionable_premium','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('commissionable_premium','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_commissionable_premium" placeholder="rename to..." oninput="setOrphanRename('commissionable_premium',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_commissionable_premium" placeholder="notes..." oninput="setOrphanNote('commissionable_premium',this.value)"></td>
+</tr>
+<tr id="o_planned_premium">
+<td class="fs">planned_premium</td>
+<td class="count">380</td>
+<td class="sample">318.8</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('planned_premium','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('planned_premium','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('planned_premium','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_planned_premium" placeholder="rename to..." oninput="setOrphanRename('planned_premium',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_planned_premium" placeholder="notes..." oninput="setOrphanNote('planned_premium',this.value)"></td>
+</tr>
+<tr id="o__deactivated_at">
+<td class="fs">_deactivated_at</td>
+<td class="count">308</td>
+<td class="sample">2026-03-18T02:01:06.436Z</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_deactivated_at','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_deactivated_at','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_deactivated_at','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn__deactivated_at" placeholder="rename to..." oninput="setOrphanRename('_deactivated_at',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt__deactivated_at" placeholder="notes..." oninput="setOrphanNote('_deactivated_at',this.value)"></td>
+</tr>
 </table></div></div>
 <div class="sec"><div class="sec-h">Investment — 24 orphaned fields (showing top 30)<span>▼</span></div>
-<div><table><tr><th>Firestore Field</th><th>Count</th><th>Sample</th><th>Assessment</th></tr>
-<tr><td class="fs">account_type_category</td><td class="count">239</td><td class="sample">investment</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">client_id</td><td class="count">239</td><td class="sample">00c8768d-b263-47c9-b43d-4dc785ba7050</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">account_id</td><td class="count">239</td><td class="sample">5fdc0298-5ae4-45d0-9035-3188915fb03c</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">account_number</td><td class="count">233</td><td class="sample">20099989</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">_source</td><td class="count">233</td><td class="sample">ghl_export_20260316</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">_import_source</td><td class="count">233</td><td class="sample">GHL_BULK</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">ghl_object_id</td><td class="count">232</td><td class="sample">68a4a5ce86268d12440a2cb9</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">advisor_of_record</td><td class="count">7</td><td class="sample">52807 Branch</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">face_value</td><td class="count">6</td><td class="sample">0</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">annual_premium</td><td class="count">6</td><td class="sample">0</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">fund_value</td><td class="count">6</td><td class="sample">0</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">annuity_balance</td><td class="count">6</td><td class="sample">0</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">loan_interest_balance</td><td class="count">6</td><td class="sample">0</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">source</td><td class="count">6</td><td class="sample">cof_bob_import</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">import_source</td><td class="count">6</td><td class="sample">cof_bob_import</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">_cof_enriched_at</td><td class="count">6</td><td class="sample">2026-03-15T23:40:16.966Z</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">_cof_source</td><td class="count">6</td><td class="sample">parmenter_agency_bob_2026-02-10</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">carrier_id</td><td class="count">6</td><td class="sample">cof</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">risk_level</td><td class="count">4</td><td class="sample">Moderate</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">advisory_fees</td><td class="count">4</td><td class="sample">0.12</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">advisory_fee_pct</td><td class="count">1</td><td class="sample">1.5</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">acf_link</td><td class="count">1</td><td class="sample">https://drive.google.com/drive/u/0/folders/1L5zQS6</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">paid_to_date</td><td class="count">0</td><td class="sample">—</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
-<tr><td class="fs">billing_mode</td><td class="count">0</td><td class="sample">—</td><td><span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">💀 ORPHANED</span></td></tr>
+<div><table><tr><th>Firestore Field</th><th>Count</th><th>Sample</th><th>Action</th><th>Rename→</th><th>Notes</th></tr>
+<tr id="o_account_type_category">
+<td class="fs">account_type_category</td>
+<td class="count">239</td>
+<td class="sample">investment</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('account_type_category','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('account_type_category','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('account_type_category','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_account_type_category" placeholder="rename to..." oninput="setOrphanRename('account_type_category',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_account_type_category" placeholder="notes..." oninput="setOrphanNote('account_type_category',this.value)"></td>
+</tr>
+<tr id="o_client_id">
+<td class="fs">client_id</td>
+<td class="count">239</td>
+<td class="sample">00c8768d-b263-47c9-b43d-4dc785ba7050</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('client_id','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('client_id','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('client_id','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_client_id" placeholder="rename to..." oninput="setOrphanRename('client_id',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_client_id" placeholder="notes..." oninput="setOrphanNote('client_id',this.value)"></td>
+</tr>
+<tr id="o_account_id">
+<td class="fs">account_id</td>
+<td class="count">239</td>
+<td class="sample">5fdc0298-5ae4-45d0-9035-3188915fb03c</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('account_id','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('account_id','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('account_id','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_account_id" placeholder="rename to..." oninput="setOrphanRename('account_id',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_account_id" placeholder="notes..." oninput="setOrphanNote('account_id',this.value)"></td>
+</tr>
+<tr id="o_account_number">
+<td class="fs">account_number</td>
+<td class="count">233</td>
+<td class="sample">20099989</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('account_number','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('account_number','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('account_number','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_account_number" placeholder="rename to..." oninput="setOrphanRename('account_number',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_account_number" placeholder="notes..." oninput="setOrphanNote('account_number',this.value)"></td>
+</tr>
+<tr id="o__source">
+<td class="fs">_source</td>
+<td class="count">233</td>
+<td class="sample">ghl_export_20260316</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_source','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_source','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_source','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn__source" placeholder="rename to..." oninput="setOrphanRename('_source',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt__source" placeholder="notes..." oninput="setOrphanNote('_source',this.value)"></td>
+</tr>
+<tr id="o__import_source">
+<td class="fs">_import_source</td>
+<td class="count">233</td>
+<td class="sample">GHL_BULK</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_import_source','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_import_source','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_import_source','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn__import_source" placeholder="rename to..." oninput="setOrphanRename('_import_source',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt__import_source" placeholder="notes..." oninput="setOrphanNote('_import_source',this.value)"></td>
+</tr>
+<tr id="o_ghl_object_id">
+<td class="fs">ghl_object_id</td>
+<td class="count">232</td>
+<td class="sample">68a4a5ce86268d12440a2cb9</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('ghl_object_id','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('ghl_object_id','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('ghl_object_id','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_ghl_object_id" placeholder="rename to..." oninput="setOrphanRename('ghl_object_id',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_ghl_object_id" placeholder="notes..." oninput="setOrphanNote('ghl_object_id',this.value)"></td>
+</tr>
+<tr id="o_advisor_of_record">
+<td class="fs">advisor_of_record</td>
+<td class="count">7</td>
+<td class="sample">52807 Branch</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('advisor_of_record','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('advisor_of_record','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('advisor_of_record','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_advisor_of_record" placeholder="rename to..." oninput="setOrphanRename('advisor_of_record',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_advisor_of_record" placeholder="notes..." oninput="setOrphanNote('advisor_of_record',this.value)"></td>
+</tr>
+<tr id="o_face_value">
+<td class="fs">face_value</td>
+<td class="count">6</td>
+<td class="sample">0</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('face_value','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('face_value','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('face_value','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_face_value" placeholder="rename to..." oninput="setOrphanRename('face_value',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_face_value" placeholder="notes..." oninput="setOrphanNote('face_value',this.value)"></td>
+</tr>
+<tr id="o_annual_premium">
+<td class="fs">annual_premium</td>
+<td class="count">6</td>
+<td class="sample">0</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('annual_premium','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('annual_premium','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('annual_premium','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_annual_premium" placeholder="rename to..." oninput="setOrphanRename('annual_premium',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_annual_premium" placeholder="notes..." oninput="setOrphanNote('annual_premium',this.value)"></td>
+</tr>
+<tr id="o_fund_value">
+<td class="fs">fund_value</td>
+<td class="count">6</td>
+<td class="sample">0</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('fund_value','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('fund_value','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('fund_value','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_fund_value" placeholder="rename to..." oninput="setOrphanRename('fund_value',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_fund_value" placeholder="notes..." oninput="setOrphanNote('fund_value',this.value)"></td>
+</tr>
+<tr id="o_annuity_balance">
+<td class="fs">annuity_balance</td>
+<td class="count">6</td>
+<td class="sample">0</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('annuity_balance','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('annuity_balance','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('annuity_balance','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_annuity_balance" placeholder="rename to..." oninput="setOrphanRename('annuity_balance',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_annuity_balance" placeholder="notes..." oninput="setOrphanNote('annuity_balance',this.value)"></td>
+</tr>
+<tr id="o_loan_interest_balance">
+<td class="fs">loan_interest_balance</td>
+<td class="count">6</td>
+<td class="sample">0</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('loan_interest_balance','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('loan_interest_balance','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('loan_interest_balance','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_loan_interest_balance" placeholder="rename to..." oninput="setOrphanRename('loan_interest_balance',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_loan_interest_balance" placeholder="notes..." oninput="setOrphanNote('loan_interest_balance',this.value)"></td>
+</tr>
+<tr id="o_source">
+<td class="fs">source</td>
+<td class="count">6</td>
+<td class="sample">cof_bob_import</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('source','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('source','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('source','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_source" placeholder="rename to..." oninput="setOrphanRename('source',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_source" placeholder="notes..." oninput="setOrphanNote('source',this.value)"></td>
+</tr>
+<tr id="o_import_source">
+<td class="fs">import_source</td>
+<td class="count">6</td>
+<td class="sample">cof_bob_import</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('import_source','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('import_source','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('import_source','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_import_source" placeholder="rename to..." oninput="setOrphanRename('import_source',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_import_source" placeholder="notes..." oninput="setOrphanNote('import_source',this.value)"></td>
+</tr>
+<tr id="o__cof_enriched_at">
+<td class="fs">_cof_enriched_at</td>
+<td class="count">6</td>
+<td class="sample">2026-03-15T23:40:16.966Z</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_cof_enriched_at','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_cof_enriched_at','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_cof_enriched_at','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn__cof_enriched_at" placeholder="rename to..." oninput="setOrphanRename('_cof_enriched_at',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt__cof_enriched_at" placeholder="notes..." oninput="setOrphanNote('_cof_enriched_at',this.value)"></td>
+</tr>
+<tr id="o__cof_source">
+<td class="fs">_cof_source</td>
+<td class="count">6</td>
+<td class="sample">parmenter_agency_bob_2026-02-10</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_cof_source','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_cof_source','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('_cof_source','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn__cof_source" placeholder="rename to..." oninput="setOrphanRename('_cof_source',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt__cof_source" placeholder="notes..." oninput="setOrphanNote('_cof_source',this.value)"></td>
+</tr>
+<tr id="o_carrier_id">
+<td class="fs">carrier_id</td>
+<td class="count">6</td>
+<td class="sample">cof</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('carrier_id','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('carrier_id','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('carrier_id','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_carrier_id" placeholder="rename to..." oninput="setOrphanRename('carrier_id',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_carrier_id" placeholder="notes..." oninput="setOrphanNote('carrier_id',this.value)"></td>
+</tr>
+<tr id="o_risk_level">
+<td class="fs">risk_level</td>
+<td class="count">4</td>
+<td class="sample">Moderate</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('risk_level','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('risk_level','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('risk_level','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_risk_level" placeholder="rename to..." oninput="setOrphanRename('risk_level',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_risk_level" placeholder="notes..." oninput="setOrphanNote('risk_level',this.value)"></td>
+</tr>
+<tr id="o_advisory_fees">
+<td class="fs">advisory_fees</td>
+<td class="count">4</td>
+<td class="sample">0.12</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('advisory_fees','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('advisory_fees','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('advisory_fees','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_advisory_fees" placeholder="rename to..." oninput="setOrphanRename('advisory_fees',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_advisory_fees" placeholder="notes..." oninput="setOrphanNote('advisory_fees',this.value)"></td>
+</tr>
+<tr id="o_advisory_fee_pct">
+<td class="fs">advisory_fee_pct</td>
+<td class="count">1</td>
+<td class="sample">1.5</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('advisory_fee_pct','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('advisory_fee_pct','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('advisory_fee_pct','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_advisory_fee_pct" placeholder="rename to..." oninput="setOrphanRename('advisory_fee_pct',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_advisory_fee_pct" placeholder="notes..." oninput="setOrphanNote('advisory_fee_pct',this.value)"></td>
+</tr>
+<tr id="o_acf_link">
+<td class="fs">acf_link</td>
+<td class="count">1</td>
+<td class="sample">https://drive.google.com/drive/u/0/folders/1L5zQS6</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('acf_link','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('acf_link','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('acf_link','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_acf_link" placeholder="rename to..." oninput="setOrphanRename('acf_link',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_acf_link" placeholder="notes..." oninput="setOrphanNote('acf_link',this.value)"></td>
+</tr>
+<tr id="o_paid_to_date">
+<td class="fs">paid_to_date</td>
+<td class="count">0</td>
+<td class="sample">—</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('paid_to_date','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('paid_to_date','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('paid_to_date','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_paid_to_date" placeholder="rename to..." oninput="setOrphanRename('paid_to_date',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_paid_to_date" placeholder="notes..." oninput="setOrphanNote('paid_to_date',this.value)"></td>
+</tr>
+<tr id="o_billing_mode">
+<td class="fs">billing_mode</td>
+<td class="count">0</td>
+<td class="sample">—</td>
+<td>
+<button class="badge" style="background:rgba(34,197,94,.2);color:var(--green);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('billing_mode','keep',this)">✓ Keep</button>
+<button class="badge" style="background:rgba(59,130,246,.2);color:var(--blue);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('billing_mode','rename',this)">🔀 Rename</button>
+<button class="badge" style="background:rgba(239,68,68,.2);color:var(--red);border:none;cursor:pointer;margin:1px" onclick="setOrphanAction('billing_mode','delete',this)">✕ Delete</button>
+</td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="rn_billing_mode" placeholder="rename to..." oninput="setOrphanRename('billing_mode',this.value)"></td>
+<td><input style="font-size:.6rem;padding:2px 4px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;width:100px" id="nt_billing_mode" placeholder="notes..." oninput="setOrphanNote('billing_mode',this.value)"></td>
+</tr>
 </table></div></div>
 </div>
 
@@ -1437,5 +2691,27 @@ function showPanel(name, el) {
   if (panel) panel.classList.add('a');
   el.classList.add('a');
 }
+
+var orphanState = {};
+function setOrphanAction(fid, action, el) {
+  if (!orphanState[fid]) orphanState[fid] = {};
+  orphanState[fid].action = action;
+  var row = document.getElementById('o_' + fid);
+  if (row) {
+    row.querySelectorAll('button').forEach(function(b) { b.style.opacity = '0.4'; });
+    el.style.opacity = '1';
+    if (action === 'delete') row.style.opacity = '0.4';
+    else row.style.opacity = '1';
+  }
+}
+function setOrphanRename(fid, val) {
+  if (!orphanState[fid]) orphanState[fid] = {};
+  orphanState[fid].renameTo = val;
+}
+function setOrphanNote(fid, val) {
+  if (!orphanState[fid]) orphanState[fid] = {};
+  orphanState[fid].note = val;
+}
+
 </script>
 </body></html>
