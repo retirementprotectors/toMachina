@@ -42,7 +42,9 @@ tr:hover{background:rgba(16,185,129,.03)}
 
 <div class="tabs">
 <div class="tab a" onclick="document.querySelectorAll('#annuity,#investment,#medicare,#life').forEach(e=>e.style.display='none');document.getElementById('annuity').style.display='block';document.querySelectorAll('.tab').forEach(t=>t.classList.remove('a'));this.classList.add('a');this.nextElementSibling.classList.remove('a')">Annuity (60 fields — 40 new)</div>
-<div class="tab" onclick="document.querySelectorAll('#annuity,#investment,#medicare,#life').forEach(e=>e.style.display='none');document.getElementById('investment').style.display='block';document.querySelectorAll('.tab').forEach(t=>t.classList.remove('a'));this.classList.add('a');this.previousElementSibling.classList.remove('a')">Investment (42 fields — 34 new)</div>
+<div class="tab" onclick="document.querySelectorAll('#annuity,#investment,#medicare,#life').forEach(e=>e.style.display='none');document.getElementById('investment').style.display='block';document.querySelectorAll('.tab').forEach(t=>t.classList.remove('a'));this.classList.add('a')">Investment (42 fields — 34 new)</div>
+<div class="tab" onclick="document.querySelectorAll('#annuity,#investment,#medicare,#life').forEach(e=>e.style.display='none');document.getElementById('medicare').style.display='block';document.querySelectorAll('.tab').forEach(t=>t.classList.remove('a'));this.classList.add('a')">Medicare (13 fields — 9 gaps)</div>
+<div class="tab" onclick="document.querySelectorAll('#annuity,#investment,#medicare,#life').forEach(e=>e.style.display='none');document.getElementById('life').style.display='block';document.querySelectorAll('.tab').forEach(t=>t.classList.remove('a'));this.classList.add('a')">Life (22 fields — 17 gaps)</div>
 </div>
 
 <div id="annuity"><div style="display:flex;gap:12px;justify-content:center;margin-bottom:16px;flex-wrap:wrap">
