@@ -41,8 +41,8 @@ tr:hover{background:rgba(16,185,129,.03)}
 </ul></div>
 
 <div class="tabs">
-<div class="tab a" onclick="document.getElementById('annuity').style.display='block';document.getElementById('investment').style.display='none';this.classList.add('a');this.nextElementSibling.classList.remove('a')">Annuity (60 fields — 40 new)</div>
-<div class="tab" onclick="document.getElementById('investment').style.display='block';document.getElementById('annuity').style.display='none';this.classList.add('a');this.previousElementSibling.classList.remove('a')">Investment (42 fields — 34 new)</div>
+<div class="tab a" onclick="document.querySelectorAll('#annuity,#investment,#medicare,#life').forEach(e=>e.style.display='none');document.getElementById('annuity').style.display='block';document.querySelectorAll('.tab').forEach(t=>t.classList.remove('a'));this.classList.add('a');this.nextElementSibling.classList.remove('a')">Annuity (60 fields — 40 new)</div>
+<div class="tab" onclick="document.querySelectorAll('#annuity,#investment,#medicare,#life').forEach(e=>e.style.display='none');document.getElementById('investment').style.display='block';document.querySelectorAll('.tab').forEach(t=>t.classList.remove('a'));this.classList.add('a');this.previousElementSibling.classList.remove('a')">Investment (42 fields — 34 new)</div>
 </div>
 
 <div id="annuity"><div style="display:flex;gap:12px;justify-content:center;margin-bottom:16px;flex-wrap:wrap">
@@ -578,9 +578,192 @@ tr:hover{background:rgba(16,185,129,.03)}
 </tr>
 </table></div></div>
 
+<div id="medicare" style="display:none"><div style="display:flex;gap:12px;justify-content:center;margin-bottom:16px;flex-wrap:wrap">
+<div style="background:#111827;border:1px solid #1e293b;border-radius:8px;padding:8px 14px;text-align:center"><div style="font-size:1.2rem;font-weight:800;color:#10b981">13</div><div style="font-size:.6rem;color:#94a3b8;text-transform:uppercase">Total Fields</div></div>
+<div style="background:#111827;border:1px solid #1e293b;border-radius:8px;padding:8px 14px;text-align:center"><div style="font-size:1.2rem;font-weight:800;color:#3b82f6">9</div><div style="font-size:.6rem;color:#94a3b8;text-transform:uppercase">NEW (gaps)</div></div>
+</div>
+<div style="background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.2);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:.72rem;color:#f59e0b">
+<strong>Note:</strong> Medicare schema was already LOCKED (MAPD/PDP/Med Supp/Ancillary). These are GHL fields that our locked schema is MISSING — they need to be added as a schema amendment, not a new lock.</div>
+<div style="margin-bottom:16px;background:#111827;border:1px solid #1e293b;border-radius:10px;overflow:hidden">
+<div style="background:#1a2236;padding:10px 16px;font-size:.72rem;font-weight:700;color:#10b981;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid #1e293b">MedSupp Detail (GHL gaps vs our locked schema) (13)</div>
+<table style="width:100%;border-collapse:collapse;font-size:.75rem">
+<tr><th style="text-align:left;padding:6px 10px;background:#1a2236;color:#94a3b8;font-size:.6rem;text-transform:uppercase">GHL Field</th>
+<th style="text-align:left;padding:6px 10px;background:#1a2236;color:#94a3b8;font-size:.6rem;text-transform:uppercase">Our Firestore Name</th>
+<th style="text-align:left;padding:6px 10px;background:#1a2236;color:#94a3b8;font-size:.6rem;text-transform:uppercase">Status</th></tr>
+<tr>
+<td style="font-size:.75rem">Plan Letter</td>
+<td style="font-family:monospace;font-size:.7rem;color:#e2e8f0">plan_letter</td>
+<td><span style="font-size:.6rem;padding:2px 8px;border-radius:4px;font-weight:600;background:rgba(34,197,94,.15);color:#22c55e">✅ EXISTS</span></td>
+</tr><tr>
+<td style="font-size:.75rem">Premium Mode</td>
+<td style="font-family:monospace;font-size:.7rem;color:#e2e8f0">premium_mode</td>
+<td><span style="font-size:.6rem;padding:2px 8px;border-radius:4px;font-weight:600;background:rgba(34,197,94,.15);color:#22c55e">✅ EXISTS</span></td>
+</tr><tr>
+<td style="font-size:.75rem">Preferred Draft Date</td>
+<td style="font-family:monospace;font-size:.7rem;color:#e2e8f0">preferred_draft_date</td>
+<td><span style="font-size:.6rem;padding:2px 8px;border-radius:4px;font-weight:600;background:rgba(59,130,246,.15);color:#3b82f6">⚡ NEW</span></td>
+</tr><tr>
+<td style="font-size:.75rem">Planned Premium (Attained)</td>
+<td style="font-family:monospace;font-size:.7rem;color:#e2e8f0">planned_premium_attained</td>
+<td><span style="font-size:.6rem;padding:2px 8px;border-radius:4px;font-weight:600;background:rgba(59,130,246,.15);color:#3b82f6">⚡ NEW</span></td>
+</tr><tr>
+<td style="font-size:.75rem">Annualized Premium (Attained)</td>
+<td style="font-family:monospace;font-size:.7rem;color:#e2e8f0">annualized_premium</td>
+<td><span style="font-size:.6rem;padding:2px 8px;border-radius:4px;font-weight:600;background:rgba(34,197,94,.15);color:#22c55e">✅ EXISTS</span></td>
+</tr><tr>
+<td style="font-size:.75rem">Annualized Premium- Commissionable (Issued)</td>
+<td style="font-family:monospace;font-size:.7rem;color:#e2e8f0">commissionable_premium_issued<span style="font-size:.6rem;color:#94a3b8;display:block;margin-top:2px">Different from commissionable_premium (existing) — this is issued vs attained</span></td>
+<td><span style="font-size:.6rem;padding:2px 8px;border-radius:4px;font-weight:600;background:rgba(59,130,246,.15);color:#3b82f6">⚡ NEW</span></td>
+</tr><tr>
+<td style="font-size:.75rem">Cumulative Rate Increase</td>
+<td style="font-family:monospace;font-size:.7rem;color:#e2e8f0">cumulative_rate_increase</td>
+<td><span style="font-size:.6rem;padding:2px 8px;border-radius:4px;font-weight:600;background:rgba(34,197,94,.15);color:#22c55e">✅ EXISTS</span></td>
+</tr><tr>
+<td style="font-size:.75rem">Annualized Rate Increases</td>
+<td style="font-family:monospace;font-size:.7rem;color:#e2e8f0">annualized_rate_increases</td>
+<td><span style="font-size:.6rem;padding:2px 8px;border-radius:4px;font-weight:600;background:rgba(59,130,246,.15);color:#3b82f6">⚡ NEW</span></td>
+</tr><tr>
+<td style="font-size:.75rem">Approved Rate Action- New Premium</td>
+<td style="font-family:monospace;font-size:.7rem;color:#e2e8f0">approved_rate_action_premium</td>
+<td><span style="font-size:.6rem;padding:2px 8px;border-radius:4px;font-weight:600;background:rgba(59,130,246,.15);color:#3b82f6">⚡ NEW</span></td>
+</tr><tr>
+<td style="font-size:.75rem">Approved Rate Action- Effective Date</td>
+<td style="font-family:monospace;font-size:.7rem;color:#e2e8f0">approved_rate_action_date</td>
+<td><span style="font-size:.6rem;padding:2px 8px;border-radius:4px;font-weight:600;background:rgba(59,130,246,.15);color:#3b82f6">⚡ NEW</span></td>
+</tr><tr>
+<td style="font-size:.75rem">Discounts- Type</td>
+<td style="font-family:monospace;font-size:.7rem;color:#e2e8f0">discounts_type<span style="font-size:.6rem;color:#94a3b8;display:block;margin-top:2px">We have discount_types (plural) — verify if same</span></td>
+<td><span style="font-size:.6rem;padding:2px 8px;border-radius:4px;font-weight:600;background:rgba(59,130,246,.15);color:#3b82f6">⚡ NEW</span></td>
+</tr><tr>
+<td style="font-size:.75rem">Discounts- TOTAL (%) (Policy)</td>
+<td style="font-family:monospace;font-size:.7rem;color:#e2e8f0">discounts_total_pct</td>
+<td><span style="font-size:.6rem;padding:2px 8px;border-radius:4px;font-weight:600;background:rgba(59,130,246,.15);color:#3b82f6">⚡ NEW</span></td>
+</tr><tr>
+<td style="font-size:.75rem">Guaranteed Issue Available?</td>
+<td style="font-family:monospace;font-size:.7rem;color:#e2e8f0">guaranteed_issue_available</td>
+<td><span style="font-size:.6rem;padding:2px 8px;border-radius:4px;font-weight:600;background:rgba(59,130,246,.15);color:#3b82f6">⚡ NEW</span></td>
+</tr>
+</table></div></div>
+<div id="life" style="display:none"><div style="display:flex;gap:12px;justify-content:center;margin-bottom:16px;flex-wrap:wrap">
+<div style="background:#111827;border:1px solid #1e293b;border-radius:8px;padding:8px 14px;text-align:center"><div style="font-size:1.2rem;font-weight:800;color:#10b981">22</div><div style="font-size:.6rem;color:#94a3b8;text-transform:uppercase">Total Fields</div></div>
+<div style="background:#111827;border:1px solid #1e293b;border-radius:8px;padding:8px 14px;text-align:center"><div style="font-size:1.2rem;font-weight:800;color:#3b82f6">17</div><div style="font-size:.6rem;color:#94a3b8;text-transform:uppercase">NEW (gaps)</div></div>
+</div>
+<div style="background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:.72rem;color:#22c55e">
+<strong>🎯 Dividend Details TBD section is now FILLED!</strong> The 7 dividend fields below were the only open section in our locked Life schema. GHL provided the answer.</div>
+<div style="margin-bottom:16px;background:#111827;border:1px solid #1e293b;border-radius:10px;overflow:hidden">
+<div style="background:#1a2236;padding:10px 16px;font-size:.72rem;font-weight:700;color:#10b981;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid #1e293b">Contract Elements (GHL gaps vs our locked schema) (9)</div>
+<table style="width:100%;border-collapse:collapse;font-size:.75rem">
+<tr><th style="text-align:left;padding:6px 10px;background:#1a2236;color:#94a3b8;font-size:.6rem;text-transform:uppercase">GHL Field</th>
+<th style="text-align:left;padding:6px 10px;background:#1a2236;color:#94a3b8;font-size:.6rem;text-transform:uppercase">Our Firestore Name</th>
+<th style="text-align:left;padding:6px 10px;background:#1a2236;color:#94a3b8;font-size:.6rem;text-transform:uppercase">Status</th></tr>
+<tr>
+<td style="font-size:.75rem">Scheduled Premium</td>
+<td style="font-family:monospace;font-size:.7rem;color:#e2e8f0">scheduled_premium<span style="font-size:.6rem;color:#94a3b8;display:block;margin-top:2px">Already in our Life schema from yesterday</span></td>
+<td><span style="font-size:.6rem;padding:2px 8px;border-radius:4px;font-weight:600;background:rgba(34,197,94,.15);color:#22c55e">✅ EXISTS</span></td>
+</tr><tr>
+<td style="font-size:.75rem">Premium Mode</td>
+<td style="font-family:monospace;font-size:.7rem;color:#e2e8f0">premium_mode</td>
+<td><span style="font-size:.6rem;padding:2px 8px;border-radius:4px;font-weight:600;background:rgba(34,197,94,.15);color:#22c55e">✅ EXISTS</span></td>
+</tr><tr>
+<td style="font-size:.75rem">Preferred Draft Date</td>
+<td style="font-family:monospace;font-size:.7rem;color:#e2e8f0">preferred_draft_date</td>
+<td><span style="font-size:.6rem;padding:2px 8px;border-radius:4px;font-weight:600;background:rgba(59,130,246,.15);color:#3b82f6">⚡ NEW</span></td>
+</tr><tr>
+<td style="font-size:.75rem">ANNUALIZED Premium</td>
+<td style="font-family:monospace;font-size:.7rem;color:#e2e8f0">annualized_premium</td>
+<td><span style="font-size:.6rem;padding:2px 8px;border-radius:4px;font-weight:600;background:rgba(34,197,94,.15);color:#22c55e">✅ EXISTS</span></td>
+</tr><tr>
+<td style="font-size:.75rem">DB Option (A/B/C)</td>
+<td style="font-family:monospace;font-size:.7rem;color:#e2e8f0">death_benefit_option<span style="font-size:.6rem;color:#94a3b8;display:block;margin-top:2px">A=Level, B=Increasing, C=Return of Premium — verify our field captures this enum</span></td>
+<td><span style="font-size:.6rem;padding:2px 8px;border-radius:4px;font-weight:600;background:rgba(34,197,94,.15);color:#22c55e">✅ EXISTS</span></td>
+</tr><tr>
+<td style="font-size:.75rem">MEC (Modified Endowment Contract)</td>
+<td style="font-family:monospace;font-size:.7rem;color:#e2e8f0">mec</td>
+<td><span style="font-size:.6rem;padding:2px 8px;border-radius:4px;font-weight:600;background:rgba(34,197,94,.15);color:#22c55e">✅ EXISTS</span></td>
+</tr><tr>
+<td style="font-size:.75rem">Underwriting- Approved</td>
+<td style="font-family:monospace;font-size:.7rem;color:#e2e8f0">underwriting_approved<span style="font-size:.6rem;color:#94a3b8;display:block;margin-top:2px">Different from risk_class — this is the approved UW decision (e.g. 'Standard | Non-Tobacco')</span></td>
+<td><span style="font-size:.6rem;padding:2px 8px;border-radius:4px;font-weight:600;background:rgba(59,130,246,.15);color:#3b82f6">⚡ NEW</span></td>
+</tr><tr>
+<td style="font-size:.75rem">Underwriting- Projected</td>
+<td style="font-family:monospace;font-size:.7rem;color:#e2e8f0">underwriting_projected</td>
+<td><span style="font-size:.6rem;padding:2px 8px;border-radius:4px;font-weight:600;background:rgba(59,130,246,.15);color:#3b82f6">⚡ NEW</span></td>
+</tr><tr>
+<td style="font-size:.75rem">ROPY Level Term Period</td>
+<td style="font-family:monospace;font-size:.7rem;color:#e2e8f0">ropy_level_term_period<span style="font-size:.6rem;color:#94a3b8;display:block;margin-top:2px">Return of Premium — level term period in years</span></td>
+<td><span style="font-size:.6rem;padding:2px 8px;border-radius:4px;font-weight:600;background:rgba(59,130,246,.15);color:#3b82f6">⚡ NEW</span></td>
+</tr>
+</table></div><div style="margin-bottom:16px;background:#111827;border:1px solid #1e293b;border-radius:10px;overflow:hidden">
+<div style="background:#1a2236;padding:10px 16px;font-size:.72rem;font-weight:700;color:#10b981;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid #1e293b">In-Force Illustrations (6 scenarios) (6)</div>
+<table style="width:100%;border-collapse:collapse;font-size:.75rem">
+<tr><th style="text-align:left;padding:6px 10px;background:#1a2236;color:#94a3b8;font-size:.6rem;text-transform:uppercase">GHL Field</th>
+<th style="text-align:left;padding:6px 10px;background:#1a2236;color:#94a3b8;font-size:.6rem;text-transform:uppercase">Our Firestore Name</th>
+<th style="text-align:left;padding:6px 10px;background:#1a2236;color:#94a3b8;font-size:.6rem;text-transform:uppercase">Status</th></tr>
+<tr>
+<td style="font-size:.75rem">IF #1 (Current): DB + Annualized Prem + 1035x NET Cash + Lapse Age Curr + Lapse Age Guar</td>
+<td style="font-family:monospace;font-size:.7rem;color:#e2e8f0">illustrations[]<span style="font-size:.6rem;color:#94a3b8;display:block;margin-top:2px">Array of objects: {scenario, death_benefit, annualized_premium, net_cash_1035x, lapse_age_current, lapse_age_guaranteed}</span></td>
+<td><span style="font-size:.6rem;padding:2px 8px;border-radius:4px;font-weight:600;background:rgba(59,130,246,.15);color:#3b82f6">⚡ NEW</span></td>
+</tr><tr>
+<td style="font-size:.75rem">IF #2 (Face Solve): same 5 fields</td>
+<td style="font-family:monospace;font-size:.7rem;color:#e2e8f0">illustrations[]</td>
+<td><span style="font-size:.6rem;padding:2px 8px;border-radius:4px;font-weight:600;background:rgba(59,130,246,.15);color:#3b82f6">⚡ NEW</span></td>
+</tr><tr>
+<td style="font-size:.75rem">IF #3 (Premium Solve): same 5 fields</td>
+<td style="font-family:monospace;font-size:.7rem;color:#e2e8f0">illustrations[]</td>
+<td><span style="font-size:.6rem;padding:2px 8px;border-radius:4px;font-weight:600;background:rgba(59,130,246,.15);color:#3b82f6">⚡ NEW</span></td>
+</tr><tr>
+<td style="font-size:.75rem">IF #4 (Lower Face): same 5 fields</td>
+<td style="font-family:monospace;font-size:.7rem;color:#e2e8f0">illustrations[]</td>
+<td><span style="font-size:.6rem;padding:2px 8px;border-radius:4px;font-weight:600;background:rgba(59,130,246,.15);color:#3b82f6">⚡ NEW</span></td>
+</tr><tr>
+<td style="font-size:.75rem">IF #5 ($0 Premium): same 5 fields</td>
+<td style="font-family:monospace;font-size:.7rem;color:#e2e8f0">illustrations[]</td>
+<td><span style="font-size:.6rem;padding:2px 8px;border-radius:4px;font-weight:600;background:rgba(59,130,246,.15);color:#3b82f6">⚡ NEW</span></td>
+</tr><tr>
+<td style="font-size:.75rem">IF #6 (Term Doc Page): Conversion Age + Rules + New Annualized Prem + New DB</td>
+<td style="font-family:monospace;font-size:.7rem;color:#e2e8f0">illustrations[]<span style="font-size:.6rem;color:#94a3b8;display:block;margin-top:2px">Term conversion scenario — different field set</span></td>
+<td><span style="font-size:.6rem;padding:2px 8px;border-radius:4px;font-weight:600;background:rgba(59,130,246,.15);color:#3b82f6">⚡ NEW</span></td>
+</tr>
+</table></div><div style="margin-bottom:16px;background:#111827;border:1px solid #1e293b;border-radius:10px;overflow:hidden">
+<div style="background:#1a2236;padding:10px 16px;font-size:.72rem;font-weight:700;color:#10b981;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid #1e293b">Dividend Details (FILLS THE TBD SECTION!) (7)</div>
+<table style="width:100%;border-collapse:collapse;font-size:.75rem">
+<tr><th style="text-align:left;padding:6px 10px;background:#1a2236;color:#94a3b8;font-size:.6rem;text-transform:uppercase">GHL Field</th>
+<th style="text-align:left;padding:6px 10px;background:#1a2236;color:#94a3b8;font-size:.6rem;text-transform:uppercase">Our Firestore Name</th>
+<th style="text-align:left;padding:6px 10px;background:#1a2236;color:#94a3b8;font-size:.6rem;text-transform:uppercase">Status</th></tr>
+<tr>
+<td style="font-size:.75rem">Dividend Option- 1</td>
+<td style="font-family:monospace;font-size:.7rem;color:#e2e8f0">dividend_option_1<span style="font-size:.6rem;color:#94a3b8;display:block;margin-top:2px">Was TBD in our locked Life schema — NOW FILLED</span></td>
+<td><span style="font-size:.6rem;padding:2px 8px;border-radius:4px;font-weight:600;background:rgba(59,130,246,.15);color:#3b82f6">⚡ NEW</span></td>
+</tr><tr>
+<td style="font-size:.75rem">Dividend Option- 2</td>
+<td style="font-family:monospace;font-size:.7rem;color:#e2e8f0">dividend_option_2</td>
+<td><span style="font-size:.6rem;padding:2px 8px;border-radius:4px;font-weight:600;background:rgba(59,130,246,.15);color:#3b82f6">⚡ NEW</span></td>
+</tr><tr>
+<td style="font-size:.75rem">Dividend Balance</td>
+<td style="font-family:monospace;font-size:.7rem;color:#e2e8f0">dividend_balance</td>
+<td><span style="font-size:.6rem;padding:2px 8px;border-radius:4px;font-weight:600;background:rgba(59,130,246,.15);color:#3b82f6">⚡ NEW</span></td>
+</tr><tr>
+<td style="font-size:.75rem">Last Year- Dividend</td>
+<td style="font-family:monospace;font-size:.7rem;color:#e2e8f0">last_year_dividend</td>
+<td><span style="font-size:.6rem;padding:2px 8px;border-radius:4px;font-weight:600;background:rgba(59,130,246,.15);color:#3b82f6">⚡ NEW</span></td>
+</tr><tr>
+<td style="font-size:.75rem">Last Year- PUA Increase</td>
+<td style="font-family:monospace;font-size:.7rem;color:#e2e8f0">last_year_pua_increase</td>
+<td><span style="font-size:.6rem;padding:2px 8px;border-radius:4px;font-weight:600;background:rgba(59,130,246,.15);color:#3b82f6">⚡ NEW</span></td>
+</tr><tr>
+<td style="font-size:.75rem">Current Year- Dividend</td>
+<td style="font-family:monospace;font-size:.7rem;color:#e2e8f0">current_year_dividend</td>
+<td><span style="font-size:.6rem;padding:2px 8px;border-radius:4px;font-weight:600;background:rgba(59,130,246,.15);color:#3b82f6">⚡ NEW</span></td>
+</tr><tr>
+<td style="font-size:.75rem">Current Year- PUA Increase</td>
+<td style="font-family:monospace;font-size:.7rem;color:#e2e8f0">current_year_pua_increase</td>
+<td><span style="font-size:.6rem;padding:2px 8px;border-radius:4px;font-weight:600;background:rgba(59,130,246,.15);color:#3b82f6">⚡ NEW</span></td>
+</tr>
+</table></div></div>
+
 <div style="text-align:center;margin-top:24px;padding:16px;background:var(--card);border:1px solid var(--border);border-radius:10px">
 <div style="color:var(--accent);font-size:.85rem;font-weight:700;text-transform:uppercase;letter-spacing:1px">Combined Gap Analysis</div>
-<div style="color:var(--muted);font-size:.7rem;margin-top:4px">Annuity: 16 exist + 40 new | Investment: 8 exist + 34 new | Total new fields to add: 74</div>
+<div style="color:var(--muted);font-size:.7rem;margin-top:4px">Annuity: 16 exist + 40 new | Investment: 8 exist + 34 new | Medicare: 4 exist + 9 gaps | Life: 5 exist + 17 gaps | Total new fields: 100</div>
 </div>
 
 </body></html>
