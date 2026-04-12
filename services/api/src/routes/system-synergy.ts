@@ -488,14 +488,34 @@ systemSynergyRoutes.get('/deploy-status', async (_req: Request, res: Response) =
     }
 
     // Get last deploy from git log
-    const lastDeployCommit = safeExec(`cd "${path.join(PROJECTS_DIR, 'toMachina')}" && git log --oneline -1 origin/main 2>/dev/null`)
-    const lastDeployTime = safeExec(`cd "${path.join(PROJECTS_DIR, 'toMachina')}" && git log -1 --format="%ci" origin/main 2>/dev/null`)
+    const lastDeploySha = safeExec(`cd "${path.join(PROJECTS_DIR, 'toMachina')}" && git log -1 --format="%H" origin/main 2>/dev/null`)
+
+    // Pending PRs (from GitHub API if available)
+    let pendingPrs: unknown[] = []
+    if (ghToken) {
+      try {
+        const prResponse = await fetch(`https://api.github.com/repos/${repo}/pulls?state=open&per_page=10`, {
+          headers: { Authorization: `token ${ghToken}`, Accept: 'application/vnd.github.v3+json' },
+          signal: AbortSignal.timeout(5000),
+        })
+        if (prResponse.ok) {
+          const prData = await prResponse.json() as Array<Record<string, unknown>>
+          pendingPrs = prData.map(pr => ({
+            number: pr.number,
+            title: pr.title,
+            state: pr.state,
+            author: (pr.user as Record<string, unknown>)?.login || 'unknown',
+            created_at: pr.created_at,
+            html_url: pr.html_url,
+          }))
+        }
+      } catch { /* GitHub API unavailable */ }
+    }
 
     res.json(successResponse({
       ci_runs: ciRuns,
-      ci_runs_count: ciRuns.length,
-      last_main_commit: lastDeployCommit || null,
-      last_main_timestamp: lastDeployTime || null,
+      pending_prs: pendingPrs,
+      last_deploy_sha: lastDeploySha || null,
       github_api_available: ciRuns.length > 0,
     }))
   } catch (err) {
