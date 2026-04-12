@@ -7,7 +7,7 @@
  */
 
 import { Router, type Request, type Response } from 'express'
-import { getFirestore } from 'firebase-admin/firestore'
+import { getDefaultDb } from '../lib/db.js'
 import { successResponse, errorResponse } from '../lib/helpers.js'
 
 export const adminWarriorRoutes = Router()
@@ -22,7 +22,7 @@ const DOJO_WARRIORS_COLLECTION = 'dojo_warriors'
 
 adminWarriorRoutes.get('/', async (_req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
     const snapshot = await db.collection(DOJO_WARRIORS_COLLECTION).get()
 
     const warriors = snapshot.docs.map((doc) => ({

@@ -1,5 +1,6 @@
 import { Router, type Request, type Response } from 'express'
-import { getFirestore, type Query, type DocumentData } from 'firebase-admin/firestore'
+import { type Query, type DocumentData } from 'firebase-admin/firestore'
+import { getDb } from '../lib/db.js'
 import {
   successResponse,
   errorResponse,
@@ -40,7 +41,7 @@ opportunityRoutes.get('/field-schemas/:pipelineKey', async (req: Request, res: R
 
 opportunityRoutes.get('/', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const params = getPaginationParams(req)
     if (!params.orderBy) params.orderBy = 'created_at'
 
@@ -62,7 +63,7 @@ opportunityRoutes.get('/', async (req: Request, res: Response) => {
 
 opportunityRoutes.get('/:id', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const id = param(req.params.id)
     const doc = await db.collection(COLLECTION).doc(id).get()
     if (!doc.exists) { res.status(404).json(errorResponse('Opportunity not found')); return }
@@ -78,7 +79,7 @@ opportunityRoutes.post('/', async (req: Request, res: Response) => {
     const err = validateRequired(req.body, ['pipeline', 'stage'])
     if (err) { res.status(400).json(errorResponse(err)); return }
 
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const now = new Date().toISOString()
     const oppId = req.body.opportunity_id || db.collection(COLLECTION).doc().id
     const data = { ...req.body, opportunity_id: oppId, value: parseFloat(req.body.value) || 0, created_at: req.body.created_at || now, updated_at: now, _created_by: (req as any).user?.email || 'api' }
@@ -95,7 +96,7 @@ opportunityRoutes.post('/', async (req: Request, res: Response) => {
 
 opportunityRoutes.patch('/:id', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const id = param(req.params.id)
     const docRef = db.collection(COLLECTION).doc(id)
     const doc = await docRef.get()
@@ -118,7 +119,7 @@ opportunityRoutes.patch('/:id', async (req: Request, res: Response) => {
 
 opportunityRoutes.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const id = param(req.params.id)
     const docRef = db.collection(COLLECTION).doc(id)
     const doc = await docRef.get()

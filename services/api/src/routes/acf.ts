@@ -5,7 +5,7 @@
  */
 
 import { Router, type Request, type Response } from 'express'
-import { getFirestore } from 'firebase-admin/firestore'
+import { getDb } from '../lib/db.js'
 import {
   successResponse,
   errorResponse,
@@ -53,7 +53,7 @@ export const acfRoutes = Router()
 // Helper: load ACF config from Firestore
 // ---------------------------------------------------------------------------
 async function loadConfig(): Promise<ACFConfig> {
-  const store = getFirestore()
+  const store = getDb()
   const acfColl = store.collection('acf_config')
   const doc = await acfColl.doc('default').get()
   if (!doc.exists) {
@@ -66,7 +66,7 @@ async function loadConfig(): Promise<ACFConfig> {
 // Helper: build ACF status for a single client
 // ---------------------------------------------------------------------------
 async function getACFStatus(clientId: string): Promise<ACFStatus> {
-  const store = getFirestore()
+  const store = getDb()
   const clientsColl = store.collection('clients')
   const clientDoc = await clientsColl.doc(clientId).get()
 
@@ -162,7 +162,7 @@ async function createACF(
   householdId?: string,
   configOverride?: Partial<ACFConfig>
 ): Promise<ACFCreateOutput> {
-  const store = getFirestore()
+  const store = getDb()
   const config = { ...(await loadConfig()), ...configOverride }
 
   // Household-aware: check if should nest under household folder
@@ -281,7 +281,7 @@ acfRoutes.get('/config', async (_req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 acfRoutes.put('/config', async (req: Request, res: Response) => {
   try {
-    const store = getFirestore()
+    const store = getDb(req.partnerId)
     const updates = req.body as Partial<ACFConfig>
     const acfColl = store.collection('acf_config')
     const configRef = acfColl.doc('default')
@@ -302,7 +302,7 @@ acfRoutes.put('/config', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 acfRoutes.get('/list', async (req: Request, res: Response) => {
   try {
-    const store = getFirestore()
+    const store = getDb(req.partnerId)
     const clientsColl = store.collection('clients')
     const page = Math.max(1, parseInt(req.query.page as string) || 1)
     const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 25))
@@ -399,9 +399,9 @@ acfRoutes.get('/list', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 // GET /api/acf/duplicates — all ACF duplicate pairs with confidence
 // ---------------------------------------------------------------------------
-acfRoutes.get('/duplicates', async (_req: Request, res: Response) => {
+acfRoutes.get('/duplicates', async (req: Request, res: Response) => {
   try {
-    const store = getFirestore()
+    const store = getDb(req.partnerId)
     const clientsColl = store.collection('clients')
 
     // Fetch all clients with ACF folders
@@ -540,9 +540,9 @@ acfRoutes.get('/duplicates', async (_req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 // POST /api/acf/audit — audit all clients for ACF completeness
 // ---------------------------------------------------------------------------
-acfRoutes.post('/audit', async (_req: Request, res: Response) => {
+acfRoutes.post('/audit', async (req: Request, res: Response) => {
   try {
-    const store = getFirestore()
+    const store = getDb(req.partnerId)
     const clientsColl = store.collection('clients')
     const clientsSnap = await clientsColl
       .select('acf_folder_id', 'acf_folder_url', 'first_name', 'last_name')
@@ -622,7 +622,7 @@ acfRoutes.post('/rebuild', async (req: Request, res: Response) => {
       mode: string
       dry_run?: boolean
     }
-    const store = getFirestore()
+    const store = getDb(req.partnerId)
     const config = await loadConfig()
     const clientsColl = store.collection('clients')
 
@@ -770,7 +770,7 @@ acfRoutes.get('/status/:clientId', async (req: Request, res: Response) => {
 acfRoutes.get('/:clientId', async (req: Request, res: Response) => {
   try {
     const clientId = param(req.params.clientId)
-    const store = getFirestore()
+    const store = getDb(req.partnerId)
     const clientsColl = store.collection('clients')
     const clientDoc = await clientsColl.doc(clientId).get()
 
@@ -878,7 +878,7 @@ acfRoutes.post('/:clientId/dismiss-duplicate', async (req: Request, res: Respons
       return
     }
 
-    const store = getFirestore()
+    const store = getDb(req.partnerId)
     const dismissedColl = store.collection('acf_dismissed_duplicates')
     await dismissedColl.add({
       client_a: clientId,
@@ -901,7 +901,7 @@ acfRoutes.get('/:clientId/files-by-policy/:policyNumber', async (req: Request, r
   try {
     const clientId = param(req.params.clientId)
     const policyNumber = param(req.params.policyNumber)
-    const store = getFirestore()
+    const store = getDb(req.partnerId)
     const clientsColl = store.collection('clients')
     const clientDoc = await clientsColl.doc(clientId).get()
 
@@ -957,7 +957,7 @@ acfRoutes.get('/:clientId/files-by-policy/:policyNumber', async (req: Request, r
 acfRoutes.post('/:clientId/create', async (req: Request, res: Response) => {
   try {
     const clientId = param(req.params.clientId)
-    const store = getFirestore()
+    const store = getDb(req.partnerId)
     const clientsColl = store.collection('clients')
     const clientDoc = await clientsColl.doc(clientId).get()
 
@@ -1010,7 +1010,7 @@ acfRoutes.post('/:clientId/route', async (req: Request, res: Response) => {
       label?: string
       enforce_naming?: boolean
     }
-    const store = getFirestore()
+    const store = getDb(req.partnerId)
     const clientsColl = store.collection('clients')
     const clientDoc = await clientsColl.doc(clientId).get()
 
@@ -1143,7 +1143,7 @@ acfRoutes.post('/:clientId/upload', async (req: Request, res: Response) => {
       return
     }
 
-    const store = getFirestore()
+    const store = getDb(req.partnerId)
     const clientsColl = store.collection('clients')
     const clientDoc = await clientsColl.doc(clientId).get()
 
@@ -1204,7 +1204,7 @@ acfRoutes.post('/:clientId/upload', async (req: Request, res: Response) => {
     // Queue extractable files (PDF, images) for SUPER_EXTRACT pipeline
     const extractable = mime_type === 'application/pdf' || mime_type.startsWith('image/')
     if (extractable) {
-      const store = getFirestore()
+      const store = getDb(req.partnerId)
       await store.collection('intake_queue').add({
         status: 'QUEUED',
         source: 'ACF_UPLOAD',
@@ -1302,7 +1302,7 @@ acfRoutes.post('/:clientId/move', async (req: Request, res: Response) => {
       return
     }
 
-    const store = getFirestore()
+    const store = getDb(req.partnerId)
     const clientDoc = await store.collection('clients').doc(clientId).get()
     if (!clientDoc.exists) {
       res.status(404).json(errorResponse('Client not found'))

@@ -1,5 +1,6 @@
 import { Router, type Request, type Response } from 'express'
-import { getFirestore, type Query, type DocumentData } from 'firebase-admin/firestore'
+import { type Query, type DocumentData } from 'firebase-admin/firestore'
+import { getDb } from '../lib/db.js'
 import {
   successResponse,
   errorResponse,
@@ -19,7 +20,7 @@ export const accountRoutes = Router()
  */
 accountRoutes.get('/', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const params = getPaginationParams(req)
     const typeFilter = (req.query.type as string) || ''
     const statusFilter = (req.query.status as string) || ''
@@ -75,7 +76,7 @@ accountRoutes.get('/', async (req: Request, res: Response) => {
  */
 accountRoutes.get('/:clientId/:accountId', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const clientId = param(req.params.clientId)
     const accountId = param(req.params.accountId)
     const doc = await db.collection('clients').doc(clientId).collection('accounts').doc(accountId).get()
@@ -97,7 +98,7 @@ accountRoutes.get('/:clientId/:accountId', async (req: Request, res: Response) =
  */
 accountRoutes.post('/:clientId', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const clientId = param(req.params.clientId)
 
     const clientDoc = await db.collection('clients').doc(clientId).get()
@@ -141,7 +142,7 @@ accountRoutes.post('/:clientId', async (req: Request, res: Response) => {
  */
 accountRoutes.patch('/:clientId/:accountId', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const clientId = param(req.params.clientId)
     const accountId = param(req.params.accountId)
     const docRef = db.collection('clients').doc(clientId).collection('accounts').doc(accountId)
@@ -181,7 +182,7 @@ accountRoutes.patch('/:clientId/:accountId', async (req: Request, res: Response)
  */
 accountRoutes.delete('/:clientId/:accountId', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const cId = param(req.params.clientId)
     const aId = param(req.params.accountId)
     const ref = db.collection('clients').doc(cId).collection('accounts').doc(aId)

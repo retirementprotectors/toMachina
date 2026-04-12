@@ -7,7 +7,8 @@
  */
 
 import { Router, type Request, type Response } from 'express'
-import { getFirestore, Timestamp } from 'firebase-admin/firestore'
+import { Timestamp } from 'firebase-admin/firestore'
+import { getDefaultDb } from '../lib/db.js'
 import { successResponse, errorResponse } from '../lib/helpers.js'
 
 export const adminLearningLoopRoutes = Router()
@@ -25,7 +26,7 @@ interface KnowledgeStats {
 }
 
 async function getKnowledgeStats(): Promise<KnowledgeStats> {
-  const db = getFirestore()
+  const db = getDefaultDb()
   const snapshot = await db.collection('knowledge_entries').orderBy('created_at', 'desc').limit(200).get()
 
   const stats: KnowledgeStats = {
@@ -70,7 +71,7 @@ interface VoltronGap {
 }
 
 async function getVoltronGaps(): Promise<VoltronGap[]> {
-  const db = getFirestore()
+  const db = getDefaultDb()
   const snapshot = await db
     .collection('knowledge_entries')
     .where('tags', 'array-contains', 'voltron-gap')
@@ -91,7 +92,7 @@ async function getVoltronGaps(): Promise<VoltronGap[]> {
 
 // Warrior Registry Summary
 async function getWarriorSummary(): Promise<Array<{ name: string; status: string; type: string; last_brain_update: string | null }>> {
-  const db = getFirestore()
+  const db = getDefaultDb()
   const snapshot = await db.collection('dojo_warriors').get()
 
   return snapshot.docs.map((doc) => {

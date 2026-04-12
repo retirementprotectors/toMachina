@@ -1,5 +1,5 @@
 import { Router, type Request, type Response } from 'express'
-import { getFirestore } from 'firebase-admin/firestore'
+import { getDb } from '../lib/db.js'
 import { successResponse, errorResponse, param } from '../lib/helpers.js'
 import type { AccessItemDTO, AccessItemListDTO, AccessItemCreateDTO, AccessItemUpdateDTO, AccessItemDeleteResult, AccessAutoGenerateResult } from '@tomachina/core'
 import { randomUUID } from 'crypto'
@@ -15,7 +15,7 @@ const ACCESS_ITEMS = 'access_items'
 
 accessRoutes.get('/:clientId', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const clientId = param(req.params.clientId)
 
     if (!clientId) {
@@ -45,7 +45,7 @@ accessRoutes.get('/:clientId', async (req: Request, res: Response) => {
 
 accessRoutes.get('/:clientId/:accessId', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const clientId = param(req.params.clientId)
     const accessId = param(req.params.accessId)
 
@@ -74,7 +74,7 @@ accessRoutes.get('/:clientId/:accessId', async (req: Request, res: Response) => 
 
 accessRoutes.post('/:clientId', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const clientId = param(req.params.clientId)
     const body = req.body as Record<string, unknown>
 
@@ -128,7 +128,7 @@ accessRoutes.post('/:clientId', async (req: Request, res: Response) => {
 
 accessRoutes.put('/:clientId/:accessId', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const clientId = param(req.params.clientId)
     const accessId = param(req.params.accessId)
     const body = req.body as Record<string, unknown>
@@ -170,7 +170,7 @@ accessRoutes.put('/:clientId/:accessId', async (req: Request, res: Response) => 
 
 accessRoutes.delete('/:clientId/:accessId', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const clientId = param(req.params.clientId)
     const accessId = param(req.params.accessId)
 
@@ -212,7 +212,7 @@ function deriveCategory(accountType: string): 'medicare' | 'annuity' | 'life' | 
 
 accessRoutes.post('/:clientId/auto-generate', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const clientId = param(req.params.clientId)
 
     // 1. Read client accounts

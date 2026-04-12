@@ -4,7 +4,8 @@
  */
 
 import { Router, type Request, type Response } from 'express'
-import { getFirestore, type Query, type DocumentData } from 'firebase-admin/firestore'
+import { type Query, type DocumentData } from 'firebase-admin/firestore'
+import { getDb } from '../lib/db.js'
 import {
   successResponse, errorResponse, getPaginationParams, paginatedQuery,
   stripInternalFields, validateRequired, param, writeThroughBridge,
@@ -67,7 +68,7 @@ const KITS = dex.COLLECTIONS.KITS
 
 dexRoutes.get('/forms', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const params = getPaginationParams(req)
     if (!params.orderBy) params.orderBy = 'form_id'
     params.orderDir = 'asc'
@@ -89,7 +90,7 @@ dexRoutes.get('/forms', async (req: Request, res: Response) => {
 
 dexRoutes.get('/forms/:id', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const id = param(req.params.id)
     const doc = await db.collection(FORMS).doc(id).get()
     if (!doc.exists) { res.status(404).json(errorResponse('Form not found')); return }
@@ -118,7 +119,7 @@ dexRoutes.post('/forms', async (req: Request, res: Response) => {
     const err = validateRequired(body, ['form_name', 'source', 'category'])
     if (err) { res.status(400).json(errorResponse(err)); return }
 
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const id = String(body.form_id || `FORM_${Date.now()}`)
     const now = new Date().toISOString()
     const data = {
@@ -147,7 +148,7 @@ dexRoutes.post('/forms', async (req: Request, res: Response) => {
 
 dexRoutes.patch('/forms/:id', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const id = param(req.params.id)
     const doc = await db.collection(FORMS).doc(id).get()
     if (!doc.exists) { res.status(404).json(errorResponse('Form not found')); return }
@@ -173,7 +174,7 @@ dexRoutes.patch('/forms/:id', async (req: Request, res: Response) => {
 
 dexRoutes.get('/mappings', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     let query: Query<DocumentData> = db.collection(MAPPINGS)
     if (req.query.form_id) query = query.where('form_id', '==', req.query.form_id)
     if (req.query.carrier) query = query.where('carrier', '==', req.query.carrier)
@@ -205,7 +206,7 @@ dexRoutes.post('/mappings', async (req: Request, res: Response) => {
     const err = validateRequired(body, ['form_id', 'field_name', 'data_source'])
     if (err) { res.status(400).json(errorResponse(err)); return }
 
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const id = String(body.mapping_id || `MAP_${Date.now()}`)
     const now = new Date().toISOString()
     const data = { ...body, mapping_id: id, status: 'ACTIVE', created_at: now, updated_at: now }
@@ -251,7 +252,7 @@ dexRoutes.get('/taxonomy/:type', async (req: Request, res: Response) => {
       return
     }
 
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const snap = await db.collection(collectionName).get()
     let items = snap.docs.map(d => ({ id: d.id, ...d.data() }))
 
@@ -274,7 +275,7 @@ dexRoutes.get('/taxonomy/:type', async (req: Request, res: Response) => {
 
 dexRoutes.get('/rules', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     let query: Query<DocumentData> = db.collection(RULES)
     if (req.query.product_type) query = query.where('product_type', '==', req.query.product_type)
     if (req.query.registration_type) query = query.where('registration_type', '==', req.query.registration_type)
@@ -295,7 +296,7 @@ dexRoutes.post('/rules', async (req: Request, res: Response) => {
     const err = validateRequired(body, ['product_type', 'registration_type', 'action'])
     if (err) { res.status(400).json(errorResponse(err)); return }
 
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const id = String(body.rule_id || `RULE_${Date.now()}`)
     const now = new Date().toISOString()
     const data = { ...body, rule_id: id, status: 'ACTIVE', created_at: now, updated_at: now }
@@ -318,7 +319,7 @@ dexRoutes.post('/kits/build', async (req: Request, res: Response) => {
     const err = validateRequired(body, ['client_id', 'product_type', 'registration_type', 'action'])
     if (err) { res.status(400).json(errorResponse(err)); return }
 
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const productType = String(body.product_type)
     const registrationType = String(body.registration_type)
     const action = String(body.action)
@@ -430,7 +431,7 @@ dexRoutes.post('/kits/build', async (req: Request, res: Response) => {
 
 dexRoutes.get('/kits', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const params = getPaginationParams(req)
     if (!params.orderBy) params.orderBy = 'created_at'
 
@@ -448,7 +449,7 @@ dexRoutes.get('/kits', async (req: Request, res: Response) => {
 
 dexRoutes.get('/kits/:id', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const id = param(req.params.id)
     const doc = await db.collection(KITS).doc(id).get()
     if (!doc.exists) { res.status(404).json(errorResponse('Kit not found')); return }
@@ -475,7 +476,7 @@ dexRoutes.get('/kits/:id', async (req: Request, res: Response) => {
 
 dexRoutes.post('/kits/:id/fill', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const id = param(req.params.id)
     const doc = await db.collection(KITS).doc(id).get()
     if (!doc.exists) { res.status(404).json(errorResponse('Kit not found')); return }
