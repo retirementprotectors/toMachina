@@ -32,11 +32,31 @@
  *   - wire_runs (status ASC, startedAt DESC)     — alert queries for recent failures
  */
 
+import { initializeApp, cert, getApps } from 'firebase-admin/app'
 import { getFirestore, Timestamp, FieldValue } from 'firebase-admin/firestore'
 import type { UpdateData } from 'firebase-admin/firestore'
+import * as fs from 'fs'
 import * as os from 'os'
 
 const COLLECTION_NAME = 'wire_runs'
+
+/**
+ * Ensure Firebase is initialized before any Firestore call.
+ * If the consuming wire already called initializeApp() at module level,
+ * this is a no-op. If not (e.g., wire-brain-sync, wire-platform-audit),
+ * we self-initialize with the SA key from GOOGLE_APPLICATION_CREDENTIALS.
+ */
+function ensureFirebaseInit(): void {
+  if (getApps().length > 0) return
+  const saPath = process.env.GOOGLE_APPLICATION_CREDENTIALS
+    || '/home/jdm/Projects/dojo-warriors/mdj-agent/sa-key.json'
+  try {
+    const sa = JSON.parse(fs.readFileSync(saPath, 'utf-8'))
+    initializeApp({ credential: cert(sa) })
+  } catch (err) {
+    console.error('[wire-run-tracker] Firebase self-init failed:', err instanceof Error ? err.message : err)
+  }
+}
 
 /** Build a deterministic Firestore document path for a given runId. */
 function docPath(runId: string): string {
@@ -108,6 +128,7 @@ export interface EndRunResult {
  * readable, and avoids dependency on Firestore auto-IDs.
  */
 export async function startRun(wireNameOrOpts: string | StartRunOptions): Promise<string> {
+  ensureFirebaseInit()
   const opts: StartRunOptions =
     typeof wireNameOrOpts === 'string' ? { wireName: wireNameOrOpts } : wireNameOrOpts
   const wireName = opts.wireName
