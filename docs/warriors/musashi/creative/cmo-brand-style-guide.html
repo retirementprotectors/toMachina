@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RPI Brand Style Guide — CMO Foundation</title>
+<style>
+  :root {
+    --bg: #0a0e17; --card: #111827; --border: #1e293b;
+    --text: #e2e8f0; --muted: #94a3b8; --gold: #d4a44c;
+    --green: #22c55e; --blue: #3b82f6; --rpi-blue: #4a7ab5;
+    --rpi-navy: #1e3a5f;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+  .header { background: linear-gradient(135deg, #0f0a00, #0f0f0f 30%, #0a0a1a 60%, #0f0f0f); padding: 56px 32px 44px; text-align: center; border-bottom: 1px solid var(--border); }
+  .header .label { font-size: 0.72rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 12px; }
+  .header h1 { font-size: 2.6rem; font-weight: 800; background: linear-gradient(135deg, #d4a44c, #f59e0b, #d4a44c); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; }
+  .header .sub { color: var(--muted); max-width: 720px; margin: 0 auto; font-size: 1.05rem; }
+  .content { max-width: 960px; margin: 0 auto; padding: 40px 32px; }
+  h2 { font-size: 1.6rem; color: var(--gold); margin: 2.5rem 0 1rem; border-left: 4px solid var(--gold); padding-left: 0.75rem; }
+  h3 { font-size: 1.2rem; color: var(--blue); margin: 1.5rem 0 0.75rem; }
+  h4 { font-size: 1rem; color: var(--green); margin: 1rem 0 0.5rem; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin: 1rem 0; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.95rem; }
+  th, td { padding: 0.6rem 0.85rem; border: 1px solid var(--border); text-align: left; }
+  th { background: #0f1827; color: var(--gold); font-weight: 700; }
+  code { background: #1c2128; padding: 2px 7px; border-radius: 4px; font-size: 0.88em; color: var(--blue); }
+  .swatches { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin: 1rem 0; }
+  .swatch { border-radius: 6px; overflow: hidden; border: 1px solid var(--border); }
+  .swatch .color { height: 80px; display: flex; align-items: flex-end; padding: 8px 12px; color: white; font-size: 0.75rem; font-weight: 700; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+  .swatch .meta { background: #0f1827; padding: 8px 12px; font-size: 0.78rem; }
+  .swatch .meta strong { color: var(--text); }
+  ul, ol { margin: 0.5rem 0 0.75rem 1.5rem; }
+  li { margin: 0.35rem 0; }
+  .rule { background: rgba(34, 197, 94, 0.08); border-left: 4px solid var(--green); padding: 0.85rem 1.15rem; border-radius: 4px; margin: 0.75rem 0; }
+  .rule strong { color: var(--green); }
+  .wrong { background: rgba(248, 81, 73, 0.08); border-left: 4px solid #f85149; padding: 0.85rem 1.15rem; border-radius: 4px; margin: 0.75rem 0; color: var(--muted); }
+  .wrong strong { color: #f85149; }
+  .voice-card { background: var(--card); padding: 1rem 1.25rem; border-radius: 6px; border: 1px solid var(--border); margin: 0.5rem 0; }
+  .voice-card .context { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); font-weight: 700; margin-bottom: 0.25rem; }
+  .footer { max-width: 960px; margin: 3rem auto 1rem; padding: 1rem 2rem; border-top: 1px solid var(--border); color: var(--muted); font-size: 0.85rem; text-align: center; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="label">CMO · Brand Foundation · Round 1</div>
+  <h1>RPI Brand Style Guide</h1>
+  <div class="sub">The new brand standard. Warm + professional. Universal across print, digital, portal, email, F2F. One voice, five facets. This doc governs every RPI-branded piece shipped after 2026-04-12.</div>
+</div>
+
+<div class="content">
+
+  <h2>1. The One-Line</h2>
+  <div class="card">
+    <p style="font-size: 1.15rem;">We help families navigate Medicare, retirement, life, legacy — with the warmth of a friend and the precision of a pro.</p>
+    <p style="color: var(--muted); margin-top: 0.5rem;">Every brochure, page, email, and handout expresses this. If it doesn't — rewrite.</p>
+  </div>
+
+  <h2>2. Voice</h2>
+  <table>
+    <tr><th>Attribute</th><th>Rule</th></tr>
+    <tr><td>Warm</td><td>Write like the person across the kitchen table. Use contractions. Say "we" and "you," not "the client."</td></tr>
+    <tr><td>Professional</td><td>No jargon traps. Define terms the first time. Avoid hype words (amazing, incredible, life-changing).</td></tr>
+    <tr><td>Direct</td><td>Lead with the point. Bullet the benefits. Cut every word that doesn't earn its spot.</td></tr>
+    <tr><td>Dual-purpose</td><td>Reads naturally to a client AND works as an agent selling tool. No content that only makes sense one-way.</td></tr>
+    <tr><td>Honest</td><td>Surface the catch. "Original Medicare doesn't cover everything — here's what fills the gap" beats "Medicare is awesome."</td></tr>
+  </table>
+
+  <h3>Voice in context</h3>
+
+  <div class="voice-card">
+    <div class="context">Headline — Medicare</div>
+    <p>❌ "Optimize Your Healthcare Strategy with Expert Medicare Guidance"</p>
+    <p>✅ "Medicare, Made Simple."</p>
+  </div>
+
+  <div class="voice-card">
+    <div class="context">Subhead — Life Insurance</div>
+    <p>❌ "Comprehensive Insurance Solutions for Your Family's Future"</p>
+    <p>✅ "The people you love shouldn't have to figure this out alone."</p>
+  </div>
+
+  <div class="voice-card">
+    <div class="context">CTA</div>
+    <p>❌ "Contact us today for a consultation."</p>
+    <p>✅ "Schedule a no-cost review. Bring your questions."</p>
+  </div>
+
+  <h2>3. Tagline &amp; Trademarks</h2>
+  <div class="card">
+    <p><strong style="color: var(--gold);">We're Your People™</strong> — the trademark. Use with the ™ mark. This is the master tagline for every piece.</p>
+    <p style="margin-top: 0.5rem;"><strong style="color: var(--gold);">MYST — Meet Your Service Team</strong> — the team page concept.</p>
+    <p style="margin-top: 0.5rem;"><strong style="color: var(--gold);">#RunningOurOwnRACE</strong> — internal/culture tagline. Sparingly external.</p>
+  </div>
+
+  <h2>4. Color Palette</h2>
+  <div class="card">
+    <p>Applied via Canva Brand Kit <code>kAEX0GErDPI</code> — "RPI + ProDash + David." Use the kit when generating in Canva.</p>
+  </div>
+  <div class="swatches">
+    <div class="swatch">
+      <div class="color" style="background: #4a7ab5;">RPI Blue</div>
+      <div class="meta"><strong>#4a7ab5</strong><br>Primary brand. Portals use as <code>--portal</code>.</div>
+    </div>
+    <div class="swatch">
+      <div class="color" style="background: #1e3a5f;">RPI Navy</div>
+      <div class="meta"><strong>#1e3a5f</strong><br>Headings on light bg. High contrast.</div>
+    </div>
+    <div class="swatch">
+      <div class="color" style="background: #d4a44c;">MUSASHI Gold</div>
+      <div class="meta"><strong>#d4a44c</strong><br>CMO/creative accent. Editorial highlights.</div>
+    </div>
+    <div class="swatch">
+      <div class="color" style="background: #3fb950;">Health Green</div>
+      <div class="meta"><strong>#3fb950</strong><br>Wealth/Retirement division.</div>
+    </div>
+    <div class="swatch">
+      <div class="color" style="background: #bc8cff;">Legacy Purple</div>
+      <div class="meta"><strong>#bc8cff</strong><br>Legacy/Estate division.</div>
+    </div>
+    <div class="swatch">
+      <div class="color" style="background: #58a6ff;">Info Blue</div>
+      <div class="meta"><strong>#58a6ff</strong><br>Medicare/Health division.</div>
+    </div>
+    <div class="swatch">
+      <div class="color" style="background: #f4f4f5; color: #0a0a0a; text-shadow: none;">Paper White</div>
+      <div class="meta"><strong>#f4f4f5</strong><br>Body background. Never pure #fff.</div>
+    </div>
+    <div class="swatch">
+      <div class="color" style="background: #1a1a1a;">Ink Black</div>
+      <div class="meta"><strong>#1a1a1a</strong><br>Body text. Never pure #000.</div>
+    </div>
+  </div>
+
+  <h2>5. Typography</h2>
+  <table>
+    <tr><th>Role</th><th>Family</th><th>Weight</th><th>Use</th></tr>
+    <tr><td>Display</td><td>Montserrat / Poppins</td><td>700-800</td><td>Headlines, hero titles, section heads</td></tr>
+    <tr><td>Body</td><td>Inter / Source Sans Pro</td><td>400-500</td><td>Paragraphs, lists, table cells</td></tr>
+    <tr><td>Numerical / data</td><td>Inter</td><td>600</td><td>Rates, tables, compliance figures</td></tr>
+    <tr><td>Monospace (rare)</td><td>JetBrains Mono / Monaco</td><td>400</td><td>Codes, SKUs, reference numbers only</td></tr>
+  </table>
+  <div class="rule"><strong>Rule:</strong> Max 2 families per piece. Display + Body. Nothing else unless specifically approved.</div>
+
+  <h2>6. Logo &amp; Visual Marks</h2>
+  <div class="wrong">
+    <strong>NEVER:</strong> generate, approximate, or "whip up" an RPI logo. Ever. JDM art-directs every logo. If a logo doesn't exist yet, use a text label.
+  </div>
+  <div class="card">
+    <p>Authorized RPI marks live in:</p>
+    <ul>
+      <li><code>packages/ui/src/logos/</code> in the toMachina repo</li>
+      <li>Canva Brand Kit <code>kAEX0GErDPI</code></li>
+    </ul>
+    <p>Available variants: <code>prodashx-mark.svg</code>, <code>prodashx-logo.svg</code>, <code>riimo-mark.svg</code>, <code>sentinel-mark.svg</code>, <code>LogoProDashX.tsx</code>, <code>LogoToMachina.tsx</code>. If you need something not in the set — ask JDM.</p>
+  </div>
+
+  <h2>7. Imagery</h2>
+  <table>
+    <tr><th>Type</th><th>When</th><th>Rule</th></tr>
+    <tr><td>Real photography</td><td>Team, client meetings, offices</td><td>Professional quality only. Warm lighting. Authentic expressions — not stock-model smiles.</td></tr>
+    <tr><td>Stock photography</td><td>Concepts (retirement, family, security)</td><td>Unsplash / Canva stock. Avoid cliché (gold coins, stethoscope on money). Diverse representation.</td></tr>
+    <tr><td>Illustration</td><td>Processes, diagrams, steps</td><td>Clean, minimal, flat. No heavy gradients. Consistent line weight.</td></tr>
+    <tr><td>Icons</td><td>Benefits, features, steps</td><td>Single family per piece (e.g., Heroicons or Lucide). Same weight and style throughout.</td></tr>
+  </table>
+
+  <h2>8. Layout Rules</h2>
+  <ul>
+    <li><strong>Grid:</strong> 12-col or 3-col tri-fold. No freestyle layouts.</li>
+    <li><strong>Whitespace:</strong> Generous. Crowded brochures look untrustworthy. 40% white is a floor, not a ceiling.</li>
+    <li><strong>Hierarchy:</strong> Hero headline → subhead → 3 benefit bullets → proof/data → CTA. Every piece.</li>
+    <li><strong>Contact block:</strong> Footer on every piece: <code>RetireProtected.com | 515-992-5000 | 877-650-7015 | Service@RetireProtected.com</code></li>
+    <li><strong>Trademark:</strong> <code>We're Your People™</code> appears on every client-facing piece.</li>
+  </ul>
+
+  <h2>9. Compliance Slots</h2>
+  <table>
+    <tr><th>Product Family</th><th>Required Disclosure</th></tr>
+    <tr><td>Medicare (MA, MedSupp, PDP)</td><td>"This agency is not affiliated with Medicare or any other government agency. Reference www.medicare.gov or 1-800-MEDICARE for further information." Carrier-specific notes in a bordered slot at the footer.</td></tr>
+    <tr><td>Securities (Annuity variable, Investment)</td><td>"Securities and investment advisory services offered through Gradient Securities, LLC, Member FINRA/SIPC."</td></tr>
+    <tr><td>Life Insurance</td><td>State-specific carrier disclosures as required. JDM reviews each piece.</td></tr>
+    <tr><td>Legacy / Estate</td><td>"RPI does not provide legal advice. We coordinate with licensed attorneys in your state."</td></tr>
+    <tr><td>All AEP-timed materials</td><td>AEP callout (Oct 15 – Dec 7) where applicable.</td></tr>
+  </table>
+
+  <h2>10. Output Pipeline (Universal)</h2>
+  <p>Every brochure is built once in Canva and distributed across five channels:</p>
+  <table>
+    <tr><th>Channel</th><th>Format</th><th>Delivery</th></tr>
+    <tr><td>Print handout</td><td>PDF (letter or tri-fold, CMYK, 300dpi)</td><td>Shared Drive → printer</td></tr>
+    <tr><td>Email attachment</td><td>PDF (RGB, 150dpi, web-optimized)</td><td>C3 campaign</td></tr>
+    <tr><td>Portal download</td><td>PDF (web-optimized)</td><td>ProDash → Documents module</td></tr>
+    <tr><td>Website page</td><td>Responsive HTML (content extracted from Canva)</td><td>retireprotected.com landing pages</td></tr>
+    <tr><td>F2F kit</td><td>Printed packet (tri-fold + MYST.IRL)</td><td>Agent-facing handout</td></tr>
+  </table>
+
+  <h2>11. The Five Facets of the Diamond (AiBot Voice)</h2>
+  <p style="color: var(--muted);">For AI-authored content — keep voice consistent to the facet. One diamond, five facets.</p>
+  <table>
+    <tr><th>Bot</th><th>Facet</th><th>Voice</th></tr>
+    <tr><td>VOLTRON</td><td>Generosity</td><td>The BFF. Warm, encouraging, walks beside you.</td></tr>
+    <tr><td>SENSEI</td><td>Teaching</td><td>The Patient Teacher. Calm, thorough, never rushed.</td></tr>
+    <tr><td>RAIDEN</td><td>Protection</td><td>The Guardian. Direct, protective, no sugar-coating.</td></tr>
+    <tr><td>RONIN</td><td>Work ethic</td><td>The Builder. Precise, methodical. Ships.</td></tr>
+    <tr><td>MUSASHI</td><td>Art + Blade</td><td>The CMO. Narrative power. Writes AND ships.</td></tr>
+  </table>
+
+  <h2>12. Enforcement</h2>
+  <div class="rule"><strong>Say it TO, not ABOUT:</strong> Every tool, interface, and message is addressed directly to the person in front of it. Never talk down to the team. Never talk past the client.</div>
+  <div class="rule"><strong>Mouth to machine:</strong> From JDM's mouth to the platform. No translation loss. No watered-down compromise.</div>
+  <div class="wrong"><strong>NEVER generate visual assets</strong> (logos, icons, marks, custom SVGs). Use authorized assets only. JDM art-directs.</div>
+
+</div>
+
+<div class="footer">
+  <strong>RPI Brand Style Guide v1.0</strong> · 2026-04-12 · Sprint CMO-001 Round 1<br>
+  MUSASHI, ARTxBLADE — The diamond has five facets. One voice.<br>
+  Feedback: <code>#musashi</code>
+</div>
+
+</body>
+</html>
