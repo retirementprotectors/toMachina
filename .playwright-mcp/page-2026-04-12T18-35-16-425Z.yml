@@ -1,0 +1,451 @@
+- generic [ref=e2]:
+  - link "Skip to main content" [ref=e3] [cursor=pointer]:
+    - /url: "#content-area"
+  - generic [ref=e5]:
+    - generic [ref=e10]:
+      - generic [ref=e12]:
+        - link "Claude Code Docs home page light logo" [ref=e14] [cursor=pointer]:
+          - /url: /docs/en/overview
+          - generic [ref=e15]: Claude Code Docs home page
+          - img "light logo" [ref=e16]
+        - generic [ref=e17]:
+          - button "Open search" [ref=e18] [cursor=pointer]:
+            - generic [ref=e19]: Search...
+            - img [ref=e20]
+          - button [ref=e21] [cursor=pointer]:
+            - img [ref=e22]
+          - button "More actions" [ref=e26] [cursor=pointer]:
+            - img [ref=e27]
+      - button "Navigation Administration Security" [ref=e28] [cursor=pointer]:
+        - generic [ref=e29]:
+          - generic [ref=e30]: Navigation
+          - img [ref=e31]
+        - generic [ref=e33]:
+          - generic [ref=e34]:
+            - generic [ref=e35]: Administration
+            - img [ref=e36]
+          - generic [ref=e38]: Security
+    - generic [ref=e42]:
+      - banner [ref=e43]:
+        - generic [ref=e44]:
+          - generic [ref=e45]: Administration
+          - generic [ref=e46]:
+            - heading "Security" [level=1] [ref=e47]
+            - generic [ref=e48]:
+              - button "Copy page" [ref=e49] [cursor=pointer]:
+                - generic [ref=e50]:
+                  - img [ref=e51]
+                  - generic [ref=e54]: Copy page
+              - button "More actions" [ref=e55] [cursor=pointer]:
+                - img [ref=e56]
+        - paragraph [ref=e59]: Learn about Claude Code’s security safeguards and best practices for safe usage.
+      - generic [ref=e60]:
+        - heading "Navigate to header How we approach security" [level=2] [ref=e61]:
+          - link "Navigate to header" [ref=e62] [cursor=pointer]:
+            - /url: "#how-we-approach-security"
+            - img [ref=e64]
+          - generic [ref=e66] [cursor=pointer]: How we approach security
+        - heading "Navigate to header Security foundation" [level=3] [ref=e67]:
+          - link "Navigate to header" [ref=e68] [cursor=pointer]:
+            - /url: "#security-foundation"
+            - img [ref=e70]
+          - generic [ref=e72] [cursor=pointer]: Security foundation
+        - generic [ref=e73]:
+          - text: Your code’s security is paramount. Claude Code is built with security at its core, developed according to Anthropic’s comprehensive security program. Learn more and access resources (SOC 2 Type 2 report, ISO 27001 certificate, etc.) at
+          - link "Anthropic Trust Center" [ref=e74] [cursor=pointer]:
+            - /url: https://trust.anthropic.com
+          - text: .
+        - heading "Navigate to header Permission-based architecture" [level=3] [ref=e75]:
+          - link "Navigate to header" [ref=e76] [cursor=pointer]:
+            - /url: "#permission-based-architecture"
+            - img [ref=e78]
+          - generic [ref=e80] [cursor=pointer]: Permission-based architecture
+        - generic [ref=e81]: Claude Code uses strict read-only permissions by default. When additional actions are needed (editing files, running tests, executing commands), Claude Code requests explicit permission. Users control whether to approve actions once or allow them automatically.
+        - generic [ref=e82]: We designed Claude Code to be transparent and secure. For example, we require approval for bash commands before executing them, giving you direct control. This approach enables users and organizations to configure permissions directly.
+        - generic [ref=e83]:
+          - text: For detailed permission configuration, see
+          - link "Permissions" [ref=e84] [cursor=pointer]:
+            - /url: /docs/en/permissions
+          - text: .
+        - heading "Navigate to header Built-in protections" [level=3] [ref=e85]:
+          - link "Navigate to header" [ref=e86] [cursor=pointer]:
+            - /url: "#built-in-protections"
+            - img [ref=e88]
+          - generic [ref=e90] [cursor=pointer]: Built-in protections
+        - generic [ref=e91]: "To mitigate risks in agentic systems:"
+        - list [ref=e92]:
+          - listitem [ref=e93]:
+            - strong [ref=e94]: Sandboxed bash tool
+            - text: ":"
+            - link "Sandbox" [ref=e95] [cursor=pointer]:
+              - /url: /docs/en/sandboxing
+            - text: bash commands with filesystem and network isolation, reducing permission prompts while maintaining security. Enable with
+            - code [ref=e96]: /sandbox
+            - text: to define boundaries where Claude Code can work autonomously
+          - listitem [ref=e97]:
+            - strong [ref=e98]: Write access restriction
+            - text: ": Claude Code can only write to the folder where it was started and its subfolders—it cannot modify files in parent directories without explicit permission. While Claude Code can read files outside the working directory (useful for accessing system libraries and dependencies), write operations are strictly confined to the project scope, creating a clear security boundary"
+          - listitem [ref=e99]:
+            - strong [ref=e100]: Prompt fatigue mitigation
+            - text: ": Support for allowlisting frequently used safe commands per-user, per-codebase, or per-organization"
+          - listitem [ref=e101]:
+            - strong [ref=e102]: Accept Edits mode
+            - text: ": Batch accept multiple edits while maintaining permission prompts for commands with side effects"
+        - heading "Navigate to header User responsibility" [level=3] [ref=e103]:
+          - link "Navigate to header" [ref=e104] [cursor=pointer]:
+            - /url: "#user-responsibility"
+            - img [ref=e106]
+          - generic [ref=e108] [cursor=pointer]: User responsibility
+        - generic [ref=e109]: Claude Code only has the permissions you grant it. You’re responsible for reviewing proposed code and commands for safety before approval.
+        - heading "Navigate to header Protect against prompt injection" [level=2] [ref=e110]:
+          - link "Navigate to header" [ref=e111] [cursor=pointer]:
+            - /url: "#protect-against-prompt-injection"
+            - img [ref=e113]
+          - generic [ref=e115] [cursor=pointer]: Protect against prompt injection
+        - generic [ref=e116]: "Prompt injection is a technique where an attacker attempts to override or manipulate an AI assistant’s instructions by inserting malicious text. Claude Code includes several safeguards against these attacks:"
+        - heading "Navigate to header Core protections" [level=3] [ref=e117]:
+          - link "Navigate to header" [ref=e118] [cursor=pointer]:
+            - /url: "#core-protections"
+            - img [ref=e120]
+          - generic [ref=e122] [cursor=pointer]: Core protections
+        - list [ref=e123]:
+          - listitem [ref=e124]:
+            - strong [ref=e125]: Permission system
+            - text: ": Sensitive operations require explicit approval"
+          - listitem [ref=e126]:
+            - strong [ref=e127]: Context-aware analysis
+            - text: ": Detects potentially harmful instructions by analyzing the full request"
+          - listitem [ref=e128]:
+            - strong [ref=e129]: Input sanitization
+            - text: ": Prevents command injection by processing user inputs"
+          - listitem [ref=e130]:
+            - strong [ref=e131]: Command blocklist
+            - text: ": Blocks risky commands that fetch arbitrary content from the web like"
+            - code [ref=e132]: curl
+            - text: and
+            - code [ref=e133]: wget
+            - text: by default. When explicitly allowed, be aware of
+            - link "permission pattern limitations" [ref=e134] [cursor=pointer]:
+              - /url: /docs/en/permissions#tool-specific-permission-rules
+        - heading "Navigate to header Privacy safeguards" [level=3] [ref=e135]:
+          - link "Navigate to header" [ref=e136] [cursor=pointer]:
+            - /url: "#privacy-safeguards"
+            - img [ref=e138]
+          - generic [ref=e140] [cursor=pointer]: Privacy safeguards
+        - generic [ref=e141]: "We have implemented several safeguards to protect your data, including:"
+        - list [ref=e142]:
+          - listitem [ref=e143]:
+            - text: Limited retention periods for sensitive information (see the
+            - link "Privacy Center" [ref=e144] [cursor=pointer]:
+              - /url: https://privacy.anthropic.com/en/articles/10023548-how-long-do-you-store-my-data
+            - text: to learn more)
+          - listitem [ref=e145]: Restricted access to user session data
+          - listitem [ref=e146]:
+            - text: User control over data training preferences. Consumer users can change their
+            - link "privacy settings" [ref=e147] [cursor=pointer]:
+              - /url: https://claude.ai/settings/privacy
+            - text: at any time.
+        - generic [ref=e148]:
+          - text: For full details, please review our
+          - link "Commercial Terms of Service" [ref=e149] [cursor=pointer]:
+            - /url: https://www.anthropic.com/legal/commercial-terms
+          - text: (for Team, Enterprise, and API users) or
+          - link "Consumer Terms" [ref=e150] [cursor=pointer]:
+            - /url: https://www.anthropic.com/legal/consumer-terms
+          - text: (for Free, Pro, and Max users) and
+          - link "Privacy Policy" [ref=e151] [cursor=pointer]:
+            - /url: https://www.anthropic.com/legal/privacy
+          - text: .
+        - heading "Navigate to header Additional safeguards" [level=3] [ref=e152]:
+          - link "Navigate to header" [ref=e153] [cursor=pointer]:
+            - /url: "#additional-safeguards"
+            - img [ref=e155]
+          - generic [ref=e157] [cursor=pointer]: Additional safeguards
+        - list [ref=e158]:
+          - listitem [ref=e159]:
+            - strong [ref=e160]: Network request approval
+            - text: ": Tools that make network requests require user approval by default"
+          - listitem [ref=e161]:
+            - strong [ref=e162]: Isolated context windows
+            - text: ": Web fetch uses a separate context window to avoid injecting potentially malicious prompts"
+          - listitem [ref=e163]:
+            - strong [ref=e164]: Trust verification
+            - text: ": First-time codebase runs and new MCP servers require trust verification"
+            - list [ref=e165]:
+              - listitem [ref=e166]:
+                - text: "Note: Trust verification is disabled when running non-interactively with the"
+                - code [ref=e167]: "-p"
+                - text: flag
+          - listitem [ref=e168]:
+            - strong [ref=e169]: Command injection detection
+            - text: ": Suspicious bash commands require manual approval even if previously allowlisted"
+          - listitem [ref=e170]:
+            - strong [ref=e171]: Fail-closed matching
+            - text: ": Unmatched commands default to requiring manual approval"
+          - listitem [ref=e172]:
+            - strong [ref=e173]: Natural language descriptions
+            - text: ": Complex bash commands include explanations for user understanding"
+          - listitem [ref=e174]:
+            - strong [ref=e175]: Secure credential storage
+            - text: ": API keys and tokens are encrypted. See"
+            - link "Credential Management" [ref=e176] [cursor=pointer]:
+              - /url: /docs/en/authentication#credential-management
+        - generic [ref=e177]:
+          - img "Warning" [ref=e179]
+          - generic [ref=e182]:
+            - strong [ref=e183]: Windows WebDAV security risk
+            - text: ": When running Claude Code on Windows, we recommend against enabling WebDAV or allowing Claude Code to access paths such as"
+            - code [ref=e184]: \\*
+            - text: that may contain WebDAV subdirectories.
+            - link "WebDAV has been deprecated by Microsoft" [ref=e185] [cursor=pointer]:
+              - /url: https://learn.microsoft.com/en-us/windows/whats-new/deprecated-features#:~:text=The%20Webclient%20(WebDAV)%20service%20is%20deprecated
+            - text: due to security risks. Enabling WebDAV may allow Claude Code to trigger network requests to remote hosts, bypassing the permission system.
+        - generic [ref=e186]:
+          - strong [ref=e187]: Best practices for working with untrusted content
+          - text: ":"
+        - list [ref=e188]:
+          - listitem [ref=e189]: Review suggested commands before approval
+          - listitem [ref=e190]: Avoid piping untrusted content directly to Claude
+          - listitem [ref=e191]: Verify proposed changes to critical files
+          - listitem [ref=e192]: Use virtual machines (VMs) to run scripts and make tool calls, especially when interacting with external web services
+          - listitem [ref=e193]:
+            - text: Report suspicious behavior with
+            - code [ref=e194]: /feedback
+        - generic [ref=e195]:
+          - img "Warning" [ref=e197]
+          - generic [ref=e200]: While these protections significantly reduce risk, no system is completely immune to all attacks. Always maintain good security practices when working with any AI tool.
+        - heading "Navigate to header MCP security" [level=2] [ref=e201]:
+          - link "Navigate to header" [ref=e202] [cursor=pointer]:
+            - /url: "#mcp-security"
+            - img [ref=e204]
+          - generic [ref=e206] [cursor=pointer]: MCP security
+        - generic [ref=e207]: Claude Code allows users to configure Model Context Protocol (MCP) servers. The list of allowed MCP servers is configured in your source code, as part of Claude Code settings engineers check into source control.
+        - generic [ref=e208]: We encourage either writing your own MCP servers or using MCP servers from providers that you trust. You are able to configure Claude Code permissions for MCP servers. Anthropic does not manage or audit any MCP servers.
+        - heading "Navigate to header IDE security" [level=2] [ref=e209]:
+          - link "Navigate to header" [ref=e210] [cursor=pointer]:
+            - /url: "#ide-security"
+            - img [ref=e212]
+          - generic [ref=e214] [cursor=pointer]: IDE security
+        - generic [ref=e215]:
+          - text: See
+          - link "VS Code security and privacy" [ref=e216] [cursor=pointer]:
+            - /url: /docs/en/vs-code#security-and-privacy
+          - text: for more information on running Claude Code in an IDE.
+        - heading "Navigate to header Cloud execution security" [level=2] [ref=e217]:
+          - link "Navigate to header" [ref=e218] [cursor=pointer]:
+            - /url: "#cloud-execution-security"
+            - img [ref=e220]
+          - generic [ref=e222] [cursor=pointer]: Cloud execution security
+        - generic [ref=e223]:
+          - text: When using
+          - link "Claude Code on the web" [ref=e224] [cursor=pointer]:
+            - /url: /docs/en/claude-code-on-the-web
+          - text: ", additional security controls are in place:"
+        - list [ref=e225]:
+          - listitem [ref=e226]:
+            - strong [ref=e227]: Isolated virtual machines
+            - text: ": Each cloud session runs in an isolated, Anthropic-managed VM"
+          - listitem [ref=e228]:
+            - strong [ref=e229]: Network access controls
+            - text: ": Network access is limited by default and can be configured to be disabled or allow only specific domains"
+          - listitem [ref=e230]:
+            - strong [ref=e231]: Credential protection
+            - text: ": Authentication is handled through a secure proxy that uses a scoped credential inside the sandbox, which is then translated to your actual GitHub authentication token"
+          - listitem [ref=e232]:
+            - strong [ref=e233]: Branch restrictions
+            - text: ": Git push operations are restricted to the current working branch"
+          - listitem [ref=e234]:
+            - strong [ref=e235]: Audit logging
+            - text: ": All operations in cloud environments are logged for compliance and audit purposes"
+          - listitem [ref=e236]:
+            - strong [ref=e237]: Automatic cleanup
+            - text: ": Cloud environments are automatically terminated after session completion"
+        - generic [ref=e238]:
+          - text: For more details on cloud execution, see
+          - link "Claude Code on the web" [ref=e239] [cursor=pointer]:
+            - /url: /docs/en/claude-code-on-the-web
+          - text: .
+        - generic [ref=e240]:
+          - link "Remote Control" [ref=e241] [cursor=pointer]:
+            - /url: /docs/en/remote-control
+          - text: "sessions work differently: the web interface connects to a Claude Code process running on your local machine. All code execution and file access stays local, and the same data that flows during any local Claude Code session travels through the Anthropic API over TLS. No cloud VMs or sandboxing are involved. The connection uses multiple short-lived, narrowly scoped credentials, each limited to a specific purpose and expiring independently, to limit the blast radius of any single compromised credential."
+        - heading "Navigate to header Security best practices" [level=2] [ref=e242]:
+          - link "Navigate to header" [ref=e243] [cursor=pointer]:
+            - /url: "#security-best-practices"
+            - img [ref=e245]
+          - generic [ref=e247] [cursor=pointer]: Security best practices
+        - heading "Navigate to header Working with sensitive code" [level=3] [ref=e248]:
+          - link "Navigate to header" [ref=e249] [cursor=pointer]:
+            - /url: "#working-with-sensitive-code"
+            - img [ref=e251]
+          - generic [ref=e253] [cursor=pointer]: Working with sensitive code
+        - list [ref=e254]:
+          - listitem [ref=e255]: Review all suggested changes before approval
+          - listitem [ref=e256]: Use project-specific permission settings for sensitive repositories
+          - listitem [ref=e257]:
+            - text: Consider using
+            - link "devcontainers" [ref=e258] [cursor=pointer]:
+              - /url: /docs/en/devcontainer
+            - text: for additional isolation
+          - listitem [ref=e259]:
+            - text: Regularly audit your permission settings with
+            - code [ref=e260]: /permissions
+        - heading "Navigate to header Team security" [level=3] [ref=e261]:
+          - link "Navigate to header" [ref=e262] [cursor=pointer]:
+            - /url: "#team-security"
+            - img [ref=e264]
+          - generic [ref=e266] [cursor=pointer]: Team security
+        - list [ref=e267]:
+          - listitem [ref=e268]:
+            - text: Use
+            - link "managed settings" [ref=e269] [cursor=pointer]:
+              - /url: /docs/en/settings#settings-files
+            - text: to enforce organizational standards
+          - listitem [ref=e270]: Share approved permission configurations through version control
+          - listitem [ref=e271]: Train team members on security best practices
+          - listitem [ref=e272]:
+            - text: Monitor Claude Code usage through
+            - link "OpenTelemetry metrics" [ref=e273] [cursor=pointer]:
+              - /url: /docs/en/monitoring-usage
+          - listitem [ref=e274]:
+            - text: Audit or block settings changes during sessions with
+            - link "ConfigChange hooks" [ref=e275] [cursor=pointer]:
+              - /url: /docs/en/hooks#configchange
+              - code [ref=e276]: ConfigChange
+              - text: hooks
+        - heading "Navigate to header Reporting security issues" [level=3] [ref=e277]:
+          - link "Navigate to header" [ref=e278] [cursor=pointer]:
+            - /url: "#reporting-security-issues"
+            - img [ref=e280]
+          - generic [ref=e282] [cursor=pointer]: Reporting security issues
+        - generic [ref=e283]: "If you discover a security vulnerability in Claude Code:"
+        - list [ref=e284]:
+          - listitem [ref=e285]: Do not disclose it publicly
+          - listitem [ref=e286]:
+            - text: Report it through our
+            - link "HackerOne program" [ref=e287] [cursor=pointer]:
+              - /url: https://hackerone.com/anthropic-vdp/reports/new?type=team&report_type=vulnerability
+          - listitem [ref=e288]: Include detailed reproduction steps
+          - listitem [ref=e289]: Allow time for us to address the issue before public disclosure
+        - heading "Navigate to header Related resources" [level=2] [ref=e290]:
+          - link "Navigate to header" [ref=e291] [cursor=pointer]:
+            - /url: "#related-resources"
+            - img [ref=e293]
+          - generic [ref=e295] [cursor=pointer]: Related resources
+        - list [ref=e296]:
+          - listitem [ref=e297]:
+            - link "Sandboxing" [ref=e298] [cursor=pointer]:
+              - /url: /docs/en/sandboxing
+            - text: "- Filesystem and network isolation for bash commands"
+          - listitem [ref=e299]:
+            - link "Permissions" [ref=e300] [cursor=pointer]:
+              - /url: /docs/en/permissions
+            - text: "- Configure permissions and access controls"
+          - listitem [ref=e301]:
+            - link "Monitoring usage" [ref=e302] [cursor=pointer]:
+              - /url: /docs/en/monitoring-usage
+            - text: "- Track and audit Claude Code activity"
+          - listitem [ref=e303]:
+            - link "Development containers" [ref=e304] [cursor=pointer]:
+              - /url: /docs/en/devcontainer
+            - text: "- Secure, isolated environments"
+          - listitem [ref=e305]:
+            - link "Anthropic Trust Center" [ref=e306] [cursor=pointer]:
+              - /url: https://trust.anthropic.com
+            - text: "- Security certifications and compliance"
+      - generic [ref=e308]:
+        - paragraph [ref=e309]: Was this page helpful?
+        - generic [ref=e311]:
+          - button "Yes" [ref=e312] [cursor=pointer]:
+            - img [ref=e313]
+            - generic [ref=e315]: "Yes"
+          - button "No" [ref=e316] [cursor=pointer]:
+            - img [ref=e317]
+            - generic [ref=e319]: "No"
+      - generic [ref=e320]:
+        - link "Authentication" [ref=e321] [cursor=pointer]:
+          - /url: /docs/en/authentication
+          - img [ref=e322]
+          - generic [ref=e324]: Authentication
+        - link "Server-managed settings" [ref=e325] [cursor=pointer]:
+          - /url: /docs/en/server-managed-settings
+          - generic [ref=e326]: Server-managed settings
+          - img [ref=e327]
+      - generic [ref=e330]:
+        - textbox "Ask a question..." [ref=e331]
+        - generic: ⌘I
+        - button "Send message" [disabled] [ref=e332]:
+          - img [ref=e333]
+    - contentinfo [ref=e335]:
+      - generic [ref=e337]:
+        - generic [ref=e338]:
+          - link "Claude Code Docs home page light logo" [ref=e339] [cursor=pointer]:
+            - /url: /docs/en/overview
+            - generic [ref=e340]: Claude Code Docs home page
+            - img "light logo" [ref=e341]
+          - generic [ref=e342]:
+            - link "x" [ref=e343] [cursor=pointer]:
+              - /url: https://x.com/AnthropicAI
+              - generic [ref=e344]: x
+              - img [ref=e345]
+            - link "linkedin" [ref=e346] [cursor=pointer]:
+              - /url: https://www.linkedin.com/company/anthropicresearch
+              - generic [ref=e347]: linkedin
+              - img [ref=e348]
+        - generic [ref=e349]:
+          - generic [ref=e351]:
+            - paragraph [ref=e352]: Company
+            - link "Anthropic" [ref=e353] [cursor=pointer]:
+              - /url: https://www.anthropic.com/company
+            - link "Careers" [ref=e354] [cursor=pointer]:
+              - /url: https://www.anthropic.com/careers
+            - link "Economic Futures" [ref=e355] [cursor=pointer]:
+              - /url: https://www.anthropic.com/economic-futures
+            - link "Research" [ref=e356] [cursor=pointer]:
+              - /url: https://www.anthropic.com/research
+            - link "News" [ref=e357] [cursor=pointer]:
+              - /url: https://www.anthropic.com/news
+            - link "Trust center" [ref=e358] [cursor=pointer]:
+              - /url: https://trust.anthropic.com/
+            - link "Transparency" [ref=e359] [cursor=pointer]:
+              - /url: https://www.anthropic.com/transparency
+          - generic [ref=e361]:
+            - paragraph [ref=e362]: Help and security
+            - link "Availability" [ref=e363] [cursor=pointer]:
+              - /url: https://www.anthropic.com/supported-countries
+            - link "Status" [ref=e364] [cursor=pointer]:
+              - /url: https://status.anthropic.com/
+            - link "Support center" [ref=e365] [cursor=pointer]:
+              - /url: https://support.claude.com/
+          - generic [ref=e367]:
+            - paragraph [ref=e368]: Learn
+            - link "Courses" [ref=e369] [cursor=pointer]:
+              - /url: https://www.anthropic.com/learn
+            - link "MCP connectors" [ref=e370] [cursor=pointer]:
+              - /url: https://claude.com/partners/mcp
+            - link "Customer stories" [ref=e371] [cursor=pointer]:
+              - /url: https://www.claude.com/customers
+            - link "Engineering blog" [ref=e372] [cursor=pointer]:
+              - /url: https://www.anthropic.com/engineering
+            - link "Events" [ref=e373] [cursor=pointer]:
+              - /url: https://www.anthropic.com/events
+            - link "Powered by Claude" [ref=e374] [cursor=pointer]:
+              - /url: https://claude.com/partners/powered-by-claude
+            - link "Service partners" [ref=e375] [cursor=pointer]:
+              - /url: https://claude.com/partners/services
+            - link "Startups program" [ref=e376] [cursor=pointer]:
+              - /url: https://claude.com/programs/startups
+          - generic [ref=e378]:
+            - paragraph [ref=e379]: Terms and policies
+            - link "Privacy choices" [ref=e380] [cursor=pointer]:
+              - /url: "#"
+            - link "Privacy policy" [ref=e381] [cursor=pointer]:
+              - /url: https://www.anthropic.com/legal/privacy
+            - link "Disclosure policy" [ref=e382] [cursor=pointer]:
+              - /url: https://www.anthropic.com/responsible-disclosure-policy
+            - link "Usage policy" [ref=e383] [cursor=pointer]:
+              - /url: https://www.anthropic.com/legal/aup
+            - link "Commercial terms" [ref=e384] [cursor=pointer]:
+              - /url: https://www.anthropic.com/legal/commercial-terms
+            - link "Consumer terms" [ref=e385] [cursor=pointer]:
+              - /url: https://www.anthropic.com/legal/consumer-terms
