@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Midwest Medigap — Data Intake Field Map</title>
+<style>
+  :root {
+    --bg: #0f172a; --card: #1e293b; --border: #334155;
+    --text: #e2e8f0; --muted: #94a3b8; --accent: #3b82f6;
+    --green: #22c55e; --yellow: #eab308; --red: #ef4444;
+    --purple: #a78bfa; --teal: #2dd4bf;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'SF Mono', 'Fira Code', monospace; background: var(--bg); color: var(--text); padding: 24px; }
+  h1 { font-size: 1.4rem; margin-bottom: 4px; }
+  .subtitle { color: var(--muted); font-size: 0.85rem; margin-bottom: 20px; }
+  .tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+  .tab { padding: 8px 16px; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; font-size: 0.8rem; background: var(--card); color: var(--muted); transition: all 0.2s; }
+  .tab:hover { border-color: var(--accent); color: var(--text); }
+  .tab.active { background: var(--accent); color: white; border-color: var(--accent); }
+  .tab .badge { display: inline-block; background: rgba(255,255,255,0.2); padding: 1px 6px; border-radius: 10px; font-size: 0.7rem; margin-left: 4px; }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px; }
+  .stat { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 12px; text-align: center; }
+  .stat .val { font-size: 1.5rem; font-weight: bold; color: var(--accent); }
+  .stat .label { font-size: 0.7rem; color: var(--muted); margin-top: 2px; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
+  th { background: var(--card); position: sticky; top: 0; z-index: 2; padding: 10px 8px; text-align: left; border-bottom: 2px solid var(--accent); white-space: nowrap; }
+  td { padding: 8px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  tr:hover { background: rgba(59, 130, 246, 0.08); }
+  .status { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; }
+  .status.match { background: rgba(34,197,94,0.2); color: var(--green); }
+  .status.new { background: rgba(234,179,8,0.2); color: var(--yellow); }
+  .status.client { background: rgba(167,139,250,0.2); color: var(--purple); }
+  .status.skip { background: rgba(148,163,184,0.15); color: var(--muted); }
+  .status.phi { background: rgba(239,68,68,0.2); color: var(--red); }
+  .field-source { color: var(--teal); font-weight: 600; }
+  .field-target { color: var(--green); }
+  .field-notes { color: var(--muted); font-size: 0.72rem; font-style: italic; }
+  .source-header { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 16px; }
+  .source-header h3 { color: var(--accent); margin-bottom: 8px; }
+  .source-meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 8px; font-size: 0.78rem; }
+  .source-meta span { color: var(--muted); }
+  .source-meta strong { color: var(--text); }
+  .legend { display: flex; gap: 16px; margin-bottom: 16px; flex-wrap: wrap; font-size: 0.75rem; }
+  .legend-item { display: flex; align-items: center; gap: 4px; }
+  .search { width: 100%; max-width: 400px; padding: 8px 12px; background: var(--card); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-family: inherit; font-size: 0.8rem; margin-bottom: 16px; }
+  .search:focus { outline: none; border-color: var(--accent); }
+</style>
+</head>
+<body>
+<h1>Midwest Medigap — Data Intake Field Map</h1>
+<p class="subtitle">Carrier-direct BoB data → toMachina Firestore schema mapping | Agent: Matt Mitchell (18352983 / AAY8728 / 5130007)</p>
+<div class="stats" id="stats"></div>
+<div class="tabs" id="tabs"></div>
+<input type="text" class="search" id="search" placeholder="Filter fields..." oninput="filterFields()">
+<div class="legend">
+  <div class="legend-item"><span class="status match">MATCH</span> Direct map to Account field</div>
+  <div class="legend-item"><span class="status client">CLIENT</span> Maps to Client record</div>
+  <div class="legend-item"><span class="status new">NEW</span> New field needed</div>
+  <div class="legend-item"><span class="status phi">PHI</span> Protected data — special handling</div>
+  <div class="legend-item"><span class="status skip">SKIP</span> Agent/internal data — skip on import</div>
+</div>
+<div id="panels"></div>
+<script>
+const DATA = {
+  aetna: {
+    name: "Aetna Senior Products — policySummary",
+    sheetId: "1J9mY1WSpPnZi_IJybxh-wSxnKQBOz2rp29e1UZfVKfg",
+    records: "5,000+",
+    columns: 45,
+    products: "Med Supp, Dental Vision Hearing",
+    fields: [
+      { source: "COMPANYCODE", target: "carrier_charter", status: "match", notes: "Map code to carrier name (AHIC=Aetna Health, CLI=Continental Life)" },
+      { source: "POLICYNUMBER", target: "policy_number", status: "match", notes: "Direct map" },
+      { source: "STATUSCATEGORY", target: "status", status: "match", notes: "Active/Terminated/Pending" },
+      { source: "STATUSDISPLAYTEXT", target: "—", status: "skip", notes: "Redundant with STATUSCATEGORY" },
+      { source: "PRODUCT", target: "product", status: "match", notes: "'Med Supp', 'Dental Vision and Hearing Flex'" },
+      { source: "APP TYPE", target: "guaranteed_issue_available", status: "new", notes: "Open Enrollment / Underwritten — maps to GI tracking" },
+      { source: "APPRECDDATE", target: "submitted_date", status: "match", notes: "Application received date" },
+      { source: "APPSIGNATUREDATE", target: "—", status: "new", notes: "App signature date — intake audit trail" },
+      { source: "ORIGEFFDATE", target: "effective_date", status: "match", notes: "Original effective date" },
+      { source: "PAIDTODATE", target: "paid_to_date", status: "new", notes: "Premium paid-to date — critical for service" },
+      { source: "ISSUEDATE", target: "issue_date", status: "match", notes: "Direct map" },
+      { source: "TERMDATE", target: "status", status: "match", notes: "Termination date — null if active" },
+      { source: "ISSUEDPREMIUM", target: "annual_premium", status: "match", notes: "Issued annual premium" },
+      { source: "CURRENTANNUALPREMIUM", target: "annual_premium", status: "match", notes: "Current annual — preferred over ISSUEDPREMIUM" },
+      { source: "CURRENTMODALPREMIUM", target: "modal_premium", status: "match", notes: "Per-payment premium amount" },
+      { source: "DRAFTDAY", target: "preferred_draft_date", status: "match", notes: "Day of month for premium draft" },
+      { source: "PAYMENTMODEDISPLAYTEXT", target: "premium_mode", status: "match", notes: "M=Monthly, Q=Quarterly, SA=Semi-Annual, A=Annual" },
+      { source: "PAYMENTMETHODDISPLAYTEXT", target: "payment_mode", status: "match", notes: "EFT/Direct Bill/etc" },
+      { source: "LASTPAYMENTDATE", target: "last_payment_date", status: "new", notes: "Last payment date — service data" },
+      { source: "LASTPAYAMT", target: "last_payment_amount", status: "new", notes: "Last payment amount — reconciliation" },
+      { source: "ISSUEZIP", target: "—", status: "skip", notes: "Redundant — client record has full address" },
+      { source: "REPLACEMENTIND", target: "is_replacement", status: "new", notes: "Y/N replacement indicator — compliance" },
+      { source: "REPLCOMPANYCODE", target: "replaced_carrier", status: "new", notes: "Replaced carrier code" },
+      { source: "REPLPOLICYNUMBER", target: "replaced_policy_number", status: "new", notes: "Replaced policy number" },
+      { source: "FACEVALUE", target: "face_amount", status: "match", notes: "Direct map" },
+      { source: "ISSUESTATE", target: "client.state", status: "match", notes: "State of issue" },
+      { source: "HOUSEHOLD DISCOUNT %", target: "discounts_total_pct", status: "match", notes: "HH discount percentage" },
+      { source: "MULTIPLE POLICY DISCOUNT %", target: "discounts_type", status: "match", notes: "Multi-policy discount" },
+      { source: "LONGDESCRIPTION", target: "product_name", status: "match", notes: "Full product description" },
+      { source: "INSUREDNAME", target: "Client.first/last_name", status: "client", notes: "Split to first_name + last_name" },
+      { source: "SUFFIXTITLE", target: "Client", status: "client", notes: "Jr/Sr/III — append to name" },
+      { source: "SEX", target: "Client.gender", status: "client", notes: "Client gender" },
+      { source: "BIRTHDATE", target: "Client.dob", status: "phi", notes: "PHI — Date of birth" },
+      { source: "ADDRESSLINE1", target: "Client.address", status: "client", notes: "Client address" },
+      { source: "ADDRESSLINE2", target: "Client.address", status: "client", notes: "Apt/Suite — concatenate" },
+      { source: "ADDRESSLINE3", target: "Client.address", status: "client", notes: "Rare — concatenate" },
+      { source: "CITY", target: "Client.city", status: "client", notes: "Client city" },
+      { source: "STATE", target: "Client.state", status: "client", notes: "Client state" },
+      { source: "POSTALCODE", target: "Client.zip", status: "client", notes: "Trim trailing spaces" },
+      { source: "PHONE1", target: "Client.phone", status: "client", notes: "Client phone" },
+      { source: "EMAIL", target: "Client.email", status: "client", notes: "Client email" },
+      { source: "ISSUEAGE", target: "issue_age", status: "new", notes: "Age at issue — carrier reconciliation" },
+      { source: "AGENTNUMBER", target: "agent_writing_number", status: "match", notes: "AAY8728 or sub-agent" },
+      { source: "AGENTCOMPLETENAME", target: "Producer", status: "skip", notes: "Maps to producer record" },
+      { source: "SPLITLEVEL", target: "—", status: "skip", notes: "Internal commission hierarchy" },
+      { source: "SPLIT %", target: "—", status: "skip", notes: "Internal commission split" }
+    ]
+  },
+  mutual: {
+    name: "Mutual of Omaha — Full BoB Export",
+    sheetId: "16Y8HaLOhRYTCsyZTQoUHDeaHROWUJLFb3II_IfSeBxk",
+    records: "3,660",
+    columns: 74,
+    products: "Med Supp, Life, Dental, Various",
+    fields: [
+      { source: "CARRIER_NAME", target: "carrier", status: "match", notes: "Mutual of Omaha / United World Life / Omaha Insurance" },
+      { source: "POLICY_NUMBER", target: "policy_number", status: "match", notes: "Direct map" },
+      { source: "POLICY_EFFECTIVE_DTE", target: "effective_date", status: "match", notes: "Direct map" },
+      { source: "INSURED_NME", target: "Client.first/last_name", status: "client", notes: "Split to first + last" },
+      { source: "INSURED_AGE_AT_ISSUE", target: "issue_age", status: "new", notes: "Age at issue" },
+      { source: "INSURED_DOB", target: "Client.dob", status: "phi", notes: "PHI — Date of birth" },
+      { source: "INSURED_GENDER", target: "Client.gender", status: "client", notes: "Client gender" },
+      { source: "INSURED_ADDRESS_LINE_1", target: "Client.address", status: "client", notes: "Client address" },
+      { source: "INSURED_ADDRESS_LINE_2", target: "Client.address", status: "client", notes: "Concatenate" },
+      { source: "INSURED_CITY_NAME", target: "Client.city", status: "client", notes: "Client city" },
+      { source: "INSURED_STATE", target: "Client.state", status: "client", notes: "Client state" },
+      { source: "INSURED_ZIPCDE", target: "Client.zip", status: "client", notes: "Client zip" },
+      { source: "INSURED_PARTY_PHONE", target: "Client.phone", status: "client", notes: "Client phone" },
+      { source: "INSURED_EMAIL_ADDRESS", target: "Client.email", status: "client", notes: "Client email" },
+      { source: "OWNER_NME", target: "owner_name", status: "match", notes: "If different from insured" },
+      { source: "OWNER_DOB", target: "—", status: "phi", notes: "PHI — Only store if owner != insured" },
+      { source: "OWNER_GENDER", target: "—", status: "skip", notes: "Not stored separately" },
+      { source: "INSURED2_NME", target: "joint_owner_name", status: "match", notes: "Second insured" },
+      { source: "INSURED2_AGE_AT_ISSUE", target: "—", status: "skip", notes: "Derived" },
+      { source: "INSURED2_DOB", target: "—", status: "phi", notes: "PHI — Second insured DOB" },
+      { source: "INSURED2_GENDER", target: "—", status: "skip", notes: "" },
+      { source: "INSURED2_PARTY_PHONE", target: "—", status: "skip", notes: "" },
+      { source: "INSURED2_EMAIL_ADDRESS", target: "—", status: "skip", notes: "" },
+      { source: "OWNER2_NME", target: "—", status: "skip", notes: "Edge case" },
+      { source: "OWNER2_DOB", target: "—", status: "phi", notes: "PHI" },
+      { source: "OWNER2_GENDER", target: "—", status: "skip", notes: "" },
+      { source: "BILL_MODE", target: "premium_mode", status: "match", notes: "Billing frequency" },
+      { source: "PREMIUM", target: "modal_premium", status: "match", notes: "Per-payment premium" },
+      { source: "ANNUAL_PREMIUM", target: "annual_premium", status: "match", notes: "Annual premium" },
+      { source: "PAID_TO_DTE", target: "paid_to_date", status: "new", notes: "Premium paid-to date" },
+      { source: "APP_SIGNED_DTE", target: "submitted_date", status: "match", notes: "App signed date" },
+      { source: "APP_SUBMISSION_METHOD_NME", target: "app_submission_method", status: "new", notes: "E-App / Paper" },
+      { source: "POLICY_ISSUE_DTE", target: "issue_date", status: "match", notes: "Direct map" },
+      { source: "POLICY_TERM_DTE", target: "status", status: "match", notes: "Termination date" },
+      { source: "APP_ISSUE_STATE_CDE", target: "client.state", status: "match", notes: "State of issue" },
+      { source: "WRT_AGT_NME", target: "Producer", status: "skip", notes: "Writing agent name" },
+      { source: "WRT_AGT_PROD_NUM", target: "agent_writing_number", status: "match", notes: "Producer number" },
+      { source: "WRT_AGT_NPN", target: "Producer.npn", status: "skip", notes: "Agent NPN" },
+      { source: "WRT_AGT_COMM_SPLIT", target: "—", status: "skip", notes: "Commission split" },
+      { source: "WRT_AGT_ADDRESS_LINE_1", target: "—", status: "skip", notes: "Agent address" },
+      { source: "WRT_AGT_ADDRESS_LINE_2", target: "—", status: "skip", notes: "" },
+      { source: "WRT_AGT_CITY_NAME", target: "—", status: "skip", notes: "" },
+      { source: "WRT_AGT_STATE", target: "—", status: "skip", notes: "" },
+      { source: "WRT_AGT_ZIP_CODE", target: "—", status: "skip", notes: "" },
+      { source: "WRT_AGT_PHONE_NUMBER", target: "—", status: "skip", notes: "" },
+      { source: "WRT_AGT_EMAIL_ADDRESS", target: "—", status: "skip", notes: "" },
+      { source: "WRT_AGT2_NME", target: "—", status: "skip", notes: "Second agent" },
+      { source: "WRT_AGT2_PROD_NUM", target: "—", status: "skip", notes: "" },
+      { source: "WRT_AGT2_NPN", target: "—", status: "skip", notes: "" },
+      { source: "WRT_AGT2_COMM_SPLIT", target: "—", status: "skip", notes: "" },
+      { source: "WRT_AGT2_ADDRESS_LINE_1", target: "—", status: "skip", notes: "" },
+      { source: "WRT_AGT2_ADDRESS_LINE_2", target: "—", status: "skip", notes: "" },
+      { source: "WRT_AGT2_CITY_NAME", target: "—", status: "skip", notes: "" },
+      { source: "WRT_AGT2_STATE", target: "—", status: "skip", notes: "" },
+      { source: "WRT_AGT2_ZIP_CODE", target: "—", status: "skip", notes: "" },
+      { source: "WRT_AGT2_PHONE_NUMBER", target: "—", status: "skip", notes: "" },
+      { source: "WRT_AGT2_EMAIL_ADDRESS", target: "—", status: "skip", notes: "" },
+      { source: "LINE_OF_BUSINESS_NME", target: "account_type", status: "match", notes: "Maps to account_type (medicare, life)" },
+      { source: "PRODUCT_TYPE_NME", target: "product_type", status: "match", notes: "Product type classification" },
+      { source: "PRODUCT_DESC", target: "product_name", status: "match", notes: "Full product description" },
+      { source: "POLICY_STATUS_NME", target: "status", status: "match", notes: "Active/Terminated" },
+      { source: "SURRENDER_VALUE_AMT", target: "surrender_value", status: "match", notes: "Life products" },
+      { source: "CASH_ACCUMULATION_VALUE", target: "cash_value", status: "match", notes: "Life products" },
+      { source: "FACE_AMT", target: "face_amount", status: "match", notes: "Face amount" },
+      { source: "FLAT_EXTRA_AMT", target: "flat_extra_amount", status: "new", notes: "Flat extra premium — substandard rating" },
+      { source: "INITIAL_INTEREST_RATE", target: "interest_rate", status: "match", notes: "Credited interest rate" },
+      { source: "ACCOUNT_VALUE", target: "account_value", status: "match", notes: "Current account value" },
+      { source: "NEXT_RENEWAL_DTE", target: "next_renewal_date", status: "new", notes: "Next renewal — service scheduling" },
+      { source: "APPLICATION_RECEIVED_DTE", target: "submitted_date", status: "match", notes: "Alternate submitted date" },
+      { source: "UNDERWRITING_CLASS", target: "underwriting_approved", status: "match", notes: "Standard/Preferred/Substandard" },
+      { source: "SSN_TIN_NUM", target: "Client.ssn_last4", status: "phi", notes: "PHI — Store LAST 4 ONLY" },
+      { source: "REPLACEMENT_POLICY_NUMBER", target: "replaced_policy_number", status: "new", notes: "Replaced policy number" },
+      { source: "REPLACED_CARRIER_NME", target: "replaced_carrier", status: "new", notes: "Replaced carrier name" },
+      { source: "REPLACEMENT_TYPE", target: "replacement_type", status: "new", notes: "Internal/External replacement" },
+      { source: "PRIMARY_INSURED_AGE_CUR_NUM", target: "—", status: "skip", notes: "Current age — derived from DOB" }
+    ]
+  },
+  heartland: {
+    name: "Heartland Commission Statements",
+    sheetId: "19YnUyDRlXQGMMNDVtiTFUoabu0PEbsifDvkMSvcA_UQ",
+    records: "20 monthly",
+    columns: "varies",
+    products: "Commission data — not BoB",
+    fields: [
+      { source: "Agent: MITCHELL, MATT (5130007)", target: "Producer", status: "skip", notes: "Agent identification — maps to producer record" },
+      { source: "New Business (1st Year)", target: "revenue.first_year", status: "new", notes: "First year commission — revenue collection" },
+      { source: "Renewals (13+ Months)", target: "revenue.renewal", status: "new", notes: "Renewal commission — revenue collection" },
+      { source: "Advances", target: "revenue.advances", status: "new", notes: "Advance payments — revenue collection" },
+      { source: "Repayment of Advances", target: "revenue.advance_repayment", status: "new", notes: "Advance repayments — revenue collection" },
+      { source: "Chargebacks and Adjustments", target: "revenue.chargebacks", status: "new", notes: "Chargebacks — revenue collection" },
+      { source: "Year to Date Totals", target: "revenue.ytd_total", status: "new", notes: "YTD aggregate — revenue collection" }
+    ]
+  },
+  summary: {
+    name: "Intake Summary — Decisions Required",
+    records: "—",
+    columns: "—",
+    products: "—",
+    isSummary: true
+  }
+};
+
+function countByStatus(fields, status) {
+  return fields ? fields.filter(f => f.status === status).length : 0;
+}
+
+function init() {
+  const tabsEl = document.getElementById('tabs');
+  const panelsEl = document.getElementById('panels');
+  const statsEl = document.getElementById('stats');
+  let totalFields = 0, totalMatch = 0, totalNew = 0, totalClient = 0, totalPhi = 0;
+  Object.values(DATA).forEach(d => {
+    if (d.fields) {
+      totalFields += d.fields.length;
+      totalMatch += countByStatus(d.fields, 'match');
+      totalNew += countByStatus(d.fields, 'new');
+      totalClient += countByStatus(d.fields, 'client');
+      totalPhi += countByStatus(d.fields, 'phi');
+    }
+  });
+  statsEl.innerHTML = '<div class="stat"><div class="val">8,660+</div><div class="label">Total Policies</div></div>' +
+    '<div class="stat"><div class="val">' + totalFields + '</div><div class="label">Source Fields</div></div>' +
+    '<div class="stat"><div class="val" style="color:var(--green)">' + totalMatch + '</div><div class="label">Direct Match</div></div>' +
+    '<div class="stat"><div class="val" style="color:var(--purple)">' + totalClient + '</div><div class="label">Client Record</div></div>' +
+    '<div class="stat"><div class="val" style="color:var(--yellow)">' + totalNew + '</div><div class="label">New Fields</div></div>' +
+    '<div class="stat"><div class="val" style="color:var(--red)">' + totalPhi + '</div><div class="label">PHI Fields</div></div>';
+  let first = true;
+  for (const [key, data] of Object.entries(DATA)) {
+    const tab = document.createElement('div');
+    tab.className = 'tab' + (first ? ' active' : '');
+    tab.dataset.panel = key;
+    const count = data.fields ? data.fields.length : '';
+    tab.innerHTML = data.name.split('—')[0].trim() + (count ? '<span class="badge">' + count + '</span>' : '');
+    tab.onclick = function() { switchTab(key); };
+    tabsEl.appendChild(tab);
+    const panel = document.createElement('div');
+    panel.className = 'panel' + (first ? ' active' : '');
+    panel.id = 'panel-' + key;
+    if (data.isSummary) {
+      panel.innerHTML = buildSummary();
+    } else {
+      panel.innerHTML = buildSourcePanel(key, data);
+    }
+    panelsEl.appendChild(panel);
+    first = false;
+  }
+}
+
+function buildSourcePanel(key, data) {
+  var html = '<div class="source-header"><h3>' + data.name + '</h3><div class="source-meta">' +
+    '<span>Records: <strong>' + data.records + '</strong></span>' +
+    '<span>Columns: <strong>' + data.columns + '</strong></span>' +
+    '<span>Products: <strong>' + data.products + '</strong></span>';
+  if (data.sheetId) {
+    html += '<span>Sheet: <strong><a href="https://docs.google.com/spreadsheets/d/' + data.sheetId + '" target="_blank" style="color:var(--accent)">' + data.sheetId.slice(0,12) + '...</a></strong></span>';
+  }
+  html += '</div></div>';
+  if (!data.fields) return html;
+  html += '<table><thead><tr><th>#</th><th>Source Field</th><th>Status</th><th>Target Field</th><th>Notes</th></tr></thead><tbody>';
+  data.fields.forEach(function(f, i) {
+    html += '<tr class="field-row" data-source="' + f.source.toLowerCase() + '" data-target="' + (f.target||'').toLowerCase() + '" data-notes="' + (f.notes||'').toLowerCase() + '">' +
+      '<td style="color:var(--muted)">' + (i+1) + '</td>' +
+      '<td class="field-source">' + f.source + '</td>' +
+      '<td><span class="status ' + f.status + '">' + f.status.toUpperCase() + '</span></td>' +
+      '<td class="field-target">' + (f.target || '—') + '</td>' +
+      '<td class="field-notes">' + (f.notes || '') + '</td></tr>';
+  });
+  html += '</tbody></table>';
+  return html;
+}
+
+function buildSummary() {
+  var newFields = [];
+  for (var key in DATA) {
+    var data = DATA[key];
+    if (!data.fields) continue;
+    data.fields.filter(function(f) { return f.status === 'new'; }).forEach(function(f) {
+      newFields.push({ source: f.source, from: data.name.split('—')[0].trim(), notes: f.notes, target: f.target });
+    });
+  }
+  var html = '<div class="source-header"><h3>Intake Decisions Required</h3>' +
+    '<div class="source-meta"><span>New fields that need schema decisions before intake wire can be built</span></div></div>';
+  html += '<h3 style="margin:16px 0 8px;color:var(--yellow)">New Account Fields Needed (' + newFields.length + ')</h3>';
+  html += '<table><thead><tr><th>#</th><th>Source Field</th><th>From</th><th>Proposed Target</th><th>Notes</th></tr></thead><tbody>';
+  newFields.forEach(function(f, i) {
+    html += '<tr><td style="color:var(--muted)">' + (i+1) + '</td>' +
+      '<td class="field-source">' + f.source + '</td>' +
+      '<td style="color:var(--muted)">' + f.from + '</td>' +
+      '<td class="field-target">' + (f.target || '—') + '</td>' +
+      '<td class="field-notes">' + f.notes + '</td></tr>';
+  });
+  html += '</tbody></table>';
+  html += '<h3 style="margin:24px 0 8px;color:var(--red)">PHI Handling Requirements</h3>' +
+    '<table><thead><tr><th>Field</th><th>Rule</th></tr></thead><tbody>' +
+    '<tr><td>BIRTHDATE / INSURED_DOB</td><td>Store on Client record. Display masked unless explicitly needed.</td></tr>' +
+    '<tr><td>SSN_TIN_NUM</td><td>Store LAST 4 ONLY as client.ssn_last4. NEVER store full SSN.</td></tr>' +
+    '<tr><td>OWNER_DOB / INSURED2_DOB</td><td>Store only if owner != insured. Mask in display.</td></tr>' +
+    '<tr><td>OWNER2_DOB</td><td>Edge case — store only if separate entity from client.</td></tr>' +
+    '</tbody></table>';
+  html += '<h3 style="margin:24px 0 8px;color:var(--teal)">ATLAS Source Registration</h3>' +
+    '<table><thead><tr><th>Field</th><th>Value</th></tr></thead><tbody>' +
+    '<tr><td>source_id</td><td>midwest-medigap-radius</td></tr>' +
+    '<tr><td>source_name</td><td>Midwest Medigap — Matt Mitchell Partnership</td></tr>' +
+    '<tr><td>source_type</td><td>carrier_direct</td></tr>' +
+    '<tr><td>agent_numbers</td><td>18352983, AAY8728, 5130007</td></tr>' +
+    '<tr><td>data_formats</td><td>Google Sheets (carrier BoB exports), PDF (commission statements)</td></tr>' +
+    '<tr><td>carriers_covered</td><td>Aetna, Mutual of Omaha, Heartland, Humana, Cigna, Allstate, Aflac, GTL, UHC, Wellcare, Manhattan Life, Medico, Devoted, Gerber, GPM, Americo, Bankers</td></tr>' +
+    '<tr><td>estimated_policies</td><td>8,660+ (5,000+ Aetna + 3,660 Mutual + unknown others)</td></tr>' +
+    '<tr><td>data_location</td><td>vDATA SubDivision- Allison > 5- Revenue Data > Midwest Medigap- Matt Mitchell</td></tr>' +
+    '<tr><td>wire_assignment</td><td>TBD — intake wire after schema approval</td></tr>' +
+    '</tbody></table>';
+  html += '<h3 style="margin:24px 0 8px;color:var(--accent)">Next Steps</h3>' +
+    '<ol style="padding-left:20px;line-height:2;font-size:0.85rem;">' +
+    '<li>JDM reviews field mappings — approve/reject NEW fields</li>' +
+    '<li>Add approved new fields to Account interface in <code>packages/core/src/types/index.ts</code></li>' +
+    '<li>Build intake normalizer in <code>packages/core/src/normalizers/</code> for each carrier format</li>' +
+    '<li>Build intake wire: read Sheets → normalize → dedup against existing clients → write to Firestore</li>' +
+    '<li>Run dry-run import with JDM gate before production write</li>' +
+    '<li>Commission data → revenue collection (separate from client/account intake)</li>' +
+    '</ol>';
+  return html;
+}
+
+function switchTab(key) {
+  document.querySelectorAll('.tab').forEach(function(t) { t.classList.toggle('active', t.dataset.panel === key); });
+  document.querySelectorAll('.panel').forEach(function(p) { p.classList.toggle('active', p.id === 'panel-' + key); });
+}
+
+function filterFields() {
+  var q = document.getElementById('search').value.toLowerCase();
+  document.querySelectorAll('.field-row').forEach(function(row) {
+    var match = row.dataset.source.includes(q) || row.dataset.target.includes(q) || row.dataset.notes.includes(q);
+    row.style.display = match ? '' : 'none';
+  });
+}
+
+init();
+</script>
+</body>
+</html>
