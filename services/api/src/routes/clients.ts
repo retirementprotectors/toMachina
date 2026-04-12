@@ -1,5 +1,6 @@
 import { Router, type Request, type Response } from 'express'
-import { getFirestore, type Query, type DocumentData } from 'firebase-admin/firestore'
+import { type Query, type DocumentData } from 'firebase-admin/firestore'
+import { getDb } from '../lib/db.js'
 import { validateWrite } from '../middleware/validate.js'
 import {
   successResponse,
@@ -38,7 +39,7 @@ const clientValidation = validateWrite({
  */
 clientRoutes.get('/', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const params = getPaginationParams(req)
     const search = (req.query.q as string) || ''
     const statusFilter = (req.query.status as string) || ''
@@ -90,7 +91,7 @@ clientRoutes.get('/', async (req: Request, res: Response) => {
  */
 clientRoutes.get('/search', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const search = ((req.query.q as string) || '').trim()
     if (!search) {
       res.json(successResponse<ClientDTO[]>([] as unknown as ClientDTO[]))
@@ -135,7 +136,7 @@ clientRoutes.get('/search', async (req: Request, res: Response) => {
  */
 clientRoutes.get('/:id', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const id = param(req.params.id)
     const doc = await db.collection(COLLECTION).doc(id).get()
 
@@ -156,7 +157,7 @@ clientRoutes.get('/:id', async (req: Request, res: Response) => {
  */
 clientRoutes.get('/:id/accounts', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const id = param(req.params.id)
     const typeFilter = (req.query.type as string) || ''
 
@@ -181,7 +182,7 @@ clientRoutes.get('/:id/accounts', async (req: Request, res: Response) => {
  */
 clientRoutes.get('/:id/activities', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const id = param(req.params.id)
     const limit = Math.min(parseInt(req.query.limit as string) || 50, 200)
 
@@ -207,7 +208,7 @@ clientRoutes.get('/:id/activities', async (req: Request, res: Response) => {
  */
 clientRoutes.get('/:id/relationships', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const id = param(req.params.id)
     const snap = await db
       .collection(COLLECTION)
@@ -230,7 +231,7 @@ clientRoutes.get('/:id/relationships', async (req: Request, res: Response) => {
 clientRoutes.post('/', clientValidation, async (req: Request, res: Response) => {
   try {
     const body = req.body
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const now = new Date().toISOString()
     const clientId = body.client_id || db.collection(COLLECTION).doc().id
 
@@ -259,7 +260,7 @@ clientRoutes.post('/', clientValidation, async (req: Request, res: Response) => 
  */
 clientRoutes.patch('/:id', clientValidation, async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const id = param(req.params.id)
     const docRef = db.collection(COLLECTION).doc(id)
     const doc = await docRef.get()
@@ -296,7 +297,7 @@ clientRoutes.patch('/:id', clientValidation, async (req: Request, res: Response)
  */
 clientRoutes.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const id = param(req.params.id)
     const docRef = db.collection(COLLECTION).doc(id)
     const doc = await docRef.get()
@@ -327,7 +328,7 @@ clientRoutes.delete('/:id', async (req: Request, res: Response) => {
 // POST /:id/dismiss-duplicate — dismiss a duplicate match (TRK-13681)
 clientRoutes.post('/:id/dismiss-duplicate', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const clientId = param(req.params.id)
     const { match_id } = req.body
     if (!match_id) { res.status(400).json(errorResponse('match_id required')); return }
@@ -363,7 +364,7 @@ clientRoutes.post('/:id/dismiss-duplicate', async (req: Request, res: Response) 
  */
 clientRoutes.get('/:id/quality-score', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const id = param(req.params.id)
     const doc = await db.collection(COLLECTION).doc(id).get()
 

@@ -1,5 +1,6 @@
 import { Router, type Request, type Response } from 'express'
-import { getFirestore, type Query, type DocumentData } from 'firebase-admin/firestore'
+import { type Query, type DocumentData } from 'firebase-admin/firestore'
+import { getDefaultDb } from '../lib/db.js'
 import { validateWrite } from '../middleware/validate.js'
 import {
   successResponse,
@@ -26,7 +27,7 @@ const COLLECTION = 'templates'
  */
 templateRoutes.get('/', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
     const params = getPaginationParams(req)
     if (!params.orderBy) params.orderBy = 'created_at'
 
@@ -55,7 +56,7 @@ templateRoutes.get('/', async (req: Request, res: Response) => {
  */
 templateRoutes.get('/:id', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
     const id = param(req.params.id)
     const doc = await db.collection(COLLECTION).doc(id).get()
     if (!doc.exists) { res.status(404).json(errorResponse('Template not found')); return }
@@ -107,7 +108,7 @@ const createValidation = validateWrite({
 
 templateRoutes.post('/', createValidation, async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
     const now = new Date().toISOString()
     const templateId = `TMPL_${randomUUID().slice(0, 8)}`
 
@@ -135,7 +136,7 @@ templateRoutes.post('/', createValidation, async (req: Request, res: Response) =
 
 templateRoutes.patch('/:id', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
     const id = param(req.params.id)
     const docRef = db.collection(COLLECTION).doc(id)
     const doc = await docRef.get()
@@ -158,7 +159,7 @@ templateRoutes.patch('/:id', async (req: Request, res: Response) => {
 
 templateRoutes.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
     const id = param(req.params.id)
     const docRef = db.collection(COLLECTION).doc(id)
     const doc = await docRef.get()
