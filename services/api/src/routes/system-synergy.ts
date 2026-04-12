@@ -725,3 +725,145 @@ systemSynergyRoutes.get('/wire-health', async (_req: Request, res: Response) => 
     res.status(500).json(errorResponse('Failed to query wire_runs'))
   }
 })
+
+// ─── Tool 12: warrior-activity (ZRD-SYN-020h + 020k) ────────────────────────
+// Warrior Event Log dashboard data. Queries warrior_events collection.
+// Supports cross-warrior queries via ?warrior= filter.
+//
+// Query params:
+//   warrior  - filter to a specific warrior (e.g. RONIN)
+//   type     - filter by event type (e.g. pr_shipped, directive)
+//   limit    - max results (default 50, max 200)
+//   since    - ISO timestamp, only return events after this time
+//
+// Response shape matches WarriorActivitySnapshot for the dashboard tile.
+
+interface WarriorActivityEvent {
+  id: string
+  warrior: string
+  sessionId: string
+  timestamp: string
+  type: string
+  summary: string
+  channel?: string
+  details?: Record<string, unknown>
+}
+
+interface WarriorStatusSummary {
+  warrior: string
+  lastEventAt: string | null
+  lastEventType: string | null
+  lastEventSummary: string | null
+  eventCount24h: number
+  isActive: boolean
+}
+
+interface WarriorActivitySnapshot {
+  events: WarriorActivityEvent[]
+  warriors: WarriorStatusSummary[]
+  total_events_24h: number
+  active_warrior_count: number
+  last_snapshot_at: string
+}
+
+const ALL_WARRIORS = ['SHINOB1', 'MEGAZORD', 'MUSASHI', 'VOLTRON', 'RAIDEN', 'RONIN']
+
+systemSynergyRoutes.get('/warrior-activity', async (req: Request, res: Response) => {
+  try {
+    const db = getDb()
+    const warriorFilter = (req.query.warrior as string)?.toUpperCase() || null
+    const typeFilter = req.query.type as string || null
+    const limit = Math.min(parseInt(req.query.limit as string) || 50, 200)
+    const sinceParam = req.query.since as string || null
+
+    const now = Date.now()
+    const oneDayAgoMs = now - 24 * 60 * 60 * 1000
+
+    // Build the query
+    let query = db.collection('warrior_events')
+      .orderBy('timestamp', 'desc') as FirebaseFirestore.Query
+
+    if (warriorFilter) {
+      query = query.where('warrior', '==', warriorFilter)
+    }
+    if (typeFilter) {
+      query = query.where('type', '==', typeFilter)
+    }
+    if (sinceParam) {
+      const sinceDate = new Date(sinceParam)
+      if (!Number.isNaN(sinceDate.getTime())) {
+        query = query.where('timestamp', '>=', Timestamp.fromDate(sinceDate))
+      }
+    }
+
+    const snapshot = await query.limit(limit).get()
+
+    // Build event list
+    const events: WarriorActivityEvent[] = snapshot.docs.map(doc => {
+      const data = doc.data()
+      return {
+        id: doc.id,
+        warrior: String(data.warrior || ''),
+        sessionId: String(data.sessionId || ''),
+        timestamp: tsToIso(data.timestamp),
+        type: String(data.type || ''),
+        summary: String(data.summary || ''),
+        ...(data.channel ? { channel: String(data.channel) } : {}),
+        ...(data.details ? { details: data.details as Record<string, unknown> } : {}),
+      }
+    })
+
+    // Build per-warrior status summaries (always show all 6 warriors)
+    const warriorMap = new Map<string, { lastEvent: WarriorActivityEvent | null; count24h: number }>()
+    for (const w of ALL_WARRIORS) {
+      warriorMap.set(w, { lastEvent: null, count24h: 0 })
+    }
+
+    for (const event of events) {
+      const entry = warriorMap.get(event.warrior)
+      if (!entry) continue
+
+      if (!entry.lastEvent) {
+        entry.lastEvent = event
+      }
+
+      const eventMs = new Date(event.timestamp).getTime()
+      if (!Number.isNaN(eventMs) && eventMs >= oneDayAgoMs) {
+        entry.count24h++
+      }
+    }
+
+    const warriors: WarriorStatusSummary[] = ALL_WARRIORS.map(w => {
+      const entry = warriorMap.get(w)!
+      const lastEvent = entry.lastEvent
+      const isActive = lastEvent
+        ? (now - new Date(lastEvent.timestamp).getTime()) < 2 * 60 * 60 * 1000
+        : false
+
+      return {
+        warrior: w,
+        lastEventAt: lastEvent?.timestamp ?? null,
+        lastEventType: lastEvent?.type ?? null,
+        lastEventSummary: lastEvent?.summary ?? null,
+        eventCount24h: entry.count24h,
+        isActive,
+      }
+    })
+
+    const totalEvents24h = Array.from(warriorMap.values()).reduce((sum, e) => sum + e.count24h, 0)
+    const activeCount = warriors.filter(w => w.isActive).length
+
+    const result: WarriorActivitySnapshot = {
+      events,
+      warriors,
+      total_events_24h: totalEvents24h,
+      active_warrior_count: activeCount,
+      last_snapshot_at: new Date().toISOString(),
+    }
+
+    res.json(successResponse(result))
+  } catch (err) {
+    console.error('[system-synergy] warrior-activity failed:', err)
+    res.status(500).json(errorResponse('Failed to query warrior_events'))
+  }
+})
