@@ -67,6 +67,9 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
       level: 0,
       user_level: 'OWNER',
     }
+    // VOLTRON service auth is non-tenant (platform-wide). partnerId resolved
+    // per-request at the tool-call layer from the end-user's token (MT-014).
+    ;(req as any).partnerId = null
     return next()
   }
 
@@ -81,6 +84,7 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
       level: 0,
       user_level: 'OWNER',
     }
+    ;(req as any).partnerId = null
     return next()
   }
 
@@ -107,6 +111,20 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
       role_template: profile.role_template,
       module_permissions: profile.module_permissions,
     }
+
+    // ZRD-PLAT-MT-002 — Multi-tenant routing.
+    // Extract `partner_id` custom claim from the verified token and attach
+    // to the request for downstream `getDb(req.partnerId)` calls.
+    // - RPI users (@retireprotected.com): no claim → null → default DB
+    // - Partner users: slug claim → partner-<slug> named DB
+    // - Super-admins (JDM/John): no `partner_id`; cross-tenant access is
+    //   handled by explicit `?context=<slug>` query param + `role: 'superadmin'`
+    //   claim check in MT-013. They transparently hit the default DB by default.
+    const claimPartnerId =
+      typeof (decoded as any).partner_id === 'string' && (decoded as any).partner_id.length > 0
+        ? (decoded as any).partner_id
+        : null
+    ;(req as any).partnerId = claimPartnerId
 
     next()
   } catch (err) {
