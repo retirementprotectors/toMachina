@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sprint CMO-001 Round 1 — Deliverables Gallery</title>
+<style>
+  :root {
+    --bg: #0a0e17; --card: #111827; --border: #1e293b;
+    --text: #e2e8f0; --muted: #94a3b8; --gold: #d4a44c;
+    --green: #22c55e; --blue: #3b82f6; --accent: #d4a44c;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+  .header { background: linear-gradient(135deg, #0f0a00, #0f0f0f 30%, #0a0a1a 60%, #0f0f0f); padding: 48px 32px 40px; text-align: center; border-bottom: 1px solid var(--border); }
+  .header .label { font-size: 0.72rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 12px; }
+  .header h1 { font-size: 2.5rem; font-weight: 800; background: linear-gradient(135deg, #d4a44c, #f59e0b, #d4a44c); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; }
+  .header .sub { color: var(--muted); max-width: 720px; margin: 0 auto 16px; font-size: 1.05rem; }
+  .badges { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .badge { display: inline-block; padding: 4px 14px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; background: rgba(212,164,76,0.15); color: var(--gold); border: 1px solid rgba(212,164,76,0.3); }
+  .content { max-width: 1200px; margin: 0 auto; padding: 32px; }
+  h2 { font-size: 1.5rem; color: var(--gold); margin: 2rem 0 1rem; border-left: 4px solid var(--gold); padding-left: 0.75rem; }
+  h3 { font-size: 1.15rem; color: var(--blue); margin: 1.25rem 0 0.5rem; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; margin: 1rem 0; }
+  .brochure-card { border-left: 4px solid var(--gold); }
+  .candidates { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-top: 0.75rem; }
+  .candidate { background: #0f1827; border: 1px solid var(--border); border-radius: 6px; padding: 10px; text-align: center; transition: transform 0.15s, border-color 0.15s; }
+  .candidate:hover { transform: translateY(-2px); border-color: var(--gold); }
+  .candidate img { width: 100%; aspect-ratio: 4/3; object-fit: cover; border-radius: 4px; background: #1a2236; }
+  .candidate a { display: block; padding: 8px 0 4px; color: var(--gold); font-size: 0.85rem; font-weight: 600; text-decoration: none; }
+  .candidate a:hover { text-decoration: underline; }
+  .metadata { font-size: 0.85rem; color: var(--muted); margin-top: 0.5rem; }
+  .metadata strong { color: var(--text); }
+  .doctrine { background: rgba(34, 197, 94, 0.08); border-left: 4px solid var(--green); padding: 1rem 1.25rem; margin: 1rem 0; border-radius: 6px; }
+  .doctrine h4 { color: var(--green); margin-bottom: 0.5rem; }
+  .footer { max-width: 1200px; margin: 3rem auto 1rem; padding: 1rem 2rem; border-top: 1px solid var(--border); color: var(--muted); font-size: 0.85rem; text-align: center; }
+  code { background: #1c2128; padding: 2px 6px; border-radius: 4px; font-size: 0.85em; color: var(--blue); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="label">Sprint CMO-001 · Round 1 · Deliverables</div>
+  <h1>Brand-New Brochure Set</h1>
+  <div class="sub">Seven fresh Canva designs, brand-kit-applied, AI-generated from RPI doctrine. Four candidates per design — pick winners, duplicate the template, iterate from there.</div>
+  <div class="badges">
+    <span class="badge">MUSASHI · ARTxBLADE</span>
+    <span class="badge">Brand Kit: RPI + ProDash + David.</span>
+    <span class="badge">2026-04-12</span>
+  </div>
+</div>
+
+<div class="content">
+
+  <div class="doctrine">
+    <h4>The Doctrine (from JDM Q&amp;A)</h4>
+    <p><strong>Voice:</strong> Warm + Professional — "We're Your People" energy.<br>
+    <strong>Audience:</strong> Dual-purpose — client-facing AND agent selling tool.<br>
+    <strong>Format:</strong> Universal — print PDF, email attach, portal download, website, F2F kit. Build once, works everywhere.<br>
+    <strong>Imagery:</strong> Clean + minimal + stock photography.<br>
+    <strong>Brand:</strong> Start FRESH as the NEW brand standard — these become the template.</p>
+  </div>
+
+  <h2>How to review</h2>
+  <div class="card">
+    <ol style="margin-left: 1.5rem;">
+      <li>Each deliverable has <strong>4 AI-generated candidates</strong>. Click a thumbnail to open in Canva.</li>
+      <li>Pick the winner per deliverable. Duplicate it in Canva as the production version.</li>
+      <li>Iterate on the winner: swap placeholder photos for real ones, tighten copy, align compliance.</li>
+      <li>Send feedback back to <code>#musashi</code> with design IDs + changes you want.</li>
+      <li>Master Template winner sets the design system for Rounds 2+.</li>
+    </ol>
+  </div>
+
+  <h2>P1 — Master Template</h2>
+  <div class="card brochure-card">
+    <p class="metadata"><strong>Purpose:</strong> Universal 2-page tri-fold template. All 5 brochures use this same structure. Pick the winner, duplicate → that becomes the template of record.</p>
+    <div class="candidates">
+      <div class="candidate"><a href="https://www.canva.com/d/eSHJAmv2YHGGm2O" target="_blank"><img src="https://design.canva.ai/4Of9du3J_4oUBv-" alt="Candidate 1">Candidate 1</a></div>
+      <div class="candidate"><a href="https://www.canva.com/d/6SBkLbNd8PHHPHr" target="_blank"><img src="https://design.canva.ai/0q6wt9JSEvzyT_4" alt="Candidate 2">Candidate 2</a></div>
+      <div class="candidate"><a href="https://www.canva.com/d/fMBWNFgMaysM6Fk" target="_blank"><img src="https://design.canva.ai/DkS8LyDKGcevisi" alt="Candidate 3">Candidate 3</a></div>
+      <div class="candidate"><a href="https://www.canva.com/d/J3dsomKvo2oNYJc" target="_blank"><img src="https://design.canva.ai/yTFyiXedfOxxIif" alt="Candidate 4">Candidate 4</a></div>
+    </div>
+  </div>
+
+  <h2>P2 — Brochures (5)</h2>
+
+  <div class="card brochure-card">
+    <h3>1. Medicare Basics</h3>
+    <p class="metadata"><strong>Coverage:</strong> Original Medicare (A+B), Medicare Advantage (C), Part D, Medigap. AEP callout, SEP events, compliance disclosure slot. <strong>Ticket:</strong> TRK-14376</p>
+    <div class="candidates">
+      <div class="candidate"><a href="https://www.canva.com/d/QWnN4erfXsEba0x" target="_blank"><img src="https://design.canva.ai/vnULI4UYKKFBgEd" alt="Candidate 1">Candidate 1</a></div>
+      <div class="candidate"><a href="https://www.canva.com/d/zigwke6g2lHX9HX" target="_blank"><img src="https://design.canva.ai/KAlgcD8Er0odDau" alt="Candidate 2">Candidate 2</a></div>
+      <div class="candidate"><a href="https://www.canva.com/d/HJAePyq_uYdsyy8" target="_blank"><img src="https://design.canva.ai/s-4Y46HO1L6uHZW" alt="Candidate 3">Candidate 3</a></div>
+      <div class="candidate"><a href="https://www.canva.com/d/V350G3eo-vAr_-y" target="_blank"><img src="https://design.canva.ai/8a05q-Jq7KEH3aG" alt="Candidate 4">Candidate 4</a></div>
+    </div>
+  </div>
+
+  <div class="card brochure-card">
+    <h3>2. Retirement (Annuity / IRA / RMD / 1035 umbrella)</h3>
+    <p class="metadata"><strong>Coverage:</strong> Qualified account types, employer-sponsored plans, Roth vs Traditional, RMDs (50% IRS penalty), RMD age/divisor table, 72(t), death beneficiary rules, Gradient Securities FINRA disclosure slot. <strong>Ticket:</strong> TRK-14381</p>
+    <div class="candidates">
+      <div class="candidate"><a href="https://www.canva.com/d/32fYqRH2mWuziKk" target="_blank"><img src="https://design.canva.ai/EkI4chGJQIBgHmp" alt="Candidate 1">Candidate 1</a></div>
+      <div class="candidate"><a href="https://www.canva.com/d/qBlcfRIGC4SbTJ2" target="_blank"><img src="https://design.canva.ai/qGzClfrStyoUqNF" alt="Candidate 2">Candidate 2</a></div>
+      <div class="candidate"><a href="https://www.canva.com/d/BElEHZd3Qqp-De7" target="_blank"><img src="https://design.canva.ai/sPYLdmSSMd1Y0VT" alt="Candidate 3">Candidate 3</a></div>
+      <div class="candidate"><a href="https://www.canva.com/d/rdzcKfW_V3fQmOK" target="_blank"><img src="https://design.canva.ai/islPtKUrMTRIfC-" alt="Candidate 4">Candidate 4</a></div>
+    </div>
+  </div>
+
+  <div class="card brochure-card">
+    <h3>3. Senior Life Insurance</h3>
+    <p class="metadata"><strong>Coverage:</strong> Performance review offer, reasons to review (mortality tables, interest rates, dividends, gap in service), need/type matrix, Term (ART, Level, ROP), Permanent (Whole, Par Whole, FE, UL, GUL, IUL, VUL). <strong>Ticket:</strong> TRK-14384</p>
+    <div class="candidates">
+      <div class="candidate"><a href="https://www.canva.com/d/9JCizd3bWTq1j3z" target="_blank"><img src="https://design.canva.ai/D92cedbUJ0dxmOC" alt="Candidate 1">Candidate 1</a></div>
+      <div class="candidate"><a href="https://www.canva.com/d/RabjkKzZR6iqDkv" target="_blank"><img src="https://design.canva.ai/5HlBMaTDgMMzxI8" alt="Candidate 2">Candidate 2</a></div>
+      <div class="candidate"><a href="https://www.canva.com/d/80EMTfUMyHzutSC" target="_blank"><img src="https://design.canva.ai/QUm7LyAyfy-AIEa" alt="Candidate 3">Candidate 3</a></div>
+      <div class="candidate"><a href="https://www.canva.com/d/Z2pbgUvzNLOXKi-" target="_blank"><img src="https://design.canva.ai/AZsXUiTtOrpuvcv" alt="Candidate 4">Candidate 4</a></div>
+    </div>
+  </div>
+
+  <div class="card brochure-card">
+    <h3>4. Ancillary Benefits</h3>
+    <p class="metadata"><strong>Coverage:</strong> MS + PDP, DVH, Hospital Indemnity, Final Expense, Recovery Care, LTC, Home Health Care. Product-fit diagram + stats (84M over 65 by 2050, 1-in-4 fall annually). <strong>Ticket:</strong> TRK-CMO-R1-ANCILLARY</p>
+    <div class="candidates">
+      <div class="candidate"><a href="https://www.canva.com/d/CIzrKBXFXsVuOR6" target="_blank"><img src="https://design.canva.ai/s-J_qw9IMGqQXdm" alt="Candidate 1">Candidate 1</a></div>
+      <div class="candidate"><a href="https://www.canva.com/d/WBqShTEGgHFBFGQ" target="_blank"><img src="https://design.canva.ai/_WdVGHwJd_18k2Y" alt="Candidate 2">Candidate 2</a></div>
+      <div class="candidate"><a href="https://www.canva.com/d/kvbK-4KipJONfse" target="_blank"><img src="https://design.canva.ai/PetMMpFVGk2vY_h" alt="Candidate 3">Candidate 3</a></div>
+      <div class="candidate"><a href="https://www.canva.com/d/yTk-GOU08djtMRl" target="_blank"><img src="https://design.canva.ai/vMF_fjCFVn3_9Jx" alt="Candidate 4">Candidate 4</a></div>
+    </div>
+  </div>
+
+  <div class="card brochure-card">
+    <h3>5. Legacy (GREENFIELD — Estate / Trust / Beneficiary)</h3>
+    <p class="metadata"><strong>Coverage:</strong> Estate planning basics (Will vs Trust, POA, probate), Trusts explained (revocable, irrevocable, testamentary, special needs, charitable), Beneficiary audit (primary/contingent, per stirpes/capita), RPI Legacy Process (Discovery → Documentation → Design → Delivery). Dr. Aprille Trupiano as Legacy Services lead. <strong>Ticket:</strong> TRK-CMO-R1-LEGACY</p>
+    <div class="candidates">
+      <div class="candidate"><a href="https://www.canva.com/d/Xj7VnTa1Hzw5j7J" target="_blank"><img src="https://design.canva.ai/vZ26anTHA-C_jlX" alt="Candidate 1">Candidate 1</a></div>
+      <div class="candidate"><a href="https://www.canva.com/d/wTn6bw9keEnWCh-" target="_blank"><img src="https://design.canva.ai/WPXwLyA5DxN_QsV" alt="Candidate 2">Candidate 2</a></div>
+      <div class="candidate"><a href="https://www.canva.com/d/YkMWq_1iuBo3_zF" target="_blank"><img src="https://design.canva.ai/dOSEz_qRUB-v3_4" alt="Candidate 3">Candidate 3</a></div>
+      <div class="candidate"><a href="https://www.canva.com/d/HmTSJtlAOTmPjTm" target="_blank"><img src="https://design.canva.ai/kgpQYJn7us4rFn9" alt="Candidate 4">Candidate 4</a></div>
+    </div>
+  </div>
+
+  <h2>P3 — MYST.IRL</h2>
+  <div class="card brochure-card">
+    <h3>Meet Your Service Team (print + digital)</h3>
+    <p class="metadata"><strong>Coverage:</strong> Team roster with circular headshot placeholders (Service Lead, Sales Associate, Client Care, Medicare Specialist, Legacy Services — Dr. Aprille). Technology Team section with VOLTRON/SENSEI/RAIDEN/RONIN. <strong>Ticket:</strong> TRK-14388</p>
+    <div class="candidates">
+      <div class="candidate"><a href="https://www.canva.com/d/MtFD15k2uj1FTis" target="_blank"><img src="https://design.canva.ai/0cMwvBGDUTdFzIt" alt="Candidate 1">Candidate 1</a></div>
+      <div class="candidate"><a href="https://www.canva.com/d/pZBk29iAY_v_pEc" target="_blank"><img src="https://design.canva.ai/-IegB20pPS6gUiv" alt="Candidate 2">Candidate 2</a></div>
+      <div class="candidate"><a href="https://www.canva.com/d/OcJGRURBq065FEq" target="_blank"><img src="https://design.canva.ai/bEYtQbDvwlu6T6U" alt="Candidate 3">Candidate 3</a></div>
+      <div class="candidate"><a href="https://www.canva.com/d/IFcuNgRbP3dDBKc" target="_blank"><img src="https://design.canva.ai/xyZ2m1HK-BpLilk" alt="Candidate 4">Candidate 4</a></div>
+    </div>
+  </div>
+
+  <h2>Next steps</h2>
+  <div class="card">
+    <ol style="margin-left: 1.5rem;">
+      <li><strong>JDM:</strong> pick winners for each of the 7 deliverables (4 candidates each = 28 designs total).</li>
+      <li><strong>MUSASHI:</strong> export winners to PDF (print-ready), upload to Shared Drive in <code>RPI- Brochures</code>, push to ProDash portal, deploy to retireprotected.com landing pages.</li>
+      <li><strong>Compliance:</strong> JDM initial review → Medicare (carrier-specific) + Senior Life + Retirement (Gradient FINRA) disclaimers added → re-export.</li>
+      <li><strong>Dr. Aprille:</strong> review Legacy brochure content before print.</li>
+      <li>Round 2 tickets (10) light up once the winning master template is locked — they reuse it.</li>
+    </ol>
+  </div>
+
+</div>
+
+<div class="footer">
+  <strong>Sprint CMO-001 · Round 1 · Deliverables</strong><br>
+  Generated 2026-04-12 · Canva Brand Kit: <code>kAEX0GErDPI</code> · Total: 28 candidate designs<br>
+  MUSASHI, ARTxBLADE — Art x Blade. Write it AND ship it.
+</div>
+
+</body>
+</html>
