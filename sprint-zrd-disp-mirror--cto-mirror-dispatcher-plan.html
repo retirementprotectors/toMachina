@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PLAN — ZRD-DISP-MIRROR: CTO Mirror Dispatcher</title>
+</head>
+<body>
+<h1>ZRD-DISP-MIRROR — CTO Mirror Dispatcher Build Plan</h1>
+<p><strong>Discovery Doc:</strong> <a href="https://retirementprotectors.github.io/toMachina/docs/warriors/shinob1/cto-mirror-dispatcher-discovery.html">cto-mirror-dispatcher-discovery.html</a></p>
+<p><strong>Base path:</strong> <code>/home/jdm/Projects/dojo-warriors/mdj-agent</code></p>
+<p><strong>Sprint ticket count:</strong> 12 (TRK-14390 through TRK-14401)</p>
+
+<hr>
+
+<h2>File Inventory</h2>
+<table border="1" cellpadding="4">
+<tr><th>File</th><th>Action</th><th>Tickets</th></tr>
+<tr><td><code>src/dispatchers/shared.ts</code></td><td>MODIFY</td><td>TRK-14391, TRK-14392, TRK-14393</td></tr>
+<tr><td><code>src/dispatchers/dojo.ts</code></td><td>MODIFY</td><td>TRK-14394, TRK-14395, TRK-14396</td></tr>
+<tr><td><code>src/dispatchers/__tests__/shared.test.ts</code></td><td>CREATE</td><td>TRK-14400</td></tr>
+<tr><td><code>src/dispatchers/__tests__/mirror.test.ts</code></td><td>CREATE</td><td>TRK-14400</td></tr>
+<tr><td><code>/home/jdm/Projects/toMachina/docs/warriors/shinob1/cto-mirror-runbook.md</code></td><td>CREATE</td><td>TRK-14401</td></tr>
+</table>
+
+<hr>
+
+<h2>Build Order</h2>
+
+<!-- ============================================================ -->
+<h3>Wave 0 — JDM Action (External Blocker)</h3>
+<table border="1" cellpadding="4">
+<tr><th>Ticket</th><th>Title</th><th>Deps</th><th>Owner</th></tr>
+<tr>
+  <td><strong>TRK-14390</strong></td>
+  <td>#cto-mirror channel creation — JDM action</td>
+  <td>None</td>
+  <td>JDM</td>
+</tr>
+</table>
+<p><strong>Acceptance:</strong></p>
+<ul>
+  <li>Private channel <code>#cto-mirror</code> exists with members: JDM + @MDJ bot + MEGAZORD</li>
+  <li>Topic set to: "Auto-mirror of warrior bilateral activity. SHINOB1 subscribes via dispatcher. Do not post here directly."</li>
+  <li>Channel ID (format: C0 + 9 chars = 11 total) provided to RONIN</li>
+  <li><code>#cto-mirror</code> added to Slack App event subscriptions in dashboard</li>
+</ul>
+<p><em>RONIN proceeds to Wave 1 immediately (stub ID). Wave 0 blocks only TRK-14398.</em></p>
+
+<!-- ============================================================ -->
+<h3>Wave 1 — shared.ts Foundation (Sequential — same file)</h3>
+
+<table border="1" cellpadding="4">
+<tr><th>Ticket</th><th>Title</th><th>Deps</th><th>File</th></tr>
+<tr>
+  <td><strong>TRK-14391</strong></td>
+  <td>Add CHANNEL_CTO_MIRROR constant + MIRROR_ELIGIBLE_CHANNELS set</td>
+  <td>None</td>
+  <td><code>src/dispatchers/shared.ts</code> (MODIFY)</td>
+</tr>
+<tr>
+  <td><strong>TRK-14392</strong></td>
+  <td>Add isPriorityMessage() helper</td>
+  <td>TRK-14391 (same file, sequential)</td>
+  <td><code>src/dispatchers/shared.ts</code> (MODIFY)</td>
+</tr>
+<tr>
+  <td><strong>TRK-14393</strong></td>
+  <td>Add logMirrorEvent() Firestore audit helper</td>
+  <td>TRK-14392 (same file, sequential)</td>
+  <td><code>src/dispatchers/shared.ts</code> (MODIFY)</td>
+</tr>
+</table>
+
+<h4>TRK-14391 — Acceptance Criteria</h4>
+<ul>
+  <li><code>CHANNEL_CTO_MIRROR</code> exported with stub value <code>"C0PLACEHOLDER"</code></li>
+  <li><code>MIRROR_ELIGIBLE_CHANNELS</code> exported as <code>Set&lt;string&gt;</code> containing exactly 8 channels: CHANNEL_SHINOB1, CHANNEL_MEGAZORD, CHANNEL_MUSASHI, CHANNEL_VOLTRON, CHANNEL_RAIDEN, CHANNEL_RONIN, CHANNEL_EXEC, THE_DOJO</li>
+  <li>Comments document excluded channels (WAR_ROOM, DAVID channels, #cto-mirror itself) with rationale</li>
+  <li><code>CHANNEL_CTO_MIRROR</code> is NOT in <code>MIRROR_ELIGIBLE_CHANNELS</code></li>
+  <li><code>CHANNEL_CTO_MIRROR</code> is NOT in <code>ALLOWED_DISPATCH_CHANNELS</code></li>
+  <li><code>npm run build</code> passes with zero errors</li>
+</ul>
+
+<h4>TRK-14392 — Acceptance Criteria</h4>
+<ul>
+  <li><code>isPriorityMessage(text: string): boolean</code> exported from shared.ts</li>
+  <li>Matches four tags case-insensitively: <code>[CTO-PRIORITY]</code>, <code>[BLOCKER]</code>, <code>[CTO-URGENT]</code>, <code>@shinob1</code></li>
+  <li>Returns false for plain text with no tags</li>
+  <li>JSDoc includes unit test examples</li>
+  <li><code>npm run build</code> passes with zero errors</li>
+</ul>
+
+<h4>TRK-14393 — Acceptance Criteria</h4>
+<ul>
+  <li><code>logMirrorEvent()</code> exported from shared.ts</li>
+  <li>Writes to Firestore collection <code>cto_mirror_events</code></li>
+  <li>Fields: source_channel, source_warrior, message_ts, message_text (truncated 1000 chars), is_priority, mirror_ok, created_at (ISO 8601), created_by ("dispatch-dojo")</li>
+  <li>Fire-and-forget: errors caught, logged to console, never propagated</li>
+  <li><code>npm run build</code> passes with zero errors</li>
+</ul>
+
+<!-- ============================================================ -->
+<h3>Wave 2 — dojo.ts Core Implementation (Sequential — same file)</h3>
+
+<table border="1" cellpadding="4">
+<tr><th>Ticket</th><th>Title</th><th>Deps</th><th>File</th></tr>
+<tr>
+  <td><strong>TRK-14394</strong></td>
+  <td>Implement mirrorToCTO() function (Fix B + Fix C)</td>
+  <td>TRK-14391, TRK-14392, TRK-14393</td>
+  <td><code>src/dispatchers/dojo.ts</code> (MODIFY)</td>
+</tr>
+<tr>
+  <td><strong>TRK-14395</strong></td>
+  <td>Wire mirrorToCTO() into dispatch()</td>
+  <td>TRK-14394</td>
+  <td><code>src/dispatchers/dojo.ts</code> (MODIFY)</td>
+</tr>
+</table>
+
+<h4>TRK-14394 — Acceptance Criteria</h4>
+<ul>
+  <li><code>mirrorToCTO(event, sourceWarrior)</code> async function exists in dojo.ts</li>
+  <li>Absolute guard: returns immediately if <code>channel === CHANNEL_CTO_MIRROR</code></li>
+  <li>Eligibility guard: returns immediately if channel not in <code>MIRROR_ELIGIBLE_CHANNELS</code></li>
+  <li>Fix B: Posts <code># Mirror from &lt;WARRIOR&gt;: &lt;text&gt;</code> to #cto-mirror via Slack + injects into SHINOB1 tmux using load-buffer/paste-buffer pattern</li>
+  <li>Fix C: If isPriorityMessage() true, additionally injects <code>&#x1F6A8; PRIORITY from &lt;WARRIOR&gt;: &lt;text&gt;</code> into SHINOB1 tmux</li>
+  <li>Calls logMirrorEvent() for audit (fire-and-forget)</li>
+  <li>All tmux/Slack errors caught — non-fatal, logged only</li>
+  <li>Tmux temp files cleaned up in finally blocks</li>
+  <li><code>npm run build</code> passes with zero errors</li>
+</ul>
+
+<h4>TRK-14395 — Acceptance Criteria</h4>
+<ul>
+  <li><code>mirrorToCTO()</code> called after <code>deliverToWarrior()</code> in dispatch function</li>
+  <li>sourceWarrior parsed from bot signoff using existing tail/matchAll logic (last 300 chars, regex for warrior names)</li>
+  <li>Call is fire-and-forget (<code>.catch()</code> with error log) — does NOT block dispatch routing</li>
+  <li><code>npm run build</code> passes with zero errors</li>
+</ul>
+
+<!-- ============================================================ -->
+<h3>Wave 3 — Guards, Documentation, Build Verification (Parallel)</h3>
+<p><strong>No file overlaps — true parallel execution.</strong></p>
+
+<table border="1" cellpadding="4">
+<tr><th>Ticket</th><th>Title</th><th>Deps</th><th>File</th></tr>
+<tr>
+  <td><strong>TRK-14396</strong></td>
+  <td>Bot-loop firewall: document and verify #cto-mirror absolute guard</td>
+  <td>TRK-14394, TRK-14395</td>
+  <td><code>src/dispatchers/dojo.ts</code> (MODIFY — comments only)</td>
+</tr>
+<tr>
+  <td><strong>TRK-14397</strong></td>
+  <td>Channel-specific rule enforcement: DAVID skip + war room skip</td>
+  <td>TRK-14391</td>
+  <td><code>src/dispatchers/shared.ts</code> (MODIFY — comments only)</td>
+</tr>
+<tr>
+  <td><strong>TRK-14399</strong></td>
+  <td>Build: compile + type-check dispatcher package</td>
+  <td>TRK-14394, TRK-14395</td>
+  <td>No file changes — build verification only</td>
+</tr>
+<tr>
+  <td><strong>TRK-14401</strong></td>
+  <td>Rollout runbook + revert procedure</td>
+  <td>TRK-14394</td>
+  <td><code>docs/warriors/shinob1/cto-mirror-runbook.md</code> (CREATE in toMachina repo)</td>
+</tr>
+</table>
+
+<h4>TRK-14396 — Acceptance Criteria</h4>
+<ul>
+  <li>Inline comment block in mirrorToCTO() explaining 3-layer loop defense (primary guard, eligibility set, allowlist entry point)</li>
+  <li>Verified: <code>CHANNEL_CTO_MIRROR</code> NOT in <code>MIRROR_ELIGIBLE_CHANNELS</code></li>
+  <li>Verified: <code>CHANNEL_CTO_MIRROR</code> NOT in <code>ALLOWED_DISPATCH_CHANNELS</code></li>
+  <li>Noted: <code>#cto-mirror</code> must be in Slack App event subscriptions for guard to detect events</li>
+  <li><code>npm run build</code> passes with zero errors</li>
+</ul>
+
+<h4>TRK-14397 — Acceptance Criteria</h4>
+<ul>
+  <li>Comments in MIRROR_ELIGIBLE_CHANNELS set explain DAVID exclusion (direct route to SHINOB1 already exists)</li>
+  <li>Comments explain war room exclusion (volume too high, signal collapses)</li>
+  <li>Comment notes: "Future DAVID channels must be explicitly excluded when added"</li>
+  <li><code>npm run build</code> passes with zero errors</li>
+</ul>
+
+<h4>TRK-14399 — Acceptance Criteria</h4>
+<ul>
+  <li><code>npm run build</code> in <code>/home/jdm/Projects/dojo-warriors/mdj-agent</code> exits 0</li>
+  <li>Zero TypeScript errors</li>
+  <li>All new exports from shared.ts (CHANNEL_CTO_MIRROR, MIRROR_ELIGIBLE_CHANNELS, isPriorityMessage, logMirrorEvent) resolve in dojo.ts imports</li>
+</ul>
+
+<h4>TRK-14401 — Acceptance Criteria</h4>
+<ul>
+  <li>Runbook saved to <code>docs/warriors/shinob1/cto-mirror-runbook.md</code> in toMachina repo</li>
+  <li>Includes: deploy steps (restart service, verify heartbeat in dispatcher_health/dojo within 60s)</li>
+  <li>Includes: Smoke test B (plain bilateral message → #cto-mirror within 10s, "# Mirror from" prefix)</li>
+  <li>Includes: Smoke test C (tagged message → mirror + priority tmux inject, audit log is_priority:true)</li>
+  <li>Includes: Smoke test loop guard (message in #cto-mirror → zero re-mirrors)</li>
+  <li>Includes: Smoke test DAVID skip (DAVID message → no #cto-mirror post)</li>
+  <li>Includes: Revert procedure (empty channel ID or remove channels from eligible set)</li>
+</ul>
+
+<!-- ============================================================ -->
+<h3>Wave 4 — Tests (Hard Gate)</h3>
+
+<table border="1" cellpadding="4">
+<tr><th>Ticket</th><th>Title</th><th>Deps</th><th>File</th></tr>
+<tr>
+  <td><strong>TRK-14400</strong></td>
+  <td>Tests: mirror fires, no loop, priority escalates, channel rules respected</td>
+  <td>TRK-14391, TRK-14392, TRK-14393, TRK-14394, TRK-14395, TRK-14399</td>
+  <td><code>src/dispatchers/__tests__/shared.test.ts</code> (CREATE)<br><code>src/dispatchers/__tests__/mirror.test.ts</code> (CREATE)</td>
+</tr>
+</table>
+
+<h4>TRK-14400 — Acceptance Criteria</h4>
+<ul>
+  <li><strong>Suite 1 (shared.test.ts):</strong> isPriorityMessage() — all 4 tags match case-insensitively; plain text returns false; partial tag matches don't false-positive</li>
+  <li><strong>Suite 2 (mirror.test.ts):</strong> Mirror fires on bilateral channel post — Slack postMessage called with "# Mirror from" prefix, audit log written</li>
+  <li><strong>Suite 3 (mirror.test.ts):</strong> Loop guard — event from CHANNEL_CTO_MIRROR = ZERO Slack posts, ZERO tmux injects, ZERO Firestore writes (NON-NEGOTIABLE GATE)</li>
+  <li><strong>Suite 4 (mirror.test.ts):</strong> Priority escalation — tagged message fires BOTH standard mirror AND priority prefix; audit log is_priority:true</li>
+  <li><strong>Suite 5 (mirror.test.ts):</strong> DAVID channel event → no Slack post to #cto-mirror</li>
+  <li><strong>Suite 6 (mirror.test.ts):</strong> WAR_ROOM event → no mirror</li>
+  <li>All tests pass: <code>npm test</code> exits 0</li>
+  <li><code>npm run build</code> passes with zero errors</li>
+</ul>
+
+<!-- ============================================================ -->
+<h3>Wave 5 — Go Live (Blocked on JDM)</h3>
+
+<table border="1" cellpadding="4">
+<tr><th>Ticket</th><th>Title</th><th>Deps</th><th>File</th></tr>
+<tr>
+  <td><strong>TRK-14398</strong></td>
+  <td>Fill in real CHANNEL_CTO_MIRROR value after JDM creates channel</td>
+  <td>TRK-14390 (JDM), TRK-14399, TRK-14400</td>
+  <td><code>src/dispatchers/shared.ts</code> (MODIFY)</td>
+</tr>
+</table>
+
+<h4>TRK-14398 — Acceptance Criteria</h4>
+<ul>
+  <li><code>C0PLACEHOLDER</code> replaced with real channel ID from JDM</li>
+  <li>ID format verified: starts with <code>C0</code>, 11 characters total</li>
+  <li>Commit message clearly tagged: "make mirror live — real CHANNEL_CTO_MIRROR"</li>
+  <li><code>npm run build</code> passes with zero errors</li>
+  <li>After deploy: smoke tests from runbook (TRK-14401) executed and passing</li>
+</ul>
+
+<hr>
+
+<h2>Dependency Graph</h2>
+<pre>
+Wave 0:  TRK-14390 [JDM]
+              |
+              | (blocks only TRK-14398)
+              |
+Wave 1:  TRK-14391 --> TRK-14392 --> TRK-14393   (shared.ts, sequential)
+              |            |            |
+              v            v            v
+Wave 2:  TRK-14394 ----------------------------   (dojo.ts: mirrorToCTO)
+              |
+              v
+         TRK-14395                                 (dojo.ts: wire into dispatch)
+              |
+              v
+Wave 3:  TRK-14396 || TRK-14397 || TRK-14399 || TRK-14401   (parallel)
+              |            |          |
+              v            v          v
+Wave 4:  TRK-14400                                 (tests -- hard gate)
+              |
+              v
+Wave 5:  TRK-14398                                 (go live -- needs JDM channel ID)
+</pre>
+
+<hr>
+
+<h2>Wave Summary</h2>
+<table border="1" cellpadding="4">
+<tr><th>Wave</th><th>Tickets</th><th>Parallel?</th><th>Est. Time</th></tr>
+<tr><td>0</td><td>TRK-14390</td><td>JDM action</td><td>5 min (JDM)</td></tr>
+<tr><td>1</td><td>TRK-14391 → TRK-14392 → TRK-14393</td><td>Sequential (same file)</td><td>50 min</td></tr>
+<tr><td>2</td><td>TRK-14394 → TRK-14395</td><td>Sequential (same file)</td><td>65 min</td></tr>
+<tr><td>3</td><td>TRK-14396, TRK-14397, TRK-14399, TRK-14401</td><td>YES — full parallel</td><td>15 min (parallel)</td></tr>
+<tr><td>4</td><td>TRK-14400</td><td>Single ticket</td><td>45 min</td></tr>
+<tr><td>5</td><td>TRK-14398</td><td>Single ticket (JDM-blocked)</td><td>5 min</td></tr>
+</table>
+<p><strong>Total wall-clock estimate:</strong> ~3 hours (Waves 1-4) + JDM dependency for Wave 5</p>
+
+<hr>
+
+<h2>Critical Rules for Builder</h2>
+<ol>
+  <li><strong>Build gate:</strong> <code>npm run build</code> after EVERY ticket. Zero errors. Run in <code>/home/jdm/Projects/dojo-warriors/mdj-agent</code>.</li>
+  <li><strong>Loop guard is non-negotiable:</strong> TRK-14400 Suite 3 (loop guard test) MUST pass before any deploy. If it fails, stop and fix.</li>
+  <li><strong>Fire-and-forget pattern:</strong> mirrorToCTO() must NEVER block dispatch(). Use <code>.catch()</code> on the promise.</li>
+  <li><strong>No secrets:</strong> Channel IDs are not secrets. Stub is <code>C0PLACEHOLDER</code>.</li>
+  <li><strong>Git branching:</strong> Branch from main: <code>voltron/sprint-001-{ticket-id}</code>. PR with <code>--auto --squash</code>.</li>
+  <li><strong>Tmux pattern:</strong> Use load-buffer/paste-buffer (not send-keys with raw text). Temp file cleanup in finally block.</li>
+  <li><strong>Audit logging:</strong> logMirrorEvent() is fire-and-forget. Errors logged to console, never thrown.</li>
+  <li><strong>message_text truncation:</strong> Always <code>.slice(0, 1000)</code> before writing to Firestore.</li>
+</ol>
+
+</body>
+</html>
