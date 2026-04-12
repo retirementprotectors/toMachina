@@ -1,5 +1,6 @@
 import { Router, type Request, type Response } from 'express'
-import { getFirestore, type Query, type DocumentData } from 'firebase-admin/firestore'
+import { type Query, type DocumentData } from 'firebase-admin/firestore'
+import { getDefaultDb } from '../lib/db.js'
 import { validateWrite } from '../middleware/validate.js'
 import {
   successResponse,
@@ -273,7 +274,7 @@ const SOURCE_COLLECTION = 'source_registry'
  */
 atlasRoutes.get('/sources', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
     const params = getPaginationParams(req)
     if (!params.orderBy) params.orderBy = 'created_at'
 
@@ -302,7 +303,7 @@ atlasRoutes.get('/sources', async (req: Request, res: Response) => {
  */
 atlasRoutes.get('/sources/:id', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
     const id = param(req.params.id)
     const doc = await db.collection(SOURCE_COLLECTION).doc(id).get()
     if (!doc.exists) { res.status(404).json(errorResponse('Source not found')); return }
@@ -323,7 +324,7 @@ const sourceCreateValidation = validateWrite({
  */
 atlasRoutes.post('/sources', sourceCreateValidation, async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
     const now = new Date().toISOString()
     const sourceId = `SRC_${randomUUID().slice(0, 8)}`
     const productLine = String(req.body.product_line || '')
@@ -355,7 +356,7 @@ atlasRoutes.post('/sources', sourceCreateValidation, async (req: Request, res: R
  */
 atlasRoutes.patch('/sources/:id', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
     const id = param(req.params.id)
     const docRef = db.collection(SOURCE_COLLECTION).doc(id)
     const doc = await docRef.get()
@@ -383,7 +384,7 @@ atlasRoutes.patch('/sources/:id', async (req: Request, res: Response) => {
  */
 atlasRoutes.delete('/sources/:id', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
     const id = param(req.params.id)
     const docRef = db.collection(SOURCE_COLLECTION).doc(id)
     const doc = await docRef.get()
@@ -405,7 +406,7 @@ atlasRoutes.delete('/sources/:id', async (req: Request, res: Response) => {
  */
 atlasRoutes.post('/sources/bulk-register', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
     const now = new Date().toISOString()
     const { carriers } = req.body as { carriers: Array<{ carrierId: string; carrierName: string; status: string; feedType: string; productLine: string; dataDomain: string; notes?: string }> }
 
@@ -479,7 +480,7 @@ atlasRoutes.post('/sources/bulk-register', async (req: Request, res: Response) =
  */
 atlasRoutes.get('/sources/health', async (_req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
     const snap = await db.collection(SOURCE_COLLECTION).where('status', '==', 'ACTIVE').get()
 
     let green = 0, yellow = 0, red = 0, gray = 0
@@ -515,7 +516,7 @@ const TOOL_COLLECTION = 'tool_registry'
  */
 atlasRoutes.get('/tools', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
     const params = getPaginationParams(req)
     if (!params.orderBy) params.orderBy = 'created_at'
 
@@ -545,7 +546,7 @@ const toolCreateValidation = validateWrite({
  */
 atlasRoutes.post('/tools', toolCreateValidation, async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
     const now = new Date().toISOString()
     const toolId = `TOOL_${randomUUID().slice(0, 8)}`
 
@@ -574,7 +575,7 @@ atlasRoutes.post('/tools', toolCreateValidation, async (req: Request, res: Respo
  */
 atlasRoutes.patch('/tools/:id', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
     const id = param(req.params.id)
     const docRef = db.collection(TOOL_COLLECTION).doc(id)
     const doc = await docRef.get()
@@ -600,7 +601,7 @@ atlasRoutes.patch('/tools/:id', async (req: Request, res: Response) => {
  */
 atlasRoutes.get('/analytics', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
     const groupBy = (req.query.group_by as string) || 'carrier'
 
     const snap = await db.collection(SOURCE_COLLECTION)
@@ -665,7 +666,7 @@ atlasRoutes.get('/analytics', async (req: Request, res: Response) => {
  */
 atlasRoutes.get('/analytics/carriers', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
     const carrierName = req.query.carrier as string
 
     let query: Query<DocumentData> = db.collection(SOURCE_COLLECTION).where('status', '==', 'ACTIVE')
@@ -723,7 +724,7 @@ const AUDIT_COLLECTION = 'atlas_audit'
  */
 atlasRoutes.get('/audit', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
     let query: Query<DocumentData> = db.collection(AUDIT_COLLECTION)
 
     if (req.query.source_id) query = query.where('source_id', '==', req.query.source_id)
@@ -751,7 +752,7 @@ const auditValidation = validateWrite({
 
 atlasRoutes.post('/audit', auditValidation, async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
     const now = new Date().toISOString()
     const historyId = `HIST_${randomUUID().slice(0, 8)}`
 
@@ -782,7 +783,7 @@ atlasRoutes.post('/audit', auditValidation, async (req: Request, res: Response) 
  */
 atlasRoutes.get('/pipeline', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
 
     // Read dynamic pipeline stages from config registry (hardcoded fallback)
     const stagesConfig = await getConfig<{ stages: typeof DEFAULT_PIPELINE_STAGES }>('atlas_stages', { stages: DEFAULT_PIPELINE_STAGES })
@@ -884,7 +885,7 @@ atlasRoutes.get('/wires', async (req: Request, res: Response) => {
  */
 atlasRoutes.post('/digest', async (_req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
     const slackToken = process.env.SLACK_BOT_TOKEN
     const JDM_SLACK_ID = 'U09BBHTN8F2'
 
@@ -963,7 +964,7 @@ const STALENESS_THRESHOLD_DAYS = 7
  */
 atlasRoutes.get('/health', async (_req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
 
     // 1. Load recent import runs (last per wire)
     const recentRuns = await getRecentRuns(100)
@@ -1086,7 +1087,7 @@ atlasRoutes.get('/health', async (_req: Request, res: Response) => {
  */
 atlasRoutes.get('/gaps', async (_req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
 
     // Load sources
     const sourceSnap = await db.collection(SOURCE_COLLECTION).where('status', '==', 'ACTIVE').get()
@@ -1124,7 +1125,7 @@ atlasRoutes.get('/gaps', async (_req: Request, res: Response) => {
  */
 atlasRoutes.get('/execution-analytics', async (_req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
 
     const runSnap = await db.collection('ranger_runs')
@@ -1220,7 +1221,7 @@ const IMPORT_RUNS_COLLECTION = 'import_runs'
  */
 atlasRoutes.get('/import-runs', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
     const limitParam = Math.min(Math.max(parseInt(req.query.limit as string) || 20, 1), 100)
 
     let query: Query<DocumentData> = db.collection(IMPORT_RUNS_COLLECTION)
@@ -1246,7 +1247,7 @@ atlasRoutes.get('/import-runs', async (req: Request, res: Response) => {
  */
 atlasRoutes.get('/import-runs/:id', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
     const id = param(req.params.id)
     const doc = await db.collection(IMPORT_RUNS_COLLECTION).doc(id).get()
     if (!doc.exists) { res.status(404).json(errorResponse('Import run not found')); return }
@@ -1263,7 +1264,7 @@ atlasRoutes.get('/import-runs/:id', async (req: Request, res: Response) => {
  */
 atlasRoutes.post('/import-runs/:id/retry', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
     const id = param(req.params.id)
     const docRef = db.collection(IMPORT_RUNS_COLLECTION).doc(id)
     const doc = await docRef.get()
@@ -1303,7 +1304,7 @@ atlasRoutes.post('/import-runs/:id/retry', async (req: Request, res: Response) =
  */
 atlasRoutes.get('/formats', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
     let query: Query<DocumentData> = db.collection('atlas').doc('formats').collection('items')
     if (req.query.carrier) query = query.where('carrier', '==', req.query.carrier)
     if (req.query.default_category) query = query.where('default_category', '==', req.query.default_category)
@@ -1323,7 +1324,7 @@ atlasRoutes.get('/formats', async (req: Request, res: Response) => {
  */
 atlasRoutes.post('/formats', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
     const now = new Date().toISOString()
     const formatId = `FMT_${randomUUID().slice(0, 8)}`
     const data = {
@@ -1348,7 +1349,7 @@ atlasRoutes.post('/formats', async (req: Request, res: Response) => {
  */
 atlasRoutes.patch('/formats/:id', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
     const id = param(req.params.id)
     const ref = db.collection('atlas').doc('formats').collection('items').doc(id)
     const doc = await ref.get()
@@ -1383,7 +1384,7 @@ atlasRoutes.post('/introspect', async (req: Request, res: Response) => {
       res.status(400).json(errorResponse('sample_rows (Record[]) is required')); return
     }
 
-    const db = getFirestore()
+    const db = getDefaultDb()
     const now = new Date().toISOString()
     const fingerprint = hashHeaderFingerprint(headers)
     const runId = `INTR_${randomUUID().slice(0, 8)}`
@@ -1508,7 +1509,7 @@ atlasRoutes.post('/introspect/confirm', async (req: Request, res: Response) => {
       res.status(400).json(errorResponse('confirmed_mappings is required')); return
     }
 
-    const db = getFirestore()
+    const db = getDefaultDb()
     const now = new Date().toISOString()
 
     // Load the introspect run

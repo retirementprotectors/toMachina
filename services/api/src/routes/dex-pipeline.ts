@@ -8,7 +8,8 @@
  */
 
 import { Router, type Request, type Response } from 'express'
-import { getFirestore, FieldValue } from 'firebase-admin/firestore'
+import { FieldValue } from 'firebase-admin/firestore'
+import { getDb } from '../lib/db.js'
 import { GoogleAuth } from 'google-auth-library'
 import {
   successResponse, errorResponse, getPaginationParams, paginatedQuery,
@@ -61,7 +62,7 @@ dexPipelineRoutes.post('/packages', async (req: Request, res: Response) => {
     const err = validateRequired(body, ['kit_id', 'client_id', 'client_name'])
     if (err) { res.status(400).json(errorResponse(err)); return }
 
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const now = new Date().toISOString()
     const packageId = `PKG_${Date.now()}_${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`
     const userEmail = (req as any).user?.email || 'api'
@@ -121,7 +122,7 @@ dexPipelineRoutes.post('/packages', async (req: Request, res: Response) => {
  */
 dexPipelineRoutes.get('/packages/summary', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const snap = await db.collection(PACKAGES).get()
 
     const counts: Record<string, number> = {
@@ -158,7 +159,7 @@ dexPipelineRoutes.get('/packages/summary', async (req: Request, res: Response) =
  */
 dexPipelineRoutes.get('/packages', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const params = getPaginationParams(req)
     if (!params.orderBy) params.orderBy = 'created_at'
 
@@ -180,7 +181,7 @@ dexPipelineRoutes.get('/packages', async (req: Request, res: Response) => {
  */
 dexPipelineRoutes.get('/packages/:id', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const id = param(req.params.id)
     const doc = await db.collection(PACKAGES).doc(id).get()
     if (!doc.exists) { res.status(404).json(errorResponse('Package not found')); return }
@@ -208,7 +209,7 @@ dexPipelineRoutes.get('/packages/:id', async (req: Request, res: Response) => {
  */
 dexPipelineRoutes.patch('/packages/:id/status', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const id = param(req.params.id)
     const body = req.body as Record<string, unknown>
     const newStatus = String(body.status || '')
@@ -260,7 +261,7 @@ dexPipelineRoutes.patch('/packages/:id/status', async (req: Request, res: Respon
  */
 dexPipelineRoutes.post('/packages/:id/generate-pdf', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const id = param(req.params.id)
     const userEmail = (req as any).user?.email || 'api'
 
@@ -435,7 +436,7 @@ dexPipelineRoutes.post('/packages/:id/generate-pdf', async (req: Request, res: R
  */
 dexPipelineRoutes.post('/packages/:id/send-docusign', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const id = param(req.params.id)
     const userEmail = (req as any).user?.email || 'api'
 

@@ -1,5 +1,6 @@
 import { Router, type Request, type Response } from 'express'
-import { getFirestore, type Query, type DocumentData } from 'firebase-admin/firestore'
+import { type Query, type DocumentData } from 'firebase-admin/firestore'
+import { getDefaultDb } from '../lib/db.js'
 import {
   successResponse,
   errorResponse,
@@ -13,7 +14,7 @@ const COLLECTION = 'products'
 
 productRoutes.get('/', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
     let query: Query<DocumentData> = db.collection(COLLECTION)
 
     if (req.query.carrier_id) query = query.where('carrier_id', '==', req.query.carrier_id)
@@ -37,7 +38,7 @@ productRoutes.get('/', async (req: Request, res: Response) => {
 
 productRoutes.get('/:id', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
     const id = param(req.params.id)
     const doc = await db.collection(COLLECTION).doc(id).get()
     if (!doc.exists) { res.status(404).json(errorResponse('Product not found')); return }
