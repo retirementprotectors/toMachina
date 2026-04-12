@@ -154,6 +154,27 @@
     <tr><td><span class="p-soon">Phase 2</span></td><td>RIIMO</td><td>B2E Internal + Training</td><td>AiBot Brand Guide, team comms, onboarding, SENSEI content</td><td>Learning Loop (003) + SENSEI (007)</td></tr>
     <tr><td><span class="p-next">Phase 3</span></td><td>SENTINEL</td><td>B2B M&A + Partners</td><td>DAVID pitch decks, agency intake, partner materials</td><td>SENTINEL portal build</td></tr>
   </table>
+
+  <h2>CMO Infrastructure &mdash; The Three Weapons</h2>
+  <div class="card card-phase">
+    <p><strong>Every CXO in The Machine wields three weapons.</strong> These are the plumbing behind the deliverables on this roadmap &mdash; the <em>how</em> that makes the <em>what</em> ship.</p>
+  </div>
+  <table>
+    <tr><th>Weapon</th><th>MUSASHI's Instance</th><th>Purpose</th></tr>
+    <tr><td><strong>Registry</strong></td><td>CMO Registry (<code>packages/core/src/cmo/</code>)</td><td>57 tools registered across 7 domains &mdash; Canva, WordPress, Veo, C3, PDF, Drive, frontend-design</td></tr>
+    <tr><td><strong>Mesh</strong></td><td>Artisans</td><td>5 channel specialists &mdash; Print, Digital, Web, Social, Video</td></tr>
+    <tr><td><strong>Dojo</strong></td><td>Command Center App</td><td>Mission control for creative operations</td></tr>
+  </table>
+
+  <h3>The Consumption Principle &mdash; CONSUME &rarr; OPERATE &rarr; DEVOUR</h3>
+  <div class="flow">
+    <div class="flow-step" style="border-color:var(--accent);"><strong>CONSUME</strong><br>Build registry<br>Claim domain</div>
+    <span class="flow-arrow">&rarr;</span>
+    <div class="flow-step" style="border-color:var(--orange);"><strong>OPERATE</strong><br>Wire registry to execution<br>Mesh runs pipelines</div>
+    <span class="flow-arrow">&rarr;</span>
+    <div class="flow-step" style="border-color:var(--green);"><strong>DEVOUR</strong><br>Full autonomy<br>Generate &rarr; Deploy &rarr; Measure &rarr; Iterate</div>
+  </div>
+  <p style="color:var(--muted); margin-top:0.5rem; font-size:0.85rem;">Ticket tracks: <code>MUS-C*</code> CONSUME &middot; <code>MUS-O*</code> OPERATE &middot; <code>MUS-D*</code> DEVOUR. Infrastructure work is tracked separately from public-roadmap deliverables.</p>
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════════════ -->
@@ -372,22 +393,41 @@
 <!-- TAB 8: SPRINT 1 -->
 <!-- ═══════════════════════════════════════════════════════════════════ -->
 <div class="panel" id="sprint1">
-  <h2>Sprint 1 &mdash; POS Brochures + MYST.IRL</h2>
+  <h2>Sprint CMO-001 &mdash; POS Brochures + MYST.IRL</h2>
   <div class="card card-phase">
-    <p><strong>Scope TBD &mdash; pending Q&A with JDM.</strong></p>
-    <p style="margin-top:0.75rem;">This tab will be populated after the discovery Q&A session. Key questions to resolve:</p>
-    <ol style="margin-top:0.75rem;">
-      <li>The <code>RPI- Brochures</code> folder &mdash; is that the master folder with all 11 POS pieces?</li>
-      <li>Carrier brochures (Nassau, North American, etc.) &mdash; part of POS kit or just reference?</li>
-      <li>Digital versions &mdash; match existing print design or new RPI design system?</li>
-      <li>MYST.IRL &mdash; location of the current outdated handout?</li>
-      <li>Team headshots &mdash; current photos available, or need new ones?</li>
-      <li>MYST.IRL AI crew footer &mdash; generated avatars or abstract icons?</li>
-      <li>Print specs &mdash; tri-fold, letter, half-page? Standard for all?</li>
-      <li>Distribution &mdash; who prints? Local printer, online service, in-office?</li>
-      <li>Brand guidelines &mdash; existing color palette, fonts, logo usage rules?</li>
-    </ol>
-    <p style="margin-top:1rem; color:var(--muted);">Once these are answered, this tab becomes the Sprint 1 ticket list with FORGE-ready acceptance criteria.</p>
+    <p><strong style="color:var(--green);">&#x2713; LOCKED.</strong> Q&amp;A resolved (9/9). Discovery Doc published. 18 tracker tickets with FORGE-ready acceptance criteria. Combined Priority A1 + A2 in one sprint.</p>
+    <p style="margin-top:0.75rem;">
+      <strong>Discovery Doc:</strong> <a href="https://retirementprotectors.github.io/toMachina/docs/warriors/musashi/creative/sprint1-brochure-parity-discovery.html" style="color:var(--accent);">sprint1-brochure-parity-discovery.html</a><br>
+      <strong>Scope:</strong> A1 (POS Brochures, digital parity &mdash; 11 pieces) + A2 (MYST.IRL refresh)<br>
+      <strong>Tickets:</strong> TRK-CMO-001 through TRK-CMO-018
+    </p>
+  </div>
+
+  <h3>The Doctrine (from JDM's Q&amp;A)</h3>
+  <table>
+    <tr><th>Decision</th><th>JDM's Answer</th></tr>
+    <tr><td>Template strategy</td><td>Build ONE master template &rarr; all 5 products use same structure ("It's a layup")</td></tr>
+    <tr><td>Format</td><td>Both print + digital (universal)</td></tr>
+    <tr><td>Voice</td><td>Warm + Professional &mdash; "We're Your People" energy</td></tr>
+    <tr><td>Audience</td><td>Dual-purpose &mdash; client-facing AND agent selling tool</td></tr>
+    <tr><td>Compliance</td><td>JDM initial review. Medicare + Investment require carrier-specific compliance.</td></tr>
+    <tr><td>Imagery</td><td>Clean/minimal + stock photography. Reference Shared Drive assets.</td></tr>
+    <tr><td>Distribution</td><td>UNIVERSAL &mdash; print, email, portal, website, F2F. Build once, works everywhere.</td></tr>
+    <tr><td>Online home</td><td>Both retireprotected.com landing pages + ProDashX portal downloads.</td></tr>
+    <tr><td>Brand assets</td><td>Start FRESH as the NEW brand standard. This becomes the new template.</td></tr>
+  </table>
+
+  <h3>Phases</h3>
+  <table>
+    <tr><th>Phase</th><th>Scope</th><th>Tickets</th></tr>
+    <tr><td><strong>P1: Template Foundation</strong></td><td>Master Canva template, RSP stage mapping, distribution matrix, output specs</td><td>TRK-CMO-001 &rarr; 004</td></tr>
+    <tr><td><strong>P2: Health Market</strong></td><td>Medicare POS, T65 kit, MAPD comparison, Med Supp vs MA</td><td>TRK-CMO-005 &rarr; 008</td></tr>
+    <tr><td><strong>P3: Wealth + Legacy</strong></td><td>FIA, MYGA, 1035, IRA, RMD + Life, Final Expense, Estate primer, Legacy review, Beneficiary</td><td>TRK-CMO-009 &rarr; 016</td></tr>
+    <tr><td><strong>P4: Distribution + MYST.IRL</strong></td><td>F2F Kit Generator, MYST.IRL refresh (TRK-CMO-017)</td><td>TRK-CMO-017 &rarr; 018</td></tr>
+  </table>
+
+  <div class="card" style="margin-top:1rem;">
+    <p style="color:var(--muted); font-size:0.85rem;"><strong>Status:</strong> Disco locked. Tickets loaded into Dojo for MUSASHI execution &mdash; Art x Blade, write it AND ship it.</p>
   </div>
 </div>
 
