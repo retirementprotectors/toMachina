@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 
 import { Router, type Request, type Response } from 'express'
-import { getFirestore } from 'firebase-admin/firestore'
+import { getDb } from '../lib/db.js'
 import {
   createBatch,
   validateBatch,
@@ -71,7 +71,7 @@ approvalRoutes.post('/batches', async (req: Request, res: Response) => {
     const validationError = validateBatch(body.data, body.context)
     if (validationError) { res.status(400).json(errorResponse(validationError)); return }
 
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const batchId = db.collection(BATCHES_COLLECTION).doc().id
 
     // Create batch (pure function)
@@ -121,7 +121,7 @@ approvalRoutes.post('/batches', async (req: Request, res: Response) => {
 approvalRoutes.post('/batches/:id/notify', async (req: Request, res: Response) => {
   try {
     const batchId = param(req.params.id)
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const batchDoc = await db.collection(BATCHES_COLLECTION).doc(batchId).get()
 
     if (!batchDoc.exists) {
@@ -224,7 +224,7 @@ approvalRoutes.patch('/batches/:id/items/:itemId', async (req: Request, res: Res
 
     const decidedBy = ((req as any).user?.email as string) || 'unknown'
 
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const batchRef = db.collection(BATCHES_COLLECTION).doc(batchId)
     const batchDoc = await batchRef.get()
 
@@ -307,7 +307,7 @@ approvalRoutes.patch('/batches/:id/bulk', async (req: Request, res: Response) =>
 
     const decidedBy = ((req as any).user?.email as string) || 'unknown'
 
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const batchRef = db.collection(BATCHES_COLLECTION).doc(batchId)
     const batchDoc = await batchRef.get()
 
@@ -348,7 +348,7 @@ approvalRoutes.patch('/batches/:id/bulk', async (req: Request, res: Response) =>
 approvalRoutes.post('/batches/:id/execute', async (req: Request, res: Response) => {
   try {
     const batchId = param(req.params.id)
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const batchRef = db.collection(BATCHES_COLLECTION).doc(batchId)
     const batchDoc = await batchRef.get()
 
@@ -574,7 +574,7 @@ approvalRoutes.post('/batches/:id/execute', async (req: Request, res: Response) 
  */
 approvalRoutes.get('/batches', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     let query: FirebaseFirestore.Query = db.collection(BATCHES_COLLECTION)
 
     // Filters
@@ -625,7 +625,7 @@ approvalRoutes.get('/batches', async (req: Request, res: Response) => {
 approvalRoutes.get('/batches/:id', async (req: Request, res: Response) => {
   try {
     const batchId = param(req.params.id)
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const doc = await db.collection(BATCHES_COLLECTION).doc(batchId).get()
 
     if (!doc.exists) {
@@ -651,7 +651,7 @@ approvalRoutes.get('/batches/:id', async (req: Request, res: Response) => {
  */
 approvalRoutes.get('/stats', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
 
     // Get counts by status
     const allSnap = await db.collection(BATCHES_COLLECTION).select('status', 'created_at', 'executed_at').get()
@@ -717,7 +717,7 @@ approvalRoutes.get('/stats', async (req: Request, res: Response) => {
  */
 approvalRoutes.get('/training', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const limitVal = Math.min(parseInt(req.query.limit as string) || 50, 200)
     const snap = await db.collection(TRAINING_COLLECTION)
       .orderBy('created_at', 'desc')
