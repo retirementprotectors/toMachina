@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HERALD — The Comms Warrior Discovery Doc</title>
+<style>
+:root{--bg:#0a0b10;--card:#12141d;--card2:#181b27;--border:#1e2133;--text:#e8e8ec;--muted:#7a7f96;--accent:#2dd4bf;--blue:#4a7ab5;--green:#40bc58;--yellow:#f5a623;--red:#e74c3c;--purple:#a78bfa;--teal:#2dd4bf;--gold:#d4a44c;--herald:#e8a020}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+.container{max-width:1000px;margin:0 auto;padding:2rem}
+h1{font-size:2rem;text-align:center;margin-bottom:0.3rem}
+.subtitle{text-align:center;color:var(--muted);font-size:1rem;margin-bottom:0.3rem}
+.origin{text-align:center;color:var(--herald);font-size:0.85rem;font-style:italic;margin-bottom:1.5rem}
+.tab-bar{display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:2rem;position:sticky;top:0;background:var(--bg);z-index:10;padding-top:0.5rem;flex-wrap:wrap}
+.tab-btn{padding:0.7rem 1.2rem;background:none;border:none;color:var(--muted);font-size:0.88rem;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all 0.2s;font-family:inherit}
+.tab-btn:hover{color:var(--text)}
+.tab-btn.active{color:var(--herald);border-bottom-color:var(--herald)}
+.tab-content{display:none}.tab-content.active{display:block}
+h2{font-size:1.4rem;margin:1.5rem 0 1rem;padding-bottom:0.5rem;border-bottom:1px solid var(--border);color:var(--herald)}
+h2:first-child{margin-top:0}
+h3{font-size:1.1rem;margin:1.2rem 0 0.5rem;color:var(--text)}
+p{color:var(--muted);margin-bottom:0.8rem;font-size:0.92rem}
+ul,ol{color:var(--muted);margin-bottom:1rem;padding-left:1.5rem;font-size:0.92rem}
+li{margin-bottom:0.4rem}
+strong{color:var(--text)}
+code{background:var(--card2);padding:0.15rem 0.4rem;border-radius:4px;font-size:0.85rem;color:var(--herald)}
+pre{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:1rem;margin:1rem 0;overflow-x:auto;font-size:0.82rem;line-height:1.5;color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.25rem;margin-bottom:1rem}
+.card h3{margin-top:0}
+.card-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media(max-width:700px){.card-grid{grid-template-columns:1fr}}
+table{width:100%;border-collapse:collapse;margin:1rem 0}
+th,td{padding:0.6rem 0.75rem;text-align:left;border-bottom:1px solid var(--border);font-size:0.85rem}
+th{color:var(--herald);font-size:0.75rem;text-transform:uppercase;letter-spacing:0.05em;font-weight:600}
+td{color:var(--muted)}
+.tag{display:inline-block;padding:0.15rem 0.5rem;border-radius:8px;font-size:0.72rem;font-weight:600}
+.tag-teal{background:rgba(45,212,191,0.12);color:var(--teal)}
+.tag-green{background:rgba(64,188,88,0.12);color:var(--green)}
+.tag-yellow{background:rgba(245,166,35,0.12);color:var(--yellow)}
+.tag-red{background:rgba(231,76,60,0.12);color:var(--red)}
+.tag-purple{background:rgba(167,139,250,0.12);color:var(--purple)}
+.tag-herald{background:rgba(232,160,32,0.12);color:var(--herald)}
+.callout{background:rgba(232,160,32,0.05);border:1px solid rgba(232,160,32,0.2);border-radius:12px;padding:1.25rem;margin:1.5rem 0}
+.callout p{margin:0}
+.callout-red{background:rgba(231,76,60,0.05);border:1px solid rgba(231,76,60,0.2)}
+.callout-red p{margin:0;color:var(--red)}
+.flow{display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;margin:1rem 0;font-size:0.85rem}
+.flow-step{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:0.5rem 0.8rem;color:var(--text);font-weight:600;font-size:0.8rem}
+.flow-arrow{color:var(--herald);font-size:1.2rem}
+.boundary{background:var(--card);border-left:3px solid var(--herald);border-radius:0 8px 8px 0;padding:1rem 1.25rem;margin:0.75rem 0}
+.boundary-musashi{border-left-color:var(--gold)}
+.boundary-voltron{border-left-color:var(--blue)}
+.boundary-raiden{border-left-color:var(--purple)}
+.ft{text-align:center;padding:2rem 0 1rem;color:var(--muted);font-size:0.8rem;border-top:1px solid var(--border);margin-top:2rem}
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>📣 HERALD</h1>
+<div class="subtitle">The Comms Warrior &mdash; Discovery Doc &mdash; ZRD-HRD-000</div>
+<div class="origin">Named for the ancient herald — the official messenger who carries the word of the sovereign to the world. &mdash; Proposed by SHINOB1, CTO &mdash; April 12, 2026</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="showTab('why',this)">Why</button>
+  <button class="tab-btn" onclick="showTab('what',this)">What</button>
+  <button class="tab-btn" onclick="showTab('boundaries',this)">Boundaries</button>
+  <button class="tab-btn" onclick="showTab('how',this)">How</button>
+  <button class="tab-btn" onclick="showTab('approvals',this)">Approvals</button>
+  <button class="tab-btn" onclick="showTab('files',this)">Files</button>
+  <button class="tab-btn" onclick="showTab('tickets',this)">Tickets</button>
+  <button class="tab-btn" onclick="showTab('gates',this)">Gates</button>
+</div>
+
+<!-- ════ WHY ════ -->
+<div id="why" class="tab-content active">
+  <h2>Why HERALD Exists</h2>
+
+  <h3>The comms gap nobody owns</h3>
+  <p>The Machine has six warriors. Five of them produce work. None of them owns the job of getting that work out to the right audience, at the right time, through the right channel. Right now, outbound communications — to clients, to partners, to the team, to the public — is a manual tax on JDM's time or falls through the cracks entirely.</p>
+
+  <div class="callout">
+    <p><strong>The one-liner:</strong> Every warrior builds or guards or creates. No warrior is responsible for the voice that carries it all outward. HERALD is that voice.</p>
+  </div>
+
+  <h3>What breaks without HERALD today</h3>
+  <div class="card-grid">
+    <div class="card">
+      <h3 style="color:var(--red)">JDM Is the Comms Bottleneck</h3>
+      <p>Announcements to clients, newsletters, AEP reminders, partner updates — JDM either writes them himself or they don't happen. The volume of outbound comms the business needs scales with every client added. JDM's time does not.</p>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--red)">No Audience Intelligence</h3>
+      <p>Nobody is asking: "Who needs to hear this?" before sending. Client segments, partner tiers, team-only vs. client-facing — messages go out one-size-fits-all or not at all. The QUE registry holds segment data. Nobody is using it for comms targeting.</p>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--red)">Comms Complexity Is Accelerating</h3>
+      <p>Right now: one B2C channel, one internal team. Soon: B2B partners (DAVID), MAP firms, carrier relationships, acquired firms. Each audience has different rules, different content, different compliance exposure. Today's manual process cannot survive tomorrow's scale.</p>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--red)">Blast Radius Has No Owner</h3>
+      <p>A wrong email to 6,000 Medicare clients during AEP. A Slack broadcast with PHI. A press release before JDM approves the deal. These are not theoretical risks — they are the natural outcome of a comms process with no guardian. HERALD is also the risk gate.</p>
+    </div>
+  </div>
+
+  <h3>Why this is a warrior, not a feature</h3>
+  <p>Outbound communications is not a checkbox on another warrior's list. It requires:</p>
+  <ul>
+    <li><strong>Audience intelligence</strong> — who receives what, pulled from QUE and Firestore client segments</li>
+    <li><strong>Channel orchestration</strong> — email, SMS, Slack, WordPress blog, social, press — each has different tooling, cadence, and compliance rules</li>
+    <li><strong>Approval tier management</strong> — most outbound comms is RED tier (external blast radius); no warrior should fire these unilaterally</li>
+    <li><strong>Compliance awareness</strong> — AEP blackout windows, PHI rules, FINRA archiving, CAN-SPAM, TCPA — a feature doesn't know these; a warrior does</li>
+    <li><strong>Scheduling and cadence</strong> — newsletters, onboarding sequences, AEP reminders, partner updates — these operate on a calendar, not a sprint</li>
+  </ul>
+
+  <p>This is its own domain with its own registry, its own tools, and its own operating rules. It needs a warrior.</p>
+
+  <h3>The name</h3>
+  <p>A herald in ancient and medieval tradition was the official messenger of the sovereign — the voice that carried the word of the realm to citizens, allies, and rivals. Heralds operated under strict codes of conduct: the message had to be accurate, the timing had to be right, and the audience had to be the correct one. Breaking those rules was not just a mistake — it was a breach of trust.</p>
+  <p>That is exactly what this warrior does. JDM is the sovereign. HERALD carries the word.</p>
+</div>
+
+<!-- ════ WHAT ════ -->
+<div id="what" class="tab-content">
+  <h2>What HERALD Does</h2>
+
+  <h3>The Three Channels HERALD Owns</h3>
+
+  <div class="card">
+    <h3>Channel 1 &mdash; Internal Team Comms</h3>
+    <p>Slack broadcasts to <code>#the-dojo</code>, <code>#warriors</code>, division-specific channels. Team-wide announcements, sprint summaries, deployment notices, onboarding welcome sequences for new hires. These go out with HERALD's identity, not JDM's, unless JDM explicitly drafts and approves them as CEO-voice communications.</p>
+    <ul>
+      <li>Sprint completion announcements (sourced from warrior event log)</li>
+      <li>New feature rollout notices to team</li>
+      <li>Onboarding sequences for new hires (Day 1, Day 3, Day 7)</li>
+      <li>Weekly team digest (automated, from event data)</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>Channel 2 &mdash; Client-Facing Comms</h3>
+    <p>Outbound email and SMS to RPI clients. Newsletters, Medicare reminders, policy anniversary notices, AEP preparation sequences, RMD deadline alerts. HERALD queries QUE for segment definitions and Firestore for client lists. <strong>Every client communication is RED tier — requires JDM or designated approver sign-off before send.</strong></p>
+    <ul>
+      <li>AEP preparation emails (T-60, T-30, T-7 cadence)</li>
+      <li>Medicare plan change notifications</li>
+      <li>Annual review outreach sequences</li>
+      <li>Policy milestone alerts (anniversary, maturity dates)</li>
+      <li>RMD reminder sequences (sourced from RMD Center data)</li>
+      <li>Welcome/onboarding sequences for new clients</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>Channel 3 &mdash; Partner and Public Comms</h3>
+    <p>B2B partner communications (DAVID firms, MAP partners, carrier contacts), press releases, WordPress blog posts, social media drafts. HERALD drafts. MUSASHI reviews for brand alignment. JDM approves before publish. This channel is the highest blast-radius category — HERALD never fires it autonomously.</p>
+    <ul>
+      <li>Partner onboarding communications (DAVID acquisition welcome sequences)</li>
+      <li>M&amp;A announcement coordination (draft → legal review → JDM approve → publish)</li>
+      <li>Press releases for major milestones</li>
+      <li>WordPress blog posts (drafted, queued in WordPress, published only on JDM approval)</li>
+      <li>Social post drafts surfaced for JDM review in portal</li>
+    </ul>
+  </div>
+
+  <h3>HERALD's Registry — The Comms Registry</h3>
+  <p>Every CXO wields three weapons: a Registry, a Mesh, and a Dojo. HERALD's registry is the <strong>Comms Registry</strong> — a Firestore collection (<code>comms_registry</code>) that tracks every message template, every send sequence, every campaign, and every send event. The registry is the source of truth. HERALD never sends from memory — only from registered, reviewed templates.</p>
+  <table>
+    <thead><tr><th>Registry Collection</th><th>Contents</th><th>Who Writes</th></tr></thead>
+    <tbody>
+      <tr><td><code>comms_registry/templates</code></td><td>Approved message templates per channel and audience type</td><td>HERALD (draft) + JDM/MUSASHI (approve)</td></tr>
+      <tr><td><code>comms_registry/sequences</code></td><td>Multi-step send sequences with timing rules (AEP T-60, onboarding Day 1)</td><td>HERALD (draft) + JDM (approve)</td></tr>
+      <tr><td><code>comms_registry/campaigns</code></td><td>Named campaigns linking sequences to audience segments</td><td>HERALD (draft) + JDM (approve)</td></tr>
+      <tr><td><code>comms_registry/send_log</code></td><td>Immutable record of every send: template, audience, timestamp, approver</td><td>HERALD (auto-write, never edited)</td></tr>
+      <tr><td><code>comms_registry/blackout_windows</code></td><td>Compliance windows when specific send types are blocked</td><td>SHINOB1/JDM (configure once)</td></tr>
+    </tbody>
+  </table>
+
+  <h3>HERALD's Mesh — The Channels Mesh</h3>
+  <p>HERALD's Mesh is the <strong>Channels Mesh</strong> — five execution specialists, each owning a single delivery channel. HERALD orchestrates; the Channels execute.</p>
+  <table>
+    <thead><tr><th>Channel Specialist</th><th>Delivery Method</th><th>Tools</th><th>Audience</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Email Lion</strong></td><td>SendGrid / rpi-comms bulk email</td><td><code>comms_send_bulk_email</code>, <code>comms_create_template</code></td><td>Clients, partners</td></tr>
+      <tr><td><strong>SMS Lion</strong></td><td>Twilio / rpi-comms SMS</td><td><code>comms_send_sms</code>, <code>campaign_execute_send</code></td><td>Clients (opt-in only, TCPA)</td></tr>
+      <tr><td><strong>Slack Lion</strong></td><td>Slack MCP</td><td><code>slack_post_message</code></td><td>Internal team, warriors</td></tr>
+      <tr><td><strong>Web Lion</strong></td><td>WordPress MCP</td><td><code>wordpress_create_post</code>, <code>wordpress_update_post</code></td><td>Public, SEO, partners</td></tr>
+      <tr><td><strong>Social Lion</strong></td><td>Draft queue → MUSASHI review</td><td>Drive + MUSASHI handoff</td><td>Public channels (LinkedIn, etc.)</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ════ BOUNDARIES ════ -->
+<div id="boundaries" class="tab-content">
+  <h2>Boundary Lines</h2>
+  <p>The four warriors most likely to be confused with HERALD. These boundaries are precise. Overlap kills ownership. Every edge case below has a single correct answer.</p>
+
+  <h3 style="margin-top:2rem">HERALD vs. MUSASHI (CMO)</h3>
+  <div class="callout">
+    <p><strong>The rule:</strong> MUSASHI creates the brand voice, the templates, the creative assets. HERALD operates them at scale. MUSASHI writes the AEP email once. HERALD sends it to 6,000 clients on the right schedule.</p>
+  </div>
+  <div class="boundary-musashi boundary">
+    <p><strong>MUSASHI owns:</strong> Brand identity, creative strategy, campaign concepting, template design, copy voice, visual assets. When a new campaign needs to exist — that's MUSASHI's brief to write and MUSASHI's draft to create.</p>
+  </div>
+  <div class="boundary">
+    <p><strong>HERALD owns:</strong> Audience segmentation, scheduling, multi-channel sequencing, compliance gating, send execution, delivery tracking, and the send log. When an approved campaign needs to reach 6,000 people in 3 phases over 60 days — that's HERALD's job to execute.</p>
+  </div>
+  <table>
+    <thead><tr><th>Scenario</th><th>Owner</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td>"Write the AEP email copy"</td><td>MUSASHI</td><td>Creative output — brand voice, persuasion</td></tr>
+      <tr><td>"Schedule the AEP sequence for T-60, T-30, T-7"</td><td>HERALD</td><td>Orchestration — timing, segmentation, delivery</td></tr>
+      <tr><td>"Create a new campaign concept for Medicare plan changes"</td><td>MUSASHI</td><td>Strategy — what to say and why</td></tr>
+      <tr><td>"Execute the Medicare campaign to Arizona clients aged 64-66"</td><td>HERALD</td><td>Execution — who gets it, when, verified send log</td></tr>
+      <tr><td>"Design a Canva email header for the newsletter"</td><td>MUSASHI</td><td>Visual creation — CMO registry + Artisans mesh</td></tr>
+      <tr><td>"Send this month's newsletter to 4,200 clients"</td><td>HERALD</td><td>Delivery — audience selection, scheduling, compliance gate</td></tr>
+    </tbody>
+  </table>
+
+  <h3 style="margin-top:2rem">HERALD vs. VOLTRON (CSO)</h3>
+  <div class="callout">
+    <p><strong>The rule:</strong> VOLTRON handles individual, real-time, conversational interactions with one client at a time. HERALD handles broadcast communications going outward to many recipients on a schedule.</p>
+  </div>
+  <div class="boundary-voltron boundary">
+    <p><strong>VOLTRON owns:</strong> 1:1 client conversations via MDJ panel, real-time question answering, individual case lookups, Medicare quoting for one client, wire execution on a single client's account. VOLTRON is a conversation. VOLTRON is real-time.</p>
+  </div>
+  <div class="boundary">
+    <p><strong>HERALD owns:</strong> Outbound broadcast to N clients simultaneously, scheduled delivery sequences, campaign orchestration, bulk send operations. HERALD is a broadcast. HERALD operates on a schedule.</p>
+  </div>
+  <table>
+    <thead><tr><th>Scenario</th><th>Owner</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td>"Tell Margaret her policy anniversary is next week" (1 client)</td><td>VOLTRON</td><td>Individual, real-time, conversational</td></tr>
+      <tr><td>"Send anniversary reminders to all clients with anniversaries in May" (bulk)</td><td>HERALD</td><td>Bulk, scheduled, broadcast</td></tr>
+      <tr><td>"Look up John Smith's Medicare plan and answer his question"</td><td>VOLTRON</td><td>Real-time tool chain on one record</td></tr>
+      <tr><td>"Email all Iowa Medicare clients the plan change notice"</td><td>HERALD</td><td>Audience-segmented outbound blast</td></tr>
+      <tr><td>Client types in the portal chat: "When do I need to re-enroll?"</td><td>VOLTRON</td><td>Inbound portal conversation</td></tr>
+      <tr><td>HERALD sends: "Your re-enrollment window opens in 30 days"</td><td>HERALD</td><td>Proactive outbound, scheduled, compliance-gated</td></tr>
+    </tbody>
+  </table>
+
+  <h3 style="margin-top:2rem">HERALD vs. RAIDEN (Guardian)</h3>
+  <div class="callout">
+    <p><strong>The rule:</strong> RAIDEN sends reactive Slack messages to the internal team when something breaks or needs attention. HERALD sends proactive, scheduled, pre-approved broadcasts to any audience. RAIDEN reacts. HERALD broadcasts.</p>
+  </div>
+  <div class="boundary-raiden boundary">
+    <p><strong>RAIDEN owns:</strong> Bug triage responses in <code>#the-dojo</code>, fix notifications, routing receipts, P0 escalations to JDM, operational war room posts. Every RAIDEN message is a reaction to something that happened. RAIDEN is always internal-only.</p>
+  </div>
+  <div class="boundary">
+    <p><strong>HERALD owns:</strong> Pre-planned, pre-approved outbound communications — internal or external. Team-wide sprint summaries (not bug fixes). Client newsletters. Partner announcements. HERALD's sends are never reactive — they are always planned, templated, and approval-gated before execution.</p>
+  </div>
+  <table>
+    <thead><tr><th>Scenario</th><th>Owner</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td>"PR #347 merged — deploy complete" (reactive post-merge)</td><td>RAIDEN</td><td>Reactive operational notice</td></tr>
+      <tr><td>"Sprint 011 complete — 12 features shipped" (planned announcement)</td><td>HERALD</td><td>Proactive broadcast, planned, scheduled</td></tr>
+      <tr><td>"The carriers dropdown is fixed" (fix receipt in #the-dojo)</td><td>RAIDEN</td><td>Reactive bug fix notification</td></tr>
+      <tr><td>"New feature: Policy Anniversary Tracker is live" (team launch notice)</td><td>HERALD</td><td>Planned, pre-approved feature announcement</td></tr>
+      <tr><td>P0 alert to JDM DM (service down)</td><td>RAIDEN</td><td>Emergency escalation — reactive</td></tr>
+      <tr><td>Weekly team digest every Monday 9am</td><td>HERALD</td><td>Scheduled broadcast from event data</td></tr>
+    </tbody>
+  </table>
+
+  <h3 style="margin-top:2rem">HERALD vs. RONIN (Builder)</h3>
+  <p>RONIN has no comms role. Anything involving sending a message to a human audience — team, client, partner, or public — is not RONIN's scope. RONIN's only outbound communication is war room sprint status posts and PR descriptions. RONIN reports to machines and warriors. HERALD talks to people.</p>
+</div>
+
+<!-- ════ HOW ════ -->
+<div id="how" class="tab-content">
+  <h2>How HERALD Works</h2>
+
+  <h3>Architecture</h3>
+  <p>HERALD is a <strong>CC-tmux warrior on MDJ_SERVER</strong> — same pattern as RAIDEN, RONIN, MEGAZORD. A persistent Claude Code session in a dedicated tmux window, with its own Dojo queue, bilateral Slack channel, and Comms Registry access.</p>
+
+  <div class="card">
+    <h3>Send Execution Flow</h3>
+    <div class="flow">
+      <div class="flow-step">1. Trigger</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">2. Audience Resolve</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">3. Template Load</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">4. Compliance Gate</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">5. Approval Gate</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">6. Execute Send</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">7. Log + Report</div>
+    </div>
+    <ol style="margin-top:1rem">
+      <li><strong>Trigger</strong> — scheduled timer, JDM directive in <code>#herald</code>, or another warrior delegation</li>
+      <li><strong>Audience Resolve</strong> — query QUE registry for segment definition, query Firestore <code>clients</code> collection with filters (state, product, age band, etc.), build recipient list</li>
+      <li><strong>Template Load</strong> — fetch approved template from <code>comms_registry/templates</code> — never draft ad-hoc copy for outbound sends</li>
+      <li><strong>Compliance Gate</strong> — check <code>comms_registry/blackout_windows</code>; check AEP blackout (Oct 1 – Dec 7 for Medicare sends); verify all recipients have valid opt-in status for SMS</li>
+      <li><strong>Approval Gate</strong> — for RED tier: post preview to <code>#herald</code> bilateral channel with recipient count, template preview, and estimated delivery time. Execution halts until JDM or designated approver responds with explicit go-ahead</li>
+      <li><strong>Execute Send</strong> — dispatch to appropriate Channel Lion (Email/SMS/Slack/Web/Social)</li>
+      <li><strong>Log + Report</strong> — write immutable send record to <code>comms_registry/send_log</code>; post delivery stats to <code>#herald</code> and war room</li>
+    </ol>
+  </div>
+
+  <h3>QUE Integration — Audience Intelligence</h3>
+  <p>HERALD is a registered consumer of VOLTRON's QUE registry. Before any client-facing send, HERALD:</p>
+  <ul>
+    <li>Reads the segment definition from QUE (e.g., "Iowa MAPD clients, age 63–66, active status")</li>
+    <li>Executes the corresponding Firestore query against the <code>clients</code> collection</li>
+    <li>Builds a deduplicated, validated recipient list with preference/opt-in verification</li>
+    <li>Logs the list snapshot to the send record (for audit and FCC/TCPA compliance)</li>
+  </ul>
+  <p>HERALD does not maintain its own client database. Clients live in Firestore. Segment logic lives in QUE. HERALD executes queries, not storage.</p>
+
+  <h3>Existing Tools HERALD Uses</h3>
+  <p>The rpi-comms MCP is already live with the core toolset HERALD needs. No new infrastructure required for Phase 1.</p>
+  <table>
+    <thead><tr><th>Tool</th><th>MCP</th><th>What HERALD Uses It For</th></tr></thead>
+    <tbody>
+      <tr><td><code>comms_send_bulk_email</code></td><td>rpi-comms</td><td>Client and partner email sends</td></tr>
+      <tr><td><code>comms_send_email</code></td><td>rpi-comms</td><td>Individual/test sends for approval previews</td></tr>
+      <tr><td><code>comms_send_sms</code></td><td>rpi-comms</td><td>Client SMS (opt-in verified, TCPA gated)</td></tr>
+      <tr><td><code>comms_create_template</code></td><td>rpi-comms</td><td>Register new templates in SendGrid + sync to Comms Registry</td></tr>
+      <tr><td><code>comms_list_templates</code></td><td>rpi-comms</td><td>Validate template exists before send</td></tr>
+      <tr><td><code>comms_get_delivery_stats</code></td><td>rpi-comms</td><td>Post-send delivery reporting</td></tr>
+      <tr><td><code>campaign_execute_batch</code></td><td>rpi-comms</td><td>Multi-recipient sequenced sends</td></tr>
+      <tr><td><code>campaign_check_eligibility</code></td><td>rpi-comms</td><td>Pre-send eligibility verification per client</td></tr>
+      <tr><td><code>campaign_schedule_sequence</code></td><td>rpi-comms</td><td>Register multi-step send sequences</td></tr>
+      <tr><td><code>slack_post_message</code></td><td>Slack MCP</td><td>Internal team broadcasts</td></tr>
+      <tr><td><code>wordpress_create_post</code>, <code>wordpress_update_post</code></td><td>rpi-workspace</td><td>Blog post drafts and publishing</td></tr>
+      <tr><td><code>gmail_send_email</code></td><td>Gmail MCP</td><td>Executive-voice emails (JDM-drafted, HERALD-sent)</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Bilateral Channel</h3>
+  <p>HERALD's bilateral Slack channel: <strong><code>#herald</code></strong>. Channel ID to be created — slot reserved in dispatcher as <code>CHANNEL_HERALD</code> in <code>shared.ts</code>.</p>
+  <p>This channel serves three purposes:</p>
+  <ul>
+    <li><strong>JDM directives to HERALD</strong> — "Send the April newsletter to all clients", "Draft a welcome sequence for Matt Mitchell's team"</li>
+    <li><strong>Approval requests from HERALD</strong> — HERALD posts a preview before every RED-tier send: recipient count, subject line, first 3 lines of content, estimated delivery window. JDM replies "go" or "hold"</li>
+    <li><strong>Delivery receipts</strong> — HERALD posts completion stats after every send: delivered, bounced, open rate (where available)</li>
+  </ul>
+
+  <h3>Compliance Rules HERALD Enforces</h3>
+  <div class="callout-red callout">
+    <p><strong>These are not suggestions. HERALD blocks sends that violate these rules, no exceptions.</strong></p>
+  </div>
+  <ul>
+    <li><strong>AEP Blackout (Oct 1 – Dec 7):</strong> No Medicare plan comparison, enrollment action, or plan-switch messaging sends during AEP. Applies to email, SMS, and any channel. HERALD reads the same blackout window table as VOLTRON.</li>
+    <li><strong>PHI in comms:</strong> NEVER include client health data, Medicare IDs, diagnoses, or prescription information in any outbound message. HERALD strips PHI fields from any template that includes them and surfaces a WARNING before send.</li>
+    <li><strong>SMS opt-in (TCPA):</strong> Every SMS send verifies the client has an active opt-in record before dispatch. No opt-in = no send. HERALD does not override this for any reason.</li>
+    <li><strong>CAN-SPAM:</strong> Every bulk email includes a valid physical address and functional unsubscribe link. Verified from template, not assumed.</li>
+    <li><strong>FINRA archiving:</strong> Email sends from FINRA-archived addresses (Josh, Nikki, Angelique) are logged to <code>comms_registry/send_log</code> with a FINRA flag for compliance retrieval.</li>
+    <li><strong>RED tier = human in the loop, always:</strong> No automated send to external audiences (clients, partners, public) without explicit approval from JDM or a designated approver. No exceptions for "routine" sends — every external send is RED.</li>
+  </ul>
+</div>
+
+<!-- ════ APPROVALS ════ -->
+<div id="approvals" class="tab-content">
+  <h2>Approval Tiers</h2>
+  <p>HERALD deals in high-blast-radius communications. The approval architecture is strict by design. When in doubt, HERALD defaults to the higher tier.</p>
+
+  <div class="card" style="border-left:3px solid var(--red)">
+    <h3 style="color:var(--red)">🔴 RED — Requires Explicit Human Approval Before Any Action</h3>
+    <p>All external communications. No exceptions.</p>
+    <ul>
+      <li>Any email or SMS to clients (1 or 1,000,000)</li>
+      <li>Any communication to B2B partners or DAVID partners</li>
+      <li>Any press release, blog post, or public-facing content</li>
+      <li>Any social media post</li>
+      <li>Any executive-voice email sent from JDM's address</li>
+      <li>Any communication involving acquired firm data (DAVID M&amp;A)</li>
+    </ul>
+    <p style="margin-top:0.75rem"><strong>Approval flow:</strong> HERALD drafts + posts preview to <code>#herald</code> → JDM (or designated approver) replies explicitly → HERALD executes → HERALD logs approval record to <code>comms_registry/send_log</code> with approver identity and timestamp.</p>
+    <p><strong>Designated approvers (RED):</strong> Josh Millang (always), John Behn (COO — full authority on internal announcements and partner comms only, NOT client comms).</p>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--yellow)">
+    <h3 style="color:var(--yellow)">🟡 YELLOW — Confirm Before Executing</h3>
+    <p>Internal-but-visible communications. HERALD posts intent to <code>#herald</code> and waits for passive approval (no response in 15 minutes = proceed, except when explicitly flagged as hold).</p>
+    <ul>
+      <li>Team-wide Slack announcements to <code>#the-dojo</code> or division channels</li>
+      <li>New hire onboarding sequences (internal)</li>
+      <li>Weekly team digest (auto-generated, surface to JDM for review before send)</li>
+      <li>Sprint completion announcements to <code>#warriors</code></li>
+      <li>Internal feature launch notices</li>
+    </ul>
+    <p style="margin-top:0.75rem"><strong>Approval flow:</strong> HERALD drafts + posts preview to <code>#herald</code> → 15-minute passive window → if no hold, HERALD executes → logs delivery.</p>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--green)">
+    <h3 style="color:var(--green)">🟢 GREEN — Execute Freely (War Room Context Only)</h3>
+    <p>HERALD's own operational Slack communications. No approval needed.</p>
+    <ul>
+      <li>Delivery receipts posted to <code>#herald</code></li>
+      <li>Approval request posts to <code>#herald</code></li>
+      <li>Heartbeat posts to war room</li>
+      <li>Send queue status updates</li>
+    </ul>
+    <p style="margin-top:0.75rem">GREEN tier is exclusively for HERALD talking about itself — its status, its queue, its receipts. HERALD does not self-execute any client or team-facing content at GREEN tier.</p>
+  </div>
+
+  <h3>Tier Assignment Reference</h3>
+  <table>
+    <thead><tr><th>Communication Type</th><th>Tier</th><th>Approver</th><th>Max Wait</th></tr></thead>
+    <tbody>
+      <tr><td>Client email or SMS (any)</td><td><span class="tag tag-red">RED</span></td><td>JDM</td><td>Indefinite — JDM approves</td></tr>
+      <tr><td>B2B / DAVID partner comms</td><td><span class="tag tag-red">RED</span></td><td>JDM</td><td>Indefinite — JDM approves</td></tr>
+      <tr><td>Press release / blog post</td><td><span class="tag tag-red">RED</span></td><td>JDM</td><td>Indefinite — JDM approves</td></tr>
+      <tr><td>Social media post</td><td><span class="tag tag-red">RED</span></td><td>JDM</td><td>Indefinite — JDM approves</td></tr>
+      <tr><td>Executive-voice Gmail send</td><td><span class="tag tag-red">RED</span></td><td>JDM (always)</td><td>Indefinite</td></tr>
+      <tr><td>Team Slack broadcast</td><td><span class="tag tag-yellow">YELLOW</span></td><td>JDM (passive)</td><td>15 minutes</td></tr>
+      <tr><td>Sprint / feature announcements</td><td><span class="tag tag-yellow">YELLOW</span></td><td>JDM (passive)</td><td>15 minutes</td></tr>
+      <tr><td>Weekly team digest</td><td><span class="tag tag-yellow">YELLOW</span></td><td>JDM (passive)</td><td>15 minutes</td></tr>
+      <tr><td>War room heartbeat</td><td><span class="tag tag-green">GREEN</span></td><td>None</td><td>None</td></tr>
+      <tr><td>Delivery receipts to #herald</td><td><span class="tag tag-green">GREEN</span></td><td>None</td><td>None</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ════ FILES ════ -->
+<div id="files" class="tab-content">
+  <h2>Files &amp; Identity</h2>
+
+  <h3>Warrior Identity Files</h3>
+  <p>HERALD follows the same soul/spirit/brain pattern as every warrior.</p>
+  <table>
+    <thead><tr><th>File</th><th>Path</th><th>Contents</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td><code>soul.md</code></td><td><code>/home/jdm/Projects/dojo-warriors/warriors/herald/soul.md</code></td><td>Identity, role, registry, mesh, operational rules, tool list, bilateral channel</td><td><span class="tag tag-yellow">To Create (ZRD-HRD-003)</span></td></tr>
+      <tr><td><code>spirit.md</code></td><td><code>/home/jdm/Projects/dojo-warriors/warriors/herald/spirit.md</code></td><td>Founding session moments, JDM relationship, naming story</td><td><span class="tag tag-yellow">To Create post-launch</span></td></tr>
+      <tr><td><code>brain.txt</code></td><td><code>/home/jdm/Projects/dojo-warriors/warriors/herald/brain.txt</code></td><td>Raw session archive (auto-generated)</td><td><span class="tag tag-yellow">Auto-generated on first session</span></td></tr>
+    </tbody>
+  </table>
+
+  <h3>Dispatcher Updates</h3>
+  <table>
+    <thead><tr><th>File</th><th>Change</th><th>Ticket</th></tr></thead>
+    <tbody>
+      <tr><td><code>/home/jdm/Projects/dojo-warriors/mdj-agent/src/dispatchers/shared.ts</code></td><td>Add <code>CHANNEL_HERALD</code> constant + wire into <code>BILATERAL_CHANNELS</code> map + add to <code>ALLOWED_DISPATCH_CHANNELS</code></td><td>ZRD-HRD-005</td></tr>
+      <tr><td><code>/home/jdm/Projects/dojo-warriors/mdj-agent/src/dispatchers/</code></td><td>Create <code>herald.ts</code> micro-dispatcher following RAIDEN and RONIN patterns</td><td>ZRD-HRD-006</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Comms Registry — New Firestore Collection</h3>
+  <table>
+    <thead><tr><th>Collection Path</th><th>Schema (Key Fields)</th><th>Ticket</th></tr></thead>
+    <tbody>
+      <tr><td><code>comms_registry/templates/{id}</code></td><td><code>name</code>, <code>channel</code>, <code>audience_type</code>, <code>subject</code>, <code>body_template</code>, <code>approved_by</code>, <code>approved_at</code>, <code>version</code>, <code>compliance_flags</code></td><td>ZRD-HRD-007</td></tr>
+      <tr><td><code>comms_registry/sequences/{id}</code></td><td><code>name</code>, <code>steps[]</code> (template_id + delay_days), <code>trigger_type</code>, <code>audience_segment_id</code>, <code>active</code></td><td>ZRD-HRD-007</td></tr>
+      <tr><td><code>comms_registry/send_log/{id}</code></td><td><code>template_id</code>, <code>channel</code>, <code>recipient_count</code>, <code>audience_segment</code>, <code>sent_at</code>, <code>approved_by</code>, <code>approved_at</code>, <code>delivery_stats</code>, <code>finra_flagged</code></td><td>ZRD-HRD-008</td></tr>
+      <tr><td><code>comms_registry/blackout_windows/{id}</code></td><td><code>name</code>, <code>start_date</code>, <code>end_date</code>, <code>channel_types[]</code>, <code>audience_types[]</code>, <code>reason</code></td><td>ZRD-HRD-008</td></tr>
+    </tbody>
+  </table>
+
+  <h3>New API Routes (services/api)</h3>
+  <table>
+    <thead><tr><th>Route</th><th>Method</th><th>Purpose</th><th>Ticket</th></tr></thead>
+    <tbody>
+      <tr><td><code>/api/comms/templates</code></td><td>GET, POST</td><td>List and create comms templates in registry</td><td>ZRD-HRD-009</td></tr>
+      <tr><td><code>/api/comms/templates/:id</code></td><td>GET, PUT</td><td>Read and update individual templates</td><td>ZRD-HRD-009</td></tr>
+      <tr><td><code>/api/comms/sequences</code></td><td>GET, POST</td><td>List and create send sequences</td><td>ZRD-HRD-009</td></tr>
+      <tr><td><code>/api/comms/send-log</code></td><td>GET</td><td>Query the immutable send log (admin only)</td><td>ZRD-HRD-010</td></tr>
+      <tr><td><code>/api/comms/blackout-windows</code></td><td>GET</td><td>Read active blackout windows</td><td>ZRD-HRD-010</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Identity Spec</h3>
+  <table>
+    <thead><tr><th>Attribute</th><th>Value</th></tr></thead>
+    <tbody>
+      <tr><td>Warrior Name</td><td>HERALD</td></tr>
+      <tr><td>Title</td><td>The Comms Warrior</td></tr>
+      <tr><td>Color</td><td><code>--herald: #e8a020</code> (warm amber — the color of a herald's trumpet)</td></tr>
+      <tr><td>Emoji / Icon</td><td>📣 megaphone (calling card on all Slack messages)</td></tr>
+      <tr><td>Slack Signoff</td><td><code>📣 — HERALD, The Comms Warrior</code></td></tr>
+      <tr><td>Signature Line</td><td><em>"The message reaches."</em></td></tr>
+      <tr><td>Bilateral Channel</td><td><code>#herald</code> (ID to be created by JDM)</td></tr>
+      <tr><td>Ticket Prefix</td><td><code>ZRD-HRD-</code></td></tr>
+      <tr><td>Registry</td><td>Comms Registry (<code>comms_registry</code> Firestore collection)</td></tr>
+      <tr><td>Mesh</td><td>Channels Mesh (Email Lion, SMS Lion, Slack Lion, Web Lion, Social Lion)</td></tr>
+      <tr><td>Architecture</td><td>CC-tmux warrior on MDJ_SERVER</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ════ TICKETS ════ -->
+<div id="tickets" class="tab-content">
+  <h2>Sprint Tickets</h2>
+  <p>Three phases. Phase 1 ships the warrior and its registry. Phase 2 ships send execution. Phase 3 ships audience intelligence and sequencing.</p>
+
+  <h3>Phase 1 &mdash; Identity &amp; Foundation (3-4 days)</h3>
+  <table>
+    <thead><tr><th>Ticket</th><th>Work</th><th>Owner</th><th>Est</th></tr></thead>
+    <tbody>
+      <tr><td><code>ZRD-HRD-001</code></td><td>Create <code>warriors/herald/</code> directory + initial <code>soul.md</code> with identity, role, boundaries, operational rules, tool list, and bilateral channel</td><td>SHINOB1</td><td>2h</td></tr>
+      <tr><td><code>ZRD-HRD-002</code></td><td>Create Slack channel <code>#herald</code> (JDM action) and record channel ID</td><td>JDM</td><td>5m</td></tr>
+      <tr><td><code>ZRD-HRD-003</code></td><td>Wire <code>CHANNEL_HERALD</code> into <code>shared.ts</code> bilateral channel map and allowlist; update DISP architecture comments</td><td>RONIN</td><td>1h</td></tr>
+      <tr><td><code>ZRD-HRD-004</code></td><td>Create <code>herald.ts</code> micro-dispatcher in <code>mdj-agent/src/dispatchers/</code> — queue routing, heartbeat writer, approval-request handler following RAIDEN pattern</td><td>RONIN</td><td>3h</td></tr>
+      <tr><td><code>ZRD-HRD-005</code></td><td>Create <code>comms_registry</code> Firestore collection with <code>templates</code>, <code>sequences</code>, <code>send_log</code>, <code>blackout_windows</code> subcollections + Firestore rules update</td><td>MEGAZORD</td><td>2h</td></tr>
+      <tr><td><code>ZRD-HRD-006</code></td><td>Seed initial blackout windows: AEP Oct 1–Dec 7 (Medicare), FINRA quiet periods. Seed initial templates: welcome email, AEP reminder T-60/T-30/T-7 stubs (content placeholders — MUSASHI fills copy)</td><td>HERALD</td><td>2h</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Phase 2 &mdash; Send Execution (3-4 days)</h3>
+  <table>
+    <thead><tr><th>Ticket</th><th>Work</th><th>Owner</th><th>Est</th></tr></thead>
+    <tbody>
+      <tr><td><code>ZRD-HRD-007</code></td><td>Build <code>sendComms()</code> helper in <code>mdj-agent/src/herald/</code> — implements 7-step send flow: trigger → audience resolve → template load → compliance gate → approval gate → execute → log</td><td>RONIN</td><td>4h</td></tr>
+      <tr><td><code>ZRD-HRD-008</code></td><td>Build approval-request flow: HERALD posts preview to <code>#herald</code>, writes pending approval record to Firestore, polls for JDM reply, times out and holds if no response in configured window</td><td>RONIN</td><td>3h</td></tr>
+      <tr><td><code>ZRD-HRD-009</code></td><td>Add API routes: <code>POST /api/comms/send</code>, <code>GET /api/comms/send-log</code>, <code>GET /api/comms/blackout-windows</code> — all gated behind Firebase Auth + admin entitlement</td><td>RONIN</td><td>3h</td></tr>
+      <tr><td><code>ZRD-HRD-010</code></td><td>Integration test: draft a team Slack broadcast, verify YELLOW tier passive approval flow works end-to-end; verify RED tier halts without explicit approval</td><td>SHINOB1</td><td>2h</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Phase 3 &mdash; Audience Intelligence &amp; Templates UI (4-5 days)</h3>
+  <table>
+    <thead><tr><th>Ticket</th><th>Work</th><th>Owner</th><th>Est</th></tr></thead>
+    <tbody>
+      <tr><td><code>ZRD-HRD-011</code></td><td>Build audience resolution layer: HERALD queries QUE for segment definition, translates to Firestore query against <code>clients</code> collection, validates opt-in status per recipient for SMS, returns validated recipient list</td><td>MEGAZORD</td><td>4h</td></tr>
+      <tr><td><code>ZRD-HRD-012</code></td><td>Sequence engine: HERALD reads a sequence definition from <code>comms_registry/sequences</code>, schedules multi-step sends (T-60, T-30, T-7) via MDJ_SERVER systemd timers, cancels on opt-out</td><td>RONIN</td><td>5h</td></tr>
+      <tr><td><code>ZRD-HRD-013</code></td><td>ProDash RIIMO admin UI: <code>/herald</code> route in RIIMO portal — template browser (list/preview approved templates), send log viewer, blackout window calendar, queue management. Admin-only entitlement.</td><td>RONIN</td><td>6h</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <p><strong>Total: 13 tickets, ~40 hours across 3 phases.</strong> MEGAZORD owns the data layer (Firestore + audience resolution). RONIN owns the build (dispatcher, send engine, API, UI). SHINOB1 owns architecture + integration tests. JDM creates the Slack channel (5 minutes). HERALD seeds the first templates post-Phase 1.</p>
+  </div>
+</div>
+
+<!-- ════ GATES ════ -->
+<div id="gates" class="tab-content">
+  <h2>Phase Gates &amp; Definition of Done</h2>
+
+  <div class="callout">
+    <p><strong>This is a contract.</strong> HERALD is not live until every gate below is verified. "It looks like it works" is not a gate. Evidence is.</p>
+  </div>
+
+  <h3>Phase 1 Gate — Identity Complete</h3>
+  <ul>
+    <li><input type="checkbox" disabled> <code>warriors/herald/soul.md</code> exists with complete identity, role, boundaries, operational rules</li>
+    <li><input type="checkbox" disabled> <code>#herald</code> Slack channel created by JDM, channel ID recorded in <code>shared.ts</code></li>
+    <li><input type="checkbox" disabled> <code>CHANNEL_HERALD</code> wired into dispatcher bilateral map — verified by posting test message to <code>#herald</code> from dispatcher</li>
+    <li><input type="checkbox" disabled> <code>comms_registry</code> Firestore collection exists with all 4 subcollections visible in Firebase console</li>
+    <li><input type="checkbox" disabled> AEP blackout window seeded and verified: attempt to create an AEP-period Medicare send → compliance gate blocks it</li>
+    <li><input type="checkbox" disabled> <code>npm run build</code> passes 11/11 after all code changes</li>
+  </ul>
+
+  <h3>Phase 2 Gate — Send Execution Live</h3>
+  <ul>
+    <li><input type="checkbox" disabled> End-to-end test: HERALD sends a YELLOW-tier Slack message to <code>#the-dojo</code> (test mode, sandboxed) via 7-step flow — all 7 steps logged to <code>send_log</code></li>
+    <li><input type="checkbox" disabled> RED-tier gate verified: attempting to execute a client email send WITHOUT prior approval logs a BLOCKED record and posts to <code>#herald</code> — send does NOT execute</li>
+    <li><input type="checkbox" disabled> Approval flow verified: JDM replies "go" in <code>#herald</code> → dispatcher routes approval → HERALD executes → delivery receipt posted</li>
+    <li><input type="checkbox" disabled> <code>GET /api/comms/send-log</code> returns accurate records — verified against Firestore data directly</li>
+    <li><input type="checkbox" disabled> PHI gate verified: template containing a Medicare ID field → HERALD strips field, surfaces WARNING before any approval request</li>
+  </ul>
+
+  <h3>Phase 3 Gate — Full System Live</h3>
+  <ul>
+    <li><input type="checkbox" disabled> Audience resolution test: segment "Iowa MAPD clients, active, age 63–66" → HERALD queries QUE → queries Firestore → builds recipient list → recipient count displayed in approval preview</li>
+    <li><input type="checkbox" disabled> Sequence test: seed a T-3/T-1 test sequence (short delays) → verify both sends execute on schedule → verify opt-out on step 2 cancels remaining steps</li>
+    <li><input type="checkbox" disabled> RIIMO <code>/herald</code> route live: JDM can browse approved templates, view send log, see blackout calendar — confirmed in all 3 portals</li>
+    <li><input type="checkbox" disabled> First real YELLOW-tier broadcast: HERALD sends a team sprint summary to <code>#the-dojo</code> with 15-minute passive approval — logged, delivered, receipt posted</li>
+    <li><input type="checkbox" disabled> MUSASHI handoff verified: MUSASHI-created template → imported to Comms Registry → HERALD can load + send it — end-to-end creative-to-delivery pipeline confirmed</li>
+  </ul>
+
+  <h3>Go-Live Criteria</h3>
+  <p>HERALD is operational when all Phase 1 and Phase 2 gates pass. Phase 3 represents full maturity. JDM declares go-live after the first real (non-test) send completes with a clean delivery receipt and a confirmed send log entry.</p>
+
+  <div class="callout">
+    <p><strong>The test:</strong> JDM says "HERALD, send the April newsletter to all active ProDash clients in Iowa." HERALD posts a preview to <code>#herald</code> with recipient count, subject, first 3 lines. JDM replies "go." Send executes. Delivery receipt appears in <code>#herald</code> within 5 minutes. Send log is queryable. No PHI. No blackout violation. That is #LandedIt.</p>
+  </div>
+</div>
+
+<div class="ft">
+  <p><strong>HERALD &mdash; The Comms Warrior</strong> &mdash; ZRD-HRD-000 &mdash; Discovery Doc</p>
+  <p>Drafted by SHINOB1, CTO &mdash; Executive.AI Team &mdash; April 12, 2026</p>
+  <p style="color:var(--herald);margin-top:0.5rem">"The message reaches." &mdash; HERALD, The Comms Warrior 📣</p>
+</div>
+
+</div>
+<script>
+function showTab(id,btn){document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));document.getElementById(id).classList.add('active');btn.classList.add('active');}
+</script>
+</body>
+</html>
