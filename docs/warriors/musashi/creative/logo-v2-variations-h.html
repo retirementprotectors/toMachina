@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RPI Logo v2 — H-ish Refinements</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --rpi-289: #0a2240;
+    --rpi-283: #92c0e9;
+    --rpi-medium: #12416b;
+    --rpi-pale: #abd2ef;
+    --rpi-mist: #cae7f9;
+    --ink: #1a1a1a;
+    --ink-soft: #3a4456;
+    --paper: #f4f4f5;
+    --rule: #d0dae6;
+    --green: #22c55e;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Poppins', system-ui, sans-serif; background: var(--paper); color: var(--ink); line-height: 1.6; }
+  .header { background: linear-gradient(135deg, #05101f, #0a2240 60%, #12416b); color: white; padding: 40px 32px 32px; text-align: center; }
+  .header .label { font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--rpi-283); font-weight: 600; margin-bottom: 10px; }
+  .header h1 { font-size: 2.2rem; font-weight: 800; margin-bottom: 10px; }
+  .header p { color: var(--rpi-pale); max-width: 760px; margin: 0 auto; font-size: 1rem; }
+  .wrap { max-width: 1400px; margin: 0 auto; padding: 32px; }
+
+  .annotation { background: white; border: 2px solid var(--green); border-radius: 8px; padding: 20px 24px; margin-bottom: 32px; }
+  .annotation h2 { color: var(--rpi-289); font-size: 1.2rem; margin-bottom: 10px; }
+  .annotation p { color: var(--ink-soft); margin-bottom: 8px; }
+  .annotation strong { color: var(--green); }
+  .annotation img { max-width: 100%; border-radius: 4px; margin-top: 10px; border: 1px solid var(--rule); }
+
+  .variants { display: grid; gap: 24px; }
+  .variant {
+    background: white; border: 2px solid var(--rule); border-radius: 10px; padding: 24px 28px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .variant:hover { border-color: var(--rpi-medium); box-shadow: 0 4px 20px rgba(10,34,64,0.1); }
+  .variant-head { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1px solid var(--rule); padding-bottom: 12px; margin-bottom: 20px; }
+  .variant-head h3 { font-size: 1.1rem; color: var(--rpi-289); font-weight: 700; }
+  .variant-head .tag { font-family: 'Poppins', sans-serif; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--rpi-medium); font-weight: 600; background: rgba(146,192,233,0.2); padding: 4px 10px; border-radius: 12px; }
+  .variant .desc { color: var(--ink-soft); font-size: 13px; margin-bottom: 16px; }
+  .variant .logo-box { background: var(--paper); padding: 30px; border-radius: 6px; display: flex; justify-content: center; align-items: center; min-height: 200px; }
+  .variant img { max-width: 100%; height: auto; max-height: 220px; }
+
+  .cta { background: var(--rpi-289); color: white; padding: 28px 32px; border-radius: 10px; margin-top: 40px; text-align: center; }
+  .cta h2 { color: white; font-size: 1.4rem; margin-bottom: 8px; }
+  .cta p { color: var(--rpi-pale); font-size: 15px; max-width: 600px; margin: 0 auto; }
+  .cta code { background: rgba(255,255,255,0.1); padding: 3px 8px; border-radius: 3px; color: var(--rpi-mist); font-size: 13px; }
+  .footer { max-width: 1400px; margin: 2rem auto; padding: 1rem 2rem; color: var(--ink-soft); font-size: 13px; text-align: center; border-top: 1px solid var(--rule); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="label">CMO · Logo v2 · H-ish Refinements</div>
+  <h1>H-ish: The Big-Shield Horizontal Lockup</h1>
+  <p>You liked H but the small shield baked into the wordmark was a problem. Here are six refinements — the big standalone shield REPLACES the small one entirely, paired with clean "RETIREMENT PROTECTORS, INC." text and the tagline underneath.</p>
+</div>
+
+<div class="wrap">
+
+  <div class="annotation">
+    <h2>What changed from the original H</h2>
+    <p><strong>Old H:</strong> Big shield on left AND the small shield baked into the existing wordmark = two shields, confusing.</p>
+    <p><strong>All six H-ish variants:</strong> wordmark is cropped to TEXT ONLY (x=532 onward), small shield removed cleanly. Big shield on the left stands alone. Zero duplicated marks.</p>
+    <p>Vary: shield scale (1.0x – 2.0x), gap between shield and text, tagline size/weight, tagline alignment (left / center / right under the text).</p>
+  </div>
+
+  <div class="variants">
+
+    <div class="variant">
+      <div class="variant-head">
+        <h3>H1 — Balanced</h3>
+        <span class="tag">Shield 1.5x · Bold 120 centered · 80px gap</span>
+      </div>
+      <div class="desc">The balanced starting point. Shield has presence, text reads cleanly, tagline centers under the wordmark.</div>
+      <div class="logo-box"><img src="assets/rpi/logo-variants/v-h1-shield-1-5x-center.png" alt="H1"></div>
+    </div>
+
+    <div class="variant">
+      <div class="variant-head">
+        <h3>H2 — Shield Prominent</h3>
+        <span class="tag">Shield 1.8x · tight 60px gap</span>
+      </div>
+      <div class="desc">Shield becomes the hero. Closer spacing keeps the lockup feeling like one unit.</div>
+      <div class="logo-box"><img src="assets/rpi/logo-variants/v-h2-shield-1-8x-tight.png" alt="H2"></div>
+    </div>
+
+    <div class="variant">
+      <div class="variant-head">
+        <h3>H3 — Refined Match</h3>
+        <span class="tag">Shield 1.3x · SemiBold 110 · 70px gap</span>
+      </div>
+      <div class="desc">Shield matches the visual weight of the wordmark. SemiBold tagline sits respectful, not shouting.</div>
+      <div class="logo-box"><img src="assets/rpi/logo-variants/v-h3-shield-matches.png" alt="H3"></div>
+    </div>
+
+    <div class="variant">
+      <div class="variant-head">
+        <h3>H4 — Dominant Shield + Left Tagline</h3>
+        <span class="tag">Shield 2.0x · tagline left under "Retirement"</span>
+      </div>
+      <div class="desc">Biggest shield of the bunch. Tagline left-aligned under "RETIREMENT" feels like a byline.</div>
+      <div class="logo-box"><img src="assets/rpi/logo-variants/v-h4-dominant-shield-left-tagline.png" alt="H4"></div>
+    </div>
+
+    <div class="variant">
+      <div class="variant-head">
+        <h3>H5 — Tight Integration</h3>
+        <span class="tag">Shield matches wordmark HEIGHT · 40px gap · Bold 96</span>
+      </div>
+      <div class="desc">Shield height = text height. Most integrated, feels like a classic corporate lockup.</div>
+      <div class="logo-box"><img src="assets/rpi/logo-variants/v-h5-shield-matches-height.png" alt="H5"></div>
+    </div>
+
+    <div class="variant">
+      <div class="variant-head">
+        <h3>H6 — Right-Aligned Tagline</h3>
+        <span class="tag">Shield 1.4x · tagline right under "INC."</span>
+      </div>
+      <div class="desc">Tagline right-aligns to close out the mark. Executive / legal-serious feel.</div>
+      <div class="logo-box"><img src="assets/rpi/logo-variants/v-h6-right-tagline.png" alt="H6"></div>
+    </div>
+
+  </div>
+
+  <div class="cta">
+    <h2>Pick H1–H6 (or further tweak)</h2>
+    <p>Drop the letter in <code>#musashi</code>. Winner locks as the official <code>rpi-logo-v2.png</code> + white variant. Then single PR: locked logo + MYST back cover (Lacy / Dexter / Kaelin) + bigger fonts filling cover and panels.</p>
+  </div>
+
+</div>
+
+<div class="footer">
+  <strong>RPI Logo v2 — H-ish Refinements</strong> · 2026-04-13 · MUSASHI, ARTxBLADE, CMO<br>
+  Wordmark cropped to text only (x=532+). Small R-shield removed. Big shield from <code>rpi-shield-mark.png</code>. Poppins typography. No new shapes.
+</div>
+
+</body>
+</html>

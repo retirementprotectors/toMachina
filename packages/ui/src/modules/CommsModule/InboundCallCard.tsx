@@ -43,10 +43,13 @@ function RingPulse() {
 export function InboundCallCard({ call, onAnswer, onDecline, onRoute }: InboundCallCardProps) {
   const [showCard, setShowCard] = useState(true)
 
+  // TRK-13690: Track by call.id so a new call always forces the card open,
+  // even if the object reference is stable (e.g. same Twilio Call object re-emitted).
+  const callId = call?.id ?? null
   useEffect(() => {
-    if (!call) return
+    if (!callId) return
     setShowCard(true)
-  }, [call])
+  }, [callId])
 
   if (!call) return null
 

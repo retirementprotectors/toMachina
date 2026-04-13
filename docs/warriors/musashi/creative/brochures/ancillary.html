@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ancillary Benefits — Retirement Protectors, Inc.</title>
+<meta name="description" content="What Medicare won't cover. Dental, vision, hearing, hospital indemnity, final expense, long-term care — the coverage that completes the plan.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;600&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --rpi-289: #0a2240;
+    --rpi-283: #92c0e9;
+    --rpi-medium: #12416b;
+    --rpi-pale: #abd2ef;
+    --rpi-royal: #23558c;
+    --rpi-mist: #cae7f9;
+    --ink: #1a1a1a;
+    --ink-soft: #3a4456;
+    --paper: #f4f4f5;
+    --paper-warm: #fafbfc;
+    --rule: #d0dae6;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: var(--paper); color: var(--ink); font-family: 'Mulish', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; line-height: 1.55; }
+  h1, h2, h3, h4, h5 { font-family: 'Poppins', sans-serif; color: var(--rpi-289); line-height: 1.2; letter-spacing: -0.01em; }
+  .page { width: 8.5in; min-height: 11in; background: white; margin: 0.5in auto; padding: 0.6in 0.65in; box-shadow: 0 1px 24px rgba(10,34,64,0.08); position: relative; }
+  .page + .page { margin-top: 1rem; }
+
+  /* Page header — white-label editorial (logo moved to footer per JDM 2026-04-13) */
+  .hero { border-bottom: 3px solid var(--rpi-289); padding-bottom: 22px; margin-bottom: 28px; }
+  .eyebrow { font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--rpi-medium); margin-bottom: 12px; }
+  .hero h1 { font-size: 54px; font-weight: 800; color: var(--rpi-289); margin-bottom: 10px; letter-spacing: -0.025em; line-height: 1.02; }
+  .hero-tagline { font-family: 'Poppins', sans-serif; font-weight: 500; font-size: 18px; color: var(--ink-soft); max-width: 75%; }
+  .shield { width: 42px; height: auto; vertical-align: middle; }
+  .shield-sm { width: 28px; height: auto; vertical-align: middle; }
+
+  .intro { font-family: 'Poppins', sans-serif; font-weight: 400; font-size: 14.5px; line-height: 1.65; color: var(--ink-soft); margin-bottom: 28px; max-width: 88%; }
+  .intro strong { color: var(--rpi-289); font-weight: 600; }
+
+  /* Steps */
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 28px; }
+  .step { background: var(--paper-warm); border: 1px solid var(--rule); border-left: 4px solid var(--rpi-royal); padding: 16px 16px 14px; border-radius: 4px; }
+  .step-num { font-family: 'Poppins', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--rpi-royal); margin-bottom: 6px; }
+  .step h3 { font-size: 15px; font-weight: 700; color: var(--rpi-289); margin-bottom: 6px; }
+  .step p { font-size: 12.5px; color: var(--ink-soft); line-height: 1.5; }
+
+  /* Parts table */
+  h2 { font-size: 22px; font-weight: 700; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--rule); }
+  .parts-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-bottom: 24px; }
+  .part { padding: 14px 16px; border-radius: 4px; background: var(--paper-warm); border: 1px solid var(--rule); }
+  .part-label { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--rpi-medium); margin-bottom: 4px; }
+  .part h4 { font-size: 16px; font-weight: 700; color: var(--rpi-289); margin-bottom: 8px; }
+  .part p { font-size: 12.5px; color: var(--ink-soft); line-height: 1.55; }
+  .part.accent { background: linear-gradient(180deg, rgba(146,192,233,0.2), rgba(146,192,233,0.05)); border-color: var(--rpi-283); }
+
+  /* Key numbers */
+  .numbers { background: var(--rpi-289); color: white; padding: 22px 24px; border-radius: 6px; margin-bottom: 20px; position: relative; overflow: hidden; }
+  .numbers::before { content: ''; position: absolute; top: -20px; right: -20px; width: 140px; height: 140px; background-image: url('../assets/rpi/rpi-shield-mark.png'); background-size: contain; background-repeat: no-repeat; background-position: right top; opacity: 0.12; pointer-events: none; }
+  .numbers h2 { color: white; border-bottom-color: rgba(255,255,255,0.2); position: relative; z-index: 1; }
+  .numbers .num-grid { position: relative; z-index: 1; }
+  .num-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-top: 12px; }
+  .num { text-align: center; }
+  .num .value { font-family: 'Poppins', sans-serif; font-size: 22px; font-weight: 700; color: white; line-height: 1.1; }
+  .num .label { font-size: 10px; color: var(--rpi-pale); line-height: 1.4; margin-top: 4px; letter-spacing: 0.02em; }
+
+  /* Page 2 — coverage matrix */
+  .medigap-grid { width: 100%; border-collapse: collapse; font-size: 11.5px; margin-bottom: 20px; }
+  .medigap-grid th, .medigap-grid td { padding: 7px 5px; text-align: center; border: 1px solid var(--rule); }
+  .medigap-grid thead th { background: var(--rpi-289); color: white; font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 10px; letter-spacing: 0.04em; }
+  .medigap-grid tbody td:first-child { text-align: left; padding-left: 10px; font-weight: 500; color: var(--rpi-medium); font-size: 11px; }
+  .medigap-grid .dot { color: var(--rpi-royal); font-weight: 700; }
+  .medigap-grid .partial { color: var(--ink-soft); font-size: 10px; }
+
+  /* AEP callout */
+  .aep { background: linear-gradient(135deg, var(--rpi-medium), var(--rpi-289)); color: white; padding: 18px 22px; border-radius: 6px; margin-bottom: 20px; display: flex; gap: 18px; align-items: center; }
+  .aep .shield { width: 52px; filter: brightness(1.1); flex-shrink: 0; }
+  .aep-text h3 { color: white; font-size: 16px; margin-bottom: 4px; }
+  .aep-text p { font-size: 12px; color: var(--rpi-pale); line-height: 1.5; }
+
+  /* SEP list */
+  .sep { background: var(--paper-warm); border: 1px solid var(--rule); padding: 16px 20px; border-radius: 4px; margin-bottom: 20px; }
+  .sep h3 { font-size: 15px; margin-bottom: 10px; }
+  .sep ul { column-count: 2; column-gap: 24px; list-style: none; font-size: 12.5px; color: var(--ink-soft); }
+  .sep ul li { padding-left: 18px; position: relative; margin-bottom: 5px; break-inside: avoid; }
+  .sep ul li::before { content: '▪'; color: var(--rpi-royal); position: absolute; left: 0; top: 0; }
+
+  /* Footer — white-label band (JDM 2026-04-13: logo lives at bottom, partner-swap friendly) */
+  .footer { margin-top: 28px; padding-top: 18px; border-top: 2px solid var(--rpi-289); display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+  .footer-logo-zone { flex: 1; }
+  .footer-logo { width: 220px; height: auto; display: block; }
+  .footer-contact { text-align: right; font-size: 11px; color: var(--ink-soft); line-height: 1.7; font-family: 'Poppins', sans-serif; }
+  .footer-contact strong { color: var(--rpi-289); font-size: 11.5px; display: block; margin-bottom: 2px; font-weight: 700; }
+  .footer-meta { font-family: 'Poppins', sans-serif; font-size: 10.5px; color: var(--ink-soft); letter-spacing: 0.08em; text-transform: uppercase; }
+  .footer-meta .pg { color: var(--rpi-medium); font-weight: 700; }
+  .footer-contact strong { color: var(--rpi-289); }
+
+  .compliance { background: #f7f9fc; border: 1px solid var(--rule); padding: 10px 13px; border-radius: 4px; font-size: 9.5px; color: var(--ink-soft); line-height: 1.5; margin-top: 14px; }
+  .compliance strong { color: var(--rpi-medium); }
+
+  /* Preview (non-print) navigation */
+  .preview-nav { position: fixed; top: 10px; right: 10px; background: var(--rpi-289); color: white; padding: 10px 14px; border-radius: 6px; font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 600; box-shadow: 0 2px 12px rgba(0,0,0,0.25); z-index: 1000; }
+  .preview-nav a { color: var(--rpi-pale); text-decoration: none; margin-left: 10px; }
+  .preview-nav a:hover { color: white; }
+
+  /* Print */
+  @media print {
+    body { background: white; }
+    .page { margin: 0; box-shadow: none; width: 100%; min-height: 100vh; page-break-after: always; padding: 0.5in 0.55in; }
+    .page:last-child { page-break-after: auto; }
+    .preview-nav { display: none; }
+    @page { size: letter; margin: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="preview-nav">
+  DRAFT · Ancillary Benefits v1 · <a href="#p1">P1</a> <a href="#p2">P2</a> <a onclick="window.print()" style="cursor:pointer">Print</a>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- PAGE 1 -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<div class="page" id="p1">
+
+  <div class="hero">
+    <div class="eyebrow">Ancillary &middot; Filling the Real Gaps</div>
+    <h1>What Medicare Won't Cover.</h1>
+    <div class="hero-tagline">Dental, vision, hearing, hospital indemnity, final expense, long-term care &mdash; the coverage that completes the plan.</div>
+  </div>
+
+  <p class="intro">
+    Original Medicare covers medically necessary hospital and doctor care. It doesn't cover routine dental, vision, hearing, or long-term custodial care. And even with Medicare Advantage or Medigap, real-world costs &mdash; a hospital stay, a nursing home, dentures &mdash; can hit hard. <strong>This guide walks you through the six categories that fill those gaps.</strong>
+  </p>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">Gap 1</div>
+      <h3>The daily gap</h3>
+      <p>Dental, vision, hearing &mdash; Medicare doesn't cover these routinely. Standalone and bundled plans exist that go to work right away.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">Gap 2</div>
+      <h3>The catastrophic gap</h3>
+      <p>Long-term care costs $90K+/year. Medicare covers only 100 days of skilled care &mdash; and only up to a point. The rest is your bill.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">Gap 3</div>
+      <h3>The final gap</h3>
+      <p>Burial, cremation, medical debt at death. Final Expense Life covers what Medicare doesn't &mdash; and keeps the burden off your family.</p>
+    </div>
+  </div>
+
+  <h2>The Six Ancillary Categories</h2>
+  <div class="parts-grid">
+    <div class="part accent">
+      <div class="part-label">Dental / Vision / Hearing</div>
+      <h4>Routine &amp; Preventive Care</h4>
+      <p>Cleanings, exams, hearing aids &mdash; Medicare skips all of it. Preventive benefits often covered day-1. Major dental (crowns, dentures) typically has a waiting period. Standalone or bundled with MA plans.</p>
+    </div>
+    <div class="part">
+      <div class="part-label">Hospital Indemnity</div>
+      <h4>Fixed Daily Benefit</h4>
+      <p>Pays a fixed daily amount directly to the insured for inpatient hospital stays. Stackable on top of Medicare Advantage or Medigap &mdash; no coordination of benefits required. Benefits used any way you choose.</p>
+    </div>
+    <div class="part">
+      <div class="part-label">Final Expense</div>
+      <h4>Small Whole Life Policy</h4>
+      <p>Face amounts of $5K&ndash;$25K. Covers burial, cremation, medical debt at death. Simplified underwriting &mdash; shorter health questionnaire, no exam required. Premiums never increase. Benefit never decreases.</p>
+    </div>
+    <div class="part">
+      <div class="part-label">Long-Term Care</div>
+      <h4>Custodial Care Coverage</h4>
+      <p>Assisted living, nursing home, and in-home aide. Medicare covers only skilled nursing (max 100 days) &mdash; not custodial. LTC insurance kicks in when you can no longer perform 2 of 6 Activities of Daily Living.</p>
+    </div>
+    <div class="part">
+      <div class="part-label">Home Health Care</div>
+      <h4>In-Home Provider Benefits</h4>
+      <p>Benefits paid directly to an in-home care provider for physical, speech, or respiratory therapy. Fills the gap when Medicare's home health benefit runs out or doesn't qualify. Care on your schedule, in your home.</p>
+    </div>
+    <div class="part">
+      <div class="part-label">Recovery Care</div>
+      <h4>Post-Hospital Skilled Nursing</h4>
+      <p>Skilled, intermediate, or custodial nursing coverage after a qualifying hospital stay. Bridges the gap between hospital discharge and return to full function. Works alongside Medicare Part A skilled nursing benefit.</p>
+    </div>
+  </div>
+
+  <div class="numbers">
+    <h2>The Real Cost of Care &mdash; 2026</h2>
+    <div class="num-grid">
+      <div class="num"><div class="value">$8&ndash;12K</div><div class="label">Average<br>Funeral Cost</div></div>
+      <div class="num"><div class="value">$116K+</div><div class="label">Nursing Home<br>Private Room (Annual)</div></div>
+      <div class="num"><div class="value">$75K+</div><div class="label">Home Health<br>Aide (Annual)</div></div>
+      <div class="num"><div class="value">70%</div><div class="label">Americans 65+<br>Needing LTC</div></div>
+      <div class="num"><div class="value">$300</div><div class="label">Hospital Indemnity<br>Avg. Daily Benefit</div></div>
+    </div>
+    <p style="font-size:10px; color:var(--rpi-pale); margin-top:12px; position:relative; z-index:1;">Source: Genworth Cost of Care 2026 / NAIC. Figures are national averages. Actual costs vary by state, provider, and level of care.</p>
+  </div>
+
+  <div class="footer">
+    <div class="footer-logo-zone">
+      <img src="../assets/rpi/rpi-logo-v2-color.png" alt="Retirement Protectors, Inc. — We're Your People" class="footer-logo" />
+    </div>
+    <div class="footer-contact">
+      <strong>RetireProtected.com</strong>
+      515-992-5000 &middot; 877-650-7015<br>
+      Service@RetireProtected.com
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- PAGE 2 -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<div class="page" id="p2">
+
+  <div class="hero">
+    <div class="eyebrow">Ancillary &middot; How Everything Fits Together</div>
+    <h1>Coverage That Completes.</h1>
+    <div class="hero-tagline">How Medicare + Medigap + Ancillary products combine into one plan that actually works.</div>
+  </div>
+
+  <h2>How Products Stack &mdash; Coverage by Scenario</h2>
+  <p class="intro" style="margin-bottom:16px;">
+    No single product covers everything. <strong>The complete plan is the stack</strong> &mdash; Original Medicare or Advantage as the foundation, then the ancillary layer on top. Here's what pays when life actually happens.
+  </p>
+
+  <table class="medigap-grid">
+    <thead>
+      <tr>
+        <th style="text-align:left; padding-left:10px;">Scenario</th>
+        <th>Orig.<br>Medicare</th>
+        <th>Medigap</th>
+        <th>Medicare<br>Advantage</th>
+        <th>Dental/<br>Vision/<br>Hearing</th>
+        <th>Hospital<br>Indemnity</th>
+        <th>Long-Term<br>Care</th>
+        <th>Final<br>Expense</th>
+        <th>Home<br>Health</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Dentist visit / cleaning</td><td>&mdash;</td><td>&mdash;</td><td class="partial">Some plans</td><td class="dot">●</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
+      <tr><td>Hearing aid</td><td>&mdash;</td><td>&mdash;</td><td class="partial">Some plans</td><td class="dot">●</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
+      <tr><td>Routine eye exam</td><td>&mdash;</td><td>&mdash;</td><td class="partial">Some plans</td><td class="dot">●</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
+      <tr><td>Cataract surgery</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
+      <tr><td>Hospital inpatient stay</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td>&mdash;</td><td class="dot">●</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
+      <tr><td>Skilled nursing days 1&ndash;20</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
+      <tr><td>Skilled nursing days 21&ndash;100</td><td class="partial">Partial</td><td class="dot">●</td><td class="partial">Partial</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
+      <tr><td>LTC nursing home (day 101+)</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td class="dot">●</td><td>&mdash;</td><td>&mdash;</td></tr>
+      <tr><td>In-home aide / custodial care</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td class="dot">●</td><td>&mdash;</td><td class="dot">●</td></tr>
+      <tr><td>Burial / final expenses</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td class="dot">●</td><td>&mdash;</td></tr>
+    </tbody>
+  </table>
+  <p style="font-size:10px; color:var(--ink-soft); margin-bottom:18px;">● = product covers this scenario. Partial = some cost-sharing applies. &mdash; = product does not apply. Coverage details vary by carrier, plan, and state. Work with a licensed RPI representative for a scenario-specific stack review.</p>
+
+  <h2>Underwriting Reality Check</h2>
+  <p style="font-size:12.5px; color:var(--ink-soft); margin-bottom:10px;">Not every ancillary product has the same underwriting hurdle. <strong style="color:var(--rpi-289);">The harder the underwriting, the more important it is to apply early</strong> &mdash; while your health history is clean.</p>
+  <table class="medigap-grid" style="margin-bottom:14px;">
+    <thead>
+      <tr>
+        <th style="text-align:left; padding-left:10px;">Product</th>
+        <th style="text-align:left;">Underwriting Type</th>
+        <th>Health Questions</th>
+        <th>Best Time to Apply</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Dental / Vision / Hearing</td><td style="text-align:left; padding-left:10px;">Guaranteed Issue (at enrollment)</td><td>None</td><td>At 65 / plan change</td></tr>
+      <tr><td>Hospital Indemnity</td><td style="text-align:left; padding-left:10px;">Simplified Issue</td><td>1&ndash;3 questions</td><td>Anytime</td></tr>
+      <tr><td>Final Expense</td><td style="text-align:left; padding-left:10px;">Simplified or Guaranteed Issue</td><td>0&ndash;5 questions</td><td>Anytime; sooner = lower premium</td></tr>
+      <tr><td>Long-Term Care</td><td style="text-align:left; padding-left:10px;">Full Medical Underwriting</td><td>Full health history</td><td>50s&ndash;60s (before diagnosis)</td></tr>
+      <tr><td>Home Health / Recovery Care</td><td style="text-align:left; padding-left:10px;">Simplified Issue</td><td>ADL trigger questions</td><td>Pre-retirement; early 60s</td></tr>
+    </tbody>
+  </table>
+  <p style="font-size:10px; color:var(--ink-soft); margin-bottom:22px;">ADL = Activities of Daily Living (bathing, dressing, eating, transferring, continence, toileting). Most LTC and home health policies trigger benefits when you cannot perform 2 of 6 ADLs. LTC denial rate increases significantly after age 70 or after a major health event.</p>
+
+  <div class="aep">
+    <img src="../assets/rpi/rpi-shield-mark.png" alt="" class="shield" />
+    <div class="aep-text">
+      <h3>When You Can Enroll</h3>
+      <p>Most ancillary products have <strong>open enrollment year-round</strong> &mdash; not tied to AEP. Exceptions: Medicare Advantage plans with bundled dental/vision/hearing benefits follow AEP rules (Oct 15 &mdash; Dec 7). Standalone ancillary policies can be added anytime you qualify medically.</p>
+    </div>
+  </div>
+
+  <div class="sep">
+    <h3>Conditions That Trigger Each Product</h3>
+    <ul>
+      <li>Turning 65 (initial Medicare enrollment)</li>
+      <li>Retirement or loss of employer coverage</li>
+      <li>New mortgage or major family event</li>
+      <li>Nursing home admission</li>
+      <li>Hospital stay over 3 days</li>
+      <li>New chronic illness diagnosis</li>
+      <li>Spouse passes away</li>
+      <li>Loss of a spouse's group coverage</li>
+      <li>Move to assisted living or memory care</li>
+      <li>Decline of 2+ Activities of Daily Living</li>
+      <li>Financial planning / estate review</li>
+      <li>Qualifying life event (contact us)</li>
+    </ul>
+  </div>
+
+  <div class="compliance" style="margin-top: 18px;">
+    <strong>Disclosure.</strong> This agency is not affiliated with Medicare or any other government agency. Ancillary insurance products are issued by various carriers. Availability, rates, and benefits vary by state and individual underwriting. This material is for informational purposes only. Please consult a licensed Retirement Protectors, Inc. representative for state-specific product details. Reference <strong>www.medicare.gov</strong> or <strong>1-800-MEDICARE</strong> for official Medicare information. &copy; 2026 Retirement Protectors, Inc. All rights reserved.
+  </div>
+
+  <div class="footer">
+    <div class="footer-logo-zone">
+      <img src="../assets/rpi/rpi-logo-v2-color.png" alt="Retirement Protectors, Inc. — We're Your People" class="footer-logo" />
+    </div>
+    <div class="footer-contact">
+      <strong>RetireProtected.com</strong>
+      515-992-5000 &middot; 877-650-7015<br>
+      Service@RetireProtected.com
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

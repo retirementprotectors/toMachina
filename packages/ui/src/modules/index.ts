@@ -15,6 +15,8 @@ export { LeadershipCenter } from './LeadershipCenter'
 export { AdminPanel } from './AdminPanel'
 export { CommsCenter } from './CommsCenter'
 export { CommsModule } from './CommsModule'
+export { OmniPanel } from './OmniPanel'
+export type { OmniPanelProps, OmniTab } from './OmniPanel'
 
 export { PipelineStudio } from './PipelineStudio'
 export { SystemSynergy } from './SystemSynergy'

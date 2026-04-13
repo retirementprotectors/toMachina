@@ -16,6 +16,7 @@ import type {
   WebhookTwilioSkipResult,
 } from '@tomachina/core'
 import { randomUUID } from 'crypto'
+import { verifySendGridSignature } from '../lib/sendgrid-webhook-verify.js'
 
 export const campaignAnalyticsRoutes = Router()
 
@@ -314,7 +315,7 @@ campaignAnalyticsRoutes.get('/:campaignId/drip-progress', async (req: Request, r
  * by the external message ID (sg_message_id) to resolve campaign context.
  * This pattern is proven in webhooks.ts (lines 184-191).
  */
-campaignAnalyticsRoutes.post('/webhook/sendgrid', async (req: Request, res: Response) => {
+campaignAnalyticsRoutes.post('/webhook/sendgrid', verifySendGridSignature, async (req: Request, res: Response) => {
   try {
     const db = getFirestore()
     const events = Array.isArray(req.body) ? req.body : [req.body]

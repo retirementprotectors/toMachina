@@ -102,6 +102,8 @@ import { cmoIntakeRoutes } from './routes/cmo-intake.js'
 import { cmoPipelineRoutes } from './routes/cmo-pipeline.js'
 import { cmoEventRoutes } from './routes/cmo-events.js'
 import { cmoDashboardRoutes } from './routes/cmo-dashboard.js'
+import { dispatchRoutes } from './routes/dispatch.js'
+import { smsConsentRoutes } from './routes/sms-consent.js'
 
 // Initialize Firebase Admin
 if (getApps().length === 0) {
@@ -134,10 +136,31 @@ app.use('/webhook/ci', express.raw({ type: '*/*' }), (req, _res, next) => {
   next()
 }, ciWebhookRoutes)
 
+// SendGrid webhook routes — raw body captured BEFORE express.json() for ECDSA signature verification (TKO-COMMS-005a)
+// Covers: POST /api/webhooks/sendgrid, POST /api/webhooks/sendgrid-inbound,
+//         POST /api/campaign-analytics/webhook/sendgrid
+app.use(['/api/webhooks/sendgrid', '/api/webhooks/sendgrid-inbound', '/api/campaign-analytics/webhook/sendgrid'],
+  express.raw({ type: '*/*' }),
+  (req, _res, next) => {
+    ;(req as typeof req & { rawBody: Buffer }).rawBody = req.body as Buffer
+    next()
+  }
+)
+
 app.use(express.json({ limit: '10mb' }))
+
+// Twilio webhooks send application/x-www-form-urlencoded — must be parsed
+// before verifyTwilioSignature middleware can validate the body params.
+// TKO-COMMS-005b
+app.use('/api/comms/webhook', express.urlencoded({ extended: false }))
 
 // Health check — no auth, no rate limit, no logging
 app.use('/health', healthRoutes)
+
+// Public routes — no Firebase Auth required. Mounted before the /api auth gate.
+// TKO-COMMS-001: TCPA opt-in funnel (cold-lead capture via QR, IVR, marketing).
+// SHINOB1 ruling 2026-04-13: public, not token-gated.
+app.use('/public/sms-consent', smsConsentRoutes)
 
 // Request logging for all authenticated routes (logs method/path/user/time — NO PHI)
 app.use(requestLogger)
@@ -245,6 +268,9 @@ app.use('/api/sensei/analytics', normalizeBody, senseiAnalyticsRoutes)
 app.use('/api/sensei', normalizeBody, senseiContentRoutes)
 // SENSEI Training Generator — TRK-SNS-010
 app.use('/api/sensei', normalizeBody, senseiGeneratorRoutes)
+
+// Hub Dispatcher — CXO-aware intake routing (RON-HD01)
+app.use('/api/dispatch', normalizeBody, dispatchRoutes)
 
 // RAIDEN Reactive Guardian — sub-router at /raiden/*
 app.use('/raiden', raidenRoutes)

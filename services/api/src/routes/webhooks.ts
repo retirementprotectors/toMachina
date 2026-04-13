@@ -7,6 +7,7 @@ import {
 } from '../lib/helpers.js'
 import type { WebhookSendgridResult, WebhookDocusignResult } from '@tomachina/core'
 import { createNotification } from './notifications.js'
+import { verifySendGridSignature } from '../lib/sendgrid-webhook-verify.js'
 
 export const webhookRoutes = Router()
 
@@ -21,7 +22,7 @@ export const webhookRoutes = Router()
  * SendGrid sends array of events with:
  *   - email, event, sg_message_id, timestamp, url, reason
  */
-webhookRoutes.post('/sendgrid', async (req: Request, res: Response) => {
+webhookRoutes.post('/sendgrid', verifySendGridSignature, async (req: Request, res: Response) => {
   try {
     const db = getFirestore()
     let events = req.body
@@ -326,7 +327,7 @@ webhookRoutes.post('/docusign', async (req: Request, res: Response) => {
  */
 const inboundUpload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } })
 
-webhookRoutes.post('/sendgrid-inbound', inboundUpload.none(), async (req: Request, res: Response) => {
+webhookRoutes.post('/sendgrid-inbound', verifySendGridSignature, inboundUpload.none(), async (req: Request, res: Response) => {
   try {
     const db = getFirestore()
     const body = req.body as Record<string, string>

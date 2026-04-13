@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tri-fold Cover — Variations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;600&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --rpi-289: #0a2240;
+    --rpi-283: #92c0e9;
+    --rpi-medium: #12416b;
+    --rpi-pale: #abd2ef;
+    --rpi-mist: #cae7f9;
+    --rpi-royal: #23558c;
+    --ink: #1a1a1a;
+    --ink-soft: #3a4456;
+    --paper: #f4f4f5;
+    --paper-warm: #fafbfc;
+    --rule: #d0dae6;
+    --gold: #b45309;
+    --ivory: #f8f5f0;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Mulish', system-ui, sans-serif; background: var(--paper); color: var(--ink); line-height: 1.6; }
+  .page-header { background: linear-gradient(135deg, var(--rpi-289) 0%, var(--rpi-medium) 60%, var(--rpi-royal) 100%); color: white; padding: 40px 32px 32px; text-align: center; font-family: 'Poppins', sans-serif; }
+  .page-header .label { font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--rpi-283); font-weight: 600; margin-bottom: 10px; }
+  .page-header h1 { font-size: 2.2rem; font-weight: 800; margin-bottom: 10px; }
+  .page-header p { color: var(--rpi-pale); max-width: 720px; margin: 0 auto; font-size: 1rem; }
+  .wrap { max-width: 1400px; margin: 0 auto; padding: 32px; }
+  .gallery { display: grid; grid-template-columns: repeat(2, 1fr); gap: 28px; }
+  .variant-card { background: white; border: 2px solid var(--rule); border-radius: 12px; overflow: hidden; transition: border-color 0.2s, box-shadow 0.2s; }
+  .variant-card:hover { border-color: var(--rpi-medium); box-shadow: 0 6px 28px rgba(10,34,64,0.12); }
+  .variant-head { padding: 16px 20px; border-bottom: 1px solid var(--rule); display: flex; justify-content: space-between; align-items: baseline; }
+  .variant-head h3 { font-family: 'Poppins', sans-serif; font-size: 1.15rem; color: var(--rpi-289); font-weight: 700; }
+  .variant-head .pick { font-family: 'Poppins', sans-serif; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--rpi-medium); font-weight: 600; background: rgba(146,192,233,0.2); padding: 4px 10px; border-radius: 12px; }
+  .variant-head .pick.recommend { color: var(--gold); background: rgba(212,164,76,0.18); }
+  .variant-desc { padding: 12px 20px 18px; color: var(--ink-soft); font-size: 13.5px; border-bottom: 1px solid var(--rule); background: var(--paper-warm); }
+  .preview-stage { padding: 24px; background: var(--paper); display: flex; justify-content: center; }
+
+  .cover { width: 380px; height: 480px; color: white; font-family: 'Poppins', sans-serif; border-radius: 6px; position: relative; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.25); display: flex; flex-direction: column; }
+  .cover-navy { background: linear-gradient(160deg, var(--rpi-289) 0%, var(--rpi-medium) 60%, var(--rpi-royal) 100%); }
+  .watermark { position: absolute; inset: 0; background-image: url('assets/rpi/rpi-shield-mark.png'); background-size: 65%; background-position: center 60%; background-repeat: no-repeat; opacity: 0.08; pointer-events: none; }
+  .top-zone, .bottom-zone { position: relative; z-index: 1; padding: 24px 22px; }
+  .eyebrow { font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--rpi-pale); font-weight: 600; margin-bottom: 12px; }
+  .headline { font-size: 32px; font-weight: 800; line-height: 1.05; margin-bottom: 12px; letter-spacing: -0.02em; color: white; }
+  .sub { font-size: 13px; color: var(--rpi-pale); line-height: 1.45; }
+  .contact { font-size: 11px; color: var(--rpi-pale); line-height: 1.6; }
+  .contact strong { color: white; font-size: 12px; display: block; margin-bottom: 3px; }
+  .logo-color-sm { width: 160px; height: auto; display: block; }
+  .logo-plate { background: white; padding: 12px 18px; border-radius: 5px; display: inline-block; box-shadow: 0 2px 12px rgba(0,0,0,0.15); }
+  .logo-plate-sm { background: white; padding: 8px 14px; border-radius: 4px; display: inline-block; }
+
+  .v1 { justify-content: space-between; }
+  .v1 .top-zone .eyebrow { margin-top: 14px; }
+
+  .v2 { justify-content: space-between; }
+  .v2 .headline { font-size: 38px; }
+  .v2 .bottom-zone { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
+  .v2 .contact { text-align: right; }
+
+  .v3 { background: white; color: var(--ink); }
+  .v3 .top-zone { background: white; }
+  .v3 .top-zone .eyebrow { color: var(--rpi-medium); }
+  .v3 .top-zone .headline { color: var(--rpi-289); font-size: 38px; }
+  .v3 .top-zone .sub { color: var(--ink-soft); }
+  .v3 .bottom-zone { background: linear-gradient(160deg, var(--rpi-289), var(--rpi-medium)); flex: 1; display: flex; flex-direction: column; justify-content: space-between; color: white; position: relative; overflow: hidden; }
+  .v3 .bottom-zone .bottom-watermark { position: absolute; inset: 0; background-image: url('assets/rpi/rpi-shield-mark.png'); background-size: 80%; background-position: center; background-repeat: no-repeat; opacity: 0.10; pointer-events: none; }
+  .v3 .bottom-zone > *:not(.bottom-watermark) { position: relative; z-index: 1; }
+
+  .v4 { background: var(--ivory); color: var(--ink); }
+  .v4 .top-band { background: var(--rpi-289); color: white; padding: 14px 22px; text-align: center; font-size: 10.5px; letter-spacing: 0.22em; text-transform: uppercase; font-weight: 600; }
+  .v4 .body-zone { flex: 1; padding: 26px 24px 18px; display: flex; flex-direction: column; justify-content: center; position: relative; overflow: hidden; }
+  .v4 .body-zone .body-watermark { position: absolute; inset: 0; background-image: url('assets/rpi/rpi-shield-mark.png'); background-size: 75%; background-position: center 60%; background-repeat: no-repeat; opacity: 0.12; pointer-events: none; }
+  .v4 .body-zone > *:not(.body-watermark) { position: relative; z-index: 1; }
+  .v4 .body-zone .headline { color: var(--rpi-289); font-size: 42px; line-height: 1.02; margin-bottom: 14px; }
+  .v4 .body-zone .sub { color: var(--ink-soft); font-size: 14px; }
+  .v4 .body-zone .sub strong { color: var(--rpi-289); }
+  .v4 .bottom-band { background: var(--rpi-289); color: white; padding: 16px 22px 18px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .v4 .bottom-band .logo-white { width: 160px; filter: brightness(0) invert(1); }
+  .v4 .bottom-band .contact-mini { font-size: 10.5px; color: var(--rpi-pale); text-align: right; line-height: 1.55; }
+  .v4 .bottom-band .contact-mini strong { color: white; display: block; font-size: 11.5px; }
+
+  .footer-note { background: var(--rpi-289); color: white; padding: 28px; border-radius: 10px; margin-top: 36px; text-align: center; font-family: 'Poppins', sans-serif; }
+  .footer-note h2 { color: white; font-size: 1.3rem; margin-bottom: 10px; }
+  .footer-note p { color: var(--rpi-pale); max-width: 600px; margin: 0 auto; font-size: 14px; }
+  .footer-note code { background: rgba(255,255,255,0.12); padding: 3px 8px; border-radius: 4px; color: var(--rpi-mist); font-size: 13px; }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="label">CMO · Tri-fold Cover · 4 Variants</div>
+  <h1>Pick Your Cover Layout</h1>
+  <p>Watermark stays. Headlines own the page. Four ways to seat the logo + contact info so the cover lands without the dark-blue logo problem. Pick one — I lock it as the cover and ship.</p>
+</div>
+
+<div class="wrap">
+  <div class="gallery">
+
+    <div class="variant-card">
+      <div class="variant-head"><h3>Variant 1 — Logo on White Plate (Top)</h3><span class="pick">Closest to live</span></div>
+      <div class="variant-desc">Same layout as today, but the logo sits on a small white plate so the color shield reads cleanly against the navy. Headlines big, watermark behind.</div>
+      <div class="preview-stage">
+        <div class="cover cover-navy v1">
+          <div class="watermark"></div>
+          <div class="top-zone">
+            <div class="logo-plate"><img src="assets/rpi/rpi-logo-v2-color.png" alt="RPI" class="logo-color-sm"></div>
+            <div class="eyebrow">Medicare · Coverage Guide</div>
+            <div class="headline">Medicare,<br>Made Simple.</div>
+            <div class="sub">Your personal guide &mdash; from the people who walk beside you.</div>
+          </div>
+          <div class="bottom-zone">
+            <div class="contact"><strong>RetireProtected.com</strong>515-992-5000<br>Service@RetireProtected.com</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="variant-card">
+      <div class="variant-head"><h3>Variant 2 — Logo at Bottom</h3><span class="pick">Headline owns top</span></div>
+      <div class="variant-desc">Eyebrow + huge headline at the top. Logo + contact share the bottom on a small white plate. Watermark behind. Cleanest editorial feel.</div>
+      <div class="preview-stage">
+        <div class="cover cover-navy v2">
+          <div class="watermark"></div>
+          <div class="top-zone">
+            <div class="eyebrow">Medicare · Coverage Guide</div>
+            <div class="headline">Medicare,<br>Made Simple.</div>
+            <div class="sub">Your personal guide &mdash; from the people who walk beside you.</div>
+          </div>
+          <div class="bottom-zone">
+            <div class="logo-plate-sm"><img src="assets/rpi/rpi-logo-v2-color.png" alt="RPI" class="logo-color-sm"></div>
+            <div class="contact"><strong>RetireProtected.com</strong>515-992-5000</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="variant-card">
+      <div class="variant-head"><h3>Variant 3 — Two-Tone Split</h3><span class="pick">White top, navy bottom</span></div>
+      <div class="variant-desc">Headline lives in white space at the top — color shield logo reads perfectly. Navy bottom panel carries the logo + contact + watermark behind. Both backgrounds, one cover.</div>
+      <div class="preview-stage">
+        <div class="cover v3">
+          <div class="top-zone">
+            <div class="eyebrow">Medicare · Coverage Guide</div>
+            <div class="headline">Medicare,<br>Made Simple.</div>
+            <div class="sub">Your personal guide &mdash; from the people who walk beside you.</div>
+          </div>
+          <div class="bottom-zone">
+            <div class="bottom-watermark"></div>
+            <img src="assets/rpi/rpi-logo-v2-color.png" alt="RPI" class="logo-color-sm">
+            <div class="contact"><strong>RetireProtected.com</strong>515-992-5000 &middot; 877-650-7015<br>Service@RetireProtected.com</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="variant-card">
+      <div class="variant-head"><h3>Variant 4 — MUSASHI's Pick: Editorial Bands</h3><span class="pick recommend">My recommendation</span></div>
+      <div class="variant-desc">Top navy band ("Medicare · Coverage Guide"). Ivory body with the giant headline + watermark behind. Bottom navy band carries logo + contact. Three layers, balanced. Easiest white-label swap.</div>
+      <div class="preview-stage">
+        <div class="cover v4">
+          <div class="top-band">Medicare · Coverage Guide</div>
+          <div class="body-zone">
+            <div class="body-watermark"></div>
+            <div class="headline">Medicare,<br>Made Simple.</div>
+            <div class="sub">Your personal guide &mdash; from the people who walk beside you. <strong>We're Your People&trade;.</strong></div>
+          </div>
+          <div class="bottom-band">
+            <img src="assets/rpi/rpi-logo-v2-color.png" alt="RPI" class="logo-white">
+            <div class="contact-mini"><strong>RetireProtected.com</strong>515-992-5000<br>Service@RetireProtected.com</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer-note">
+    <h2>Pick V1 / V2 / V3 / V4</h2>
+    <p>Drop the variant in <code>#musashi</code>. Locked one becomes the cover — back panel + tuck flap + inside panels stay as they are now. Then I sweep the same approach into the letter brochure (PR-C) — logo to bottom, white-label-friendly, easy partner swap.</p>
+  </div>
+
+</div>
+</body>
+</html>
