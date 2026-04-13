@@ -456,12 +456,15 @@ trackerRoutes.post('/', async (req: Request, res: Response) => {
     })
 
     // TRK-14240: Post 🔴 NEW to #dojo-fixes (<60 seconds from submission)
+    // TKO-DOJO-REPORTER-SLACK-002: include signed URLs for any attachments
+    const newAttachments = (data.attachments || []) as Array<{ path?: string; name?: string; original_name?: string; content_type?: string }>
     postNewSubmission(
       itemTitle,
       itemId,
       reporterName,
       notifItemType,
       (req.body.priority as string) || 'P2',
+      newAttachments,
     ).catch(slackErr => console.error('[raiden-channel] NEW post failed:', slackErr))
 
     res.status(201).json(successResponse<TrackerItemDTO>({ id: itemId, ...data } as unknown as TrackerItemDTO))
@@ -505,13 +508,15 @@ trackerRoutes.patch('/:id', async (req: Request, res: Response) => {
       }).catch(() => {/* fire-and-forget */})
 
       // TRK-14240: Post channel event for RAIDEN items on key lifecycle transitions
+      // TKO-DOJO-REPORTER-SLACK-002: include signed URLs for any attachments
       if (oldData.agent === 'raiden') {
         const trkId = (oldData.item_id as string) || id
         const title = (oldData.title as string) || 'Unknown'
+        const patchAttachments = (oldData.attachments || []) as Array<{ path?: string; name?: string; original_name?: string; content_type?: string }>
         if (req.body.status === 'RDN-fixing') {
-          postInProgress(trkId, title).catch((e: unknown) => console.error('[raiden-channel] IN PROGRESS post failed:', e))
+          postInProgress(trkId, title, patchAttachments).catch((e: unknown) => console.error('[raiden-channel] IN PROGRESS post failed:', e))
         } else if (req.body.status === 'RDN-reported') {
-          postFixed(trkId, title).catch((e: unknown) => console.error('[raiden-channel] FIXED post failed:', e))
+          postFixed(trkId, title, patchAttachments).catch((e: unknown) => console.error('[raiden-channel] FIXED post failed:', e))
         }
       }
     }
@@ -584,24 +589,28 @@ trackerRoutes.patch('/:id/status', async (req: Request, res: Response) => {
     }).catch(() => {/* fire-and-forget */})
 
     // Post RAIDEN channel event for key lifecycle transitions
+    // TKO-DOJO-REPORTER-SLACK-002: include signed URLs for any attachments
     if (currentData.agent === 'raiden') {
       const trkId = (currentData.item_id as string) || id
       const title = (currentData.title as string) || 'Unknown'
+      const statusAttachments = (currentData.attachments || []) as Array<{ path?: string; name?: string; original_name?: string; content_type?: string }>
       if (newStatus === 'RDN-triaging' || newStatus === 'RDN-fixing') {
-        postInProgress(trkId, title).catch((e: unknown) => console.error('[raiden-channel] IN PROGRESS post failed:', e))
+        postInProgress(trkId, title, statusAttachments).catch((e: unknown) => console.error('[raiden-channel] IN PROGRESS post failed:', e))
       } else if (newStatus === 'RDN-deploy' || newStatus === 'RDN-reported') {
-        postFixed(trkId, title).catch((e: unknown) => console.error('[raiden-channel] FIXED post failed:', e))
+        postFixed(trkId, title, statusAttachments).catch((e: unknown) => console.error('[raiden-channel] FIXED post failed:', e))
       }
     }
 
     // Post RONIN channel event for key lifecycle transitions
+    // TKO-DOJO-REPORTER-SLACK-002: include signed URLs for any attachments
     if (isRoninStatus(currentStatus) || isRoninStatus(newStatus)) {
       const trkId = (currentData.item_id as string) || id
       const title = (currentData.title as string) || 'Unknown'
+      const roninAttachments = (currentData.attachments || []) as Array<{ path?: string; name?: string; original_name?: string; content_type?: string }>
       if (newStatus === 'RON-built') {
-        postInProgress(trkId, title).catch(() => {/* fire-and-forget */})
+        postInProgress(trkId, title, roninAttachments).catch(() => {/* fire-and-forget */})
       } else if (newStatus === 'RON-deployed') {
-        postFixed(trkId, title).catch(() => {/* fire-and-forget */})
+        postFixed(trkId, title, roninAttachments).catch(() => {/* fire-and-forget */})
       }
     }
 
