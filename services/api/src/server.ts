@@ -148,6 +148,11 @@ app.use(['/api/webhooks/sendgrid', '/api/webhooks/sendgrid-inbound', '/api/campa
 
 app.use(express.json({ limit: '10mb' }))
 
+// Twilio webhooks send application/x-www-form-urlencoded — must be parsed
+// before verifyTwilioSignature middleware can validate the body params.
+// TKO-COMMS-005b
+app.use('/api/comms/webhook', express.urlencoded({ extended: false }))
+
 // Health check — no auth, no rate limit, no logging
 app.use('/health', healthRoutes)
 
