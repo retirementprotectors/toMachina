@@ -1,0 +1,1387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TAIKO · SMS Consent Page Mockup · TKO-COMMS-001</title>
+<style>
+/* ============================================================
+   CSS VARIABLES — ALL COLORS DEFINED HERE, NEVER INLINE
+   ============================================================ */
+:root {
+  /* Doc chrome (dark) */
+  --doc-bg: rgb(10,11,16);
+  --doc-card: rgb(18,20,29);
+  --doc-card2: rgb(24,27,39);
+  --doc-border: rgb(30,33,51);
+  --doc-text: rgb(232,232,236);
+  --doc-muted: rgb(122,127,150);
+  --doc-warrior: rgb(180,83,9);
+  --doc-warrior-dim: rgba(180,83,9,0.12);
+  --doc-warrior-border: rgba(180,83,9,0.30);
+
+  /* RPI brand (live page colors) */
+  --rpi-navy: rgb(10,34,64);
+  --rpi-blue: rgb(74,122,181);
+  --rpi-blue-dim: rgba(74,122,181,0.15);
+  --rpi-text: rgb(26,37,64);
+  --rpi-muted: rgb(90,106,128);
+  --rpi-border: rgb(208,220,234);
+  --rpi-bg: rgb(244,247,251);
+  --rpi-white: rgb(255,255,255);
+  --rpi-success-bg: rgb(209,250,229);
+
+  /* Annotation colors */
+  --ann-a: rgb(234,88,12);
+  --ann-a-bg: rgba(234,88,12,0.10);
+  --ann-a-border: rgba(234,88,12,0.35);
+  --ann-b: rgb(220,38,38);
+  --ann-b-bg: rgba(220,38,38,0.10);
+  --ann-b-border: rgba(220,38,38,0.35);
+  --ann-c: rgb(37,99,235);
+  --ann-c-bg: rgba(37,99,235,0.10);
+  --ann-c-border: rgba(37,99,235,0.35);
+  --ann-d: rgb(22,163,74);
+  --ann-d-bg: rgba(22,163,74,0.10);
+  --ann-d-border: rgba(22,163,74,0.35);
+  --ann-e: rgb(124,58,237);
+  --ann-e-bg: rgba(124,58,237,0.10);
+  --ann-e-border: rgba(124,58,237,0.35);
+
+  /* Compliance/RONIN */
+  --ronin-blue: rgb(88,166,255);
+  --ronin-bg: rgb(13,17,23);
+  --ronin-card: rgb(22,27,34);
+  --flag-amber: rgb(212,164,76);
+  --flag-amber-bg: rgba(245,166,35,0.07);
+  --flag-amber-border: rgba(245,166,35,0.30);
+}
+
+/* ============================================================
+   RESET
+   ============================================================ */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Mulish', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--doc-bg);
+  color: var(--doc-text);
+  line-height: 1.6;
+}
+
+/* ============================================================
+   DOC HEADER
+   ============================================================ */
+.doc-header {
+  background: linear-gradient(135deg, var(--doc-bg) 0%, var(--doc-card) 100%);
+  border-bottom: 2px solid var(--doc-warrior);
+  padding: 2rem;
+  text-align: center;
+}
+.doc-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: var(--doc-warrior-dim);
+  border: 1px solid var(--doc-warrior-border);
+  border-radius: 100px;
+  padding: 0.35rem 1rem;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--doc-warrior);
+  margin-bottom: 1rem;
+}
+.doc-header h1 {
+  font-family: 'Poppins', -apple-system, sans-serif;
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--doc-text);
+  margin-bottom: 0.4rem;
+}
+.doc-header-sub {
+  color: var(--doc-muted);
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+.doc-header-sub code {
+  background: rgba(255,255,255,0.08);
+  color: var(--doc-text);
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 0.85rem;
+}
+.doc-meta-row {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+.doc-meta-item { display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; color: var(--doc-muted); }
+.doc-meta-label { color: var(--doc-warrior); font-weight: 700; }
+
+/* ============================================================
+   COPY SOURCE CALLOUT
+   ============================================================ */
+.copy-source-banner {
+  background: var(--doc-card);
+  border: 1px solid var(--ann-a-border);
+  border-left: 4px solid var(--ann-a);
+  border-radius: 0 12px 12px 0;
+  padding: 1rem 1.5rem;
+  margin: 1.5rem 2rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+.copy-source-icon { font-size: 1.4rem; flex-shrink: 0; margin-top: 0.1rem; }
+.copy-source-body strong {
+  display: block;
+  color: var(--ann-a);
+  font-size: 0.85rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.3rem;
+}
+.copy-source-body p { color: var(--doc-muted); font-size: 0.85rem; margin: 0; }
+.copy-source-body em { color: var(--ann-a); font-style: normal; font-weight: 700; }
+code {
+  background: var(--doc-card2);
+  border: 1px solid var(--doc-border);
+  border-radius: 4px;
+  padding: 0.1rem 0.4rem;
+  font-size: 0.8rem;
+  color: var(--ann-a);
+  font-family: monospace;
+}
+
+/* ============================================================
+   SECTION CHROME
+   ============================================================ */
+.doc-section { max-width: 1280px; margin: 0 auto; padding: 2rem; }
+.doc-section + .doc-section { border-top: 1px solid var(--doc-border); }
+
+.section-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+.section-num {
+  width: 2rem; height: 2rem; border-radius: 50%;
+  background: var(--doc-warrior); color: var(--rpi-white);
+  font-size: 0.85rem; font-weight: 800;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.section-title {
+  font-family: 'Poppins', -apple-system, sans-serif;
+  font-size: 1.25rem; font-weight: 700; color: var(--doc-text);
+}
+.tag-bronze {
+  display: inline-block; padding: 0.2rem 0.6rem; border-radius: 6px;
+  font-size: 0.7rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+  background: var(--doc-warrior-dim); color: var(--doc-warrior); border: 1px solid var(--doc-warrior-border);
+}
+
+/* ============================================================
+   VIEWPORT FRAMES
+   ============================================================ */
+.viewport-grid {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 2rem;
+  align-items: start;
+}
+.viewport-label {
+  font-size: 0.75rem; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--doc-muted);
+  margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.5rem;
+}
+.viewport-label span {
+  background: var(--doc-card2); border: 1px solid var(--doc-border);
+  border-radius: 4px; padding: 0.15rem 0.5rem;
+  font-size: 0.7rem; color: var(--doc-muted);
+}
+.frame-shell {
+  background: rgb(30,30,30);
+  border-radius: 12px; overflow: hidden;
+  border: 2px solid var(--doc-border);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
+.frame-chrome {
+  background: rgb(42,42,42); padding: 0.6rem 1rem;
+  display: flex; align-items: center; gap: 0.5rem;
+  border-bottom: 1px solid rgb(58,58,58);
+}
+.chrome-dots { display: flex; gap: 0.4rem; }
+.chrome-dot { width: 10px; height: 10px; border-radius: 50%; }
+.dot-r { background: rgb(255,95,87); }
+.dot-y { background: rgb(255,189,46); }
+.dot-g { background: rgb(40,202,66); }
+.chrome-url {
+  flex: 1; background: rgb(26,26,26); border-radius: 6px;
+  padding: 0.25rem 0.75rem; font-size: 0.75rem;
+  font-family: monospace; color: rgb(156,163,175); margin-left: 0.5rem;
+}
+.frame-inner {
+  height: 620px; overflow-y: auto;
+  background: var(--rpi-bg);
+  scrollbar-width: thin;
+  scrollbar-color: var(--rpi-border) transparent;
+}
+.frame-inner-tall { height: 720px; }
+
+/* ============================================================
+   /sms-consent PAGE STYLES (scoped with .pg- prefix)
+   ============================================================ */
+.pg-root {
+  background: var(--rpi-bg);
+  min-height: 100%;
+  font-family: 'Mulish', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 14px; line-height: 1.6; color: var(--rpi-text);
+}
+
+/* Header */
+.pg-header {
+  background: var(--rpi-navy);
+  padding: 1.25rem 1.5rem;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.pg-logo-block { display: flex; align-items: center; gap: 0.75rem; }
+.pg-logo-mark {
+  width: 36px; height: 36px; background: var(--rpi-blue);
+  border-radius: 8px; display: flex; align-items: center; justify-content: center;
+  font-family: 'Poppins', -apple-system, sans-serif;
+  font-weight: 900; font-size: 0.9rem; color: var(--rpi-white); flex-shrink: 0;
+}
+.pg-logo-text {
+  font-family: 'Poppins', -apple-system, sans-serif;
+  font-weight: 700; font-size: 0.9rem; color: var(--rpi-white); line-height: 1.2;
+}
+.pg-logo-text span {
+  display: block; font-size: 0.65rem; font-weight: 400;
+  color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.08em;
+}
+.pg-header-trust { font-size: 0.72rem; color: rgba(255,255,255,0.55); text-align: right; }
+.pg-header-trust small { display: block; color: rgba(255,255,255,0.35); font-size: 0.65rem; }
+
+/* Body */
+.pg-body { padding: 1.5rem; max-width: 560px; margin: 0 auto; }
+.pg-body-sm { padding: 1rem; max-width: 560px; margin: 0 auto; }
+
+.pg-title-block {
+  text-align: center; margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem; border-bottom: 1px solid var(--rpi-border);
+}
+.pg-title-block-sm { margin-bottom: 1rem; padding-bottom: 1rem; }
+.pg-eyebrow {
+  font-size: 0.7rem; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 0.1em; color: var(--rpi-blue); margin-bottom: 0.5rem;
+}
+.pg-title {
+  font-family: 'Poppins', -apple-system, sans-serif;
+  font-weight: 700; font-size: 1.25rem; color: var(--rpi-navy);
+  margin-bottom: 0.5rem; line-height: 1.3;
+}
+.pg-title-sm { font-size: 1.05rem; }
+.pg-title-sub { font-size: 0.82rem; color: var(--rpi-muted); }
+.pg-title-sub-sm { font-size: 0.76rem; }
+
+/* Field */
+.pg-field-group { margin-bottom: 1.25rem; }
+.pg-field-group-sm { margin-bottom: 1rem; }
+.pg-field-label {
+  display: block; font-size: 0.78rem; font-weight: 700;
+  color: var(--rpi-text); margin-bottom: 0.4rem;
+}
+.pg-field-label span { color: var(--rpi-blue); }
+.pg-input {
+  width: 100%; border: 1.5px solid var(--rpi-border); border-radius: 8px;
+  padding: 0.65rem 0.9rem; font-size: 0.9rem;
+  font-family: 'Mulish', -apple-system, sans-serif;
+  color: var(--rpi-muted); background: var(--rpi-white); outline: none;
+}
+.pg-input-sm { font-size: 0.85rem; padding: 0.5rem 0.75rem; }
+.pg-input::placeholder { color: rgb(176,190,197); }
+
+/* Disclosure */
+.pg-disclosure {
+  background: var(--rpi-white); border: 1.5px solid var(--rpi-border);
+  border-radius: 10px; padding: 1rem; margin-bottom: 1.25rem;
+}
+.pg-disclosure-sm { padding: 0.75rem; margin-bottom: 1rem; }
+.pg-disclosure-title {
+  font-size: 0.73rem; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 0.07em; color: var(--rpi-navy); margin-bottom: 0.6rem;
+  display: flex; align-items: center; gap: 0.4rem;
+}
+.pg-disc-icon {
+  width: 16px; height: 16px; background: var(--rpi-blue);
+  border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+  color: var(--rpi-white); font-size: 0.55rem; font-weight: 900; flex-shrink: 0;
+}
+.pg-disclosure-text { font-size: 0.78rem; color: var(--rpi-muted); line-height: 1.65; }
+.pg-disclosure-text-sm { font-size: 0.74rem; }
+.pg-disclosure-text strong { color: var(--rpi-text); }
+.pg-disclosure-text a { color: var(--rpi-blue); text-decoration: underline; text-underline-offset: 2px; }
+
+/* Checkbox */
+.pg-checkbox-row {
+  display: flex; align-items: flex-start; gap: 0.75rem;
+  background: var(--rpi-blue-dim);
+  border: 1.5px solid rgba(74,122,181,0.25);
+  border-radius: 10px; padding: 0.9rem; margin-bottom: 1.25rem; cursor: pointer;
+}
+.pg-checkbox-row-sm { padding: 0.75rem; margin-bottom: 1rem; }
+.pg-checkbox {
+  width: 18px; height: 18px; border: 2px solid var(--rpi-border);
+  border-radius: 4px; background: var(--rpi-white);
+  flex-shrink: 0; margin-top: 0.1rem;
+}
+.pg-checkbox-sm { width: 16px; height: 16px; }
+.pg-checkbox-label { font-size: 0.82rem; color: var(--rpi-text); line-height: 1.5; }
+.pg-checkbox-label-sm { font-size: 0.78rem; }
+.pg-checkbox-label strong { color: var(--rpi-navy); }
+
+/* CTA */
+.pg-cta {
+  width: 100%; background: var(--rpi-blue); color: var(--rpi-white);
+  border: none; border-radius: 10px; padding: 0.9rem 1.5rem;
+  font-family: 'Poppins', -apple-system, sans-serif;
+  font-weight: 700; font-size: 0.95rem; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+.pg-cta-sm { font-size: 0.88rem; padding: 0.8rem; border-radius: 8px; }
+
+/* Trust row */
+.pg-trust-row {
+  display: flex; justify-content: center; gap: 1.25rem;
+  flex-wrap: wrap; padding: 0.75rem 0;
+  border-top: 1px solid var(--rpi-border); margin-bottom: 1rem;
+}
+.pg-trust-row-sm { gap: 0.75rem; }
+.pg-trust-item { display: flex; align-items: center; gap: 0.35rem; font-size: 0.72rem; color: var(--rpi-muted); }
+.pg-trust-item-sm { font-size: 0.66rem; }
+.pg-trust-dot { width: 6px; height: 6px; border-radius: 50%; background: rgb(25,135,84); flex-shrink: 0; }
+
+/* Footer */
+.pg-footer {
+  background: var(--rpi-navy); padding: 1.25rem 1.5rem;
+  font-size: 0.7rem; color: rgba(255,255,255,0.5); line-height: 1.7;
+}
+.pg-footer-sm { font-size: 0.65rem; padding: 1rem; }
+.pg-footer strong { color: rgba(255,255,255,0.75); }
+.pg-footer a { color: rgba(255,255,255,0.6); text-decoration: underline; }
+.pg-footer hr { border: none; border-top: 1px solid rgba(255,255,255,0.1); margin: 0.75rem 0; }
+.pg-footer-brand {
+  font-family: 'Poppins', -apple-system, sans-serif;
+  font-weight: 700; font-size: 0.72rem; color: rgba(255,255,255,0.7);
+  margin-bottom: 0.3rem;
+}
+.pg-footer-brand-sm { font-size: 0.65rem; }
+
+/* Confirmation state */
+.pg-confirm { text-align: center; padding: 2rem 1.5rem; }
+.pg-confirm-icon {
+  width: 64px; height: 64px; border-radius: 50%;
+  background: var(--rpi-success-bg);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 1rem; font-size: 1.75rem;
+}
+.pg-confirm-title {
+  font-family: 'Poppins', -apple-system, sans-serif;
+  font-weight: 700; font-size: 1.1rem; color: var(--rpi-navy); margin-bottom: 0.5rem;
+}
+.pg-confirm-sub { font-size: 0.82rem; color: var(--rpi-muted); margin-bottom: 1.5rem; }
+.pg-sms-bubble {
+  background: rgb(233,236,239);
+  border-radius: 16px 16px 16px 4px;
+  padding: 0.9rem 1.1rem; font-size: 0.85rem; color: rgb(26,26,26);
+  text-align: left; max-width: 340px; margin: 0 auto 0.3rem; line-height: 1.5;
+}
+.pg-sms-sender {
+  font-size: 0.7rem; color: var(--rpi-muted);
+  text-align: left; max-width: 340px; margin: 0 auto 1.5rem;
+  font-weight: 600; padding-left: 0.2rem;
+}
+.pg-confirm-note {
+  font-size: 0.75rem; color: var(--rpi-muted);
+  background: var(--rpi-blue-dim);
+  border: 1px solid var(--rpi-border);
+  border-radius: 8px; padding: 0.6rem 1rem; display: inline-block;
+}
+.pg-confirm-note strong { color: var(--rpi-navy); }
+
+/* ============================================================
+   ANNOTATION COMPONENTS
+   ============================================================ */
+.ann-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.5rem; }
+.ann-item {
+  background: var(--doc-card); border: 1px solid var(--doc-border);
+  border-radius: 10px; padding: 1rem;
+  display: flex; gap: 0.75rem; align-items: flex-start;
+}
+.ann-badge {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.72rem; font-weight: 800; flex-shrink: 0;
+}
+.ann-a { background: var(--ann-a-bg); color: var(--ann-a); border: 1px solid var(--ann-a-border); }
+.ann-b { background: var(--ann-b-bg); color: var(--ann-b); border: 1px solid var(--ann-b-border); }
+.ann-c { background: var(--ann-c-bg); color: var(--ann-c); border: 1px solid var(--ann-c-border); }
+.ann-d { background: var(--ann-d-bg); color: var(--ann-d); border: 1px solid var(--ann-d-border); }
+.ann-e { background: var(--ann-e-bg); color: var(--ann-e); border: 1px solid var(--ann-e-border); }
+.ann-label { font-size: 0.78rem; font-weight: 800; color: var(--doc-text); margin-bottom: 0.25rem; }
+.ann-desc { font-size: 0.78rem; color: var(--doc-muted); line-height: 1.5; }
+
+/* Ann markers (on-page circles) */
+.m { display: inline-flex; align-items: center; justify-content: center;
+  width: 18px; height: 18px; border-radius: 50%; font-size: 0.6rem;
+  font-weight: 900; color: var(--rpi-white); flex-shrink: 0; }
+.m-a { background: var(--ann-a); }
+.m-b { background: var(--ann-b); }
+.m-c { background: var(--ann-c); }
+.m-d { background: var(--ann-d); }
+.m-e { background: var(--ann-e); }
+
+/* ============================================================
+   COMPLIANCE CHECKLIST
+   ============================================================ */
+.check-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+.check-item {
+  background: var(--doc-card); border: 1px solid var(--doc-border);
+  border-radius: 10px; padding: 0.9rem 1rem;
+  display: flex; align-items: flex-start; gap: 0.75rem;
+}
+.check-icon {
+  width: 22px; height: 22px; border-radius: 6px;
+  background: var(--ann-d-bg); border: 1px solid var(--ann-d-border);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--ann-d); font-size: 0.75rem; font-weight: 900; flex-shrink: 0;
+}
+.check-label { font-size: 0.82rem; font-weight: 700; color: var(--doc-text); margin-bottom: 0.2rem; }
+.check-desc { font-size: 0.75rem; color: var(--doc-muted); line-height: 1.45; }
+
+/* ============================================================
+   RONIN HANDOFF
+   ============================================================ */
+.ronin-banner {
+  background: var(--ronin-bg);
+  border: 1px solid rgba(88,166,255,0.2);
+  border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 1.5rem;
+  display: flex; align-items: center; gap: 1rem;
+}
+.ronin-sword { font-size: 1.8rem; }
+.ronin-banner-body strong { display: block; color: var(--ronin-blue); font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 0.2rem; }
+.ronin-banner-body p { color: rgb(139,148,158); font-size: 0.82rem; margin: 0; }
+
+.h-table { width: 100%; border-collapse: collapse; }
+.h-table th, .h-table td { padding: 0.7rem 1rem; text-align: left; border-bottom: 1px solid var(--doc-border); font-size: 0.83rem; }
+.h-table th { font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.07em; color: var(--doc-warrior); background: var(--doc-card2); }
+.h-table td { color: var(--doc-muted); }
+.h-table td:first-child { color: var(--doc-text); font-weight: 700; width: 220px; }
+
+.schema-block {
+  background: var(--doc-card2); border: 1px solid var(--doc-border);
+  border-radius: 8px; padding: 1rem; margin: 1rem 0;
+  font-family: monospace; font-size: 0.8rem; color: var(--doc-muted); line-height: 1.8; overflow-x: auto;
+}
+.sk { color: var(--ronin-blue); }
+.sv { color: rgb(63,185,80); }
+.sc { color: var(--doc-muted); opacity: 0.6; }
+
+.flag-box {
+  background: var(--flag-amber-bg); border: 1px solid var(--flag-amber-border);
+  border-radius: 8px; padding: 0.75rem 1rem; margin: 1rem 0;
+  font-size: 0.82rem; color: var(--flag-amber);
+  display: flex; gap: 0.6rem; align-items: flex-start;
+}
+.flag-icon { flex-shrink: 0; font-size: 1rem; }
+
+/* Utility */
+.doc-card {
+  background: var(--doc-card); border: 1px solid var(--doc-border);
+  border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem;
+}
+.card-label {
+  margin-bottom: 1rem; font-size: 0.8rem; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.06em; color: var(--doc-warrior);
+}
+
+/* Annotated page layout helpers */
+.ann-page-wrapper {
+  background: var(--rpi-white); border-radius: 10px; overflow: hidden;
+  border: 1.5px solid var(--rpi-border); max-width: 580px; margin: 0 auto;
+}
+.ann-page-header {
+  background: var(--rpi-navy); padding: 0.8rem 1rem;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.ann-logo-mark {
+  width: 24px; height: 24px; background: var(--rpi-blue); border-radius: 5px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--rpi-white); font-size: 0.6rem; font-weight: 900;
+}
+.ann-page-body { padding: 1rem; }
+.ann-page-footer {
+  background: var(--rpi-navy); padding: 0.75rem 1rem;
+  font-size: 0.65rem; color: rgba(255,255,255,0.5);
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem;
+}
+.ann-footer-text a { color: rgba(255,255,255,0.55); }
+
+/* Warrior signoff grid */
+.warrior-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; }
+.warrior-card {
+  background: var(--doc-card2); border: 1px solid var(--doc-border);
+  border-radius: 8px; padding: 0.8rem; text-align: center;
+}
+.warrior-icon { font-size: 1.2rem; margin-bottom: 0.3rem; }
+.warrior-name { font-size: 0.8rem; font-weight: 800; color: var(--doc-text); }
+.warrior-role { font-size: 0.7rem; color: var(--doc-warrior); }
+.warrior-note { font-size: 0.7rem; color: var(--doc-muted); margin-top: 0.2rem; }
+
+/* Doc footer */
+.doc-footer {
+  background: var(--doc-card); border-top: 2px solid var(--doc-warrior);
+  padding: 1.5rem 2rem; text-align: center;
+}
+.doc-footer-title { font-family: 'Poppins', -apple-system, sans-serif; font-weight: 800; font-size: 0.85rem; color: var(--doc-warrior); margin-bottom: 0.4rem; }
+.doc-footer-sub { font-size: 0.75rem; color: var(--doc-muted); }
+
+@media (max-width: 900px) {
+  .viewport-grid, .ann-grid, .check-grid { grid-template-columns: 1fr; }
+}
+@media print {
+  body { background: var(--rpi-white); color: rgb(0,0,0); }
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================ -->
+<!--  DOC HEADER                                                   -->
+<!-- ============================================================ -->
+<div class="doc-header">
+  <div class="doc-badge">
+    <span>🥁</span>
+    TAIKO &middot; SMS Consent Page Mockup &middot; TKO-COMMS-001 Day-1 Deliverable
+  </div>
+  <h1>SMS Consent Page &mdash; /sms-consent</h1>
+  <p class="doc-header-sub">
+    Visual spec for RONIN to ship as
+    <code>apps/prodash/app/sms-consent/page.tsx</code>
+  </p>
+  <div class="doc-meta-row">
+    <div class="doc-meta-item"><span class="doc-meta-label">WARRIOR:</span> TAIKO</div>
+    <div class="doc-meta-item"><span class="doc-meta-label">COPY OWNER:</span> MUSASHI (ARTxBLADE)</div>
+    <div class="doc-meta-item"><span class="doc-meta-label">BUILDER:</span> RONIN</div>
+    <div class="doc-meta-item"><span class="doc-meta-label">DATE:</span> 2026-04-13</div>
+    <div class="doc-meta-item"><span class="doc-meta-label">TICKET:</span> TKO-COMMS-001</div>
+  </div>
+</div>
+
+<!-- Copy source callout -->
+<div class="copy-source-banner">
+  <div class="copy-source-icon">📋</div>
+  <div class="copy-source-body">
+    <strong>Copy Source &mdash; MUSASHI PR #371 (Open &mdash; Not Yet Merged)</strong>
+    <p>
+      All copy in this mockup is sourced verbatim from
+      <code>docs/warriors/musashi/copy/sms-consent-copy.md</code>
+      (fetched from PR #371 branch, locked 2026-04-13 by MUSASHI).
+      The copy is real &mdash; not placeholder. Every word has a compliance reason.
+      Do not edit without MUSASHI + JDM sign-off.
+      <em>PR #371 must be merged before RONIN ships to production.</em>
+    </p>
+  </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!--  SECTION 1 — DEFAULT STATE (DESKTOP + MOBILE)                -->
+<!-- ============================================================ -->
+<div class="doc-section">
+  <div class="section-header">
+    <div class="section-num">1</div>
+    <div class="section-title">Opt-In Form &mdash; Default State</div>
+    <span class="tag-bronze">Desktop + Mobile Side-by-Side</span>
+  </div>
+
+  <div class="viewport-grid">
+
+    <!-- DESKTOP -->
+    <div>
+      <div class="viewport-label">Desktop <span>1280px</span></div>
+      <div class="frame-shell">
+        <div class="frame-chrome">
+          <div class="chrome-dots">
+            <div class="chrome-dot dot-r"></div>
+            <div class="chrome-dot dot-y"></div>
+            <div class="chrome-dot dot-g"></div>
+          </div>
+          <div class="chrome-url">https://prodash.tomachina.com/sms-consent</div>
+        </div>
+        <div class="frame-inner">
+          <div class="pg-root">
+
+            <div class="pg-header">
+              <div class="pg-logo-block">
+                <div class="pg-logo-mark">RPI</div>
+                <!-- Production: replace with packages/ui/src/logos/prodashx-logo.svg -->
+                <div class="pg-logo-text">
+                  Retirement Protectors, Inc.
+                  <span>We're Your People&trade;</span>
+                </div>
+              </div>
+              <div class="pg-header-trust">
+                Secure &middot; TCPA Compliant
+                <small>🔒 SSL Encrypted</small>
+              </div>
+            </div>
+
+            <div class="pg-body">
+              <div class="pg-title-block">
+                <div class="pg-eyebrow">Text Messaging Consent</div>
+                <div class="pg-title">Retirement Protectors, Inc.</div>
+                <div class="pg-title-sub">Authorize SMS updates for your account</div>
+              </div>
+
+              <div class="pg-field-group">
+                <label class="pg-field-label">Mobile Phone Number <span>*</span></label>
+                <input class="pg-input" type="tel" placeholder="(515) 555-0100" readonly>
+              </div>
+
+              <!-- Part 1 — Opt-In Disclosure (MUSASHI) -->
+              <div class="pg-disclosure">
+                <div class="pg-disclosure-title">
+                  <span class="pg-disc-icon">i</span>
+                  Text Updates from Retirement Protectors, Inc.
+                </div>
+                <div class="pg-disclosure-text">
+                  <strong>By checking the box below, you agree to receive text messages from Retirement Protectors, Inc.</strong> at the phone number you provided. Message types may include appointment confirmations, account and policy updates, service notifications, educational information about Medicare, retirement, life insurance, and legacy planning, and responses to your inquiries.
+                  <br><br>
+                  Message frequency varies based on your account activity and the services we are providing. Message and data rates may apply depending on your mobile carrier and plan.
+                  <br><br>
+                  You can opt out at any time by replying <strong>STOP</strong> to any message. Reply <strong>HELP</strong> for help, or contact us at 515-992-5000 or <a href="#">Service@RetireProtected.com</a>.
+                  <br><br>
+                  Consent is not a condition of purchase. Your information will never be sold. See our <a href="#">Privacy Policy</a> and <a href="#">Terms of Service</a> for full details.
+                </div>
+              </div>
+
+              <!-- Part 2 — Consent Checkbox (UNCHECKED BY DEFAULT — CARRIER COMPLIANCE) -->
+              <div class="pg-checkbox-row">
+                <div class="pg-checkbox"></div>
+                <!-- Empty box = unchecked. Required by TCPA/CTIA. No defaultChecked ever. -->
+                <div class="pg-checkbox-label">
+                  <strong>I agree to receive text messages from Retirement Protectors, Inc.</strong>
+                  at the phone number I provided, on the terms above. I understand I can reply STOP at any time to opt out.
+                  <em>(Required for SMS communications.)</em>
+                </div>
+              </div>
+
+              <button class="pg-cta">
+                <span>&#10003;</span> Confirm Consent
+              </button>
+
+              <div class="pg-trust-row">
+                <div class="pg-trust-item"><div class="pg-trust-dot"></div> TCPA Compliant</div>
+                <div class="pg-trust-item"><div class="pg-trust-dot"></div> CTIA Compliant</div>
+                <div class="pg-trust-item"><div class="pg-trust-dot"></div> Never Sold</div>
+              </div>
+            </div>
+
+            <div class="pg-footer">
+              <div class="pg-footer-brand">Retirement Protectors, Inc. &mdash; We're Your People&trade;</div>
+              <div>515-992-5000 &middot; <a href="#">Service@RetireProtected.com</a> &middot; <a href="#">RetireProtected.com</a></div>
+              <hr>
+              <div>
+                <strong>SMS Disclosure:</strong> Message and data rates may apply. Message frequency varies.
+                Reply <strong>STOP</strong> to unsubscribe at any time. Reply <strong>HELP</strong> for help.
+                Consent is not a condition of purchase.
+              </div>
+              <div style="margin-top:0.4rem">
+                <a href="#">Privacy Policy</a> &middot; <a href="#">Terms of Service</a> &middot; <a href="#">SMS Terms</a>
+              </div>
+              <hr>
+              <div>Retirement Protectors, Inc. &middot; 515-992-5000 &middot; West Des Moines, Iowa</div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MOBILE -->
+    <div>
+      <div class="viewport-label">Mobile <span>375px</span></div>
+      <div class="frame-shell">
+        <div class="frame-chrome">
+          <div class="chrome-dots">
+            <div class="chrome-dot dot-r"></div>
+            <div class="chrome-dot dot-y"></div>
+            <div class="chrome-dot dot-g"></div>
+          </div>
+          <div class="chrome-url" style="font-size:0.65rem">prodash.tomachina.com/sms-consent</div>
+        </div>
+        <div class="frame-inner frame-inner-tall">
+          <div class="pg-root" style="font-size:13px">
+
+            <div class="pg-header" style="padding:1rem">
+              <div class="pg-logo-block">
+                <div class="pg-logo-mark" style="width:30px;height:30px;font-size:0.75rem">RPI</div>
+                <div class="pg-logo-text" style="font-size:0.8rem">
+                  Retirement Protectors
+                  <span>We're Your People&trade;</span>
+                </div>
+              </div>
+              <div style="font-size:0.6rem;color:rgba(255,255,255,0.45)">🔒 Secure</div>
+            </div>
+
+            <div class="pg-body-sm">
+              <div class="pg-title-block pg-title-block-sm">
+                <div class="pg-eyebrow">Text Messaging Consent</div>
+                <div class="pg-title pg-title-sm">Retirement Protectors, Inc.</div>
+                <div class="pg-title-sub pg-title-sub-sm">Authorize SMS updates for your account</div>
+              </div>
+
+              <div class="pg-field-group pg-field-group-sm">
+                <label class="pg-field-label">Mobile Phone Number <span>*</span></label>
+                <input class="pg-input pg-input-sm" type="tel" placeholder="(515) 555-0100" readonly>
+              </div>
+
+              <div class="pg-disclosure pg-disclosure-sm">
+                <div class="pg-disclosure-title">
+                  <span class="pg-disc-icon">i</span>
+                  Text Updates from RPI
+                </div>
+                <div class="pg-disclosure-text pg-disclosure-text-sm">
+                  <strong>By checking the box below, you agree to receive text messages from Retirement Protectors, Inc.</strong>
+                  at the phone number you provided. Message types may include appointment confirmations, account and policy updates,
+                  service notifications, educational information about Medicare, retirement, life insurance, and legacy planning,
+                  and responses to your inquiries.
+                  <br><br>
+                  Message frequency varies. Message and data rates may apply.
+                  <br><br>
+                  Reply <strong>STOP</strong> to opt out. Reply <strong>HELP</strong> for help, or contact us at 515-992-5000.
+                  <br><br>
+                  Consent is not a condition of purchase. See our <a href="#">Privacy Policy</a> and <a href="#">Terms of Service</a>.
+                </div>
+              </div>
+
+              <div class="pg-checkbox-row pg-checkbox-row-sm">
+                <div class="pg-checkbox pg-checkbox-sm"></div>
+                <div class="pg-checkbox-label pg-checkbox-label-sm">
+                  <strong>I agree to receive text messages from Retirement Protectors, Inc.</strong>
+                  at the phone number I provided. I can reply STOP anytime to opt out.
+                </div>
+              </div>
+
+              <button class="pg-cta pg-cta-sm">
+                <span>&#10003;</span> Confirm Consent
+              </button>
+
+              <div class="pg-trust-row pg-trust-row-sm">
+                <div class="pg-trust-item pg-trust-item-sm"><div class="pg-trust-dot"></div> TCPA Compliant</div>
+                <div class="pg-trust-item pg-trust-item-sm"><div class="pg-trust-dot"></div> Never Sold</div>
+              </div>
+            </div>
+
+            <div class="pg-footer pg-footer-sm">
+              <div class="pg-footer-brand pg-footer-brand-sm">Retirement Protectors, Inc. &mdash; We're Your People&trade;</div>
+              <div>515-992-5000 &middot; West Des Moines, Iowa</div>
+              <hr>
+              <div><strong>SMS:</strong> Msg &amp; data rates may apply. Reply <strong>STOP</strong> to unsubscribe. Reply <strong>HELP</strong> for help. Consent not required to purchase.</div>
+              <div style="margin-top:0.3rem"><a href="#">Privacy</a> &middot; <a href="#">Terms</a> &middot; <a href="#">SMS Terms</a></div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!--  SECTION 2 — AFTER-SUBMIT CONFIRMATION STATE                 -->
+<!-- ============================================================ -->
+<div class="doc-section">
+  <div class="section-header">
+    <div class="section-num">2</div>
+    <div class="section-title">After-Submit &mdash; Confirmation State</div>
+    <span class="tag-bronze">Replaces form body on successful POST</span>
+  </div>
+
+  <div style="max-width:600px;margin:0 auto">
+    <div class="frame-shell">
+      <div class="frame-chrome">
+        <div class="chrome-dots">
+          <div class="chrome-dot dot-r"></div>
+          <div class="chrome-dot dot-y"></div>
+          <div class="chrome-dot dot-g"></div>
+        </div>
+        <div class="chrome-url">https://prodash.tomachina.com/sms-consent?status=confirmed</div>
+      </div>
+      <div class="frame-inner">
+        <div class="pg-root">
+
+          <div class="pg-header">
+            <div class="pg-logo-block">
+              <div class="pg-logo-mark">RPI</div>
+              <div class="pg-logo-text">
+                Retirement Protectors, Inc.
+                <span>We're Your People&trade;</span>
+              </div>
+            </div>
+            <div class="pg-header-trust">Secure &middot; TCPA Compliant<small>🔒 SSL Encrypted</small></div>
+          </div>
+
+          <div class="pg-body">
+            <div class="pg-confirm">
+              <div class="pg-confirm-icon">&#10003;</div>
+              <div class="pg-confirm-title">You're all set!</div>
+              <div class="pg-confirm-sub">
+                Your SMS consent has been recorded. You'll receive a confirmation text at your number shortly.
+              </div>
+
+              <!-- Part 3 — Confirmation SMS (MUSASHI verbatim) -->
+              <div style="margin-bottom:0.25rem;font-size:0.7rem;color:var(--rpi-muted);text-align:left;max-width:340px;margin-left:auto;margin-right:auto">
+                Retirement Protectors, Inc.
+              </div>
+              <div class="pg-sms-bubble">
+                You're signed up for Retirement Protectors SMS updates. Msg &amp; data rates may apply. Reply HELP for help, STOP to cancel. We're Your People.
+              </div>
+              <div class="pg-sms-sender">
+                This is the exact confirmation text you'll receive from our toll-free number. (155 chars &mdash; MUSASHI Part 3)
+              </div>
+
+              <div class="pg-confirm-note">
+                Opted in: <strong>(515) 555-0100</strong> &middot; Timestamp recorded &middot; Copy version 1.0 &middot; Record written to <strong>sms_consent_log</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="pg-footer">
+            <div class="pg-footer-brand">Retirement Protectors, Inc. &mdash; We're Your People&trade;</div>
+            <div>515-992-5000 &middot; <a href="#">Service@RetireProtected.com</a> &middot; <a href="#">RetireProtected.com</a></div>
+            <hr>
+            <div><strong>SMS Disclosure:</strong> Msg &amp; data rates may apply. Reply <strong>STOP</strong> to unsubscribe. Reply <strong>HELP</strong> for help.</div>
+            <div style="margin-top:0.4rem"><a href="#">Privacy Policy</a> &middot; <a href="#">Terms of Service</a> &middot; <a href="#">SMS Terms</a></div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!--  SECTION 3 — ANNOTATED VIEW                                  -->
+<!-- ============================================================ -->
+<div class="doc-section">
+  <div class="section-header">
+    <div class="section-num">3</div>
+    <div class="section-title">Annotated View &mdash; Compliance Callouts</div>
+    <span class="tag-bronze">For JDM + SHINOB1 + Carrier Audit Review</span>
+  </div>
+
+  <div class="doc-card">
+    <p style="color:var(--doc-muted);font-size:0.85rem;margin-bottom:1.25rem">
+      Letters A&ndash;E identify the five compliance-critical zones. Each letter corresponds to the annotation key below.
+    </p>
+
+    <div class="ann-page-wrapper">
+
+      <!-- Page header zone — D -->
+      <div class="ann-page-header">
+        <div style="display:flex;align-items:center;gap:0.5rem">
+          <div class="ann-logo-mark">RPI</div>
+          <span style="color:var(--rpi-white);font-size:0.75rem;font-weight:700">Retirement Protectors, Inc.</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:0.5rem">
+          <span class="m m-d">D</span>
+          <span style="color:rgba(255,255,255,0.5);font-size:0.65rem">🔒 Secure &middot; TCPA</span>
+        </div>
+      </div>
+
+      <div class="ann-page-body">
+        <!-- Title -->
+        <div style="text-align:center;margin-bottom:0.9rem;padding-bottom:0.9rem;border-bottom:1px solid var(--rpi-border)">
+          <div style="font-size:0.65rem;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:var(--rpi-blue)">Text Messaging Consent</div>
+          <div style="font-family:'Poppins',-apple-system,sans-serif;font-weight:700;font-size:1rem;color:var(--rpi-navy)">Retirement Protectors, Inc.</div>
+        </div>
+
+        <!-- Phone input -->
+        <div style="margin-bottom:0.75rem">
+          <label style="font-size:0.72rem;font-weight:700;color:var(--rpi-text);display:block;margin-bottom:0.3rem">Mobile Phone Number *</label>
+          <input style="width:100%;border:1.5px solid var(--rpi-border);border-radius:6px;padding:0.5rem 0.75rem;font-size:0.82rem;color:var(--rpi-muted);background:var(--rpi-bg)" placeholder="(515) 555-0100" readonly>
+        </div>
+
+        <!-- Disclosure box — A -->
+        <div style="background:var(--rpi-white);border:1.5px solid var(--rpi-border);border-radius:8px;padding:0.75rem;margin-bottom:0.75rem">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.4rem">
+            <span style="font-size:0.68rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;color:var(--rpi-navy)">Opt-In Disclosure &mdash; Part 1</span>
+            <span class="m m-a">A</span>
+          </div>
+          <div style="font-size:0.72rem;color:var(--rpi-muted);line-height:1.5">
+            <strong style="color:var(--rpi-text)">By checking the box below, you agree to receive text messages from Retirement Protectors, Inc.</strong>
+            at the phone number you provided. Message types may include appointment confirmations, account and policy updates,
+            service notifications, educational information about Medicare, retirement, life insurance, and legacy planning, and responses to your inquiries.
+            Message frequency varies. Msg &amp; data rates may apply. Reply <strong>STOP</strong> to opt out.
+            Reply <strong>HELP</strong> for help. Consent is not a condition of purchase. See our
+            <a href="#" style="color:var(--rpi-blue)">Privacy Policy</a> and
+            <a href="#" style="color:var(--rpi-blue)">Terms of Service</a>.
+          </div>
+        </div>
+
+        <!-- Checkbox — B (unchecked = empty box) -->
+        <div style="display:flex;align-items:flex-start;gap:0.6rem;background:var(--rpi-blue-dim);border:1.5px solid rgba(74,122,181,0.25);border-radius:8px;padding:0.7rem;margin-bottom:0.75rem">
+          <div style="width:16px;height:16px;border:2px solid var(--rpi-border);border-radius:3px;background:var(--rpi-white);flex-shrink:0;margin-top:0.1rem"></div>
+          <div style="flex:1;font-size:0.75rem;color:var(--rpi-text)">
+            <strong>I agree to receive text messages from Retirement Protectors, Inc.</strong>
+            at the phone number I provided, on the terms above. I understand I can reply STOP at any time to opt out.
+          </div>
+          <span class="m m-b" style="flex-shrink:0">B</span>
+        </div>
+
+        <!-- CTA — C -->
+        <div style="position:relative;margin-bottom:0.75rem">
+          <button style="width:100%;background:var(--rpi-blue);color:var(--rpi-white);border:none;border-radius:8px;padding:0.75rem;font-weight:700;font-size:0.88rem;display:flex;align-items:center;justify-content:center;gap:0.4rem">
+            &#10003; Confirm Consent
+          </button>
+          <span class="m m-c" style="position:absolute;top:-9px;right:-9px">C</span>
+        </div>
+
+        <!-- Trust row — D (2nd instance) -->
+        <div style="display:flex;justify-content:center;gap:1rem;font-size:0.65rem;color:var(--rpi-muted);padding:0.5rem 0;border-top:1px solid var(--rpi-border)">
+          <span>&#10003; TCPA Compliant</span>
+          <span>&#10003; CTIA Compliant</span>
+          <span>&#10003; Never Sold</span>
+        </div>
+      </div>
+
+      <!-- Footer — E -->
+      <div class="ann-page-footer">
+        <div class="ann-footer-text">
+          <strong style="color:rgba(255,255,255,0.7)">SMS Disclosure:</strong>
+          Msg &amp; data rates may apply. Reply <strong>STOP</strong> to unsubscribe.
+          Reply <strong>HELP</strong> for help. Consent not required.<br>
+          <a href="#">Privacy Policy</a> &middot; <a href="#">Terms of Service</a> &middot; <a href="#">SMS Terms</a><br>
+          Retirement Protectors, Inc. &middot; 515-992-5000 &middot; West Des Moines, Iowa
+        </div>
+        <span class="m m-e" style="flex-shrink:0">E</span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Annotation key -->
+  <div class="ann-grid">
+    <div class="ann-item">
+      <div class="ann-badge ann-a">A</div>
+      <div>
+        <div class="ann-label">Part 1 &mdash; Opt-In Disclosure</div>
+        <div class="ann-desc">
+          Full disclosure text from MUSASHI PR #371, Part 1. Mandatory for TCPA and CTIA.
+          Must appear above the checkbox, fully visible without scrolling on desktop.
+          Do not truncate, collapse in an accordion, or hide behind a toggle.
+        </div>
+      </div>
+    </div>
+    <div class="ann-item">
+      <div class="ann-badge ann-b">B</div>
+      <div>
+        <div class="ann-label">Consent Checkbox &mdash; Unchecked by Default</div>
+        <div class="ann-desc">
+          <strong>CARRIER COMPLIANCE CRITICAL.</strong> Must render unchecked on every page load.
+          No pre-checked state. No localStorage carry-over. No defaultChecked.
+          The empty checkbox square is the visual evidence carriers screenshot during audits.
+          Label text verbatim from MUSASHI Part 2.
+        </div>
+      </div>
+    </div>
+    <div class="ann-item">
+      <div class="ann-badge ann-c">C</div>
+      <div>
+        <div class="ann-label">Primary CTA &mdash; "Confirm Consent"</div>
+        <div class="ann-desc">
+          Disabled until checkbox is checked AND phone is valid.
+          On submit: POST to Route Handler &rarr; write sms_consent_log &rarr; trigger Twilio
+          Part 3 confirmation SMS &rarr; show confirmation state.
+          Never navigate away before the consent record is written.
+        </div>
+      </div>
+    </div>
+    <div class="ann-item">
+      <div class="ann-badge ann-d">D</div>
+      <div>
+        <div class="ann-label">Trust Signals &mdash; Business Identity</div>
+        <div class="ann-desc">
+          Carriers require unambiguous business identification: full company name, phone number,
+          and physical location. Logo placeholder uses RPI mark &mdash; replace with
+          <code>packages/ui/src/logos/prodashx-logo.svg</code> in production.
+          Trust badges (TCPA / CTIA / Never Sold) reinforce compliance posture.
+        </div>
+      </div>
+    </div>
+    <div class="ann-item">
+      <div class="ann-badge ann-e">E</div>
+      <div>
+        <div class="ann-label">Footer &mdash; STOP/HELP + Rate Disclosure</div>
+        <div class="ann-desc">
+          STOP and HELP keywords must appear in plain text in the footer on every render,
+          regardless of form state. "Msg &amp; data rates may apply" is required verbatim.
+          Privacy Policy + Terms of Service links required.
+          This footer is what carriers screenshot for A2P brand audit approval.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!--  SECTION 4 — CARRIER COMPLIANCE CHECKLIST                    -->
+<!-- ============================================================ -->
+<div class="doc-section">
+  <div class="section-header">
+    <div class="section-num">4</div>
+    <div class="section-title">Carrier Compliance Checklist</div>
+    <span class="tag-bronze">Twilio A2P &middot; TCPA &middot; CTIA &middot; CAN-SPAM</span>
+  </div>
+
+  <div class="check-grid">
+
+    <div class="check-item">
+      <div class="check-icon">&#10003;</div>
+      <div>
+        <div class="check-label">TCPA &mdash; Telephone Consumer Protection Act</div>
+        <div class="check-desc">
+          Express written consent obtained before sending any automated SMS.
+          Opt-in record with timestamp, IP, user-agent, and checkbox state retained for 5 years minimum.
+          Consent is not a condition of purchase (stated explicitly in MUSASHI Part 1).
+        </div>
+      </div>
+    </div>
+
+    <div class="check-item">
+      <div class="check-icon">&#10003;</div>
+      <div>
+        <div class="check-label">CTIA &mdash; Carrier Industry Standards</div>
+        <div class="check-desc">
+          Campaign registered as "Customer Care" use case in Twilio A2P.
+          Opt-in: web form checkbox. Opt-out keywords: STOP/UNSUBSCRIBE/CANCEL/END/QUIT.
+          Help: HELP/INFO. Re-subscribe: START.
+          All keywords wired via Twilio Messaging Service (TAIKO pipe).
+        </div>
+      </div>
+    </div>
+
+    <div class="check-item">
+      <div class="check-icon">&#10003;</div>
+      <div>
+        <div class="check-label">CAN-SPAM Compliance</div>
+        <div class="check-desc">
+          Business identity clear on page and in every message.
+          Physical business address in footer. Unsubscribe mechanism (STOP) honored immediately.
+          No deceptive sender identification. Privacy Policy linked prominently.
+        </div>
+      </div>
+    </div>
+
+    <div class="check-item">
+      <div class="check-icon">&#10003;</div>
+      <div>
+        <div class="check-label">Unchecked Checkbox &mdash; Default State</div>
+        <div class="check-desc">
+          Checkbox renders unchecked on every page load &mdash; verified in this mockup.
+          RONIN must enforce via React state: <code>useState(false)</code>, no defaultChecked,
+          no hydration carry-over, no localStorage restore of consent state.
+        </div>
+      </div>
+    </div>
+
+    <div class="check-item">
+      <div class="check-icon">&#10003;</div>
+      <div>
+        <div class="check-label">Visible STOP Instructions</div>
+        <div class="check-desc">
+          STOP appears in three distinct locations: (1) Part 1 disclosure body,
+          (2) checkbox label, (3) footer disclosure.
+          Footer is always-visible regardless of form scroll position.
+          Cannot be hidden or collapsed.
+        </div>
+      </div>
+    </div>
+
+    <div class="check-item">
+      <div class="check-icon">&#10003;</div>
+      <div>
+        <div class="check-label">Business Identification</div>
+        <div class="check-desc">
+          "Retirement Protectors, Inc." appears in: page header, disclosure body,
+          checkbox label, confirmation SMS, footer brand, footer address.
+          Phone 515-992-5000 in header and footer. City/state in footer.
+        </div>
+      </div>
+    </div>
+
+    <div class="check-item">
+      <div class="check-icon">&#10003;</div>
+      <div>
+        <div class="check-label">Rate Disclosure &mdash; "Msg &amp; data rates may apply"</div>
+        <div class="check-desc">
+          Exact phrase appears in: Part 1 disclosure, Part 3 confirmation SMS, footer.
+          Three placements. Exact phrase required &mdash; no paraphrase.
+          MUSASHI has used the exact phrase in all three locations.
+        </div>
+      </div>
+    </div>
+
+    <div class="check-item">
+      <div class="check-icon">&#10003;</div>
+      <div>
+        <div class="check-label">Opt-In Record Retention</div>
+        <div class="check-desc">
+          RONIN writes to <code>sms_consent_log</code>: timestamp (ISO 8601), phone (E.164),
+          IP address, user-agent, copy_version hash.
+          5-year minimum retention per TCPA.
+          Phone field masked in any logging after the Firestore write.
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!--  SECTION 5 — RONIN HANDOFF NOTES                             -->
+<!-- ============================================================ -->
+<div class="doc-section">
+  <div class="section-header">
+    <div class="section-num">5</div>
+    <div class="section-title">RONIN Handoff Notes</div>
+    <span class="tag-bronze">TKO-COMMS-001 &middot; Build Contract</span>
+  </div>
+
+  <div class="ronin-banner">
+    <div class="ronin-sword">&#9998;</div>
+    <div class="ronin-banner-body">
+      <strong>RONIN &mdash; Read This Before Writing a Line of Code</strong>
+      <p>This section is the build contract. Everything below is decided. Build exactly this. Flag items marked SHINOB1 before proceeding.</p>
+    </div>
+  </div>
+
+  <!-- Route + File -->
+  <div class="doc-card">
+    <div class="card-label">Route &amp; File Location</div>
+    <table class="h-table">
+      <thead><tr><th>Decision</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td>Target page route</td><td><code>apps/prodash/app/sms-consent/page.tsx</code></td></tr>
+        <tr><td>Route Handler (form POST)</td><td><code>apps/prodash/app/api/sms-consent/route.ts</code></td></tr>
+        <tr><td>Page type</td><td>Public-accessible (no Firebase Auth required &mdash; user may not have a ProDash login when they receive the opt-in link)</td></tr>
+        <tr><td>Layout</td><td>Standalone layout &mdash; does NOT use the ProDash portal sidebar/nav shell</td></tr>
+        <tr><td>Fonts</td><td>Poppins (headings) + Mulish (body) &mdash; already in <code>packages/ui/</code></td></tr>
+        <tr><td>Logo</td><td>Use <code>packages/ui/src/logos/prodashx-logo.svg</code> &mdash; no generated SVGs ever</td></tr>
+      </tbody>
+    </table>
+    <div class="flag-box">
+      <div class="flag-icon">&#9873;</div>
+      <div>
+        <strong>SHINOB1 confirm:</strong> Public route or auth-gated?
+        This mockup assumes public (client may not have a login yet when they receive the opt-in link via SMS/email).
+        SHINOB1 should confirm whether <code>/sms-consent</code> sits outside the auth middleware
+        or uses a magic-link token flow.
+      </div>
+    </div>
+  </div>
+
+  <!-- Firestore schema -->
+  <div class="doc-card">
+    <div class="card-label">Firestore &mdash; sms_consent_log Schema</div>
+    <p style="color:var(--doc-muted);font-size:0.82rem;margin-bottom:0.75rem">
+      Collection: <code>sms_consent_log</code> &mdash; write on every successful form submit.
+      Document ID: auto-generated. Write before triggering Twilio &mdash; never in reverse order.
+    </p>
+    <div class="schema-block">
+<span class="sc">// sms_consent_log/{autoId}</span>
+{
+  <span class="sk">"phone_e164"</span>: <span class="sv">"+15155550100"</span>,           <span class="sc">// E.164 format, required</span>
+  <span class="sk">"consented_at"</span>: <span class="sv">Timestamp</span>,                <span class="sc">// Firestore server timestamp</span>
+  <span class="sk">"ip_address"</span>: <span class="sv">"203.0.113.42"</span>,             <span class="sc">// From X-Forwarded-For header</span>
+  <span class="sk">"user_agent"</span>: <span class="sv">"Mozilla/5.0 ..."</span>,           <span class="sc">// Full UA string</span>
+  <span class="sk">"copy_version"</span>: <span class="sv">"musashi-sms-v1.0-2026-04-13"</span>,  <span class="sc">// From MUSASHI copy doc header</span>
+  <span class="sk">"disclosure_hash"</span>: <span class="sv">"sha256:abc123..."</span>,       <span class="sc">// SHA-256 of Part 1 text at render time</span>
+  <span class="sk">"source_url"</span>: <span class="sv">"https://prodash.tomachina.com/sms-consent"</span>,
+  <span class="sk">"source_channel"</span>: <span class="sv">"web-form"</span>,                <span class="sc">// web-form | intake-form | agent-documented</span>
+  <span class="sk">"confirmation_sms_sent"</span>: <span class="sv">false</span>,             <span class="sc">// Updated to true after Twilio Part 3 send</span>
+  <span class="sk">"client_id"</span>: <span class="sv">null</span>,                            <span class="sc">// Linked after client match (may be null at opt-in)</span>
+  <span class="sk">"created_by"</span>: <span class="sv">"system:sms-consent-page"</span>
+}
+    </div>
+    <div class="flag-box">
+      <div class="flag-icon">&#9873;</div>
+      <div>
+        <strong>PHI Note:</strong> <code>phone_e164</code> is PII.
+        Never log it via console.log or in error messages.
+        The Firestore write is the only storage point.
+        Firestore Rules must restrict <code>sms_consent_log</code> reads to @retireprotected.com
+        and writes to service account only.
+      </div>
+    </div>
+  </div>
+
+  <!-- POST flow -->
+  <div class="doc-card">
+    <div class="card-label">Form POST Flow &mdash; Route Handler Steps</div>
+    <table class="h-table">
+      <thead><tr><th>Step</th><th>Action</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>1. Validate</td>
+          <td>Confirm phone E.164 format. Confirm checkbox state is <code>true</code> in POST body. Return 400 if either fails.</td>
+        </tr>
+        <tr>
+          <td>2. Write Firestore</td>
+          <td>Write to <code>sms_consent_log</code> with server timestamp. Return 500 if write fails. Never proceed to Twilio if write fails.</td>
+        </tr>
+        <tr>
+          <td>3. Trigger Twilio</td>
+          <td>POST to Twilio Messages API: send Part 3 confirmation SMS (155 chars, MUSASHI verbatim) to consented number. Update <code>confirmation_sms_sent: true</code> on the consent doc after successful send.</td>
+        </tr>
+        <tr>
+          <td>4. Return success</td>
+          <td><code>{ success: true, consent_id: docId }</code> &mdash; frontend renders confirmation state (Section 2).</td>
+        </tr>
+        <tr>
+          <td>5. Twilio error handling</td>
+          <td>If Twilio send fails: return <code>{ success: true }</code> anyway (consent is written &mdash; that is the legal record). Log Twilio error server-side only. Retry via queue.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Env vars -->
+  <div class="doc-card">
+    <div class="card-label">Environment Variables</div>
+    <table class="h-table">
+      <thead><tr><th>Variable</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td><code>TWILIO_ACCOUNT_SID</code></td><td>Already wired by TAIKO (TKO-COMMS-001 infra)</td></tr>
+        <tr><td><code>TWILIO_AUTH_TOKEN</code></td><td>Already wired by TAIKO</td></tr>
+        <tr><td><code>TWILIO_FROM_NUMBER</code></td><td>Toll-free +18886208587 &mdash; wired by TAIKO</td></tr>
+        <tr><td><code>TWILIO_MESSAGING_SERVICE_SID</code></td><td>TAIKO supplies after Twilio A2P campaign approval</td></tr>
+        <tr><td>Firestore client</td><td>Already initialized in <code>packages/db/</code> &mdash; import typed client directly</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- React component -->
+  <div class="doc-card">
+    <div class="card-label">React Component Requirements</div>
+    <table class="h-table">
+      <thead><tr><th>Requirement</th><th>Detail</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>Checkbox state</td>
+          <td><code>const [agreed, setAgreed] = useState(false)</code> &mdash; no defaultChecked, no hydration carry-over</td>
+        </tr>
+        <tr>
+          <td>Phone input</td>
+          <td>Controlled input with E.164 formatting on blur. <code>type="tel"</code>. Required.</td>
+        </tr>
+        <tr>
+          <td>Submit guard</td>
+          <td>Button must have <code>disabled={!agreed || !phone || isSubmitting}</code>. Loading spinner during submit.</td>
+        </tr>
+        <tr>
+          <td>After submit</td>
+          <td>Replace form JSX with confirmation state. Do NOT redirect &mdash; stay on same URL with <code>?status=confirmed</code> query param.</td>
+        </tr>
+        <tr>
+          <td>Copy version constant</td>
+          <td>Embed <code>MUSASHI_COPY_VERSION = 'musashi-sms-v1.0-2026-04-13'</code> as a constant. Include in POST body. Include in Firestore write.</td>
+        </tr>
+        <tr>
+          <td>No native browser dialogs</td>
+          <td>Error states use inline field error text or a toast. Hook-enforced &mdash; never use native browser confirm/prompt.</td>
+        </tr>
+        <tr>
+          <td>Response shape</td>
+          <td>Route Handler returns <code>{ success: boolean, data?: { consent_id: string }, error?: string }</code> &mdash; per platform standard.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Copy integration note -->
+  <div class="doc-card">
+    <div class="card-label">Copy Integration</div>
+    <div style="background:var(--doc-card2);border:1px solid var(--doc-border);border-radius:8px;padding:1rem;font-size:0.82rem;color:var(--doc-muted);line-height:1.7">
+      All copy is in <code>docs/warriors/musashi/copy/sms-consent-copy.md</code>.
+      RONIN must read this file directly before writing JSX &mdash; do not transcribe from memory.<br><br>
+      Embed each part as a named constant at the top of the page component file:<br>
+      <code>SMS_PART1_DISCLOSURE</code>, <code>SMS_PART2_CHECKBOX_LABEL</code>, <code>SMS_PART3_CONFIRMATION_BODY</code><br><br>
+      This makes copy updates a file-level change, not a code change, and allows disclosure_hash to be computed at build time.
+    </div>
+    <div class="flag-box">
+      <div class="flag-icon">&#9873;</div>
+      <div>
+        <strong>PR #371 must be merged before production ship.</strong>
+        RONIN may build against the branch content (fetched via <code>git fetch origin pull/371/head</code>),
+        but the page must not go live until MUSASHI's PR is merged to main and the copy file is canonical.
+      </div>
+    </div>
+  </div>
+
+  <!-- Warrior signoffs -->
+  <div class="doc-card">
+    <div class="card-label">Warrior Signoff Chain</div>
+    <div class="warrior-grid">
+      <div class="warrior-card">
+        <div class="warrior-icon">🥁</div>
+        <div class="warrior-name">TAIKO</div>
+        <div class="warrior-role">Owns the pipe</div>
+        <div class="warrior-note">This mockup = Day-1 deliverable. TKO-COMMS-001.</div>
+      </div>
+      <div class="warrior-card">
+        <div class="warrior-icon">&#127912;</div>
+        <div class="warrior-name">MUSASHI</div>
+        <div class="warrior-role">Copy owner (ARTxBLADE)</div>
+        <div class="warrior-note">Copy locked 2026-04-13. PR #371 pending merge.</div>
+      </div>
+      <div class="warrior-card">
+        <div class="warrior-icon">&#129399;</div>
+        <div class="warrior-name">SHINOB1</div>
+        <div class="warrior-role">CTO &mdash; confirm auth model</div>
+        <div class="warrior-note">Public route vs token-gated? Flag before RONIN builds.</div>
+      </div>
+      <div class="warrior-card">
+        <div class="warrior-icon">&#9998;</div>
+        <div class="warrior-name">RONIN</div>
+        <div class="warrior-role">Ships the code</div>
+        <div class="warrior-note">After PR #371 merges + SHINOB1 auth confirm. It ships tonight.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+
+<!-- ============================================================ -->
+<!--  DOC FOOTER                                                   -->
+<!-- ============================================================ -->
+<div class="doc-footer">
+  <div class="doc-footer-title">🥁 TAIKO &mdash; Comms Infrastructure Warrior</div>
+  <div class="doc-footer-sub">
+    TKO-COMMS-001 &middot; SMS Consent Page Mockup &middot; Generated 2026-04-13<br>
+    Copy: MUSASHI (PR #371) &middot; Pipe: TAIKO &middot; Build: RONIN &middot; Arch: SHINOB1
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TAIKO &#x592A;&#x9F13; &mdash; CONNECT + OMNI Sprint &mdash; Discovery Doc</title>
+<style>
+:root{--bg:#0a0b10;--card:#12141d;--card2:#181b27;--border:#1e2133;--text:#e8e8ec;--muted:#7a7f96;--accent:#2dd4bf;--blue:#4a7ab5;--green:#40bc58;--yellow:#f5a623;--red:#e74c3c;--purple:#a78bfa;--teal:#2dd4bf;--gold:#d4a44c;--warrior:#d97706}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+.container{max-width:1000px;margin:0 auto;padding:2rem}
+h1{font-size:2rem;text-align:center;margin-bottom:0.3rem}
+.subtitle{text-align:center;color:var(--muted);font-size:1rem;margin-bottom:0.3rem}
+.origin{text-align:center;color:var(--warrior);font-size:0.85rem;font-style:italic;margin-bottom:1.5rem}
+.tab-bar{display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:2rem;position:sticky;top:0;background:var(--bg);z-index:10;padding-top:0.5rem;flex-wrap:wrap}
+.tab-btn{padding:0.7rem 1.2rem;background:none;border:none;color:var(--muted);font-size:0.88rem;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all 0.2s;font-family:inherit}
+.tab-btn:hover{color:var(--text)}
+.tab-btn.active{color:var(--warrior);border-bottom-color:var(--warrior)}
+.tab-content{display:none}.tab-content.active{display:block}
+h2{font-size:1.4rem;margin:1.5rem 0 1rem;padding-bottom:0.5rem;border-bottom:1px solid var(--border);color:var(--warrior)}
+h2:first-child{margin-top:0}
+h3{font-size:1.1rem;margin:1.2rem 0 0.5rem;color:var(--text)}
+p{color:var(--muted);margin-bottom:0.8rem;font-size:0.92rem}
+ul,ol{color:var(--muted);margin-bottom:1rem;padding-left:1.5rem;font-size:0.92rem}
+li{margin-bottom:0.4rem}
+strong{color:var(--text)}
+code{background:var(--card2);padding:0.15rem 0.4rem;border-radius:4px;font-size:0.85rem;color:var(--warrior)}
+pre{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:1rem;margin:1rem 0;overflow-x:auto;font-size:0.82rem;line-height:1.5;color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.25rem;margin-bottom:1rem}
+.card h3{margin-top:0}
+.card-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media(max-width:700px){.card-grid{grid-template-columns:1fr}}
+table{width:100%;border-collapse:collapse;margin:1rem 0}
+th,td{padding:0.6rem 0.75rem;text-align:left;border-bottom:1px solid var(--border);font-size:0.85rem}
+th{color:var(--warrior);font-size:0.75rem;text-transform:uppercase;letter-spacing:0.05em;font-weight:600}
+td{color:var(--muted)}
+.tag{display:inline-block;padding:0.15rem 0.5rem;border-radius:8px;font-size:0.72rem;font-weight:600}
+.tag-orange{background:rgba(217,119,6,0.12);color:var(--warrior)}
+.tag-green{background:rgba(64,188,88,0.12);color:var(--green)}
+.tag-yellow{background:rgba(245,166,35,0.12);color:var(--yellow)}
+.tag-red{background:rgba(231,76,60,0.12);color:var(--red)}
+.tag-purple{background:rgba(167,139,250,0.12);color:var(--purple)}
+.tag-blue{background:rgba(74,122,181,0.12);color:var(--blue)}
+.tag-teal{background:rgba(45,212,191,0.12);color:var(--teal)}
+.callout{background:rgba(217,119,6,0.05);border:1px solid rgba(217,119,6,0.2);border-radius:12px;padding:1.25rem;margin:1.5rem 0}
+.callout p{margin:0}
+.callout-red{background:rgba(231,76,60,0.05);border:1px solid rgba(231,76,60,0.3);border-radius:12px;padding:1.25rem;margin:1.5rem 0}
+.callout-red p{margin:0;color:var(--muted)}
+.callout-yellow{background:rgba(245,166,35,0.05);border:1px solid rgba(245,166,35,0.3);border-radius:12px;padding:1.25rem;margin:1.5rem 0}
+.callout-yellow p{margin:0;color:var(--muted)}
+.callout-green{background:rgba(64,188,88,0.05);border:1px solid rgba(64,188,88,0.3);border-radius:12px;padding:1.25rem;margin:1.5rem 0}
+.callout-green p{margin:0;color:var(--muted)}
+.callout-blue{background:rgba(74,122,181,0.05);border:1px solid rgba(74,122,181,0.3);border-radius:12px;padding:1.25rem;margin:1.5rem 0}
+.callout-blue p{margin:0;color:var(--muted)}
+.flow{display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;margin:1rem 0;font-size:0.85rem}
+.flow-step{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:0.5rem 0.8rem;color:var(--text);font-weight:600;font-size:0.8rem}
+.flow-arrow{color:var(--warrior);font-size:1.2rem}
+.ticket{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1.1rem;margin-bottom:0.75rem}
+.ticket-header{display:flex;align-items:center;gap:0.75rem;margin-bottom:0.5rem;flex-wrap:wrap}
+.ticket-id{font-family:monospace;font-size:0.8rem;color:var(--warrior);font-weight:700;white-space:nowrap}
+.ticket-title{font-size:0.95rem;font-weight:600;color:var(--text)}
+.ticket-meta{display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;margin-bottom:0.5rem}
+.ticket p{color:var(--muted);font-size:0.88rem;margin-bottom:0.4rem}
+.ticket p:last-child{margin-bottom:0}
+.ticket ul{color:var(--muted);font-size:0.88rem;margin-bottom:0.4rem}
+.phase-header{font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--warrior);margin:1.5rem 0 0.75rem;padding:0.4rem 0;border-bottom:1px solid var(--border)}
+.arch-diagram{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:1.25rem;margin:1rem 0;font-family:monospace;font-size:0.8rem;line-height:1.7;color:var(--muted);overflow-x:auto}
+.arch-diagram .hl{color:var(--warrior)}
+.arch-diagram .hl-green{color:var(--green)}
+.arch-diagram .hl-red{color:var(--red)}
+.arch-diagram .hl-yellow{color:var(--yellow)}
+.arch-diagram .hl-blue{color:var(--blue)}
+.arch-diagram .hl-teal{color:var(--teal)}
+.risk-block{background:var(--card);border-left:4px solid var(--red);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0.75rem 0}
+.risk-block.medium{border-left-color:var(--yellow)}
+.risk-block.low{border-left-color:var(--teal)}
+.gate-step{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:0.9rem 1.1rem;margin:0.5rem 0;display:flex;gap:1rem;align-items:flex-start}
+.gate-num{font-size:1.3rem;font-weight:800;color:var(--warrior);min-width:2rem;line-height:1}
+.gate-content{flex:1}
+.gate-content strong{color:var(--text);display:block;margin-bottom:0.2rem}
+.gate-content p{margin:0;font-size:0.88rem}
+.status-broken{color:var(--red);font-weight:700}
+.status-partial{color:var(--yellow);font-weight:700}
+.status-working{color:var(--green);font-weight:700}
+.track-a-accent{color:#4a7ab5;font-weight:700}
+.track-b-accent{color:#2dd4bf;font-weight:700}
+.track-badge-a{display:inline-block;padding:0.15rem 0.5rem;border-radius:8px;font-size:0.72rem;font-weight:700;background:rgba(74,122,181,0.12);color:#4a7ab5}
+.track-badge-b{display:inline-block;padding:0.15rem 0.5rem;border-radius:8px;font-size:0.72rem;font-weight:700;background:rgba(45,212,191,0.12);color:#2dd4bf}
+.ft{text-align:center;padding:2rem 0 1rem;color:var(--muted);font-size:0.8rem;border-top:1px solid var(--border);margin-top:2rem}
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>TAIKO &#x592A;&#x9F13;</h1>
+<div class="subtitle">CONNECT + OMNI Sprint &mdash; RONIN Build Spec</div>
+<div class="origin">JDM + SHINOB1 &mdash; April 2026 &mdash; &ldquo;The pipes work. Now the channels breathe.&rdquo;</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="showTab('why',this)">Why</button>
+  <button class="tab-btn" onclick="showTab('what',this)">What</button>
+  <button class="tab-btn" onclick="showTab('how',this)">How</button>
+  <button class="tab-btn" onclick="showTab('tickets-a',this)">Tickets (A)</button>
+  <button class="tab-btn" onclick="showTab('tickets-b',this)">Tickets (B)</button>
+  <button class="tab-btn" onclick="showTab('files',this)">Files</button>
+  <button class="tab-btn" onclick="showTab('gates',this)">Gates</button>
+  <button class="tab-btn" onclick="showTab('timeline',this)">Timeline</button>
+  <button class="tab-btn" onclick="showTab('risks',this)">Risks &amp; Open Qs</button>
+</div>
+
+<!-- ════ WHY ════ -->
+<div id="why" class="tab-content active">
+  <h2>The Unlock</h2>
+
+  <div class="callout">
+    <p><strong>What SHINOB1 greenlit:</strong> TAIKO completed its Discovery Doc. The warrior owns the pipes. This sprint builds the channels those pipes feed. Two parallel tracks: Track A fixes the comms plumbing (A2P unblock, Twilio refactor, SendGrid audit) and Track B connects the internal layer (Google Chat bridge, Meet transcripts, RPI Connect rebuild). Both tracks run simultaneously. RONIN picks them up and ships.</p>
+  </div>
+
+  <h3>What was shipped in the Scope Preview</h3>
+  <p>The CONNECT + OMNI Scope Preview established the 14-ticket architecture, assigned tracks, and confirmed that two parallel build tracks are safe to run independently. That was the plan. This doc is the contract RONIN builds from.</p>
+
+  <h3>Why two tracks, not one</h3>
+  <p>Track A (TKO-COMMS-*) is entirely in <code>services/api/src/routes/comms.ts</code>, <code>webhooks.ts</code>, and the ProDash opt-in page. It touches client-facing channels. Track B (TKO-CONN-*) is entirely in <code>connect.ts</code>, the Google Workspace credential layer, and the ConnectPanel UI. The two tracks share no files. They can be built by independent RONIN sessions in parallel and merged separately.</p>
+
+  <div class="card-grid">
+    <div class="card">
+      <h3 class="track-a-accent">Track A &mdash; TKO-COMMS-001 through 006</h3>
+      <p><strong>The fix that unlocks everything SMS.</strong> Twilio A2P campaign is blocked. No outbound texts go to clients. Campaign SMS, appointment reminders, VOLTRON follow-ups &mdash; all of it is sitting behind one carrier compliance gate. Six tickets unblock it and harden the surrounding plumbing.</p>
+    </div>
+    <div class="card">
+      <h3 class="track-b-accent">Track B &mdash; TKO-CONN-001 through 008</h3>
+      <p><strong>The upgrade that makes Google Chat + RPI Connect the team's home.</strong> The platform can talk to clients (Twilio). It can't yet talk to itself (Google Chat) or to its own team (RPI Connect real-time messaging). Eight tickets close that gap and build the foundation for the Slack migration.</p>
+    </div>
+  </div>
+
+  <h3>What this sprint does NOT include</h3>
+  <ul>
+    <li><strong>Alerts infrastructure</strong> &mdash; tracked separately. See Out of Scope below. Was originally COMMS-009 in the discovery doc. Moved to its own sprint because it depends on both tracks being stable and introduces routing logic that deserves dedicated attention.</li>
+    <li><strong>Slack migration execution</strong> &mdash; the runbook is built in TKO-CONN-007. The actual migration is a JDM approval gate and team event, not a RONIN deliverable.</li>
+    <li><strong>Campaign engine (C3)</strong> &mdash; lives in <code>campaign-send.ts</code>, not touched here.</li>
+    <li><strong>TCPA compliance collection</strong> &mdash; the <code>tcpa_consents</code> schema is specified in TKO-COMMS-001 (consent write on form submit), but the full compliance sprint (recording retention, email archive audit) is a subsequent sprint.</li>
+  </ul>
+
+  <div class="callout-yellow">
+    <p><strong>Out of Scope &mdash; Future Sprint: Alerts Infrastructure.</strong> The central alert dispatcher (<code>POST /api/alerts/dispatch</code>, routing rules, channel selection, wire-failure hooks) is a fully independent system that deserves its own sprint. It is NOT in TKO-COMMS or TKO-CONN. When Track A and Track B are stable and delivering, TAIKO files that sprint. RONIN does not build it here.</p>
+  </div>
+</div>
+
+<!-- ════ WHAT ════ -->
+<div id="what" class="tab-content">
+  <h2>Both Tracks &mdash; Scope Boundaries</h2>
+
+  <h3>Track A &mdash; Comms Infrastructure (6 tickets)</h3>
+
+  <table>
+    <tr>
+      <th>Ticket</th>
+      <th>Name</th>
+      <th>Core Dependency</th>
+      <th>Hours</th>
+    </tr>
+    <tr>
+      <td><span class="track-badge-a">TKO-COMMS-001</span></td>
+      <td>Twilio A2P opt-in consent page</td>
+      <td>MUSASHI PR #371 consent copy must land first</td>
+      <td>2 hrs</td>
+    </tr>
+    <tr>
+      <td><span class="track-badge-a">TKO-COMMS-002</span></td>
+      <td>Twilio A2P resubmit &mdash; ticket 25630009</td>
+      <td>TKO-COMMS-001 deployed + publicly accessible</td>
+      <td>1 hr</td>
+    </tr>
+    <tr>
+      <td><span class="track-badge-a">TKO-COMMS-003</span></td>
+      <td>Inbound SMS webhook &mdash; client matching + logging</td>
+      <td>None (can start Day 1 parallel to COMMS-001)</td>
+      <td>2&ndash;3 hrs</td>
+    </tr>
+    <tr>
+      <td><span class="track-badge-a">TKO-COMMS-004</span></td>
+      <td>Outbound SMS &mdash; A2P gate, rate limiting, template engine</td>
+      <td>TKO-COMMS-003 (consistent logging schema)</td>
+      <td>2&ndash;3 hrs</td>
+    </tr>
+    <tr>
+      <td><span class="track-badge-a">TKO-COMMS-005</span></td>
+      <td>Voice &mdash; recording hardening + transcript sync</td>
+      <td>TKO-COMMS-003 (consistent logging schema)</td>
+      <td>3&ndash;4 hrs</td>
+    </tr>
+    <tr>
+      <td><span class="track-badge-a">TKO-COMMS-006</span></td>
+      <td>SendGrid &mdash; delivery audit + bounce handling</td>
+      <td>None (runs parallel to COMMS-003 through 005)</td>
+      <td>2 hrs</td>
+    </tr>
+  </table>
+
+  <h3>Track B &mdash; Connect + OMNI (8 tickets)</h3>
+
+  <table>
+    <tr>
+      <th>Ticket</th>
+      <th>Name</th>
+      <th>Core Dependency</th>
+      <th>Hours</th>
+    </tr>
+    <tr>
+      <td><span class="track-badge-b">TKO-CONN-001</span></td>
+      <td>Google Chat OAuth scope extension + Chat API helper</td>
+      <td>None (credential layer first)</td>
+      <td>2 hrs</td>
+    </tr>
+    <tr>
+      <td><span class="track-badge-b">TKO-CONN-002</span></td>
+      <td>Google Chat bridge &mdash; platform event posting to spaces</td>
+      <td>TKO-CONN-001</td>
+      <td>2 hrs</td>
+    </tr>
+    <tr>
+      <td><span class="track-badge-b">TKO-CONN-003</span></td>
+      <td>Google Meet &mdash; recording retrieval + transcript sync</td>
+      <td>TKO-CONN-001 (credential pattern established)</td>
+      <td>3 hrs</td>
+    </tr>
+    <tr>
+      <td><span class="track-badge-b">TKO-CONN-004</span></td>
+      <td>RPI Connect &mdash; real-time messaging via SSE</td>
+      <td>TKO-CONN-001</td>
+      <td>4&ndash;5 hrs</td>
+    </tr>
+    <tr>
+      <td><span class="track-badge-b">TKO-CONN-005</span></td>
+      <td>RPI Connect &mdash; direct messages + Meet launch button</td>
+      <td>TKO-CONN-004</td>
+      <td>3 hrs</td>
+    </tr>
+    <tr>
+      <td><span class="track-badge-b">TKO-CONN-006</span></td>
+      <td>RPI Connect &mdash; Google Chat space bridge (read-side)</td>
+      <td>TKO-CONN-002, TKO-CONN-004</td>
+      <td>2&ndash;3 hrs</td>
+    </tr>
+    <tr>
+      <td><span class="track-badge-b">TKO-CONN-007</span></td>
+      <td>Slack migration runbook &mdash; channel map, timeline, team plan</td>
+      <td>TKO-CONN-004 stable in production</td>
+      <td>4 hrs</td>
+    </tr>
+    <tr>
+      <td><span class="track-badge-b">TKO-CONN-008</span></td>
+      <td>Comms health endpoint &mdash; TAIKO observability dashboard</td>
+      <td>TKO-COMMS-003 (communications collection writes)</td>
+      <td>2&ndash;3 hrs</td>
+    </tr>
+  </table>
+
+  <h3>Scope boundaries — what TAIKO owns in this sprint</h3>
+  <div class="card">
+    <ul>
+      <li>The A2P consent page and the Twilio resubmit action</li>
+      <li>The inbound and outbound SMS routes (refactored and hardened)</li>
+      <li>The voice routes (recording hardened, transcripts synced to client record)</li>
+      <li>SendGrid delivery audit and bounce-handling gap closure</li>
+      <li>Google Chat API credential extension and the platform event posting helper</li>
+      <li>Google Meet recording retrieval and transcript sync to client record</li>
+      <li>RPI Connect real-time messaging layer (SSE-backed, Firestore-stored)</li>
+      <li>RPI Connect direct messages + Meet launch from within the panel</li>
+      <li>RPI Connect read-side surface of Google Chat spaces</li>
+      <li>Slack migration runbook (document, not code &mdash; JDM approval required before any migration action)</li>
+      <li>TAIKO observability endpoint (<code>GET /api/comms/health</code>)</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ════ HOW ════ -->
+<div id="how" class="tab-content">
+  <h2>Execution Approach</h2>
+
+  <div class="callout-red">
+    <p><strong>Hard constraint throughout this sprint:</strong> Inbound client calls to <code>+18886208587</code> must never go dark. Every voice route change is staged behind a feature flag or deployed incrementally. The 888 route is touch-last, test-first.</p>
+  </div>
+
+  <h3>Parallel track execution</h3>
+
+  <p>Both tracks are parallel-safe. RONIN can run two sessions simultaneously against separate feature branches and open separate PRs. There is no shared file between Track A and Track B. Merge order does not matter &mdash; CI gates each independently.</p>
+
+  <div class="flow">
+    <div class="flow-step">Day 1&ndash;2: COMMS-001+003 simultaneously</div>
+    <div class="flow-arrow">&#8594;</div>
+    <div class="flow-step">Day 2&ndash;3: COMMS-002 (Twilio action) + COMMS-004+005+006 parallel</div>
+    <div class="flow-arrow">&#8594;</div>
+    <div class="flow-step">Days 1&ndash;2: CONN-001+002+003 simultaneously</div>
+    <div class="flow-arrow">&#8594;</div>
+    <div class="flow-step">Day 3+: CONN-004+005 sequential, CONN-006+008 parallel</div>
+    <div class="flow-arrow">&#8594;</div>
+    <div class="flow-step">After CONN-004 stable in prod: CONN-007 (runbook)</div>
+  </div>
+
+  <h3>Day 1 critical path</h3>
+
+  <ol>
+    <li><strong>Wait for MUSASHI PR #371</strong> to land before touching <code>apps/prodash/app/sms-consent/page.tsx</code>. Once it lands, TKO-COMMS-001 is the first PR RONIN opens on Track A. No exceptions &mdash; the consent copy is a regulatory document and MUSASHI owns the words.</li>
+    <li>TKO-COMMS-003 (inbound SMS webhook refactor) can start on Day 1 with no external dependency. This is the right warm-up ticket for Track A &mdash; scoped, contained, sets the logging schema that everything else follows.</li>
+    <li>TKO-CONN-001 (OAuth scope extension) is the Day 1 start for Track B. It unlocks CONN-002, CONN-003, and CONN-004 in sequence.</li>
+  </ol>
+
+  <h3>Integration contracts with other warriors</h3>
+
+  <div class="card-grid">
+    <div class="card">
+      <h3>MUSASHI</h3>
+      <p>PR #371 must land before TKO-COMMS-001 starts. MUSASHI owns the opt-in consent copy &mdash; the exact carrier-approved language for program description, message frequency, STOP/HELP instructions, rate disclosure, and links to Privacy Policy and Terms of Service. RONIN builds the page shell. MUSASHI fills it. TAIKO submits to Twilio. That is the order. No copy in code = no Twilio submission.</p>
+    </div>
+    <div class="card">
+      <h3>VOLTRON</h3>
+      <p>VOLTRON calls <code>comms_send_sms</code>, <code>comms_initiate_call</code>, <code>comms_send_email</code> via the rpi-comms MCP. The MCP wraps these API routes. When TAIKO refactors the underlying routes, the MCP surface stays identical &mdash; VOLTRON sees no change. If the A2P gate blocks a send, VOLTRON gets a structured error with <code>{ success: false, error: 'A2P campaign not yet approved', code: 'A2P_BLOCKED' }</code> and can relay that to the rep. VOLTRON decides when to call the channel; TAIKO decides whether the channel can accept the call.</p>
+    </div>
+    <div class="card">
+      <h3>RAIDEN</h3>
+      <p>RAIDEN watches <code>#raiden-reactive</code> for comms failures. When the team reports texts not sending, RAIDEN triages and routes to TAIKO's sprint queue. After TKO-CONN-002 ships, RAIDEN also gains the ability to post structured alerts to Google Chat spaces &mdash; the same <code>POST /api/connect/chat/post</code> endpoint TAIKO builds. RAIDEN benefits from this sprint without touching any of its files.</p>
+    </div>
+    <div class="card">
+      <h3>SHINOB1</h3>
+      <p>SHINOB1 must approve the OAuth scope extension plan in TKO-CONN-001 before RONIN touches any credential configuration. The stagger-vs-re-login decision for team reauth is a CTO call, not a RONIN call. This doc specifies the recommendation; SHINOB1 confirms before code touches the credential layer.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ════ TICKETS A ════ -->
+<div id="tickets-a" class="tab-content">
+  <h2>Track A &mdash; TKO-COMMS-* (6 Tickets)</h2>
+
+  <div class="callout-yellow">
+    <p><strong>TKO-COMMS-001 is gated on MUSASHI PR #371.</strong> The opt-in consent copy is a regulatory document. MUSASHI owns those words. RONIN does not write placeholder copy for a carrier compliance page. Wait for the PR to land, then build.</p>
+  </div>
+
+  <div class="phase-header">Phase 1 &mdash; A2P Unblock (Blocker for all outbound SMS)</div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">TKO-COMMS-001</span>
+      <span class="ticket-title">Twilio A2P consent page &mdash; public opt-in route on ProDash</span>
+    </div>
+    <div class="ticket-meta">
+      <span class="tag tag-red">Blocker</span>
+      <span class="tag tag-orange">Phase 1</span>
+      <span class="tag tag-yellow">2 hrs</span>
+      <span class="track-badge-a">Track A</span>
+    </div>
+    <p><strong>Owner:</strong> RONIN &nbsp;&bull;&nbsp; <strong>Gate:</strong> Manual &mdash; JDM reviews live page before Twilio submission</p>
+    <p><strong>Dependency:</strong> MUSASHI PR #371 must be merged to main before this ticket starts. The consent copy, privacy policy link, and terms link all come from that PR.</p>
+    <p><strong>What:</strong> Build a public (no auth required) route at <code>/sms-consent</code> on ProDash. The page must be outside the <code>(portal)</code> route group so it is accessible without a login. It serves as the CTA Verification URL submitted to Twilio for A2P 10DLC campaign approval.</p>
+    <p><strong>Required carrier-compliant elements (all must be present or Twilio rejects):</strong></p>
+    <ul>
+      <li>Program name and description: "Retirement Protectors, Inc. sends appointment reminders, policy service alerts, and follow-up communications to clients who have provided consent."</li>
+      <li>Message frequency disclosure: "Message frequency varies. You may receive up to 4 messages per month."</li>
+      <li>STOP instruction: "Reply STOP to unsubscribe at any time."</li>
+      <li>HELP instruction: "Reply HELP for help."</li>
+      <li>Standard rate disclosure: "Message and data rates may apply."</li>
+      <li>Link to Privacy Policy: <code>retireprotected.com/privacy</code> (or equivalent &mdash; confirm with JDM)</li>
+      <li>Link to Terms of Service: <code>retireprotected.com/terms</code> (or equivalent &mdash; confirm with JDM)</li>
+      <li>Explicit opt-in checkbox (unchecked by default). No pre-checked boxes. No deceptive patterns.</li>
+    </ul>
+    <p><strong>On form submit:</strong> Write a <code>tcpa_consents</code> Firestore document with <code>{ phone: sanitized_e164, consent_timestamp: serverTimestamp(), source_url: 'prodash.tomachina.com/sms-consent', consent_text_version: '1.0' }</code>. No PHI. No message content. IDs and timestamps only.</p>
+    <p><strong>Files:</strong></p>
+    <ul>
+      <li><code>apps/prodash/app/sms-consent/page.tsx</code> &mdash; New. Public route, no auth middleware, static-renderable.</li>
+      <li><code>apps/prodash/app/sms-consent/layout.tsx</code> &mdash; New. Minimal layout (no portal nav, just the page).</li>
+      <li><code>firestore.rules</code> &mdash; Add write rule for <code>tcpa_consents</code>: allow create from unauthenticated (public form); allow read only from RPI users.</li>
+    </ul>
+    <p><strong>Acceptance criteria:</strong> (1) <code>prodash.tomachina.com/sms-consent</code> loads without authentication. (2) All required carrier elements are present and visible without scrolling on mobile. (3) Submitting the form writes a <code>tcpa_consents</code> doc. (4) JDM reviews and approves the live page before COMMS-002 proceeds.</p>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">TKO-COMMS-002</span>
+      <span class="ticket-title">Twilio A2P resubmit &mdash; reopen ticket 25630009, new CTA URL</span>
+    </div>
+    <div class="ticket-meta">
+      <span class="tag tag-red">Blocker</span>
+      <span class="tag tag-orange">Phase 1</span>
+      <span class="tag tag-yellow">1 hr</span>
+      <span class="track-badge-a">Track A</span>
+    </div>
+    <p><strong>Owner:</strong> RONIN (Twilio console action) &nbsp;&bull;&nbsp; <strong>Gate:</strong> JDM approval of the live consent page before action</p>
+    <p><strong>Dependency:</strong> TKO-COMMS-001 deployed and publicly accessible. JDM has reviewed and approved the page.</p>
+    <p><strong>What:</strong> Reopen Twilio support ticket 25630009 (auto-closed without resolution). Submit the new CTA Verification URL: <code>https://prodash.tomachina.com/sms-consent</code>. Update the A2P campaign description to the exact text: <em>"Appointment reminders, policy service alerts, and follow-up communications to existing clients who have provided consent via web opt-in form."</em> Document the resubmission in <code>docs/warriors/taiko/a2p-campaign-log.md</code> with timestamp, Twilio ticket number, and the submitted URL.</p>
+    <p><strong>Files:</strong> <code>docs/warriors/taiko/a2p-campaign-log.md</code> &mdash; New. Plain markdown log of A2P campaign status, timestamps, and Twilio ticket updates.</p>
+    <p><strong>Acceptance criteria:</strong> (1) Twilio ticket 25630009 is reopened and updated. (2) CTA Verification URL submitted. (3) Campaign log updated. (4) TAIKO monitors for Twilio response (typically 48&ndash;72 hrs). Note in the log when approval arrives.</p>
+  </div>
+
+  <div class="phase-header">Phase 2 &mdash; Twilio Core Refactor (Build while A2P is in Twilio's 48&ndash;72 hr queue)</div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">TKO-COMMS-003</span>
+      <span class="ticket-title">Inbound SMS webhook &mdash; client matching, structured logging, agent notification</span>
+    </div>
+    <div class="ticket-meta">
+      <span class="tag tag-orange">Phase 2</span>
+      <span class="tag tag-yellow">2&ndash;3 hrs</span>
+      <span class="track-badge-a">Track A</span>
+    </div>
+    <p><strong>Owner:</strong> RONIN &nbsp;&bull;&nbsp; <strong>Gate:</strong> Unit test &mdash; mock Twilio POST, assert Firestore write shape</p>
+    <p><strong>Dependency:</strong> None. Can start Day 1 in parallel with COMMS-001.</p>
+    <p><strong>What:</strong> Refactor the Twilio SMS webhook handler at <code>POST /api/webhooks/twilio/sms</code> in <code>webhooks.ts</code>. Current handler receives the SMS payload but does nothing structured with it.</p>
+    <p><strong>Implementation:</strong></p>
+    <ul>
+      <li>Match <code>req.body.From</code> (E.164 phone number) against Firestore <code>clients</code> collection querying <code>phone_primary</code> and <code>phone_secondary</code>. If no match, log as <code>client_id: 'unknown'</code> &mdash; do not drop the message.</li>
+      <li>Write to <code>communications</code> collection: <code>{ type: 'sms', direction: 'inbound', channel: 'sms', client_id, phone_from, phone_to, body, twilio_sid: req.body.MessageSid, timestamp: serverTimestamp(), status: 'received' }</code>.</li>
+      <li>If client was matched, call <code>createNotification()</code> for the assigned agent: <code>{ type: 'inbound_sms', client_id, message: 'New text from [client name]', target_user: assigned_agent_uid }</code>.</li>
+      <li>Return valid TwiML response: <code>&lt;Response/&gt;</code> (empty, no auto-reply).</li>
+    </ul>
+    <p><strong>Files:</strong> <code>services/api/src/routes/webhooks.ts</code> (Twilio SMS section), <code>packages/core/src/types/comms.ts</code> (add <code>CommunicationLog</code> type if not present)</p>
+    <p><strong>Acceptance criteria:</strong> (1) Inbound SMS from a known client phone creates a <code>communications</code> doc with correct shape. (2) Inbound SMS from unknown number creates a doc with <code>client_id: 'unknown'</code>. (3) Twilio receives a valid 200 TwiML response. (4) Assigned agent receives a notification. Unit test covers all three paths.</p>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">TKO-COMMS-004</span>
+      <span class="ticket-title">Outbound SMS &mdash; A2P gate, rate limiting, template variables, SendGrid Inbound Parse webhook URL</span>
+    </div>
+    <div class="ticket-meta">
+      <span class="tag tag-orange">Phase 2</span>
+      <span class="tag tag-yellow">2&ndash;3 hrs</span>
+      <span class="track-badge-a">Track A</span>
+    </div>
+    <p><strong>Owner:</strong> RONIN &nbsp;&bull;&nbsp; <strong>Gate:</strong> Unit test &mdash; assert A2P gate blocks when flag is false, rate limiter rejects on over-limit</p>
+    <p><strong>Dependency:</strong> TKO-COMMS-003 (logging schema must match).</p>
+    <p><strong>What:</strong> Refactor <code>POST /api/comms/sms</code> in <code>comms.ts</code>.</p>
+    <p><strong>A2P gate:</strong> Read <code>config/sms</code> Firestore doc field <code>a2p_approved: boolean</code>. If false, return <code>{ success: false, error: 'Outbound SMS is pending A2P campaign approval. ETA: 48&ndash;72 hrs after Twilio resubmit.', code: 'A2P_BLOCKED' }</code>. Gate is flipped to true by TAIKO when Twilio approves, no deploy required.</p>
+    <p><strong>Rate limiting:</strong> Before sending, query <code>communications</code> collection for count of outbound SMS to this phone number in the last 24 hours. If count &ge; limit (default 10, configurable in <code>config/sms.daily_limit_per_number</code>), return <code>{ success: false, error: 'Daily SMS limit reached for this number.', code: 'RATE_LIMITED' }</code>.</p>
+    <p><strong>Template variables:</strong> Accept <code>body</code> string with <code>{{first_name}}</code>, <code>{{agent_name}}</code>, <code>{{appointment_date}}</code> placeholders. Resolve against <code>client</code> record and authenticated user before sending.</p>
+    <p><strong>Log on send:</strong> Write to <code>communications</code> with <code>{ direction: 'outbound', twilio_sid: result.sid, status: 'sent', ... }</code>.</p>
+    <p><strong>SendGrid Inbound Parse note (SHINOB1 addition):</strong> This ticket also validates the SendGrid Inbound Parse webhook is correctly configured. The inbound parse webhook URL pattern is <code>https://prodash.tomachina.com/api/webhooks/sendgrid/inbound</code>. The DNS MX record that routes inbound email through SendGrid Inbound Parse must be set on the receiving domain: <code>MX 10 mx.sendgrid.net</code> for whichever subdomain receives inbound email (e.g., <code>reply.retireprotected.com</code>). RONIN documents the current state in a comment in <code>webhooks.ts</code> and files a task if MX is not set. Configuring DNS is a JDM action, not a RONIN action.</p>
+    <p><strong>Files:</strong> <code>services/api/src/routes/comms.ts</code> (outbound SMS section), <code>packages/core/src/types/comms.ts</code> (add template variable types, A2P gate response types)</p>
+    <p><strong>Acceptance criteria:</strong> (1) A2P gate returns correct structured error when <code>a2p_approved</code> is false. (2) Rate limit blocks on 11th message in 24 hrs. (3) <code>{{first_name}}</code> resolves correctly in body before send. (4) Successful send writes communications doc with <code>twilio_sid</code>. (5) SendGrid Inbound Parse URL and MX status documented in code comment.</p>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">TKO-COMMS-005</span>
+      <span class="ticket-title">Voice &mdash; inbound routing hardening, call recording on all calls, transcript sync</span>
+    </div>
+    <div class="ticket-meta">
+      <span class="tag tag-orange">Phase 2</span>
+      <span class="tag tag-yellow">3&ndash;4 hrs</span>
+      <span class="track-badge-a">Track A</span>
+    </div>
+    <p><strong>Owner:</strong> RONIN &nbsp;&bull;&nbsp; <strong>Gate:</strong> Manual &mdash; JDM places a test call, confirms it records and logs</p>
+    <p><strong>Dependency:</strong> TKO-COMMS-003 (logging schema).</p>
+    <p><strong>What:</strong> Harden the Twilio voice stack end-to-end. Three distinct areas:</p>
+    <p><strong>1 &mdash; Inbound routing (<code>comms-routing.ts</code>):</strong> Verify that both <code>+18886208587</code> (toll-free) and the local Twilio number route correctly to the assigned agent. Test that the 888 does not break if the local number's A2P status changes. Keep the 888 routing logic isolated from any A2P-dependent code path.</p>
+    <p><strong>2 &mdash; Call recording (<code>comms.ts</code> TwiML section):</strong> Call recording must be enabled for all inbound calls, not just voicemail. Add <code>record=true</code> to the TwiML verb. Voicemail config already reads from <code>config/voicemail</code> Firestore doc &mdash; verify it still works and does not interfere with always-on recording.</p>
+    <p><strong>3 &mdash; Transcript sync (<code>webhooks.ts</code> voice callback section):</strong> On Twilio call completion callback (<code>POST /api/webhooks/twilio/voice/status</code>): fetch the Twilio transcription for the recording. Write the transcript to <code>clients/{clientId}/call_transcripts</code> subcollection: <code>{ call_sid, recording_url, transcript_text, duration, timestamp }</code>. Also log to <code>communications</code> with <code>{ type: 'call', direction: 'inbound', twilio_sid, duration, has_transcript: true }</code>.</p>
+    <p><strong>Files:</strong></p>
+    <ul>
+      <li><code>services/api/src/routes/comms.ts</code> (TwiML voice section &mdash; add record=true)</li>
+      <li><code>services/api/src/routes/comms-routing.ts</code> (routing hardening)</li>
+      <li><code>services/api/src/routes/webhooks.ts</code> (voice status callback &mdash; transcript fetch + write)</li>
+    </ul>
+    <p><strong>Acceptance criteria:</strong> (1) Inbound call to 888 routes to assigned agent and records. (2) Call completion webhook triggers transcript fetch. (3) Transcript written to <code>clients/{clientId}/call_transcripts</code> subcollection. (4) 888 routing unchanged after local number modifications. (5) JDM test call succeeds end-to-end.</p>
+  </div>
+
+  <div class="phase-header">Phase 3 &mdash; SendGrid Audit (Runs parallel to Phase 2)</div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">TKO-COMMS-006</span>
+      <span class="ticket-title">SendGrid delivery audit &mdash; rates, bounce handling, template inventory</span>
+    </div>
+    <div class="ticket-meta">
+      <span class="tag tag-orange">Phase 3</span>
+      <span class="tag tag-yellow">2 hrs</span>
+      <span class="track-badge-a">Track A</span>
+    </div>
+    <p><strong>Owner:</strong> RONIN &nbsp;&bull;&nbsp; <strong>Gate:</strong> Manual &mdash; TAIKO reviews audit output, confirms bounce-handling gap is closed</p>
+    <p><strong>Dependency:</strong> None. Runs in parallel with Phase 2.</p>
+    <p><strong>What:</strong> Pull the SendGrid activity report via API (<code>GET https://api.sendgrid.com/v3/stats?start_date=YYYY-MM-DD&amp;end_date=YYYY-MM-DD</code>) and the bounce list (<code>GET https://api.sendgrid.com/v3/suppression/bounces</code>). Document: (1) total sends last 30 days, (2) delivery rate, (3) bounce count and categories (hard vs. soft), (4) spam complaint rate, (5) list of transactional templates currently in use. Run this as an executable script, not a one-time manual pull, so TAIKO can re-run it monthly.</p>
+    <p><strong>Bounce-handling gap:</strong> Check the SendGrid webhook handler at <code>POST /api/webhooks/sendgrid</code>. On a <code>bounce</code> event, the handler must: query the client record for this email, set <code>email_bounced: true</code> and <code>email_bounce_type: 'hard'|'soft'</code> on the client doc. This flag surfaces in the Comms App so reps know not to email-blast a bounced address. If this flag logic is missing, add it.</p>
+    <p><strong>Audit output:</strong> Write result to Firestore <code>config/sendgrid_audit</code> doc: <code>{ run_at: timestamp, sends_30d, delivery_rate, bounce_rate, hard_bounces, soft_bounces, spam_complaints, template_list: string[] }</code>.</p>
+    <p><strong>Files:</strong></p>
+    <ul>
+      <li><code>services/api/src/scripts/sendgrid-audit.ts</code> &mdash; New. Runnable script, writes to Firestore.</li>
+      <li><code>services/api/src/routes/webhooks.ts</code> (SendGrid bounce section &mdash; add client flag write if missing)</li>
+    </ul>
+    <p><strong>Acceptance criteria:</strong> (1) Script runs without errors and writes <code>config/sendgrid_audit</code>. (2) Delivery rate, bounce rate, and spam complaint rate are populated. (3) Template list is populated. (4) Hard bounce from SendGrid webhook sets <code>email_bounced: true</code> on the correct client doc. (5) TAIKO can confirm the audit result in Firestore Console.</p>
+  </div>
+</div>
+
+<!-- ════ TICKETS B ════ -->
+<div id="tickets-b" class="tab-content">
+  <h2>Track B &mdash; TKO-CONN-* (8 Tickets)</h2>
+
+  <div class="callout-blue">
+    <p><strong>SHINOB1 must approve TKO-CONN-001 before RONIN touches the credential configuration.</strong> The OAuth scope extension plan and the team reauth strategy are CTO decisions. RONIN presents the plan as specified below; SHINOB1 signs off; then RONIN executes. Do not touch <code>calendar-client.ts</code> credential setup or service account delegation config without that sign-off.</p>
+  </div>
+
+  <div class="phase-header">Phase 1 &mdash; Google Workspace Credential Extension (Unlocks CONN-002 through 005)</div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">TKO-CONN-001</span>
+      <span class="ticket-title">Google Chat OAuth scope extension &mdash; credential plan + domain delegation update</span>
+    </div>
+    <div class="ticket-meta">
+      <span class="tag tag-orange">Phase 1</span>
+      <span class="tag tag-yellow">2 hrs</span>
+      <span class="track-badge-b">Track B</span>
+    </div>
+    <p><strong>Owner:</strong> RONIN (code) &nbsp;+&nbsp; SHINOB1 approval (plan) &nbsp;&bull;&nbsp; <strong>Gate:</strong> SHINOB1 sign-off before execution; manual verification that Chat API calls succeed</p>
+    <p><strong>Dependency:</strong> SHINOB1 approval. No code dependency.</p>
+    <p><strong>OAuth scopes needed (SHINOB1 addition):</strong></p>
+    <ul>
+      <li><code>https://www.googleapis.com/auth/chat.messages</code> &mdash; send messages to Chat spaces and DMs</li>
+      <li><code>https://www.googleapis.com/auth/chat.messages.readonly</code> &mdash; read Chat history for the space bridge (TKO-CONN-006)</li>
+      <li><code>https://www.googleapis.com/auth/chat.spaces</code> &mdash; create and list spaces</li>
+      <li><code>https://www.googleapis.com/auth/chat.spaces.readonly</code> &mdash; list spaces without write access (for read-side bridge)</li>
+      <li>Meet/Spaces (for TKO-CONN-003): <code>https://www.googleapis.com/auth/meetings.space.created</code> &mdash; retrieve recordings for meetings the service account created</li>
+    </ul>
+    <p><strong>Team reauth strategy (SHINOB1 addition):</strong> Domain-wide delegation scopes are added in the GCP service account configuration, not in user OAuth flows. Adding scopes to the service account DWD config does not require individual team members to re-authenticate. However, if any team member has granted the toMachina OAuth app consent directly (non-service-account path), they will see a re-consent prompt on next login. RONIN's recommendation: add scopes to DWD now. Accept the brief re-consent prompt for any affected users. This is a one-time event. Do not stagger &mdash; staggering creates inconsistency and support burden. SHINOB1 confirms this recommendation before execution.</p>
+    <p><strong>What RONIN builds:</strong></p>
+    <ul>
+      <li>New <code>services/api/src/lib/chat-client.ts</code> &mdash; a Google Chat API helper mirroring the pattern of <code>calendar-client.ts</code>. Exports: <code>postToGoogleChat(spaceId: string, message: ChatMessage): Promise&lt;void&gt;</code>, <code>listSpaces(): Promise&lt;ChatSpace[]&gt;</code>, <code>listMessages(spaceId: string, maxMessages: number): Promise&lt;ChatMessage[]&gt;</code>.</li>
+      <li>Extend <code>services/api/src/lib/calendar-client.ts</code> to add Meet recording retrieval methods (used by CONN-003).</li>
+      <li>Update the GCP service account DWD configuration to add the Chat and Meet scopes listed above. Document the updated scope list in <code>docs/warriors/taiko/google-api-scopes.md</code>.</li>
+    </ul>
+    <p><strong>Files:</strong></p>
+    <ul>
+      <li><code>services/api/src/lib/chat-client.ts</code> &mdash; New</li>
+      <li><code>services/api/src/lib/calendar-client.ts</code> &mdash; Modified (add Meet recording methods)</li>
+      <li><code>docs/warriors/taiko/google-api-scopes.md</code> &mdash; New (scope registry for TAIKO-owned Google APIs)</li>
+    </ul>
+    <p><strong>Acceptance criteria:</strong> (1) SHINOB1 has signed off on the scope list and reauth strategy. (2) <code>chat-client.ts</code> exports compile with strict TypeScript. (3) A test call to <code>listSpaces()</code> returns successfully in the Cloud Run environment. (4) Scope registry doc is complete and committed.</p>
+  </div>
+
+  <div class="phase-header">Phase 2 &mdash; Google Chat Bridge (Platform Event Posting)</div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">TKO-CONN-002</span>
+      <span class="ticket-title">Google Chat bridge &mdash; platform event posting to configured spaces</span>
+    </div>
+    <div class="ticket-meta">
+      <span class="tag tag-orange">Phase 2</span>
+      <span class="tag tag-yellow">2 hrs</span>
+      <span class="track-badge-b">Track B</span>
+    </div>
+    <p><strong>Owner:</strong> RONIN &nbsp;&bull;&nbsp; <strong>Gate:</strong> Manual &mdash; test post appears in a real Google Chat space</p>
+    <p><strong>Dependency:</strong> TKO-CONN-001 (chat-client.ts must exist).</p>
+    <p><strong>What:</strong> Wire the Chat API helper into an API endpoint so any platform actor (wire runner, RAIDEN, future alert dispatcher) can post a structured message to a Google Chat space without needing direct SDK access.</p>
+    <p><strong>New route:</strong> <code>POST /api/connect/chat/post</code></p>
+    <p>Request body: <code>{ space_id: string, message: string, card?: object }</code>. The <code>space_id</code> is validated against the <code>config/chat_spaces</code> Firestore doc (allowlist of known RPI spaces &mdash; RONIN cannot post to arbitrary spaces). Returns <code>{ success: true, message_id: string }</code>.</p>
+    <p><strong>Space ID config:</strong> Create Firestore doc <code>config/chat_spaces</code> with initial entries:</p>
+    <ul>
+      <li><code>war_room</code>: the #dojo-war-room Google Chat equivalent space ID (TAIKO gets this from JDM or Workspace admin &mdash; it's not in code)</li>
+      <li><code>the_dojo</code>: the #the-dojo equivalent space ID</li>
+      <li><code>general</code>: the general team space ID</li>
+    </ul>
+    <p>Space IDs are not hardcoded in code. They live in Firestore and are editable without deploy.</p>
+    <p><strong>Files:</strong></p>
+    <ul>
+      <li><code>services/api/src/routes/connect.ts</code> &mdash; Modified: add <code>POST /chat/post</code> handler</li>
+      <li><code>services/api/src/lib/chat-client.ts</code> &mdash; Modified: used by the new handler</li>
+    </ul>
+    <p><strong>Acceptance criteria:</strong> (1) <code>POST /api/connect/chat/post</code> with a valid space_id posts a message to the real Google Chat space. (2) Request with an unlisted space_id returns <code>{ success: false, error: 'Space not in allowlist', code: 'SPACE_NOT_ALLOWED' }</code>. (3) Message appears in Google Chat within 5 seconds of the API call.</p>
+  </div>
+
+  <div class="phase-header">Phase 3 &mdash; Google Meet Recording + Transcript Sync</div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">TKO-CONN-003</span>
+      <span class="ticket-title">Google Meet &mdash; recording retrieval + transcript sync to client record</span>
+    </div>
+    <div class="ticket-meta">
+      <span class="tag tag-orange">Phase 3</span>
+      <span class="tag tag-yellow">3 hrs</span>
+      <span class="track-badge-b">Track B</span>
+    </div>
+    <p><strong>Owner:</strong> RONIN &nbsp;&bull;&nbsp; <strong>Gate:</strong> Manual &mdash; hold a test Meet with a dummy client email, confirm recording + transcript appear on client record</p>
+    <p><strong>Dependency:</strong> TKO-CONN-001 (Meet recording scope added to DWD, <code>calendar-client.ts</code> extended).</p>
+    <p><strong>What:</strong> Extend the existing Google Meet integration in <code>connect.ts</code> (which currently only creates meetings via Calendar API) to retrieve recordings and sync transcripts to client records.</p>
+    <p><strong>Two new endpoints:</strong></p>
+    <ul>
+      <li><code>GET /api/connect/meet/recordings</code> &mdash; retrieve recordings for the authenticated user from the Meet API. Returns a list of <code>{ meeting_id, recording_url, transcript_url, duration, start_time, attendee_emails }</code>.</li>
+      <li><code>GET /api/connect/meet/transcript/:meetingId</code> &mdash; fetch the full transcript text for a specific meeting.</li>
+    </ul>
+    <p><strong>Client record sync:</strong> For each recording where an attendee email matches a Firestore client record, write to <code>communications</code> collection: <code>{ type: 'meet', direction: 'outbound', client_id, meeting_id, recording_url, transcript_url, duration, timestamp }</code>. This makes Meet history visible alongside SMS and call history in the unified Comms feed.</p>
+    <p><strong>Files:</strong></p>
+    <ul>
+      <li><code>services/api/src/routes/connect.ts</code> &mdash; Modified: add two new GET endpoints</li>
+      <li><code>services/api/src/lib/calendar-client.ts</code> &mdash; Modified: add <code>getMeetRecordings(userEmail)</code> and <code>getMeetTranscript(meetingId)</code> methods</li>
+    </ul>
+    <p><strong>Acceptance criteria:</strong> (1) <code>GET /api/connect/meet/recordings</code> returns recordings for the authenticated user. (2) For a meeting with a client attendee, a <code>communications</code> doc is written with correct shape. (3) <code>GET /api/connect/meet/transcript/:meetingId</code> returns transcript text. (4) No PHI in logs.</p>
+  </div>
+
+  <div class="phase-header">Phase 4 &mdash; RPI Connect Real-Time Messaging</div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">TKO-CONN-004</span>
+      <span class="ticket-title">RPI Connect &mdash; real-time channel messaging via SSE, message storage</span>
+    </div>
+    <div class="ticket-meta">
+      <span class="tag tag-red">Large Ticket</span>
+      <span class="tag tag-orange">Phase 4</span>
+      <span class="tag tag-yellow">4&ndash;5 hrs</span>
+      <span class="track-badge-b">Track B</span>
+    </div>
+    <p><strong>Owner:</strong> RONIN &nbsp;&bull;&nbsp; <strong>Gate:</strong> Manual &mdash; two browser sessions, both see the same channel, message sent from one appears in the other within 2 seconds</p>
+    <p><strong>Dependency:</strong> TKO-CONN-001.</p>
+    <p><strong>What:</strong> The ConnectPanel (<code>packages/ui/src/modules/ConnectPanel.tsx</code> &mdash; 824 lines, already has presence and channel switching) currently has no real message feed. The channel CRUD exists in <code>connect.ts</code>. What's missing is the message layer.</p>
+    <p><strong>Backend additions to <code>connect.ts</code>:</strong></p>
+    <ul>
+      <li><code>POST /api/connect/channels/:channelSlug/messages</code> &mdash; send a message to a channel. Writes to <code>connect_channels/{channelSlug}/messages</code> subcollection: <code>{ uid, display_name, body, timestamp: serverTimestamp(), type: 'text' }</code>. Returns <code>{ success: true, message_id }</code>.</li>
+      <li><code>GET /api/connect/channels/:channelSlug/messages</code> &mdash; paginated message history. Accept <code>?limit=50&amp;before=timestamp</code>. Returns array of message objects ordered by timestamp desc.</li>
+      <li><code>GET /api/connect/channels/:channelSlug/stream</code> &mdash; SSE endpoint. Opens an event stream. When a new message is written to Firestore, the backend pushes an <code>event: message</code> SSE event. Uses Firestore real-time listener on the subcollection. Cleans up the listener on client disconnect.</li>
+    </ul>
+    <p><strong>Frontend additions to <code>ConnectPanel.tsx</code>:</strong></p>
+    <ul>
+      <li>Replace the placeholder message area with a real feed component: fetch history on channel switch, then subscribe to the SSE stream for new messages.</li>
+      <li>Message compose bar: <code>&lt;textarea&gt;</code> + Send button. On submit, calls <code>POST /api/connect/channels/:channelSlug/messages</code>. Clears input on success.</li>
+      <li>Message list: render messages oldest-to-newest, auto-scroll to bottom on new message, show sender display name and timestamp.</li>
+    </ul>
+    <p><strong>Files:</strong></p>
+    <ul>
+      <li><code>services/api/src/routes/connect.ts</code> &mdash; Modified: add three endpoints above</li>
+      <li><code>packages/ui/src/modules/ConnectPanel.tsx</code> &mdash; Modified: add message feed, compose bar, SSE subscription</li>
+    </ul>
+    <p><strong>Acceptance criteria:</strong> (1) Message sent in one browser session appears in another within 2 seconds without page refresh. (2) Message history loads on channel switch. (3) SSE connection closes cleanly on panel close without memory leak. (4) Message feed auto-scrolls to newest message.</p>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">TKO-CONN-005</span>
+      <span class="ticket-title">RPI Connect &mdash; direct messages + Google Meet launch from within the panel</span>
+    </div>
+    <div class="ticket-meta">
+      <span class="tag tag-orange">Phase 4</span>
+      <span class="tag tag-yellow">3 hrs</span>
+      <span class="track-badge-b">Track B</span>
+    </div>
+    <p><strong>Owner:</strong> RONIN &nbsp;&bull;&nbsp; <strong>Gate:</strong> Manual &mdash; send a DM to a teammate, confirm it arrives; launch a Meet from within the panel, confirm link is created</p>
+    <p><strong>Dependency:</strong> TKO-CONN-004 (channel messaging must be live first).</p>
+    <p><strong>What:</strong> Two additions that make the Connect panel feel complete for daily use:</p>
+    <p><strong>Direct messages:</strong> Add DM support using a new Firestore collection <code>connect_dms</code>. A DM thread is identified by a sorted pair of UIDs: <code>connect_dms/{uid_a}-{uid_b}/messages</code> (sort both UIDs alphabetically to ensure consistency regardless of who initiates). New API endpoints:</p>
+    <ul>
+      <li><code>POST /api/connect/dm/:targetUid</code> &mdash; send a DM</li>
+      <li><code>GET /api/connect/dm/:targetUid/messages</code> &mdash; paginated DM history</li>
+      <li><code>GET /api/connect/dm/:targetUid/stream</code> &mdash; SSE for new DMs</li>
+    </ul>
+    <p>In <code>ConnectPanel.tsx</code>: clicking a team member's name in the People tab opens a DM thread in the same panel view. The compose bar and message list work identically to channel messaging.</p>
+    <p><strong>Meet launch:</strong> The ConnectPanel already has a calendar tab that calls <code>POST /api/connect/meet</code> to create a meeting. Add a &ldquo;Start Meet&rdquo; button to the channel toolbar (top of any channel or DM view). On click: call <code>POST /api/connect/meet</code>, get back the Meet URL, post it as a message to the current channel (e.g., "Josh started a meeting: [link]"), and open the link in a new tab. This is one click from conversation to video call.</p>
+    <p><strong>Files:</strong></p>
+    <ul>
+      <li><code>services/api/src/routes/connect.ts</code> &mdash; Modified: add three DM endpoints</li>
+      <li><code>packages/ui/src/modules/ConnectPanel.tsx</code> &mdash; Modified: DM thread view, Start Meet button</li>
+    </ul>
+    <p><strong>Acceptance criteria:</strong> (1) DM sent to teammate appears in their DM thread within 2 seconds. (2) DM history loads correctly. (3) Start Meet button creates a meeting and posts the link to the channel. (4) Meet link opens in a new tab.</p>
+  </div>
+
+  <div class="phase-header">Phase 5 &mdash; Google Chat Space Bridge (Read Side)</div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">TKO-CONN-006</span>
+      <span class="ticket-title">RPI Connect &mdash; Google Chat space messages surfaced in Connect panel</span>
+    </div>
+    <div class="ticket-meta">
+      <span class="tag tag-orange">Phase 5</span>
+      <span class="tag tag-yellow">2&ndash;3 hrs</span>
+      <span class="track-badge-b">Track B</span>
+    </div>
+    <p><strong>Owner:</strong> RONIN &nbsp;&bull;&nbsp; <strong>Gate:</strong> Manual &mdash; a message posted in Google Chat appears in the Connect panel bridge view</p>
+    <p><strong>Dependency:</strong> TKO-CONN-002 (Chat bridge write side), TKO-CONN-004 (Connect panel message feed).</p>
+    <p><strong>What:</strong> Surface Google Chat space message history inside the RPI Connect panel as a read-only view. This is the bridge that lets a team member who's living in the portal see the same #the-dojo and #war-room traffic as a teammate in Google Chat &mdash; without requiring them to switch apps.</p>
+    <p><strong>Backend:</strong> New endpoint <code>GET /api/connect/chat/spaces/:spaceId/messages</code> calls <code>chat-client.listMessages(spaceId, 50)</code> and returns the messages. Space ID must be in the <code>config/chat_spaces</code> allowlist.</p>
+    <p><strong>Frontend:</strong> In <code>ConnectPanel.tsx</code>, add a "Spaces" section in the channel sidebar (below RPI Connect channels). Each listed space (from <code>config/chat_spaces</code>) shows a read-only message feed. No compose bar &mdash; this is read-only. To post to a Google Chat space, the team member uses the Google Chat app. The portal surface is for awareness, not replacing the Chat app yet.</p>
+    <p><strong>Files:</strong></p>
+    <ul>
+      <li><code>services/api/src/routes/connect.ts</code> &mdash; Modified: add <code>GET /chat/spaces/:spaceId/messages</code></li>
+      <li><code>packages/ui/src/modules/ConnectPanel.tsx</code> &mdash; Modified: Spaces section with read-only feed</li>
+    </ul>
+    <p><strong>Acceptance criteria:</strong> (1) Spaces section appears in the Connect panel sidebar. (2) Clicking a space loads its 50 most recent messages. (3) Messages show sender name and timestamp. (4) No compose bar in the Spaces view. (5) Unlisted space IDs return a proper error.</p>
+  </div>
+
+  <div class="phase-header">Phase 6 &mdash; Slack Migration Runbook</div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">TKO-CONN-007</span>
+      <span class="ticket-title">Slack-to-Google migration runbook &mdash; channel map, timeline, team comms plan</span>
+    </div>
+    <div class="ticket-meta">
+      <span class="tag tag-orange">Phase 6</span>
+      <span class="tag tag-yellow">4 hrs</span>
+      <span class="track-badge-b">Track B</span>
+    </div>
+    <p><strong>Owner:</strong> RONIN (drafts) &nbsp;+&nbsp; JDM approval before any migration action &nbsp;&bull;&nbsp; <strong>Gate:</strong> JDM + John Behn must both review and approve the runbook before any channel migration</p>
+    <p><strong>Dependency:</strong> TKO-CONN-004 stable in production. At least 5 business days of team usage of RPI Connect real-time messaging with no P0 incidents.</p>
+    <p><strong>What:</strong> Produce the migration runbook as a markdown document. This is a document, not code. RONIN drafts it; JDM and John Behn approve it; TAIKO executes it.</p>
+    <p><strong>Runbook must include:</strong></p>
+    <ul>
+      <li><strong>Slack channel inventory:</strong> list of every active Slack channel and its mapped destination (Google Chat space, RPI Connect channel, or "archive only"). Warrior bilateral channels (#raiden-reactive, #dojo-war-room, etc.) do NOT migrate until RPI Connect can fully handle the volume.</li>
+      <li><strong>Migration sequence:</strong> low-traffic channels first (pilot), then mid-traffic, then high-traffic. #warriors, #executives, and all warrior bilateral channels are last. Never migrate more than 3 channels in a single week.</li>
+      <li><strong>Data export plan:</strong> Slack export (full export via Slack admin) before any channel is deleted. Export stored in Google Drive under the TAIKO warrior folder.</li>
+      <li><strong>Team communication plan:</strong> How JDM announces the switch (what channel, what message, what timeline). How reps get trained on RPI Connect (short video walkthrough, not a manual). Who fields questions on Day 1.</li>
+      <li><strong>Rollback condition:</strong> if any P0 incident occurs in the first 48 hrs after a channel migrates, that channel reverts to Slack. Rollback is TAIKO's call, not a team vote.</li>
+    </ul>
+    <p><strong>Files:</strong> <code>docs/warriors/taiko/slack-migration-runbook.md</code> &mdash; New</p>
+    <p><strong>Acceptance criteria:</strong> (1) Runbook covers all items above. (2) JDM has reviewed. (3) John Behn has reviewed. (4) TAIKO does not begin any migration action until both approvals are confirmed. (5) No Slack channel is deleted during this sprint &mdash; this sprint only produces the plan.</p>
+  </div>
+
+  <div class="phase-header">Phase 7 &mdash; TAIKO Observability</div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">TKO-CONN-008</span>
+      <span class="ticket-title">Comms health endpoint &mdash; TAIKO observability dashboard</span>
+    </div>
+    <div class="ticket-meta">
+      <span class="tag tag-orange">Phase 7</span>
+      <span class="tag tag-yellow">2&ndash;3 hrs</span>
+      <span class="track-badge-b">Track B</span>
+    </div>
+    <p><strong>Owner:</strong> RONIN &nbsp;&bull;&nbsp; <strong>Gate:</strong> Manual &mdash; TAIKO verifies metrics are accurate against known send history</p>
+    <p><strong>Dependency:</strong> TKO-COMMS-003 (the <code>communications</code> collection must have structured writes before aggregation is meaningful).</p>
+    <p><strong>What:</strong> Build the earliest-warning layer for TAIKO. One endpoint that aggregates comms health metrics from the <code>communications</code> collection (not live Twilio/SendGrid API calls &mdash; avoids rate limits and latency).</p>
+    <p><strong>New endpoint:</strong> <code>GET /api/comms/health</code> &mdash; returns:</p>
+    <ul>
+      <li><code>sms: { sends_24h, sends_7d, delivery_rate_7d, failed_7d }</code></li>
+      <li><code>calls: { total_24h, total_7d, avg_duration_seconds }</code></li>
+      <li><code>email: { sends_24h, sends_7d, bounce_rate_7d }</code></li>
+      <li><code>meet: { sessions_7d }</code></li>
+      <li><code>a2p_status: string</code> (read from <code>config/sms.a2p_approved</code>)</li>
+      <li><code>last_updated: timestamp</code></li>
+    </ul>
+    <p>The aggregation queries Firestore with a <code>where('timestamp', '&gt;=', 7DaysAgo)</code> range scan on the <code>communications</code> collection, grouped by <code>channel</code> and <code>direction</code>. This is O(N) over the collection &mdash; for the current data size this is fine. If it becomes slow, TAIKO files a follow-up to move to BigQuery.</p>
+    <p><strong>UI surface:</strong> A simple stat card block in <code>apps/riimo/app/(portal)/admin/comms-health/page.tsx</code>. Six stat cards: SMS Sends (7d), Call Volume (7d), Email Sends (7d), Bounce Rate (7d), Meet Sessions (7d), A2P Status. No charts &mdash; numbers only. TAIKO reads this page to know whether the pipes are working.</p>
+    <p><strong>Files:</strong></p>
+    <ul>
+      <li><code>services/api/src/routes/comms.ts</code> &mdash; Modified: add <code>GET /api/comms/health</code> handler</li>
+      <li><code>apps/riimo/app/(portal)/admin/comms-health/page.tsx</code> &mdash; New</li>
+    </ul>
+    <p><strong>Acceptance criteria:</strong> (1) <code>GET /api/comms/health</code> returns all six metric fields. (2) SMS sends_24h matches the count in Firestore for the last 24 hrs. (3) A2P status reflects the current value in <code>config/sms</code>. (4) RIIMO admin page renders the stat cards. (5) Page loads in under 2 seconds.</p>
+  </div>
+</div>
+
+<!-- ════ FILES ════ -->
+<div id="files" class="tab-content">
+  <h2>Every File This Sprint Touches</h2>
+
+  <h3>Track A &mdash; New files</h3>
+  <table>
+    <tr><th>File</th><th>Ticket</th><th>Purpose</th></tr>
+    <tr><td><code>apps/prodash/app/sms-consent/page.tsx</code></td><td>TKO-COMMS-001</td><td>Public A2P opt-in landing page (no auth, outside portal group)</td></tr>
+    <tr><td><code>apps/prodash/app/sms-consent/layout.tsx</code></td><td>TKO-COMMS-001</td><td>Minimal layout for the public opt-in page</td></tr>
+    <tr><td><code>services/api/src/scripts/sendgrid-audit.ts</code></td><td>TKO-COMMS-006</td><td>Runnable SendGrid delivery audit script; writes to Firestore</td></tr>
+    <tr><td><code>docs/warriors/taiko/a2p-campaign-log.md</code></td><td>TKO-COMMS-002</td><td>A2P campaign status log (Twilio ticket, submission timestamps, approval status)</td></tr>
+  </table>
+
+  <h3>Track A &mdash; Modified files</h3>
+  <table>
+    <tr><th>File</th><th>Tickets</th><th>Change</th></tr>
+    <tr><td><code>services/api/src/routes/webhooks.ts</code></td><td>COMMS-003, COMMS-005, COMMS-006</td><td>Inbound SMS client-matching + logging; voice status callback transcript sync; SendGrid bounce &rarr; client flag write</td></tr>
+    <tr><td><code>services/api/src/routes/comms.ts</code></td><td>COMMS-004, COMMS-005, COMMS-006, CONN-008</td><td>Outbound SMS A2P gate + rate limit + template vars; voice TwiML record=true; GET /health endpoint; SendGrid Inbound Parse URL documentation comment</td></tr>
+    <tr><td><code>services/api/src/routes/comms-routing.ts</code></td><td>COMMS-005</td><td>Hardened routing for 888 and local number; 888 isolated from A2P-dependent paths</td></tr>
+    <tr><td><code>packages/core/src/types/comms.ts</code></td><td>COMMS-003, COMMS-004</td><td>Add <code>CommunicationLog</code> type, template variable types, A2P gate response types</td></tr>
+    <tr><td><code>firestore.rules</code></td><td>COMMS-001</td><td>Add <code>tcpa_consents</code> collection: allow unauthenticated create (public opt-in form), RPI user read</td></tr>
+  </table>
+
+  <h3>Track B &mdash; New files</h3>
+  <table>
+    <tr><th>File</th><th>Ticket</th><th>Purpose</th></tr>
+    <tr><td><code>services/api/src/lib/chat-client.ts</code></td><td>TKO-CONN-001</td><td>Google Chat API helper: postToGoogleChat, listSpaces, listMessages</td></tr>
+    <tr><td><code>docs/warriors/taiko/google-api-scopes.md</code></td><td>TKO-CONN-001</td><td>Registry of all Google API OAuth scopes owned by TAIKO, with purpose and usage location</td></tr>
+    <tr><td><code>apps/riimo/app/(portal)/admin/comms-health/page.tsx</code></td><td>TKO-CONN-008</td><td>TAIKO observability dashboard: 6 comms metric stat cards</td></tr>
+    <tr><td><code>docs/warriors/taiko/slack-migration-runbook.md</code></td><td>TKO-CONN-007</td><td>Channel map, migration sequence, data export plan, team comms plan, rollback condition</td></tr>
+  </table>
+
+  <h3>Track B &mdash; Modified files</h3>
+  <table>
+    <tr><th>File</th><th>Tickets</th><th>Change</th></tr>
+    <tr><td><code>services/api/src/lib/calendar-client.ts</code></td><td>CONN-001, CONN-003</td><td>Add Meet recording retrieval methods: getMeetRecordings(userEmail), getMeetTranscript(meetingId)</td></tr>
+    <tr><td><code>services/api/src/routes/connect.ts</code></td><td>CONN-002, CONN-003, CONN-004, CONN-005, CONN-006</td><td>Add: POST /chat/post; GET /meet/recordings; GET /meet/transcript/:id; POST+GET /channels/:slug/messages; GET /channels/:slug/stream; POST+GET+GET /dm/:targetUid; GET /chat/spaces/:spaceId/messages</td></tr>
+    <tr><td><code>packages/ui/src/modules/ConnectPanel.tsx</code></td><td>CONN-004, CONN-005, CONN-006</td><td>Add real-time message feed (SSE-backed); compose bar; DM thread view; Start Meet button; read-only Spaces section</td></tr>
+  </table>
+
+  <h3>Firestore collections touched</h3>
+  <table>
+    <tr><th>Collection</th><th>Status</th><th>Tickets</th><th>Notes</th></tr>
+    <tr><td><code>communications</code></td><td>Exists</td><td>COMMS-003, COMMS-004, COMMS-005, CONN-003, CONN-008</td><td>Extended: consistent client_id, direction, channel, twilio_sid, type fields across all writes. Meet sessions also logged here.</td></tr>
+    <tr><td><code>tcpa_consents</code></td><td>New</td><td>COMMS-001</td><td>Opt-in records. No PHI. IDs and timestamps only. Firestore rules: unauthenticated create, RPI user read.</td></tr>
+    <tr><td><code>connect_channels</code></td><td>Exists</td><td>CONN-004</td><td>Messages subcollection added: connect_channels/{slug}/messages</td></tr>
+    <tr><td><code>connect_dms</code></td><td>New</td><td>CONN-005</td><td>DM threads: connect_dms/{uid_a}-{uid_b}/messages. UIDs sorted alphabetically.</td></tr>
+    <tr><td><code>clients/{id}/call_transcripts</code></td><td>New subcollection</td><td>COMMS-005</td><td>Twilio call transcript sync. Schema: call_sid, recording_url, transcript_text, duration, timestamp.</td></tr>
+    <tr><td><code>config/sms</code></td><td>New doc</td><td>COMMS-004</td><td>a2p_approved: boolean, daily_limit_per_number: number</td></tr>
+    <tr><td><code>config/chat_spaces</code></td><td>New doc</td><td>CONN-002, CONN-006</td><td>Allowlisted space IDs: war_room, the_dojo, general</td></tr>
+    <tr><td><code>config/sendgrid_audit</code></td><td>New doc</td><td>COMMS-006</td><td>Audit results: run_at, sends_30d, delivery_rate, bounce_rate, template_list</td></tr>
+  </table>
+</div>
+
+<!-- ════ GATES ════ -->
+<div id="gates" class="tab-content">
+  <h2>Phase Gates &amp; JDM Approval Points</h2>
+
+  <p>Five gates in this sprint. No gate opened by RONIN alone. Each requires specified evidence before proceeding.</p>
+
+  <div class="gate-step">
+    <div class="gate-num">G1</div>
+    <div class="gate-content">
+      <strong>Consent Page Live Gate &mdash; after TKO-COMMS-001</strong>
+      <p><strong>Evidence required:</strong> (1) <code>prodash.tomachina.com/sms-consent</code> loads publicly without authentication. (2) All required carrier elements visible without scrolling on mobile. (3) Form submit writes to <code>tcpa_consents</code> in Firestore. <strong>JDM decision:</strong> Read the consent page. Approve the exact language. This is what goes to Twilio &mdash; it will be reviewed by carrier compliance systems. JDM says "looks good" (in Slack, not in person) before COMMS-002 proceeds.</p>
+    </div>
+  </div>
+
+  <div class="gate-step">
+    <div class="gate-num">G2</div>
+    <div class="gate-content">
+      <strong>A2P Resubmit Gate &mdash; after TKO-COMMS-002</strong>
+      <p><strong>Evidence required:</strong> (1) Twilio ticket 25630009 is reopened and updated. (2) CTA Verification URL submitted as <code>https://prodash.tomachina.com/sms-consent</code>. (3) Campaign log updated with submission timestamp. <strong>JDM decision:</strong> None at this step. TAIKO executes, logs the action, and monitors. JDM is notified when Twilio approves (expected 48&ndash;72 hrs). When approval arrives: TAIKO flips <code>config/sms.a2p_approved</code> to <code>true</code> in Firestore &mdash; no deploy required &mdash; and notifies JDM.</p>
+    </div>
+  </div>
+
+  <div class="gate-step">
+    <div class="gate-num">G3</div>
+    <div class="gate-content">
+      <strong>Google Chat OAuth Gate &mdash; TKO-CONN-001 plan approval</strong>
+      <p><strong>Evidence required:</strong> (1) RONIN presents the exact scope list and reauth strategy to SHINOB1 for review. (2) SHINOB1 confirms the recommended approach (add all scopes to DWD now, accept re-consent prompt for affected users). <strong>SHINOB1 decision:</strong> The CTO must sign off before RONIN touches any credential configuration. This is an architectural decision, not a code decision. The sign-off is a Slack message to RONIN's queue, not a PR review.</p>
+    </div>
+  </div>
+
+  <div class="gate-step">
+    <div class="gate-num">G4</div>
+    <div class="gate-content">
+      <strong>Comms Infra Live Gate &mdash; after TKO-COMMS-003 through 006</strong>
+      <p><strong>Evidence required:</strong> (1) JDM sends a test text from the portal to a test phone &mdash; it delivers. (2) JDM makes a test call from the 888 &mdash; it routes, records, and the transcript appears on the client record. (3) SendGrid audit doc is written in Firestore. (4) A2P gate blocks outbound SMS and returns the correct structured error. <strong>JDM decision:</strong> Live user test. If it works, COMMS track is closed. If anything fails, TAIKO fixes before calling this gate open.</p>
+    </div>
+  </div>
+
+  <div class="gate-step">
+    <div class="gate-num">G5</div>
+    <div class="gate-content">
+      <strong>Slack Migration Gate &mdash; after TKO-CONN-007</strong>
+      <p><strong>Evidence required:</strong> (1) RPI Connect real-time messaging (TKO-CONN-004) stable in production with at least 5 business days of team usage and no P0 incidents. (2) Migration runbook complete and committed. <strong>JDM + John Behn decision:</strong> Both must review and approve the runbook before any channel migration action is taken. This is a culture change and JDM owns the announcement. No Slack channel is deleted during this sprint. The runbook approval is a separate event from the sprint close.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ════ TIMELINE ════ -->
+<div id="timeline" class="tab-content">
+  <h2>Timeline &mdash; RONIN-Speed Estimates</h2>
+
+  <p>RONIN on this codebase: 15 min for a single endpoint change, 1&ndash;2 hrs for a refactored route with logging and types, 4&ndash;5 hrs for a full real-time messaging layer. These are not padded. They assume RONIN is in the zone and CI is passing.</p>
+
+  <div class="callout-yellow">
+    <p><strong>Twilio A2P approval takes 48&ndash;72 hrs after submission.</strong> COMMS-002 is a Twilio console action, not code. The actual unblocking of outbound SMS depends on Twilio's review queue. RONIN cannot accelerate this. RONIN uses that window to build COMMS-003 through 006. A2P approval is not on the critical path for closing the COMMS track &mdash; it's a background process that closes automatically when Twilio responds.</p>
+  </div>
+
+  <table>
+    <tr>
+      <th>Track</th>
+      <th>Phase</th>
+      <th>Tickets</th>
+      <th>Hours (RONIN-speed)</th>
+      <th>Calendar Days</th>
+    </tr>
+    <tr>
+      <td><span class="track-badge-a">Track A</span></td>
+      <td>Phase 1 &mdash; A2P Unblock</td>
+      <td>COMMS-001, COMMS-002</td>
+      <td>3 hrs code + Twilio action</td>
+      <td>Day 1&ndash;2 (after MUSASHI PR #371 lands)</td>
+    </tr>
+    <tr>
+      <td><span class="track-badge-a">Track A</span></td>
+      <td>Phase 2 &mdash; Twilio Core</td>
+      <td>COMMS-003, COMMS-004, COMMS-005</td>
+      <td>7&ndash;10 hrs (003+004 parallel, 005 sequential)</td>
+      <td>Days 2&ndash;4 (while A2P is in Twilio's queue)</td>
+    </tr>
+    <tr>
+      <td><span class="track-badge-a">Track A</span></td>
+      <td>Phase 3 &mdash; SendGrid Audit</td>
+      <td>COMMS-006</td>
+      <td>2 hrs</td>
+      <td>Day 2 (fully parallel with Phase 2)</td>
+    </tr>
+    <tr>
+      <td><span class="track-badge-b">Track B</span></td>
+      <td>Phase 1 &mdash; Credential Extension</td>
+      <td>CONN-001</td>
+      <td>2 hrs</td>
+      <td>Day 1 (after SHINOB1 sign-off)</td>
+    </tr>
+    <tr>
+      <td><span class="track-badge-b">Track B</span></td>
+      <td>Phase 2 &mdash; Chat Bridge</td>
+      <td>CONN-002</td>
+      <td>2 hrs</td>
+      <td>Day 2</td>
+    </tr>
+    <tr>
+      <td><span class="track-badge-b">Track B</span></td>
+      <td>Phase 3 &mdash; Meet Transcripts</td>
+      <td>CONN-003</td>
+      <td>3 hrs</td>
+      <td>Day 2&ndash;3 (parallel with CONN-002)</td>
+    </tr>
+    <tr>
+      <td><span class="track-badge-b">Track B</span></td>
+      <td>Phase 4 &mdash; Connect Messaging</td>
+      <td>CONN-004, CONN-005</td>
+      <td>7&ndash;8 hrs (004 then 005)</td>
+      <td>Days 3&ndash;5</td>
+    </tr>
+    <tr>
+      <td><span class="track-badge-b">Track B</span></td>
+      <td>Phase 5 &mdash; Chat Space Bridge</td>
+      <td>CONN-006</td>
+      <td>2&ndash;3 hrs</td>
+      <td>Day 4&ndash;5 (parallel with CONN-005)</td>
+    </tr>
+    <tr>
+      <td><span class="track-badge-b">Track B</span></td>
+      <td>Phase 6 &mdash; Migration Runbook</td>
+      <td>CONN-007</td>
+      <td>4 hrs</td>
+      <td>After CONN-004 is stable in production (Day 7+)</td>
+    </tr>
+    <tr>
+      <td><span class="track-badge-b">Track B</span></td>
+      <td>Phase 7 &mdash; Observability</td>
+      <td>CONN-008</td>
+      <td>2&ndash;3 hrs</td>
+      <td>Day 3&ndash;4 (after COMMS-003 writes are live)</td>
+    </tr>
+  </table>
+
+  <h3>Total estimated hours</h3>
+  <div class="card-grid">
+    <div class="card">
+      <h3 class="track-a-accent">Track A Total</h3>
+      <p><strong>12&ndash;15 hours of build work</strong> across 6 tickets. Plus ~72 hrs of Twilio review time (not RONIN time). Track A can be executed by a single RONIN session across 3&ndash;4 calendar days.</p>
+    </div>
+    <div class="card">
+      <h3 class="track-b-accent">Track B Total</h3>
+      <p><strong>20&ndash;23 hours of build work</strong> across 8 tickets. Track B is the heavier track. CONN-004 (real-time messaging) is the single biggest build in the sprint. Can run parallel to Track A with a separate RONIN session.</p>
+    </div>
+  </div>
+
+  <div class="callout">
+    <p><strong>Combined sprint total: 32&ndash;38 hours of RONIN build time.</strong> With two parallel RONIN sessions, both tracks complete in 5&ndash;7 calendar days. The Slack migration runbook (CONN-007) is gated on production stability and may not close until 2 weeks after the rest of the sprint.</p>
+  </div>
+</div>
+
+<!-- ════ RISKS ════ -->
+<div id="risks" class="tab-content">
+  <h2>Risks &amp; Open Questions</h2>
+
+  <div class="risk-block">
+    <p><strong>[HIGH] Twilio A2P approval timing is out of TAIKO's control.</strong></p>
+    <p>Twilio typically takes 48&ndash;72 hours to review a CTA Verification submission. But "typically" is not a guarantee. If the campaign is rejected again (because the description is still wrong, or because there's a carrier-level brand trust issue), the remediation path is longer. This is the single highest-stakes unknown in Track A. Mitigation: submit with the exact description specified in TKO-COMMS-002, not a variation. If rejected, Twilio will give a reason code. TAIKO escalates to JDM same day. Do not let a Twilio rejection sit in a queue.</p>
+  </div>
+
+  <div class="risk-block">
+    <p><strong>[HIGH] OAuth re-consent for team members.</strong></p>
+    <p>Adding Chat scopes to domain-wide delegation (DWD) does not force individual re-auth. However, if any team member has granted consent to the toMachina OAuth app outside the DWD path (e.g., through a personal sign-in that authorized the app separately), they will see a re-consent screen. SHINOB1 must confirm the DWD is the only auth path in use before CONN-001 executes. If personal OAuth grants exist, the team will see unexpected re-consent prompts. TAIKO communicates proactively: "You may be asked to re-authorize the portal. This is expected and safe. Click Allow." Done before the deploy, not after.</p>
+  </div>
+
+  <div class="risk-block class="medium"">
+    <p><strong>[MEDIUM] Slack Connect deprecation timing.</strong></p>
+    <p>Slack's policy around Connect has changed for free and lower-tier plans. If Slack deprecates features that RPI is currently using (particularly Connect channels with external partners), the migration timeline accelerates against our will. TAIKO monitors Slack's release notes monthly. If a deprecation notice arrives, TAIKO files a P1 sprint to move the affected channels before the deadline. The runbook (CONN-007) should explicitly cover which channels are Connect-dependent.</p>
+  </div>
+
+  <div class="risk-block class="medium"">
+    <p><strong>[MEDIUM] TCPA tail risk on historical outbound SMS.</strong></p>
+    <p>Before the A2P campaign was blocked, some outbound SMS may have been sent to recipients who did not go through the compliant opt-in flow. If any of those recipients filed a TCPA complaint, that is a historical liability that exists regardless of what this sprint builds. TKO-COMMS-001 and the <code>tcpa_consents</code> collection establish compliant consent going forward. It does not retroactively document past sends. JDM and the legal/compliance layer need to assess whether there is historical exposure. This is a business decision, not a RONIN decision. TAIKO flags it, does not resolve it.</p>
+  </div>
+
+  <div class="risk-block class="medium"">
+    <p><strong>[MEDIUM] RPI Connect SSE connection stability under load.</strong></p>
+    <p>Server-Sent Events over Cloud Run have a known concern: Cloud Run has a request timeout (default 60 minutes, configurable). An SSE connection that is open longer than the timeout will be dropped. The ConnectPanel must handle reconnection gracefully: when the stream drops, silently attempt to reconnect with exponential backoff, refetch the last 20 messages to fill any gap, then resume the stream. RONIN implements this reconnection pattern in TKO-CONN-004. If not handled, users will see the message feed go stale after an hour with no visible error.</p>
+  </div>
+
+  <div class="risk-block class="low"">
+    <p><strong>[LOW] Google Meet recording API availability.</strong></p>
+    <p>The Google Meet REST API for recording retrieval requires the meeting to be created through the Workspace Calendar API with recording enabled. Ad-hoc Meet sessions created directly from the Google Meet UI may not be accessible via the API. TKO-CONN-003 scopes to meetings created through the platform (<code>POST /api/connect/meet</code>). Meetings started directly in Google Meet are out of scope for this sprint. TAIKO notes this as a future sprint item.</p>
+  </div>
+
+  <div class="risk-block class="low"">
+    <p><strong>[LOW] ConnectPanel.tsx size.</strong></p>
+    <p>ConnectPanel is already 824 lines. Adding real-time messaging, DMs, Meet launch, and a Spaces section will push it past 1,200 lines. RONIN should extract the message feed into a separate component (<code>ConnectMessageFeed.tsx</code>) and the DM thread into <code>ConnectDMThread.tsx</code> to keep the panel file manageable. This is a code quality call RONIN makes during TKO-CONN-004 &mdash; do not wait for a follow-up ticket.</p>
+  </div>
+
+  <h3>Open questions that require JDM answers before RONIN can close them</h3>
+
+  <table>
+    <tr>
+      <th>Question</th>
+      <th>Ticket</th>
+      <th>Decision Owner</th>
+    </tr>
+    <tr>
+      <td>What are the final URLs for the Privacy Policy and Terms of Service linked from the opt-in page?</td>
+      <td>TKO-COMMS-001</td>
+      <td>JDM</td>
+    </tr>
+    <tr>
+      <td>Which email subdomain receives inbound email via SendGrid Inbound Parse (e.g., reply.retireprotected.com)? Is the MX record set?</td>
+      <td>TKO-COMMS-004</td>
+      <td>JDM / IT</td>
+    </tr>
+    <tr>
+      <td>What are the Google Chat space IDs for the war-room, the-dojo, and general spaces that should populate <code>config/chat_spaces</code>?</td>
+      <td>TKO-CONN-002</td>
+      <td>JDM / Workspace Admin</td>
+    </tr>
+    <tr>
+      <td>Who besides JDM receives P0 SMS alerts when a channel degrades? (Relevant for the future Alerts sprint, but the routing config in <code>config/alert_routing</code> should be seeded correctly from the start.)</td>
+      <td>Out of scope (Alerts sprint)</td>
+      <td>JDM</td>
+    </tr>
+    <tr>
+      <td>Is there any DTCC or Global Relay email archiving requirement that affects the RPI Connect message storage in Firestore? (FINRA-licensed users: Josh, Nikki, Angelique.)</td>
+      <td>TKO-CONN-004</td>
+      <td>JDM / Shane Parmenter</td>
+    </tr>
+  </table>
+</div>
+
+<div class="ft">
+  TAIKO &#x592A;&#x9F13; &mdash; CONNECT + OMNI Sprint &mdash; 14 tickets &mdash; 32&ndash;38 hrs &mdash; Two parallel tracks &mdash; JDM + SHINOB1 &mdash; April 2026<br>
+  RONIN builds from this doc. No TBDs. No guessing. Files are exact, hours are honest, gates are real.
+</div>
+
+</div>
+
+<script>
+function showTab(id, btn) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'))
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'))
+  document.getElementById(id).classList.add('active')
+  btn.classList.add('active')
+}
+</script>
+</body>
+</html>
