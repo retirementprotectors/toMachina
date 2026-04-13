@@ -182,7 +182,6 @@ export function SendSmsDialog({ open, onClose, client, onSent }: SendSmsDialogPr
             <span className={`text-xs ${getCounterClass()}`}>
               {charCount}/160 ({segmentCount} {segmentCount === 1 ? 'segment' : 'segments'})
             </span>
-            <span className="text-[10px] text-[var(--text-muted)]">via Twilio</span>
           </div>
 
           {/* TRK-PC-012: File attachment */}
