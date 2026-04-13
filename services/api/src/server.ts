@@ -103,6 +103,7 @@ import { cmoPipelineRoutes } from './routes/cmo-pipeline.js'
 import { cmoEventRoutes } from './routes/cmo-events.js'
 import { cmoDashboardRoutes } from './routes/cmo-dashboard.js'
 import { dispatchRoutes } from './routes/dispatch.js'
+import { smsConsentRoutes } from './routes/sms-consent.js'
 
 // Initialize Firebase Admin
 if (getApps().length === 0) {
@@ -139,6 +140,11 @@ app.use(express.json({ limit: '10mb' }))
 
 // Health check — no auth, no rate limit, no logging
 app.use('/health', healthRoutes)
+
+// Public routes — no Firebase Auth required. Mounted before the /api auth gate.
+// TKO-COMMS-001: TCPA opt-in funnel (cold-lead capture via QR, IVR, marketing).
+// SHINOB1 ruling 2026-04-13: public, not token-gated.
+app.use('/public/sms-consent', smsConsentRoutes)
 
 // Request logging for all authenticated routes (logs method/path/user/time — NO PHI)
 app.use(requestLogger)
