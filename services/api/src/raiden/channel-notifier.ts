@@ -2,7 +2,69 @@
 // TRK-14240: Posts 4 event types to #dojo-fixes at key lifecycle events.
 // Channel is the single source of truth — no follow-up DMs needed.
 
+import { getStorage } from 'firebase-admin/storage'
 import type { DojoFixesEvent } from './types.js'
+
+// ---------------------------------------------------------------------------
+// Attachment types
+// ---------------------------------------------------------------------------
+
+export interface TrackerAttachmentRef {
+  path?: string
+  name?: string
+  original_name?: string
+  content_type?: string
+}
+
+// ---------------------------------------------------------------------------
+// Signed URL generator — TKO-DOJO-REPORTER-SLACK-002
+// Generates 7-day signed URLs for each attachment and formats labeled links.
+// Errors per-attachment are swallowed so they never block the Slack post.
+// ---------------------------------------------------------------------------
+
+async function buildAttachmentLinks(
+  attachments: TrackerAttachmentRef[],
+): Promise<string> {
+  if (!attachments || attachments.length === 0) return ''
+
+  const bucket = getStorage().bucket()
+  const lines: string[] = []
+
+  for (let i = 0; i < attachments.length; i++) {
+    const att = attachments[i]
+    if (!att.path) continue
+
+    try {
+      const [signedUrl] = await bucket.file(att.path).getSignedUrl({
+        action: 'read',
+        expires: Date.now() + 7 * 24 * 60 * 60 * 1000, // 7 days
+      })
+
+      const mime = att.content_type || ''
+      const ext = (att.name || att.original_name || '').split('.').pop()?.toLowerCase() || ''
+      const n = i + 1
+
+      let label: string
+      if (mime.startsWith('image/') || ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'].includes(ext)) {
+        label = `:paperclip: Screenshot ${n}`
+      } else if (mime.startsWith('video/') || ['mp4', 'mov', 'webm', 'avi'].includes(ext)) {
+        label = `:clapper: Video ${n}`
+      } else if (mime === 'application/pdf' || ext === 'pdf') {
+        label = `:page_facing_up: PDF ${n}`
+      } else {
+        label = `:paperclip: Attachment ${n}`
+      }
+
+      lines.push(`<${signedUrl}|${label}>`)
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err)
+      console.error(`[raiden-channel] signed URL failed for attachment ${att.path}:`, msg)
+      // Skip — do not block the notification
+    }
+  }
+
+  return lines.length > 0 ? `\n${lines.join('  ')}` : ''
+}
 
 // #dojo-fixes channel — RAIDEN's public status feed
 // Falls back to env var so channel can be reconfigured without code change
@@ -55,11 +117,13 @@ export async function postNewSubmission(
   reporter: string,
   type: string,
   priority: string,
+  attachments?: TrackerAttachmentRef[],
 ): Promise<{ success: boolean; ts?: string; error?: string }> {
   const reporterMention = reporter.startsWith('U')
     ? `<@${reporter}>`
     : reporter
-  const text = `🔴 *NEW:* ${title} — ${trkId} submitted by ${reporterMention} | ${type || 'bug'} | ${priority || 'P2'} | RAIDEN is triaging...`
+  const attachmentLinks = await buildAttachmentLinks(attachments || [])
+  const text = `🔴 *NEW:* ${title} — ${trkId} submitted by ${reporterMention} | ${type || 'bug'} | ${priority || 'P2'} | RAIDEN is triaging...${attachmentLinks}`
 
   console.log(`[raiden-channel] Posting NEW: ${trkId} "${title}"`)
   const result = await slackPost(DOJO_FIXES_CHANNEL, text)
@@ -100,8 +164,10 @@ export async function postDuplicateDetected(
 export async function postInProgress(
   trkId: string,
   title: string,
+  attachments?: TrackerAttachmentRef[],
 ): Promise<{ success: boolean; ts?: string; error?: string }> {
-  const text = `🔧 *IN PROGRESS:* ${trkId} "${title}" — RAIDEN is on it`
+  const attachmentLinks = await buildAttachmentLinks(attachments || [])
+  const text = `🔧 *IN PROGRESS:* ${trkId} "${title}" — RAIDEN is on it${attachmentLinks}`
 
   console.log(`[raiden-channel] Posting IN PROGRESS: ${trkId}`)
   const result = await slackPost(DOJO_FIXES_CHANNEL, text)
@@ -120,8 +186,10 @@ export async function postInProgress(
 export async function postFixed(
   trkId: string,
   title: string,
+  attachments?: TrackerAttachmentRef[],
 ): Promise<{ success: boolean; ts?: string; error?: string }> {
-  const text = `✅ *FIXED:* ${trkId} "${title}" — deployed. Refresh to verify.`
+  const attachmentLinks = await buildAttachmentLinks(attachments || [])
+  const text = `✅ *FIXED:* ${trkId} "${title}" — deployed. Refresh to verify.${attachmentLinks}`
 
   console.log(`[raiden-channel] Posting FIXED: ${trkId}`)
   const result = await slackPost(DOJO_FIXES_CHANNEL, text)
