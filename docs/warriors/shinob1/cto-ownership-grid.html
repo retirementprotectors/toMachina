@@ -446,7 +446,7 @@ code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px;
       </select>
     </div>
     <div style="display:flex; justify-content:space-between; align-items:center;">
-      <div style="font-size:0.72rem; color:var(--muted);" id="intelCount">27 items</div>
+      <div style="font-size:0.72rem; color:var(--muted);" id="intelCount">33 items</div>
       <label style="font-size:0.75rem; color:var(--muted); cursor:pointer; display:flex; align-items:center; gap:6px;">
         <input type="checkbox" id="showArchived" onchange="filterIntel()" style="cursor:pointer;"> Show Archived
       </label>
@@ -734,6 +734,66 @@ code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px;
         <td>RAIDEN</td>
         <td>&mdash;</td>
         <td>Anthropic's recommendation: RAIDEN ACKs immediately, silently investigates (grep+read+bash), only posts diagnosis with file:line evidence, never celebrates until deploy verified. <strong>Our state:</strong> RAIDEN already follows most of this via the Golden Rule + <code>feedback_raiden_golden_rule</code> + <code>feedback_raiden_dojo_protocol</code>. Probably the most-validated of the 3 Horizon items. <strong>Action:</strong> Audit RAIDEN's live behavior against Anthropic's template, patch gaps into RAIDEN's soul.md. Also: confirm RAIDEN's "ACK → investigate → diagnose with evidence" pattern is in the OS docs so it spreads to HERALD when HERALD ships. Lightweight &mdash; 1 RAIDEN self-review.</td>
+      </tr>
+      <tr data-status="OPEN" data-owner="SHINOB1" data-priority="LOW">
+        <td>28</td>
+        <td><a href="https://www.tomshardware.com/software/linux/linux-lays-down-the-law-on-ai-generated-code-yes-to-copilot-no-to-ai-slop-and-humans-take-the-fall-for-mistakes-after-months-of-fierce-debate-torvalds-and-maintainers-come-to-an-agreement" target="_blank"><strong>Linux Kernel AI Code Policy</strong></a><br><span style="font-size:0.75rem;color:var(--muted)">Tom's Hardware. Torvalds + maintainers: AI-assisted OK, AI-slop banned.</span></td>
+        <td>04-13</td>
+        <td><span class="pill plan">LOW</span></td>
+        <td><span class="pill next">OPEN</span></td>
+        <td>SHINOB1</td>
+        <td>&mdash;</td>
+        <td><strong>Verdict:</strong> we're ahead of kernel. Their rule = our hookify + quality gates + named-warrior accountability. <strong>Gap:</strong> we don't log which model produced which commit (Sonnet vs Opus attribution). <strong>Action:</strong> future hookify rule to inject <code>Generated-With: claude-sonnet-4-6</code> trailer on commits. Not urgent &mdash; queue for next immune-system hardening sprint.</td>
+      </tr>
+      <tr data-status="OPEN" data-owner="SHINOB1" data-priority="MEDIUM">
+        <td>29</td>
+        <td><a href="https://machinelearningmastery.com/the-roadmap-to-mastering-agentic-ai-design-patterns/" target="_blank"><strong>Agentic AI Design Patterns Roadmap</strong></a><br><span style="font-size:0.75rem;color:var(--muted)">ML Mastery. 6 patterns: ReAct, Reflection, Tool Use, Planning, Multi-Agent, Eval.</span></td>
+        <td>04-13</td>
+        <td><span class="pill plan">MEDIUM</span></td>
+        <td><span class="pill next">OPEN</span></td>
+        <td>SHINOB1</td>
+        <td>&mdash;</td>
+        <td><strong>Verdict:</strong> 5 of 6 patterns already built (ReAct=warrior sessions, Tool Use=ATLAS, Planning=Discovery Docs, Multi-Agent=Dojo, Eval=hookify). Partial: Reflection (we do generator+critic informally via Opus-review-of-Sonnet; should formalize as a named pattern). <strong>Gaps:</strong> (1) step-level traces &mdash; article treats as hard requirement, we have hookify logs + PR history but no unified trace view of "request &rarr; 12 tool calls &rarr; output"; (2) formalized failure-mode testing &mdash; no "chaos day" where we deliberately break things to verify hooks catch them. <strong>Action:</strong> 1 SHINOB1 discovery doc on observability tracing; quarterly chaos-testing cadence.</td>
+      </tr>
+      <tr data-status="NO ACTION" data-owner="SHINOB1" data-priority="LOW">
+        <td>30</td>
+        <td><a href="https://www.snowflake.com/resource/a-practical-guide-to-ai-agents/" target="_blank"><strong>Snowflake Practical Guide to AI Agents</strong></a><br><span style="font-size:0.75rem;color:var(--muted)">Gated Marketo form &mdash; no public content.</span></td>
+        <td>04-13</td>
+        <td><span class="pill plan">LOW</span></td>
+        <td><span class="pill done">NO ACTION</span></td>
+        <td>SHINOB1</td>
+        <td>Gated content</td>
+        <td>Public landing page has no technical detail &mdash; just a HubSpot form for PDF download. <strong>Action:</strong> Pass. If JDM downloads the PDF and drops it in the inbox, revisit.</td>
+      </tr>
+      <tr data-status="NO ACTION" data-owner="SHINOB1" data-priority="LOW">
+        <td>31</td>
+        <td><a href="https://go.thoughtspot.com/ebook-ai-data-trends-2026.html" target="_blank"><strong>ThoughtSpot 9 Data + AI Trends 2026</strong></a><br><span style="font-size:0.75rem;color:var(--muted)">Gated HubSpot form &mdash; vendor trend ebook.</span></td>
+        <td>04-13</td>
+        <td><span class="pill plan">LOW</span></td>
+        <td><span class="pill done">NO ACTION</span></td>
+        <td>SHINOB1</td>
+        <td>Gated content</td>
+        <td>Public landing page has no technical detail. Teased topics (MCP + orchestration + governance) overlap with the ML Mastery roadmap (#29) which is vendor-neutral and more useful. <strong>Action:</strong> Pass. Skip unless JDM wants it specifically.</td>
+      </tr>
+      <tr data-status="OPEN" data-owner="SHINOB1" data-priority="HIGH">
+        <td>32</td>
+        <td><a href="https://finance.yahoo.com/sectors/technology/articles/warehouses-dont-much-money-jensen-163105099.html" target="_blank"><strong>Jensen Huang: Warehouses vs Factories</strong></a><br><span style="font-size:0.75rem;color:var(--muted)">Yahoo Finance. Compute shift: storage &rarr; generation. Tokens-per-watt as core metric.</span></td>
+        <td>04-13</td>
+        <td><span class="pill hot">HIGH</span></td>
+        <td><span class="pill next">OPEN</span></td>
+        <td>SHINOB1</td>
+        <td>&mdash;</td>
+        <td><strong>Verdict:</strong> we ARE a token factory. Every MDJ_SERVER session generates real client/code outcomes. <strong>Translation:</strong> track tokens-per-outcome (tokens-per-PR, tokens-per-enrollment, tokens-per-brochure). Model routing (Opus&rarr;Sonnet&rarr;Haiku) is core margin strategy, not cost-trimming. <strong>Strategic unlock:</strong> when DAVID acquires a partner firm, underwrite deals on "outcomes-per-token-dollar" &mdash; moat no competitor is measuring. <strong>Action:</strong> spec a per-warrior token telemetry system (emit tokens-used metric per completed task, aggregate by outcome type). Natural MEGAZORD + SHINOB1 collab. HIGH priority because this becomes a competitive differentiator in M&amp;A underwriting.</td>
+      </tr>
+      <tr data-status="OPEN" data-owner="MEGAZORD" data-priority="MEDIUM">
+        <td>33</td>
+        <td><a href="https://huggingface.co/papers/2604.08377" target="_blank"><strong>SkillClaw: Agentic Evolver</strong></a><br><span style="font-size:0.75rem;color:var(--muted)">HuggingFace paper. Auto-evolve agent skills from interaction patterns.</span></td>
+        <td>04-13</td>
+        <td><span class="pill plan">MEDIUM</span></td>
+        <td><span class="pill next">OPEN</span></td>
+        <td>MEGAZORD</td>
+        <td>&mdash;</td>
+        <td><strong>Verdict:</strong> we have the primitives (MEMORY, ATLAS registry, CMO registry, QUE registry), not the loop. Their innovation: automated pattern-detection &rarr; new skill generation without manual curation. Our CLAUDE.md promotions are manual; ATLAS additions are human-approved PRs. <strong>Action:</strong> MEGAZORD Q2 initiative &mdash; instrument wire executions + user intent capture so ATLAS can auto-propose new wires when 3+ users compose the same 3 tools in a row. Sharper path to the auto-promote loop: hookify rule promotion when the same manual correction hits JDM's keyboard 3+ times. Paper tags a direction, doesn't ship tonight.</td>
       </tr>
     </table>
   </div>
