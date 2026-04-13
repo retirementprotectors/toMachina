@@ -40,6 +40,8 @@ interface ChannelData {
   lastSender: string
   lastMessage: string
   timestamp: string
+  /** Google Chat Space ID (e.g. "AAAAxxxxxx") — populated after TKO-CONN-001 */
+  spaceId?: string | null
 }
 
 interface MeetingData {
@@ -155,12 +157,12 @@ function InitialsAvatar({ name, size = 36 }: { name: string; size?: number }) {
    Tab 1: Channels
    ═══════════════════════════════════════════════ */
 
-function ChannelRow({ channel, onSelect }: { channel: ChannelData; onSelect: (name: string) => void }) {
+function ChannelRow({ channel, onSelect }: { channel: ChannelData; onSelect: (name: string, spaceId: string | null) => void }) {
   const hasUnread = channel.unreadCount > 0
   return (
     <button
       className="flex w-full items-start gap-2.5 rounded-lg px-3 py-2.5 text-left transition-colors hover:bg-[var(--bg-hover)]"
-      onClick={() => onSelect(channel.name)}
+      onClick={() => onSelect(channel.name, channel.spaceId ?? null)}
     >
       <span className="mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md bg-[var(--bg-surface)]">
         <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '14px' }}>tag</span>
@@ -192,42 +194,126 @@ function ChannelRow({ channel, onSelect }: { channel: ChannelData; onSelect: (na
   )
 }
 
-/* ─── Mock Chat Messages (TRK-098) ─── */
+/* ─── Live Chat Message Types (TKO-CONN-003) ─── */
 
-interface MockChatMessage {
-  sender: string
+interface LiveChatMessage {
+  name: string
+  messageId: string
   text: string
-  time: string
+  sender: {
+    name: string
+    displayName: string
+    email?: string
+  }
+  createTime: string
+  threadName?: string
 }
 
-const MOCK_CHANNEL_MESSAGES: Record<string, MockChatMessage[]> = {
-  'rpi-leadership': [
-    { sender: 'John B', text: 'Pipeline metrics for Q1 are updated. Revenue tracking ahead of forecast.', time: '10:42 AM' },
-    { sender: 'Vince', text: 'T65 list pull is ready, 847 names for March. Starting outreach tomorrow.', time: '10:55 AM' },
-    { sender: 'Josh', text: 'Great work team. Lets review in standup.', time: '11:03 AM' },
-  ],
-  'sales-team': [
-    { sender: 'Vince', text: 'AEP numbers coming in strong. 12 enrollments this week.', time: '9:15 AM' },
-    { sender: 'Nikki', text: 'Reminder to get RMD paperwork in by Friday.', time: '9:32 AM' },
-  ],
-  'service-team': [
-    { sender: 'Nikki', text: 'Sprenger RMDs are done for March. All 23 processed.', time: '2:00 PM' },
-    { sender: 'John B', text: 'Nice. Any Gradient stragglers?', time: '2:15 PM' },
-    { sender: 'Nikki', text: 'Two left, waiting on carrier paperwork. Should clear by EOD.', time: '2:18 PM' },
-  ],
+/** Format an ISO timestamp to a readable time label */
+function formatChatTime(iso: string): string {
+  if (!iso) return ''
+  try {
+    const d = new Date(iso)
+    return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
+  } catch {
+    return iso
+  }
 }
 
-const DEFAULT_MOCK_MESSAGES: MockChatMessage[] = [
-  { sender: 'System', text: 'Channel created. Start chatting!', time: 'now' },
-]
+/**
+ * TKO-CONN-003: Live channel chat view — mocks removed, wired to /api/connect/spaces.
+ * TKO-CONN-007: 5-second polling on the active conversation for near-real-time updates.
+ *
+ * spaceId is the Google Chat space ID (e.g. "AAAAxxxxxx").
+ * Falls back gracefully when TKO-CONN-001 OAuth unlock is not yet complete.
+ */
+function ChannelChatView({
+  channelName,
+  spaceId,
+  onBack,
+}: {
+  channelName: string
+  spaceId: string | null
+  onBack: () => void
+}) {
+  const [messages, setMessages] = useState<LiveChatMessage[]>([])
+  const [loadingMsgs, setLoadingMsgs] = useState(true)
+  const [sendText, setSendText] = useState('')
+  const [sending, setSending] = useState(false)
+  const { showToast } = useToast()
+  const msgEndRef = useRef<HTMLDivElement>(null)
 
-/** In-panel chat placeholder shown when a channel is selected (TRK-073/074, TRK-098) */
-function ChannelChatView({ channelName, onBack }: { channelName: string; onBack: () => void }) {
-  const messages = MOCK_CHANNEL_MESSAGES[channelName] ?? DEFAULT_MOCK_MESSAGES
+  // TKO-CONN-003: Load initial message history
+  useEffect(() => {
+    if (!spaceId) {
+      setLoadingMsgs(false)
+      return
+    }
+    let cancelled = false
+    async function loadMsgs() {
+      try {
+        const result = await fetchValidated<{ messages: LiveChatMessage[] }>(
+          `/api/connect/spaces/${spaceId}/messages?pageSize=50`
+        )
+        if (!cancelled && result.success && result.data) {
+          setMessages(result.data.messages || [])
+        }
+      } catch {
+        // Silent — empty state shown
+      } finally {
+        if (!cancelled) setLoadingMsgs(false)
+      }
+    }
+    void loadMsgs()
+    return () => { cancelled = true }
+  }, [spaceId])
+
+  // TKO-CONN-007: 5-second polling for new messages while channel is open
+  useEffect(() => {
+    if (!spaceId) return
+    const poll = setInterval(() => {
+      fetchValidated<{ messages: LiveChatMessage[] }>(
+        `/api/connect/spaces/${spaceId}/messages?pageSize=50`
+      ).then((result) => {
+        if (result.success && result.data) {
+          const incoming = result.data.messages || []
+          setMessages((prev) => incoming.length !== prev.length ? incoming : prev)
+        }
+      }).catch(() => { /* silent poll failure */ })
+    }, 5000)
+    return () => clearInterval(poll)
+  }, [spaceId])
+
+  // Auto-scroll to bottom when messages update
+  useEffect(() => {
+    msgEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages])
+
+  const handleSend = async () => {
+    const text = sendText.trim()
+    if (!text || sending || !spaceId) return
+    setSending(true)
+    try {
+      const result = await fetchValidated<LiveChatMessage>(
+        `/api/connect/spaces/${spaceId}/messages`,
+        { method: 'POST', body: JSON.stringify({ text }) }
+      )
+      if (result.success && result.data) {
+        setMessages((prev) => [...prev, result.data!])
+        setSendText('')
+      } else {
+        showToast('Failed to send message', 'error')
+      }
+    } catch {
+      showToast('Failed to send message', 'error')
+    } finally {
+      setSending(false)
+    }
+  }
 
   return (
     <div className="flex h-full flex-col">
-      {/* Channel chat header */}
+      {/* Channel header */}
       <div className="flex items-center gap-2 border-b border-[var(--border-subtle)] px-4 py-3">
         <button
           onClick={onBack}
@@ -238,35 +324,77 @@ function ChannelChatView({ channelName, onBack }: { channelName: string; onBack:
         </button>
         <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '16px' }}>tag</span>
         <span className="text-sm font-semibold text-[var(--text-primary)]">{channelName}</span>
-        {/* TRK-098: Powered by Google Chat badge */}
         <span className="ml-auto flex items-center gap-1 rounded bg-[var(--bg-surface)] px-2 py-0.5">
           <span className="text-[9px] text-[var(--text-muted)]">Powered by</span>
           <span className="text-[9px] font-semibold text-[#1a73e8]">Google Chat</span>
         </span>
       </div>
 
-      {/* TRK-098: Mock messages */}
+      {/* Message list */}
       <div className="flex flex-1 flex-col overflow-y-auto px-4 py-3 space-y-3">
-        {messages.map((msg, idx) => (
-          <div key={idx} className="flex items-start gap-2.5">
-            <InitialsAvatar name={msg.sender} size={28} />
+        {loadingMsgs && (
+          <div className="flex items-center justify-center py-6">
+            <span className="text-xs text-[var(--text-muted)]">Loading messages...</span>
+          </div>
+        )}
+
+        {!loadingMsgs && !spaceId && (
+          <div className="flex flex-col items-center justify-center py-8 text-center">
+            <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '32px' }}>chat</span>
+            <p className="mt-2 text-xs font-medium text-[var(--text-primary)]">Google Chat not connected</p>
+            <p className="mt-1 text-[10px] text-[var(--text-muted)]">Sign out and sign back in to grant Chat access</p>
+          </div>
+        )}
+
+        {!loadingMsgs && spaceId && messages.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-8">
+            <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '32px' }}>chat_bubble_outline</span>
+            <p className="mt-2 text-xs text-[var(--text-muted)]">No messages yet. Say something!</p>
+          </div>
+        )}
+
+        {messages.map((msg) => (
+          <div key={msg.messageId || msg.name} className="flex items-start gap-2.5">
+            <InitialsAvatar name={msg.sender.displayName || msg.sender.name} size={28} />
             <div className="min-w-0 flex-1">
               <div className="flex items-baseline gap-2">
-                <span className="text-xs font-semibold text-[var(--text-primary)]">{msg.sender}</span>
-                <span className="text-[10px] text-[var(--text-muted)]">{msg.time}</span>
+                <span className="text-xs font-semibold text-[var(--text-primary)]">
+                  {msg.sender.displayName || msg.sender.name}
+                </span>
+                <span className="text-[10px] text-[var(--text-muted)]">{formatChatTime(msg.createTime)}</span>
               </div>
               <p className="mt-0.5 text-sm text-[var(--text-secondary)]">{msg.text}</p>
             </div>
           </div>
         ))}
+        <div ref={msgEndRef} />
       </div>
 
-      {/* Compose bar (stub) */}
-      <div className="border-t border-[var(--border-subtle)] px-4 py-3">
-        <div className="flex items-center gap-2 rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2.5">
-          <span className="text-xs text-[var(--text-muted)]">Message #{channelName}</span>
+      {/* Compose bar — only when spaceId available */}
+      {spaceId && (
+        <div className="border-t border-[var(--border-subtle)] px-4 py-3">
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              value={sendText}
+              onChange={(e) => setSendText(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); void handleSend() } }}
+              placeholder={`Message #${channelName}`}
+              disabled={sending}
+              className="flex-1 rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2 text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] focus:border-[var(--portal)] disabled:opacity-60"
+            />
+            <button
+              onClick={() => void handleSend()}
+              disabled={sending || !sendText.trim()}
+              className="flex h-9 w-9 items-center justify-center rounded-md text-white transition-colors hover:opacity-90 disabled:opacity-40"
+              style={{ background: 'var(--portal)' }}
+              title="Send"
+            >
+              <span className="material-icons-outlined" style={{ fontSize: '16px' }}>send</span>
+            </button>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }
@@ -281,13 +409,31 @@ interface ChannelDoc {
   updated_at?: string
 }
 
+/** Google Chat Space shape returned from /api/connect/spaces */
+interface GoogleChatSpace {
+  name: string
+  spaceId: string
+  displayName: string
+  spaceType: string
+  memberCount?: number
+}
+
 function ChannelsTab() {
   const [search, setSearch] = useState('')
   const [activeChannel, setActiveChannel] = useState<string | null>(null)
+  const [activeSpaceId, setActiveSpaceId] = useState<string | null>(null)
   const [showNewForm, setShowNewForm] = useState(false)
   const [newChannelName, setNewChannelName] = useState('')
   const [creating, setCreating] = useState(false)
   const { showToast } = useToast()
+
+  // TKO-CONN-003: Load Google Chat Spaces from API and merge with Firestore channels
+  const [googleSpaces, setGoogleSpaces] = useState<GoogleChatSpace[]>([])
+  useEffect(() => {
+    fetchValidated<GoogleChatSpace[]>('/api/connect/spaces').then((res) => {
+      if (res.success && res.data) setGoogleSpaces(res.data)
+    }).catch(() => { /* not yet authorized — graceful fallback to Firestore channels */ })
+  }, [])
 
   // Query connect_channels from Firestore via useCollection
   const channelsQuery = useMemo(() => {
@@ -302,29 +448,43 @@ function ChannelsTab() {
   useEffect(() => {
     if (!channelsLoading && channelDocs.length === 0 && !seeded.current) {
       seeded.current = true
-      // Trigger seed by calling GET /api/connect/channels
       fetchValidated('/api/connect/channels').catch(() => {/* seed fire-and-forget */})
     }
   }, [channelsLoading, channelDocs.length])
 
-  // Map Firestore docs to ChannelData
+  // Build channel list: Firestore channels enriched with Google Chat spaceId when matched
   const localChannels: ChannelData[] = useMemo(() => {
-    return channelDocs.map((doc) => ({
-      _id: doc._id,
-      id: doc._id,
-      name: doc.name || doc.slug || 'unnamed',
-      slug: doc.slug,
-      pinned: doc.pinned ?? false,
-      unreadCount: 0,
-      lastSender: '',
-      lastMessage: '',
-      timestamp: doc.updated_at || '',
-    }))
-  }, [channelDocs])
+    return channelDocs.map((doc) => {
+      const docName = doc.name || doc.slug || 'unnamed'
+      // Match Google Chat Space by display name (case-insensitive slug match)
+      const matchedSpace = googleSpaces.find((s) =>
+        s.displayName.toLowerCase().replace(/[^a-z0-9]+/g, '-') === docName.toLowerCase() ||
+        s.spaceId === doc._id
+      )
+      return {
+        _id: doc._id,
+        id: doc._id,
+        name: docName,
+        slug: doc.slug,
+        pinned: doc.pinned ?? false,
+        unreadCount: 0,
+        lastSender: '',
+        lastMessage: '',
+        timestamp: doc.updated_at || '',
+        spaceId: matchedSpace?.spaceId ?? null,
+      }
+    })
+  }, [channelDocs, googleSpaces])
 
-  /* TRK-073/074: If a channel is selected, show in-panel chat view */
-  if (activeChannel) {
-    return <ChannelChatView channelName={activeChannel} onBack={() => setActiveChannel(null)} />
+  /* TKO-CONN-003: If a channel is selected, show live chat view */
+  if (activeChannel !== null) {
+    return (
+      <ChannelChatView
+        channelName={activeChannel}
+        spaceId={activeSpaceId}
+        onBack={() => { setActiveChannel(null); setActiveSpaceId(null) }}
+      />
+    )
   }
 
   const filterFn = (c: ChannelData) =>
@@ -381,7 +541,13 @@ function ChannelsTab() {
           <div className="mb-3">
             <span className="px-1 text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">Pinned</span>
             <div className="mt-1.5 space-y-0.5">
-              {filteredPinned.map((ch) => <ChannelRow key={ch._id || ch.name} channel={ch} onSelect={setActiveChannel} />)}
+              {filteredPinned.map((ch) => (
+                <ChannelRow
+                  key={ch._id || ch.name}
+                  channel={ch}
+                  onSelect={(name, spaceId) => { setActiveChannel(name); setActiveSpaceId(spaceId) }}
+                />
+              ))}
             </div>
           </div>
         )}
@@ -390,7 +556,13 @@ function ChannelsTab() {
           <div className="mb-3">
             <span className="px-1 text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">All Channels</span>
             <div className="mt-1.5 space-y-0.5">
-              {filteredAll.map((ch) => <ChannelRow key={ch._id || ch.name} channel={ch} onSelect={setActiveChannel} />)}
+              {filteredAll.map((ch) => (
+                <ChannelRow
+                  key={ch._id || ch.name}
+                  channel={ch}
+                  onSelect={(name, spaceId) => { setActiveChannel(name); setActiveSpaceId(spaceId) }}
+                />
+              ))}
             </div>
           </div>
         )}
@@ -408,20 +580,20 @@ function ChannelsTab() {
           /* TRK-075: Inline new channel form */
           <div className="space-y-2">
             <p className="text-[10px] font-medium text-[var(--text-muted)]">
-              Google Chat integration coming soon
+              Creates a Firestore channel — Google Chat Space wiring after TKO-CONN-001 admin action
             </p>
             <input
               type="text"
               value={newChannelName}
               onChange={(e) => setNewChannelName(e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Enter') handleCreateChannel() }}
+              onKeyDown={(e) => { if (e.key === 'Enter') void handleCreateChannel() }}
               placeholder="channel-name"
               autoFocus
               className="w-full rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2 text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] focus:border-[var(--portal)]"
             />
             <div className="flex gap-2">
               <button
-                onClick={handleCreateChannel}
+                onClick={() => void handleCreateChannel()}
                 disabled={creating}
                 className="flex flex-1 items-center justify-center gap-1.5 rounded-md h-[34px] text-xs font-medium text-white transition-colors hover:opacity-90 disabled:opacity-50"
                 style={{ background: 'var(--portal)' }}

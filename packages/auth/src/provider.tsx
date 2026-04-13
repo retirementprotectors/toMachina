@@ -22,9 +22,55 @@ function getFirebaseAuth() {
   return getAuth(app)
 }
 
+/**
+ * TKO-CONN-001 — OAuth Scope Extension for RPI CONNECT.
+ *
+ * Added Google Chat + Calendar/Meet scopes so team members can use Google Chat
+ * Spaces, DMs, and Meet from inside the portals.
+ *
+ * Rollout plan (per dispatcher CTO-pass — brief re-login for team):
+ *   - GCP admin flips OAuth client External → Internal in Cloud Console:
+ *     console.cloud.google.com → APIs & Services → OAuth consent screen → User type
+ *   - After this code deploys, team signs out once and signs back in.
+ *   - Firebase Auth triggers a new popup requesting the new scopes.
+ *   - One re-consent per user. Done. No consent screen after that (Internal OAuth).
+ *   - No external users exist on this OAuth client — Internal flip is safe.
+ *
+ * Scopes added (Chat):
+ *   chat.spaces               — Create and list Chat Spaces
+ *   chat.spaces.readonly      — Read Space metadata
+ *   chat.messages             — Send messages in Spaces and DMs
+ *   chat.messages.readonly    — Read message history
+ *   chat.messages.reactions   — React to messages (thread support)
+ *   chat.memberships          — List and manage Space memberships
+ *   chat.memberships.readonly — Read-only membership list
+ *   chat.users.readstate      — Track read position per Space (TKO-CONN-006 unread badges)
+ *
+ * Scopes added (Calendar/Meet):
+ *   calendar.readonly         — Read upcoming meetings for Meet tab
+ *   calendar.events           — Create instant Meet meetings
+ *
+ * For domain-wide delegation setup (server-side API routes):
+ *   See: docs/warriors/taiko/conn-001-oauth-scope-extension.md
+ */
 function getGoogleProvider() {
   const provider = new GoogleAuthProvider()
   provider.setCustomParameters({ hd: 'retireprotected.com' })
+
+  // TKO-CONN-001: Google Chat scopes
+  provider.addScope('https://www.googleapis.com/auth/chat.spaces')
+  provider.addScope('https://www.googleapis.com/auth/chat.spaces.readonly')
+  provider.addScope('https://www.googleapis.com/auth/chat.messages')
+  provider.addScope('https://www.googleapis.com/auth/chat.messages.readonly')
+  provider.addScope('https://www.googleapis.com/auth/chat.messages.reactions')
+  provider.addScope('https://www.googleapis.com/auth/chat.memberships')
+  provider.addScope('https://www.googleapis.com/auth/chat.memberships.readonly')
+  provider.addScope('https://www.googleapis.com/auth/chat.users.readstate')
+
+  // TKO-CONN-001: Calendar / Meet scopes
+  provider.addScope('https://www.googleapis.com/auth/calendar.readonly')
+  provider.addScope('https://www.googleapis.com/auth/calendar.events')
+
   return provider
 }
 

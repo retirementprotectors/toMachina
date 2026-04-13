@@ -216,6 +216,96 @@ export interface ConnectPresenceResult {
 }
 
 // ============================================================================
+// CONNECT — Google Chat Spaces + DMs + Meet (TKO-CONN-002 through 007)
+// ============================================================================
+
+/** A Google Chat Space (channel or DM) */
+export interface ConnectChatSpace {
+  name: string
+  spaceId: string
+  displayName: string
+  spaceType: 'SPACE' | 'GROUP_CHAT' | 'DIRECT_MESSAGE' | string
+  memberCount?: number
+}
+
+/** A single message in a Google Chat Space */
+export interface ConnectChatMessage {
+  name: string
+  messageId: string
+  text: string
+  sender: {
+    name: string
+    displayName: string
+    email?: string
+  }
+  createTime: string
+  threadName?: string
+}
+
+/** A member of a Google Chat Space */
+export interface ConnectChatMember {
+  name: string
+  memberEmail: string
+  displayName: string
+  role: 'ROLE_MEMBER' | 'ROLE_MANAGER' | string
+}
+
+/** Read state for a user in a space (TKO-CONN-006) */
+export interface ConnectSpaceReadState {
+  name: string
+  lastReadTime: string | null
+}
+
+/** GET /api/connect/spaces — list of Chat Spaces */
+export type ConnectSpaceListDTO = ConnectChatSpace[]
+
+/** GET /api/connect/spaces/:spaceId/messages — paginated message list */
+export interface ConnectMessageListDTO {
+  messages: ConnectChatMessage[]
+  nextPageToken?: string
+}
+
+/** POST /api/connect/spaces/:spaceId/messages — sent message */
+export type ConnectSendMessageResult = ConnectChatMessage
+
+/** GET /api/connect/spaces/:spaceId/members — member list */
+export type ConnectMemberListDTO = ConnectChatMember[]
+
+/** GET /api/connect/dms — DM space list */
+export type ConnectDMListDTO = ConnectChatSpace[]
+
+/** GET /api/connect/spaces/:spaceId/read-state — read state */
+export type ConnectReadStateResult = ConnectSpaceReadState | null
+
+/** GET /api/connect/meet/:spaceName/transcripts — transcript stubs (TKO-CONN-005) */
+export interface ConnectMeetTranscript {
+  name: string
+  transcriptId: string
+  startTime: string
+  state: 'STARTED' | 'ENDED' | string
+}
+
+/** GET /api/connect/meet/:spaceName/recordings — recording stubs (TKO-CONN-005) */
+export interface ConnectMeetRecording {
+  name: string
+  recordingId: string
+  startTime: string
+  state: 'STARTED' | 'ENDED' | string
+  driveDestination?: {
+    file: string
+    exportUri: string
+  }
+}
+
+export interface ConnectMeetTranscriptsDTO {
+  transcripts: ConnectMeetTranscript[]
+}
+
+export interface ConnectMeetRecordingsDTO {
+  recordings: ConnectMeetRecording[]
+}
+
+// ============================================================================
 // FIRESTORE CONFIG — services/api/src/routes/firestore-config.ts
 // ============================================================================
 
