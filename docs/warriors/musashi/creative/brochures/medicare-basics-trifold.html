@@ -32,30 +32,30 @@
   .panel:last-child { border-right: none; }
   .panel-label { position: absolute; top: 6px; left: 6px; font-family: 'Poppins', sans-serif; font-size: 8px; font-weight: 600; color: var(--rule); letter-spacing: 0.08em; text-transform: uppercase; pointer-events: none; }
 
-  /* Typography scales for tri-fold (tighter than letter) */
-  h1 { font-size: 26px; font-weight: 800; margin-bottom: 6px; }
-  h2 { font-size: 15px; font-weight: 700; margin-bottom: 8px; padding-bottom: 5px; border-bottom: 1px solid var(--rule); color: var(--rpi-medium); }
-  h3 { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
-  p, li { font-size: 11px; color: var(--ink-soft); line-height: 1.45; }
-  .eyebrow { font-family: 'Poppins', sans-serif; font-size: 8px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--rpi-medium); margin-bottom: 8px; }
+  /* Typography scales for tri-fold — sized to fill panels */
+  h1 { font-size: 30px; font-weight: 800; margin-bottom: 8px; }
+  h2 { font-size: 17px; font-weight: 700; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid var(--rule); color: var(--rpi-medium); }
+  h3 { font-size: 14.5px; font-weight: 700; margin-bottom: 5px; }
+  p, li { font-size: 12.5px; color: var(--ink-soft); line-height: 1.55; }
+  .eyebrow { font-family: 'Poppins', sans-serif; font-size: 9.5px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--rpi-medium); margin-bottom: 10px; }
 
   /* COVER PANEL (Panel 3 of outside = front when folded) */
   .cover { background: linear-gradient(160deg, var(--rpi-289) 0%, var(--rpi-medium) 60%, var(--rpi-royal) 100%); color: white; justify-content: space-between; position: relative; }
   .cover::before { content: ''; position: absolute; inset: 0; background-image: url('../assets/rpi/rpi-shield-mark.png'); background-size: 70%; background-position: center 55%; background-repeat: no-repeat; opacity: 0.08; pointer-events: none; }
   .cover-top { position: relative; z-index: 1; }
-  .cover-top .cover-logo { width: 160px; margin-bottom: 14px; filter: brightness(0) invert(1); }
-  .cover-top .cover-eyebrow { font-family: 'Poppins', sans-serif; font-size: 10px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--rpi-pale); margin-bottom: 10px; }
-  .cover-top h1 { color: white; font-size: 32px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 10px; line-height: 1.05; }
-  .cover-top .cover-sub { font-family: 'Poppins', sans-serif; font-size: 12px; color: var(--rpi-pale); font-weight: 500; line-height: 1.4; }
+  .cover-top .cover-logo { width: 240px; margin-bottom: 18px; display: block; }
+  .cover-top .cover-eyebrow { font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--rpi-pale); margin-bottom: 12px; }
+  .cover-top h1 { color: white; font-size: 38px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 14px; line-height: 1.05; }
+  .cover-top .cover-sub { font-family: 'Poppins', sans-serif; font-size: 14px; color: var(--rpi-pale); font-weight: 500; line-height: 1.45; }
   .cover-bottom { position: relative; z-index: 1; }
-  .cover-bottom .tagline { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 14px; color: white; margin-bottom: 6px; }
-  .cover-bottom .contact { font-size: 10px; color: var(--rpi-pale); line-height: 1.6; }
-  .cover-bottom .contact strong { color: white; }
+  .cover-bottom .tagline { display: none; } /* tagline is now baked into the logo */
+  .cover-bottom .contact { font-size: 11.5px; color: var(--rpi-pale); line-height: 1.7; }
+  .cover-bottom .contact strong { color: white; font-size: 12.5px; }
 
   /* BACK PANEL (Panel 1 of outside = back when folded) */
   .back { background: var(--paper-warm); justify-content: space-between; }
   .back-top { }
-  .back-top .back-logo { width: 140px; margin-bottom: 12px; }
+  .back-top .back-logo { width: 220px; margin-bottom: 16px; display: block; }
   .back h2 { border-bottom-color: var(--rpi-283); color: var(--rpi-289); font-size: 14px; }
   .back-contact { background: white; border: 1px solid var(--rule); border-left: 4px solid var(--rpi-royal); padding: 10px 12px; border-radius: 4px; font-size: 10.5px; line-height: 1.7; color: var(--ink-soft); margin-top: 10px; }
   .back-contact strong { color: var(--rpi-289); display: block; font-size: 11px; margin-bottom: 3px; font-family: 'Poppins', sans-serif; }
@@ -66,48 +66,48 @@
   .flap .eyebrow { margin-bottom: 4px; }
   .flap .intro { font-family: 'Poppins', sans-serif; font-size: 11px; color: var(--ink-soft); line-height: 1.55; margin-bottom: 12px; }
 
-  /* Steps block (compact) */
-  .step { background: var(--paper-warm); border-left: 3px solid var(--rpi-royal); padding: 8px 10px; border-radius: 3px; margin-bottom: 8px; }
-  .step-num { font-family: 'Poppins', sans-serif; font-size: 8px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--rpi-royal); margin-bottom: 2px; }
-  .step h3 { font-size: 12px; margin-bottom: 2px; color: var(--rpi-289); }
-  .step p { font-size: 10px; line-height: 1.4; }
+  /* Steps block */
+  .step { background: var(--paper-warm); border-left: 4px solid var(--rpi-royal); padding: 11px 13px; border-radius: 3px; margin-bottom: 11px; }
+  .step-num { font-family: 'Poppins', sans-serif; font-size: 9.5px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--rpi-royal); margin-bottom: 3px; }
+  .step h3 { font-size: 14px; margin-bottom: 4px; color: var(--rpi-289); }
+  .step p { font-size: 12px; line-height: 1.5; }
 
-  /* Parts (compact 2x2) */
-  .parts-mini { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-bottom: 10px; }
-  .part-mini { background: var(--paper-warm); border: 1px solid var(--rule); border-radius: 3px; padding: 7px 9px; }
-  .part-mini .label { font-family: 'Poppins', sans-serif; font-size: 8px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--rpi-medium); margin-bottom: 2px; }
-  .part-mini h4 { font-size: 11px; margin-bottom: 3px; color: var(--rpi-289); }
-  .part-mini p { font-size: 9.5px; line-height: 1.4; }
+  /* Parts (2x2 grid) */
+  .parts-mini { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+  .part-mini { background: var(--paper-warm); border: 1px solid var(--rule); border-radius: 4px; padding: 10px 12px; }
+  .part-mini .label { font-family: 'Poppins', sans-serif; font-size: 9.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--rpi-medium); margin-bottom: 3px; }
+  .part-mini h4 { font-size: 13px; margin-bottom: 4px; color: var(--rpi-289); }
+  .part-mini p { font-size: 11px; line-height: 1.5; }
   .part-mini.accent { background: linear-gradient(180deg, rgba(146,192,233,0.22), rgba(146,192,233,0.04)); border-color: var(--rpi-283); }
 
-  /* Numbers (compact list) */
-  .numbers-mini { background: var(--rpi-289); color: white; border-radius: 4px; padding: 10px 12px; position: relative; overflow: hidden; }
-  .numbers-mini::before { content: ''; position: absolute; top: -10px; right: -10px; width: 70px; height: 70px; background-image: url('../assets/rpi/rpi-shield-mark.png'); background-size: contain; background-repeat: no-repeat; opacity: 0.14; pointer-events: none; }
-  .numbers-mini h3 { color: white; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 6px; font-weight: 600; position: relative; z-index: 1; }
-  .numbers-mini table { width: 100%; font-size: 9.5px; position: relative; z-index: 1; }
-  .numbers-mini td { padding: 2px 0; color: var(--rpi-pale); }
+  /* Numbers card */
+  .numbers-mini { background: var(--rpi-289); color: white; border-radius: 5px; padding: 13px 15px; position: relative; overflow: hidden; }
+  .numbers-mini::before { content: ''; position: absolute; top: -10px; right: -10px; width: 90px; height: 90px; background-image: url('../assets/rpi/rpi-shield-mark.png'); background-size: contain; background-repeat: no-repeat; opacity: 0.14; pointer-events: none; }
+  .numbers-mini h3 { color: white; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; font-weight: 600; position: relative; z-index: 1; }
+  .numbers-mini table { width: 100%; font-size: 11.5px; position: relative; z-index: 1; }
+  .numbers-mini td { padding: 4px 0; color: var(--rpi-pale); }
   .numbers-mini td:last-child { text-align: right; font-family: 'Poppins', sans-serif; font-weight: 700; color: white; }
 
   /* Medigap mini grid */
-  .medigap-mini { width: 100%; border-collapse: collapse; font-size: 8.5px; margin-bottom: 8px; }
-  .medigap-mini th, .medigap-mini td { padding: 3px 2px; text-align: center; border: 1px solid var(--rule); }
-  .medigap-mini thead th { background: var(--rpi-289); color: white; font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 8px; }
-  .medigap-mini tbody td:first-child { text-align: left; padding-left: 5px; font-weight: 500; color: var(--rpi-medium); font-size: 8px; }
+  .medigap-mini { width: 100%; border-collapse: collapse; font-size: 10px; margin-bottom: 10px; }
+  .medigap-mini th, .medigap-mini td { padding: 4px 3px; text-align: center; border: 1px solid var(--rule); }
+  .medigap-mini thead th { background: var(--rpi-289); color: white; font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 10px; }
+  .medigap-mini tbody td:first-child { text-align: left; padding-left: 6px; font-weight: 500; color: var(--rpi-medium); font-size: 9.5px; }
   .medigap-mini .dot { color: var(--rpi-royal); font-weight: 700; }
-  .medigap-mini .partial { color: var(--ink-soft); font-size: 7.5px; }
+  .medigap-mini .partial { color: var(--ink-soft); font-size: 9px; }
 
   /* AEP mini */
-  .aep-mini { background: linear-gradient(135deg, var(--rpi-medium), var(--rpi-289)); color: white; padding: 9px 11px; border-radius: 4px; display: flex; gap: 9px; align-items: center; margin: 10px 0 8px; }
-  .aep-mini img { width: 26px; height: auto; filter: brightness(1.15); flex-shrink: 0; }
-  .aep-mini h3 { color: white; font-size: 11px; margin-bottom: 2px; }
-  .aep-mini p { color: var(--rpi-pale); font-size: 9.5px; line-height: 1.35; }
+  .aep-mini { background: linear-gradient(135deg, var(--rpi-medium), var(--rpi-289)); color: white; padding: 12px 14px; border-radius: 5px; display: flex; gap: 12px; align-items: center; margin: 14px 0 12px; }
+  .aep-mini img { width: 36px; height: auto; filter: brightness(1.15); flex-shrink: 0; }
+  .aep-mini h3 { color: white; font-size: 13px; margin-bottom: 3px; }
+  .aep-mini p { color: var(--rpi-pale); font-size: 11.5px; line-height: 1.45; }
 
   /* SEP list */
-  .sep-mini { background: var(--paper-warm); border: 1px solid var(--rule); border-radius: 3px; padding: 8px 10px; margin-bottom: 8px; }
-  .sep-mini h3 { font-size: 11px; margin-bottom: 6px; color: var(--rpi-289); }
+  .sep-mini { background: var(--paper-warm); border: 1px solid var(--rule); border-radius: 4px; padding: 11px 13px; margin-bottom: 10px; }
+  .sep-mini h3 { font-size: 13px; margin-bottom: 8px; color: var(--rpi-289); }
   .sep-mini ul { list-style: none; }
-  .sep-mini li { font-size: 9.5px; padding-left: 12px; position: relative; margin-bottom: 2px; line-height: 1.35; }
-  .sep-mini li::before { content: '▪'; color: var(--rpi-royal); position: absolute; left: 0; font-size: 10px; top: -1px; }
+  .sep-mini li { font-size: 11.5px; padding-left: 14px; position: relative; margin-bottom: 4px; line-height: 1.45; }
+  .sep-mini li::before { content: '▪'; color: var(--rpi-royal); position: absolute; left: 0; font-size: 12px; top: -1px; }
 
   .preview-nav { position: fixed; top: 10px; right: 10px; background: var(--rpi-289); color: white; padding: 10px 14px; border-radius: 6px; font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 600; box-shadow: 0 2px 12px rgba(0,0,0,0.25); z-index: 1000; }
   .preview-nav a { color: var(--rpi-pale); text-decoration: none; margin-left: 10px; cursor: pointer; }
@@ -142,16 +142,28 @@
   <div class="panel back">
     <span class="panel-label">Outside · Panel 1 (Back)</span>
     <div class="back-top">
-      <img src="../assets/rpi/rpi-logo-full-color.png" alt="Retirement Protectors, Inc." class="back-logo" />
-      <h2>Why Talk to Us</h2>
-      <p style="margin-bottom:8px;">Medicare isn't supposed to be a test. Sit with us for an hour &mdash; bring your questions, we'll bring the plan. No pressure, no pitch, just clarity.</p>
-      <p style="font-size:10px; color:var(--ink-soft);"><strong style="color:var(--rpi-289);">We will walk you through:</strong></p>
-      <ul style="list-style:none; font-size:10px; color:var(--ink-soft); margin:4px 0 0 0;">
-        <li style="padding:3px 0 3px 14px; position:relative;"><span style="position:absolute; left:0; color:var(--rpi-royal);">▪</span> Which coverage path fits your life</li>
-        <li style="padding:3px 0 3px 14px; position:relative;"><span style="position:absolute; left:0; color:var(--rpi-royal);">▪</span> What Medicare doesn't cover &mdash; and what fills the gap</li>
-        <li style="padding:3px 0 3px 14px; position:relative;"><span style="position:absolute; left:0; color:var(--rpi-royal);">▪</span> Drug plan comparisons based on your actual medications</li>
-        <li style="padding:3px 0 3px 14px; position:relative;"><span style="position:absolute; left:0; color:var(--rpi-royal);">▪</span> Enrollment windows and how to never miss one</li>
-      </ul>
+      <img src="../assets/rpi/rpi-logo-v2-color.png" alt="Retirement Protectors, Inc. — We're Your People" class="back-logo" />
+      <h2>IRMAA &mdash; What You Actually Pay</h2>
+      <p style="margin-bottom:8px;">Higher-income earners pay more than the $202.90 standard Part B premium. Based on your <strong style="color:var(--rpi-289);">2024 MAGI</strong> (line 11 of your 1040 + tax-exempt interest).</p>
+      <table style="width:100%; border-collapse:collapse; font-size:9.5px; margin-top:6px;">
+        <thead>
+          <tr style="background:var(--rpi-289); color:white;">
+            <th style="padding:4px; text-align:left; font-family:'Poppins',sans-serif; font-weight:600; font-size:9px;">Individual</th>
+            <th style="padding:4px; text-align:left; font-family:'Poppins',sans-serif; font-weight:600; font-size:9px;">Joint</th>
+            <th style="padding:4px; text-align:center; font-family:'Poppins',sans-serif; font-weight:600; font-size:9px;">Part B</th>
+            <th style="padding:4px; text-align:center; font-family:'Poppins',sans-serif; font-weight:600; font-size:9px;">+Part D</th>
+          </tr>
+        </thead>
+        <tbody style="font-size:9px; color:var(--ink-soft);">
+          <tr style="background:var(--paper-warm);"><td style="padding:3px 4px;">&le;&nbsp;$109K</td><td style="padding:3px 4px;">&le;&nbsp;$218K</td><td style="padding:3px 4px; text-align:center; font-weight:700; color:var(--rpi-289);">$202.90</td><td style="padding:3px 4px; text-align:center;">&mdash;</td></tr>
+          <tr><td style="padding:3px 4px;">$109K&ndash;$137K</td><td style="padding:3px 4px;">$218K&ndash;$274K</td><td style="padding:3px 4px; text-align:center;">$284.10</td><td style="padding:3px 4px; text-align:center;">+$14.50</td></tr>
+          <tr style="background:var(--paper-warm);"><td style="padding:3px 4px;">$137K&ndash;$171K</td><td style="padding:3px 4px;">$274K&ndash;$342K</td><td style="padding:3px 4px; text-align:center;">$405.80</td><td style="padding:3px 4px; text-align:center;">+$37.50</td></tr>
+          <tr><td style="padding:3px 4px;">$171K&ndash;$205K</td><td style="padding:3px 4px;">$342K&ndash;$410K</td><td style="padding:3px 4px; text-align:center;">$527.50</td><td style="padding:3px 4px; text-align:center;">+$60.40</td></tr>
+          <tr style="background:var(--paper-warm);"><td style="padding:3px 4px;">$205K&ndash;$500K</td><td style="padding:3px 4px;">$410K&ndash;$750K</td><td style="padding:3px 4px; text-align:center;">$649.20</td><td style="padding:3px 4px; text-align:center;">+$83.30</td></tr>
+          <tr><td style="padding:3px 4px;">&ge;&nbsp;$500K</td><td style="padding:3px 4px;">&ge;&nbsp;$750K</td><td style="padding:3px 4px; text-align:center;">$689.90</td><td style="padding:3px 4px; text-align:center;">+$91.00</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:9.5px; color:var(--ink-soft); margin-top:8px; line-height:1.5;">Life events &mdash; retirement, loss of income, death of spouse &mdash; can qualify you for an IRMAA appeal. <strong style="color:var(--rpi-medium);">Ask us how.</strong></p>
 
       <div class="back-contact">
         <strong>Schedule your no-cost review.</strong>
@@ -161,7 +173,7 @@
       </div>
     </div>
     <div class="back-disclaimer">
-      This agency is not affiliated with Medicare or any other government agency. Material for informational use only. See www.medicare.gov or call 1-800-MEDICARE for official information. Plan details, premiums, and availability vary. &copy; 2026 Retirement Protectors, Inc. All rights reserved.
+      Source: CMS 2026 Medicare Costs &amp; Premiums. This agency is not affiliated with Medicare or any other government agency. Material for informational use only. See www.medicare.gov or 1-800-MEDICARE for official information. &copy; 2026 Retirement Protectors, Inc.
     </div>
   </div>
 
@@ -193,7 +205,7 @@
   <div class="panel cover">
     <span class="panel-label" style="color:rgba(255,255,255,0.2);">Outside · Panel 3 (Front Cover)</span>
     <div class="cover-top">
-      <img src="../assets/rpi/rpi-logo-full-color.png" alt="Retirement Protectors, Inc." class="cover-logo" />
+      <img src="../assets/rpi/rpi-logo-v2-white.png" alt="Retirement Protectors, Inc. — We're Your People" class="cover-logo" />
       <div class="cover-eyebrow">Medicare · Coverage Guide</div>
       <h1>Medicare,<br>Made Simple.</h1>
       <div class="cover-sub">Your personal guide &mdash; from the people who walk beside you.</div>
@@ -271,17 +283,17 @@
     </div>
 
     <div class="numbers-mini">
-      <h3>Key Numbers &mdash; 2025</h3>
+      <h3>Key Numbers &mdash; 2026</h3>
       <table>
-        <tr><td>Part A Deductible</td><td>$1,676</td></tr>
-        <tr><td>Part B Standard Premium</td><td>$185.00/mo</td></tr>
-        <tr><td>Part B Annual Deductible</td><td>$257</td></tr>
-        <tr><td>Part D Max Deductible</td><td>$590</td></tr>
-        <tr><td><strong style="color:white;">Part D OOP Max (NEW)</strong></td><td><strong style="color:var(--rpi-mist);">$2,000</strong></td></tr>
+        <tr><td>Part A Deductible</td><td>$1,736</td></tr>
+        <tr><td>Part B Std Premium</td><td>$202.90/mo</td></tr>
+        <tr><td>Part B Deductible</td><td>$283</td></tr>
+        <tr><td>Part A Days 61&ndash;90</td><td>$434/day</td></tr>
+        <tr><td>SNF Days 21&ndash;100</td><td>$217/day</td></tr>
       </table>
     </div>
 
-    <p style="font-size:9px; color:var(--ink-soft); margin-top:6px;"><strong style="color:var(--rpi-medium);">2025 is the first year</strong> the $2,000 out-of-pocket maximum applies to Part D &mdash; a major new protection.</p>
+    <p style="font-size:10.5px; color:var(--ink-soft); margin-top:10px; line-height:1.5;"><strong style="color:var(--rpi-medium);">Higher-income earners</strong> pay an additional IRMAA premium on top of the $202.90 standard &mdash; see back panel. We'll help you calculate yours.</p>
   </div>
 
   <!-- INSIDE PANEL 3 — MEDIGAP + AEP + SEP -->

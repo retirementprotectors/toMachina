@@ -35,9 +35,9 @@
   .hero h1 { font-size: 44px; font-weight: 800; color: var(--rpi-289); margin-bottom: 6px; letter-spacing: -0.02em; }
   .hero-tagline { font-family: 'Poppins', sans-serif; font-weight: 500; font-size: 16px; color: var(--ink-soft); }
   .hero-right { text-align: right; font-size: 10px; color: var(--ink-soft); line-height: 1.6; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
-  .rpi-logo { width: 180px; height: auto; display: block; }
-  .hero-tagline-right { font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 11px; color: var(--rpi-medium); letter-spacing: 0.02em; margin-top: 4px; }
-  .hero-url { font-size: 10px; color: var(--ink-soft); }
+  .rpi-logo { width: 260px; height: auto; display: block; }
+  .hero-tagline-right { display: none; } /* Tagline is now baked into the v2 logo */
+  .hero-url { font-size: 10.5px; color: var(--ink-soft); margin-top: 4px; }
   .shield { width: 42px; height: auto; vertical-align: middle; }
   .shield-sm { width: 28px; height: auto; vertical-align: middle; }
 
@@ -135,7 +135,7 @@
       <div class="hero-tagline">Your personal guide to Medicare — from the people who walk beside you.</div>
     </div>
     <div class="hero-right">
-      <img src="../assets/rpi/rpi-logo-full-color.png" alt="Retirement Protectors, Inc." class="rpi-logo" />
+      <img src="../assets/rpi/rpi-logo-v2-color.png" alt="Retirement Protectors, Inc. — We're Your People" class="rpi-logo" />
       <div class="hero-tagline-right">We're Your People&trade;</div>
       <div class="hero-url">RetireProtected.com</div>
     </div>
@@ -188,14 +188,15 @@
   </div>
 
   <div class="numbers">
-    <h2>Key Numbers &mdash; 2025</h2>
+    <h2>Key Numbers &mdash; 2026</h2>
     <div class="num-grid">
-      <div class="num"><div class="value">$1,676</div><div class="label">Part A Deductible<br>per benefit period</div></div>
-      <div class="num"><div class="value">$185.00</div><div class="label">Part B Standard<br>Monthly Premium</div></div>
-      <div class="num"><div class="value">$257</div><div class="label">Part B<br>Annual Deductible</div></div>
-      <div class="num"><div class="value">$590</div><div class="label">Part D<br>Max Deductible</div></div>
-      <div class="num"><div class="value">$2,000</div><div class="label">Part D Out-of-Pocket<br>Maximum (new in 2025)</div></div>
+      <div class="num"><div class="value">$1,736</div><div class="label">Part A Deductible<br>per benefit period</div></div>
+      <div class="num"><div class="value">$202.90</div><div class="label">Part B Standard<br>Monthly Premium</div></div>
+      <div class="num"><div class="value">$283</div><div class="label">Part B<br>Annual Deductible</div></div>
+      <div class="num"><div class="value">$434</div><div class="label">Part A Coinsurance<br>Days 61&ndash;90</div></div>
+      <div class="num"><div class="value">$217</div><div class="label">SNF Coinsurance<br>Days 21&ndash;100</div></div>
     </div>
+    <p style="font-size:10px; color:var(--rpi-pale); margin-top:12px; position:relative; z-index:1;">Source: CMS &mdash; 2026 Medicare Costs &amp; Premiums. Part B premium is standard; higher-income earners pay an IRMAA adjustment &mdash; see reverse side.</p>
   </div>
 
   <div class="footer">
@@ -226,7 +227,7 @@
       <div class="hero-tagline">Medigap policies + enrollment windows that protect what Original Medicare doesn't.</div>
     </div>
     <div class="hero-right">
-      <img src="../assets/rpi/rpi-logo-full-color.png" alt="Retirement Protectors, Inc." class="rpi-logo" />
+      <img src="../assets/rpi/rpi-logo-v2-color.png" alt="Retirement Protectors, Inc. — We're Your People" class="rpi-logo" />
       <div class="hero-tagline-right">We're Your People&trade;</div>
     </div>
   </div>
@@ -255,7 +256,30 @@
       <tr><td>Foreign Travel Emergency (to plan limits)</td><td>&mdash;</td><td>&mdash;</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td>&mdash;</td><td>&mdash;</td><td class="dot">●</td><td class="dot">●</td></tr>
     </tbody>
   </table>
-  <p style="font-size:10px; color:var(--ink-soft); margin-bottom:22px;"><sup>*</sup> Plans C and F are only available to those who became eligible for Medicare before 1/1/2020. <sup>†</sup> Plan N pays 100% of Part B coinsurance except up to $20 copay for office visits and $50 for ER visits that don't result in inpatient admission.</p>
+  <p style="font-size:10px; color:var(--ink-soft); margin-bottom:18px;"><sup>*</sup> Plans C and F are only available to those who became eligible for Medicare before 1/1/2020. <sup>†</sup> Plan N pays 100% of Part B coinsurance except up to $20 copay for office visits and $50 for ER visits that don't result in inpatient admission.</p>
+
+  <h2>IRMAA &mdash; Income-Related Monthly Adjustment</h2>
+  <p style="font-size:12.5px; color:var(--ink-soft); margin-bottom:10px;">Higher-income earners pay an additional premium (IRMAA) on top of the $202.90 standard Part B premium, plus a Part D adjustment. <strong style="color:var(--rpi-289);">Based on your 2024 MAGI</strong> (Form 1040 line 11 + tax-exempt interest, line 2a).</p>
+  <table class="medigap-grid" style="margin-bottom:14px;">
+    <thead>
+      <tr>
+        <th style="text-align:left; padding-left:10px;">Individual Return</th>
+        <th style="text-align:left;">Joint Return</th>
+        <th style="text-align:left;">Married&nbsp;/&nbsp;Separate</th>
+        <th>Part B Total</th>
+        <th>Part D IRMAA</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>&le;&nbsp;$109,000</td><td>&le;&nbsp;$218,000</td><td>&le;&nbsp;$109,000</td><td><strong>$202.90</strong></td><td>&mdash;</td></tr>
+      <tr><td>$109,001 &ndash; $137,000</td><td>$218,001 &ndash; $274,000</td><td>N/A</td><td>$284.10</td><td>+ $14.50</td></tr>
+      <tr><td>$137,001 &ndash; $171,000</td><td>$274,001 &ndash; $342,000</td><td>N/A</td><td>$405.80</td><td>+ $37.50</td></tr>
+      <tr><td>$171,001 &ndash; $205,000</td><td>$342,001 &ndash; $410,000</td><td>N/A</td><td>$527.50</td><td>+ $60.40</td></tr>
+      <tr><td>$205,001 &ndash; $499,999</td><td>$410,001 &ndash; $749,999</td><td>$109,001 &ndash; $390,999</td><td>$649.20</td><td>+ $83.30</td></tr>
+      <tr><td>&ge;&nbsp;$500,000</td><td>&ge;&nbsp;$750,000</td><td>&ge;&nbsp;$391,000</td><td>$689.90</td><td>+ $91.00</td></tr>
+    </tbody>
+  </table>
+  <p style="font-size:10px; color:var(--ink-soft); margin-bottom:22px;">Part D IRMAA is paid on top of your Part D plan's monthly premium. 2026 amounts are per person. Life events (retirement, loss of income, death of spouse) may qualify you for an IRMAA appeal &mdash; we can walk you through it.</p>
 
   <div class="aep">
     <img src="../assets/rpi/rpi-shield-mark.png" alt="" class="shield" />
