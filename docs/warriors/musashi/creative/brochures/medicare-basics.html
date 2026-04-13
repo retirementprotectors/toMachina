@@ -107,12 +107,15 @@
   /* Print — pixel-perfect PDF (set Chrome "Margins: None" + enable "Background graphics") */
   @media print {
     body { background: white; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    .page { margin: 0; padding: 0; box-shadow: none; width: 8.5in; min-height: auto; height: 11in; page-break-after: always; overflow: hidden; }
+    .page { margin: 0; padding: 0; box-shadow: none; width: 8.5in; min-height: 11in; height: auto; page-break-after: always; overflow: visible; }
     .page:last-child { page-break-after: auto; }
     .page > * { padding-left: 0.45in; padding-right: 0.45in; }
     .page > .hero { padding-top: 0.45in; }
     .page > .compliance:last-of-type, .page > .footer:last-of-type { padding-bottom: 0.35in; }
     .preview-nav { display: none !important; }
+    /* Keep critical blocks together — prevents mid-card page breaks */
+    .numbers, .steps, .parts-grid, .part, .step, .medigap-grid, .aep, .sep, .footer, .compliance { page-break-inside: avoid; break-inside: avoid; }
+    h2 { page-break-after: avoid; break-after: avoid; }
     @page { size: letter; margin: 0; }
   }
 </style>
