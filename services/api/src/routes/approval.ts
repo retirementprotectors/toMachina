@@ -45,6 +45,7 @@ import type {
   ApprovalTrainingDTO,
 } from '@tomachina/core'
 import { resumeWireAfterApproval } from './wire.js'
+import { resolveDeepLinks } from '../lib/deep-links.js'
 
 export const approvalRoutes = Router()
 
@@ -142,7 +143,11 @@ approvalRoutes.post('/batches/:id/notify', async (req: Request, res: Response) =
       .map(([tab, count]) => `${tab.replace('_', '').replace(/_/g, ' ')}: ${count}`)
       .join('  |  ')
 
-    const blocks = [
+    // Resolve client + household + account deep-links
+    const deepLinks = await resolveDeepLinks(db, batch)
+
+    const prodashUrl = process.env.PRODASH_URL || 'https://prodash.tomachina.com'
+    const blocks: Record<string, unknown>[] = [
       {
         type: 'header',
         text: { type: 'plain_text', text: 'Data Review Needed', emoji: true },
@@ -156,19 +161,48 @@ approvalRoutes.post('/batches/:id/notify', async (req: Request, res: Response) =
           { type: 'mrkdwn', text: `*Routing:*\n${tabBreakdown}` },
         ],
       },
-      {
-        type: 'actions',
-        elements: [
-          {
-            type: 'button',
-            text: { type: 'plain_text', text: 'Review Now' },
-            url: `${process.env.PRODASH_URL || 'https://prodash.tomachina.com'}/approval?batch_id=${batchId}`,
-            style: 'primary',
-          },
-        ],
-      },
-      { type: 'divider' },
     ]
+
+    // Add deep-links context line (only shows links we actually resolved)
+    if (deepLinks.lines.length > 0) {
+      blocks.push({
+        type: 'context',
+        elements: [{ type: 'mrkdwn', text: deepLinks.lines.join('   ·   ') }],
+      })
+    }
+
+    // Primary action buttons — Review Now always present, optional Client/ACF/Account jump buttons
+    const actionElements: Record<string, unknown>[] = [
+      {
+        type: 'button',
+        text: { type: 'plain_text', text: 'Review Now', emoji: true },
+        url: `${prodashUrl}/approval?batch_id=${batchId}`,
+        style: 'primary',
+      },
+    ]
+    if (deepLinks.clientUrl) {
+      actionElements.push({
+        type: 'button',
+        text: { type: 'plain_text', text: '👤 Client Page', emoji: true },
+        url: deepLinks.clientUrl,
+      })
+    }
+    if (deepLinks.acfFolderUrl) {
+      actionElements.push({
+        type: 'button',
+        text: { type: 'plain_text', text: '📁 ACF Folder', emoji: true },
+        url: deepLinks.acfFolderUrl,
+      })
+    }
+    for (const acct of deepLinks.accounts) {
+      actionElements.push({
+        type: 'button',
+        text: { type: 'plain_text', text: `💼 ${acct.label}`, emoji: true },
+        url: acct.url,
+      })
+    }
+    blocks.push({ type: 'actions', elements: actionElements })
+    blocks.push({ type: 'divider' })
 
     const channel = batch.slack_channel || batch.assigned_to || 'C0AH592RNQK'
 
