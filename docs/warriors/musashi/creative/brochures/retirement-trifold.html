@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Medicare Basics — Tri-fold — Retirement Protectors, Inc.</title>
+<title>Retirement — Tri-fold — Retirement Protectors, Inc.</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;600&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -98,7 +98,7 @@
   .numbers-mini td { padding: 4px 0; color: var(--rpi-pale); }
   .numbers-mini td:last-child { text-align: right; font-family: 'Poppins', sans-serif; font-weight: 700; color: white; }
 
-  /* Medigap mini grid */
+  /* RMD mini table — reuses medigap-mini styling */
   .medigap-mini { width: 100%; border-collapse: collapse; font-size: 10px; margin-bottom: 10px; }
   .medigap-mini th, .medigap-mini td { padding: 4px 3px; text-align: center; border: 1px solid var(--rule); }
   .medigap-mini thead th { background: var(--rpi-289); color: white; font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 10px; }
@@ -106,13 +106,13 @@
   .medigap-mini .dot { color: var(--rpi-royal); font-weight: 700; }
   .medigap-mini .partial { color: var(--ink-soft); font-size: 9px; }
 
-  /* AEP mini */
+  /* Roth conversion callout (replaces AEP mini) */
   .aep-mini { background: linear-gradient(135deg, var(--rpi-medium), var(--rpi-289)); color: white; padding: 12px 14px; border-radius: 5px; display: flex; gap: 12px; align-items: center; margin: 14px 0 12px; }
   .aep-mini img { width: 36px; height: auto; filter: brightness(1.15); flex-shrink: 0; }
   .aep-mini h3 { color: white; font-size: 13px; margin-bottom: 3px; }
   .aep-mini p { color: var(--rpi-pale); font-size: 11.5px; line-height: 1.45; }
 
-  /* SEP list */
+  /* Beneficiary / event list (replaces SEP list) */
   .sep-mini { background: var(--paper-warm); border: 1px solid var(--rule); border-radius: 4px; padding: 11px 13px; margin-bottom: 10px; }
   .sep-mini h3 { font-size: 13px; margin-bottom: 8px; color: var(--rpi-289); }
   .sep-mini ul { list-style: none; }
@@ -126,10 +126,10 @@
   .fold-note strong { color: var(--rpi-289); }
 
   @media print {
-    body { background: white; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    body { background: white; }
     .sheet { margin: 0; box-shadow: none; page-break-after: always; }
     .sheet:last-child { page-break-after: auto; }
-    .preview-nav, .fold-note, .panel-label { display: none !important; }
+    .preview-nav, .fold-note { display: none; }
     .panel { border-right: none; }
     @page { size: 11in 8.5in; margin: 0; }
   }
@@ -138,77 +138,64 @@
 <body>
 
 <div class="preview-nav">
-  Tri-fold · Medicare Basics · <a onclick="window.print()">Print (landscape)</a>
+  Tri-fold · Retirement · <a onclick="window.print()">Print (landscape)</a>
 </div>
 
-<div class="fold-note"><strong>Tri-fold format.</strong> Print both sheets double-sided on 11"×8.5" landscape letter. Fold into thirds: outside panels (Back / [blank strip] / Cover) on one side, inside panels (Steps / Parts &amp; Numbers / Medigap &amp; AEP) on the other. Panel order matches standard brochure fold.</div>
+<div class="fold-note"><strong>Tri-fold format.</strong> Print both sheets double-sided on 11"×8.5" landscape letter. Fold into thirds: outside panels (Back / [blank strip] / Cover) on one side, inside panels (Steps / Parts &amp; Numbers / RMD &amp; Rules) on the other. Panel order matches standard brochure fold.</div>
 
 <!-- ═══════════════════════════════════════════════════════════════════ -->
 <!-- OUTSIDE (Back Panel | Inside-back | Front Cover) -->
 <!-- ═══════════════════════════════════════════════════════════════════ -->
 <div class="sheet">
 
-  <!-- PANEL 1 — BACK OF BROCHURE (when folded) — IRMAA reference card -->
+  <!-- PANEL 1 — BACK OF BROCHURE (when folded) — Roth Conversion Window -->
   <div class="panel back">
     <span class="panel-label">Outside · Panel 1 (Back)</span>
     <div class="back-top">
-      <div class="eyebrow">Medicare &middot; What You Actually Pay</div>
-      <h1 style="font-size:32px; margin-bottom:10px;">IRMAA.</h1>
-      <p style="font-size:14.5px; color:var(--ink-soft); line-height:1.55; margin-bottom:14px;">Higher-income earners pay more than the $202.90 standard Part B premium. Your bracket is based on your <strong style="color:var(--rpi-289);">2024 MAGI</strong> &mdash; line 11 of your 1040 plus tax-exempt interest.</p>
-      <table style="width:100%; border-collapse:collapse; font-size:11.5px; margin-top:6px;">
-        <thead>
-          <tr style="background:var(--rpi-289); color:white;">
-            <th style="padding:6px; text-align:left; font-family:'Poppins',sans-serif; font-weight:600; font-size:11px;">Individual</th>
-            <th style="padding:6px; text-align:left; font-family:'Poppins',sans-serif; font-weight:600; font-size:11px;">Joint</th>
-            <th style="padding:6px; text-align:center; font-family:'Poppins',sans-serif; font-weight:600; font-size:11px;">Part B</th>
-            <th style="padding:6px; text-align:center; font-family:'Poppins',sans-serif; font-weight:600; font-size:11px;">+Part D</th>
-          </tr>
-        </thead>
-        <tbody style="font-size:11px; color:var(--ink-soft);">
-          <tr style="background:var(--paper-warm);"><td style="padding:5px 6px;">&le;&nbsp;$109K</td><td style="padding:5px 6px;">&le;&nbsp;$218K</td><td style="padding:5px 6px; text-align:center; font-weight:700; color:var(--rpi-289);">$202.90</td><td style="padding:5px 6px; text-align:center;">&mdash;</td></tr>
-          <tr><td style="padding:5px 6px;">$109K&ndash;$137K</td><td style="padding:5px 6px;">$218K&ndash;$274K</td><td style="padding:5px 6px; text-align:center;">$284.10</td><td style="padding:5px 6px; text-align:center;">+$14.50</td></tr>
-          <tr style="background:var(--paper-warm);"><td style="padding:5px 6px;">$137K&ndash;$171K</td><td style="padding:5px 6px;">$274K&ndash;$342K</td><td style="padding:5px 6px; text-align:center;">$405.80</td><td style="padding:5px 6px; text-align:center;">+$37.50</td></tr>
-          <tr><td style="padding:5px 6px;">$171K&ndash;$205K</td><td style="padding:5px 6px;">$342K&ndash;$410K</td><td style="padding:5px 6px; text-align:center;">$527.50</td><td style="padding:5px 6px; text-align:center;">+$60.40</td></tr>
-          <tr style="background:var(--paper-warm);"><td style="padding:5px 6px;">$205K&ndash;$500K</td><td style="padding:5px 6px;">$410K&ndash;$750K</td><td style="padding:5px 6px; text-align:center;">$649.20</td><td style="padding:5px 6px; text-align:center;">+$83.30</td></tr>
-          <tr><td style="padding:5px 6px;">&ge;&nbsp;$500K</td><td style="padding:5px 6px;">&ge;&nbsp;$750K</td><td style="padding:5px 6px; text-align:center;">$689.90</td><td style="padding:5px 6px; text-align:center;">+$91.00</td></tr>
-        </tbody>
-      </table>
-      <p style="font-size:13px; color:var(--ink-soft); margin-top:14px; line-height:1.55;"><strong style="color:var(--rpi-medium);">Big life event in 2025?</strong> Retirement, loss of income, or death of a spouse can all qualify you for an IRMAA appeal &mdash; we'll walk you through the form.</p>
+      <div class="eyebrow">Retirement &middot; Tax Strategy</div>
+      <h1 style="font-size:32px; margin-bottom:10px;">The Roth<br>Conversion Window.</h1>
+      <p style="font-size:14.5px; color:var(--ink-soft); line-height:1.55; margin-bottom:14px;"><strong style="color:var(--rpi-289);">Why conversions matter:</strong> A Roth conversion moves money from a pre-tax account to a Roth, paying income tax now in exchange for tax-free growth and distributions forever after. Done right, it permanently removes assets from RMD exposure.</p>
+      <p style="font-size:13.5px; color:var(--ink-soft); line-height:1.55; margin-bottom:12px;"><strong style="color:var(--rpi-medium);">When to convert:</strong> The best window is the gap between retirement and age 73 &mdash; after your paycheck stops but before RMDs begin. Income often drops, pushing you into a lower bracket. Fill the bracket each year without jumping to the next rate. Social Security timing matters too: converting before benefits start means less ordinary income stacking.</p>
+      <p style="font-size:13.5px; color:var(--ink-soft); line-height:1.55; margin-bottom:14px;"><strong style="color:var(--rpi-medium);">How much:</strong> Convert enough each year to fill your current bracket without crossing into the next one. Run the number against your projected RMDs &mdash; converting now can reduce future mandatory withdrawals that would be taxed at higher rates. Watch the IRMAA thresholds: a conversion that pushes MAGI too high triggers Medicare premium surcharges two years later. The 5-year rule applies separately to each conversion for earnings access before 59&frac12;.</p>
+      <div style="background: var(--rpi-289); color: white; padding: 12px 16px; border-radius: 5px; margin-top: 4px;">
+        <div style="font-family:'Poppins',sans-serif; font-weight: 700; font-size: 13px; margin-bottom: 5px;">Run your Roth conversion scenario with us &mdash; no cost, no pitch.</div>
+        <div style="font-size: 12px; color: var(--rpi-pale); line-height: 1.6;"><strong style="color:white;">RetireProtected.com</strong><br>515-992-5000 &middot; 877-650-7015</div>
+      </div>
     </div>
     <div class="back-disclaimer">
-      Source: CMS 2026 Medicare Costs &amp; Premiums. This agency is not affiliated with Medicare or any other government agency. Material for informational use only. See www.medicare.gov or 1-800-MEDICARE for official information. &copy; 2026 Retirement Protectors, Inc.
+      Securities and investment advisory services offered through Gradient Securities, LLC, Member FINRA/SIPC. Retirement Protectors, Inc. is a separate entity from Gradient Securities. This material is for informational use only and does not constitute tax or legal advice. Consult a qualified tax professional. &copy; 2026 Retirement Protectors, Inc.
     </div>
   </div>
 
-  <!-- PANEL 2 — INSIDE FLAP (tucks under cover when folded) — Medicare Team + No-Cost Review -->
+  <!-- PANEL 2 — INSIDE FLAP (tucks under cover when folded) — Retirement Team + Schedule -->
   <div class="panel flap">
     <span class="panel-label">Outside · Panel 2 (Tuck flap)</span>
     <div class="eyebrow">We're Your People&trade;</div>
-    <h1 style="font-size:30px; margin-bottom:8px;">Your Medicare Team.</h1>
-    <p class="intro" style="font-size:14px;">Three faces, one goal: make Medicare make sense. Call any of us direct, or schedule together &mdash; we'll bring the plan to you.</p>
+    <h1 style="font-size:30px; margin-bottom:8px;">Your Retirement Team.</h1>
+    <p class="intro" style="font-size:14px;">Three specialists. One mission: build a retirement income plan that lasts as long as you do. Call direct, or schedule together &mdash; we'll sit with you until every question is answered.</p>
 
     <div class="myst" style="margin-top:18px;">
       <div class="myst-grid">
         <div class="myst-card">
-          <img src="../assets/team/robert-lacy.jpg" alt="Robert Lacy" class="myst-photo" />
-          <div class="myst-name">Robert Lacy</div>
-          <div class="myst-title">Medicare Coordinator</div>
+          <img src="../assets/team/shane-parmenter.jpg" alt="Shane Parmenter" class="myst-photo" />
+          <div class="myst-name">Shane Parmenter</div>
+          <div class="myst-title">Retirement Specialist</div>
         </div>
         <div class="myst-card">
-          <img src="../assets/team/lucas-dexter.jpg" alt="Lucas Dexter" class="myst-photo" />
-          <div class="myst-name">Lucas Dexter</div>
-          <div class="myst-title">Medicare Specialist</div>
+          <img src="../assets/team/matt-mccormick.jpg" alt="Matt McCormick" class="myst-photo" />
+          <div class="myst-name">Matt McCormick</div>
+          <div class="myst-title">Retirement Specialist</div>
         </div>
         <div class="myst-card">
-          <img src="../assets/team/susan-kaelin.jpg" alt="Susan Kaelin" class="myst-photo" />
-          <div class="myst-name">Susan Kaelin</div>
-          <div class="myst-title">Medicare</div>
+          <img src="../assets/team/josh-archer.jpg" alt="Josh Archer" class="myst-photo" />
+          <div class="myst-name">Josh Archer</div>
+          <div class="myst-title">Retirement Specialist</div>
         </div>
       </div>
     </div>
 
     <div style="background:var(--rpi-289); color:white; padding:18px 20px; border-radius:6px; margin-top:18px;">
-      <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:15px; margin-bottom:6px;">Schedule your no-cost review.</div>
+      <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:15px; margin-bottom:6px;">Schedule your no-cost retirement review.</div>
       <div style="font-size:13px; color:var(--rpi-pale); line-height:1.7;">
         <strong style="color:white;">RetireProtected.com</strong><br>
         515-992-5000 &middot; 877-650-7015<br>
@@ -221,9 +208,9 @@
   <div class="panel cover">
     <span class="panel-label">Outside · Panel 3 (Front Cover)</span>
     <div class="cover-top">
-      <div class="cover-eyebrow">Medicare · Coverage Guide</div>
-      <h1>Medicare,<br>Made Simple.</h1>
-      <div class="cover-sub">Your personal guide &mdash; from the people who walk beside you.</div>
+      <div class="cover-eyebrow">Retirement &middot; Income + Tax Planning</div>
+      <h1>Retirement,<br>Planned.</h1>
+      <div class="cover-sub">Your income blueprint &mdash; from the people who walk beside you.</div>
     </div>
     <div class="cover-bottom">
       <div class="cover-shield"></div>
@@ -234,118 +221,114 @@
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════════════ -->
-<!-- INSIDE (Framework | Parts + Numbers | Medigap + AEP) -->
+<!-- INSIDE (Framework | Parts + Numbers | RMD + Beneficiary Rules) -->
 <!-- ═══════════════════════════════════════════════════════════════════ -->
 <div class="sheet">
 
   <!-- INSIDE PANEL 1 — 3-STEP FRAMEWORK -->
   <div class="panel flap">
     <span class="panel-label">Inside · Panel 1</span>
-    <div class="eyebrow">Medicare · Step by Step</div>
+    <div class="eyebrow">Retirement &middot; Step by Step</div>
     <h2>Three Decisions</h2>
-    <p class="intro">Every Medicare-eligible person walks through the same three choices. Here's how each one works.</p>
+    <p class="intro">Every pre-retiree and retiree walks through the same three layers. Here's how each one works &mdash; and why the order matters.</p>
 
     <div class="step">
       <div class="step-num">Step 1</div>
-      <h3>Pick your coverage path</h3>
-      <p><strong>Original Medicare</strong> (Parts A + B, run by the federal government) OR a <strong>Medicare Advantage Plan</strong> (Part C, bundled by a private carrier, usually includes Part D).</p>
+      <h3>Know your accounts</h3>
+      <p><strong>Pre-tax</strong> (Traditional IRA, 401(k), 403(b), 457, TSP, SEP, SIMPLE) vs. <strong>Roth</strong> (after-tax contributions, tax-free growth) vs. <strong>Taxable brokerage</strong> (capital gains treatment). Each bucket has different withdrawal rules and tax treatment.</p>
     </div>
     <div class="step">
       <div class="step-num">Step 2</div>
-      <h3>Fill the gaps</h3>
-      <p>On Original Medicare, consider a <strong>Medigap policy</strong> to cover what A and B don't. On Medicare Advantage, Medigap is not allowed.</p>
+      <h3>Know your income</h3>
+      <p>Systematic withdrawals, <strong>annuities</strong> (FIA, MYGA, variable), Social Security coordination, and RMDs. The sequence of withdrawals determines your lifetime tax bill &mdash; we model it before you retire.</p>
     </div>
     <div class="step">
       <div class="step-num">Step 3</div>
-      <h3>Secure drug coverage</h3>
-      <p>Add a standalone <strong>Part D</strong> plan, OR confirm your Advantage plan includes it. Missing the window means a lifetime late-enrollment penalty.</p>
+      <h3>Know your taxes</h3>
+      <p><strong>1035 exchanges</strong> (tax-free between annuities/life), <strong>Roth conversion windows</strong>, RMD timing, 72(t) SEPP &mdash; the levers that determine what you actually keep. See back panel for the Roth conversion playbook.</p>
     </div>
 
     <h2 style="margin-top:10px;">You're Not Alone</h2>
-    <p>Every RPI client gets a dedicated service team. Call, text, or book a kitchen-table visit &mdash; we'll sit with you until every question is answered.</p>
+    <p>Every RPI client gets a dedicated retirement specialist. Call, text, or book a kitchen-table visit &mdash; we'll sit with you until every question is answered.</p>
   </div>
 
-  <!-- INSIDE PANEL 2 — PARTS + 2025 NUMBERS -->
+  <!-- INSIDE PANEL 2 — 4 ACCOUNT TYPES + 2026 NUMBERS -->
   <div class="panel flap">
     <span class="panel-label">Inside · Panel 2</span>
-    <div class="eyebrow">The Four Parts</div>
-    <h2>What Each Part Covers</h2>
+    <div class="eyebrow">4 Account Types</div>
+    <h2>What Each Account Does</h2>
     <div class="parts-mini">
       <div class="part-mini">
-        <div class="label">Part A</div>
-        <h4>Hospital</h4>
-        <p>Inpatient stays, skilled nursing, hospice, some home health. Usually $0 premium.</p>
+        <div class="label">Traditional IRA</div>
+        <h4>Pre-Tax</h4>
+        <p>Tax-deferred growth. Ordinary income on distributions. RMDs at 73.</p>
       </div>
       <div class="part-mini">
-        <div class="label">Part B</div>
-        <h4>Medical</h4>
-        <p>Doctor visits, outpatient, preventive, equipment. Monthly premium applies.</p>
+        <div class="label">Roth IRA</div>
+        <h4>After-Tax</h4>
+        <p>Tax-free growth and distributions. No RMDs during owner's life. 5-year rule on earnings.</p>
       </div>
       <div class="part-mini accent">
-        <div class="label">Part C</div>
-        <h4>Advantage</h4>
-        <p>Private plan bundling A + B, usually D, often extras (dental, vision, fitness).</p>
+        <div class="label">Employer Plans</div>
+        <h4>401(k) / 403(b)</h4>
+        <p>Pre-tax or Roth. Employer match. Can roll to IRA at separation.</p>
       </div>
       <div class="part-mini">
-        <div class="label">Part D</div>
-        <h4>Drugs</h4>
-        <p>Prescription coverage. Miss enrollment = lifetime penalty.</p>
+        <div class="label">Non-Qualified Annuity</div>
+        <h4>After-Tax</h4>
+        <p>Tax-deferred growth. Ordinary income on earnings only. 1035 exchange preserves basis.</p>
       </div>
     </div>
 
     <div class="numbers-mini">
       <h3>Key Numbers &mdash; 2026</h3>
       <table>
-        <tr><td>Part A Deductible</td><td>$1,736</td></tr>
-        <tr><td>Part B Std Premium</td><td>$202.90/mo</td></tr>
-        <tr><td>Part B Deductible</td><td>$283</td></tr>
-        <tr><td>Part A Days 61&ndash;90</td><td>$434/day</td></tr>
-        <tr><td>SNF Days 21&ndash;100</td><td>$217/day</td></tr>
+        <tr><td>IRA Contribution Limit</td><td>$7,000</td></tr>
+        <tr><td>IRA Catch-up (50+)</td><td>$1,000</td></tr>
+        <tr><td>401(k) Limit</td><td>$23,500</td></tr>
+        <tr><td>401(k) Catch-up (50+)</td><td>$7,500</td></tr>
+        <tr><td>RMD Age</td><td>73</td></tr>
       </table>
     </div>
 
-    <p style="font-size:10.5px; color:var(--ink-soft); margin-top:10px; line-height:1.5;"><strong style="color:var(--rpi-medium);">Higher-income earners</strong> pay an additional IRMAA premium on top of the $202.90 standard &mdash; see back panel. We'll help you calculate yours.</p>
+    <p style="font-size:10.5px; color:var(--ink-soft); margin-top:10px; line-height:1.5;"><strong style="color:var(--rpi-medium);">Source: IRS 2026.</strong> Roth conversions have no income limit. Backdoor Roth strategies remain available for high-income earners. Ask us to run the math.</p>
   </div>
 
-  <!-- INSIDE PANEL 3 — MEDIGAP + AEP + SEP -->
+  <!-- INSIDE PANEL 3 — RMD TABLE + 72(t) + BENEFICIARY RULES -->
   <div class="panel flap">
     <span class="panel-label">Inside · Panel 3</span>
-    <div class="eyebrow">Medigap + Enrollment</div>
-    <h2>Medigap Plans A&ndash;N</h2>
+    <div class="eyebrow">RMDs + Distribution Rules</div>
+    <h2>Uniform Lifetime Table &mdash; 2026</h2>
     <table class="medigap-mini">
       <thead>
-        <tr><th style="text-align:left; padding-left:4px;">Benefit</th><th>A</th><th>B</th><th>D</th><th>G</th><th>K</th><th>L</th><th>M</th><th>N</th></tr>
+        <tr><th style="text-align:left; padding-left:4px;">Age</th><th>Divisor</th><th>% Req'd</th><th style="text-align:left; padding-left:4px;">Age</th><th>Divisor</th><th>% Req'd</th></tr>
       </thead>
       <tbody>
-        <tr><td>Part A Coinsurance</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td></tr>
-        <tr><td>Part B Coinsurance</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td class="partial">50%</td><td class="partial">75%</td><td class="dot">●</td><td class="dot">●</td></tr>
-        <tr><td>Blood (first 3 pints)</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td class="partial">50%</td><td class="partial">75%</td><td class="dot">●</td><td class="dot">●</td></tr>
-        <tr><td>Skilled Nursing</td><td>&mdash;</td><td>&mdash;</td><td class="dot">●</td><td class="dot">●</td><td class="partial">50%</td><td class="partial">75%</td><td class="dot">●</td><td class="dot">●</td></tr>
-        <tr><td>Part A Deductible</td><td>&mdash;</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td class="partial">50%</td><td class="partial">75%</td><td class="partial">50%</td><td class="dot">●</td></tr>
-        <tr><td>Part B Excess</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td class="dot">●</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
-        <tr><td>Foreign Travel</td><td>&mdash;</td><td>&mdash;</td><td class="dot">●</td><td class="dot">●</td><td>&mdash;</td><td>&mdash;</td><td class="dot">●</td><td class="dot">●</td></tr>
+        <tr><td style="text-align:left; padding-left:4px;">73</td><td>26.5</td><td>3.77%</td><td style="text-align:left; padding-left:4px;">80</td><td>20.2</td><td>4.95%</td></tr>
+        <tr><td style="text-align:left; padding-left:4px;">74</td><td>25.5</td><td>3.92%</td><td style="text-align:left; padding-left:4px;">82</td><td>18.5</td><td>5.41%</td></tr>
+        <tr><td style="text-align:left; padding-left:4px;">75</td><td>24.6</td><td>4.07%</td><td style="text-align:left; padding-left:4px;">85</td><td>16.0</td><td>6.25%</td></tr>
+        <tr><td style="text-align:left; padding-left:4px;">76</td><td>23.7</td><td>4.22%</td><td style="text-align:left; padding-left:4px;">90</td><td>12.2</td><td>8.20%</td></tr>
+        <tr><td style="text-align:left; padding-left:4px;">77</td><td>22.9</td><td>4.37%</td><td style="text-align:left; padding-left:4px;">95</td><td>8.3</td><td>12.05%</td></tr>
       </tbody>
     </table>
-    <p style="font-size:8px; color:var(--ink-soft); margin-bottom:8px;">Plan G is the most popular new enrollment option. Plans C and F are only available to those Medicare-eligible before 1/1/2020.</p>
+    <p style="font-size:8px; color:var(--ink-soft); margin-bottom:8px;">Multiply your 12/31 prior-year balance by the % to get this year's RMD. Source: IRS Pub. 590-B.</p>
 
     <div class="aep-mini">
       <img src="../assets/rpi/rpi-shield-mark.png" alt="" />
       <div>
-        <h3>AEP: Oct 15 &mdash; Dec 7</h3>
-        <p>Annual window to join, switch, or drop Advantage or Part D. Miss it, you're locked in.</p>
+        <h3>72(t) SEPP &mdash; Before 59&frac12;</h3>
+        <p>Withdraw without the 10% penalty using Amortization, Annuitization, or RMD-based payments. Minimum 5 years or until 59&frac12;. Any deviation = retroactive penalty.</p>
       </div>
     </div>
 
     <div class="sep-mini">
-      <h3>Special Election Periods</h3>
+      <h3>Beneficiary Rules (Post-SECURE Act)</h3>
       <ul>
-        <li>Turning 65 (Initial Enrollment)</li>
-        <li>Qualifying for Extra Help</li>
-        <li>Leaving employer coverage</li>
-        <li>Moving outside plan area</li>
-        <li>Dual-eligible (Medicare + Medicaid)</li>
-        <li>5-star plan rule</li>
-        <li>Involuntary loss of coverage</li>
+        <li><strong>Spouse:</strong> Roll to own IRA, delay RMDs to age 73</li>
+        <li><strong>Non-spouse:</strong> 10-year payout rule (SECURE Act)</li>
+        <li><strong>Eligible Designated Beneficiary:</strong> Lifetime stretch (minor children, disabled, &lt;10 yrs younger)</li>
+        <li><strong>Estate or Trust:</strong> 5-year rule</li>
+        <li><strong>No beneficiary:</strong> 5-year rule via probate</li>
       </ul>
     </div>
   </div>

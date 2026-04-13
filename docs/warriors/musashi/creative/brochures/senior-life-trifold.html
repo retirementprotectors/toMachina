@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Medicare Basics — Tri-fold — Retirement Protectors, Inc.</title>
+<title>Senior Life Insurance — Tri-fold — Retirement Protectors, Inc.</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;600&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -98,13 +98,12 @@
   .numbers-mini td { padding: 4px 0; color: var(--rpi-pale); }
   .numbers-mini td:last-child { text-align: right; font-family: 'Poppins', sans-serif; font-weight: 700; color: white; }
 
-  /* Medigap mini grid */
-  .medigap-mini { width: 100%; border-collapse: collapse; font-size: 10px; margin-bottom: 10px; }
-  .medigap-mini th, .medigap-mini td { padding: 4px 3px; text-align: center; border: 1px solid var(--rule); }
-  .medigap-mini thead th { background: var(--rpi-289); color: white; font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 10px; }
-  .medigap-mini tbody td:first-child { text-align: left; padding-left: 6px; font-weight: 500; color: var(--rpi-medium); font-size: 9.5px; }
-  .medigap-mini .dot { color: var(--rpi-royal); font-weight: 700; }
-  .medigap-mini .partial { color: var(--ink-soft); font-size: 9px; }
+  /* Review triggers mini list */
+  .triggers-mini { background: var(--paper-warm); border: 1px solid var(--rule); border-radius: 4px; padding: 11px 13px; margin-bottom: 10px; }
+  .triggers-mini h3 { font-size: 13px; margin-bottom: 8px; color: var(--rpi-289); }
+  .triggers-mini ul { list-style: none; }
+  .triggers-mini li { font-size: 11.5px; padding-left: 14px; position: relative; margin-bottom: 4px; line-height: 1.45; }
+  .triggers-mini li::before { content: '▪'; color: var(--rpi-royal); position: absolute; left: 0; font-size: 12px; top: -1px; }
 
   /* AEP mini */
   .aep-mini { background: linear-gradient(135deg, var(--rpi-medium), var(--rpi-289)); color: white; padding: 12px 14px; border-radius: 5px; display: flex; gap: 12px; align-items: center; margin: 14px 0 12px; }
@@ -126,10 +125,10 @@
   .fold-note strong { color: var(--rpi-289); }
 
   @media print {
-    body { background: white; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    body { background: white; }
     .sheet { margin: 0; box-shadow: none; page-break-after: always; }
     .sheet:last-child { page-break-after: auto; }
-    .preview-nav, .fold-note, .panel-label { display: none !important; }
+    .preview-nav, .fold-note { display: none; }
     .panel { border-right: none; }
     @page { size: 11in 8.5in; margin: 0; }
   }
@@ -138,71 +137,66 @@
 <body>
 
 <div class="preview-nav">
-  Tri-fold · Medicare Basics · <a onclick="window.print()">Print (landscape)</a>
+  Tri-fold · Senior Life · <a onclick="window.print()">Print (landscape)</a>
 </div>
 
-<div class="fold-note"><strong>Tri-fold format.</strong> Print both sheets double-sided on 11"×8.5" landscape letter. Fold into thirds: outside panels (Back / [blank strip] / Cover) on one side, inside panels (Steps / Parts &amp; Numbers / Medigap &amp; AEP) on the other. Panel order matches standard brochure fold.</div>
+<div class="fold-note"><strong>Tri-fold format.</strong> Print both sheets double-sided on 11"&times;8.5" landscape letter. Fold into thirds: outside panels (Back / Flap / Cover) on one side, inside panels (Steps / Types &amp; Numbers / Review &amp; When) on the other. Panel order matches standard brochure fold.</div>
 
 <!-- ═══════════════════════════════════════════════════════════════════ -->
-<!-- OUTSIDE (Back Panel | Inside-back | Front Cover) -->
+<!-- OUTSIDE (Back Panel | Flap | Front Cover) -->
 <!-- ═══════════════════════════════════════════════════════════════════ -->
 <div class="sheet">
 
-  <!-- PANEL 1 — BACK OF BROCHURE (when folded) — IRMAA reference card -->
+  <!-- PANEL 1 — BACK OF BROCHURE (when folded) — Performance Review CTA -->
   <div class="panel back">
     <span class="panel-label">Outside · Panel 1 (Back)</span>
     <div class="back-top">
-      <div class="eyebrow">Medicare &middot; What You Actually Pay</div>
-      <h1 style="font-size:32px; margin-bottom:10px;">IRMAA.</h1>
-      <p style="font-size:14.5px; color:var(--ink-soft); line-height:1.55; margin-bottom:14px;">Higher-income earners pay more than the $202.90 standard Part B premium. Your bracket is based on your <strong style="color:var(--rpi-289);">2024 MAGI</strong> &mdash; line 11 of your 1040 plus tax-exempt interest.</p>
-      <table style="width:100%; border-collapse:collapse; font-size:11.5px; margin-top:6px;">
-        <thead>
-          <tr style="background:var(--rpi-289); color:white;">
-            <th style="padding:6px; text-align:left; font-family:'Poppins',sans-serif; font-weight:600; font-size:11px;">Individual</th>
-            <th style="padding:6px; text-align:left; font-family:'Poppins',sans-serif; font-weight:600; font-size:11px;">Joint</th>
-            <th style="padding:6px; text-align:center; font-family:'Poppins',sans-serif; font-weight:600; font-size:11px;">Part B</th>
-            <th style="padding:6px; text-align:center; font-family:'Poppins',sans-serif; font-weight:600; font-size:11px;">+Part D</th>
-          </tr>
-        </thead>
-        <tbody style="font-size:11px; color:var(--ink-soft);">
-          <tr style="background:var(--paper-warm);"><td style="padding:5px 6px;">&le;&nbsp;$109K</td><td style="padding:5px 6px;">&le;&nbsp;$218K</td><td style="padding:5px 6px; text-align:center; font-weight:700; color:var(--rpi-289);">$202.90</td><td style="padding:5px 6px; text-align:center;">&mdash;</td></tr>
-          <tr><td style="padding:5px 6px;">$109K&ndash;$137K</td><td style="padding:5px 6px;">$218K&ndash;$274K</td><td style="padding:5px 6px; text-align:center;">$284.10</td><td style="padding:5px 6px; text-align:center;">+$14.50</td></tr>
-          <tr style="background:var(--paper-warm);"><td style="padding:5px 6px;">$137K&ndash;$171K</td><td style="padding:5px 6px;">$274K&ndash;$342K</td><td style="padding:5px 6px; text-align:center;">$405.80</td><td style="padding:5px 6px; text-align:center;">+$37.50</td></tr>
-          <tr><td style="padding:5px 6px;">$171K&ndash;$205K</td><td style="padding:5px 6px;">$342K&ndash;$410K</td><td style="padding:5px 6px; text-align:center;">$527.50</td><td style="padding:5px 6px; text-align:center;">+$60.40</td></tr>
-          <tr style="background:var(--paper-warm);"><td style="padding:5px 6px;">$205K&ndash;$500K</td><td style="padding:5px 6px;">$410K&ndash;$750K</td><td style="padding:5px 6px; text-align:center;">$649.20</td><td style="padding:5px 6px; text-align:center;">+$83.30</td></tr>
-          <tr><td style="padding:5px 6px;">&ge;&nbsp;$500K</td><td style="padding:5px 6px;">&ge;&nbsp;$750K</td><td style="padding:5px 6px; text-align:center;">$689.90</td><td style="padding:5px 6px; text-align:center;">+$91.00</td></tr>
-        </tbody>
-      </table>
-      <p style="font-size:13px; color:var(--ink-soft); margin-top:14px; line-height:1.55;"><strong style="color:var(--rpi-medium);">Big life event in 2025?</strong> Retirement, loss of income, or death of a spouse can all qualify you for an IRMAA appeal &mdash; we'll walk you through the form.</p>
+      <div class="eyebrow">Life Insurance &middot; Policy Review</div>
+      <h1 style="font-size:32px; margin-bottom:10px;">The Performance Review, Free.</h1>
+      <p style="font-size:14.5px; color:var(--ink-soft); line-height:1.55; margin-bottom:14px;">Every policy over five years old should be re-run. Here&rsquo;s why.</p>
+
+      <div style="background:white; border:1px solid var(--rule); border-left:4px solid var(--rpi-royal); border-radius:4px; padding:12px 14px; margin-bottom:14px;">
+        <div style="font-family:'Poppins',sans-serif; font-size:11px; font-weight:700; color:var(--rpi-royal); letter-spacing:0.1em; text-transform:uppercase; margin-bottom:8px;">Three Reasons to Re-Run Your Policy</div>
+        <ul style="list-style:none; font-size:12.5px; color:var(--ink-soft); line-height:1.6;">
+          <li style="padding-left:16px; position:relative; margin-bottom:8px;"><span style="position:absolute; left:0; color:var(--rpi-royal); font-weight:700;">1.</span>Your policy&rsquo;s original projections were built on older interest rates and mortality tables &mdash; both have shifted.</li>
+          <li style="padding-left:16px; position:relative; margin-bottom:8px;"><span style="position:absolute; left:0; color:var(--rpi-royal); font-weight:700;">2.</span>Dividend scales at most participating carriers have declined since your policy was issued.</li>
+          <li style="padding-left:16px; position:relative;"><span style="position:absolute; left:0; color:var(--rpi-royal); font-weight:700;">3.</span>New product types &mdash; hybrid LTC, guaranteed lifetime coverage, indexed UL &mdash; may outperform what you currently own.</li>
+        </ul>
+      </div>
+
+      <div style="background:var(--rpi-289); color:white; padding:14px 16px; border-radius:5px;">
+        <div style="font-family:'Poppins',sans-serif; font-size:13px; font-weight:700; margin-bottom:6px;">Bring your in-force illustration.</div>
+        <div style="font-size:12px; color:var(--rpi-pale); line-height:1.6;">We&rsquo;ll tell you if it&rsquo;s still doing its job &mdash; no cost, no obligation, no pressure.</div>
+      </div>
     </div>
     <div class="back-disclaimer">
-      Source: CMS 2026 Medicare Costs &amp; Premiums. This agency is not affiliated with Medicare or any other government agency. Material for informational use only. See www.medicare.gov or 1-800-MEDICARE for official information. &copy; 2026 Retirement Protectors, Inc.
+      Insurance products are issued by various carriers. Availability, rates, and contract features vary by state and individual underwriting. This material is for informational purposes only and does not constitute a solicitation or offer for any specific policy. &copy; 2026 Retirement Protectors, Inc.
     </div>
   </div>
 
-  <!-- PANEL 2 — INSIDE FLAP (tucks under cover when folded) — Medicare Team + No-Cost Review -->
+  <!-- PANEL 2 — INSIDE FLAP (tucks under cover when folded) — Legacy Team + Schedule -->
   <div class="panel flap">
     <span class="panel-label">Outside · Panel 2 (Tuck flap)</span>
     <div class="eyebrow">We're Your People&trade;</div>
-    <h1 style="font-size:30px; margin-bottom:8px;">Your Medicare Team.</h1>
-    <p class="intro" style="font-size:14px;">Three faces, one goal: make Medicare make sense. Call any of us direct, or schedule together &mdash; we'll bring the plan to you.</p>
+    <h1 style="font-size:30px; margin-bottom:8px;">Your Legacy Team.</h1>
+    <p class="intro" style="font-size:14px;">Three specialists, one mission: match the right protection to the life you&rsquo;ve built. We bring the review to you &mdash; kitchen table or office, your call.</p>
 
     <div class="myst" style="margin-top:18px;">
       <div class="myst-grid">
         <div class="myst-card">
-          <img src="../assets/team/robert-lacy.jpg" alt="Robert Lacy" class="myst-photo" />
-          <div class="myst-name">Robert Lacy</div>
-          <div class="myst-title">Medicare Coordinator</div>
+          <img src="../assets/team/aprille-trupiano.jpg" alt="Dr. Aprille Trupiano" class="myst-photo" />
+          <div class="myst-name">Dr. Aprille Trupiano</div>
+          <div class="myst-title">Legacy Services Director</div>
         </div>
         <div class="myst-card">
-          <img src="../assets/team/lucas-dexter.jpg" alt="Lucas Dexter" class="myst-photo" />
-          <div class="myst-name">Lucas Dexter</div>
-          <div class="myst-title">Medicare Specialist</div>
+          <img src="../assets/team/shane-parmenter.jpg" alt="Shane Parmenter" class="myst-photo" />
+          <div class="myst-name">Shane Parmenter</div>
+          <div class="myst-title">Retirement Specialist</div>
         </div>
         <div class="myst-card">
-          <img src="../assets/team/susan-kaelin.jpg" alt="Susan Kaelin" class="myst-photo" />
-          <div class="myst-name">Susan Kaelin</div>
-          <div class="myst-title">Medicare</div>
+          <img src="../assets/team/angelique-bonilla.jpg" alt="Angelique Bonilla" class="myst-photo" />
+          <div class="myst-name">Angelique Bonilla</div>
+          <div class="myst-title">Client Service</div>
         </div>
       </div>
     </div>
@@ -221,9 +215,9 @@
   <div class="panel cover">
     <span class="panel-label">Outside · Panel 3 (Front Cover)</span>
     <div class="cover-top">
-      <div class="cover-eyebrow">Medicare · Coverage Guide</div>
-      <h1>Medicare,<br>Made Simple.</h1>
-      <div class="cover-sub">Your personal guide &mdash; from the people who walk beside you.</div>
+      <div class="cover-eyebrow">Life Insurance &middot; Protection + Legacy</div>
+      <h1>Life Insurance,<br>Demystified.</h1>
+      <div class="cover-sub">Term, Permanent, Whole, Universal &mdash; the real differences and when each makes sense.</div>
     </div>
     <div class="cover-bottom">
       <div class="cover-shield"></div>
@@ -234,118 +228,115 @@
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════════════ -->
-<!-- INSIDE (Framework | Parts + Numbers | Medigap + AEP) -->
+<!-- INSIDE (Steps | Types + Numbers | Review + When) -->
 <!-- ═══════════════════════════════════════════════════════════════════ -->
 <div class="sheet">
 
   <!-- INSIDE PANEL 1 — 3-STEP FRAMEWORK -->
   <div class="panel flap">
     <span class="panel-label">Inside · Panel 1</span>
-    <div class="eyebrow">Medicare · Step by Step</div>
-    <h2>Three Decisions</h2>
-    <p class="intro">Every Medicare-eligible person walks through the same three choices. Here's how each one works.</p>
+    <div class="eyebrow">Life Insurance &middot; Step by Step</div>
+    <h2>Three Steps to the Right Policy</h2>
+    <p class="intro">Every life insurance decision comes down to three questions. Here&rsquo;s how to answer them.</p>
 
     <div class="step">
       <div class="step-num">Step 1</div>
-      <h3>Pick your coverage path</h3>
-      <p><strong>Original Medicare</strong> (Parts A + B, run by the federal government) OR a <strong>Medicare Advantage Plan</strong> (Part C, bundled by a private carrier, usually includes Part D).</p>
+      <h3>Know what you're protecting</h3>
+      <p>Income replacement &middot; Mortgage balance &middot; College funding &middot; Estate taxes &middot; Final expenses &middot; Business continuation. <strong>Define the need first.</strong></p>
     </div>
     <div class="step">
       <div class="step-num">Step 2</div>
-      <h3>Fill the gaps</h3>
-      <p>On Original Medicare, consider a <strong>Medigap policy</strong> to cover what A and B don't. On Medicare Advantage, Medigap is not allowed.</p>
+      <h3>Pick the right type</h3>
+      <p><strong>Term</strong> for temporary needs (high coverage, low cost). <strong>Permanent</strong> for lifetime needs. Hybrid strategies blend both when the protection horizon is mixed.</p>
     </div>
     <div class="step">
       <div class="step-num">Step 3</div>
-      <h3>Secure drug coverage</h3>
-      <p>Add a standalone <strong>Part D</strong> plan, OR confirm your Advantage plan includes it. Missing the window means a lifetime late-enrollment penalty.</p>
+      <h3>Review annually</h3>
+      <p>Premiums, cash value, dividends, and beneficiary designations change over time &mdash; and so does the right policy. Annual reviews keep coverage aligned with life.</p>
     </div>
 
     <h2 style="margin-top:10px;">You're Not Alone</h2>
-    <p>Every RPI client gets a dedicated service team. Call, text, or book a kitchen-table visit &mdash; we'll sit with you until every question is answered.</p>
+    <p>Every RPI client gets a dedicated legacy team. Call, text, or schedule a kitchen-table visit &mdash; we&rsquo;ll sit with you until every question is answered.</p>
   </div>
 
-  <!-- INSIDE PANEL 2 — PARTS + 2025 NUMBERS -->
+  <!-- INSIDE PANEL 2 — TYPES + 2026 NUMBERS -->
   <div class="panel flap">
     <span class="panel-label">Inside · Panel 2</span>
-    <div class="eyebrow">The Four Parts</div>
-    <h2>What Each Part Covers</h2>
+    <div class="eyebrow">The Four Types</div>
+    <h2>What Each Type Does</h2>
     <div class="parts-mini">
       <div class="part-mini">
-        <div class="label">Part A</div>
-        <h4>Hospital</h4>
-        <p>Inpatient stays, skilled nursing, hospice, some home health. Usually $0 premium.</p>
+        <div class="label">Term Life</div>
+        <h4>Set Period</h4>
+        <p>10&ndash;30 yr terms. Lowest premium. No cash value. ROP variants available.</p>
       </div>
       <div class="part-mini">
-        <div class="label">Part B</div>
-        <h4>Medical</h4>
-        <p>Doctor visits, outpatient, preventive, equipment. Monthly premium applies.</p>
+        <div class="label">Whole Life</div>
+        <h4>Permanent + Guaranteed</h4>
+        <p>Guaranteed premium, cash value, and death benefit. Participating policies earn dividends.</p>
       </div>
       <div class="part-mini accent">
-        <div class="label">Part C</div>
-        <h4>Advantage</h4>
-        <p>Private plan bundling A + B, usually D, often extras (dental, vision, fitness).</p>
+        <div class="label">Universal Life</div>
+        <h4>Permanent + Flexible</h4>
+        <p>Adjustable premiums and death benefit. Fixed, Indexed, or Variable cash value growth.</p>
       </div>
       <div class="part-mini">
-        <div class="label">Part D</div>
-        <h4>Drugs</h4>
-        <p>Prescription coverage. Miss enrollment = lifetime penalty.</p>
+        <div class="label">Final Expense</div>
+        <h4>Simplified Whole Life</h4>
+        <p>$5K&ndash;$50K coverage. No medical exam. Guaranteed issue options available.</p>
       </div>
     </div>
 
     <div class="numbers-mini">
-      <h3>Key Numbers &mdash; 2026</h3>
+      <h3>Life Insurance Landscape &mdash; 2026</h3>
       <table>
-        <tr><td>Part A Deductible</td><td>$1,736</td></tr>
-        <tr><td>Part B Std Premium</td><td>$202.90/mo</td></tr>
-        <tr><td>Part B Deductible</td><td>$283</td></tr>
-        <tr><td>Part A Days 61&ndash;90</td><td>$434/day</td></tr>
-        <tr><td>SNF Days 21&ndash;100</td><td>$217/day</td></tr>
+        <tr><td>Avg. U.S. Funeral Cost</td><td>$8&ndash;12K</td></tr>
+        <tr><td>Median Coverage Gap</td><td>$200K+</td></tr>
+        <tr><td>Policies Lapsing Before Death</td><td>~30%</td></tr>
+        <tr><td>Mortality Table</td><td>2017 CSO</td></tr>
+        <tr><td>Tax-Free Death Benefit</td><td>&sect;101(a)</td></tr>
       </table>
     </div>
 
-    <p style="font-size:10.5px; color:var(--ink-soft); margin-top:10px; line-height:1.5;"><strong style="color:var(--rpi-medium);">Higher-income earners</strong> pay an additional IRMAA premium on top of the $202.90 standard &mdash; see back panel. We'll help you calculate yours.</p>
+    <p style="font-size:10.5px; color:var(--ink-soft); margin-top:10px; line-height:1.5;">Source: LIMRA 2026 / NAIC / IRS Publication 525. <strong style="color:var(--rpi-medium);">Bring your current policy</strong> to your review &mdash; we&rsquo;ll run an in-force illustration on the spot.</p>
   </div>
 
-  <!-- INSIDE PANEL 3 — MEDIGAP + AEP + SEP -->
+  <!-- INSIDE PANEL 3 — REVIEW TRIGGERS + WHEN TO USE EACH TYPE -->
   <div class="panel flap">
     <span class="panel-label">Inside · Panel 3</span>
-    <div class="eyebrow">Medigap + Enrollment</div>
-    <h2>Medigap Plans A&ndash;N</h2>
-    <table class="medigap-mini">
-      <thead>
-        <tr><th style="text-align:left; padding-left:4px;">Benefit</th><th>A</th><th>B</th><th>D</th><th>G</th><th>K</th><th>L</th><th>M</th><th>N</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>Part A Coinsurance</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td></tr>
-        <tr><td>Part B Coinsurance</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td class="partial">50%</td><td class="partial">75%</td><td class="dot">●</td><td class="dot">●</td></tr>
-        <tr><td>Blood (first 3 pints)</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td class="partial">50%</td><td class="partial">75%</td><td class="dot">●</td><td class="dot">●</td></tr>
-        <tr><td>Skilled Nursing</td><td>&mdash;</td><td>&mdash;</td><td class="dot">●</td><td class="dot">●</td><td class="partial">50%</td><td class="partial">75%</td><td class="dot">●</td><td class="dot">●</td></tr>
-        <tr><td>Part A Deductible</td><td>&mdash;</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td class="partial">50%</td><td class="partial">75%</td><td class="partial">50%</td><td class="dot">●</td></tr>
-        <tr><td>Part B Excess</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td class="dot">●</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
-        <tr><td>Foreign Travel</td><td>&mdash;</td><td>&mdash;</td><td class="dot">●</td><td class="dot">●</td><td>&mdash;</td><td>&mdash;</td><td class="dot">●</td><td class="dot">●</td></tr>
-      </tbody>
-    </table>
-    <p style="font-size:8px; color:var(--ink-soft); margin-bottom:8px;">Plan G is the most popular new enrollment option. Plans C and F are only available to those Medicare-eligible before 1/1/2020.</p>
+    <div class="eyebrow">Review + Match</div>
+    <h2>Policy Performance Triggers</h2>
+
+    <div class="triggers-mini">
+      <h3>Review Your Policy If&hellip;</h3>
+      <ul>
+        <li>Death benefit structure no longer matches your goal</li>
+        <li>Cost of insurance has increased (2017 CSO update)</li>
+        <li>UL/VUL may be underperforming original projections</li>
+        <li>Dividend scale has been lowered on your whole life</li>
+        <li>Beneficiary designations haven&rsquo;t been touched in years</li>
+        <li>Your agent retired or company was acquired</li>
+        <li>LTC riders or hybrid products are now available to you</li>
+      </ul>
+    </div>
 
     <div class="aep-mini">
       <img src="../assets/rpi/rpi-shield-mark.png" alt="" />
       <div>
-        <h3>AEP: Oct 15 &mdash; Dec 7</h3>
-        <p>Annual window to join, switch, or drop Advantage or Part D. Miss it, you're locked in.</p>
+        <h3>Life Changes = Review Triggers</h3>
+        <p>Marriage &middot; Divorce &middot; Birth &middot; Mortgage &middot; Retirement &middot; Business ownership &middot; Health diagnosis &middot; Beneficiary death</p>
       </div>
     </div>
 
     <div class="sep-mini">
-      <h3>Special Election Periods</h3>
+      <h3>When to Consider Each Type</h3>
       <ul>
-        <li>Turning 65 (Initial Enrollment)</li>
-        <li>Qualifying for Extra Help</li>
-        <li>Leaving employer coverage</li>
-        <li>Moving outside plan area</li>
-        <li>Dual-eligible (Medicare + Medicaid)</li>
-        <li>5-star plan rule</li>
-        <li>Involuntary loss of coverage</li>
+        <li>Young family + mortgage &rarr; <strong>Term</strong></li>
+        <li>Lifetime protection &rarr; <strong>Whole Life</strong></li>
+        <li>Flexible premium payer &rarr; <strong>Universal Life</strong></li>
+        <li>Tax-efficient wealth transfer &rarr; <strong>Permanent + ILIT</strong></li>
+        <li>Final expense only &rarr; <strong>Final Expense Whole Life</strong></li>
+        <li>Business owner &rarr; <strong>Key-Person / Buy-Sell</strong></li>
       </ul>
     </div>
   </div>

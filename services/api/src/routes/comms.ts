@@ -12,6 +12,7 @@ import AccessToken from 'twilio/lib/jwt/AccessToken.js'
 import { successResponse, errorResponse, validateRequired, param } from '../lib/helpers.js'
 import { createNotification } from './notifications.js'
 import { resolveCallRouting, getVoicemailConfig } from './comms-routing.js'
+import { verifyTwilioSignature } from '../lib/twilio-webhook-verify.js'
 import type {
   CommsSendEmailResult,
   CommsSendEmailDryRunResult,
@@ -429,7 +430,7 @@ commsRoutes.post('/token', async (req: Request, res: Response) => {
  * Reads the To param and returns TwiML to dial the client's phone number.
  * Auth bypass: Twilio calls this directly, no Firebase token.
  */
-commsRoutes.post('/webhook/voice', async (req: Request, res: Response) => {
+commsRoutes.post('/webhook/voice', verifyTwilioSignature, async (req: Request, res: Response) => {
   try {
     const body = req.body as Record<string, string>
     const to = body.To || ''
@@ -480,7 +481,7 @@ commsRoutes.post('/webhook/voice', async (req: Request, res: Response) => {
  * TRK-13655: Inbound voice call to the 888 toll-free number.
  * Routes the call to the browser client via Twilio Client. Logs to Firestore.
  */
-commsRoutes.post('/webhook/voice-incoming', async (req: Request, res: Response) => {
+commsRoutes.post('/webhook/voice-incoming', verifyTwilioSignature, async (req: Request, res: Response) => {
   try {
     const body = req.body as Record<string, string>
     const from = body.From || ''
@@ -538,7 +539,7 @@ commsRoutes.post('/webhook/voice-incoming', async (req: Request, res: Response) 
  * CP08: Voicemail recording handler — receives recording after caller leaves message.
  * Updates existing comm doc with voicemail status + recording URL.
  */
-commsRoutes.post('/webhook/voicemail', async (req: Request, res: Response) => {
+commsRoutes.post('/webhook/voicemail', verifyTwilioSignature, async (req: Request, res: Response) => {
   try {
     const body = req.body as Record<string, string>
     const callSid = body.CallSid || ''
@@ -595,7 +596,7 @@ commsRoutes.post('/webhook/voicemail', async (req: Request, res: Response) => {
  * TRK-13665: Inbound SMS to the 888 toll-free number.
  * Looks up client by phone number. Logs to Firestore. Returns empty TwiML (no auto-reply).
  */
-commsRoutes.post('/webhook/sms-incoming', async (req: Request, res: Response) => {
+commsRoutes.post('/webhook/sms-incoming', verifyTwilioSignature, async (req: Request, res: Response) => {
   try {
     const body = req.body as Record<string, string>
     const from = body.From || ''
@@ -674,7 +675,7 @@ commsRoutes.post('/webhook/sms-incoming', async (req: Request, res: Response) =>
  * COMMS-V2-001: SMS delivery status callback from Twilio.
  * Auth bypass: Twilio calls this directly, no Firebase token.
  */
-commsRoutes.post('/webhook/sms-status', async (req: Request, res: Response) => {
+commsRoutes.post('/webhook/sms-status', verifyTwilioSignature, async (req: Request, res: Response) => {
   try {
     const body = req.body as Record<string, string>
     const messageSid = body.MessageSid || ''
@@ -704,7 +705,7 @@ commsRoutes.post('/webhook/sms-status', async (req: Request, res: Response) => {
  * TRK-13650: Recording callback — updates Firestore comm doc with recording URL + duration.
  * Twilio POSTs when a recording is complete.
  */
-commsRoutes.post('/webhook/recording-status', async (req: Request, res: Response) => {
+commsRoutes.post('/webhook/recording-status', verifyTwilioSignature, async (req: Request, res: Response) => {
   try {
     const body = req.body as Record<string, string>
     const callSid = body.CallSid || ''
@@ -744,7 +745,7 @@ commsRoutes.post('/webhook/recording-status', async (req: Request, res: Response
  * TRK-13650: Call status callback — updates Firestore comm doc on state changes.
  * Twilio POSTs on transitions: initiated → ringing → answered → completed.
  */
-commsRoutes.post('/webhook/call-status', async (req: Request, res: Response) => {
+commsRoutes.post('/webhook/call-status', verifyTwilioSignature, async (req: Request, res: Response) => {
   try {
     const body = req.body as Record<string, string>
     const callSid = body.CallSid || ''

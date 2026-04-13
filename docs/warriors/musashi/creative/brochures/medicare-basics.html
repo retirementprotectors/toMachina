@@ -28,16 +28,11 @@
   .page { width: 8.5in; min-height: 11in; background: white; margin: 0.5in auto; padding: 0.6in 0.65in; box-shadow: 0 1px 24px rgba(10,34,64,0.08); position: relative; }
   .page + .page { margin-top: 1rem; }
 
-  /* Page 1 header */
-  .hero { border-bottom: 3px solid var(--rpi-289); padding-bottom: 18px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; }
-  .hero-left { flex: 1; }
-  .eyebrow { font-family: 'Poppins', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--rpi-medium); margin-bottom: 10px; }
-  .hero h1 { font-size: 44px; font-weight: 800; color: var(--rpi-289); margin-bottom: 6px; letter-spacing: -0.02em; }
-  .hero-tagline { font-family: 'Poppins', sans-serif; font-weight: 500; font-size: 16px; color: var(--ink-soft); }
-  .hero-right { text-align: right; font-size: 10px; color: var(--ink-soft); line-height: 1.6; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
-  .rpi-logo { width: 260px; height: auto; display: block; }
-  .hero-tagline-right { display: none; } /* Tagline is now baked into the v2 logo */
-  .hero-url { font-size: 10.5px; color: var(--ink-soft); margin-top: 4px; }
+  /* Page header — white-label editorial (logo moved to footer per JDM 2026-04-13) */
+  .hero { border-bottom: 3px solid var(--rpi-289); padding-bottom: 22px; margin-bottom: 28px; }
+  .eyebrow { font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--rpi-medium); margin-bottom: 12px; }
+  .hero h1 { font-size: 54px; font-weight: 800; color: var(--rpi-289); margin-bottom: 10px; letter-spacing: -0.025em; line-height: 1.02; }
+  .hero-tagline { font-family: 'Poppins', sans-serif; font-weight: 500; font-size: 18px; color: var(--ink-soft); max-width: 75%; }
   .shield { width: 42px; height: auto; vertical-align: middle; }
   .shield-sm { width: 28px; height: auto; vertical-align: middle; }
 
@@ -91,12 +86,14 @@
   .sep ul li { padding-left: 18px; position: relative; margin-bottom: 5px; break-inside: avoid; }
   .sep ul li::before { content: '▪'; color: var(--rpi-royal); position: absolute; left: 0; top: 0; }
 
-  /* Footer */
-  .footer { border-top: 2px solid var(--rpi-289); padding-top: 14px; margin-top: 24px; display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; }
-  .footer-left { flex: 1; }
-  .footer-brand { font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 700; color: var(--rpi-289); margin-bottom: 3px; }
-  .footer-tag { font-family: 'Poppins', sans-serif; font-size: 12px; font-weight: 600; color: var(--rpi-royal); margin-bottom: 8px; }
-  .footer-contact { font-size: 11px; color: var(--ink-soft); line-height: 1.7; }
+  /* Footer — white-label band (JDM 2026-04-13: logo lives at bottom, partner-swap friendly) */
+  .footer { margin-top: 28px; padding-top: 18px; border-top: 2px solid var(--rpi-289); display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+  .footer-logo-zone { flex: 1; }
+  .footer-logo { width: 220px; height: auto; display: block; }
+  .footer-contact { text-align: right; font-size: 11px; color: var(--ink-soft); line-height: 1.7; font-family: 'Poppins', sans-serif; }
+  .footer-contact strong { color: var(--rpi-289); font-size: 11.5px; display: block; margin-bottom: 2px; font-weight: 700; }
+  .footer-meta { font-family: 'Poppins', sans-serif; font-size: 10.5px; color: var(--ink-soft); letter-spacing: 0.08em; text-transform: uppercase; }
+  .footer-meta .pg { color: var(--rpi-medium); font-weight: 700; }
   .footer-contact strong { color: var(--rpi-289); }
 
   .compliance { background: #f7f9fc; border: 1px solid var(--rule); padding: 10px 13px; border-radius: 4px; font-size: 9.5px; color: var(--ink-soft); line-height: 1.5; margin-top: 14px; }
@@ -107,12 +104,22 @@
   .preview-nav a { color: var(--rpi-pale); text-decoration: none; margin-left: 10px; }
   .preview-nav a:hover { color: white; }
 
-  /* Print */
+  /* Print — pixel-perfect PDF (set Chrome "Margins: None" + enable "Background graphics") */
   @media print {
-    body { background: white; }
-    .page { margin: 0; box-shadow: none; width: 100%; min-height: 100vh; page-break-after: always; padding: 0.5in 0.55in; }
+    body { background: white; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .page { margin: 0; padding: 0; box-shadow: none; width: 8.5in; min-height: 11in; height: auto; page-break-after: always; overflow: visible; }
     .page:last-child { page-break-after: auto; }
-    .preview-nav { display: none; }
+    .page > * { padding-left: 0.45in; padding-right: 0.45in; }
+    .page > .hero { padding-top: 0.4in; margin-bottom: 18px; padding-bottom: 14px; }
+    .page > .intro { margin-bottom: 18px; }
+    .page > .steps { margin-bottom: 18px; gap: 11px; }
+    .page > .parts-grid { margin-bottom: 14px; gap: 11px; }
+    .page > .numbers { padding: 16px 20px; margin-bottom: 14px; }
+    .page > .compliance:last-of-type, .page > .footer:last-of-type { padding-bottom: 0.35in; }
+    .preview-nav { display: none !important; }
+    /* Only keep SMALL cards together — big cards like .numbers / .medigap-grid can split if they must */
+    .step, .part, .num, .aep, .sep li { page-break-inside: avoid; break-inside: avoid; }
+    h2 { page-break-after: avoid; break-after: avoid; }
     @page { size: letter; margin: 0; }
   }
 </style>
@@ -129,16 +136,9 @@
 <div class="page" id="p1">
 
   <div class="hero">
-    <div class="hero-left">
-      <div class="eyebrow">Medicare · Coverage Guide</div>
-      <h1>Medicare, Made Simple.</h1>
-      <div class="hero-tagline">Your personal guide to Medicare — from the people who walk beside you.</div>
-    </div>
-    <div class="hero-right">
-      <img src="../assets/rpi/rpi-logo-v2-color.png" alt="Retirement Protectors, Inc. — We're Your People" class="rpi-logo" />
-      <div class="hero-tagline-right">We're Your People&trade;</div>
-      <div class="hero-url">RetireProtected.com</div>
-    </div>
+    <div class="eyebrow">Medicare · Coverage Guide</div>
+    <h1>Medicare, Made Simple.</h1>
+    <div class="hero-tagline">Your personal guide to Medicare &mdash; from the people who walk beside you.</div>
   </div>
 
   <p class="intro">
@@ -200,16 +200,13 @@
   </div>
 
   <div class="footer">
-    <div class="footer-left">
-      <div class="footer-brand">Retirement Protectors, Inc.</div>
-      <div class="footer-tag">We're Your People&trade;</div>
-      <div class="footer-contact">
-        <strong>RetireProtected.com</strong> &middot; 515-992-5000 &middot; 877-650-7015 &middot; Service@RetireProtected.com
-      </div>
+    <div class="footer-logo-zone">
+      <img src="../assets/rpi/rpi-logo-v2-color.png" alt="Retirement Protectors, Inc. — We're Your People" class="footer-logo" />
     </div>
-    <div style="text-align:right; font-family:'Poppins',sans-serif; font-size:11px; color:var(--ink-soft);">
-      <div>Medicare Basics</div>
-      <div style="color:var(--rpi-medium); font-weight:600;">Page 1 of 2</div>
+    <div class="footer-contact">
+      <strong>RetireProtected.com</strong>
+      515-992-5000 &middot; 877-650-7015<br>
+      Service@RetireProtected.com
     </div>
   </div>
 
@@ -221,15 +218,9 @@
 <div class="page" id="p2">
 
   <div class="hero">
-    <div class="hero-left">
-      <div class="eyebrow">Medicare · Gaps &amp; Enrollment Windows</div>
-      <h1>Filling the Gaps.</h1>
-      <div class="hero-tagline">Medigap policies + enrollment windows that protect what Original Medicare doesn't.</div>
-    </div>
-    <div class="hero-right">
-      <img src="../assets/rpi/rpi-logo-v2-color.png" alt="Retirement Protectors, Inc. — We're Your People" class="rpi-logo" />
-      <div class="hero-tagline-right">We're Your People&trade;</div>
-    </div>
+    <div class="eyebrow">Medicare · Gaps &amp; Enrollment Windows</div>
+    <h1>Filling the Gaps.</h1>
+    <div class="hero-tagline">Medigap policies + enrollment windows that protect what Original Medicare doesn't.</div>
   </div>
 
   <h2>Medigap &mdash; Standardized Plans</h2>
@@ -303,23 +294,19 @@
     </ul>
   </div>
 
-  <div class="footer">
-    <div class="footer-left">
-      <div class="footer-brand">Retirement Protectors, Inc.</div>
-      <div class="footer-tag">We're Your People&trade;</div>
-      <div class="footer-contact">
-        Sit with us for an hour. Bring your questions &mdash; we'll bring the plan.<br>
-        <strong>RetireProtected.com</strong> &middot; 515-992-5000 &middot; 877-650-7015 &middot; Service@RetireProtected.com
-      </div>
-    </div>
-    <div style="text-align:right; font-family:'Poppins',sans-serif; font-size:11px; color:var(--ink-soft);">
-      <div>Medicare Basics</div>
-      <div style="color:var(--rpi-medium); font-weight:600;">Page 2 of 2</div>
-    </div>
+  <div class="compliance" style="margin-top: 18px;">
+    <strong>Disclosure.</strong> This agency is not affiliated with Medicare or any other government agency. This material is intended for informational use only. For official information, please reference <strong>www.medicare.gov</strong> or call <strong>1-800-MEDICARE</strong>. Carrier-specific plan details, premiums, and availability vary by state and ZIP code. Contact a licensed Retirement Protectors, Inc. representative for plan comparisons specific to your situation. &copy; 2026 Retirement Protectors, Inc. All rights reserved.
   </div>
 
-  <div class="compliance">
-    <strong>Disclosure.</strong> This agency is not affiliated with Medicare or any other government agency. This material is intended for informational use only. For official information, please reference <strong>www.medicare.gov</strong> or call <strong>1-800-MEDICARE</strong>. Carrier-specific plan details, premiums, and availability vary by state and ZIP code. Contact a licensed Retirement Protectors, Inc. representative for plan comparisons specific to your situation. &copy; 2026 Retirement Protectors, Inc. All rights reserved.
+  <div class="footer">
+    <div class="footer-logo-zone">
+      <img src="../assets/rpi/rpi-logo-v2-color.png" alt="Retirement Protectors, Inc. — We're Your People" class="footer-logo" />
+    </div>
+    <div class="footer-contact">
+      <strong>RetireProtected.com</strong>
+      515-992-5000 &middot; 877-650-7015<br>
+      Service@RetireProtected.com
+    </div>
   </div>
 
 </div>

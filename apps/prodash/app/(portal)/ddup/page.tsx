@@ -244,8 +244,13 @@ function DdupContent() {
   const ids = searchParams.get('ids')?.split(',').filter(Boolean) || []
   const clientIdParam = searchParams.get('clientId')
   const type = searchParams.get('type') || 'client'
+  const ref = searchParams.get('ref')
   // Support /ddup?clientId=xxx — loads that client record for comparison
   const effectiveIds = clientIdParam && ids.length === 0 ? [clientIdParam] : ids
+
+  // Grid fallback for early-exit states (no IDs, loading)
+  const gridHref = ref || (type === 'account' ? '/accounts' : '/contacts')
+  const gridLabel = ref ? 'Back to Client' : `Back to ${type === 'account' ? 'Accounts' : 'Clients'}`
 
   const [records, setRecords] = useState<RecordData[]>([])
   const [loading, setLoading] = useState(true)
@@ -600,8 +605,8 @@ function DdupContent() {
         <span className="material-icons-outlined text-5xl text-[var(--text-muted)]">merge_type</span>
         <h2 className="mt-4 text-xl font-semibold text-[var(--text-primary)]">No records selected</h2>
         <p className="mt-2 text-sm text-[var(--text-muted)]">Pass <span className="font-mono">?ids=id1,id2</span> or <span className="font-mono">?clientId=xxx</span> to compare records.</p>
-        <Link href={type === 'account' ? '/accounts' : '/contacts'} className="mt-6 inline-flex items-center gap-1.5 rounded-md h-[34px] px-5 text-sm font-medium bg-[var(--portal)] text-white">
-          Go Back
+        <Link href={gridHref} className="mt-6 inline-flex items-center gap-1.5 rounded-md h-[34px] px-5 text-sm font-medium bg-[var(--portal)] text-white">
+          {gridLabel}
         </Link>
       </div>
     )
@@ -620,7 +625,8 @@ function DdupContent() {
   const parentClientId = type === 'account' && effectiveIds[0]?.includes('::')
     ? effectiveIds[0].slice(0, effectiveIds[0].indexOf('::'))
     : null
-  const backHref = parentClientId ? `/contacts/${parentClientId}` : (type === 'account' ? '/accounts' : '/contacts')
+  const backHref = ref || (parentClientId ? `/contacts/${parentClientId}` : (type === 'account' ? '/accounts' : '/contacts'))
+  const backLabel = (ref || parentClientId) ? 'Back to Client' : `Back to ${type === 'account' ? 'Accounts' : 'Clients'}`
 
   if (ignored) {
     return (
@@ -631,7 +637,7 @@ function DdupContent() {
           This pair has been marked as not a duplicate and removed from the duplicate list.
         </p>
         <Link href={backHref} className="mt-6 inline-flex items-center gap-1.5 rounded-md h-[34px] px-5 text-sm font-medium bg-[var(--portal)] text-white">
-          Back to {parentClientId ? 'Client' : (type === 'account' ? 'Accounts' : 'Clients')}
+          {backLabel}
         </Link>
       </div>
     )
@@ -659,7 +665,7 @@ function DdupContent() {
             href={backHref}
             className="inline-flex items-center gap-1.5 rounded-md h-[34px] px-5 text-sm font-medium border border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--bg-surface)]"
           >
-            Back to {parentClientId ? 'Client' : (type === 'account' ? 'Accounts' : 'Clients')}
+            {backLabel}
           </Link>
         </div>
       </div>
@@ -681,7 +687,7 @@ function DdupContent() {
           <div>
             <div className="flex items-center gap-2">
               <Link
-                href={type === 'account' ? '/accounts' : '/contacts'}
+                href={backHref}
                 className="text-[var(--text-muted)] hover:text-[var(--portal)] transition-colors"
               >
                 <span className="material-icons-outlined text-[20px]">arrow_back</span>

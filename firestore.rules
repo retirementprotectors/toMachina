@@ -580,6 +580,18 @@ service cloud.firestore {
       allow write: if isRPIUser();
     }
 
+    // ----------------------------------------------------------------
+    // SMS Consent Log — TKO-COMMS-001 (TCPA opt-in records)
+    // Writes: server-side only via Admin SDK (Cloud Run route handler).
+    //         Client writes never permitted — consent record is the legal artifact.
+    // Reads:  Executive+ only — contains PII (phone, IP, user-agent).
+    //         Retained 5 years minimum per MUSASHI compliance note v1.0.
+    // ----------------------------------------------------------------
+    match /sms_consent_log/{docId} {
+      allow read: if isExecutiveOrAbove();
+      allow write: if false;
+    }
+
     // Calendar Busy — booking availability cache (BKG-10)
     // Public read (booking pages are unauthenticated). Write via Cloud Function Admin SDK.
     match /calendar_busy/{docId} {

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Medicare Basics — Tri-fold — Retirement Protectors, Inc.</title>
+<title>Ancillary Benefits — Tri-fold — Retirement Protectors, Inc.</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;600&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -15,6 +15,7 @@
     --rpi-pale: #abd2ef;
     --rpi-royal: #23558c;
     --rpi-mist: #cae7f9;
+    --rpi-alert: #b91c1c;
     --ink: #1a1a1a;
     --ink-soft: #3a4456;
     --paper: #f4f4f5;
@@ -82,7 +83,7 @@
   .step h3 { font-size: 14px; margin-bottom: 4px; color: var(--rpi-289); }
   .step p { font-size: 12px; line-height: 1.5; }
 
-  /* Parts (2x2 grid) */
+  /* Parts (2x2 grid — used here as 2x3 for 6 categories) */
   .parts-mini { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
   .part-mini { background: var(--paper-warm); border: 1px solid var(--rule); border-radius: 4px; padding: 10px 12px; }
   .part-mini .label { font-family: 'Poppins', sans-serif; font-size: 9.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--rpi-medium); margin-bottom: 3px; }
@@ -98,10 +99,10 @@
   .numbers-mini td { padding: 4px 0; color: var(--rpi-pale); }
   .numbers-mini td:last-child { text-align: right; font-family: 'Poppins', sans-serif; font-weight: 700; color: white; }
 
-  /* Medigap mini grid */
+  /* Coverage matrix mini */
   .medigap-mini { width: 100%; border-collapse: collapse; font-size: 10px; margin-bottom: 10px; }
   .medigap-mini th, .medigap-mini td { padding: 4px 3px; text-align: center; border: 1px solid var(--rule); }
-  .medigap-mini thead th { background: var(--rpi-289); color: white; font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 10px; }
+  .medigap-mini thead th { background: var(--rpi-289); color: white; font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 9px; }
   .medigap-mini tbody td:first-child { text-align: left; padding-left: 6px; font-weight: 500; color: var(--rpi-medium); font-size: 9.5px; }
   .medigap-mini .dot { color: var(--rpi-royal); font-weight: 700; }
   .medigap-mini .partial { color: var(--ink-soft); font-size: 9px; }
@@ -117,7 +118,30 @@
   .sep-mini h3 { font-size: 13px; margin-bottom: 8px; color: var(--rpi-289); }
   .sep-mini ul { list-style: none; }
   .sep-mini li { font-size: 11.5px; padding-left: 14px; position: relative; margin-bottom: 4px; line-height: 1.45; }
-  .sep-mini li::before { content: '▪'; color: var(--rpi-royal); position: absolute; left: 0; font-size: 12px; top: -1px; }
+  .sep-mini li::before { content: '&#9642;'; color: var(--rpi-royal); position: absolute; left: 0; font-size: 12px; top: -1px; }
+
+  /* LTC coverage table inside back panel */
+  .ltc-table { width: 100%; border-collapse: collapse; font-size: 11.5px; margin-top: 6px; }
+  .ltc-table tr td { padding: 4px 0; color: var(--ink-soft); }
+  .ltc-table tr td:last-child { text-align: right; font-family: 'Poppins', sans-serif; font-weight: 700; }
+  .ltc-table .ltc-full { color: var(--rpi-289); }
+  .ltc-table .ltc-partial { color: var(--rpi-medium); }
+  .ltc-table .ltc-zero { color: var(--rpi-alert); }
+
+  /* Back CTA block */
+  .back-cta { background: var(--rpi-289); color: white; padding: 14px 16px; border-radius: 6px; }
+  .back-cta-title { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 13px; margin-bottom: 6px; color: white; }
+  .back-cta-body { font-size: 12px; color: var(--rpi-pale); line-height: 1.6; }
+
+  /* Flap CTA block */
+  .flap-cta { background: var(--rpi-289); color: white; padding: 18px 20px; border-radius: 6px; margin-top: 18px; }
+  .flap-cta-title { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 15px; margin-bottom: 6px; color: white; }
+  .flap-cta-body { font-size: 13px; color: var(--rpi-pale); line-height: 1.7; }
+  .flap-cta-body strong { color: white; }
+
+  /* Back LTC card */
+  .ltc-card { background: white; border: 1px solid var(--rule); border-left: 4px solid var(--rpi-royal); padding: 12px 14px; border-radius: 4px; margin-top: 10px; }
+  .ltc-card-label { font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 700; color: var(--rpi-289); margin-bottom: 6px; }
 
   .preview-nav { position: fixed; top: 10px; right: 10px; background: var(--rpi-289); color: white; padding: 10px 14px; border-radius: 6px; font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 600; box-shadow: 0 2px 12px rgba(0,0,0,0.25); z-index: 1000; }
   .preview-nav a { color: var(--rpi-pale); text-decoration: none; margin-left: 10px; cursor: pointer; }
@@ -126,10 +150,10 @@
   .fold-note strong { color: var(--rpi-289); }
 
   @media print {
-    body { background: white; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    body { background: white; }
     .sheet { margin: 0; box-shadow: none; page-break-after: always; }
     .sheet:last-child { page-break-after: auto; }
-    .preview-nav, .fold-note, .panel-label { display: none !important; }
+    .preview-nav, .fold-note { display: none; }
     .panel { border-right: none; }
     @page { size: 11in 8.5in; margin: 0; }
   }
@@ -138,54 +162,48 @@
 <body>
 
 <div class="preview-nav">
-  Tri-fold · Medicare Basics · <a onclick="window.print()">Print (landscape)</a>
+  Tri-fold &middot; Ancillary Benefits &middot; <a onclick="window.print()">Print (landscape)</a>
 </div>
 
-<div class="fold-note"><strong>Tri-fold format.</strong> Print both sheets double-sided on 11"×8.5" landscape letter. Fold into thirds: outside panels (Back / [blank strip] / Cover) on one side, inside panels (Steps / Parts &amp; Numbers / Medigap &amp; AEP) on the other. Panel order matches standard brochure fold.</div>
+<div class="fold-note"><strong>Tri-fold format.</strong> Print both sheets double-sided on 11"&times;8.5" landscape letter. Fold into thirds: outside panels (Back / [blank strip] / Cover) on one side, inside panels (Gaps / Categories &amp; Costs / Stack Matrix &amp; Enrollment) on the other. Panel order matches standard brochure fold.</div>
 
 <!-- ═══════════════════════════════════════════════════════════════════ -->
 <!-- OUTSIDE (Back Panel | Inside-back | Front Cover) -->
 <!-- ═══════════════════════════════════════════════════════════════════ -->
 <div class="sheet">
 
-  <!-- PANEL 1 — BACK OF BROCHURE (when folded) — IRMAA reference card -->
+  <!-- PANEL 1 — BACK OF BROCHURE (when folded) — The 70% Rule -->
   <div class="panel back">
-    <span class="panel-label">Outside · Panel 1 (Back)</span>
+    <span class="panel-label">Outside &middot; Panel 1 (Back)</span>
     <div class="back-top">
-      <div class="eyebrow">Medicare &middot; What You Actually Pay</div>
-      <h1 style="font-size:32px; margin-bottom:10px;">IRMAA.</h1>
-      <p style="font-size:14.5px; color:var(--ink-soft); line-height:1.55; margin-bottom:14px;">Higher-income earners pay more than the $202.90 standard Part B premium. Your bracket is based on your <strong style="color:var(--rpi-289);">2024 MAGI</strong> &mdash; line 11 of your 1040 plus tax-exempt interest.</p>
-      <table style="width:100%; border-collapse:collapse; font-size:11.5px; margin-top:6px;">
-        <thead>
-          <tr style="background:var(--rpi-289); color:white;">
-            <th style="padding:6px; text-align:left; font-family:'Poppins',sans-serif; font-weight:600; font-size:11px;">Individual</th>
-            <th style="padding:6px; text-align:left; font-family:'Poppins',sans-serif; font-weight:600; font-size:11px;">Joint</th>
-            <th style="padding:6px; text-align:center; font-family:'Poppins',sans-serif; font-weight:600; font-size:11px;">Part B</th>
-            <th style="padding:6px; text-align:center; font-family:'Poppins',sans-serif; font-weight:600; font-size:11px;">+Part D</th>
-          </tr>
-        </thead>
-        <tbody style="font-size:11px; color:var(--ink-soft);">
-          <tr style="background:var(--paper-warm);"><td style="padding:5px 6px;">&le;&nbsp;$109K</td><td style="padding:5px 6px;">&le;&nbsp;$218K</td><td style="padding:5px 6px; text-align:center; font-weight:700; color:var(--rpi-289);">$202.90</td><td style="padding:5px 6px; text-align:center;">&mdash;</td></tr>
-          <tr><td style="padding:5px 6px;">$109K&ndash;$137K</td><td style="padding:5px 6px;">$218K&ndash;$274K</td><td style="padding:5px 6px; text-align:center;">$284.10</td><td style="padding:5px 6px; text-align:center;">+$14.50</td></tr>
-          <tr style="background:var(--paper-warm);"><td style="padding:5px 6px;">$137K&ndash;$171K</td><td style="padding:5px 6px;">$274K&ndash;$342K</td><td style="padding:5px 6px; text-align:center;">$405.80</td><td style="padding:5px 6px; text-align:center;">+$37.50</td></tr>
-          <tr><td style="padding:5px 6px;">$171K&ndash;$205K</td><td style="padding:5px 6px;">$342K&ndash;$410K</td><td style="padding:5px 6px; text-align:center;">$527.50</td><td style="padding:5px 6px; text-align:center;">+$60.40</td></tr>
-          <tr style="background:var(--paper-warm);"><td style="padding:5px 6px;">$205K&ndash;$500K</td><td style="padding:5px 6px;">$410K&ndash;$750K</td><td style="padding:5px 6px; text-align:center;">$649.20</td><td style="padding:5px 6px; text-align:center;">+$83.30</td></tr>
-          <tr><td style="padding:5px 6px;">&ge;&nbsp;$500K</td><td style="padding:5px 6px;">&ge;&nbsp;$750K</td><td style="padding:5px 6px; text-align:center;">$689.90</td><td style="padding:5px 6px; text-align:center;">+$91.00</td></tr>
-        </tbody>
-      </table>
-      <p style="font-size:13px; color:var(--ink-soft); margin-top:14px; line-height:1.55;"><strong style="color:var(--rpi-medium);">Big life event in 2025?</strong> Retirement, loss of income, or death of a spouse can all qualify you for an IRMAA appeal &mdash; we'll walk you through the form.</p>
+      <div class="eyebrow">Ancillary &middot; Long-Term Care</div>
+      <h1 style="font-size:36px; margin-bottom:10px;">The 70% Rule.</h1>
+      <p style="font-size:14.5px; line-height:1.6; margin-bottom:14px;">Seven out of ten Americans over 65 will need some form of long-term care. Medicare covers the first 20 days of skilled nursing &mdash; 100%. Days 21&ndash;100 &mdash; partial. Day 101 &mdash; zero.</p>
+      <p style="font-size:14.5px; line-height:1.6; margin-bottom:14px;">Long-Term Care insurance isn't about hoping you need it. It's about not relying on Medicaid to cover the bill when you do.</p>
+      <div class="ltc-card">
+        <div class="ltc-card-label">What Medicare covers for skilled nursing:</div>
+        <table class="ltc-table">
+          <tr><td>Days 1&ndash;20</td><td class="ltc-full">100%</td></tr>
+          <tr><td>Days 21&ndash;100</td><td class="ltc-partial">Partial ($217/day coinsurance)</td></tr>
+          <tr><td>Day 101+</td><td class="ltc-zero">$0</td></tr>
+        </table>
+      </div>
+      <div class="back-cta" style="margin-top:18px;">
+        <div class="back-cta-title">Run your LTC scenario.</div>
+        <div class="back-cta-body">No pitch. No pressure. Just the numbers you need to make a real decision.</div>
+      </div>
     </div>
     <div class="back-disclaimer">
-      Source: CMS 2026 Medicare Costs &amp; Premiums. This agency is not affiliated with Medicare or any other government agency. Material for informational use only. See www.medicare.gov or 1-800-MEDICARE for official information. &copy; 2026 Retirement Protectors, Inc.
+      Source: AARP Public Policy Institute / CMS 2026. This agency is not affiliated with Medicare or any other government agency. Ancillary insurance products issued by various carriers. Availability and rates vary by state. For informational use only. See www.medicare.gov or 1-800-MEDICARE. &copy; 2026 Retirement Protectors, Inc.
     </div>
   </div>
 
-  <!-- PANEL 2 — INSIDE FLAP (tucks under cover when folded) — Medicare Team + No-Cost Review -->
+  <!-- PANEL 2 — INSIDE FLAP (tucks under cover when folded) — Ancillary Team + No-Cost Review -->
   <div class="panel flap">
-    <span class="panel-label">Outside · Panel 2 (Tuck flap)</span>
+    <span class="panel-label">Outside &middot; Panel 2 (Tuck flap)</span>
     <div class="eyebrow">We're Your People&trade;</div>
-    <h1 style="font-size:30px; margin-bottom:8px;">Your Medicare Team.</h1>
-    <p class="intro" style="font-size:14px;">Three faces, one goal: make Medicare make sense. Call any of us direct, or schedule together &mdash; we'll bring the plan to you.</p>
+    <h1 style="font-size:30px; margin-bottom:8px;">Your Ancillary Team.</h1>
+    <p class="intro" style="font-size:14px;">Three faces, one goal: fill the gaps Medicare leaves behind. Call any of us direct, or schedule together &mdash; we'll build the complete plan with you.</p>
 
     <div class="myst" style="margin-top:18px;">
       <div class="myst-grid">
@@ -207,10 +225,10 @@
       </div>
     </div>
 
-    <div style="background:var(--rpi-289); color:white; padding:18px 20px; border-radius:6px; margin-top:18px;">
-      <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:15px; margin-bottom:6px;">Schedule your no-cost review.</div>
-      <div style="font-size:13px; color:var(--rpi-pale); line-height:1.7;">
-        <strong style="color:white;">RetireProtected.com</strong><br>
+    <div class="flap-cta">
+      <div class="flap-cta-title">Schedule your no-cost gap review.</div>
+      <div class="flap-cta-body">
+        <strong>RetireProtected.com</strong><br>
         515-992-5000 &middot; 877-650-7015<br>
         Service@RetireProtected.com
       </div>
@@ -219,11 +237,11 @@
 
   <!-- PANEL 3 — FRONT COVER — V3 TWO-TONE (JDM 2026-04-13) -->
   <div class="panel cover">
-    <span class="panel-label">Outside · Panel 3 (Front Cover)</span>
+    <span class="panel-label">Outside &middot; Panel 3 (Front Cover)</span>
     <div class="cover-top">
-      <div class="cover-eyebrow">Medicare · Coverage Guide</div>
-      <h1>Medicare,<br>Made Simple.</h1>
-      <div class="cover-sub">Your personal guide &mdash; from the people who walk beside you.</div>
+      <div class="cover-eyebrow">Ancillary &middot; Filling the Real Gaps</div>
+      <h1>What Medicare<br>Won't Cover.</h1>
+      <div class="cover-sub">Dental, vision, hearing, hospital indemnity, final expense, long-term care &mdash; the coverage that completes the plan.</div>
     </div>
     <div class="cover-bottom">
       <div class="cover-shield"></div>
@@ -234,118 +252,136 @@
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════════════ -->
-<!-- INSIDE (Framework | Parts + Numbers | Medigap + AEP) -->
+<!-- INSIDE (Three Gaps | Six Categories + Real Costs | Stack Matrix + Enrollment) -->
 <!-- ═══════════════════════════════════════════════════════════════════ -->
 <div class="sheet">
 
-  <!-- INSIDE PANEL 1 — 3-STEP FRAMEWORK -->
+  <!-- INSIDE PANEL 1 — THREE GAPS FRAMEWORK -->
   <div class="panel flap">
-    <span class="panel-label">Inside · Panel 1</span>
-    <div class="eyebrow">Medicare · Step by Step</div>
-    <h2>Three Decisions</h2>
-    <p class="intro">Every Medicare-eligible person walks through the same three choices. Here's how each one works.</p>
+    <span class="panel-label">Inside &middot; Panel 1</span>
+    <div class="eyebrow">Ancillary &middot; The Gaps</div>
+    <h2>Three Gaps People Miss</h2>
+    <p class="intro">Every Medicare plan has the same three blind spots. Here's what's missing &mdash; and what fills each gap.</p>
 
     <div class="step">
-      <div class="step-num">Step 1</div>
-      <h3>Pick your coverage path</h3>
-      <p><strong>Original Medicare</strong> (Parts A + B, run by the federal government) OR a <strong>Medicare Advantage Plan</strong> (Part C, bundled by a private carrier, usually includes Part D).</p>
+      <div class="step-num">Gap 1</div>
+      <h3>The daily gap</h3>
+      <p>Dental, vision, hearing &mdash; Medicare doesn't cover routine care. Dental/Vision/Hearing plans exist as standalone policies or as extras inside Medicare Advantage. Most have no waiting period for preventive care.</p>
     </div>
     <div class="step">
-      <div class="step-num">Step 2</div>
-      <h3>Fill the gaps</h3>
-      <p>On Original Medicare, consider a <strong>Medigap policy</strong> to cover what A and B don't. On Medicare Advantage, Medigap is not allowed.</p>
+      <div class="step-num">Gap 2</div>
+      <h3>The catastrophic gap</h3>
+      <p>Long-term care costs $90K+/year nationally. Medicare covers skilled nursing only &mdash; and only the first 100 days. After day 100, the bill is 100% yours. LTC insurance and Hospital Indemnity both address this exposure.</p>
     </div>
     <div class="step">
-      <div class="step-num">Step 3</div>
-      <h3>Secure drug coverage</h3>
-      <p>Add a standalone <strong>Part D</strong> plan, OR confirm your Advantage plan includes it. Missing the window means a lifetime late-enrollment penalty.</p>
+      <div class="step-num">Gap 3</div>
+      <h3>The final gap</h3>
+      <p>Medicare stops at death. Burial, cremation, and remaining medical bills fall to your family. Final Expense Life policies ($5K&ndash;$25K) are designed specifically for this &mdash; simplified underwriting, guaranteed benefit, premiums fixed for life.</p>
     </div>
 
     <h2 style="margin-top:10px;">You're Not Alone</h2>
-    <p>Every RPI client gets a dedicated service team. Call, text, or book a kitchen-table visit &mdash; we'll sit with you until every question is answered.</p>
+    <p>Every RPI client gets a dedicated team. Call, text, or book a kitchen-table visit &mdash; we'll sit with you until every gap is covered.</p>
   </div>
 
-  <!-- INSIDE PANEL 2 — PARTS + 2025 NUMBERS -->
+  <!-- INSIDE PANEL 2 — SIX CATEGORIES + REAL COSTS -->
   <div class="panel flap">
-    <span class="panel-label">Inside · Panel 2</span>
-    <div class="eyebrow">The Four Parts</div>
-    <h2>What Each Part Covers</h2>
+    <span class="panel-label">Inside &middot; Panel 2</span>
+    <div class="eyebrow">Six Ancillary Categories</div>
+    <h2>What Each Product Covers</h2>
     <div class="parts-mini">
-      <div class="part-mini">
-        <div class="label">Part A</div>
-        <h4>Hospital</h4>
-        <p>Inpatient stays, skilled nursing, hospice, some home health. Usually $0 premium.</p>
-      </div>
-      <div class="part-mini">
-        <div class="label">Part B</div>
-        <h4>Medical</h4>
-        <p>Doctor visits, outpatient, preventive, equipment. Monthly premium applies.</p>
-      </div>
       <div class="part-mini accent">
-        <div class="label">Part C</div>
-        <h4>Advantage</h4>
-        <p>Private plan bundling A + B, usually D, often extras (dental, vision, fitness).</p>
+        <div class="label">Dental / Vision / Hearing</div>
+        <h4>Routine Care</h4>
+        <p>Cleanings, exams, hearing aids. Preventive often day-1. Major care has waiting periods.</p>
       </div>
       <div class="part-mini">
-        <div class="label">Part D</div>
-        <h4>Drugs</h4>
-        <p>Prescription coverage. Miss enrollment = lifetime penalty.</p>
+        <div class="label">Hospital Indemnity</div>
+        <h4>Fixed Daily Benefit</h4>
+        <p>Pays directly to you. Stackable on MA or Medigap. Use the cash any way you need.</p>
+      </div>
+      <div class="part-mini">
+        <div class="label">Final Expense</div>
+        <h4>Small Whole Life</h4>
+        <p>$5K&ndash;$25K face. Burial &amp; medical debt. Simplified underwriting. Premiums locked.</p>
+      </div>
+      <div class="part-mini">
+        <div class="label">Long-Term Care</div>
+        <h4>Custodial Care</h4>
+        <p>Assisted living, nursing home, in-home aide. Triggers at 2 of 6 ADLs.</p>
+      </div>
+      <div class="part-mini">
+        <div class="label">Home Health Care</div>
+        <h4>In-Home Provider</h4>
+        <p>Physical, speech, respiratory therapy at home. Benefits paid to provider directly.</p>
+      </div>
+      <div class="part-mini">
+        <div class="label">Recovery Care</div>
+        <h4>Post-Hospital Nursing</h4>
+        <p>Skilled or custodial nursing after a hospital stay. Bridges discharge to recovery.</p>
       </div>
     </div>
 
     <div class="numbers-mini">
-      <h3>Key Numbers &mdash; 2026</h3>
+      <h3>The Real Cost of Care &mdash; 2026</h3>
       <table>
-        <tr><td>Part A Deductible</td><td>$1,736</td></tr>
-        <tr><td>Part B Std Premium</td><td>$202.90/mo</td></tr>
-        <tr><td>Part B Deductible</td><td>$283</td></tr>
-        <tr><td>Part A Days 61&ndash;90</td><td>$434/day</td></tr>
-        <tr><td>SNF Days 21&ndash;100</td><td>$217/day</td></tr>
+        <tr><td>Avg. Funeral Cost</td><td>$8&ndash;12K</td></tr>
+        <tr><td>Nursing Home (Private, Annual)</td><td>$116K+</td></tr>
+        <tr><td>Home Health Aide (Annual)</td><td>$75K+</td></tr>
+        <tr><td>Americans 65+ Needing LTC</td><td>70%</td></tr>
+        <tr><td>Hosp. Indemnity Avg. Daily Benefit</td><td>$300</td></tr>
       </table>
     </div>
-
-    <p style="font-size:10.5px; color:var(--ink-soft); margin-top:10px; line-height:1.5;"><strong style="color:var(--rpi-medium);">Higher-income earners</strong> pay an additional IRMAA premium on top of the $202.90 standard &mdash; see back panel. We'll help you calculate yours.</p>
+    <p style="font-size:10px; margin-top:8px; line-height:1.5;">Source: Genworth Cost of Care 2026 / NAIC. National averages; costs vary by state.</p>
   </div>
 
-  <!-- INSIDE PANEL 3 — MEDIGAP + AEP + SEP -->
+  <!-- INSIDE PANEL 3 — STACK MATRIX + ENROLLMENT -->
   <div class="panel flap">
-    <span class="panel-label">Inside · Panel 3</span>
-    <div class="eyebrow">Medigap + Enrollment</div>
-    <h2>Medigap Plans A&ndash;N</h2>
+    <span class="panel-label">Inside &middot; Panel 3</span>
+    <div class="eyebrow">Coverage Stack + Enrollment</div>
+    <h2>What Covers What</h2>
     <table class="medigap-mini">
       <thead>
-        <tr><th style="text-align:left; padding-left:4px;">Benefit</th><th>A</th><th>B</th><th>D</th><th>G</th><th>K</th><th>L</th><th>M</th><th>N</th></tr>
+        <tr>
+          <th style="text-align:left; padding-left:4px;">Scenario</th>
+          <th>Medicare</th>
+          <th>DVH</th>
+          <th>Hosp.<br>Ind.</th>
+          <th>LTC</th>
+          <th>Final<br>Exp.</th>
+          <th>Home<br>Hlth</th>
+        </tr>
       </thead>
       <tbody>
-        <tr><td>Part A Coinsurance</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td></tr>
-        <tr><td>Part B Coinsurance</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td class="partial">50%</td><td class="partial">75%</td><td class="dot">●</td><td class="dot">●</td></tr>
-        <tr><td>Blood (first 3 pints)</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td class="partial">50%</td><td class="partial">75%</td><td class="dot">●</td><td class="dot">●</td></tr>
-        <tr><td>Skilled Nursing</td><td>&mdash;</td><td>&mdash;</td><td class="dot">●</td><td class="dot">●</td><td class="partial">50%</td><td class="partial">75%</td><td class="dot">●</td><td class="dot">●</td></tr>
-        <tr><td>Part A Deductible</td><td>&mdash;</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td class="partial">50%</td><td class="partial">75%</td><td class="partial">50%</td><td class="dot">●</td></tr>
-        <tr><td>Part B Excess</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td class="dot">●</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
-        <tr><td>Foreign Travel</td><td>&mdash;</td><td>&mdash;</td><td class="dot">●</td><td class="dot">●</td><td>&mdash;</td><td>&mdash;</td><td class="dot">●</td><td class="dot">●</td></tr>
+        <tr><td>Dentist / hearing aid</td><td>&mdash;</td><td class="dot">&#9679;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
+        <tr><td>Hospital stay</td><td class="dot">&#9679;</td><td>&mdash;</td><td class="dot">&#9679;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
+        <tr><td>Skilled nursing 1&ndash;20 days</td><td class="dot">&#9679;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
+        <tr><td>Skilled nursing day 101+</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td class="dot">&#9679;</td><td>&mdash;</td><td>&mdash;</td></tr>
+        <tr><td>In-home custodial care</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td class="dot">&#9679;</td><td>&mdash;</td><td class="dot">&#9679;</td></tr>
+        <tr><td>Burial / final expenses</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td class="dot">&#9679;</td><td>&mdash;</td></tr>
       </tbody>
     </table>
-    <p style="font-size:8px; color:var(--ink-soft); margin-bottom:8px;">Plan G is the most popular new enrollment option. Plans C and F are only available to those Medicare-eligible before 1/1/2020.</p>
+    <p style="font-size:8px; margin-bottom:8px;">DVH = Dental/Vision/Hearing. &#9679; = product covers this scenario. Coverage varies by carrier and state.</p>
 
     <div class="aep-mini">
       <img src="../assets/rpi/rpi-shield-mark.png" alt="" />
       <div>
-        <h3>AEP: Oct 15 &mdash; Dec 7</h3>
-        <p>Annual window to join, switch, or drop Advantage or Part D. Miss it, you're locked in.</p>
+        <h3>Enroll Anytime</h3>
+        <p>Most ancillary products are open year-round. MA bundled dental/vision follows AEP (Oct 15 &mdash; Dec 7).</p>
       </div>
     </div>
 
     <div class="sep-mini">
-      <h3>Special Election Periods</h3>
+      <h3>Triggers That Prompt a Review</h3>
       <ul>
-        <li>Turning 65 (Initial Enrollment)</li>
-        <li>Qualifying for Extra Help</li>
-        <li>Leaving employer coverage</li>
-        <li>Moving outside plan area</li>
-        <li>Dual-eligible (Medicare + Medicaid)</li>
-        <li>5-star plan rule</li>
-        <li>Involuntary loss of coverage</li>
+        <li>Turning 65 (Medicare enrollment)</li>
+        <li>Retirement or job change</li>
+        <li>New mortgage or family event</li>
+        <li>Hospital stay over 3 days</li>
+        <li>New chronic illness diagnosis</li>
+        <li>Spouse passes away</li>
+        <li>Move to assisted living</li>
+        <li>Decline in ADL function</li>
+        <li>Estate or financial plan review</li>
       </ul>
     </div>
   </div>

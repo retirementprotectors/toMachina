@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MYST — Meet Your Service Team — Retirement Protectors, Inc.</title>
+<meta name="description" content="Meet Your Service Team at Retirement Protectors, Inc. We're Your People™.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;600&family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --rpi-289: #0a2240;
+    --rpi-283: #92c0e9;
+    --rpi-medium: #12416b;
+    --rpi-pale: #abd2ef;
+    --rpi-mist: #cae7f9;
+    --rpi-royal: #23558c;
+    --ink: #1a1a1a;
+    --ink-soft: #3a4456;
+    --paper: #f4f4f5;
+    --paper-warm: #fafbfc;
+    --rule: #d0dae6;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: var(--paper); color: var(--ink); font-family: 'Mulish', -apple-system, BlinkMacSystemFont, sans-serif; line-height: 1.55; }
+  h1, h2, h3 { font-family: 'Poppins', sans-serif; color: var(--rpi-289); line-height: 1.2; letter-spacing: -0.01em; }
+
+  .page { width: 8.5in; min-height: 11in; background: white; margin: 0.5in auto; padding: 0.6in 0.65in; box-shadow: 0 1px 24px rgba(10,34,64,0.08); position: relative; }
+
+  /* Hero */
+  .hero { border-bottom: 3px solid var(--rpi-289); padding-bottom: 22px; margin-bottom: 26px; }
+  .eyebrow { font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--rpi-medium); margin-bottom: 12px; }
+  .hero h1 { font-size: 54px; font-weight: 800; color: var(--rpi-289); margin-bottom: 10px; letter-spacing: -0.025em; line-height: 1.02; }
+  .hero-tagline { font-family: 'Poppins', sans-serif; font-weight: 500; font-size: 18px; color: var(--ink-soft); max-width: 75%; }
+
+  .intro { font-family: 'Poppins', sans-serif; font-weight: 400; font-size: 14.5px; line-height: 1.65; color: var(--ink-soft); margin-bottom: 26px; max-width: 88%; }
+  .intro strong { color: var(--rpi-289); font-weight: 600; }
+
+  /* Section rhythm */
+  .tier { margin-bottom: 22px; }
+  .tier-head { font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--rpi-royal); margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid var(--rule); }
+
+  /* Team grid */
+  .team-grid { display: grid; gap: 16px; }
+  .team-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+  .team-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+  .team-grid.cols-5 { grid-template-columns: repeat(5, 1fr); }
+  .team-card { text-align: center; }
+  .team-photo { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid var(--rpi-289); margin: 0 auto 8px; display: block; }
+  .team-photo.gold { border-color: var(--rpi-royal); }
+  .team-name { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 13.5px; color: var(--rpi-289); line-height: 1.15; margin-bottom: 3px; }
+  .team-title { font-size: 11.5px; color: var(--ink-soft); line-height: 1.35; }
+  .team-small .team-photo { width: 84px; height: 84px; }
+  .team-small .team-name { font-size: 12px; }
+  .team-small .team-title { font-size: 11px; }
+
+  /* Tagline band */
+  .tagline-band { background: var(--rpi-289); color: white; padding: 24px 28px; border-radius: 6px; margin: 26px 0; position: relative; overflow: hidden; text-align: center; }
+  .tagline-band::before { content: ''; position: absolute; top: -18px; right: -18px; width: 140px; height: 140px; background-image: url('../assets/rpi/rpi-shield-mark.png'); background-size: contain; background-position: right top; background-repeat: no-repeat; opacity: 0.14; pointer-events: none; }
+  .tagline-band h2 { font-family: 'Poppins', sans-serif; font-weight: 900; font-size: 32px; color: white; letter-spacing: 0.02em; margin-bottom: 6px; position: relative; z-index: 1; }
+  .tagline-band h2 .tm { font-size: 0.55em; vertical-align: super; font-weight: 700; margin-left: 2px; }
+  .tagline-band .band-sub { font-family: 'Poppins', sans-serif; font-size: 13px; color: var(--rpi-pale); position: relative; z-index: 1; }
+
+  /* Footer — same pattern as other brochures */
+  .footer { margin-top: 24px; padding-top: 18px; border-top: 2px solid var(--rpi-289); display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+  .footer-logo { width: 220px; height: auto; display: block; }
+  .footer-contact { text-align: right; font-size: 11px; color: var(--ink-soft); line-height: 1.7; font-family: 'Poppins', sans-serif; }
+  .footer-contact strong { color: var(--rpi-289); font-size: 11.5px; display: block; margin-bottom: 2px; font-weight: 700; }
+
+  .compliance { background: #f7f9fc; border: 1px solid var(--rule); padding: 10px 13px; border-radius: 4px; font-size: 9.5px; color: var(--ink-soft); line-height: 1.5; margin-top: 18px; }
+  .compliance strong { color: var(--rpi-medium); }
+
+  .preview-nav { position: fixed; top: 10px; right: 10px; background: var(--rpi-289); color: white; padding: 10px 14px; border-radius: 6px; font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 600; box-shadow: 0 2px 12px rgba(0,0,0,0.25); z-index: 1000; }
+  .preview-nav a { color: var(--rpi-pale); text-decoration: none; margin-left: 10px; cursor: pointer; }
+
+  @media print {
+    body { background: white; }
+    .page { margin: 0; box-shadow: none; width: 100%; min-height: 100vh; padding: 0.5in 0.55in; }
+    .preview-nav { display: none; }
+    @page { size: letter; margin: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="preview-nav">
+  MYST · Meet Your Service Team · <a onclick="window.print()">Print</a>
+</div>
+
+<div class="page">
+
+  <div class="hero">
+    <div class="eyebrow">MYST · Meet Your Service Team</div>
+    <h1>We're Your People.</h1>
+    <div class="hero-tagline">Twelve humans. One mission: make Medicare, retirement, life, and legacy make sense for the families we serve.</div>
+  </div>
+
+  <p class="intro">
+    At RPI, you don't get an "agent." You get a <strong>team</strong>. Each client is supported by people who know your name, your plan, and your questions — across Medicare, retirement, life insurance, and legacy. Every name below picks up the phone. Every face below has walked someone through exactly what you're walking through. We're Your People&trade;.
+  </p>
+
+  <div class="tier">
+    <div class="tier-head">Executive</div>
+    <div class="team-grid cols-2">
+      <div class="team-card">
+        <img src="../assets/team/jdm.jpg" alt="Josh D. Millang" class="team-photo gold" />
+        <div class="team-name">Josh D. Millang</div>
+        <div class="team-title">Chief Executive Officer &middot; Founder</div>
+      </div>
+      <div class="team-card">
+        <img src="../assets/team/john-behn.jpg" alt="John Behn" class="team-photo gold" />
+        <div class="team-name">John Behn, CLU, ChFC, CPCU</div>
+        <div class="team-title">Chief Operating Officer &middot; CFO</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tier">
+    <div class="tier-head">Leadership</div>
+    <div class="team-grid cols-3">
+      <div class="team-card">
+        <img src="../assets/team/vince-vazquez.jpg" alt="Vince Vazquez" class="team-photo" />
+        <div class="team-name">Vince Vazquez</div>
+        <div class="team-title">Sales Leader</div>
+      </div>
+      <div class="team-card">
+        <img src="../assets/team/nikki-gray.jpg" alt="Nikki Gray" class="team-photo" />
+        <div class="team-name">Nikki Gray</div>
+        <div class="team-title">Service Leader</div>
+      </div>
+      <div class="team-card">
+        <img src="../assets/team/aprille-trupiano.jpg" alt="Dr. Aprille Trupiano" class="team-photo" />
+        <div class="team-name">Dr. Aprille Trupiano</div>
+        <div class="team-title">Legacy Services Director</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tier">
+    <div class="tier-head">Client Service</div>
+    <div class="team-grid cols-2 team-small">
+      <div class="team-card">
+        <img src="../assets/team/angelique-bonilla.jpg" alt="Angelique Bonilla" class="team-photo" />
+        <div class="team-name">Angelique Bonilla</div>
+        <div class="team-title">Retirement Service Specialist</div>
+      </div>
+      <div class="team-card">
+        <img src="../assets/team/susan-kaelin.jpg" alt="Susan Kaelin" class="team-photo" />
+        <div class="team-name">Susan Kaelin</div>
+        <div class="team-title">Medicare Service Specialist</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tier">
+    <div class="tier-head">Sales Team &mdash; Health &amp; Wealth Divisions</div>
+    <div class="team-grid cols-5 team-small">
+      <div class="team-card">
+        <img src="../assets/team/robert-lacy.jpg" alt="Robert Lacy" class="team-photo" />
+        <div class="team-name">Robert Lacy</div>
+        <div class="team-title">Medicare Coordinator</div>
+      </div>
+      <div class="team-card">
+        <img src="../assets/team/lucas-dexter.jpg" alt="Lucas Dexter" class="team-photo" />
+        <div class="team-name">Lucas Dexter</div>
+        <div class="team-title">Medicare Specialist</div>
+      </div>
+      <div class="team-card">
+        <img src="../assets/team/shane-parmenter.jpg" alt="Shane Parmenter" class="team-photo" />
+        <div class="team-name">Shane Parmenter</div>
+        <div class="team-title">Retirement Specialist</div>
+      </div>
+      <div class="team-card">
+        <img src="../assets/team/matt-mccormick.jpg" alt="Matt McCormick" class="team-photo" />
+        <div class="team-name">Matt McCormick</div>
+        <div class="team-title">Retirement Specialist</div>
+      </div>
+      <div class="team-card">
+        <img src="../assets/team/josh-archer.jpg" alt="Josh Archer" class="team-photo" />
+        <div class="team-name">Josh Archer</div>
+        <div class="team-title">Retirement Specialist</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tagline-band">
+    <h2>We're Your People<span class="tm">&trade;</span></h2>
+    <div class="band-sub">Twelve names above this line. One call, and the right one picks up.</div>
+  </div>
+
+  <div class="compliance">
+    <strong>About MYST.</strong> Meet Your Service Team is how Retirement Protectors, Inc. introduces the humans behind every client file. Team roster current as of 2026-04-13. Insurance products are issued by various carriers; availability and licensing vary by state. Securities and investment advisory services offered through Gradient Securities, LLC, Member FINRA/SIPC. RPI does not provide legal advice. &copy; 2026 Retirement Protectors, Inc. All rights reserved.
+  </div>
+
+  <div class="footer">
+    <img src="../assets/rpi/rpi-logo-v2-color.png" alt="Retirement Protectors, Inc. — We're Your People" class="footer-logo" />
+    <div class="footer-contact">
+      <strong>RetireProtected.com</strong>
+      515-992-5000 &middot; 877-650-7015<br>
+      Service@RetireProtected.com
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

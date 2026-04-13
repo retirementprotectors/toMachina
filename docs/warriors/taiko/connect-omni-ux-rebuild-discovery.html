@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TAIKO — CONNECT + OMNI UX Rebuild Discovery</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&family=Mulish:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ─── DESIGN TOKENS ──────────────────────────────────────────── */
+:root {
+  /* Brand */
+  --navy:          #0a2240;
+  --navy-mid:      #0d2d54;
+  --navy-lt:       #1a3d6b;
+  --bronze:        #b45309;
+  --bronze-lt:     #d97706;
+  --bronze-bg:     rgba(180,83,9,0.08);
+  --bronze-border: rgba(180,83,9,0.28);
+
+  /* Surfaces */
+  --white:         #ffffff;
+  --off-white:     #f8f7f4;
+  --surface:       #f4f6fa;
+  --surface-dk:    #e8edf5;
+  --card-bg:       #ffffff;
+
+  /* Text */
+  --text:          #1c2b3a;
+  --text-muted:    #5a6b7a;
+  --text-light:    #8fa0b0;
+  --text-on-dark:  rgba(255,255,255,0.80);
+  --text-on-dark-lt: rgba(255,255,255,0.45);
+
+  /* Borders */
+  --border:        #dde5ee;
+  --border-dk:     #c4d0de;
+
+  /* Status */
+  --green:         #16a34a;
+  --green-bg:      rgba(22,163,74,0.08);
+  --red:           #dc2626;
+  --red-bg:        rgba(220,38,38,0.08);
+  --yellow:        #d97706;
+  --yellow-bg:     rgba(217,119,6,0.08);
+  --blue:          #2563eb;
+  --blue-bg:       rgba(37,99,235,0.08);
+
+  /* Portal accent (ProDash default for doc) */
+  --portal:        #4a7ab5;
+  --portal-bg:     rgba(74,122,181,0.10);
+
+  /* Avatar palette — named, no inline hex */
+  --av-purple:     #7c3aed;
+  --av-teal:       #0891b2;
+  --av-green:      #16a34a;
+  --av-bronze:     #b45309;
+  --av-pink:       #db2777;
+  --av-orange:     #ea580c;
+}
+
+/* ─── RESET ──────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Mulish', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--off-white);
+  color: var(--text);
+  line-height: 1.65;
+  font-size: 15px;
+}
+h1,h2,h3,h4,h5 { font-family: 'Poppins', sans-serif; line-height: 1.25; }
+a { color: var(--bronze); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ─── NAV ────────────────────────────────────────────────────── */
+.top-nav {
+  position: sticky; top: 0; z-index: 200;
+  background: var(--navy);
+  border-bottom: 2px solid var(--bronze);
+  padding: 0 2rem;
+  display: flex; align-items: center; gap: 0;
+  height: 52px;
+  overflow-x: auto;
+}
+.top-nav .brand {
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.82rem; font-weight: 700;
+  color: var(--bronze-lt);
+  white-space: nowrap;
+  padding-right: 1.5rem;
+  border-right: 1px solid rgba(255,255,255,0.12);
+  margin-right: 1.5rem;
+}
+.top-nav a {
+  font-size: 0.78rem; font-weight: 600;
+  color: var(--text-on-dark);
+  padding: 0 1rem; height: 52px;
+  display: flex; align-items: center;
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+}
+.top-nav a:hover { color: var(--white); border-bottom-color: var(--bronze-lt); text-decoration: none; }
+
+/* ─── PAGE LAYOUT ────────────────────────────────────────────── */
+.page { max-width: 1100px; margin: 0 auto; padding: 2.5rem 1.5rem 5rem; }
+
+/* ─── HERO ───────────────────────────────────────────────────── */
+.hero { margin-bottom: 3rem; }
+.hero .eyebrow {
+  font-size: 0.72rem; font-weight: 800; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--bronze); margin-bottom: 0.6rem;
+}
+.hero h1 {
+  font-size: 2.4rem; font-weight: 900; color: var(--navy);
+  line-height: 1.15; margin-bottom: 0.75rem;
+}
+.hero h1 em { font-style: normal; color: var(--bronze); }
+.hero p { font-size: 1.05rem; color: var(--text-muted); max-width: 680px; }
+
+/* ─── URGENCY BANNER ─────────────────────────────────────────── */
+.urgency-banner {
+  background: linear-gradient(135deg, #7c2d12 0%, #b45309 100%);
+  color: var(--white); border-radius: 10px;
+  padding: 1rem 1.5rem; margin-bottom: 2.5rem;
+  display: flex; align-items: center; gap: 1rem;
+}
+.urgency-banner .icon { font-size: 1.5rem; }
+.urgency-banner strong { font-family: 'Poppins', sans-serif; font-size: 0.95rem; display: block; }
+.urgency-banner span { font-size: 0.82rem; opacity: 0.85; }
+
+/* ─── SECTION HEADERS ────────────────────────────────────────── */
+.section { margin-bottom: 3.5rem; }
+.section-header {
+  display: flex; align-items: center; gap: 0.75rem;
+  margin-bottom: 1.5rem; padding-bottom: 0.75rem;
+  border-bottom: 2px solid var(--border);
+}
+.section-header .num {
+  background: var(--navy); color: var(--white);
+  font-family: 'Poppins', sans-serif; font-size: 0.7rem; font-weight: 800;
+  width: 26px; height: 26px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.section-header h2 { font-size: 1.3rem; font-weight: 800; color: var(--navy); }
+.section-header .badge {
+  margin-left: auto; font-size: 0.7rem; font-weight: 700;
+  padding: 0.2em 0.7em; border-radius: 20px;
+  background: var(--bronze-bg); color: var(--bronze);
+  border: 1px solid var(--bronze-border); white-space: nowrap;
+}
+
+/* ─── VERDICT LIST ───────────────────────────────────────────── */
+.verdict-list { list-style: none; display: flex; flex-direction: column; gap: 0.85rem; }
+.verdict-list li {
+  display: flex; gap: 0.85rem; align-items: flex-start;
+  padding: 0.85rem 1rem;
+  background: var(--card-bg); border: 1.5px solid var(--border); border-radius: 10px;
+}
+.verdict-list li .v-icon {
+  flex-shrink: 0; width: 28px; height: 28px; border-radius: 8px;
+  background: var(--red-bg); display: flex; align-items: center; justify-content: center;
+  font-size: 1rem;
+}
+.verdict-list li .v-title { font-weight: 700; font-size: 0.88rem; color: var(--navy); display: block; }
+.verdict-list li .v-detail { font-size: 0.82rem; color: var(--text-muted); }
+.verdict-list li .v-cite { font-size: 0.74rem; color: var(--text-light); font-style: italic; display: block; margin-top: 3px; }
+
+/* ─── CALLOUT ────────────────────────────────────────────────── */
+.callout {
+  border-left: 4px solid var(--bronze); background: var(--bronze-bg);
+  border-radius: 0 8px 8px 0; padding: 0.85rem 1.1rem;
+  margin-bottom: 1.25rem; font-size: 0.85rem; color: var(--text-muted);
+}
+.callout strong { color: var(--bronze); }
+
+.sub-label {
+  font-size: 0.7rem; font-weight: 800; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--text-muted);
+  margin-bottom: 0.75rem; margin-top: 1.5rem;
+}
+.sub-label:first-child { margin-top: 0; }
+
+/* ─── PANEL MOCK CHROME ──────────────────────────────────────── */
+.mock-wrap { display: flex; gap: 2rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
+.mock-panel {
+  width: 360px; min-width: 300px;
+  border-radius: 14px; overflow: hidden;
+  border: 1.5px solid var(--border-dk);
+  box-shadow: 0 8px 32px rgba(10,34,64,0.10);
+  background: var(--card-bg);
+  flex-shrink: 0;
+}
+.mock-header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 14px 0;
+}
+.mock-title-row {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 8px;
+}
+.mock-label {
+  font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 0.8rem;
+  color: var(--navy); display: flex; align-items: center; gap: 6px;
+}
+.mock-close {
+  width: 24px; height: 24px; border-radius: 6px;
+  background: var(--surface-dk); display: flex; align-items: center; justify-content: center;
+  font-size: 0.7rem; color: var(--text-muted);
+}
+.mock-tabs { display: flex; }
+.mock-tab {
+  flex: 1; text-align: center;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.7rem; font-weight: 700;
+  padding: 6px 4px 8px;
+  border-bottom: 2.5px solid transparent;
+  color: var(--text-muted);
+}
+.mock-tab.t-active-blue   { color: var(--portal); border-bottom-color: var(--portal); }
+.mock-tab.t-active-bronze { color: var(--bronze); border-bottom-color: var(--bronze); }
+
+/* ─── 2-PANE LAYOUT ──────────────────────────────────────────── */
+.mock-2pane { display: flex; height: 340px; }
+.mock-left {
+  width: 128px; border-right: 1px solid var(--border);
+  overflow-y: auto; padding: 8px 6px; flex-shrink: 0;
+}
+.mock-right { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+/* Space / conversation row */
+.m-row { border-radius: 8px; padding: 6px 8px; margin-bottom: 3px; }
+.m-row.m-active { background: var(--portal-bg); }
+.m-row.m-active-bronze { background: var(--bronze-bg); }
+.m-row .rn { font-weight: 600; color: var(--text); font-size: 0.71rem; }
+.m-row.m-active .rn { color: var(--portal); font-weight: 700; }
+.m-row.m-active-bronze .rn { color: var(--bronze); font-weight: 700; }
+.m-row .rp { font-size: 0.63rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.badge-blue   { display: inline-block; background: var(--portal); color: var(--white); font-size: 0.58rem; font-weight: 800; border-radius: 10px; padding: 1px 5px; margin-left: 4px; vertical-align: middle; }
+.badge-bronze { display: inline-block; background: var(--bronze); color: var(--white); font-size: 0.58rem; font-weight: 800; border-radius: 10px; padding: 1px 5px; margin-left: 4px; vertical-align: middle; }
+
+/* Thread area */
+.mock-thread { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 10px; }
+.mock-msg { display: flex; gap: 8px; align-items: flex-start; }
+.av {
+  width: 26px; height: 26px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.6rem; font-weight: 800; color: var(--white); flex-shrink: 0;
+}
+.av-purple { background: var(--av-purple); }
+.av-teal   { background: var(--av-teal); }
+.av-bronze { background: var(--av-bronze); }
+.av-green  { background: var(--av-green); }
+.av-pink   { background: var(--av-pink); }
+.av-sm { width: 22px; height: 22px; font-size: 0.55rem; }
+
+.msg-sender { font-size: 0.68rem; font-weight: 700; color: var(--navy); }
+.msg-ts     { font-size: 0.62rem; color: var(--text-light); margin-left: 5px; }
+.msg-text   { font-size: 0.72rem; color: var(--text-muted); margin-top: 1px; line-height: 1.4; }
+
+/* Compose bar */
+.mock-compose {
+  border-top: 1px solid var(--border);
+  padding: 8px 10px; display: flex; gap: 6px; align-items: center;
+}
+.compose-input {
+  flex: 1; background: var(--surface); border: 1px solid var(--border-dk);
+  border-radius: 6px; padding: 5px 10px; font-size: 0.7rem; color: var(--text-muted);
+}
+.send-btn {
+  width: 30px; height: 30px; border-radius: 6px; background: var(--portal);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.75rem; color: var(--white);
+}
+.send-btn-bronze { background: var(--bronze); }
+
+/* Thread sub-header */
+.thread-header {
+  display: flex; align-items: center; gap: 6px;
+  padding: 7px 10px; border-bottom: 1px solid var(--border);
+  background: var(--surface); font-size: 0.72rem;
+}
+
+/* Single pane */
+.mock-single { padding: 10px; overflow-y: auto; }
+
+/* ─── DIALER ─────────────────────────────────────────────────── */
+.dialer-display {
+  background: var(--surface); border-radius: 8px; padding: 10px 8px;
+  text-align: center; margin-bottom: 8px;
+}
+.dialer-number { font-family: 'Poppins', sans-serif; font-size: 1.3rem; font-weight: 700; color: var(--navy); letter-spacing: 0.08em; }
+.dialer-sub    { font-size: 0.65rem; color: var(--text-muted); }
+.keypad { display: grid; grid-template-columns: repeat(3,1fr); gap: 5px; margin-bottom: 8px; }
+.key {
+  background: var(--surface-dk); border-radius: 7px; padding: 7px 4px;
+  text-align: center; font-family: 'Poppins', sans-serif;
+  font-size: 0.85rem; font-weight: 600; color: var(--navy);
+}
+.call-btn {
+  background: var(--green); color: var(--white); border-radius: 30px;
+  padding: 8px; text-align: center; font-weight: 700; font-size: 0.75rem;
+}
+
+/* ─── SMS BUBBLES ────────────────────────────────────────────── */
+.sms-bubble {
+  max-width: 75%; border-radius: 14px; padding: 7px 11px;
+  font-size: 0.72rem; line-height: 1.45; margin-bottom: 8px;
+}
+.sms-out { background: var(--portal); color: var(--white); margin-left: auto; border-bottom-right-radius: 4px; }
+.sms-in  { background: var(--surface); color: var(--text); border-bottom-left-radius: 4px; }
+.sms-ts  { font-size: 0.6rem; color: var(--text-light); text-align: center; margin-bottom: 8px; }
+
+/* ─── LOG TAB ────────────────────────────────────────────────── */
+.filter-chips { display: flex; gap: 6px; flex-wrap: wrap; padding: 8px 10px; border-bottom: 1px solid var(--border); }
+.chip {
+  font-size: 0.65rem; font-weight: 700; padding: 3px 10px; border-radius: 20px;
+  border: 1.5px solid var(--border-dk); color: var(--text-muted);
+}
+.chip.c-active { background: var(--navy); color: var(--white); border-color: var(--navy); }
+.log-row { display: flex; gap: 8px; align-items: center; padding: 7px 0; border-bottom: 1px solid var(--border); }
+.log-icon { width: 28px; height: 28px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; flex-shrink: 0; }
+.li-call  { background: var(--green-bg); }
+.li-sms   { background: var(--blue-bg); }
+.li-email { background: var(--yellow-bg); }
+.log-name { font-size: 0.72rem; font-weight: 700; color: var(--navy); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.log-preview { font-size: 0.65rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.log-meta { font-size: 0.62rem; color: var(--text-light); flex-shrink: 0; }
+
+/* ─── MEET TAB ───────────────────────────────────────────────── */
+.meet-cta {
+  background: linear-gradient(135deg, var(--navy) 0%, var(--navy-lt) 100%);
+  border-radius: 10px; padding: 14px; margin-bottom: 10px; text-align: center;
+}
+.meet-cta-lbl { font-size: 0.68rem; color: rgba(255,255,255,0.6); margin-bottom: 6px; }
+.meet-cta-btn {
+  background: var(--green); color: var(--white); border-radius: 8px;
+  padding: 8px 16px; font-weight: 700; font-size: 0.78rem; display: inline-block;
+}
+.meet-row { display: flex; gap: 8px; align-items: flex-start; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.meet-time { font-size: 0.65rem; color: var(--text-muted); width: 50px; flex-shrink: 0; }
+.meet-body-col { flex: 1; }
+.meet-title { font-size: 0.75rem; font-weight: 700; color: var(--navy); }
+.meet-sub   { font-size: 0.65rem; color: var(--text-muted); }
+.meet-chip  { font-size: 0.62rem; font-weight: 700; padding: 2px 7px; border-radius: 10px; background: var(--green-bg); color: var(--green); }
+.meet-chip-past { background: var(--surface); color: var(--text-light); }
+
+/* ─── PRESENCE DOTS ──────────────────────────────────────────── */
+.dm-row { display: flex; gap: 8px; align-items: center; padding: 6px 8px; border-radius: 8px; margin-bottom: 2px; }
+.dm-row.dm-active { background: var(--portal-bg); }
+.presence { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.p-online  { background: var(--green); }
+.p-away    { background: var(--yellow); }
+.p-offline { background: var(--border-dk); }
+
+/* ─── SPEC BULLETS ───────────────────────────────────────────── */
+.spec-list { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+.spec-list li { display: flex; gap: 0.6rem; font-size: 0.85rem; color: var(--text-muted); }
+.spec-list li::before { content: '→'; color: var(--bronze); font-weight: 800; flex-shrink: 0; }
+
+/* ─── OOS GRID ───────────────────────────────────────────────── */
+.oos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px,1fr)); gap: 0.75rem; }
+.oos-item {
+  background: var(--surface); border: 1.5px solid var(--border-dk); border-radius: 8px;
+  padding: 0.7rem 1rem; display: flex; align-items: flex-start; gap: 0.6rem;
+}
+.oos-no   { font-size: 0.75rem; font-weight: 800; color: var(--red); }
+.oos-text { font-size: 0.8rem; color: var(--text-muted); }
+
+/* ─── TABLES ─────────────────────────────────────────────────── */
+.table-wrap { border-radius: 10px; overflow: hidden; border: 1.5px solid var(--border); margin-bottom: 1.25rem; }
+table { width: 100%; border-collapse: collapse; font-size: 0.83rem; }
+th {
+  background: var(--navy); color: var(--white);
+  font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 0.72rem;
+  text-align: left; padding: 10px 12px; letter-spacing: 0.03em;
+}
+th:first-child { border-radius: 8px 0 0 0; }
+th:last-child  { border-radius: 0 8px 0 0; }
+td { padding: 9px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+tr:last-child td { border-bottom: none; }
+tr:nth-child(even) td { background: var(--surface); }
+td code { font-size: 0.74rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; font-family: 'Courier New', monospace; }
+.method { font-size: 0.65rem; font-weight: 800; padding: 2px 6px; border-radius: 5px; }
+.get  { background: var(--green-bg);  color: var(--green); }
+.post { background: var(--blue-bg);   color: var(--blue);  }
+
+/* ─── TICKET CARDS ───────────────────────────────────────────── */
+.ticket-card {
+  background: var(--card-bg); border: 1.5px solid var(--border);
+  border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 1rem;
+}
+.t-head { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; }
+.t-id {
+  font-family: 'Courier New', monospace; font-weight: 800; font-size: 0.8rem;
+  background: var(--navy); color: var(--white); padding: 2px 8px; border-radius: 5px;
+}
+.t-title { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 0.95rem; color: var(--navy); }
+.t-meta { margin-left: auto; font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; }
+.ticket-card p  { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.6rem; }
+.t-sec { font-size: 0.7rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--bronze); margin-bottom: 0.3rem; margin-top: 0.75rem; }
+.ticket-card ul { padding-left: 1.2rem; font-size: 0.82rem; color: var(--text-muted); }
+.ticket-card li { margin-bottom: 0.2rem; }
+.parallel-safe  { display: inline-flex; align-items: center; gap: 4px; font-size: 0.68rem; font-weight: 700; color: var(--green); }
+.contention-flag{ display: inline-flex; align-items: center; gap: 4px; font-size: 0.68rem; font-weight: 700; color: var(--yellow); }
+
+/* ─── FOOTER ─────────────────────────────────────────────────── */
+.footer { margin-top: 4rem; padding: 2rem 0; border-top: 2px solid var(--border); text-align: center; color: var(--text-light); font-size: 0.78rem; }
+.footer strong { color: var(--bronze); }
+
+/* ─── MISC HELPERS ───────────────────────────────────────────── */
+.section-note { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem; }
+.inline-accent { font-size: 0.62rem; padding: 2px 7px; border-radius: 10px; font-weight: 700; }
+.ia-blue  { background: var(--blue-bg);  color: var(--blue); }
+.ia-green { background: var(--green-bg); color: var(--green); }
+.ia-teal  { background: rgba(8,145,178,0.10); color: var(--av-teal); }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="top-nav">
+  <span class="brand">🥁 TAIKO · UX Rebuild</span>
+  <a href="#teardown">Teardown</a>
+  <a href="#connect">CONNECT</a>
+  <a href="#omni">OMNI</a>
+  <a href="#wiring">Wire-up</a>
+  <a href="#interaction">Interaction</a>
+  <a href="#oos">Out of Scope</a>
+  <a href="#sprint">Sprint Plan</a>
+</nav>
+
+<main class="page">
+
+  <!-- ═══ HERO ═══════════════════════════════════════════════════ -->
+  <section class="hero">
+    <div class="eyebrow">TAIKO · Discovery Doc · 2026-04-13</div>
+    <h1>CONNECT + OMNI<br><em>UX Teardown &amp; Rebuild</em></h1>
+    <p>The backend is production-grade. 8 Connect routes shipped tonight. The frontend is a debug panel. This doc burns it down and replaces it with a product that matches the infra underneath.</p>
+  </section>
+
+  <div class="urgency-banner">
+    <span class="icon">🌙</span>
+    <div>
+      <strong>Overnight Build — Ships Before Sunrise</strong>
+      <span>6 RONIN tickets · ~20h total · 3 parallel RONINs = 3–4h wall-clock</span>
+    </div>
+  </div>
+
+  <!-- ═══ 1. TEARDOWN VERDICT ═════════════════════════════════════ -->
+  <section class="section" id="teardown">
+    <div class="section-header">
+      <div class="num">1</div>
+      <h2>The Teardown Verdict</h2>
+      <span class="badge">What's Wrong Today</span>
+    </div>
+
+    <ul class="verdict-list">
+      <li>
+        <div class="v-icon">🚫</div>
+        <div>
+          <span class="v-title">CONNECT is a single 824-line god-file with no real 2-pane layout</span>
+          <span class="v-detail">ConnectPanel.tsx renders all three tabs — channel list, people directory, and Meet — in one monolith. Selecting a channel causes a full-panel swap that nukes the left rail. There is no persistent 2-pane. It feels like a mobile app forced onto desktop. Real messaging UX keeps the list and the thread visible at the same time.</span>
+          <span class="v-cite">ConnectPanel.tsx:480-488 — <code>if (activeChannel !== null) return &lt;ChannelChatView&gt;</code> replaces the entire panel</span>
+        </div>
+      </li>
+      <li>
+        <div class="v-icon">🚫</div>
+        <div>
+          <span class="v-title">OMNI has no conversation view — every tab starts a fresh compose</span>
+          <span class="v-detail">CommsModule/index.tsx routes each tab to a standalone CommsCompose. There is no concept of "view Mary Johnson's SMS thread." The Log tab shows history but has no way to jump into a conversation. Agents working a client have zero continuity across contacts.</span>
+          <span class="v-cite">CommsModule/index.tsx:235-238 — all three content tabs render CommsCompose with no thread state</span>
+        </div>
+      </li>
+      <li>
+        <div class="v-icon">🚫</div>
+        <div>
+          <span class="v-title">OMNI's Call tab is compose-first — no call history above the dialer</span>
+          <span class="v-detail">The dialer appears immediately with no recent-calls context. Agents have no quick-redial, no missed-call indicator, no way to know who called before picking up the next one. The active call state machine is sound — <code>window.__activeTwilioCall</code> + callbacks — but that's an implementation detail, not a UX feature.</span>
+          <span class="v-cite">CommsCompose.tsx:60-100 — dialer pad is the first and only element in the call channel</span>
+        </div>
+      </li>
+      <li>
+        <div class="v-icon">🚫</div>
+        <div>
+          <span class="v-title">CONNECT People tab hides actions behind hover — zero mobile discoverability</span>
+          <span class="v-detail">PersonCard uses <code>opacity-0 group-hover:opacity-100</code> to hide Chat / Meet / Call buttons entirely at rest. On touch devices these actions are invisible and unreachable. New desktop users have no way to discover the actions exist without accidentally hovering.</span>
+          <span class="v-cite">ConnectPanel.tsx:644-646 — <code>opacity-0 group-hover:opacity-100</code> on the action row</span>
+        </div>
+      </li>
+      <li>
+        <div class="v-icon">🚫</div>
+        <div>
+          <span class="v-title">CONNECT channel rows show phantom last-message data that never populates</span>
+          <span class="v-detail">ChannelData carries unreadCount, lastSender, lastMessage, and timestamp fields — all initialized to empty strings and 0. The Google Chat spaces list endpoint returns space metadata only; getting a per-space last-message preview requires a separate messages call per space that was never wired. The result looks like a permanent loading skeleton.</span>
+          <span class="v-cite">ConnectPanel.tsx:456-476 — ChannelData fields initialized to empty, never fetched</span>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+  <!-- ═══ 2. CONNECT NEW UX ════════════════════════════════════════ -->
+  <section class="section" id="connect">
+    <div class="section-header">
+      <div class="num">2</div>
+      <h2>CONNECT — New UX</h2>
+      <span class="badge">Internal Team Comms · Google Workspace</span>
+    </div>
+
+    <div class="callout">
+      <strong>Tab rename:</strong> "Channels" → <strong>Spaces</strong> &nbsp;|&nbsp; "People" → <strong>DMs</strong> &nbsp;|&nbsp; Meet stays. The new names match the Google Chat API surface exactly, eliminate ambiguity, and signal what each tab does without explanation.
+    </div>
+
+    <!-- TAB 1: SPACES -->
+    <p class="sub-label">Tab 1 — Spaces</p>
+
+    <div class="mock-wrap">
+      <div class="mock-panel">
+        <div class="mock-header">
+          <div class="mock-title-row">
+            <span class="mock-label">💬 CONNECT</span>
+            <span class="mock-close">✕</span>
+          </div>
+          <div class="mock-tabs">
+            <div class="mock-tab t-active-blue">Spaces</div>
+            <div class="mock-tab">DMs</div>
+            <div class="mock-tab">Meet</div>
+          </div>
+        </div>
+        <!-- 2-pane body -->
+        <div class="mock-2pane">
+          <!-- Left rail -->
+          <div class="mock-left">
+            <div style="font-size:0.59rem;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-light);padding:2px 8px 5px;">Pinned</div>
+            <div class="m-row m-active">
+              <div class="rn">#team-rpi <span class="badge-blue">3</span></div>
+              <div class="rp">Vince: LFG team 🔥</div>
+            </div>
+            <div class="m-row">
+              <div class="rn">#retirement-sales</div>
+              <div class="rp">Nikki: AEP prep call...</div>
+            </div>
+            <div style="font-size:0.59rem;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-light);padding:8px 8px 5px;">All Spaces</div>
+            <div class="m-row">
+              <div class="rn">#service-ops</div>
+              <div class="rp">John: ticket closed</div>
+            </div>
+            <div class="m-row">
+              <div class="rn">#david-bd</div>
+              <div class="rp">Matt: Friday sync...</div>
+            </div>
+            <div class="m-row">
+              <div class="rn">#compliance</div>
+              <div class="rp">Shane: filing done</div>
+            </div>
+          </div>
+          <!-- Thread pane -->
+          <div class="mock-right">
+            <div class="thread-header">
+              <span style="color:var(--text-muted);font-size:0.7rem;">#</span>
+              <span style="font-size:0.74rem;font-weight:700;color:var(--navy);">team-rpi</span>
+              <span style="margin-left:auto;" class="inline-accent ia-teal">4 members</span>
+              <span style="font-size:0.58rem;color:var(--text-light);font-style:italic;">Google Chat</span>
+            </div>
+            <div class="mock-thread">
+              <div class="mock-msg">
+                <div class="av av-purple">VV</div>
+                <div><div><span class="msg-sender">Vince Vazquez</span><span class="msg-ts">9:14 AM</span></div><div class="msg-text">Q2 pipeline looking solid. 3 closes this week 💪</div></div>
+              </div>
+              <div class="mock-msg">
+                <div class="av av-teal">NG</div>
+                <div><div><span class="msg-sender">Nikki Gray</span><span class="msg-ts">9:18 AM</span></div><div class="msg-text">Service queue is clear — great time to push follow-ups.</div></div>
+              </div>
+              <div class="mock-msg">
+                <div class="av av-bronze">JB</div>
+                <div><div><span class="msg-sender">John Behn</span><span class="msg-ts">9:22 AM</span></div><div class="msg-text">LFG team. SKODEN 🔥</div></div>
+              </div>
+            </div>
+            <div class="mock-compose">
+              <div class="compose-input">Message #team-rpi…</div>
+              <div class="send-btn">↑</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="section-note"><strong>Interaction:</strong> Left rail loads Google Chat Spaces from <code>GET /api/connect/spaces</code>. Unread badges fetched via <code>GET /spaces/:id/read-state</code> on mount. Selecting a Space opens the thread in the right pane — the left rail stays visible. Thread loads <code>GET /spaces/:id/messages?pageSize=50</code>, then polls every 5 seconds. Compose sends via <code>POST /spaces/:id/messages</code>. Enter sends; Shift+Enter is a line break.</p>
+
+    <!-- TAB 2: DMs -->
+    <p class="sub-label">Tab 2 — DMs</p>
+
+    <div class="mock-wrap">
+      <div class="mock-panel">
+        <div class="mock-header">
+          <div class="mock-title-row">
+            <span class="mock-label">💬 CONNECT</span>
+            <span class="mock-close">✕</span>
+          </div>
+          <div class="mock-tabs">
+            <div class="mock-tab">Spaces</div>
+            <div class="mock-tab t-active-blue">DMs</div>
+            <div class="mock-tab">Meet</div>
+          </div>
+        </div>
+        <div class="mock-2pane">
+          <!-- DM list -->
+          <div class="mock-left" style="padding-top:10px;">
+            <div class="dm-row dm-active">
+              <div class="presence p-online"></div>
+              <div style="flex:1;min-width:0;">
+                <div style="font-size:0.71rem;font-weight:700;color:var(--portal);">Nikki Gray</div>
+                <div style="font-size:0.63rem;color:var(--text-muted);">You: On it!</div>
+              </div>
+            </div>
+            <div class="dm-row">
+              <div class="presence p-online"></div>
+              <div style="flex:1;min-width:0;">
+                <div style="font-size:0.71rem;font-weight:600;color:var(--text);">Vince Vazquez</div>
+                <div style="font-size:0.63rem;color:var(--text-muted);">heading out now</div>
+              </div>
+            </div>
+            <div class="dm-row">
+              <div class="presence p-away"></div>
+              <div style="flex:1;min-width:0;">
+                <div style="font-size:0.71rem;font-weight:600;color:var(--text);">John Behn</div>
+                <div style="font-size:0.63rem;color:var(--text-muted);">in back-to-backs</div>
+              </div>
+            </div>
+            <div class="dm-row">
+              <div class="presence p-offline"></div>
+              <div style="flex:1;min-width:0;">
+                <div style="font-size:0.71rem;font-weight:600;color:var(--text);">Matt McCormick</div>
+                <div style="font-size:0.63rem;color:var(--text-muted);">I'll follow up...</div>
+              </div>
+            </div>
+          </div>
+          <!-- Thread pane -->
+          <div class="mock-right">
+            <div class="thread-header">
+              <div class="av av-teal av-sm">NG</div>
+              <span style="font-size:0.74rem;font-weight:700;color:var(--navy);">Nikki Gray</span>
+              <div class="presence p-online" style="margin-left:4px;"></div>
+              <span style="font-size:0.62rem;color:var(--green);">Online</span>
+            </div>
+            <div class="mock-thread">
+              <div class="mock-msg">
+                <div class="av av-teal">NG</div>
+                <div><div><span class="msg-sender">Nikki Gray</span><span class="msg-ts">10:05 AM</span></div><div class="msg-text">Can you pull up the Johnson account?</div></div>
+              </div>
+              <div class="mock-msg" style="flex-direction:row-reverse;">
+                <div class="av av-bronze">Me</div>
+                <div style="text-align:right;"><div><span class="msg-sender">You</span><span class="msg-ts">10:06 AM</span></div><div class="msg-text">On it!</div></div>
+              </div>
+            </div>
+            <div class="mock-compose">
+              <div class="compose-input">Message Nikki Gray…</div>
+              <div class="send-btn">↑</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="section-note"><strong>Interaction:</strong> DM list from <code>GET /api/connect/dms</code>. Each entry is a Google Chat DM Space. Presence dots computed from Firestore <code>users/{email}.last_active</code> (the existing <code>computePresence()</code> helper at ConnectPanel.tsx:91-104 — keep it). Thread and compose reuse the same Spaces threading component since DM Spaces share the same Chat API surface.</p>
+
+    <!-- TAB 3: MEET -->
+    <p class="sub-label">Tab 3 — Meet</p>
+
+    <div class="mock-wrap">
+      <div class="mock-panel">
+        <div class="mock-header">
+          <div class="mock-title-row">
+            <span class="mock-label">💬 CONNECT</span>
+            <span class="mock-close">✕</span>
+          </div>
+          <div class="mock-tabs">
+            <div class="mock-tab">Spaces</div>
+            <div class="mock-tab">DMs</div>
+            <div class="mock-tab t-active-blue">Meet</div>
+          </div>
+        </div>
+        <div class="mock-single" style="max-height:340px;">
+          <div class="meet-cta">
+            <div class="meet-cta-lbl">Need to talk right now?</div>
+            <div class="meet-cta-btn">📹 Start Instant Meet</div>
+          </div>
+          <div style="font-size:0.63rem;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:6px;">Today's Meetings</div>
+          <div class="meet-row">
+            <div class="meet-time">2:00 PM</div>
+            <div class="meet-body-col">
+              <div class="meet-title">Q2 Pipeline Review</div>
+              <div class="meet-sub">Vince, Nikki, John +2</div>
+            </div>
+            <span class="meet-chip">Join</span>
+          </div>
+          <div class="meet-row">
+            <div class="meet-time">4:30 PM</div>
+            <div class="meet-body-col">
+              <div class="meet-title">Matt Mitchell — DAVID Sync</div>
+              <div class="meet-sub">Matt M., JDM</div>
+            </div>
+            <span class="meet-chip">Join</span>
+          </div>
+          <div style="font-size:0.63rem;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin:10px 0 6px;">Recent</div>
+          <div class="meet-row">
+            <div class="meet-time" style="font-size:0.6rem;">Yesterday 10:00 AM</div>
+            <div class="meet-body-col">
+              <div class="meet-title">AEP Planning</div>
+              <div class="meet-sub">Transcript · Recording</div>
+            </div>
+            <span class="meet-chip meet-chip-past">View</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="section-note"><strong>Interaction:</strong> "Start Instant Meet" calls <code>POST /api/connect/meet</code> and opens the returned <code>meetLink</code> in a new tab. Meeting list from <code>GET /api/connect/calendar</code>. Past meeting "View" attempts <code>GET /api/connect/meet/:meetSpaceName/transcripts</code> and <code>/recordings</code> — the backend already returns graceful empty arrays (connect.ts:488-489, 520-521), so the UI shows "Not available yet" without an error state.</p>
+  </section>
+
+  <!-- ═══ 3. OMNI NEW UX ═══════════════════════════════════════════ -->
+  <section class="section" id="omni">
+    <div class="section-header">
+      <div class="num">3</div>
+      <h2>OMNI — New UX</h2>
+      <span class="badge">External Client Comms · Twilio + SendGrid</span>
+    </div>
+
+    <div class="callout">
+      <strong>Tab order unchanged:</strong> Call · Text · Email · Log. Same order as today because Call is still the primary action and Log is still read-only history. What changes is the <em>content</em> of every tab — conversation-first, not compose-first.
+    </div>
+
+    <!-- TAB 1: CALL -->
+    <p class="sub-label">Tab 1 — Call</p>
+
+    <div class="mock-wrap">
+      <div class="mock-panel">
+        <div class="mock-header">
+          <div class="mock-title-row">
+            <span class="mock-label">📞 OMNI</span>
+            <span class="mock-close">✕</span>
+          </div>
+          <div class="mock-tabs">
+            <div class="mock-tab t-active-bronze">Call</div>
+            <div class="mock-tab">Text</div>
+            <div class="mock-tab">Email</div>
+            <div class="mock-tab">Log</div>
+          </div>
+        </div>
+        <div class="mock-single" style="max-height:380px;">
+          <div style="font-size:0.62rem;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:6px;">Recent Calls</div>
+          <div class="log-row">
+            <div class="log-icon li-call">📞</div>
+            <div style="flex:1;min-width:0;">
+              <div class="log-name">Mary Johnson &nbsp;<span class="inline-accent ia-green">↙ Inbound · 4m 12s</span></div>
+              <div class="log-preview">Today, 9:02 AM · (515) 555-0100</div>
+            </div>
+            <div style="font-size:0.65rem;color:var(--portal);">Redial →</div>
+          </div>
+          <div class="log-row">
+            <div class="log-icon li-call">📞</div>
+            <div style="flex:1;min-width:0;">
+              <div class="log-name">Robert Chen &nbsp;<span style="font-size:0.62rem;color:var(--text-muted);font-weight:700;">↗ Outbound · Missed</span></div>
+              <div class="log-preview">Yesterday · (515) 555-0142</div>
+            </div>
+            <div style="font-size:0.65rem;color:var(--portal);">Redial →</div>
+          </div>
+          <div style="height:1px;background:var(--border);margin:10px 0;"></div>
+          <div class="dialer-display">
+            <div class="dialer-number">(515) 555-0100</div>
+            <div class="dialer-sub">Caller ID: RPI Toll-Free · +18886208587</div>
+          </div>
+          <div class="keypad">
+            <div class="key">1</div><div class="key">2</div><div class="key">3</div>
+            <div class="key">4</div><div class="key">5</div><div class="key">6</div>
+            <div class="key">7</div><div class="key">8</div><div class="key">9</div>
+            <div class="key">★</div><div class="key">0</div><div class="key">#</div>
+          </div>
+          <div class="call-btn">📞 &nbsp;Call</div>
+        </div>
+      </div>
+    </div>
+
+    <p class="section-note"><strong>Interaction:</strong> Recent calls list from Firestore <code>communications</code> collection (channel='voice', orderBy created_at desc, limit 5). Tapping a row pre-fills the dialer. Outbound call triggers Twilio via <code>useTwilioDevice</code>. Active call transitions to rebuilt <code>ActiveCallScreen</code> — same state machine, dark full-screen visual with centered timer, mute/keypad/end controls. Inbound ring floats via rebuilt <code>InboundCallCard</code> — same <code>useIncomingCall</code> hook.</p>
+
+    <!-- TAB 2: TEXT -->
+    <p class="sub-label">Tab 2 — Text</p>
+
+    <div class="mock-wrap">
+      <div class="mock-panel">
+        <div class="mock-header">
+          <div class="mock-title-row">
+            <span class="mock-label">📞 OMNI</span>
+            <span class="mock-close">✕</span>
+          </div>
+          <div class="mock-tabs">
+            <div class="mock-tab">Call</div>
+            <div class="mock-tab t-active-bronze">Text</div>
+            <div class="mock-tab">Email</div>
+            <div class="mock-tab">Log</div>
+          </div>
+        </div>
+        <div class="mock-2pane">
+          <div class="mock-left">
+            <div style="font-size:0.59rem;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-light);padding:2px 8px 5px;">Conversations</div>
+            <div class="m-row m-active-bronze">
+              <div class="rn">Mary Johnson <span class="badge-bronze">2</span></div>
+              <div class="rp">Thanks! I'll call 2moro</div>
+            </div>
+            <div class="m-row">
+              <div class="rn">Robert Chen</div>
+              <div class="rp">You: Got it, will send</div>
+            </div>
+            <div class="m-row">
+              <div class="rn">(515) 555-0188</div>
+              <div class="rp">New client inquiry</div>
+            </div>
+          </div>
+          <div class="mock-right">
+            <div class="thread-header">
+              <div class="av av-green av-sm">MJ</div>
+              <span style="font-size:0.74rem;font-weight:700;color:var(--navy);">Mary Johnson</span>
+              <a href="#" style="margin-left:auto;font-size:0.62rem;color:var(--portal);">View Client →</a>
+            </div>
+            <div class="mock-thread">
+              <div class="sms-ts">Today, 9:04 AM</div>
+              <div class="sms-bubble sms-out">Hi Mary, confirming your 2 PM appt tomorrow. Reply YES to confirm!</div>
+              <div class="sms-bubble sms-in">YES! See you then 😊</div>
+              <div class="sms-bubble sms-in">Thanks! I'll call 2moro if anything changes</div>
+            </div>
+            <div class="mock-compose">
+              <div class="compose-input">Reply to Mary…</div>
+              <div class="send-btn send-btn-bronze">↑</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="section-note"><strong>Interaction:</strong> Left rail groups the <code>communications</code> Firestore collection by phone number (channel='sms'), ordered by most recent. Unread badge = inbound messages where status is not 'read'. Inbound bubbles left, outbound right. Compose sends via <code>POST /api/comms/send-sms</code>. "View Client" link navigates to <code>/clients/{clientId}</code>. Camera icon triggers existing <code>useMmsUpload</code> hook.</p>
+
+    <!-- TAB 3: EMAIL -->
+    <p class="sub-label">Tab 3 — Email</p>
+
+    <div class="callout" style="margin-bottom:0.75rem;">
+      Same 2-pane layout as Text. Left rail groups the <code>communications</code> collection by subject thread. Right pane renders plaintext or stripped HTML body with a reply compose at the bottom. Sends via <code>POST /api/comms/send-email</code>. Same "View Client" chip when <code>client_id</code> is known. Structural pattern is identical to Text tab — no separate mock needed.
+    </div>
+
+    <!-- TAB 4: LOG -->
+    <p class="sub-label">Tab 4 — Log</p>
+
+    <div class="mock-wrap">
+      <div class="mock-panel">
+        <div class="mock-header">
+          <div class="mock-title-row">
+            <span class="mock-label">📞 OMNI</span>
+            <span class="mock-close">✕</span>
+          </div>
+          <div class="mock-tabs">
+            <div class="mock-tab">Call</div>
+            <div class="mock-tab">Text</div>
+            <div class="mock-tab">Email</div>
+            <div class="mock-tab t-active-bronze">Log</div>
+          </div>
+        </div>
+        <div>
+          <div class="filter-chips">
+            <div class="chip c-active">All</div>
+            <div class="chip">Calls</div>
+            <div class="chip">SMS</div>
+            <div class="chip">Email</div>
+            <div class="chip">Inbound</div>
+            <div class="chip">Outbound</div>
+          </div>
+          <div style="padding:8px 10px;max-height:280px;overflow-y:auto;">
+            <div class="log-row">
+              <div class="log-icon li-call">📞</div>
+              <div style="flex:1;min-width:0;"><div class="log-name">Mary Johnson</div><div class="log-preview">Inbound · 4m 12s · Answered</div></div>
+              <div class="log-meta">9:02 AM</div>
+            </div>
+            <div class="log-row">
+              <div class="log-icon li-sms">💬</div>
+              <div style="flex:1;min-width:0;"><div class="log-name">Mary Johnson</div><div class="log-preview">Inbound SMS: "YES! See you then 😊"</div></div>
+              <div class="log-meta">9:06 AM</div>
+            </div>
+            <div class="log-row">
+              <div class="log-icon li-email">✉️</div>
+              <div style="flex:1;min-width:0;"><div class="log-name">Robert Chen</div><div class="log-preview">Outbound: Annual Policy Review</div></div>
+              <div class="log-meta">8:45 AM</div>
+            </div>
+            <div class="log-row">
+              <div class="log-icon li-call">📞</div>
+              <div style="flex:1;min-width:0;"><div class="log-name">Robert Chen</div><div class="log-preview">Outbound · Missed</div></div>
+              <div class="log-meta">Yesterday</div>
+            </div>
+            <div class="log-row">
+              <div class="log-icon li-sms">💬</div>
+              <div style="flex:1;min-width:0;"><div class="log-name">(515) 555-0188</div><div class="log-preview">Inbound SMS: "New client inquiry"</div></div>
+              <div class="log-meta">Yesterday</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="section-note"><strong>Interaction:</strong> Unified timeline from <code>communications</code> Firestore collection, ordered by <code>created_at</code> desc. Filter chips toggle a client-side OR filter on channel and direction. Clicking an SMS or Email row switches to the correct tab and pre-selects that conversation thread in the left rail. Clicking a voice row opens an inline detail drawer within the Log tab — shows duration, and the existing <code>RecordingPlayer</code> component if <code>recording_url</code> is present.</p>
+  </section>
+
+  <!-- ═══ 4. BACKEND WIRE-UP TABLE ════════════════════════════════ -->
+  <section class="section" id="wiring">
+    <div class="section-header">
+      <div class="num">4</div>
+      <h2>Backend Wire-Up</h2>
+      <span class="badge">Zero New APIs Needed</span>
+    </div>
+
+    <p class="section-note">Every UI element in the new design maps directly to an endpoint or collection that already exists. No new backend work.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>UI Element</th><th>Source</th><th>Method</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>CONNECT — Space list (left rail)</td><td><code>/api/connect/spaces</code></td><td><span class="method get">GET</span></td></tr>
+          <tr><td>CONNECT — Unread badge per space</td><td><code>/api/connect/spaces/:id/read-state</code></td><td><span class="method get">GET</span></td></tr>
+          <tr><td>CONNECT — Space thread (right pane)</td><td><code>/api/connect/spaces/:id/messages?pageSize=50</code></td><td><span class="method get">GET</span></td></tr>
+          <tr><td>CONNECT — 5-second thread polling</td><td>Same endpoint, setInterval</td><td><span class="method get">GET</span></td></tr>
+          <tr><td>CONNECT — Send to space or DM</td><td><code>/api/connect/spaces/:id/messages</code></td><td><span class="method post">POST</span></td></tr>
+          <tr><td>CONNECT — Member count chip</td><td><code>/api/connect/spaces/:id/members</code></td><td><span class="method get">GET</span></td></tr>
+          <tr><td>CONNECT — DM list (left rail)</td><td><code>/api/connect/dms</code></td><td><span class="method get">GET</span></td></tr>
+          <tr><td>CONNECT — DM presence dots</td><td>Firestore <code>users/{email}.last_active</code></td><td>Realtime snapshot</td></tr>
+          <tr><td>CONNECT — Instant Meet button</td><td><code>/api/connect/meet</code></td><td><span class="method post">POST</span></td></tr>
+          <tr><td>CONNECT — Today's meetings list</td><td><code>/api/connect/calendar</code></td><td><span class="method get">GET</span></td></tr>
+          <tr><td>CONNECT — Past meeting transcripts</td><td><code>/api/connect/meet/:meetSpaceName/transcripts</code></td><td><span class="method get">GET</span></td></tr>
+          <tr><td>CONNECT — Past meeting recordings</td><td><code>/api/connect/meet/:meetSpaceName/recordings</code></td><td><span class="method get">GET</span></td></tr>
+          <tr><td>OMNI — Recent calls list</td><td>Firestore <code>communications</code> (channel='voice')</td><td>Realtime query</td></tr>
+          <tr><td>OMNI — Outbound call</td><td>Twilio via existing <code>useTwilioDevice</code> hook</td><td>Twilio SDK</td></tr>
+          <tr><td>OMNI — Inbound ring</td><td>Existing <code>useIncomingCall</code> hook</td><td>Twilio SDK</td></tr>
+          <tr><td>OMNI — Active call overlay</td><td><code>ActiveCallData</code> state + <code>window.__activeTwilioCall</code></td><td>Existing state machine</td></tr>
+          <tr><td>OMNI — SMS conversation list</td><td>Firestore <code>communications</code> grouped by <code>recipient</code></td><td>Realtime query</td></tr>
+          <tr><td>OMNI — SMS thread view</td><td>Firestore <code>communications</code> filtered by phone</td><td>Realtime query</td></tr>
+          <tr><td>OMNI — Send SMS</td><td><code>/api/comms/send-sms</code></td><td><span class="method post">POST</span></td></tr>
+          <tr><td>OMNI — MMS attachment</td><td>Existing <code>useMmsUpload</code> hook → <code>/api/comms/send-sms</code></td><td><span class="method post">POST</span></td></tr>
+          <tr><td>OMNI — Email thread list</td><td>Firestore <code>communications</code> grouped by <code>subject</code></td><td>Realtime query</td></tr>
+          <tr><td>OMNI — Send email</td><td><code>/api/comms/send-email</code></td><td><span class="method post">POST</span></td></tr>
+          <tr><td>OMNI — Unified Log timeline</td><td>Firestore <code>communications</code> orderBy created_at desc</td><td>Realtime query</td></tr>
+          <tr><td>OMNI — Log filter chips</td><td>Client-side filter on in-memory docs</td><td>No API call</td></tr>
+          <tr><td>OMNI — View Client link</td><td>Router push to <code>/clients/{client_id}</code></td><td>Navigation</td></tr>
+          <tr><td>OMNI — Call recording player</td><td>Firestore doc <code>recording_url</code> + existing <code>RecordingPlayer</code></td><td>Existing component</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ═══ 5. INTERACTION SPEC ══════════════════════════════════════ -->
+  <section class="section" id="interaction">
+    <div class="section-header">
+      <div class="num">5</div>
+      <h2>Interaction Spec</h2>
+      <span class="badge">UX Rules</span>
+    </div>
+
+    <ul class="spec-list">
+      <li><strong>Enter sends</strong> in all compose inputs (Space, DM, SMS, Email). Shift+Enter inserts a line break.</li>
+      <li><strong>Esc closes the panel.</strong> Keyboard listener on the slide-out root. Closes CONNECT or OMNI, returns focus to portal content.</li>
+      <li><strong>Push-not-overlay on desktop.</strong> Portal content shifts right via <code>pr-[360px]</code> (1024-1399px) or <code>pr-[460px]</code> (≥1400px). Mobile uses full-screen overlay with a dark backdrop. Behavior is already correct in both panels — preserve it exactly.</li>
+      <li><strong>2-pane: left rail is always visible on desktop.</strong> Selecting a Space, DM, or conversation does NOT replace the list. On mobile (full-screen overlay), the left rail slides away and a back button appears in the thread header.</li>
+      <li><strong>Log row click → jump to conversation.</strong> Clicking an SMS or Email row in the Log tab sets the active tab and pre-selects that thread in the left rail. Clicking a voice row opens an inline detail drawer within the Log tab (no tab switch).</li>
+      <li><strong>View Client chip → client detail.</strong> Any thread with a known <code>client_id</code> shows a "View Client →" link that navigates to <code>/clients/{clientId}</code>. Navigating closes the slide-out.</li>
+      <li><strong>Panel title contextualizes to active content.</strong> When a Space is open: title shows "#team-rpi". When nothing selected: title shows "CONNECT". Same pattern in OMNI: "Mary Johnson" when a thread is open, "OMNI" at rest.</li>
+      <li><strong>Inbound call float is always mounted.</strong> <code>InboundCallCard</code> renders at the portal root level — outside both slide-outs — so the ring card appears over any open panel. Behavior unchanged; only the visual is rebuilt.</li>
+      <li><strong>Active call = full-screen takeover.</strong> Once answered, <code>ActiveCallScreen</code> overlays the portal. Both slide-outs are hidden. Call end restores prior view. State machine unchanged; visual rebuilt.</li>
+    </ul>
+  </section>
+
+  <!-- ═══ 6. OUT OF SCOPE ══════════════════════════════════════════ -->
+  <section class="section" id="oos">
+    <div class="section-header">
+      <div class="num">6</div>
+      <h2>Out of Scope — V1</h2>
+      <span class="badge">Deferred to V2</span>
+    </div>
+
+    <p class="section-note">These are explicitly deferred. None block the V1 rebuild.</p>
+
+    <div class="oos-grid">
+      <div class="oos-item"><span class="oos-no">✗</span><span class="oos-text">Typing indicators in Spaces or DMs (requires WebSocket or push channel)</span></div>
+      <div class="oos-item"><span class="oos-no">✗</span><span class="oos-text">Message edit / delete in CONNECT (Google Chat API supports it, CONNECT V2)</span></div>
+      <div class="oos-item"><span class="oos-no">✗</span><span class="oos-text">Thread/reply nesting within a Space (Google Chat thread model, CONNECT V2)</span></div>
+      <div class="oos-item"><span class="oos-no">✗</span><span class="oos-text">File attachments in CONNECT (Drive file picker, CONNECT V2)</span></div>
+      <div class="oos-item"><span class="oos-no">✗</span><span class="oos-text">Read-receipt write-back to <code>/spaces/:id/read-state</code> (backend placeholder only)</span></div>
+      <div class="oos-item"><span class="oos-no">✗</span><span class="oos-text">SMS group messaging (multi-recipient threads, OMNI V2)</span></div>
+      <div class="oos-item"><span class="oos-no">✗</span><span class="oos-text">HTML rich-text email composer (OMNI V2 — V1 uses plaintext)</span></div>
+      <div class="oos-item"><span class="oos-no">✗</span><span class="oos-text">Meet transcript viewer (conferenceRecord linkage deferred, connect.ts:486-488)</span></div>
+      <div class="oos-item"><span class="oos-no">✗</span><span class="oos-text">Cmd+K quick-switcher across spaces and DMs (Sprint 11+ keyboard layer)</span></div>
+    </div>
+  </section>
+
+  <!-- ═══ 7. SPRINT PLAN ═══════════════════════════════════════════ -->
+  <section class="section" id="sprint">
+    <div class="section-header">
+      <div class="num">7</div>
+      <h2>Sprint Plan</h2>
+      <span class="badge">6 Tickets · ~20h · 3 Parallel RONINs</span>
+    </div>
+
+    <div class="callout">
+      <strong>Parallel safety:</strong> TKO-UX-001 through TKO-UX-004 (CONNECT) are fully parallel-safe with TKO-UX-005 and TKO-UX-006 (OMNI) — zero overlapping files between the two groups. The only contention is that TKO-UX-005 depends on the shared push hook created in TKO-UX-001. Resolve by merging TKO-UX-001 first, or branching TKO-UX-005 off TKO-UX-001.
+    </div>
+
+    <!-- TKO-UX-001 -->
+    <div class="ticket-card">
+      <div class="t-head">
+        <span class="t-id">TKO-UX-001</span>
+        <span class="t-title">CONNECT slide-out shell rebuild</span>
+        <span class="t-meta">3–4h &nbsp;<span class="parallel-safe">✓ parallel-safe</span></span>
+      </div>
+      <p>Tear down the ConnectPanel.tsx god-file. Rebuild the slide-out chrome: panel container, 3-tab header (Spaces · DMs · Meet), responsive push-padding hook, sidebar trigger button. This is the foundation shell — TKO-UX-002/003/004 slot their tab components into it.</p>
+      <div class="t-sec">Files to Rip Out</div>
+      <ul>
+        <li><code>packages/ui/src/modules/ConnectPanel.tsx</code> — structural teardown. Keep: avatar helpers, <code>computePresence()</code>, <code>ChannelChatView</code> thread rendering logic. Delete: <code>ChannelRow</code>, <code>ChannelsTab</code>, <code>PersonCard</code>, <code>PeopleTab</code>, <code>MeetTab</code>, old tab routing switch, any <code>MOCK_*</code> constants.</li>
+      </ul>
+      <div class="t-sec">New Files</div>
+      <ul>
+        <li><code>packages/ui/src/modules/ConnectPanel/index.tsx</code> — new shell (replaces ConnectPanel.tsx)</li>
+        <li><code>packages/ui/src/modules/ConnectPanel/ConnectSpacesTab.tsx</code> — placeholder import for TKO-UX-002</li>
+        <li><code>packages/ui/src/modules/ConnectPanel/ConnectDMsTab.tsx</code> — placeholder for TKO-UX-003</li>
+        <li><code>packages/ui/src/modules/ConnectPanel/ConnectMeetTab.tsx</code> — placeholder for TKO-UX-004</li>
+        <li><code>packages/ui/src/hooks/usePanelPush.ts</code> — shared push-padding hook consumed by both CONNECT and OMNI</li>
+      </ul>
+      <div class="t-sec">Acceptance</div>
+      <ul>
+        <li>All 3 portals render the CONNECT sidebar button</li>
+        <li>Panel opens and closes with push animation on desktop, overlay on mobile</li>
+        <li>3 tabs render with correct labels: Spaces, DMs, Meet</li>
+        <li>Tab switching works; each renders a placeholder until sub-tickets deliver content</li>
+        <li><code>npm run build</code> passes across all 3 portals</li>
+      </ul>
+    </div>
+
+    <!-- TKO-UX-002 -->
+    <div class="ticket-card">
+      <div class="t-head">
+        <span class="t-id">TKO-UX-002</span>
+        <span class="t-title">CONNECT Spaces tab — 2-pane thread UI</span>
+        <span class="t-meta">4–5h &nbsp;<span class="parallel-safe">✓ parallel-safe</span></span>
+      </div>
+      <p>Build the full 2-pane Spaces tab: left rail (space list with unread badges, search input) and right pane (thread + compose bar). Wire all 4 Google Chat read/write endpoints. Reuse the existing <code>ChannelChatView</code> thread rendering logic — the rendering is sound, only the framing is broken.</p>
+      <div class="t-sec">Files</div>
+      <ul>
+        <li><code>packages/ui/src/modules/ConnectPanel/ConnectSpacesTab.tsx</code> — full implementation</li>
+      </ul>
+      <div class="t-sec">Rip Out</div>
+      <ul>
+        <li>The old <code>ChannelsTab</code> function (ConnectPanel.tsx:421-623) — delete entirely, do not port</li>
+        <li>The <code>ChannelRow</code> component (ConnectPanel.tsx:160-195) — delete, replace with new <code>m-row</code> pattern</li>
+      </ul>
+      <div class="t-sec">Acceptance</div>
+      <ul>
+        <li>Space list renders from <code>GET /api/connect/spaces</code></li>
+        <li>Unread badges appear only when <code>GET /spaces/:id/read-state</code> confirms unread</li>
+        <li>Thread loads on space select, polls every 5 seconds</li>
+        <li>Compose sends via <code>POST /spaces/:id/messages</code>; Enter triggers send</li>
+        <li>Graceful empty state when Google Chat authorization is not yet complete</li>
+        <li><code>npm run build</code> passes</li>
+      </ul>
+    </div>
+
+    <!-- TKO-UX-003 -->
+    <div class="ticket-card">
+      <div class="t-head">
+        <span class="t-id">TKO-UX-003</span>
+        <span class="t-title">CONNECT DMs tab — 2-pane DM thread UI with presence</span>
+        <span class="t-meta">2–3h &nbsp;<span class="parallel-safe">✓ parallel-safe</span></span>
+      </div>
+      <p>Build the DMs tab. Left rail shows DM conversations from <code>GET /api/connect/dms</code> with presence dots. Right pane reuses the same SpacesTab thread + compose component since DM Spaces share the Chat API surface.</p>
+      <div class="t-sec">Files</div>
+      <ul>
+        <li><code>packages/ui/src/modules/ConnectPanel/ConnectDMsTab.tsx</code></li>
+      </ul>
+      <div class="t-sec">Rip Out</div>
+      <ul>
+        <li>Old <code>PeopleTab</code> and <code>PersonCard</code> functions (ConnectPanel.tsx:630-760) — delete entirely</li>
+        <li>The <code>opacity-0 group-hover:opacity-100</code> hover-only action pattern — gone permanently</li>
+      </ul>
+      <div class="t-sec">Acceptance</div>
+      <ul>
+        <li>DM list renders from <code>GET /api/connect/dms</code></li>
+        <li>Presence dots (online / away / offline) computed from Firestore <code>last_active</code></li>
+        <li>Thread renders and compose works; same polling as Spaces tab</li>
+        <li>Actions are always visible — no hover dependency</li>
+        <li><code>npm run build</code> passes</li>
+      </ul>
+    </div>
+
+    <!-- TKO-UX-004 -->
+    <div class="ticket-card">
+      <div class="t-head">
+        <span class="t-id">TKO-UX-004</span>
+        <span class="t-title">CONNECT Meet tab — instant meet CTA + calendar list + transcript drawer</span>
+        <span class="t-meta">2–3h &nbsp;<span class="parallel-safe">✓ parallel-safe</span></span>
+      </div>
+      <p>Build the Meet tab: instant meet CTA, today's calendar list, and past meeting rows with click-to-expand transcript and recording drawers.</p>
+      <div class="t-sec">Files</div>
+      <ul>
+        <li><code>packages/ui/src/modules/ConnectPanel/ConnectMeetTab.tsx</code></li>
+      </ul>
+      <div class="t-sec">Rip Out</div>
+      <ul>
+        <li>Whatever remains of the old <code>MeetTab</code> in ConnectPanel.tsx — delete</li>
+      </ul>
+      <div class="t-sec">Acceptance</div>
+      <ul>
+        <li>"Start Instant Meet" calls <code>POST /api/connect/meet</code> and opens returned <code>meetLink</code> in a new tab</li>
+        <li>Meeting list renders from <code>GET /api/connect/calendar</code></li>
+        <li>Past meeting "View" shows transcript drawer — graceful "Not available yet" state when conferenceRecord linkage is deferred</li>
+        <li><code>npm run build</code> passes</li>
+      </ul>
+    </div>
+
+    <!-- TKO-UX-005 -->
+    <div class="ticket-card">
+      <div class="t-head">
+        <span class="t-id">TKO-UX-005</span>
+        <span class="t-title">OMNI shell rebuild + Call tab + ActiveCallScreen + InboundCallCard visuals</span>
+        <span class="t-meta">4–5h &nbsp;<span class="parallel-safe">✓ parallel-safe (with CONNECT tickets)</span></span>
+      </div>
+      <p>Tear down <code>CommsModule/index.tsx</code>. Rebuild the OMNI slide-out chrome (4 tabs: Call · Text · Email · Log). Build the Call tab with a recent-calls list above the dialer. Rebuild <code>ActiveCallScreen</code> and <code>InboundCallCard</code> visually — the Twilio state machine stays exactly as-is.</p>
+      <div class="t-sec">Files to Rip Out / Rebuild</div>
+      <ul>
+        <li><code>packages/ui/src/modules/CommsModule/index.tsx</code> — full rebuild. Keep: all hook imports (<code>useIncomingCall</code>, <code>useTwilioDevice</code>), all callback handlers (<code>handleAnswer</code>, <code>handleDecline</code>, <code>handleEndCall</code>), all state machine logic. Delete: old tab chrome and tab routing switch.</li>
+        <li><code>packages/ui/src/modules/CommsModule/ActiveCallScreen.tsx</code> — visual rebuild only. Keep: <code>ActiveCallData</code> type, <code>useCallTimer</code> hook, DTMF key list, all callbacks. Delete: old layout divs. Replace with dark navy full-screen design — centered timer, mute / end / keypad controls at the bottom.</li>
+        <li><code>packages/ui/src/modules/CommsModule/InboundCallCard.tsx</code> — visual rebuild only. Keep: <code>InboundCall</code> type, <code>RingPulse</code> animation (lines 25-39), all callbacks. Delete: old card layout. Replace with larger, more confident card.</li>
+      </ul>
+      <div class="t-sec">New Files</div>
+      <ul>
+        <li><code>packages/ui/src/modules/CommsModule/OmniShell.tsx</code> — OMNI slide-out container</li>
+        <li><code>packages/ui/src/modules/CommsModule/OmniCallTab.tsx</code> — recent calls list + dialer</li>
+      </ul>
+      <div class="t-sec">Contention Note</div>
+      <ul>
+        <li><span class="contention-flag">⚠ Mild contention:</span> TKO-UX-001 owns <code>usePanelPush.ts</code>. TKO-UX-005 must import it, not recreate it. Merge order: TKO-UX-001 PR must land before TKO-UX-005 PR, or TKO-UX-005 branches off TKO-UX-001.</li>
+      </ul>
+      <div class="t-sec">Acceptance</div>
+      <ul>
+        <li>OMNI slide-out renders with 4 tabs (Call · Text · Email · Log)</li>
+        <li>Call tab: recent calls list from Firestore + working dialer. Tap row pre-fills number.</li>
+        <li>Outbound call initiates via Twilio. Inbound ring card shows and is answerable.</li>
+        <li>ActiveCallScreen: rebuilt visual. Mute, DTMF digits, and end-call all work.</li>
+        <li>InboundCallCard: rebuilt visual. Answer and decline fire the correct hook callbacks.</li>
+        <li><code>npm run build</code> passes</li>
+      </ul>
+    </div>
+
+    <!-- TKO-UX-006 -->
+    <div class="ticket-card">
+      <div class="t-head">
+        <span class="t-id">TKO-UX-006</span>
+        <span class="t-title">OMNI Text + Email + Log tabs — 2-pane threads + unified log</span>
+        <span class="t-meta">4–5h &nbsp;<span class="parallel-safe">✓ parallel-safe (with CONNECT tickets)</span></span>
+      </div>
+      <p>Build the Text, Email, and Log tabs. Text and Email each get a 2-pane conversation layout. Log gets filter chips and row-click navigation to the correct tab and thread.</p>
+      <div class="t-sec">Files to Rip Out</div>
+      <ul>
+        <li><code>packages/ui/src/modules/CommsModule/CommsCompose.tsx</code> — delete the full-panel compose flow. Keep: <code>ClientResult</code> type export, template constants (for template picker in V2), <code>useMmsUpload</code> hook usage. Replace with inline compose bars at the bottom of thread panes.</li>
+        <li><code>packages/ui/src/modules/CommsModule/CommsFeed.tsx</code> — delete the old feed list view. Replace with <code>OmniLogTab</code> using the same Firestore query, rebuilt visual, and new row-click navigation behavior.</li>
+      </ul>
+      <div class="t-sec">New Files</div>
+      <ul>
+        <li><code>packages/ui/src/modules/CommsModule/OmniTextTab.tsx</code></li>
+        <li><code>packages/ui/src/modules/CommsModule/OmniEmailTab.tsx</code></li>
+        <li><code>packages/ui/src/modules/CommsModule/OmniLogTab.tsx</code></li>
+        <li><code>packages/ui/src/modules/CommsModule/ConversationThread.tsx</code> — shared bubble-style thread renderer used by both Text and Email tabs</li>
+      </ul>
+      <div class="t-sec">Acceptance</div>
+      <ul>
+        <li>Text tab: left rail shows SMS conversations grouped by phone, sorted by most recent. Thread renders inbound left and outbound right. Compose sends via <code>POST /api/comms/send-sms</code>. Enter sends. MMS icon triggers <code>useMmsUpload</code>.</li>
+        <li>Email tab: same 2-pane pattern grouped by subject. Compose sends via <code>POST /api/comms/send-email</code>.</li>
+        <li>Log tab: unified timeline with filter chips (All / Calls / SMS / Email / Inbound / Outbound). Click SMS/Email row → switches to correct tab and selects that conversation. Click voice row → opens inline detail drawer with recording player.</li>
+        <li>"View Client →" chip appears on all threads where <code>client_id</code> is known. Navigation to <code>/clients/{clientId}</code> works and closes the panel.</li>
+        <li><code>npm run build</code> passes</li>
+      </ul>
+    </div>
+
+    <!-- Summary table -->
+    <div class="table-wrap" style="margin-top:2rem;">
+      <table>
+        <thead>
+          <tr><th>Ticket</th><th>Est. Hours</th><th>Primary Deletes</th><th>Parallel Safe?</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>TKO-UX-001</strong> — CONNECT shell</td><td>3–4h</td><td>ConnectPanel.tsx (structural teardown)</td><td>✓ Yes — foundation for 002-004</td></tr>
+          <tr><td><strong>TKO-UX-002</strong> — CONNECT Spaces tab</td><td>4–5h</td><td>ChannelsTab, ChannelRow</td><td>✓ Yes</td></tr>
+          <tr><td><strong>TKO-UX-003</strong> — CONNECT DMs tab</td><td>2–3h</td><td>PeopleTab, PersonCard</td><td>✓ Yes</td></tr>
+          <tr><td><strong>TKO-UX-004</strong> — CONNECT Meet tab</td><td>2–3h</td><td>MeetTab remnants</td><td>✓ Yes</td></tr>
+          <tr><td><strong>TKO-UX-005</strong> — OMNI shell + Call + visual rebuild</td><td>4–5h</td><td>CommsModule/index.tsx, ActiveCallScreen (visual), InboundCallCard (visual)</td><td>✓ Yes — needs TKO-UX-001 first</td></tr>
+          <tr><td><strong>TKO-UX-006</strong> — OMNI Text + Email + Log</td><td>4–5h</td><td>CommsCompose.tsx, CommsFeed.tsx</td><td>✓ Yes</td></tr>
+          <tr><td style="font-family:Poppins,sans-serif;font-weight:800;">TOTAL</td><td style="font-weight:800;">19–25h</td><td></td><td>3 RONINs → ~3–4h wall-clock</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <p>Authored by <strong>TAIKO</strong> · Comms Infrastructure Warrior · 2026-04-13</p>
+    <p style="margin-top:0.4rem;">Overnight build. RONIN ships before sunrise. <strong>#RunningOurOwnRACE</strong></p>
+  </div>
+
+</main>
+</body>
+</html>
