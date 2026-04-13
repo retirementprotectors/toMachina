@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RPI Brand Style Guide v3.0 — MUSASHI Authoritative</title>
+<style>
+  :root {
+    /* RPI Brand Palette — MUSASHI authoritative */
+    --rpi-289: #0a2240;    /* Pantone 289 C — primary deep navy */
+    --rpi-283: #92c0e9;    /* Pantone 283 C — accent light blue */
+    --rpi-medium: #12416b; /* Medium navy */
+    --rpi-pale: #abd2ef;   /* Pale blue */
+    --rpi-royal: #23558c;  /* Royal blue */
+    --rpi-mist: #cae7f9;   /* Mist blue */
+    /* Editorial accents (NOT brand — CMO doc only) */
+    --bg: #0a0e17; --card: #111827; --border: #1e293b;
+    --text: #e2e8f0; --muted: #94a3b8; --gold: #d4a44c;
+    --green: #22c55e;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Poppins', -apple-system, BlinkMacSystemFont, system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+  .header { background: linear-gradient(135deg, #05101f 0%, #0a2240 50%, #12416b 100%); padding: 56px 32px 44px; text-align: center; border-bottom: 1px solid var(--border); }
+  .header .label { font-size: 0.72rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--rpi-283); margin-bottom: 12px; }
+  .header h1 { font-size: 2.6rem; font-weight: 800; color: white; margin-bottom: 10px; }
+  .header .sub { color: var(--rpi-pale); max-width: 720px; margin: 0 auto; font-size: 1.05rem; }
+  .header .meta { color: var(--rpi-pale); font-size: 0.85rem; margin-top: 1rem; opacity: 0.85; }
+  .content { max-width: 960px; margin: 0 auto; padding: 40px 32px; }
+  h2 { font-size: 1.6rem; color: var(--rpi-283); margin: 2.5rem 0 1rem; border-left: 4px solid var(--rpi-283); padding-left: 0.75rem; font-weight: 700; }
+  h3 { font-size: 1.2rem; color: var(--rpi-pale); margin: 1.5rem 0 0.75rem; font-weight: 600; }
+  h4 { font-size: 1rem; color: var(--green); margin: 1rem 0 0.5rem; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin: 1rem 0; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.95rem; }
+  th, td { padding: 0.6rem 0.85rem; border: 1px solid var(--border); text-align: left; }
+  th { background: #0f1827; color: var(--rpi-283); font-weight: 700; }
+  code { background: #1c2128; padding: 2px 7px; border-radius: 4px; font-size: 0.88em; color: var(--rpi-283); }
+  .swatches { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin: 1rem 0; }
+  .swatch { border-radius: 6px; overflow: hidden; border: 1px solid var(--border); }
+  .swatch .color { height: 100px; display: flex; align-items: flex-end; padding: 10px 14px; color: white; font-size: 0.78rem; font-weight: 700; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+  .swatch .color.dark { color: #0a2240; text-shadow: none; }
+  .swatch .meta-block { background: #0f1827; padding: 10px 14px; font-size: 0.78rem; line-height: 1.5; }
+  .swatch .meta-block strong { color: var(--text); display: block; margin-bottom: 4px; }
+  ul, ol { margin: 0.5rem 0 0.75rem 1.5rem; }
+  li { margin: 0.35rem 0; }
+  .rule { background: rgba(34, 197, 94, 0.08); border-left: 4px solid var(--green); padding: 0.85rem 1.15rem; border-radius: 4px; margin: 0.75rem 0; }
+  .rule strong { color: var(--green); }
+  .wrong { background: rgba(248, 81, 73, 0.08); border-left: 4px solid #f85149; padding: 0.85rem 1.15rem; border-radius: 4px; margin: 0.75rem 0; color: var(--muted); }
+  .wrong strong { color: #f85149; }
+  .authoritative { background: rgba(146, 192, 233, 0.1); border-left: 4px solid var(--rpi-283); padding: 1rem 1.25rem; border-radius: 4px; margin: 1rem 0; }
+  .authoritative strong { color: var(--rpi-283); }
+  .voice-card { background: var(--card); padding: 1rem 1.25rem; border-radius: 6px; border: 1px solid var(--border); margin: 0.5rem 0; }
+  .voice-card .context { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); font-weight: 700; margin-bottom: 0.25rem; }
+  .voice-card blockquote { font-style: italic; border-left: 2px solid var(--rpi-283); padding-left: 0.75rem; margin: 0.35rem 0; color: var(--rpi-pale); }
+  .changelog { background: rgba(212, 164, 76, 0.08); border-left: 4px solid var(--gold); padding: 1rem 1.25rem; border-radius: 4px; margin: 1rem 0; }
+  .changelog strong { color: var(--gold); }
+  .footer { max-width: 960px; margin: 3rem auto 1rem; padding: 1rem 2rem; border-top: 1px solid var(--border); color: var(--muted); font-size: 0.85rem; text-align: center; }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;600&family=Poppins:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="header">
+  <div class="label">CMO · Brand Authority · v3.0 · MUSASHI AUTHORITATIVE</div>
+  <h1>RPI Brand Style Guide</h1>
+  <div class="sub">The brand standard for Retirement Protectors, Inc. Owned and maintained by MUSASHI, CMO. JDM is the final call.</div>
+  <div class="meta">Authority: MUSASHI, ARTxBLADE, CMO · Locked: 2026-04-13</div>
+</div>
+
+<div class="content">
+
+  <div class="changelog">
+    <strong>v3.0 — MUSASHI Authoritative (2026-04-13)</strong><br>
+    JDM transferred brand authority to MUSASHI and fired the prior external design firm on 2026-04-13. The foundational standards produced by that firm (colors, typography, logo rules) are retained — good work, no reason to reinvent — but the brand is no longer an outside deliverable. MUSASHI owns it.
+    <br><br>
+    <strong>What changed from v2.0:</strong>
+    <ul style="margin-top: 0.5rem;">
+      <li><strong>Authority:</strong> external firm demoted from "authoritative" to "starting point." MUSASHI is the authority.</li>
+      <li><strong>Tagline:</strong> <span style="color: var(--green);">We're Your People™</span> is THE tagline. "Guiding you toward your future" is DEAD.</li>
+      <li><strong>Voice samples:</strong> polished-advisor lines retired. MUSASHI-authored samples reflect actual RPI voice.</li>
+      <li><strong>Colors, typography, logo rules:</strong> retained as foundation, now owned here.</li>
+    </ul>
+  </div>
+
+  <h2>1. Brand Voice</h2>
+  <div class="authoritative">
+    Warm + Professional. "We're Your People" energy. We talk to families across the kitchen table, not corporate boardrooms. Direct when it matters. Honest about the catch. Never hype words. Clear beats clever.
+  </div>
+
+  <h3>Writing Style</h3>
+  <table>
+    <tr><th>Attribute</th><th>Rule</th></tr>
+    <tr><td>Client-centric</td><td>Messages emphasize personalization. Commitment to crafting retirement strategies that resonate with each individual.</td></tr>
+    <tr><td>Informative &amp; Engaging</td><td>Content educates about retirement planning. Emphasize early and informed initiatives.</td></tr>
+    <tr><td>Clear &amp; Concise</td><td>Explain complex retirement subjects clearly. Show understanding and care for clients' concerns and aspirations.</td></tr>
+  </table>
+
+  <h3>Tone Guidelines</h3>
+  <table>
+    <tr><th>Attribute</th><th>Rule</th></tr>
+    <tr><td>Educational &amp; Supportive</td><td>Inform with clarity; maintain a nurturing approach.</td></tr>
+    <tr><td>Friendly &amp; Conversational</td><td>Knowledgeable assurance that instills confidence in retirement decisions.</td></tr>
+    <tr><td>Empowering &amp; Encouraging</td><td>Convey encouragement; motivate proactive steps toward retirement goals.</td></tr>
+    <tr><td>Trustworthy &amp; Experienced</td><td>Content conveys expertise and instills trust, positioning RPI as reliable leaders.</td></tr>
+  </table>
+
+  <h3>Voice Samples — MUSASHI-authored canon</h3>
+  <div class="voice-card">
+    <div class="context">Sample 1 — Retirement</div>
+    <blockquote>"You've built something. We help you keep it, grow it, and pass it on — with a plan that fits the life you actually live. We're Your People™."</blockquote>
+  </div>
+  <div class="voice-card">
+    <div class="context">Sample 2 — Medicare</div>
+    <blockquote>"Medicare isn't supposed to be a test. Sit with us for an hour and we'll walk you through what's yours, what's missing, and what it'll cost — no pitch, no pressure. We're Your People™."</blockquote>
+  </div>
+  <div class="voice-card">
+    <div class="context">Sample 3 — Legacy</div>
+    <blockquote>"Your legacy is more than what's in the accounts. It's the way your family remembers the choices you made. We help you make them count. We're Your People™."</blockquote>
+  </div>
+
+  <h2>3. Messaging Framework</h2>
+  <table>
+    <tr><th>Element</th><th>Guidance</th></tr>
+    <tr><td>Key Messages</td><td>Equip individuals with tools and knowledge for informed choices. Guide through personalized Medicare planning and financial security solutions — life insurance, annuities — for a stable, worry-free retirement.</td></tr>
+    <tr><td>Unique Value Proposition (UVP)</td><td>RPI is your personalized guide to a more secure and rewarding retirement. Years of expertise + commitment to your future. Tailored plans focus on <strong>health, wealth, and legacy</strong>.</td></tr>
+    <tr><td>Brand Story</td><td>Inspired by the need for tailored retirement planning in a complex financial world. RPI emerged as a beacon of guidance and reliability.</td></tr>
+  </table>
+
+  <h2>4. Editorial Guidelines</h2>
+  <table>
+    <tr><th>Standard</th><th>Rule</th></tr>
+    <tr><td>Content Diversity</td><td>Articles, seminars, interactive webinars, personalized discovery sessions. Online meetings, at-home visits, phone consultations.</td></tr>
+    <tr><td>Publication Standards</td><td>Highest accuracy, clarity, and consistency. Affirm integrity and authority.</td></tr>
+    <tr><td>Trademark Adherence</td><td>Full title: <strong>"Retirement Protectors, Inc."</strong> Occasionally abbreviated: <strong>"RPI"</strong>.</td></tr>
+    <tr><td>Language</td><td><strong>US English</strong> strictly. Reflects operating standards and client base.</td></tr>
+  </table>
+
+  <h2>5. Tagline</h2>
+  <div class="authoritative" style="border-left-color: var(--green); background: rgba(34,197,94,0.1);">
+    <strong style="color: var(--green);">THE tagline:</strong> <span style="font-size: 1.25rem; font-weight: 700;">We're Your People™</span><br>
+    <span style="color: var(--muted); font-size: 0.9rem;">JDM-locked 2026-04-13. Use on every client-facing piece — brochures, MYST.IRL, website, email footers, portal taglines, print handouts, F2F kits, social, video.</span>
+  </div>
+
+  <div class="wrong">
+    <strong>DEAD:</strong> "Guiding you toward your future." JDM killed it 2026-04-13. Do NOT use anywhere.
+  </div>
+
+  <h3>Supporting Marks</h3>
+  <div class="card">
+    <ul>
+      <li><strong>MYST — Meet Your Service Team</strong> — the team-page concept. Use for the human + AI crew service-page layout.</li>
+      <li><strong>#RunningOurOwnRACE</strong> — internal/culture only. Do NOT use on client-facing materials.</li>
+    </ul>
+  </div>
+
+  <h2>6. Color Palette</h2>
+  <div class="authoritative">
+    <strong>When to use what:</strong> Use CMYK / Pantone on <em>print</em> (business cards, stationery, packaging uses Pantone for best results). Use RGB / HEX on <em>electronic screens</em> (webpages, social, video).
+  </div>
+
+  <h3>Primary Palette</h3>
+  <div class="swatches">
+    <div class="swatch">
+      <div class="color" style="background: #0a2240;">Pantone 289 C</div>
+      <div class="meta-block"><strong>Pantone 289 C</strong>CMYK 99, 84, 45, 51<br>RGB 10, 34, 64<br>HEX <code>#0a2240</code></div>
+    </div>
+    <div class="swatch">
+      <div class="color dark" style="background: #92c0e9;">Pantone 283 C</div>
+      <div class="meta-block"><strong>Pantone 283 C</strong>CMYK 40, 14, 0, 0<br>RGB 146, 192, 233<br>HEX <code>#92c0e9</code></div>
+    </div>
+  </div>
+
+  <h3>Extended Palette</h3>
+  <div class="swatches">
+    <div class="swatch">
+      <div class="color" style="background: #12416b;">Medium Navy</div>
+      <div class="meta-block">CMYK 100, 78, 33, 20<br>RGB 18, 65, 107<br>HEX <code>#12416b</code></div>
+    </div>
+    <div class="swatch">
+      <div class="color dark" style="background: #abd2ef;">Pale Blue</div>
+      <div class="meta-block">CMYK 31, 7, 0, 0<br>RGB 171, 210, 239<br>HEX <code>#abd2ef</code></div>
+    </div>
+    <div class="swatch">
+      <div class="color" style="background: #23558c;">Royal Blue</div>
+      <div class="meta-block">CMYK 93, 72, 20, 5<br>RGB 35, 85, 140<br>HEX <code>#23558c</code></div>
+    </div>
+    <div class="swatch">
+      <div class="color dark" style="background: #cae7f9;">Mist Blue</div>
+      <div class="meta-block">CMYK 19, 2, 0, 0<br>RGB 202, 231, 249<br>HEX <code>#cae7f9</code></div>
+    </div>
+  </div>
+
+  <div class="wrong"><strong>Superseded:</strong> v1.0's "RPI Blue" (#4a7ab5), "RPI Navy" (#1e3a5f), "MUSASHI Gold" (#d4a44c), and division colors (green/purple) are not in the brand palette. Do NOT use in client-facing materials.</div>
+
+  <h2>7. Typography</h2>
+  <table>
+    <tr><th>Font</th><th>Role</th><th>Weights</th><th>Usage</th></tr>
+    <tr><td><strong>Poppins</strong></td><td>Corporate primary sans-serif</td><td>Light, Regular, Medium, Bold, Black</td><td>Headlines (Bold, UPPER or lowercase), body, all marketing material</td></tr>
+    <tr><td><strong>Mulish</strong></td><td>Secondary sans-serif</td><td>Light, Regular, Medium</td><td>Body text on marketing material</td></tr>
+  </table>
+  <div class="card">
+    <p>Poppins: <a href="https://fonts.google.com/specimen/Poppins" style="color: var(--rpi-283);">fonts.google.com/specimen/Poppins</a></p>
+    <p>Mulish: <a href="https://fonts.google.com/specimen/Mulish" style="color: var(--rpi-283);">fonts.google.com/specimen/Mulish</a></p>
+  </div>
+  <div class="wrong"><strong>Superseded:</strong> v1.0 specified Montserrat + Inter. Replace everywhere with Poppins + Mulish.</div>
+
+  <h2>8. Logo Usage</h2>
+  <div class="authoritative">
+    <strong>Rule:</strong> Use the approved logo variations as-is. Never alter. Black/White only where required. Over dark backgrounds, use the white logo.
+  </div>
+  <div class="wrong">
+    <strong>NEVER:</strong>
+    <ul style="margin-top: 0.5rem;">
+      <li>Rotate or angle the logo — always on a horizontal baseline of 90°.</li>
+      <li>Fade or use transparency settings.</li>
+      <li>Skew or stretch any elements.</li>
+      <li>Apply a stroke or outline.</li>
+      <li>Use unapproved colors.</li>
+      <li>Recreate the logo with another typeface.</li>
+      <li>Add drop shadow or other effects.</li>
+    </ul>
+  </div>
+  <div class="wrong"><strong>NEVER generate, approximate, or "whip up" an RPI logo.</strong> JDM art-directs every logo. Use authorized marks from <code>packages/ui/src/logos/</code> or the Canva Brand Kit only.</div>
+
+  <h3>Safety Area &amp; Minimum Size</h3>
+  <table>
+    <tr><th>Rule</th><th>Spec</th></tr>
+    <tr><td>Safety area (clear space)</td><td>Space equal to a square of half the logo's height (x/2) on all sides.</td></tr>
+    <tr><td>Minimum size — print</td><td>22 mm (0.84 in)</td></tr>
+    <tr><td>Minimum size — screen</td><td>61 px (at 72 dpi)</td></tr>
+    <tr><td>Scaling</td><td>When possible, scale/proportion determined by available space and alignment to layout grid.</td></tr>
+  </table>
+
+  <h2>9. Imagery &amp; Visual Design</h2>
+  <div class="card">
+    <p style="color: var(--muted); font-size: 0.9rem;">For imagery direction: professional photography, warm lighting, authentic (not stock-model) expressions, diverse representation. Illustrations: clean, minimal, flat, consistent line weight. Icons: single family per piece.</p>
+  </div>
+
+  <h2>10. Compliance Slots (MUSASHI-added — retain)</h2>
+  <table>
+    <tr><th>Product Family</th><th>Required Disclosure</th></tr>
+    <tr><td>Medicare (MA, MedSupp, PDP)</td><td>"This agency is not affiliated with Medicare or any other government agency. Reference www.medicare.gov or 1-800-MEDICARE for further information." Carrier-specific notes in a bordered slot at the footer.</td></tr>
+    <tr><td>Securities (Variable Annuity, Investment)</td><td>"Securities and investment advisory services offered through Gradient Securities, LLC, Member FINRA/SIPC."</td></tr>
+    <tr><td>Life Insurance</td><td>State-specific carrier disclosures as required. JDM reviews each piece.</td></tr>
+    <tr><td>Legacy / Estate</td><td>"RPI does not provide legal advice. We coordinate with licensed attorneys in your state."</td></tr>
+    <tr><td>AEP-timed materials</td><td>AEP callout (Oct 15 – Dec 7) where applicable.</td></tr>
+  </table>
+
+  <h2>11. Universal Output Pipeline</h2>
+  <table>
+    <tr><th>Channel</th><th>Format</th><th>Color space</th></tr>
+    <tr><td>Print handout</td><td>PDF letter/tri-fold</td><td>CMYK, 300dpi</td></tr>
+    <tr><td>Packaging</td><td>PDF/source</td><td>Pantone 289 C / 283 C</td></tr>
+    <tr><td>Email attachment</td><td>PDF web-optimized</td><td>RGB, 150dpi</td></tr>
+    <tr><td>Portal download</td><td>PDF web-optimized</td><td>RGB</td></tr>
+    <tr><td>Website / social / video</td><td>Responsive HTML / video</td><td>RGB (HEX)</td></tr>
+    <tr><td>F2F kit</td><td>Printed packet (tri-fold + MYST.IRL)</td><td>CMYK</td></tr>
+  </table>
+
+  <h2>12. Enforcement</h2>
+  <div class="rule"><strong>MUSASHI is the brand authority.</strong> New materials, carveouts, disclosures, channels — all run through <code>#musashi</code>. JDM has final call.</div>
+  <div class="rule"><strong>Say it TO, not ABOUT:</strong> Every tool, interface, and message is addressed directly to the person in front of it.</div>
+  <div class="wrong"><strong>NEVER generate visual assets</strong> (logos, icons, marks, custom SVGs). Use authorized assets only. JDM art-directs.</div>
+
+</div>
+
+<div class="footer">
+  <strong>RPI Brand Style Guide v3.0</strong> · MUSASHI Authoritative · Locked 2026-04-13<br>
+  Brand authority: MUSASHI, ARTxBLADE, CMO · Final call: JDM · Feedback: <code>#musashi</code><br>
+  MUSASHI, ARTxBLADE — The craft serves the brand, not the other way around.<br>
+  Feedback: <code>#musashi</code>
+</div>
+
+</body>
+</html>

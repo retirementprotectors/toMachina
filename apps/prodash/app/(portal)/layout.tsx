@@ -148,8 +148,13 @@ export default function PortalLayout({
       {/* Notifications Module — slide-out panel */}
       <NotificationsModule portal="prodash" open={notificationsOpen} onClose={closeNotifications} />
 
-      {/* VOLTRON — AI Assistant slide-out panel */}
-      <MDJPanel portal="prodash" open={mdjOpen} onClose={closeMdj} />
+      {/* VOLTRON — AI Assistant slide-out panel.
+          ZRD-PLAT-MT belt flag: hide for users with a partner_id claim until
+          MT-014 ships partner-context awareness in the MDJ Agent. Prevents
+          VOLTRON from serving RPI's default-DB data to partner users. */}
+      {!user?.partnerId && (
+        <MDJPanel portal="prodash" open={mdjOpen} onClose={closeMdj} />
+      )}
 
       {/* FORGE Report — screenshot + auto-fill issue tracker */}
       <ReportButton portal="prodashx" />

@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Medicare Basics — Retirement Protectors, Inc.</title>
+<meta name="description" content="Medicare, made simple. Your personal guide to Original Medicare, Medicare Advantage, Part D, and Medigap — from the people who walk beside you.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;600&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --rpi-289: #0a2240;
+    --rpi-283: #92c0e9;
+    --rpi-medium: #12416b;
+    --rpi-pale: #abd2ef;
+    --rpi-royal: #23558c;
+    --rpi-mist: #cae7f9;
+    --ink: #1a1a1a;
+    --ink-soft: #3a4456;
+    --paper: #f4f4f5;
+    --paper-warm: #fafbfc;
+    --rule: #d0dae6;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: var(--paper); color: var(--ink); font-family: 'Mulish', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; line-height: 1.55; }
+  h1, h2, h3, h4, h5 { font-family: 'Poppins', sans-serif; color: var(--rpi-289); line-height: 1.2; letter-spacing: -0.01em; }
+  .page { width: 8.5in; min-height: 11in; background: white; margin: 0.5in auto; padding: 0.6in 0.65in; box-shadow: 0 1px 24px rgba(10,34,64,0.08); position: relative; }
+  .page + .page { margin-top: 1rem; }
+
+  /* Page 1 header */
+  .hero { border-bottom: 3px solid var(--rpi-289); padding-bottom: 18px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; }
+  .hero-left { flex: 1; }
+  .eyebrow { font-family: 'Poppins', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--rpi-medium); margin-bottom: 10px; }
+  .hero h1 { font-size: 44px; font-weight: 800; color: var(--rpi-289); margin-bottom: 6px; letter-spacing: -0.02em; }
+  .hero-tagline { font-family: 'Poppins', sans-serif; font-weight: 500; font-size: 16px; color: var(--ink-soft); }
+  .hero-right { text-align: right; font-size: 10px; color: var(--ink-soft); line-height: 1.6; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+  .rpi-logo { width: 260px; height: auto; display: block; }
+  .hero-tagline-right { display: none; } /* Tagline is now baked into the v2 logo */
+  .hero-url { font-size: 10.5px; color: var(--ink-soft); margin-top: 4px; }
+  .shield { width: 42px; height: auto; vertical-align: middle; }
+  .shield-sm { width: 28px; height: auto; vertical-align: middle; }
+
+  .intro { font-family: 'Poppins', sans-serif; font-weight: 400; font-size: 14.5px; line-height: 1.65; color: var(--ink-soft); margin-bottom: 28px; max-width: 88%; }
+  .intro strong { color: var(--rpi-289); font-weight: 600; }
+
+  /* Steps */
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 28px; }
+  .step { background: var(--paper-warm); border: 1px solid var(--rule); border-left: 4px solid var(--rpi-royal); padding: 16px 16px 14px; border-radius: 4px; }
+  .step-num { font-family: 'Poppins', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--rpi-royal); margin-bottom: 6px; }
+  .step h3 { font-size: 15px; font-weight: 700; color: var(--rpi-289); margin-bottom: 6px; }
+  .step p { font-size: 12.5px; color: var(--ink-soft); line-height: 1.5; }
+
+  /* Parts table */
+  h2 { font-size: 22px; font-weight: 700; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--rule); }
+  .parts-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-bottom: 24px; }
+  .part { padding: 14px 16px; border-radius: 4px; background: var(--paper-warm); border: 1px solid var(--rule); }
+  .part-label { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--rpi-medium); margin-bottom: 4px; }
+  .part h4 { font-size: 16px; font-weight: 700; color: var(--rpi-289); margin-bottom: 8px; }
+  .part p { font-size: 12.5px; color: var(--ink-soft); line-height: 1.55; }
+  .part.accent { background: linear-gradient(180deg, rgba(146,192,233,0.2), rgba(146,192,233,0.05)); border-color: var(--rpi-283); }
+
+  /* Key numbers */
+  .numbers { background: var(--rpi-289); color: white; padding: 22px 24px; border-radius: 6px; margin-bottom: 20px; position: relative; overflow: hidden; }
+  .numbers::before { content: ''; position: absolute; top: -20px; right: -20px; width: 140px; height: 140px; background-image: url('../assets/rpi/rpi-shield-mark.png'); background-size: contain; background-repeat: no-repeat; background-position: right top; opacity: 0.12; pointer-events: none; }
+  .numbers h2 { color: white; border-bottom-color: rgba(255,255,255,0.2); position: relative; z-index: 1; }
+  .numbers .num-grid { position: relative; z-index: 1; }
+  .num-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-top: 12px; }
+  .num { text-align: center; }
+  .num .value { font-family: 'Poppins', sans-serif; font-size: 22px; font-weight: 700; color: white; line-height: 1.1; }
+  .num .label { font-size: 10px; color: var(--rpi-pale); line-height: 1.4; margin-top: 4px; letter-spacing: 0.02em; }
+
+  /* Page 2 — Medigap */
+  .medigap-grid { width: 100%; border-collapse: collapse; font-size: 11.5px; margin-bottom: 20px; }
+  .medigap-grid th, .medigap-grid td { padding: 7px 5px; text-align: center; border: 1px solid var(--rule); }
+  .medigap-grid thead th { background: var(--rpi-289); color: white; font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 11px; letter-spacing: 0.04em; }
+  .medigap-grid tbody td:first-child { text-align: left; padding-left: 10px; font-weight: 500; color: var(--rpi-medium); font-size: 11px; }
+  .medigap-grid .dot { color: var(--rpi-royal); font-weight: 700; }
+  .medigap-grid .partial { color: var(--ink-soft); font-size: 10px; }
+
+  /* AEP callout */
+  .aep { background: linear-gradient(135deg, var(--rpi-medium), var(--rpi-289)); color: white; padding: 18px 22px; border-radius: 6px; margin-bottom: 20px; display: flex; gap: 18px; align-items: center; }
+  .aep .shield { width: 52px; filter: brightness(1.1); flex-shrink: 0; }
+  .aep-text h3 { color: white; font-size: 16px; margin-bottom: 4px; }
+  .aep-text p { font-size: 12px; color: var(--rpi-pale); line-height: 1.5; }
+
+  /* SEP list */
+  .sep { background: var(--paper-warm); border: 1px solid var(--rule); padding: 16px 20px; border-radius: 4px; margin-bottom: 20px; }
+  .sep h3 { font-size: 15px; margin-bottom: 10px; }
+  .sep ul { column-count: 2; column-gap: 24px; list-style: none; font-size: 12.5px; color: var(--ink-soft); }
+  .sep ul li { padding-left: 18px; position: relative; margin-bottom: 5px; break-inside: avoid; }
+  .sep ul li::before { content: '▪'; color: var(--rpi-royal); position: absolute; left: 0; top: 0; }
+
+  /* Footer */
+  .footer { border-top: 2px solid var(--rpi-289); padding-top: 14px; margin-top: 24px; display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; }
+  .footer-left { flex: 1; }
+  .footer-brand { font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 700; color: var(--rpi-289); margin-bottom: 3px; }
+  .footer-tag { font-family: 'Poppins', sans-serif; font-size: 12px; font-weight: 600; color: var(--rpi-royal); margin-bottom: 8px; }
+  .footer-contact { font-size: 11px; color: var(--ink-soft); line-height: 1.7; }
+  .footer-contact strong { color: var(--rpi-289); }
+
+  .compliance { background: #f7f9fc; border: 1px solid var(--rule); padding: 10px 13px; border-radius: 4px; font-size: 9.5px; color: var(--ink-soft); line-height: 1.5; margin-top: 14px; }
+  .compliance strong { color: var(--rpi-medium); }
+
+  /* Preview (non-print) navigation */
+  .preview-nav { position: fixed; top: 10px; right: 10px; background: var(--rpi-289); color: white; padding: 10px 14px; border-radius: 6px; font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 600; box-shadow: 0 2px 12px rgba(0,0,0,0.25); z-index: 1000; }
+  .preview-nav a { color: var(--rpi-pale); text-decoration: none; margin-left: 10px; }
+  .preview-nav a:hover { color: white; }
+
+  /* Print */
+  @media print {
+    body { background: white; }
+    .page { margin: 0; box-shadow: none; width: 100%; min-height: 100vh; page-break-after: always; padding: 0.5in 0.55in; }
+    .page:last-child { page-break-after: auto; }
+    .preview-nav { display: none; }
+    @page { size: letter; margin: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="preview-nav">
+  DRAFT · Medicare Basics v1 · <a href="#p1">P1</a> <a href="#p2">P2</a> <a onclick="window.print()" style="cursor:pointer">Print</a>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- PAGE 1 -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<div class="page" id="p1">
+
+  <div class="hero">
+    <div class="hero-left">
+      <div class="eyebrow">Medicare · Coverage Guide</div>
+      <h1>Medicare, Made Simple.</h1>
+      <div class="hero-tagline">Your personal guide to Medicare — from the people who walk beside you.</div>
+    </div>
+    <div class="hero-right">
+      <img src="../assets/rpi/rpi-logo-v2-color.png" alt="Retirement Protectors, Inc. — We're Your People" class="rpi-logo" />
+      <div class="hero-tagline-right">We're Your People&trade;</div>
+      <div class="hero-url">RetireProtected.com</div>
+    </div>
+  </div>
+
+  <p class="intro">
+    Medicare isn't supposed to be a test. It's a system that protects you in retirement &mdash; but only if you understand what's yours, what's missing, and what it'll cost. <strong>This guide walks you through the three decisions every Medicare-eligible client faces</strong>, plus the numbers that matter this year.
+  </p>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">Step 1</div>
+      <h3>Pick your coverage path</h3>
+      <p>Original Medicare (Parts A + B) OR a Medicare Advantage Plan (Part C, which bundles A+B and usually D).</p>
+    </div>
+    <div class="step">
+      <div class="step-num">Step 2</div>
+      <h3>Fill the gaps</h3>
+      <p>On Original Medicare, consider a Medigap policy to cover what Part A and B don't. (On Advantage, Medigap is not allowed.)</p>
+    </div>
+    <div class="step">
+      <div class="step-num">Step 3</div>
+      <h3>Secure drug coverage</h3>
+      <p>Add a standalone Part D plan, OR confirm your Medicare Advantage plan includes it. Missing this window costs you.</p>
+    </div>
+  </div>
+
+  <h2>The Four Parts of Medicare</h2>
+  <div class="parts-grid">
+    <div class="part">
+      <div class="part-label">Part A</div>
+      <h4>Hospital Insurance</h4>
+      <p>Inpatient hospital stays, skilled nursing, hospice, and some home health care. Most people pay no premium if they or a spouse paid Medicare taxes long enough.</p>
+    </div>
+    <div class="part">
+      <div class="part-label">Part B</div>
+      <h4>Medical Insurance</h4>
+      <p>Doctor visits, outpatient care, preventive services, and medical equipment. Monthly premium applies; can be higher based on income.</p>
+    </div>
+    <div class="part accent">
+      <div class="part-label">Part C</div>
+      <h4>Medicare Advantage</h4>
+      <p>A bundled plan (like an HMO or PPO) offered by a private carrier. Includes Part A + B, usually Part D, and often extras (dental, vision, fitness).</p>
+    </div>
+    <div class="part">
+      <div class="part-label">Part D</div>
+      <h4>Prescription Drug Coverage</h4>
+      <p>Standalone drug plan or bundled with Advantage. Missing your initial enrollment window means a lifetime late-enrollment penalty.</p>
+    </div>
+  </div>
+
+  <div class="numbers">
+    <h2>Key Numbers &mdash; 2026</h2>
+    <div class="num-grid">
+      <div class="num"><div class="value">$1,736</div><div class="label">Part A Deductible<br>per benefit period</div></div>
+      <div class="num"><div class="value">$202.90</div><div class="label">Part B Standard<br>Monthly Premium</div></div>
+      <div class="num"><div class="value">$283</div><div class="label">Part B<br>Annual Deductible</div></div>
+      <div class="num"><div class="value">$434</div><div class="label">Part A Coinsurance<br>Days 61&ndash;90</div></div>
+      <div class="num"><div class="value">$217</div><div class="label">SNF Coinsurance<br>Days 21&ndash;100</div></div>
+    </div>
+    <p style="font-size:10px; color:var(--rpi-pale); margin-top:12px; position:relative; z-index:1;">Source: CMS &mdash; 2026 Medicare Costs &amp; Premiums. Part B premium is standard; higher-income earners pay an IRMAA adjustment &mdash; see reverse side.</p>
+  </div>
+
+  <div class="footer">
+    <div class="footer-left">
+      <div class="footer-brand">Retirement Protectors, Inc.</div>
+      <div class="footer-tag">We're Your People&trade;</div>
+      <div class="footer-contact">
+        <strong>RetireProtected.com</strong> &middot; 515-992-5000 &middot; 877-650-7015 &middot; Service@RetireProtected.com
+      </div>
+    </div>
+    <div style="text-align:right; font-family:'Poppins',sans-serif; font-size:11px; color:var(--ink-soft);">
+      <div>Medicare Basics</div>
+      <div style="color:var(--rpi-medium); font-weight:600;">Page 1 of 2</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- PAGE 2 -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<div class="page" id="p2">
+
+  <div class="hero">
+    <div class="hero-left">
+      <div class="eyebrow">Medicare · Gaps &amp; Enrollment Windows</div>
+      <h1>Filling the Gaps.</h1>
+      <div class="hero-tagline">Medigap policies + enrollment windows that protect what Original Medicare doesn't.</div>
+    </div>
+    <div class="hero-right">
+      <img src="../assets/rpi/rpi-logo-v2-color.png" alt="Retirement Protectors, Inc. — We're Your People" class="rpi-logo" />
+      <div class="hero-tagline-right">We're Your People&trade;</div>
+    </div>
+  </div>
+
+  <h2>Medigap &mdash; Standardized Plans</h2>
+  <p class="intro" style="margin-bottom:16px;">
+    Medigap is sold by private insurers but standardized by the federal government. <strong>Every Plan G sold anywhere in the country covers the same things</strong> &mdash; the only difference between carriers is price. (Plan F is no longer available to new enrollees.)
+  </p>
+
+  <table class="medigap-grid">
+    <thead>
+      <tr>
+        <th style="text-align:left; padding-left:10px;">Benefit</th>
+        <th>A</th><th>B</th><th>C<sup>*</sup></th><th>D</th><th>F<sup>*</sup></th><th>G</th><th>K</th><th>L</th><th>M</th><th>N</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Part A Coinsurance &amp; hospital</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td></tr>
+      <tr><td>Part B Coinsurance / Copayment</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td class="partial">50%</td><td class="partial">75%</td><td class="dot">●</td><td class="dot">●<sup>†</sup></td></tr>
+      <tr><td>Blood (first 3 pints)</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td class="partial">50%</td><td class="partial">75%</td><td class="dot">●</td><td class="dot">●</td></tr>
+      <tr><td>Part A Hospice</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td class="partial">50%</td><td class="partial">75%</td><td class="dot">●</td><td class="dot">●</td></tr>
+      <tr><td>Skilled Nursing Coinsurance</td><td>&mdash;</td><td>&mdash;</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td class="partial">50%</td><td class="partial">75%</td><td class="dot">●</td><td class="dot">●</td></tr>
+      <tr><td>Part A Deductible</td><td>&mdash;</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td class="partial">50%</td><td class="partial">75%</td><td class="partial">50%</td><td class="dot">●</td></tr>
+      <tr><td>Part B Deductible</td><td>&mdash;</td><td>&mdash;</td><td class="dot">●</td><td>&mdash;</td><td class="dot">●</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
+      <tr><td>Part B Excess Charges</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td class="dot">●</td><td class="dot">●</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
+      <tr><td>Foreign Travel Emergency (to plan limits)</td><td>&mdash;</td><td>&mdash;</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td class="dot">●</td><td>&mdash;</td><td>&mdash;</td><td class="dot">●</td><td class="dot">●</td></tr>
+    </tbody>
+  </table>
+  <p style="font-size:10px; color:var(--ink-soft); margin-bottom:18px;"><sup>*</sup> Plans C and F are only available to those who became eligible for Medicare before 1/1/2020. <sup>†</sup> Plan N pays 100% of Part B coinsurance except up to $20 copay for office visits and $50 for ER visits that don't result in inpatient admission.</p>
+
+  <h2>IRMAA &mdash; Income-Related Monthly Adjustment</h2>
+  <p style="font-size:12.5px; color:var(--ink-soft); margin-bottom:10px;">Higher-income earners pay an additional premium (IRMAA) on top of the $202.90 standard Part B premium, plus a Part D adjustment. <strong style="color:var(--rpi-289);">Based on your 2024 MAGI</strong> (Form 1040 line 11 + tax-exempt interest, line 2a).</p>
+  <table class="medigap-grid" style="margin-bottom:14px;">
+    <thead>
+      <tr>
+        <th style="text-align:left; padding-left:10px;">Individual Return</th>
+        <th style="text-align:left;">Joint Return</th>
+        <th style="text-align:left;">Married&nbsp;/&nbsp;Separate</th>
+        <th>Part B Total</th>
+        <th>Part D IRMAA</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>&le;&nbsp;$109,000</td><td>&le;&nbsp;$218,000</td><td>&le;&nbsp;$109,000</td><td><strong>$202.90</strong></td><td>&mdash;</td></tr>
+      <tr><td>$109,001 &ndash; $137,000</td><td>$218,001 &ndash; $274,000</td><td>N/A</td><td>$284.10</td><td>+ $14.50</td></tr>
+      <tr><td>$137,001 &ndash; $171,000</td><td>$274,001 &ndash; $342,000</td><td>N/A</td><td>$405.80</td><td>+ $37.50</td></tr>
+      <tr><td>$171,001 &ndash; $205,000</td><td>$342,001 &ndash; $410,000</td><td>N/A</td><td>$527.50</td><td>+ $60.40</td></tr>
+      <tr><td>$205,001 &ndash; $499,999</td><td>$410,001 &ndash; $749,999</td><td>$109,001 &ndash; $390,999</td><td>$649.20</td><td>+ $83.30</td></tr>
+      <tr><td>&ge;&nbsp;$500,000</td><td>&ge;&nbsp;$750,000</td><td>&ge;&nbsp;$391,000</td><td>$689.90</td><td>+ $91.00</td></tr>
+    </tbody>
+  </table>
+  <p style="font-size:10px; color:var(--ink-soft); margin-bottom:22px;">Part D IRMAA is paid on top of your Part D plan's monthly premium. 2026 amounts are per person. Life events (retirement, loss of income, death of spouse) may qualify you for an IRMAA appeal &mdash; we can walk you through it.</p>
+
+  <div class="aep">
+    <img src="../assets/rpi/rpi-shield-mark.png" alt="" class="shield" />
+    <div class="aep-text">
+      <h3>Annual Enrollment Period (AEP)</h3>
+      <p><strong>Oct 15 &mdash; Dec 7 every year.</strong> The window to join, switch, or drop a Medicare Advantage or Part D plan. Changes take effect January 1. Miss it and you're locked in.</p>
+    </div>
+  </div>
+
+  <div class="sep">
+    <h3>Special Election Periods (SEP) &mdash; when you can change outside AEP</h3>
+    <ul>
+      <li>Turning 65 (Initial Enrollment Period)</li>
+      <li>Qualifying for Extra Help on prescriptions</li>
+      <li>Leaving employer group / creditable coverage</li>
+      <li>Moving outside your plan's coverage area</li>
+      <li>Dual-eligible (Medicare &amp; Medicaid)</li>
+      <li>Your plan earns a 5-star rating</li>
+      <li>Involuntary loss of coverage</li>
+      <li>Qualifying life event (contact us)</li>
+    </ul>
+  </div>
+
+  <div class="footer">
+    <div class="footer-left">
+      <div class="footer-brand">Retirement Protectors, Inc.</div>
+      <div class="footer-tag">We're Your People&trade;</div>
+      <div class="footer-contact">
+        Sit with us for an hour. Bring your questions &mdash; we'll bring the plan.<br>
+        <strong>RetireProtected.com</strong> &middot; 515-992-5000 &middot; 877-650-7015 &middot; Service@RetireProtected.com
+      </div>
+    </div>
+    <div style="text-align:right; font-family:'Poppins',sans-serif; font-size:11px; color:var(--ink-soft);">
+      <div>Medicare Basics</div>
+      <div style="color:var(--rpi-medium); font-weight:600;">Page 2 of 2</div>
+    </div>
+  </div>
+
+  <div class="compliance">
+    <strong>Disclosure.</strong> This agency is not affiliated with Medicare or any other government agency. This material is intended for informational use only. For official information, please reference <strong>www.medicare.gov</strong> or call <strong>1-800-MEDICARE</strong>. Carrier-specific plan details, premiums, and availability vary by state and ZIP code. Contact a licensed Retirement Protectors, Inc. representative for plan comparisons specific to your situation. &copy; 2026 Retirement Protectors, Inc. All rights reserved.
+  </div>
+
+</div>
+
+</body>
+</html>

@@ -1,5 +1,6 @@
 import { Router, type Request, type Response } from 'express'
-import { getFirestore, type Query, type DocumentData } from 'firebase-admin/firestore'
+import { type Query, type DocumentData } from 'firebase-admin/firestore'
+import { getDefaultDb } from '../lib/db.js'
 import { validateWrite } from '../middleware/validate.js'
 import {
   successResponse,
@@ -27,7 +28,7 @@ const COLLECTION = 'campaigns'
 
 campaignRoutes.get('/', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
     const params = getPaginationParams(req)
     if (!params.orderBy) params.orderBy = 'created_at'
 
@@ -46,7 +47,7 @@ campaignRoutes.get('/', async (req: Request, res: Response) => {
 
 campaignRoutes.get('/:id', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
     const id = param(req.params.id)
     const doc = await db.collection(COLLECTION).doc(id).get()
     if (!doc.exists) { res.status(404).json(errorResponse('Campaign not found')); return }
@@ -59,7 +60,7 @@ campaignRoutes.get('/:id', async (req: Request, res: Response) => {
 
 campaignRoutes.get('/:id/templates', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
     const id = param(req.params.id)
     const snap = await db.collection('templates').where('campaign_id', '==', id).get()
     const templates = snap.docs.map((d) => stripInternalFields({ id: d.id, ...d.data() } as Record<string, unknown>))
@@ -134,7 +135,7 @@ const scheduleValidation = validateWrite({
 
 campaignRoutes.post('/:id/schedule', scheduleValidation, async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
     const id = param(req.params.id)
     const now = new Date().toISOString()
     const userEmail = ((req as unknown as Record<string, unknown>).user as Record<string, string> | undefined)?.email || 'api'
@@ -174,7 +175,7 @@ campaignRoutes.post('/:id/schedule', scheduleValidation, async (req: Request, re
  */
 campaignRoutes.post('/:id/duplicate', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
     const id = param(req.params.id)
     const now = new Date().toISOString()
 

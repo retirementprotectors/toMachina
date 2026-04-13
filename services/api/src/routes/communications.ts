@@ -1,5 +1,6 @@
 import { Router, type Request, type Response } from 'express'
-import { getFirestore, type Query, type DocumentData } from 'firebase-admin/firestore'
+import { type Query, type DocumentData } from 'firebase-admin/firestore'
+import { getDb } from '../lib/db.js'
 import {
   successResponse,
   errorResponse,
@@ -15,7 +16,7 @@ const COLLECTION = 'communications'
 
 communicationRoutes.get('/', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const params = getPaginationParams(req)
     if (!params.orderBy) params.orderBy = 'created_at'
 
@@ -35,7 +36,7 @@ communicationRoutes.get('/', async (req: Request, res: Response) => {
 
 communicationRoutes.get('/:id', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const id = param(req.params.id)
     const doc = await db.collection(COLLECTION).doc(id).get()
     if (!doc.exists) { res.status(404).json(errorResponse('Communication record not found')); return }
