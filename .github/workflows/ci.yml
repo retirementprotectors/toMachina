@@ -18,7 +18,19 @@ jobs:
       - name: Check if only docs changed
         id: filter
         run: |
-          if git diff --name-only HEAD~1 HEAD 2>/dev/null | grep -qvE '\.(html|md)$'; then
+          # Compare against merge-base for PRs, or previous commit for pushes
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE_SHA="${{ github.event.pull_request.base.sha }}"
+            HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+            CHANGED=$(git diff --name-only "$BASE_SHA" "$HEAD_SHA")
+          else
+            CHANGED=$(git diff --name-only HEAD~1 HEAD 2>/dev/null || echo "")
+          fi
+          echo "Changed files:"
+          echo "$CHANGED"
+          # docs_only = true when every changed file matches docs patterns
+          # (html, md, jpg/jpeg/png/svg/webp under docs/, or files under docs/)
+          if [ -z "$CHANGED" ] || echo "$CHANGED" | grep -qvE '^(docs/|.*\.(md|html)$|docs/.*\.(jpg|jpeg|png|svg|webp|gif|css)$)'; then
             echo "docs_only=false" >> $GITHUB_OUTPUT
           else
             echo "docs_only=true" >> $GITHUB_OUTPUT
@@ -26,17 +38,24 @@ jobs:
 
   check:
     needs: changes
-    if: needs.changes.outputs.docs_only != 'true'
     runs-on: ubuntu-latest
     steps:
+      - name: Docs-only short-circuit
+        if: needs.changes.outputs.docs_only == 'true'
+        run: echo "Docs-only PR — skipping type-check + build. ✅"
       - uses: actions/checkout@v5
+        if: needs.changes.outputs.docs_only != 'true'
       - uses: actions/setup-node@v5
+        if: needs.changes.outputs.docs_only != 'true'
         with:
           node-version: 22
           cache: 'npm'
       - run: npm ci
+        if: needs.changes.outputs.docs_only != 'true'
       - run: npx turbo run type-check
+        if: needs.changes.outputs.docs_only != 'true'
       - run: npx turbo run build
+        if: needs.changes.outputs.docs_only != 'true'
 
   e2e-pure:
     needs: [changes, check]
