@@ -4,6 +4,7 @@
  * or can be called directly via HTTP for manual triggers.
  */
 import { onClientWrite, onAccountWrite } from './notification-triggers.js';
+import { onPartnerUserCreate, refreshPartnerClaims } from './onPartnerUserCreate.js';
 import { onIntakeQueueCreated } from './wire-trigger.js';
 /**
  * SPC Intake — Scan specialist Drive folders for new documents.
@@ -53,6 +54,12 @@ export declare const queueStatus: import("firebase-functions/v2/https").HttpsFun
  * Notification Triggers — create notification docs on client/account writes.
  */
 export { onClientWrite, onAccountWrite };
+/**
+ * MT-007: Partner User Create — assign custom claims on new user signup.
+ * beforeUserCreated trigger: sets role + partner_id claims based on email domain.
+ * refreshPartnerClaims: HTTP trigger for manual claim refresh after partner changes.
+ */
+export { onPartnerUserCreate, refreshPartnerClaims };
 /**
  * Wire Trigger — process intake_queue entries through wire executor.
  * Firestore onCreate on intake_queue/{queueId}.

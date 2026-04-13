@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SA Keys + Security — Discovery Doc</title>
+<style>
+:root{--bg:#0a0b10;--card:#12141d;--card2:#181b27;--border:#1e2133;--text:#e8e8ec;--muted:#7a7f96;--accent:#2dd4bf;--blue:#4a7ab5;--green:#40bc58;--yellow:#f5a623;--red:#e74c3c;--purple:#a78bfa;--teal:#2dd4bf}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+.container{max-width:1000px;margin:0 auto;padding:2rem}
+h1{font-size:2rem;text-align:center;margin-bottom:0.3rem}
+.subtitle{text-align:center;color:var(--muted);font-size:1rem;margin-bottom:0.3rem}
+.origin{text-align:center;color:var(--teal);font-size:0.85rem;font-style:italic;margin-bottom:1.5rem}
+.tab-bar{display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:2rem;position:sticky;top:0;background:var(--bg);z-index:10;padding-top:0.5rem;flex-wrap:wrap}
+.tab-btn{padding:0.7rem 1.2rem;background:none;border:none;color:var(--muted);font-size:0.88rem;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all 0.2s;font-family:inherit}
+.tab-btn:hover{color:var(--text)}
+.tab-btn.active{color:var(--teal);border-bottom-color:var(--teal)}
+.tab-content{display:none}.tab-content.active{display:block}
+h2{font-size:1.4rem;margin:1.5rem 0 1rem;padding-bottom:0.5rem;border-bottom:1px solid var(--border);color:var(--teal)}
+h2:first-child{margin-top:0}
+h3{font-size:1.1rem;margin:1.2rem 0 0.5rem;color:var(--text)}
+p{color:var(--muted);margin-bottom:0.8rem;font-size:0.92rem}
+ul,ol{color:var(--muted);margin-bottom:1rem;padding-left:1.5rem;font-size:0.92rem}
+li{margin-bottom:0.4rem}
+strong{color:var(--text)}
+code{background:var(--card2);padding:0.15rem 0.4rem;border-radius:4px;font-size:0.85rem;color:var(--teal)}
+pre{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:1rem;margin:1rem 0;overflow-x:auto;font-size:0.82rem;line-height:1.5;color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.25rem;margin-bottom:1rem}
+.card h3{margin-top:0}
+.card-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media(max-width:700px){.card-grid{grid-template-columns:1fr}}
+table{width:100%;border-collapse:collapse;margin:1rem 0}
+th,td{padding:0.6rem 0.75rem;text-align:left;border-bottom:1px solid var(--border);font-size:0.85rem}
+th{color:var(--teal);font-size:0.75rem;text-transform:uppercase;letter-spacing:0.05em;font-weight:600}
+td{color:var(--muted)}
+.tag{display:inline-block;padding:0.15rem 0.5rem;border-radius:8px;font-size:0.72rem;font-weight:600}
+.tag-teal{background:rgba(45,212,191,0.12);color:var(--teal)}
+.tag-green{background:rgba(64,188,88,0.12);color:var(--green)}
+.tag-yellow{background:rgba(245,166,35,0.12);color:var(--yellow)}
+.tag-red{background:rgba(231,76,60,0.12);color:var(--red)}
+.tag-purple{background:rgba(167,139,250,0.12);color:var(--purple)}
+.callout{background:rgba(45,212,191,0.05);border:1px solid rgba(45,212,191,0.2);border-radius:12px;padding:1.25rem;margin:1.5rem 0}
+.callout p{margin:0}
+.callout-red{background:rgba(231,76,60,0.05);border:1px solid rgba(231,76,60,0.3);border-radius:12px;padding:1.25rem;margin:1.5rem 0}
+.callout-red p{margin:0;color:var(--muted)}
+.callout-yellow{background:rgba(245,166,35,0.05);border:1px solid rgba(245,166,35,0.3);border-radius:12px;padding:1.25rem;margin:1.5rem 0}
+.callout-yellow p{margin:0;color:var(--muted)}
+.flow{display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;margin:1rem 0;font-size:0.85rem}
+.flow-step{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:0.5rem 0.8rem;color:var(--text);font-weight:600;font-size:0.8rem}
+.flow-arrow{color:var(--teal);font-size:1.2rem}
+.ft{text-align:center;padding:2rem 0 1rem;color:var(--muted);font-size:0.8rem;border-top:1px solid var(--border);margin-top:2rem}
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>SA Keys + Security</h1>
+<div class="subtitle">Discovery Doc &mdash; ZRD-SEC-001</div>
+<div class="origin">JDM + SHINOB1 &mdash; April 12, 2026 &mdash; "The Machine secures itself."</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="showTab('why',this)">Why</button>
+  <button class="tab-btn" onclick="showTab('inventory',this)">Inventory</button>
+  <button class="tab-btn" onclick="showTab('threats',this)">Threats</button>
+  <button class="tab-btn" onclick="showTab('strategy',this)">Strategy</button>
+  <button class="tab-btn" onclick="showTab('rotation',this)">Rotation</button>
+  <button class="tab-btn" onclick="showTab('gates',this)">Gates</button>
+  <button class="tab-btn" onclick="showTab('tickets',this)">Tickets</button>
+</div>
+
+<!-- ════ WHY ════ -->
+<div id="why" class="tab-content active">
+  <h2>Why This Exists</h2>
+
+  <h3>The honest state of things</h3>
+  <p>The Machine has grown fast. At each sprint, a new secret appears: a new SA key, a new API token, a new OAuth credential, a new Workspace password. No single document says where they all live, who owns each one, when they expire, or what the plan is if they leak.</p>
+  <p>This isn't a criticism &mdash; it's the natural result of moving fast and building right. But we're at the inflection point. The Machine now touches:</p>
+  <ul>
+    <li><strong>Client PHI</strong> (Firestore, ProDash, QUE &mdash; Medicare IDs, health data)</li>
+    <li><strong>Financial data</strong> (commission records, revenue, account values)</li>
+    <li><strong>Communications infrastructure</strong> (Twilio, SendGrid, Slack)</li>
+    <li><strong>Google Workspace admin access</strong> (can create/suspend users, access all Drive)</li>
+    <li><strong>Partner trust</strong> (Matt Mitchell just got <code>mitchell@retireprotected.com</code> &mdash; DAVID deals will multiply this)</li>
+  </ul>
+
+  <div class="callout-red">
+    <p><strong>The flag that triggered this doc:</strong> The <code>claude-config-backup</code> job committed <code>.credentials.json</code> into a git repo on April 12, 2026. Credentials in git history are treated as permanently compromised even after deletion &mdash; git history is forever. We caught it internally. We may not catch the next one.</p>
+  </div>
+
+  <h3>What this doc delivers</h3>
+  <div class="card-grid">
+    <div class="card">
+      <h3 style="color:var(--teal)">SA Key Inventory</h3>
+      <p>Every service account, its email, its GCP roles, where the key file lives, and who is accountable for it. First time this has ever been written down.</p>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--teal)">Password Storage Strategy</h3>
+      <p>A real recommendation: what tool, what pattern, what gets stored where. Not "we should do something about this" &mdash; an actual decision with a migration path.</p>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--teal)">Threat Model</h3>
+      <p>The specific scenarios we defend against: compromised laptop, leaked .env, accidental git push, departed employee. Each gets a named control.</p>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--teal)">Rotation Policy</h3>
+      <p>Frequency, automation, owner. The Machine rotates its own keys on schedule, not when a breach forces it.</p>
+    </div>
+  </div>
+
+  <div class="callout">
+    <p><strong>JDM's framing from the session:</strong> "I want that DiscoDoc for SA Keys + Security / Password Storage solutions for you guys and our IRL Team." This doc is that contract. It covers both the Machine's internal security posture and the human team's credential hygiene.</p>
+  </div>
+</div>
+
+<!-- ════ INVENTORY ════ -->
+<div id="inventory" class="tab-content">
+  <h2>Complete Credential Inventory</h2>
+
+  <h3>Service Accounts (GCP project: <code>claude-mcp-484718</code>)</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>SA Email</th>
+        <th>Purpose</th>
+        <th>Key File Location</th>
+        <th>Key Type</th>
+        <th>GCP Roles</th>
+        <th>Owner</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>mdj-agent@claude-mcp-484718.iam.gserviceaccount.com</code></td>
+        <td>MDJ Agent (VOLTRON) — Firestore, Drive, Calendar, Admin SDK</td>
+        <td><code>/home/jdm/mdj-agent/sa-key.json</code><br><em>also at</em> <code>/home/jdm/Projects/dojo-warriors/mdj-agent/sa-key.json</code></td>
+        <td><span class="tag tag-red">JSON key on disk</span></td>
+        <td>Firestore Admin, Drive, Calendar, Admin SDK DWD</td>
+        <td>SHINOB1</td>
+      </tr>
+      <tr>
+        <td><code>github-deployer@claude-mcp-484718.iam.gserviceaccount.com</code></td>
+        <td>CI/CD — deploys tm-api + tm-webhooks to Cloud Run, pushes to Artifact Registry</td>
+        <td>No key file — uses <strong>Workload Identity Federation</strong> (WIF)</td>
+        <td><span class="tag tag-green">Keyless (WIF)</span></td>
+        <td>Cloud Run Admin, Artifact Registry Writer, Storage Admin</td>
+        <td>SHINOB1</td>
+      </tr>
+      <tr>
+        <td><em>tm-api Cloud Run compute SA</em></td>
+        <td>tm-api runtime identity — Firestore, Drive, IAM signJwt for Calendar DWD</td>
+        <td>No key file — uses <strong>Application Default Credentials</strong> (ADC on Cloud Run)</td>
+        <td><span class="tag tag-green">Keyless (ADC)</span></td>
+        <td>Firestore Admin, Drive, IAM Token Creator (self)</td>
+        <td>SHINOB1</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout-yellow">
+    <p><strong>Duplicate path risk:</strong> <code>mdj-agent/sa-key.json</code> exists in TWO locations: <code>/home/jdm/mdj-agent/</code> (the real runtime path) and <code>/home/jdm/Projects/dojo-warriors/mdj-agent/</code> (project repo copy). The dojo-warriors repo must have a <code>.gitignore</code> rule blocking <code>sa-key.json</code> from ever committing. Ticket ZRD-SEC-004 addresses this.</p>
+  </div>
+
+  <h3>MCP Server Secrets (stored in <code>~/.mcp.json</code> env vars)</h3>
+  <table>
+    <thead><tr><th>MCP Server</th><th>Secret Keys</th><th>Source</th><th>Rotation</th></tr></thead>
+    <tbody>
+      <tr><td><code>rpi-business</code></td><td><code>WHITEPAGES_API_KEY</code>, <code>RAPID_API_KEY</code>, <code>RAPID_API_URL</code></td><td>Whitepages, RapidAPI</td><td>Annual or on compromise</td></tr>
+      <tr><td><code>rpi-healthcare</code></td><td><code>HUMANA_CLIENT_ID</code>, <code>HUMANA_CLIENT_SECRET</code></td><td>Humana API portal</td><td>Annual per carrier contract</td></tr>
+      <tr><td><code>slack</code></td><td><code>SLACK_BOT_TOKEN</code></td><td>Slack app config</td><td>On revocation / bot reinstall</td></tr>
+      <tr><td><code>gdrive</code></td><td><code>GOOGLE_DRIVE_OAUTH_CREDENTIALS</code></td><td>OAuth2 JSON file (path ref)</td><td>Token auto-refreshes; base credentials do not expire</td></tr>
+      <tr><td><code>google-calendar</code></td><td><code>GOOGLE_OAUTH_CREDENTIALS</code></td><td>OAuth2 JSON file (path ref)</td><td>Same as gdrive</td></tr>
+      <tr><td><code>gmail</code></td><td><code>GMAIL_OAUTH_PATH</code>, <code>GMAIL_CREDENTIALS_PATH</code></td><td>OAuth2 JSON file (path ref)</td><td>Same as gdrive</td></tr>
+    </tbody>
+  </table>
+
+  <h3>MDJ Agent Runtime Secrets (<code>/home/jdm/Projects/dojo-warriors/mdj-agent/.env</code>)</h3>
+  <table>
+    <thead><tr><th>Variable</th><th>Purpose</th><th>Where Defined</th></tr></thead>
+    <tbody>
+      <tr><td><code>ANTHROPIC_API_KEY</code></td><td>Claude API access for MDJ Agent</td><td>console.anthropic.com</td></tr>
+      <tr><td><code>MDJ_AUTH_SECRET</code></td><td>Shared bearer token for portal → MDJ Agent calls</td><td>JDM-set custom value</td></tr>
+      <tr><td><code>SLACK_SIGNING_SECRET</code></td><td>Verify Slack webhook payloads</td><td>Slack app config</td></tr>
+      <tr><td><code>SLACK_BOT_TOKEN</code></td><td>Slack API posting rights (MDJ Agent instance)</td><td>Slack app config</td></tr>
+      <tr><td><code>GOOGLE_APPLICATION_CREDENTIALS</code></td><td>Points to <code>sa-key.json</code> path</td><td>Set locally, resolves key above</td></tr>
+      <tr><td><code>TM_API_URL</code></td><td>Backend API base URL</td><td>Not a secret — internal URL</td></tr>
+    </tbody>
+  </table>
+
+  <h3>GitHub Actions Secrets (repo-level)</h3>
+  <table>
+    <thead><tr><th>Secret Name</th><th>Purpose</th><th>Rotation Owner</th></tr></thead>
+    <tbody>
+      <tr><td><code>FIREBASE_API_KEY</code></td><td>Firebase web SDK key for E2E tests</td><td>SHINOB1</td></tr>
+      <tr><td><code>E2E_TEST_EMAIL</code> / <code>E2E_TEST_PASSWORD</code></td><td>Playwright test account credentials</td><td>SHINOB1 — change with user rotation</td></tr>
+      <tr><td><code>VOLTRON_CI_TOKEN</code></td><td>Authorizes CI to trigger VOLTRON registry regeneration post-deploy</td><td>SHINOB1</td></tr>
+    </tbody>
+  </table>
+  <p><em>GitHub Actions Workload Identity Federation handles GCP auth for <code>github-deployer@</code> &mdash; no secret stored in GitHub for that SA.</em></p>
+
+  <h3>toMachina Platform Secrets (<code>.env.local</code> per portal + API)</h3>
+  <table>
+    <thead><tr><th>Variable</th><th>Purpose</th><th>Live Where</th></tr></thead>
+    <tbody>
+      <tr><td><code>NEXT_PUBLIC_FIREBASE_API_KEY</code></td><td>Firebase web SDK (public, domain-restricted)</td><td><code>.env.local</code> per portal app</td></tr>
+      <tr><td><code>GODADDY_API_KEY</code> / <code>GODADDY_API_SECRET</code></td><td>DNS management for tomachina.com</td><td><code>.env.local</code> (toMachina root)</td></tr>
+      <tr><td><code>TWILIO_ACCOUNT_SID</code>, <code>TWILIO_API_KEY_SID</code>, <code>TWILIO_API_KEY_SECRET</code></td><td>Comms module voice/SMS</td><td>Cloud Run env vars (injected at deploy)</td></tr>
+      <tr><td><code>USPS_CONSUMER_ID</code>, <code>USPS_CONSUMER_SECRET</code></td><td>Address validation</td><td>Cloud Run env vars</td></tr>
+      <tr><td><code>GOOGLE_CALENDAR_CREDENTIALS</code></td><td>Calendar DWD for local dev (JSON string or path)</td><td><code>.env.local</code> on dev machine only</td></tr>
+      <tr><td><code>MDJ_AUTH_SECRET</code></td><td>Portal auth header for MDJ Agent calls</td><td>Cloud Run env vars + local <code>.env.local</code></td></tr>
+      <tr><td><code>VOLTRON_CI_TOKEN</code></td><td>CI registry regen trigger</td><td>Cloud Run env vars + GitHub Secrets</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Workspace Temp Credentials Pattern</h3>
+  <div class="card">
+    <p>When <code>create_user</code> is called (e.g., Mitchell onboarding April 12, 2026), a temporary password is generated and passed directly in the tool call. <code>changePasswordAtNextLogin: true</code> is set. The temp password is:</p>
+    <ul>
+      <li>Visible in the current session context (acceptable — it's ephemeral)</li>
+      <li><strong>Never logged to Firestore</strong></li>
+      <li><strong>Never posted to Slack channels</strong></li>
+      <li>Delivered verbally by JDM or via a one-time DM to the new user</li>
+    </ul>
+    <p><strong>Current gap:</strong> No formal temp-password delivery protocol exists. ZRD-SEC-010 closes this.</p>
+  </div>
+</div>
+
+<!-- ════ THREATS ════ -->
+<div id="threats" class="tab-content">
+  <h2>Threat Model</h2>
+
+  <p>Four named threats. Each gets a description, current exposure level, and the control that closes it.</p>
+
+  <h3>Threat 1: Compromised Laptop (Highest Risk)</h3>
+  <div class="card">
+    <p><strong>Scenario:</strong> JDM's MacBook (AIR or PRO) is stolen or compromised. Attacker has access to <code>~/.mcp.json</code>, <code>~/.claude/</code>, all <code>.env.local</code> files, the OAuth credential JSON files, and via those &mdash; Google Workspace Admin SDK, Firestore, Drive, Slack, Twilio, and the Anthropic API.</p>
+    <p><strong>Current exposure:</strong> <span class="tag tag-red">HIGH</span> &mdash; All MCP secrets live in plaintext on disk. No macOS Keychain integration. No hardware key required.</p>
+    <table>
+      <thead><tr><th>Control</th><th>Status</th><th>Ticket</th></tr></thead>
+      <tbody>
+        <tr><td>FileVault full-disk encryption on both Macs</td><td><span class="tag tag-yellow">Verify</span></td><td>ZRD-SEC-006</td></tr>
+        <tr><td>GCP IAM: revoke all SA keys on theft report</td><td><span class="tag tag-yellow">Manual — no runbook yet</span></td><td>ZRD-SEC-007</td></tr>
+        <tr><td>Admin SDK scoped to Josh + John Behn only (already enforced)</td><td><span class="tag tag-green">Done</span></td><td>—</td></tr>
+        <tr><td>macOS screen lock auto-lock ≤ 5 min on both machines</td><td><span class="tag tag-yellow">Verify</span></td><td>ZRD-SEC-006</td></tr>
+        <tr><td>1Password CLI integration for MCP secrets (see Strategy tab)</td><td><span class="tag tag-teal">Planned</span></td><td>ZRD-SEC-002</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Threat 2: Leaked .env / Accidental Git Push</h3>
+  <div class="card">
+    <p><strong>Scenario:</strong> A <code>.env.local</code>, <code>sa-key.json</code>, or <code>.credentials.json</code> file is committed to git and pushed to GitHub (public or private). The file is now in git history permanently.</p>
+    <p><strong>Current exposure:</strong> <span class="tag tag-red">ACTIVE INCIDENT</span> &mdash; <code>.credentials.json</code> was committed by the <code>claude-config-backup</code> job on April 12, 2026. That key must be treated as compromised until rotated.</p>
+    <table>
+      <thead><tr><th>Control</th><th>Status</th><th>Ticket</th></tr></thead>
+      <tbody>
+        <tr><td>Rotate the credential committed on 2026-04-12</td><td><span class="tag tag-red">Immediate</span></td><td>ZRD-SEC-001</td></tr>
+        <tr><td><code>.gitignore</code> entries for all secret file patterns (ALL repos)</td><td><span class="tag tag-yellow">Partial</span></td><td>ZRD-SEC-004</td></tr>
+        <tr><td><code>hookify.block-hardcoded-secrets</code> (already live in toMachina)</td><td><span class="tag tag-green">Done</span></td><td>—</td></tr>
+        <tr><td>Extend hookify rule to detect JSON key shapes in Write calls</td><td><span class="tag tag-teal">Planned</span></td><td>ZRD-SEC-005</td></tr>
+        <tr><td>claude-config-backup.sh: add explicit exclude list for credential files</td><td><span class="tag tag-red">Immediate</span></td><td>ZRD-SEC-001</td></tr>
+        <tr><td>GitHub secret scanning enabled (repo settings)</td><td><span class="tag tag-yellow">Verify</span></td><td>ZRD-SEC-006</td></tr>
+        <tr><td>Pre-commit hook: git-secrets or detect-secrets scan</td><td><span class="tag tag-teal">Planned</span></td><td>ZRD-SEC-005</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Threat 3: Departed Employee</h3>
+  <div class="card">
+    <p><strong>Scenario:</strong> A team member leaves (or is offboarded urgently). They retain access to Workspace, have knowledge of shared secrets, or have credentials cached in their browser.</p>
+    <p><strong>Current exposure:</strong> <span class="tag tag-green">LOW</span> &mdash; The <code>wire_offboard_employee</code> wire (rpi-workspace MCP) already handles Workspace suspension + Drive transfer. No shared admin passwords exist for the platform.</p>
+    <table>
+      <thead><tr><th>Control</th><th>Status</th><th>Ticket</th></tr></thead>
+      <tbody>
+        <tr><td><code>wire_offboard_employee</code> — suspends Workspace, transfers Drive, purges permissions</td><td><span class="tag tag-green">Live</span></td><td>—</td></tr>
+        <tr><td>No shared platform passwords (each person uses their own Workspace SSO)</td><td><span class="tag tag-green">Enforced</span></td><td>—</td></tr>
+        <tr><td>Offboarding checklist: explicitly rotate any secret the person knew</td><td><span class="tag tag-yellow">No runbook yet</span></td><td>ZRD-SEC-007</td></tr>
+        <tr><td>1Password team vault: revoke vault access on offboard</td><td><span class="tag tag-teal">Planned — requires 1Password setup</span></td><td>ZRD-SEC-002</td></tr>
+        <tr><td>Third-party app audit post-offboard (revoke OAuth grants)</td><td><span class="tag tag-yellow">Manual today</span></td><td>ZRD-SEC-007</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Threat 4: MDJ_SERVER Physical / Network Compromise</h3>
+  <div class="card">
+    <p><strong>Scenario:</strong> The Dell PowerEdge T440 (MDJ_SERVER, Tailscale IP <code>100.99.181.57</code>) is physically accessed, or a network attacker reaches it. The SA key lives on this server at <code>/home/jdm/mdj-agent/sa-key.json</code> &mdash; the highest-privilege key in the inventory.</p>
+    <p><strong>Current exposure:</strong> <span class="tag tag-yellow">MEDIUM</span> &mdash; Tailscale protects the network surface. Physical security is office-level (not data center). The key has full Workspace Admin SDK + Firestore Admin access.</p>
+    <table>
+      <thead><tr><th>Control</th><th>Status</th><th>Ticket</th></tr></thead>
+      <tbody>
+        <tr><td>Tailscale VPN — server not publicly routable</td><td><span class="tag tag-green">Live</span></td><td>—</td></tr>
+        <tr><td>SA key permissions: audit and scope-down to minimum necessary</td><td><span class="tag tag-teal">Planned</span></td><td>ZRD-SEC-003</td></tr>
+        <tr><td>Migrate MDJ Agent to Workload Identity (eliminate key file entirely)</td><td><span class="tag tag-teal">Phase 2</span></td><td>ZRD-SEC-008</td></tr>
+        <tr><td>Audit: who has SSH access to <code>ssh mdj1</code></td><td><span class="tag tag-yellow">Document today</span></td><td>ZRD-SEC-006</td></tr>
+        <tr><td>mdj-agent.service runs as <code>jdm</code> user — not root</td><td><span class="tag tag-green">Correct</span></td><td>—</td></tr>
+        <tr><td>SA key rotation: quarterly automated rotation via GCP</td><td><span class="tag tag-teal">Planned</span></td><td>ZRD-SEC-009</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ════ STRATEGY ════ -->
+<div id="strategy" class="tab-content">
+  <h2>Strategy &amp; Tooling Recommendation</h2>
+
+  <h3>The Recommendation: 1Password Teams + GCP Secret Manager</h3>
+  <p>This is not a "we should do something" statement. This is THE answer, with clear scope for each tool.</p>
+
+  <div class="card-grid">
+    <div class="card">
+      <h3 style="color:var(--teal)">1Password Teams</h3>
+      <p><strong>For:</strong> Human team member credentials. API keys shared with IRL staff. Carrier portal logins. Third-party service logins (GoDaddy, Canva, etc.).</p>
+      <p><strong>Why:</strong> Selected by David's recommendation in the RPI architecture sessions. Team members can share vault items without knowing the actual values. Revoke access on offboard without changing the secret. CLI integration (<code>op run</code>) allows env var injection without values on disk.</p>
+      <p><strong>Cost:</strong> ~$3/user/month. 10-person team = $30/month. Non-decision.</p>
+      <pre>op run --env-file=".env.template" -- node index.js</pre>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--teal)">GCP Secret Manager</h3>
+      <p><strong>For:</strong> Machine-to-machine secrets. Cloud Run env vars. SA key contents (if not eliminated via WIF). Anything The Machine reads at runtime.</p>
+      <p><strong>Why:</strong> We're already in GCP. Secret Manager is built into the same project (<code>claude-mcp-484718</code>). Cloud Run can read secrets directly without any key &mdash; the compute SA identity handles auth. Full audit log of every read.</p>
+      <p><strong>Cost:</strong> $0.06 per 10,000 accesses. Effectively free at our scale.</p>
+      <pre>gcloud secrets create TWILIO_API_KEY_SECRET \
+  --data-file=- &lt;&lt;&lt;"$VALUE" \
+  --project=claude-mcp-484718</pre>
+    </div>
+  </div>
+
+  <h3>What Goes Where</h3>
+  <table>
+    <thead><tr><th>Credential Type</th><th>Store In</th><th>Access Pattern</th></tr></thead>
+    <tbody>
+      <tr><td>Carrier portal logins (Humana, Aetna, etc.)</td><td>1Password Teams vault</td><td>Human copies from 1PW browser ext</td></tr>
+      <tr><td>New employee temp passwords</td><td>1Password Teams (one-time share)</td><td>Share link → user clicks → forced change</td></tr>
+      <tr><td>GoDaddy, Canva, third-party SaaS</td><td>1Password Teams vault</td><td>Human copies from 1PW browser ext</td></tr>
+      <tr><td>Twilio, SendGrid, USPS API keys</td><td>GCP Secret Manager</td><td>Cloud Run reads via Secret Manager API (no disk file)</td></tr>
+      <tr><td>MDJ_AUTH_SECRET</td><td>GCP Secret Manager</td><td>Cloud Run + local dev via <code>op run</code> or Secret Manager SDK</td></tr>
+      <tr><td>VOLTRON_CI_TOKEN</td><td>GitHub Secrets + GCP Secret Manager</td><td>CI reads from GitHub; runtime reads from Secret Manager</td></tr>
+      <tr><td>ANTHROPIC_API_KEY</td><td>GCP Secret Manager (or 1PW for dev machines)</td><td>MDJ Agent reads at startup; local devs inject via <code>op run</code></td></tr>
+      <tr><td>mdj-agent SA key (<code>sa-key.json</code>)</td><td>Eliminate entirely (Workload Identity migration)</td><td>See ZRD-SEC-008</td></tr>
+      <tr><td>Firebase web API key (<code>NEXT_PUBLIC_*</code>)</td><td>Leave in <code>.env.local</code> (it's public by design, domain-restricted)</td><td>Frontend SDK only, cannot bypass Firestore rules</td></tr>
+      <tr><td>OAuth credential JSON files (gdrive, gmail, calendar MCPs)</td><td>Leave as OAuth files; annotate path in 1Password</td><td>MCP reads file path from <code>~/.mcp.json</code> — no change needed</td></tr>
+    </tbody>
+  </table>
+
+  <h3>The Keyless Direction</h3>
+  <p>The north star is <strong>no JSON key files on any machine</strong>. Two SA keys already achieve this:</p>
+  <ul>
+    <li><code>github-deployer@</code> uses Workload Identity Federation &mdash; GitHub proves identity to GCP without any key. Already live.</li>
+    <li><code>tm-api</code> Cloud Run compute SA uses Application Default Credentials &mdash; Cloud Run infrastructure provides identity. Already live.</li>
+  </ul>
+  <p>The one remaining key file is <code>mdj-agent@</code> at <code>/home/jdm/mdj-agent/sa-key.json</code>. This lives on MDJ_SERVER because the server is not a GCP compute resource &mdash; it can't use ADC natively. Options:</p>
+  <div class="card-grid">
+    <div class="card">
+      <h3>Option A: Workload Identity (External) via Tailscale</h3>
+      <p>GCP External Workload Identity Federation can trust Tailscale node identity as a credential source. This eliminates the key file entirely. MDJ_SERVER proves "I am this Tailscale node" and GCP issues short-lived tokens.</p>
+      <p><strong>Complexity:</strong> Medium. Requires WIF pool configuration for Tailscale. One-time setup.</p>
+      <p><strong>Result:</strong> Zero key files anywhere. Gold standard.</p>
+    </div>
+    <div class="card">
+      <h3>Option B: Short-lived key rotation (90-day)</h3>
+      <p>Keep the JSON key but auto-rotate it every 90 days via a GCP Cloud Scheduler + Cloud Function. Old key is deleted; new key is written to MDJ_SERVER via Tailscale SSH.</p>
+      <p><strong>Complexity:</strong> Low. Wire already handles SSH. This is a cron job.</p>
+      <p><strong>Result:</strong> Key file persists but has limited blast radius (90-day exposure window).</p>
+    </div>
+  </div>
+  <p><strong>Recommendation:</strong> Ship Option B (ZRD-SEC-009) in Phase 1 to immediately reduce risk. Pursue Option A (ZRD-SEC-008) in Phase 2 as a permanent fix.</p>
+
+  <div class="callout">
+    <p><strong>One principle, applied everywhere:</strong> "If The Machine can authenticate without a secret on disk, it does. If a human needs access, they get it from 1Password, not a shared Slack message." That's the entire security strategy in two sentences.</p>
+  </div>
+</div>
+
+<!-- ════ ROTATION ════ -->
+<div id="rotation" class="tab-content">
+  <h2>Rotation Policy</h2>
+
+  <h3>Rotation Schedule by Credential Type</h3>
+  <table>
+    <thead><tr><th>Credential</th><th>Frequency</th><th>Trigger</th><th>Owner</th><th>Automated?</th></tr></thead>
+    <tbody>
+      <tr><td><code>mdj-agent</code> SA key</td><td>90 days</td><td>Cloud Scheduler</td><td>SHINOB1</td><td><span class="tag tag-teal">Planned (ZRD-SEC-009)</span></td></tr>
+      <tr><td><code>MDJ_AUTH_SECRET</code></td><td>180 days</td><td>Calendar reminder → SHINOB1</td><td>SHINOB1</td><td><span class="tag tag-yellow">Manual</span></td></tr>
+      <tr><td><code>VOLTRON_CI_TOKEN</code></td><td>90 days</td><td>Calendar reminder</td><td>SHINOB1</td><td><span class="tag tag-yellow">Manual</span></td></tr>
+      <tr><td><code>SLACK_BOT_TOKEN</code> (MDJ Agent)</td><td>On compromise only</td><td>Slack app reinstall</td><td>SHINOB1</td><td><span class="tag tag-yellow">Manual</span></td></tr>
+      <tr><td><code>ANTHROPIC_API_KEY</code></td><td>On compromise only</td><td>console.anthropic.com</td><td>JDM / SHINOB1</td><td><span class="tag tag-yellow">Manual</span></td></tr>
+      <tr><td><code>HUMANA_CLIENT_ID/SECRET</code></td><td>Annual (carrier contract)</td><td>Humana portal notification</td><td>JDM + Vince</td><td><span class="tag tag-yellow">Manual</span></td></tr>
+      <tr><td><code>TWILIO_API_KEY_SECRET</code></td><td>Annual or on compromise</td><td>Twilio console</td><td>SHINOB1</td><td><span class="tag tag-yellow">Manual</span></td></tr>
+      <tr><td><code>GODADDY_API_KEY</code></td><td>Annual</td><td>GoDaddy developer portal</td><td>JDM</td><td><span class="tag tag-yellow">Manual</span></td></tr>
+      <tr><td>E2E test account password</td><td>Quarterly</td><td>Google Workspace admin</td><td>SHINOB1</td><td><span class="tag tag-teal">Planned (ZRD-SEC-009)</span></td></tr>
+      <tr><td>GitHub Actions secrets (FIREBASE_API_KEY, etc.)</td><td>On Firebase key regeneration</td><td>Firebase Console</td><td>SHINOB1</td><td><span class="tag tag-yellow">Manual</span></td></tr>
+    </tbody>
+  </table>
+
+  <h3>Rotation Playbook (what happens when a secret must rotate)</h3>
+  <div class="flow">
+    <div class="flow-step">1. Identify scope</div>
+    <div class="flow-arrow">&rarr;</div>
+    <div class="flow-step">2. Generate new value</div>
+    <div class="flow-arrow">&rarr;</div>
+    <div class="flow-step">3. Update all live stores simultaneously</div>
+    <div class="flow-arrow">&rarr;</div>
+    <div class="flow-step">4. Verify services still healthy</div>
+    <div class="flow-arrow">&rarr;</div>
+    <div class="flow-step">5. Revoke old value</div>
+    <div class="flow-arrow">&rarr;</div>
+    <div class="flow-step">6. Log rotation event</div>
+  </div>
+
+  <p><strong>Step 3 — "all live stores simultaneously"</strong> means: Cloud Run env vars, <code>~/.mcp.json</code>, local <code>.env.local</code> files, 1Password vault, and any GitHub Secrets. Missing one store is how services break post-rotation. The runbook (ZRD-SEC-007) maps every secret to every store that holds it.</p>
+
+  <h3>Emergency Rotation (Suspected Compromise)</h3>
+  <div class="card">
+    <p>If a secret is suspected compromised:</p>
+    <ol>
+      <li><strong>Revoke first, rotate second.</strong> Kill the old value before generating a new one. A 5-minute outage is acceptable. An attacker still holding a valid key is not.</li>
+      <li><strong>SA keys:</strong> <code>gcloud iam service-accounts keys delete [KEY_ID] --iam-account=[SA_EMAIL]</code></li>
+      <li><strong>Slack tokens:</strong> Slack app settings → Revoke token → Reinstall app → Update all stores.</li>
+      <li><strong>Anthropic API key:</strong> console.anthropic.com → API keys → Delete → Generate new. MDJ Agent goes down temporarily (acceptable).</li>
+      <li><strong>Log the incident</strong> in the rotation runbook with date, secret type, cause (if known), and time to remediation.</li>
+    </ol>
+    <p style="margin-top:0.8rem;font-size:0.82rem;color:var(--teal)">JDM does not need to be involved in emergency rotations unless the incident involves PHI exposure or financial data access. SHINOB1 has full authority to rotate without approval.</p>
+  </div>
+
+  <h3>Backup + Recovery</h3>
+  <div class="card-grid">
+    <div class="card">
+      <h3>What's backed up today</h3>
+      <ul>
+        <li><code>~/.claude/</code> &mdash; <code>claude-config-backup</code> job commits to git daily</li>
+        <li>toMachina repo &mdash; GitHub (Firebase App Hosting copies on every deploy)</li>
+        <li>Firestore &mdash; GCP automatic backups (7-day point-in-time recovery)</li>
+        <li>MDJ_SERVER home dir &mdash; <strong>NOT backed up</strong> (gap)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>What needs to be fixed</h3>
+      <ul>
+        <li><strong>claude-config-backup must exclude credential files</strong> &mdash; <code>.credentials.json</code>, <code>sa-key.json</code>, any OAuth JSON. Ticket ZRD-SEC-001.</li>
+        <li><strong>MDJ_SERVER backup:</strong> <code>/home/jdm/mdj-agent/</code> contents (excluding keys) should be replicated to Drive or Shared Drive nightly. The SA key is not backed up &mdash; if MDJ_SERVER is wiped, a new key is issued. Ticket ZRD-SEC-003.</li>
+        <li><strong>1Password vault IS the backup</strong> for human-held secrets. No separate backup needed once 1Password is live.</li>
+        <li><strong>GCP Secret Manager IS the backup</strong> for machine secrets. Secrets survive Cloud Run redeploys automatically.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ════ GATES ════ -->
+<div id="gates" class="tab-content">
+  <h2>Access Controls + Audit Trail</h2>
+
+  <h3>Who Can Read What — Access Matrix</h3>
+  <table>
+    <thead><tr><th>Resource</th><th>Josh (JDM)</th><th>John Behn</th><th>Nikki / Vince / Aprille</th><th>Contractors (e.g. Matt Mitchell)</th><th>Warriors (AI agents)</th></tr></thead>
+    <tbody>
+      <tr><td>Google Workspace Admin Console</td><td>Super Admin</td><td>Super Admin</td><td>No access</td><td>No access</td><td>Admin SDK via mdj-agent SA (scoped)</td></tr>
+      <tr><td>GCP IAM Console</td><td>Owner</td><td>No access</td><td>No access</td><td>No access</td><td>No access</td></tr>
+      <tr><td>Firestore production data</td><td>Via portals + GCP console</td><td>Via portals</td><td>Via portals (role-gated)</td><td>Via portals (role-gated)</td><td>mdj-agent SA (Firestore Admin)</td></tr>
+      <tr><td>MCP server secrets (<code>~/.mcp.json</code>)</td><td>Full access (local machine)</td><td>No access</td><td>No access</td><td>No access</td><td>Injected at runtime from env</td></tr>
+      <tr><td>1Password vault (planned)</td><td>Owner</td><td>Admin</td><td>View only — their own vaults</td><td>No access</td><td>No access</td></tr>
+      <tr><td>GitHub repo</td><td>Owner</td><td>Write access</td><td>No access</td><td>No access (separate repo if needed)</td><td>RONIN via GitHub token</td></tr>
+      <tr><td>MDJ_SERVER SSH</td><td>jdm user</td><td>No access</td><td>No access</td><td>No access</td><td>VOLTRON, SHINOB1, MEGAZORD (tmux sessions)</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Audit Trail Today</h3>
+  <div class="card-grid">
+    <div class="card">
+      <h3 style="color:var(--green)">Already Audited</h3>
+      <ul>
+        <li>Google Workspace Admin: full audit log (Google Admin reports)</li>
+        <li>Firestore: Cloud Audit Logs (Data Access logs enabled in GCP)</li>
+        <li>GitHub Actions: full workflow run history</li>
+        <li>Google Drive: sharing + access audit via <code>audit_drive_sharing</code> MCP tool</li>
+        <li>Third-party app OAuth grants: <code>audit_third_party_apps</code> MCP tool</li>
+        <li>Hookify violations: <code>services/api/src/generated/wiring-status.json</code> captures blocked rules</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--yellow)">Gaps</h3>
+      <ul>
+        <li>SA key usage: GCP has key access logs but they are not surfaced in any dashboard</li>
+        <li>Secret Manager access: not yet in use, so no logs yet</li>
+        <li>MCP server calls from <code>~/.mcp.json</code>: no audit log (they run locally)</li>
+        <li>MDJ_SERVER SSH sessions: <code>auth.log</code> exists on server but not aggregated</li>
+        <li>Temp password delivery: no log of who was told what temp password</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Hookify Enforcement (Already Live)</h3>
+  <table>
+    <thead><tr><th>Rule</th><th>What It Blocks</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td><code>block-hardcoded-secrets</code></td><td>API keys, tokens, passwords ≥ 20 chars hardcoded in any file write or edit</td><td><span class="tag tag-green">Live — all active projects</span></td></tr>
+      <tr><td><code>block-credentials-in-config</code></td><td>Credential values placed in config files</td><td><span class="tag tag-green">Live — all active projects</span></td></tr>
+      <tr><td><code>block-phi-in-logs</code></td><td>PHI patterns in console.log / Logger.log calls</td><td><span class="tag tag-green">Live — all active projects</span></td></tr>
+    </tbody>
+  </table>
+
+  <h3>Proposed: SA Key Audit Tile (System Synergy)</h3>
+  <div class="card">
+    <p>Add a "Credential Health" card to the System Synergy dashboard. Shows:</p>
+    <ul>
+      <li>Each SA key: email, last rotated, days until next rotation</li>
+      <li>Red: overdue. Yellow: within 14 days. Green: healthy.</li>
+      <li>Links directly to GCP IAM console for one-click rotation.</li>
+    </ul>
+    <p>Ticket ZRD-SEC-011. Same card pattern as WireHealthCard.</p>
+  </div>
+</div>
+
+<!-- ════ TICKETS ════ -->
+<div id="tickets" class="tab-content">
+  <h2>Sprint Tickets</h2>
+
+  <div class="callout-red">
+    <p><strong>ZRD-SEC-001 is P0 &mdash; ship before anything else.</strong> A credential was committed to git on April 12, 2026. It must be rotated and the backup job must be patched today. All other tickets are Phase 1+.</p>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Ticket</th>
+        <th>Owner</th>
+        <th>Phase</th>
+        <th>Est</th>
+        <th>Priority</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>ZRD-SEC-001</strong></td>
+        <td>P0: Rotate <code>.credentials.json</code> committed 2026-04-12 + patch <code>claude-config-backup</code> to exclude all credential file patterns (<code>*.json</code> in root of <code>~/.claude/</code>, <code>.credentials*</code>, <code>*sa-key*</code>, <code>*oauth*</code>). Verify git history is clean or force-push to scrub.</td>
+        <td>SHINOB1</td>
+        <td>P0</td>
+        <td>2h</td>
+        <td><span class="tag tag-red">Immediate</span></td>
+      </tr>
+      <tr>
+        <td><strong>ZRD-SEC-002</strong></td>
+        <td>Set up 1Password Teams: create org, invite Josh + John, populate vault with all existing human-held credentials (carrier portals, GoDaddy, Canva, Twilio console login, etc.). Document vault structure (one vault per team, one per contractor engagement).</td>
+        <td>JDM + SHINOB1</td>
+        <td>1</td>
+        <td>3h</td>
+        <td><span class="tag tag-red">High</span></td>
+      </tr>
+      <tr>
+        <td><strong>ZRD-SEC-003</strong></td>
+        <td>Scope audit: review <code>mdj-agent@</code> SA actual roles in GCP IAM. Remove any role that isn't provably required. Document minimum-required role set. Check <code>sa-key.json</code> on MDJ_SERVER is 600 permissions and owned by <code>jdm</code> user only.</td>
+        <td>SHINOB1</td>
+        <td>1</td>
+        <td>2h</td>
+        <td><span class="tag tag-red">High</span></td>
+      </tr>
+      <tr>
+        <td><strong>ZRD-SEC-004</strong></td>
+        <td>Audit <code>.gitignore</code> files across all active repos (<code>toMachina</code>, <code>dojo-warriors</code>, <code>services/MCP-Hub</code>). Add explicit entries: <code>sa-key.json</code>, <code>*.credentials.json</code>, <code>*oauth*.json</code>, <code>.env</code>, <code>.env.local</code>, <code>.env.*.local</code>. Verify <code>dojo-warriors/mdj-agent/sa-key.json</code> is not tracked.</td>
+        <td>SHINOB1</td>
+        <td>1</td>
+        <td>1h</td>
+        <td><span class="tag tag-red">High</span></td>
+      </tr>
+      <tr>
+        <td><strong>ZRD-SEC-005</strong></td>
+        <td>Extend <code>block-hardcoded-secrets</code> hookify rule to also catch GCP SA JSON key shapes (detect <code>"private_key"</code> + <code>"client_email"</code> co-occurrence in a Write call). Add pre-commit hook using <code>detect-secrets</code> to <code>toMachina</code> and <code>dojo-warriors</code> repos.</td>
+        <td>SHINOB1</td>
+        <td>1</td>
+        <td>2h</td>
+        <td><span class="tag tag-yellow">Medium</span></td>
+      </tr>
+      <tr>
+        <td><strong>ZRD-SEC-006</strong></td>
+        <td>Security baseline audit: (1) Verify FileVault enabled on AIR + PRO. (2) Verify screen auto-lock ≤ 5 min on AIR + PRO. (3) Audit SSH authorized keys on MDJ_SERVER — document who has access. (4) Verify GitHub secret scanning enabled in repo settings. Document findings in <code>_RPI_STANDARDS/reference/os/POSTURE.md</code>.</td>
+        <td>JDM + SHINOB1</td>
+        <td>1</td>
+        <td>1h</td>
+        <td><span class="tag tag-yellow">Medium</span></td>
+      </tr>
+      <tr>
+        <td><strong>ZRD-SEC-007</strong></td>
+        <td>Write rotation runbook: for each secret in the inventory, document (a) how to generate a new value, (b) every location that must be updated (Cloud Run, <code>~/.mcp.json</code>, local <code>.env.local</code>, 1Password, GitHub Secrets), and (c) how to verify the rotation worked. Store in <code>_RPI_STANDARDS/reference/os/ROTATION_RUNBOOK.md</code>. Extend <code>wire_offboard_employee</code> to include a "rotate known secrets" checklist step.</td>
+        <td>SHINOB1</td>
+        <td>1</td>
+        <td>3h</td>
+        <td><span class="tag tag-yellow">Medium</span></td>
+      </tr>
+      <tr>
+        <td><strong>ZRD-SEC-008</strong></td>
+        <td>Migrate <code>mdj-agent@</code> auth to Workload Identity Federation using Tailscale node identity as the trusted issuer. Eliminates <code>sa-key.json</code> from MDJ_SERVER entirely. Research: GCP External IdP + Tailscale identity tokens. Gate: spike + feasibility check before committing.</td>
+        <td>SHINOB1</td>
+        <td>2</td>
+        <td>6h</td>
+        <td><span class="tag tag-teal">Phase 2</span></td>
+      </tr>
+      <tr>
+        <td><strong>ZRD-SEC-009</strong></td>
+        <td>Automated SA key rotation: Cloud Scheduler job (every 90 days) creates a new SA key, writes it to MDJ_SERVER via Tailscale SSH, updates <code>GOOGLE_APPLICATION_CREDENTIALS</code>, restarts <code>mdj-agent.service</code>, and deletes the old key. Rotation event logged to <code>warrior_events</code> Firestore collection (ZRD-SYN-020 dependency).</td>
+        <td>MEGAZORD + SHINOB1</td>
+        <td>2</td>
+        <td>4h</td>
+        <td><span class="tag tag-teal">Phase 2</span></td>
+      </tr>
+      <tr>
+        <td><strong>ZRD-SEC-010</strong></td>
+        <td>Temp credential delivery protocol: when <code>create_user</code> is called, the temp password is (a) written to a 1Password one-time-share link (24h expiry), (b) that link is sent to the new user's personal email (not a Slack channel), (c) logged as a <code>decision</code> event in <code>warrior_events</code> (no password value in the log, just "user onboarded: [email]"). Update <code>rpi-workspace-mcp</code> <code>create_user</code> tool to return a one-time-share URL if 1Password CLI is configured.</td>
+        <td>SHINOB1 + MEGAZORD</td>
+        <td>2</td>
+        <td>3h</td>
+        <td><span class="tag tag-teal">Phase 2</span></td>
+      </tr>
+      <tr>
+        <td><strong>ZRD-SEC-011</strong></td>
+        <td>System Synergy: "Credential Health" dashboard card. Reads from a new Firestore collection <code>credential_inventory</code> (populated by ZRD-SEC-007 runbook + automated rotation). Shows each SA key, MCP secret type (no values), last-rotated date, next-rotation date, RAG status. Same card pattern as <code>WireHealthCard.tsx</code>. Available on all 3 portals.</td>
+        <td>RONIN</td>
+        <td>3</td>
+        <td>3h</td>
+        <td><span class="tag tag-purple">Phase 3</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p style="margin-top:1.5rem;color:var(--muted);font-size:0.9rem">
+    <strong>Summary:</strong> 11 tickets. ZRD-SEC-001 is P0 (today). ZRD-SEC-002 through ZRD-SEC-007 are Phase 1 (this sprint). ZRD-SEC-008 through ZRD-SEC-010 are Phase 2 (next sprint). ZRD-SEC-011 is Phase 3 (polish).
+    <br><br>
+    <strong>Total estimated effort: ~30 hours.</strong> SHINOB1 leads. JDM gates ZRD-SEC-002 (1Password setup requires a business decision and payment). MEGAZORD supports ZRD-SEC-009 + ZRD-SEC-010. RONIN owns ZRD-SEC-011.
+  </p>
+
+  <div class="callout">
+    <p><strong>The 3 strategic moves this doc makes:</strong></p>
+    <ol style="margin-top:0.8rem;margin-bottom:0;padding-left:1.5rem;color:var(--muted);font-size:0.92rem">
+      <li style="margin-bottom:0.5rem"><strong>Eliminate key files as the north star.</strong> Every SA key on disk is a liability. The Machine should authenticate via identity, not secrets. WIF for CI is already done. MDJ_SERVER is next. Zero key files is achievable within two sprints.</li>
+      <li style="margin-bottom:0.5rem"><strong>1Password is the human layer; GCP Secret Manager is the machine layer.</strong> Don't try to solve both with one tool. 1Password wins for humans (UI, sharing, offboard). Secret Manager wins for machines (IAM-native, audit log, Cloud Run integration). The boundary is clear: if a human touches it, it's in 1Password. If only code touches it, it's in Secret Manager.</li>
+      <li><strong>The backup job is the biggest current risk.</strong> The claude-config-backup commit on April 12 proves that automation without a secret-exclusion list will eventually commit credentials to git. This is fixed in ZRD-SEC-001 and it ships today, before anything else.</li>
+    </ol>
+  </div>
+</div>
+
+<div class="ft">
+  <p><strong>SA Keys + Security</strong> &mdash; ZRD-SEC-001 &mdash; Discovery Doc</p>
+  <p>Written by SHINOB1, CTO &mdash; Executive.AI Team &mdash; April 12, 2026</p>
+  <p style="color:var(--teal);margin-top:0.5rem">"The Machine secures itself." &mdash; JDM + SHINOB1</p>
+</div>
+
+</div>
+<script>
+function showTab(id,btn){document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));document.getElementById(id).classList.add('active');btn.classList.add('active');}
+</script>
+</body>
+</html>

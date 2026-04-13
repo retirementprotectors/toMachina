@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TAIKO &#x592A;&#x9F13; &mdash; Comms Infrastructure Ownership Grid</title>
+<style>
+:root { --bg: #0a0e17; --card: #111827; --card2: #1a2236; --border: #1e293b; --text: #e2e8f0; --muted: #94a3b8; --accent: #d97706; --accent-glow: rgba(217,119,6,0.12); --green: #22c55e; --blue: #3b82f6; --red: #ef4444; --orange: #f59e0b; --purple: #a855f7; --teal: #14b8a6; --gold: #d4a44c; --cyan: #06b6d4; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+.header { background: linear-gradient(135deg, #020b1a 0%, #1a0d00 50%, #020b1a 100%); border-bottom: 1px solid var(--border); padding: 40px 32px; text-align: center; position: relative; overflow: hidden; }
+.header::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(ellipse at 30% 50%, rgba(217,119,6,0.06) 0%, transparent 50%), radial-gradient(ellipse at 70% 50%, rgba(217,119,6,0.04) 0%, transparent 50%); pointer-events: none; }
+.header h1 { font-size: 2.4rem; font-weight: 800; background: linear-gradient(135deg, var(--accent), #fbbf24, var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 6px; position: relative; }
+.header .subtitle { font-size: 1rem; color: var(--muted); position: relative; }
+.header .badge { display: inline-block; margin-top: 12px; padding: 4px 16px; border-radius: 999px; font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; background: var(--accent-glow); color: var(--accent); border: 1px solid rgba(217,119,6,0.3); position: relative; }
+.tab-container { position: sticky; top: 0; z-index: 100; background: var(--bg); border-bottom: 1px solid var(--border); overflow-x: auto; }
+.tabs { display: flex; max-width: 1300px; margin: 0 auto; padding: 0 8px; }
+.tab { padding: 12px 14px; font-size: 0.78rem; font-weight: 600; color: var(--muted); cursor: pointer; white-space: nowrap; border-bottom: 2px solid transparent; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.tab .dot { width: 8px; height: 8px; border-radius: 50%; }
+.content { max-width: 1100px; margin: 0 auto; padding: 24px 16px; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 16px; }
+.card h2 { font-size: 1.15rem; margin-bottom: 12px; }
+.card h3 { font-size: 0.95rem; margin: 16px 0 8px; }
+.card p { color: var(--muted); font-size: 0.88rem; margin-bottom: 10px; }
+.card ul, .card ol { color: var(--muted); font-size: 0.88rem; margin-left: 20px; margin-bottom: 10px; }
+.card li { margin-bottom: 6px; }
+.card li strong { color: var(--text); }
+table { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin: 10px 0; }
+th { text-align: left; padding: 10px 12px; background: var(--card2); color: var(--accent); font-weight: 700; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); }
+td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--muted); vertical-align: top; }
+td:first-child { color: var(--text); font-weight: 500; }
+a { color: var(--cyan); text-decoration: none; }
+a:hover { text-decoration: underline; }
+code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; font-size: 0.82em; color: #06b6d4; font-family: 'SF Mono', monospace; }
+.pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+.pill.live { background: rgba(34,197,94,0.12); color: var(--green); }
+.pill.next { background: rgba(59,130,246,0.12); color: var(--blue); }
+.pill.plan { background: rgba(168,85,247,0.12); color: var(--purple); }
+.pill.hold { background: rgba(148,163,184,0.12); color: var(--muted); }
+.pill.hot { background: rgba(239,68,68,0.12); color: var(--red); }
+.pill.amber { background: rgba(217,119,6,0.12); color: var(--accent); }
+.section-label { font-size: 0.7rem; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; }
+.insight { background: rgba(217,119,6,0.06); border: 1px solid rgba(217,119,6,0.2); border-radius: 8px; padding: 14px 18px; margin: 14px 0; font-size: 0.85rem; color: var(--muted); }
+.insight strong { color: var(--accent); }
+.rhythm-block { background: var(--card2); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 10px; display: flex; align-items: flex-start; gap: 14px; }
+.rhythm-num { font-size: 1.4rem; font-weight: 800; color: var(--accent); min-width: 36px; text-align: center; line-height: 1; padding-top: 2px; }
+.rhythm-body h3 { font-size: 0.9rem; margin-bottom: 4px; }
+.rhythm-body p { font-size: 0.82rem; color: var(--muted); margin: 0; }
+.hit-item { background: var(--card2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
+.hit-item .status { min-width: 70px; }
+.hit-item .desc { font-size: 0.85rem; color: var(--muted); }
+.hit-item .desc strong { color: var(--text); }
+.tool-block { background: var(--card2); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; margin-bottom: 8px; }
+.tool-block .tool-name { font-family: 'SF Mono', monospace; font-size: 0.82rem; color: var(--accent); font-weight: 700; margin-bottom: 4px; }
+.tool-block .tool-desc { font-size: 0.82rem; color: var(--muted); }
+.beat-card { background: var(--card2); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; margin-bottom: 10px; display: flex; align-items: flex-start; gap: 16px; }
+.beat-icon { font-size: 1.8rem; min-width: 40px; text-align: center; }
+.beat-body h3 { font-size: 0.92rem; margin-bottom: 4px; }
+.beat-body p { font-size: 0.82rem; color: var(--muted); margin: 0; }
+.footer { text-align: center; padding: 24px; color: var(--muted); font-size: 0.72rem; border-top: 1px solid var(--border); margin-top: 32px; }
+@media (max-width: 768px) { .tab { padding: 10px 10px; font-size: 0.72rem; } .rhythm-block { flex-direction: column; gap: 6px; } }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>&#x1F941; Comms Infrastructure Ownership Grid</h1>
+  <div class="subtitle">TAIKO &#x592A;&#x9F13; &mdash; The message is yours. The channel is mine.</div>
+  <div class="badge">The Drum &mdash; Born 2026-04-13 &mdash; Named by MUSASHI</div>
+</div>
+
+<div class="tab-container">
+  <div class="tabs">
+    <div class="tab active" data-tab="rhythm"><span class="dot" style="background:var(--accent)"></span> Weekly Rhythm</div>
+    <div class="tab" data-tab="channels-ext"><span class="dot" style="background:var(--orange)"></span> Channels (External)</div>
+    <div class="tab" data-tab="channels-int"><span class="dot" style="background:var(--teal)"></span> Channels (Internal)</div>
+    <div class="tab" data-tab="alerts"><span class="dot" style="background:var(--red)"></span> Alerts</div>
+    <div class="tab" data-tab="taiko-app"><span class="dot" style="background:var(--accent)"></span> TAIKO App</div>
+    <div class="tab" data-tab="intel"><span class="dot" style="background:var(--gold)"></span> Intel Analysis</div>
+    <div class="tab" data-tab="mesh"><span class="dot" style="background:var(--purple)"></span> Mesh Dev</div>
+    <div class="tab" data-tab="hitlist"><span class="dot" style="background:var(--red)"></span> Hit List</div>
+    <div class="tab" data-tab="docs"><span class="dot" style="background:var(--muted)"></span> Docs Index</div>
+  </div>
+</div>
+
+<div class="content">
+
+<!-- TAB 1: WEEKLY RHYTHM -->
+<div class="tab-panel active" id="rhythm">
+  <div class="card">
+    <h2>The Drum&#x2019;s Weekly Rhythm</h2>
+    <p>TAIKO&#x2019;s default operating cadence. Work proactively 1 &rarr; 5 through the week. Reactive fires interrupt but don&#x2019;t replace the rhythm. The drum doesn&#x2019;t stop between beats.</p>
+  </div>
+
+  <div class="insight">
+    <strong>The rule:</strong> Every signal has to reach. That means checking the pipes before anything else &mdash; not after something breaks. The rhythm exists so the checks happen before the team notices a problem, not after they do.
+  </div>
+
+  <div class="rhythm-block">
+    <div class="rhythm-num">1</div>
+    <div class="rhythm-body">
+      <h3>Twilio Health Check &mdash; A2P, Deliverability, Error Rates</h3>
+      <p>Carrier status for SMS and voice. A2P campaign registration current? Error rate on outbound SMS? Any new carrier flags? Twilio Console &rarr; Error Logs. First check every week: if SMS is blocked, nothing else matters.</p>
+    </div>
+  </div>
+
+  <div class="rhythm-block">
+    <div class="rhythm-num">2</div>
+    <div class="rhythm-body">
+      <h3>SendGrid Deliverability Audit &mdash; Bounce Rates, DMARC / SPF / DKIM Health</h3>
+      <p>Open rate, bounce rate, spam rate for the week. DMARC alignment passing? SPF/DKIM passing on all domains? Suppression list growing unexpectedly? Anything silently failing?</p>
+    </div>
+  </div>
+
+  <div class="rhythm-block">
+    <div class="rhythm-num">3</div>
+    <div class="rhythm-body">
+      <h3>Internal Comms Check &mdash; Google Meet / Chat Usage + RPI Connect Bug Reports</h3>
+      <p>Is the team using RPI Connect or routing around it? Any Google Chat integration errors? Meet recordings syncing to client records? Any team complaints in #taiko or #the-dojo?</p>
+    </div>
+  </div>
+
+  <div class="rhythm-block">
+    <div class="rhythm-num">4</div>
+    <div class="rhythm-body">
+      <h3>Alerts Monitoring &mdash; Routing Accuracy, Noise vs. Signal</h3>
+      <p>Are P0 alerts reaching JDM DM? Are non-P0 alerts staying out of JDM DM? Are warrior notifications routing to the right channels? Fatigue is how a P0 gets missed.</p>
+    </div>
+  </div>
+
+  <div class="rhythm-block">
+    <div class="rhythm-num">5</div>
+    <div class="rhythm-body">
+      <h3>Sprint Work &mdash; ZRD-COMMS Tickets in Flight</h3>
+      <p>Current sprint progress. Which tickets are in-flight? What&#x2019;s blocked? What&#x2019;s shipping this week? COMMS-001 (A2P unblock) is Job #1 until it closes.</p>
+    </div>
+  </div>
+
+  <div class="insight">
+    <strong>Escalation rule:</strong> If any pipe is DEGRADED or BLOCKED, TAIKO posts in #the-dojo and opens a ZRD-COMMS ticket before moving to the next rhythm item. The drum doesn&#x2019;t move on while a beat is missing.
+  </div>
+</div>
+
+<!-- TAB 2: CHANNELS (EXTERNAL) -->
+<div class="tab-panel" id="channels-ext">
+  <div class="card">
+    <div class="section-label">External Channels</div>
+    <h2>Carrier-Facing Pipes &mdash; Client Outreach</h2>
+    <p>Every outbound and inbound channel connecting the team to clients. TAIKO owns the infrastructure. MUSASHI owns the content. Walk each pipe weekly: status &rarr; reactive monitoring &rarr; proactive next.</p>
+  </div>
+
+  <div class="insight">
+    <strong>The mandate:</strong> JDM&#x2019;s words verbatim &mdash; <em>&ldquo;complete fucking joke.&rdquo;</em> All three external channels were broken or abandoned on 2026-04-13. TAIKO&#x2019;s job is to make them invisible when they work and loud when they don&#x2019;t.
+  </div>
+
+  <div class="card">
+    <h3>Twilio Voice</h3>
+    <table>
+      <tr><th>Direction</th><th>Status</th><th>Builder</th><th>Reactive Monitoring</th><th>Proactive Next</th><th>Notes</th></tr>
+      <tr>
+        <td><strong>Outbound Voice (888 toll-free)</strong></td>
+        <td><span class="pill live">WORKING</span></td>
+        <td>TAIKO</td>
+        <td>Click-to-call routing accurate? Call recording firing? Agent assignment correct?</td>
+        <td>Ensure call recording + transcript sync to client Firestore record</td>
+        <td>Toll-free bypasses A2P block. Smart routing live. Transcription per voicemail only.</td>
+      </tr>
+      <tr>
+        <td><strong>Inbound Voice (local #)</strong></td>
+        <td><span class="pill amber">DEGRADED</span></td>
+        <td>TAIKO</td>
+        <td>Carrier rejection rate? Calls dropping before routing? Agent assignment consistent?</td>
+        <td>Unblock A2P carrier issue affecting local number delivery on some carriers</td>
+        <td>A2P block causes degraded delivery on some carriers. Tied to COMMS-001.</td>
+      </tr>
+      <tr>
+        <td><strong>IVR + Call Routing</strong></td>
+        <td><span class="pill next">WIRING</span></td>
+        <td>TAIKO / RONIN</td>
+        <td>IVR flow completing? No dead ends?</td>
+        <td>Full IVR rebuild as part of ZRD-COMMS voice phase</td>
+        <td>Half-wired today. Experience inconsistent enough that reps avoid it.</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Twilio SMS / A2P</h3>
+    <table>
+      <tr><th>Direction</th><th>Status</th><th>Builder</th><th>Reactive Monitoring</th><th>Proactive Next</th><th>Notes</th></tr>
+      <tr>
+        <td><strong>Outbound SMS (local numbers)</strong></td>
+        <td><span class="pill hot">BLOCKED</span></td>
+        <td>TAIKO</td>
+        <td>Has Twilio ticket #25630009 been reopened? Any carrier approval movement?</td>
+        <td>COMMS-001: Opt-in page (MUSASHI copy) &rarr; Campaign registration &rarr; Carrier approval</td>
+        <td>A2P 10DLC blocked. CTA Verification failed. Zero outbound texts to clients from local numbers.</td>
+      </tr>
+      <tr>
+        <td><strong>Outbound SMS (888 toll-free)</strong></td>
+        <td><span class="pill amber">PARTIAL</span></td>
+        <td>TAIKO</td>
+        <td>Volume staying under toll-free limits? Delivery rate?</td>
+        <td>Not the permanent solution &mdash; local A2P unblock is the fix</td>
+        <td>Toll-free bypasses A2P but has throughput limits. Fallback only.</td>
+      </tr>
+      <tr>
+        <td><strong>Inbound SMS</strong></td>
+        <td><span class="pill amber">PARTIAL</span></td>
+        <td>TAIKO</td>
+        <td>Inbound messages arriving in portal Comms app? Client lookup working?</td>
+        <td>Structured inbound logging &rarr; client record match &rarr; Comms app surface</td>
+        <td>Routes exist, no structured logging or client-match today.</td>
+      </tr>
+      <tr>
+        <td><strong>Opt-in Consent + TCPA Compliance</strong></td>
+        <td><span class="pill plan">DISCOVERY</span></td>
+        <td>TAIKO (gate) / MUSASHI (copy)</td>
+        <td>N/A &mdash; not live yet</td>
+        <td>COMMS-001: Build compliant /sms-consent landing page with MUSASHI-authored copy</td>
+        <td>Consent capture is the prerequisite for A2P campaign approval. MUSASHI writes. TAIKO gates.</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>SendGrid Email</h3>
+    <table>
+      <tr><th>Type</th><th>Status</th><th>Builder</th><th>Reactive Monitoring</th><th>Proactive Next</th><th>Notes</th></tr>
+      <tr>
+        <td><strong>Transactional Email</strong><br><span style="font-size:0.75rem;color:var(--muted)">noreply@retireprotected.com</span></td>
+        <td><span class="pill amber">UNKNOWN</span></td>
+        <td>TAIKO</td>
+        <td>Bounce rate this week? Delivery rate? Any domain blocks?</td>
+        <td>Full deliverability audit &mdash; first order of business after A2P unblock</td>
+        <td>Webhook handler exists. Delivery rates never formally audited. Unknown how much email is silently failing.</td>
+      </tr>
+      <tr>
+        <td><strong>DMARC / SPF / DKIM</strong></td>
+        <td><span class="pill plan">AUDIT NEEDED</span></td>
+        <td>TAIKO</td>
+        <td>Are DNS records publishing correctly? Any DMARC failures this week?</td>
+        <td>Verify alignment on all sending domains, fix any misalignment</td>
+        <td>Never verified in current infrastructure. Misalignment = deliverability failure at scale.</td>
+      </tr>
+      <tr>
+        <td><strong>Suppression List</strong></td>
+        <td><span class="pill plan">AUDIT NEEDED</span></td>
+        <td>TAIKO</td>
+        <td>List growing unexpectedly? Any bad batches causing mass suppression?</td>
+        <td>Audit suppression list, identify why contacts are suppressed, clean what&#x2019;s recoverable</td>
+        <td>Unsubscribe flow exists in code. Suppression health unknown.</td>
+      </tr>
+      <tr>
+        <td><strong>Bulk / Campaign Email</strong></td>
+        <td><span class="pill plan">PLANNED</span></td>
+        <td>TAIKO (delivery) / MUSASHI (content)</td>
+        <td>N/A &mdash; not wired yet</td>
+        <td>WIRE_OUTBOUND_CAMPAIGN_BATCH: MUSASHI authors &rarr; TAIKO gates &rarr; SendGrid delivers &rarr; results logged</td>
+        <td>Future wire. C3 handles campaign logic. TAIKO owns the actual SendGrid send.</td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+<!-- TAB 3: CHANNELS (INTERNAL) -->
+<div class="tab-panel" id="channels-int">
+  <div class="card">
+    <div class="section-label">Internal Channels</div>
+    <h2>Team-Facing Pipes &mdash; How the Dojo Communicates</h2>
+    <p>Internal comms infrastructure. RPI wants off Slack and onto Google Chat + Meet. The migration destination has to work before anyone moves. TAIKO makes the destination work.</p>
+  </div>
+
+  <div class="insight">
+    <strong>The problem:</strong> Two broken systems (Slack and Google Chat) fighting for primacy. No one migrates to a destination that doesn&#x2019;t work. TAIKO&#x2019;s job: make Google Chat + Meet actually work, then the migration happens naturally.
+  </div>
+
+  <div class="card">
+    <table>
+      <tr><th>Channel</th><th>Status</th><th>Builder</th><th>Reactive Monitoring</th><th>Proactive Next</th><th>Notes</th></tr>
+      <tr>
+        <td><strong>Google Meet</strong><br><span style="font-size:0.75rem;color:var(--muted)">Video + recording + transcripts</span></td>
+        <td><span class="pill amber">PARTIAL</span></td>
+        <td>TAIKO</td>
+        <td>Recordings syncing to Firestore? Transcripts processing? Meeting links working?</td>
+        <td>Full recording &rarr; transcript &rarr; client record sync pipeline (ZRD-COMMS)</td>
+        <td>Meet API works (<code>meet_create_meeting</code> live in rpi-workspace MCP). Recording + transcript pipeline not wired to client records yet.</td>
+      </tr>
+      <tr>
+        <td><strong>Google Chat</strong><br><span style="font-size:0.75rem;color:var(--muted)">Team messaging + spaces + bots</span></td>
+        <td><span class="pill amber">PARTIAL</span></td>
+        <td>TAIKO</td>
+        <td>Bot integrations working? Space seeding on login? Any API errors?</td>
+        <td>Reliable space management, bot event routing, chat history accessible in portal</td>
+        <td>Google Chat exists as a tool but the experience is hollow. Migration target &mdash; needs to be real before Slack winds down.</td>
+      </tr>
+      <tr>
+        <td><strong>RPI Connect Module</strong><br><span style="font-size:0.75rem;color:var(--muted)">In-portal slide-out: channels + people + meet</span></td>
+        <td><span class="pill plan">MOCKUP</span></td>
+        <td>TAIKO / RONIN</td>
+        <td>N/A &mdash; mockup only, not wired</td>
+        <td>Wire real Google Chat + Meet data into RPI Connect slide-out panel</td>
+        <td>Code exists. Channels seed on first GET. Calendar pulls from Google API. Messaging layer is hollow. Nobody uses it because it doesn&#x2019;t actually work.</td>
+      </tr>
+      <tr>
+        <td><strong>In-Portal Comms App</strong><br><span style="font-size:0.75rem;color:var(--muted)">Feed + compose + dialer + inbox</span></td>
+        <td><span class="pill plan">REBUILD</span></td>
+        <td>TAIKO / RONIN</td>
+        <td>N/A &mdash; team routes around it</td>
+        <td>Full rebuild per ZRD-COMMS &mdash; real feed, real compose, real dialer, real inbox</td>
+        <td>Team won&#x2019;t use current version. UX is broken enough that reps text from personal phones &mdash; communications leak out of the system entirely.</td>
+      </tr>
+      <tr>
+        <td><strong>Slack (Transition State)</strong><br><span style="font-size:0.75rem;color:var(--muted)">Current de facto tool, not the target</span></td>
+        <td><span class="pill live">DE FACTO</span></td>
+        <td>TAIKO (wind-down plan)</td>
+        <td>Still operational. Warriors still posting here during transition.</td>
+        <td>Maintain Slack until Google Chat + Connect are proven. No dual-system bridge forever.</td>
+        <td>Decision: one channel per purpose, migrated cleanly. Slack stays operational during migration. Deprecated when Chat + Connect work.</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="insight">
+    <strong>Migration sequencing rule:</strong> TAIKO does not tell the team to move off Slack until the Google Chat + RPI Connect destination is proven and working. Announcing a migration to a broken destination is the worst outcome. First: make it work. Then: migrate. Then: shut down the old pipe.
+  </div>
+</div>
+
+<!-- TAB 4: ALERTS -->
+<div class="tab-panel" id="alerts">
+  <div class="card">
+    <div class="section-label">Alerts Infrastructure</div>
+    <h2>System Alerts + User Notifications + Routing Rules</h2>
+    <p>Three distinct lanes that must never blur. Blurred lanes cause fatigue. Fatigue causes missed P0s. TAIKO owns the routing rules that keep them clean.</p>
+  </div>
+
+  <div class="insight">
+    <strong>Key decision locked (soul.md):</strong> <strong>Alert</strong> = something broke, humans need to know NOW &mdash; P0 only, routes to JDM DM. <strong>Notification</strong> = something changed, humans should know at their next glance &mdash; in-portal, aggregated. <strong>Message</strong> = human-to-human or human-to-client, real-time. These lanes don&#x2019;t overlap. If they do, TAIKO fixes it.
+  </div>
+
+  <div class="card">
+    <h3>System Alert Types &mdash; Current State vs. Target</h3>
+    <table>
+      <tr><th>Type</th><th>Status</th><th>Target Destination</th><th>Current Reality</th><th>Proactive Next</th></tr>
+      <tr>
+        <td><strong>P0 System Alerts</strong><br><span style="font-size:0.75rem;color:var(--muted)">Service down, data loss, security</span></td>
+        <td><span class="pill plan">DISCOVERY</span></td>
+        <td>JDM DM &mdash; U09BBHTN8F2</td>
+        <td>The <code>notifications</code> collection exists. <code>createNotification()</code> is called by comms routes. No routing logic. No channel selection. P0s post nowhere.</td>
+        <td>Define P0 detection rules &rarr; routing to JDM DM &rarr; wire WIRE_ALERT_ROUTING</td>
+      </tr>
+      <tr>
+        <td><strong>Warrior Notifications</strong><br><span style="font-size:0.75rem;color:var(--muted)">Wire failures, deploy errors, queue flags</span></td>
+        <td><span class="pill plan">DISCOVERY</span></td>
+        <td>Warrior war room + bilateral channels</td>
+        <td>Warriors self-report. No automated routing from system events to warrior channels.</td>
+        <td>Wire system events &rarr; SUPER_ALERT_ROUTE &rarr; correct warrior channel per event type</td>
+      </tr>
+      <tr>
+        <td><strong>User Notifications</strong><br><span style="font-size:0.75rem;color:var(--muted)">Client updates, task assignments, status changes</span></td>
+        <td><span class="pill plan">DISCOVERY</span></td>
+        <td>In-portal notification center (aggregated)</td>
+        <td><code>target_user</code> field exists on notification docs. No delivery mechanism beyond writing to Firestore. Portal notification center is UI-only, not data-wired.</td>
+        <td>Wire Firestore notification docs &rarr; in-portal notification center &rarr; optional SMS/email escalation for urgent items</td>
+      </tr>
+      <tr>
+        <td><strong>Scheduled Notifications</strong><br><span style="font-size:0.75rem;color:var(--muted)">Upcoming renewals, follow-up reminders, AEP prep</span></td>
+        <td><span class="pill plan">PLANNED</span></td>
+        <td>SMS or email per user preference</td>
+        <td>No scheduled notification system exists. These are manual today.</td>
+        <td>After core routing is wired &mdash; define scheduled notification types, build preference layer</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Routing Rules (Target State)</h3>
+    <p>The routing decisions TAIKO will own and enforce. Not wired yet &mdash; documenting intent before building.</p>
+    <table>
+      <tr><th>Trigger</th><th>Severity</th><th>Routes To</th><th>Channel</th></tr>
+      <tr>
+        <td>Service down &mdash; API or portal</td>
+        <td><span class="pill hot">P0</span></td>
+        <td>JDM DM</td>
+        <td>Slack U09BBHTN8F2</td>
+      </tr>
+      <tr>
+        <td>Data loss or corruption detected</td>
+        <td><span class="pill hot">P0</span></td>
+        <td>JDM DM + MEGAZORD</td>
+        <td>Slack U09BBHTN8F2 + #megazord</td>
+      </tr>
+      <tr>
+        <td>Security flag &mdash; PHI exposure risk</td>
+        <td><span class="pill hot">P0</span></td>
+        <td>JDM DM</td>
+        <td>Slack U09BBHTN8F2</td>
+      </tr>
+      <tr>
+        <td>Wire execution failure</td>
+        <td><span class="pill plan">P1</span></td>
+        <td>Owning warrior war room</td>
+        <td>#dojo-war-room + warrior bilateral</td>
+      </tr>
+      <tr>
+        <td>Twilio A2P carrier rejection spike</td>
+        <td><span class="pill plan">P1</span></td>
+        <td>TAIKO bilateral</td>
+        <td>#taiko</td>
+      </tr>
+      <tr>
+        <td>SendGrid bounce rate exceeds 2%</td>
+        <td><span class="pill plan">P1</span></td>
+        <td>TAIKO bilateral</td>
+        <td>#taiko</td>
+      </tr>
+      <tr>
+        <td>CI deploy failure</td>
+        <td><span class="pill plan">P1</span></td>
+        <td>RONIN</td>
+        <td>#dojo-war-room</td>
+      </tr>
+      <tr>
+        <td>Client account update</td>
+        <td><span class="pill hold">P3</span></td>
+        <td>Owning agent &mdash; in-portal notification</td>
+        <td>In-portal notification center</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="insight">
+    <strong>Current gap:</strong> None of this routing is wired. The <code>notifications</code> collection exists. The <code>createNotification()</code> helper exists. TAIKO&#x2019;s first alerts task: build SUPER_ALERT_ROUTE, wire it to the system event sources, and make the routing rules above real. That&#x2019;s WIRE_ALERT_ROUTING in ZRD-COMMS.
+  </div>
+</div>
+
+<!-- TAB 5: TAIKO APP -->
+<div class="tab-panel" id="taiko-app">
+  <div class="card">
+    <div class="section-label">TAIKO App &mdash; The Pipes Registry</div>
+    <h2>TAIKO&#x2019;s Future Warrior App</h2>
+    <p>Every CXO in The Machine wields three weapons: a Registry, a Mesh, and a Dojo. This tab scopes TAIKO&#x2019;s App &mdash; the registry of tools, super-tools, wires, health monitors, and the Beats mesh. Nothing built yet. This is the target architecture.</p>
+  </div>
+
+  <div class="insight">
+    <strong>The architecture frame:</strong> MEGAZORD is ATLAS. VOLTRON is QUE. MUSASHI is the CMO Registry. <strong>TAIKO is the Pipes Registry.</strong> Every channel, every carrier, every webhook, every compliance gate is a registered tool. The App makes them visible, composable, and health-checked.
+  </div>
+
+  <!-- 5a: TOOLS -->
+  <div class="card">
+    <div class="section-label">5a &mdash; Tools &mdash; Atomic Capabilities</div>
+    <h3>The atomic building blocks TAIKO owns. Each does exactly one thing.</h3>
+    <div style="margin-top:12px;">
+
+      <div class="tool-block">
+        <div class="tool-name"><code>twilio-send-sms</code></div>
+        <div class="tool-desc">Outbound SMS to a single recipient. A2P campaign gating enforced before send. Logs to <code>comms_events</code> Firestore collection. TCPA opt-in check is a hard gate &mdash; no opt-in = no send.</div>
+      </div>
+
+      <div class="tool-block">
+        <div class="tool-name"><code>twilio-make-call</code></div>
+        <div class="tool-desc">Outbound voice call. Accepts recipient number, agent caller ID, optional TwiML instructions. Returns call SID for tracking. Recording enabled by default.</div>
+      </div>
+
+      <div class="tool-block">
+        <div class="tool-name"><code>twilio-webhook-inbound-sms</code></div>
+        <div class="tool-desc">Process inbound SMS webhook from Twilio. Match to client record by phone number. Log to <code>comms_events</code>. Route to owning agent notification queue.</div>
+      </div>
+
+      <div class="tool-block">
+        <div class="tool-name"><code>twilio-webhook-inbound-call</code></div>
+        <div class="tool-desc">Process inbound voice webhook. IVR routing logic. Agent assignment. Return TwiML response. Trigger recording. Log call metadata to Firestore.</div>
+      </div>
+
+      <div class="tool-block">
+        <div class="tool-name"><code>twilio-get-recording</code></div>
+        <div class="tool-desc">Fetch recording audio URL and metadata for a completed call by call SID. Returns duration, status, media URL.</div>
+      </div>
+
+      <div class="tool-block">
+        <div class="tool-name"><code>twilio-a2p-status-check</code></div>
+        <div class="tool-desc">Query Twilio A2P 10DLC campaign registration status. Returns current state &mdash; APPROVED / PENDING / BLOCKED &mdash; failure reason if blocked, carrier audit data.</div>
+      </div>
+
+      <div class="tool-block">
+        <div class="tool-name"><code>sendgrid-send-email</code></div>
+        <div class="tool-desc">Send a single transactional email. Accepts recipient, subject, template ID or body, merge vars. Suppression list check is a hard gate. Returns message ID for delivery tracking.</div>
+      </div>
+
+      <div class="tool-block">
+        <div class="tool-name"><code>sendgrid-send-bulk</code></div>
+        <div class="tool-desc">Batch email send. Accepts recipient list with per-recipient merge vars. Chunked into SendGrid API limits. Returns per-recipient acceptance status. For campaign delivery &mdash; MUSASHI authors, TAIKO sends.</div>
+      </div>
+
+      <div class="tool-block">
+        <div class="tool-name"><code>sendgrid-get-stats</code></div>
+        <div class="tool-desc">Fetch SendGrid deliverability stats for a date range. Returns delivered, bounced, spam reported, opened, clicked. Core of the weekly deliverability audit.</div>
+      </div>
+
+      <div class="tool-block">
+        <div class="tool-name"><code>sendgrid-check-suppression</code></div>
+        <div class="tool-desc">Check if an email address is on any SendGrid suppression list. Returns suppression reason if found.</div>
+      </div>
+
+      <div class="tool-block">
+        <div class="tool-name"><code>meet-create-meeting</code></div>
+        <div class="tool-desc">Create a Google Meet event. Returns join URL, calendar event ID, meeting code. Wraps <code>mcp__rpi-workspace__meet_create_meeting</code>. Can pre-associate with a Firestore client record.</div>
+      </div>
+
+      <div class="tool-block">
+        <div class="tool-name"><code>meet-get-transcript</code></div>
+        <div class="tool-desc">Fetch transcript for a completed Google Meet session. Returns full text with speaker attribution. Wraps <code>mcp__rpi-workspace__meet_get_transcript</code>.</div>
+      </div>
+
+      <div class="tool-block">
+        <div class="tool-name"><code>chat-post-message</code></div>
+        <div class="tool-desc">Post a message to a Google Chat space. Accepts space ID, message text, optional thread key for replies. Wraps <code>mcp__rpi-workspace__send_message</code>.</div>
+      </div>
+
+      <div class="tool-block">
+        <div class="tool-name"><code>alert-fire</code></div>
+        <div class="tool-desc">Core routing dispatcher. Accepts payload &mdash; severity, event type, message, source. Applies routing rules table, dispatches to correct channel(s). Writes audit record to Firestore <code>alert_log</code>.</div>
+      </div>
+
+      <div class="tool-block">
+        <div class="tool-name"><code>notification-write</code></div>
+        <div class="tool-desc">Write a notification record to Firestore <code>notifications</code> collection with proper schema &mdash; target_user, type, message, urgency, read: false. The in-portal notification center reads from this collection.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5b: SUPER-TOOLS -->
+  <div class="card">
+    <div class="section-label">5b &mdash; Super-Tools &mdash; Composed Capabilities</div>
+    <h3>Atomic tools composed into intelligent, multi-step capabilities.</h3>
+    <div style="margin-top:12px;">
+
+      <div class="tool-block">
+        <div class="tool-name"><code>SUPER_COMMS_SEND</code></div>
+        <div class="tool-desc">Route a message to the right channel based on user communication preference + message urgency. Input: client_id, message, urgency level. Checks client preference &mdash; SMS vs email vs chat &mdash; checks opt-in status, selects channel, dispatches. Single entry point for all outbound communication decisions.</div>
+      </div>
+
+      <div class="tool-block">
+        <div class="tool-name"><code>SUPER_CLIENT_OUTREACH</code></div>
+        <div class="tool-desc">Multi-channel client contact with fallback sequencing. Attempt 1: preferred channel. If undelivered after N minutes, Attempt 2: fallback channel &mdash; e.g. call &rarr; fallback SMS &rarr; fallback email. Logs each attempt to <code>comms_events</code>. Returns first successful delivery or exhausted-with-log failure.</div>
+      </div>
+
+      <div class="tool-block">
+        <div class="tool-name"><code>SUPER_ALERT_ROUTE</code></div>
+        <div class="tool-desc">Parse severity and event type, apply routing rules table, deliver to the right channel / warrior / person. Input: raw event payload. Outputs: delivery confirmation + <code>alert_log</code> write. P0 goes to JDM DM in under 60 seconds. Every event has a paper trail.</div>
+      </div>
+
+      <div class="tool-block">
+        <div class="tool-name"><code>SUPER_A2P_HEALTH</code></div>
+        <div class="tool-desc">Full Twilio A2P posture check. Queries campaign registration status, CTA verification status, opt-in compliance state, carrier rejection rate over the last 7 days. Returns structured health report: HEALTHY / DEGRADED / BLOCKED with specific failure reasons. TAIKO&#x2019;s weekly SMS compliance instrument.</div>
+      </div>
+
+      <div class="tool-block">
+        <div class="tool-name"><code>SUPER_DELIVERABILITY_AUDIT</code></div>
+        <div class="tool-desc">Full SendGrid + DMARC deliverability audit. Fetches bounce rate, spam rate, delivery rate. Checks DMARC/SPF/DKIM alignment on retireprotected.com. Checks suppression list growth rate. Returns pass/fail per dimension with specific remediation for any failures.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5c: WIRES -->
+  <div class="card">
+    <div class="section-label">5c &mdash; Wires &mdash; End-to-End Flows</div>
+    <h3>Named, end-to-end data flows executed as a single auditable unit.</h3>
+    <table>
+      <tr><th>Wire</th><th>Status</th><th>Flow</th><th>Notes</th></tr>
+      <tr>
+        <td><strong><code>WIRE_INBOUND_SMS</code></strong></td>
+        <td><span class="pill plan">PLANNED</span></td>
+        <td>SMS arrives at Twilio &rarr; <code>twilio-webhook-inbound-sms</code> &rarr; client lookup by phone &rarr; log to <code>comms_events</code> &rarr; <code>notification-write</code> to owning agent</td>
+        <td>Every inbound client text gets a record and an agent notification. No more messages falling into a void.</td>
+      </tr>
+      <tr>
+        <td><strong><code>WIRE_INBOUND_CALL</code></strong></td>
+        <td><span class="pill plan">PLANNED</span></td>
+        <td>Call arrives &rarr; IVR routing &rarr; agent assignment &rarr; recording starts &rarr; call ends &rarr; recording URL synced to Firestore client record &rarr; transcript sync if available</td>
+        <td>Full inbound call audit trail in client record. No more disconnected call logs.</td>
+      </tr>
+      <tr>
+        <td><strong><code>WIRE_OUTBOUND_CAMPAIGN_BATCH</code></strong></td>
+        <td><span class="pill plan">PLANNED</span></td>
+        <td>MUSASHI authors content &rarr; content into ZRD ticket &rarr; TAIKO validates compliance &mdash; opt-in check, suppression check, TCPA window &rarr; <code>sendgrid-send-bulk</code> or <code>twilio-send-sms</code> batch &rarr; delivery results logged &rarr; MUSASHI notified</td>
+        <td>MUSASHI authors. TAIKO gates compliance. Neither touches the other&#x2019;s domain.</td>
+      </tr>
+      <tr>
+        <td><strong><code>WIRE_ALERT_ROUTING</code></strong></td>
+        <td><span class="pill plan">PLANNED</span></td>
+        <td>System event fires &rarr; event classified by severity + type &rarr; <code>SUPER_ALERT_ROUTE</code> dispatches to correct channel &rarr; <code>alert_log</code> write &rarr; optional acknowledgement tracking</td>
+        <td>The wire that makes P0 events reach JDM DM in under 60 seconds. Job #2 after A2P unblock.</td>
+      </tr>
+      <tr>
+        <td><strong><code>WIRE_ONBOARDING_SMS_SEQUENCE</code></strong></td>
+        <td><span class="pill plan">FUTURE</span></td>
+        <td>New client signs up (Firestore write to <code>clients</code>) &rarr; opt-in consent confirmed &rarr; 6-touch 14-day SMS nurture sequence scheduled &rarr; each touch fires via <code>twilio-send-sms</code> at TCPA-compliant windows &rarr; reply handling via <code>WIRE_INBOUND_SMS</code></td>
+        <td>TCPA-compliant nurture. MUSASHI writes the copy for all 6 touches. TAIKO handles timing, delivery, compliance gating. Future sprint after core pipes are live.</td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- 5d: HEALTH -->
+  <div class="card">
+    <div class="section-label">5d &mdash; Health &mdash; Observability</div>
+    <h3>What TAIKO watches. The instruments that tell us whether every signal is reaching.</h3>
+    <table>
+      <tr><th>Instrument</th><th>Metric</th><th>Healthy Threshold</th><th>Escalation Threshold</th><th>Tool</th></tr>
+      <tr>
+        <td><strong>Twilio API Uptime</strong></td>
+        <td>Error rate on outbound API calls</td>
+        <td>&lt; 0.1% error rate</td>
+        <td>&gt; 0.5% &rarr; P1 escalation</td>
+        <td><code>twilio-a2p-status-check</code></td>
+      </tr>
+      <tr>
+        <td><strong>SMS Delivery Rate</strong></td>
+        <td>Delivered / sent ratio, carrier rejections</td>
+        <td>&gt; 97% delivered</td>
+        <td>&lt; 95% delivered &rarr; P1 escalation</td>
+        <td><code>SUPER_A2P_HEALTH</code></td>
+      </tr>
+      <tr>
+        <td><strong>A2P Campaign Status</strong></td>
+        <td>Campaign registration state</td>
+        <td>APPROVED</td>
+        <td>PENDING or BLOCKED &rarr; P0 escalation</td>
+        <td><code>twilio-a2p-status-check</code></td>
+      </tr>
+      <tr>
+        <td><strong>SendGrid Delivery Rate</strong></td>
+        <td>Delivered / sent ratio</td>
+        <td>&gt; 98% delivered</td>
+        <td>&lt; 96% delivered &rarr; P1 escalation</td>
+        <td><code>sendgrid-get-stats</code></td>
+      </tr>
+      <tr>
+        <td><strong>SendGrid Bounce Rate</strong></td>
+        <td>Hard + soft bounces / sent</td>
+        <td>&lt; 1.5%</td>
+        <td>&gt; 2% &rarr; P1 escalation &mdash; domain reputation risk</td>
+        <td><code>SUPER_DELIVERABILITY_AUDIT</code></td>
+      </tr>
+      <tr>
+        <td><strong>DMARC / SPF / DKIM</strong></td>
+        <td>DNS alignment on retireprotected.com</td>
+        <td>All passing</td>
+        <td>Any misalignment &rarr; P0 escalation</td>
+        <td><code>SUPER_DELIVERABILITY_AUDIT</code></td>
+      </tr>
+      <tr>
+        <td><strong>Google Meet / Chat API</strong></td>
+        <td>API availability, webhook delivery</td>
+        <td>API returning 2xx</td>
+        <td>API errors &rarr; P1 escalation</td>
+        <td><code>meet-create-meeting</code> health probe</td>
+      </tr>
+      <tr>
+        <td><strong>Routing Service Health</strong></td>
+        <td>WIRE_ALERT_ROUTING last run + success state</td>
+        <td>Last run &lt; 5 min ago, no failures</td>
+        <td>Last run &gt; 10 min ago or any failure &rarr; P0 escalation</td>
+        <td>Heartbeat cron + <code>alert-fire</code> self-test</td>
+      </tr>
+      <tr>
+        <td><strong>Rate Limit Posture</strong></td>
+        <td>Twilio throughput + SendGrid daily quota</td>
+        <td>&lt; 70% of limit</td>
+        <td>&gt; 85% of limit &rarr; P1 escalation &mdash; headroom shrinking</td>
+        <td><code>sendgrid-get-stats</code> + Twilio rate monitor</td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- 5e: MESH -->
+  <div class="card">
+    <div class="section-label">5e &mdash; Mesh &mdash; The Beats</div>
+    <h3>TAIKO&#x2019;s specialist mesh. 5 Beats, each owning a channel domain. TAIKO coordinates. Beats execute.</h3>
+    <p style="margin-bottom:16px;">Like every CXO&#x2019;s mesh, The Beats are CCSDK specialists handling execution within their channel. TAIKO orchestrates. Each Beat is a named sub-agent with a focused tool subset. MUSASHI will finalize the names &mdash; these are the working candidates.</p>
+
+    <div class="beat-card">
+      <div class="beat-icon">&#x1F50A;</div>
+      <div class="beat-body">
+        <h3>Voice Beat</h3>
+        <p><strong>Domain:</strong> Twilio voice &mdash; outbound calls, inbound routing, IVR, recording, transcription. <strong>Tools:</strong> <code>twilio-make-call</code>, <code>twilio-webhook-inbound-call</code>, <code>twilio-get-recording</code>. <strong>Owns:</strong> Call routing logic, IVR scripts, recording pipeline to Firestore client records.</p>
+      </div>
+    </div>
+
+    <div class="beat-card">
+      <div class="beat-icon">&#x1F4AC;</div>
+      <div class="beat-body">
+        <h3>SMS Beat</h3>
+        <p><strong>Domain:</strong> Twilio SMS + A2P compliance &mdash; outbound sends, inbound processing, carrier compliance, opt-in enforcement. <strong>Tools:</strong> <code>twilio-send-sms</code>, <code>twilio-webhook-inbound-sms</code>, <code>twilio-a2p-status-check</code>, <code>SUPER_A2P_HEALTH</code>. <strong>Owns:</strong> A2P campaign health, TCPA compliance gates, suppression logic for SMS.</p>
+      </div>
+    </div>
+
+    <div class="beat-card">
+      <div class="beat-icon">&#x2709;&#xFE0F;</div>
+      <div class="beat-body">
+        <h3>Email Beat</h3>
+        <p><strong>Domain:</strong> SendGrid &mdash; transactional email, bulk sends, deliverability health, DMARC/SPF/DKIM, suppression. <strong>Tools:</strong> <code>sendgrid-send-email</code>, <code>sendgrid-send-bulk</code>, <code>sendgrid-get-stats</code>, <code>sendgrid-check-suppression</code>, <code>SUPER_DELIVERABILITY_AUDIT</code>. <strong>Owns:</strong> Email compliance, domain reputation, deliverability monitoring.</p>
+      </div>
+    </div>
+
+    <div class="beat-card">
+      <div class="beat-icon">&#x1F465;</div>
+      <div class="beat-body">
+        <h3>Internal Beat</h3>
+        <p><strong>Domain:</strong> Google Meet + Google Chat + RPI Connect + In-portal Comms App. <strong>Tools:</strong> <code>meet-create-meeting</code>, <code>meet-get-transcript</code>, <code>chat-post-message</code>. <strong>Owns:</strong> Internal comms infrastructure, Slack wind-down sequencing, RPI Connect wiring, Comms App rebuild coordination with RONIN.</p>
+      </div>
+    </div>
+
+    <div class="beat-card">
+      <div class="beat-icon">&#x1F6A8;</div>
+      <div class="beat-body">
+        <h3>Alerts Beat</h3>
+        <p><strong>Domain:</strong> Routing, user notifications, system event classification. <strong>Tools:</strong> <code>alert-fire</code>, <code>notification-write</code>, <code>SUPER_ALERT_ROUTE</code>. <strong>Owns:</strong> P0 routing to JDM DM, warrior notification routing, in-portal notification center, scheduled notification delivery. Keeps lanes clean so P0s never get lost in noise.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5f: PIPELINE -->
+  <div class="card">
+    <div class="section-label">5f &mdash; Pipeline &mdash; Sprint Lifecycle</div>
+    <h3>TAIKO&#x2019;s sprint history and roadmap. Same FORGE lifecycle as every warrior.</h3>
+    <table>
+      <tr><th>Sprint</th><th>Status</th><th>Tickets</th><th>Focus</th><th>Key Gates</th></tr>
+      <tr>
+        <td><strong>ZRD-COMMS</strong><br><span style="font-size:0.75rem;color:var(--muted)">Birth sprint</span></td>
+        <td><span class="pill next">IN FLIGHT</span></td>
+        <td>16 tickets (COMMS-001 through COMMS-016)</td>
+        <td>Day-1 critical path: A2P unblock. Then voice rebuild, email audit, Chat/Slack consolidation, RPI Connect wiring, in-portal Comms app rebuild, routing infrastructure.</td>
+        <td>COMMS-001 gates everything. No outbound SMS until A2P is APPROVED. Each subsequent ticket builds on the previous.</td>
+      </tr>
+      <tr>
+        <td><strong>ZRD-PIPES-2</strong><br><span style="font-size:0.75rem;color:var(--muted)">Future &mdash; App build</span></td>
+        <td><span class="pill plan">PLANNED</span></td>
+        <td>TBD after ZRD-COMMS</td>
+        <td>Build the 15 atomic tools listed in 5a. Wire SUPER_COMMS_SEND and SUPER_ALERT_ROUTE. Stand up the Pipes Registry as a proper ATLAS-style registry in Firestore.</td>
+        <td>ZRD-COMMS must be complete and pipes proven before formalizing the registry.</td>
+      </tr>
+      <tr>
+        <td><strong>ZRD-BEATS</strong><br><span style="font-size:0.75rem;color:var(--muted)">Future &mdash; Mesh</span></td>
+        <td><span class="pill plan">PLANNED</span></td>
+        <td>TBD</td>
+        <td>Stand up The Beats as 5 CCSDK specialists on MDJ_SERVER. Each Beat owns its tool subset. TAIKO coordinates via dispatch.</td>
+        <td>Per APPA: tools must be proven before automation. The Beats don&#x2019;t spin up until the tools work and have been run manually enough to trust them.</td>
+      </tr>
+      <tr>
+        <td><strong>ZRD-WIRES</strong><br><span style="font-size:0.75rem;color:var(--muted)">Future &mdash; Full automation</span></td>
+        <td><span class="pill plan">FUTURE</span></td>
+        <td>TBD</td>
+        <td>Wire all 5 named wires. Full automation only after Beats are proven.</td>
+        <td>APPA Stage 4: automate only after people/systems are hardened on proven tools. Full wire automation is the A stage &mdash; it comes last.</td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+<!-- TAB 6: INTEL ANALYSIS -->
+<div class="tab-panel" id="intel">
+  <div class="card">
+    <div class="section-label">Intel Analysis</div>
+    <h2>Comms Infrastructure Research &mdash; Regulatory + Provider + Compliance</h2>
+    <p>Carrier regulations change. Twilio updates their APIs. SendGrid adjusts limits. Google changes Meet policies. TAIKO tracks changes that affect the pipes before they break them. Seeded from the ZRD-COMMS Discovery Doc. Grows over time.</p>
+  </div>
+
+  <div class="card" style="overflow-x:auto;">
+    <table>
+      <tr>
+        <th style="min-width:50px;">#</th>
+        <th style="min-width:200px;">Topic / Source</th>
+        <th>Date</th>
+        <th>Priority</th>
+        <th>Status</th>
+        <th style="min-width:250px;">Implication + Action</th>
+      </tr>
+      <tr>
+        <td>1</td>
+        <td>
+          <strong>A2P 10DLC Campaign Registration Requirements</strong><br>
+          <span style="font-size:0.75rem;color:var(--muted)">CTIA + Twilio carrier enforcement rules</span>
+        </td>
+        <td>2026-04</td>
+        <td><span class="pill hot">CRITICAL</span></td>
+        <td><span class="pill next">OPEN</span></td>
+        <td>TAIKO&#x2019;s current blocker. A2P 10DLC requires: (1) registered Campaign with carrier-approved use case, (2) CTA verification &mdash; a compliant opt-in page on our domain, (3) opt-in language meeting TCPA standards. Current state: all three are incomplete. MUSASHI writes the opt-in copy. TAIKO builds the page and registers the campaign. COMMS-001 is the fix.</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>
+          <strong>STIR/SHAKEN Call Attestation</strong><br>
+          <span style="font-size:0.75rem;color:var(--muted)">FCC mandate via TRACED Act &mdash; affects local number delivery</span>
+        </td>
+        <td>2026-04</td>
+        <td><span class="pill plan">MEDIUM</span></td>
+        <td><span class="pill next">OPEN</span></td>
+        <td>STIR/SHAKEN attestation determines whether outbound calls are labeled as &ldquo;Spam Likely&rdquo; by receiving carriers. Twilio handles attestation level (A/B/C) based on account standing and number verification. Current: attestation level not verified post-A2P block. Action: verify attestation level in Twilio console during COMMS-001 work, escalate if below B-level.</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>
+          <strong>SendGrid Domain Authentication Best Practices</strong><br>
+          <span style="font-size:0.75rem;color:var(--muted)">SendGrid Docs + DMARC Analyzer recommendations</span>
+        </td>
+        <td>2026-04</td>
+        <td><span class="pill plan">MEDIUM</span></td>
+        <td><span class="pill next">OPEN</span></td>
+        <td>Gmail and Yahoo require DMARC enforcement for bulk senders. retireprotected.com sending domain must have DMARC policy = quarantine or reject (not none), SPF alignment, and DKIM signing. Current state: unknown. First deliverability audit will reveal gaps. Action: SUPER_DELIVERABILITY_AUDIT as the first email task after A2P work completes.</td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td>
+          <strong>TCPA Compliance &mdash; SMS Opt-In Requirements</strong><br>
+          <span style="font-size:0.75rem;color:var(--muted)">FCC TCPA enforcement + 2024 1-to-1 consent ruling</span>
+        </td>
+        <td>2026-04</td>
+        <td><span class="pill hot">CRITICAL</span></td>
+        <td><span class="pill next">OPEN</span></td>
+        <td>2024 FCC TCPA ruling tightened consent requirements: consent must be 1-to-1 &mdash; specific to RPI, not generic lead-gen consent. Every opt-in must be written consent with RPI as the named entity. Our current opt-in capture: nonexistent. This is both the legal requirement and the technical gate Twilio checks. MUSASHI writes the specific consent language. TAIKO builds the gate. This is COMMS-001.</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="insight">
+    <strong>This table grows:</strong> Every time JDM sends an article about SMS regulation, Twilio policy changes, email deliverability, or Google Workspace policy &mdash; it goes here. TAIKO is responsible for keeping the regulatory picture current. The pipes have to be compliant before they can beat.
+  </div>
+</div>
+
+<!-- TAB 7: MESH DEVELOPMENT -->
+<div class="tab-panel" id="mesh">
+  <div class="card">
+    <div class="section-label">Mesh Development &mdash; The Beats</div>
+    <h2>Warrior Maturity Tracker &mdash; 5 Beats Under TAIKO</h2>
+    <p>Each Beat follows the same maturity progression. A Beat is not autonomous until it&#x2019;s proven through all five stages. Per APPA: tools before automation. Beats don&#x2019;t spin up until the tools they run are battle-hardened.</p>
+  </div>
+
+  <div class="insight">
+    <strong>APPA gate:</strong> No Beat enters AUTONOMOUS until TAIKO has run that Beat&#x2019;s tools manually enough times to trust them completely. Automate what&#x2019;s proven. Never the other way.
+  </div>
+
+  <div class="card" style="overflow-x:auto;">
+    <table>
+      <tr>
+        <th>Beat</th>
+        <th>Domain</th>
+        <th>Stage</th>
+        <th>Tools Status</th>
+        <th>What Unlocks Next Stage</th>
+      </tr>
+      <tr>
+        <td><strong>Voice Beat</strong></td>
+        <td>Twilio voice, IVR, recording, transcription</td>
+        <td><span class="pill plan">PLANNING</span></td>
+        <td>Toolset defined in 5a. Not built yet.</td>
+        <td>ZRD-COMMS voice rebuild tickets ship. Voice pipeline proven manually by TAIKO.</td>
+      </tr>
+      <tr>
+        <td><strong>SMS Beat</strong></td>
+        <td>Twilio SMS + A2P compliance</td>
+        <td><span class="pill plan">PLANNING</span></td>
+        <td>Toolset defined. A2P unblock is the prerequisite for any SMS tool to be useful.</td>
+        <td>A2P campaign APPROVED. COMMS-001 shipped. <code>twilio-send-sms</code> running clean with compliant opt-in gate.</td>
+      </tr>
+      <tr>
+        <td><strong>Email Beat</strong></td>
+        <td>SendGrid deliverability + bulk sends</td>
+        <td><span class="pill plan">PLANNING</span></td>
+        <td>Toolset defined. Deliverability audit needed before tools can be calibrated.</td>
+        <td>SUPER_DELIVERABILITY_AUDIT runs and returns a clean result. DMARC/SPF/DKIM verified. Bounce rate healthy.</td>
+      </tr>
+      <tr>
+        <td><strong>Internal Beat</strong></td>
+        <td>Google Meet + Chat + RPI Connect + Comms App</td>
+        <td><span class="pill plan">PLANNING</span></td>
+        <td>Meet/Chat API tools exist in rpi-workspace MCP. RPI Connect and Comms App require RONIN feature work first.</td>
+        <td>RPI Connect wiring complete. Comms App rebuild shipped. Team actively using internal comms infrastructure.</td>
+      </tr>
+      <tr>
+        <td><strong>Alerts Beat</strong></td>
+        <td>Routing, user notifications, system event classification</td>
+        <td><span class="pill plan">PLANNING</span></td>
+        <td>Toolset defined. WIRE_ALERT_ROUTING not built yet. <code>alert-fire</code> and <code>notification-write</code> not built yet.</td>
+        <td>WIRE_ALERT_ROUTING ships. P0 events proven to reach JDM DM in under 60 seconds. 2-week clean run with no missed events.</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Maturity Stage Definitions</h3>
+    <table>
+      <tr><th>Stage</th><th>Definition</th></tr>
+      <tr><td><span class="pill plan">PLANNING</span></td><td>Beat scope defined. Tools specified. Not built or running yet. This is where all 5 Beats are today.</td></tr>
+      <tr><td><span class="pill next">SCAFFOLDING</span></td><td>Tools being built. Beat config scaffolded in CCSDK. First manual runs happening under TAIKO supervision.</td></tr>
+      <tr><td><span class="pill amber">DEVELOPING</span></td><td>Tools running. Beat handling some tasks but TAIKO still in the loop on edge cases and failures.</td></tr>
+      <tr><td><span class="pill live">MATURING</span></td><td>Beat handling its full domain autonomously. TAIKO reviews results weekly but not in the execution loop.</td></tr>
+      <tr><td><span class="pill live">AUTONOMOUS</span></td><td>Beat proven over time. Runs without TAIKO intervention. Self-reports health. TAIKO only involved on new scope.</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- TAB 8: HIT LIST -->
+<div class="tab-panel" id="hitlist">
+  <div class="card">
+    <div class="section-label">Hit List</div>
+    <h2>TAIKO&#x2019;s Active Tasks &mdash; In Order of Execution</h2>
+    <p>Specific actions in flight. Day-1 critical path from the ZRD-COMMS Discovery Doc. Updated as tickets close.</p>
+  </div>
+
+  <div class="insight">
+    <strong>The drum beats in order.</strong> COMMS-001 is Job #1 because outbound SMS is blocked and the team can&#x2019;t reach clients. Nothing else on this list matters until that clears.
+  </div>
+
+  <div class="hit-item">
+    <div class="status"><span class="pill hot">P0</span></div>
+    <div class="desc"><strong>COMMS-001 &mdash; Kill the Twilio A2P SMS Block</strong><br>
+    Reopen Twilio ticket #25630009. Coordinate with MUSASHI on opt-in consent copy. Build /sms-consent compliant landing page. Register A2P campaign with correct use-case category. Submit CTA Verification. Wait for carrier approval. Zero outbound SMS until this clears.</div>
+  </div>
+
+  <div class="hit-item">
+    <div class="status"><span class="pill hot">P0</span></div>
+    <div class="desc"><strong>COMMS-002 &mdash; Reopen Twilio Ticket</strong><br>
+    Twilio ticket #25630009 was auto-closed without resolution. TAIKO reopens or creates a new escalation ticket with full documentation of the block status, timeline, and what&#x2019;s needed. COMMS-001 and COMMS-002 run in parallel.</div>
+  </div>
+
+  <div class="hit-item">
+    <div class="status"><span class="pill next">P1</span></div>
+    <div class="desc"><strong>COMMS-003 &mdash; SendGrid Deliverability Audit</strong><br>
+    Run SUPER_DELIVERABILITY_AUDIT equivalent manually. Fetch bounce rate, delivery rate, spam rate. Verify DMARC/SPF/DKIM on retireprotected.com. Check suppression list. Report findings. Fix any critical misalignment before next campaign batch.</div>
+  </div>
+
+  <div class="hit-item">
+    <div class="status"><span class="pill next">P1</span></div>
+    <div class="desc"><strong>COMMS-004 &mdash; Wire WIRE_ALERT_ROUTING</strong><br>
+    Build <code>alert-fire</code> tool. Apply routing rules table. Test each severity level. Verify P0 reaches JDM DM in under 60 seconds. Job #2 after A2P because P0s going unseen is a category-2 failure.</div>
+  </div>
+
+  <div class="hit-item">
+    <div class="status"><span class="pill next">P1</span></div>
+    <div class="desc"><strong>COMMS-005 &mdash; Inbound SMS Structured Logging</strong><br>
+    Wire the inbound SMS webhook to client lookup + <code>comms_events</code> write + owning agent notification. Every inbound client text gets a record. No more texts falling into a void.</div>
+  </div>
+
+  <div class="hit-item">
+    <div class="status"><span class="pill plan">P2</span></div>
+    <div class="desc"><strong>COMMS-006 through COMMS-010 &mdash; Voice Rebuild</strong><br>
+    IVR rebuild, consistent routing, call recording to client record, transcript sync, STIR/SHAKEN attestation verification. Full voice pipeline clean after A2P clears.</div>
+  </div>
+
+  <div class="hit-item">
+    <div class="status"><span class="pill plan">P2</span></div>
+    <div class="desc"><strong>COMMS-011 through COMMS-013 &mdash; Internal Comms Wiring</strong><br>
+    Google Chat space management, RPI Connect module real data wiring, in-portal Comms app rebuild coordination with RONIN. Goal: internal comms destination works before Slack wind-down begins.</div>
+  </div>
+
+  <div class="hit-item">
+    <div class="status"><span class="pill plan">P2</span></div>
+    <div class="desc"><strong>COMMS-014 through COMMS-016 &mdash; Notification Center + Preferences</strong><br>
+    Wire Firestore <code>notifications</code> collection to in-portal notification center UI. Per-user notification preference layer &mdash; SMS vs email vs in-portal. Scheduled notification infrastructure.</div>
+  </div>
+
+  <div class="hit-item">
+    <div class="status"><span class="pill plan">FUTURE</span></div>
+    <div class="desc"><strong>TAIKO App Build &mdash; Pipes Registry</strong><br>
+    After ZRD-COMMS is complete and pipes are proven: formalize the tool registry (5a), wire the super-tools (5b), register the wires (5c), stand up health observability (5d). This is ZRD-PIPES-2.</div>
+  </div>
+
+  <div class="hit-item">
+    <div class="status"><span class="pill plan">FUTURE</span></div>
+    <div class="desc"><strong>The Beats &mdash; Mesh Scaffolding</strong><br>
+    Scaffold 5 CCSDK Beat specialists on MDJ_SERVER. Each Beat&#x2019;s tools must be proven before it goes autonomous. Scaffolding starts only when the relevant tool set is battle-hardened. This is ZRD-BEATS.</div>
+  </div>
+</div>
+
+<!-- TAB 9: DOCS INDEX -->
+<div class="tab-panel" id="docs">
+  <div class="card">
+    <div class="section-label">Docs Index</div>
+    <h2>Every Doc TAIKO Owns</h2>
+    <p>The canonical reference list. If a doc about TAIKO&#x2019;s domain doesn&#x2019;t appear here, it doesn&#x2019;t officially exist yet.</p>
+  </div>
+
+  <div class="card">
+    <h3>Identity &amp; Soul</h3>
+    <table>
+      <tr><th>Doc</th><th>Status</th><th>Location</th><th>Notes</th></tr>
+      <tr>
+        <td><strong>soul.md</strong><br><span style="font-size:0.75rem;color:var(--muted)">Operational identity, scope, 4-plane architecture, 7 key decisions</span></td>
+        <td><span class="pill live">LIVE</span></td>
+        <td><code>dojo-warriors/warriors/taiko/soul.md</code></td>
+        <td>Load on every rebuild. First file. This defines who TAIKO is.</td>
+      </tr>
+      <tr>
+        <td><strong>spirit.md</strong><br><span style="font-size:0.75rem;color:var(--muted)">Naming story, the discarded HERALD, MUSASHI&#x2019;s naming moment, JDM approval</span></td>
+        <td><span class="pill live">LIVE</span></td>
+        <td><code>dojo-warriors/warriors/taiko/spirit.md</code></td>
+        <td>Identity restoration. Load after soul.md when context is shaky. The birth certificate.</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Discovery Docs</h3>
+    <table>
+      <tr><th>Doc</th><th>Status</th><th>Location</th><th>Notes</th></tr>
+      <tr>
+        <td><strong>Comms Infrastructure Warrior Discovery Doc</strong><br><span style="font-size:0.75rem;color:var(--muted)">ZRD-COMMS &mdash; 16 tickets, 8 tabs</span></td>
+        <td><span class="pill live">LIVE</span></td>
+        <td><a href="../shinob1/comms-infrastructure-warrior-discovery.html">comms-infrastructure-warrior-discovery.html</a></td>
+        <td>Lives under shinob1/ because SHINOB1 authored it. TAIKO&#x2019;s birth sprint contract. Read before starting ZRD-COMMS work.</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Ownership &amp; Planning</h3>
+    <table>
+      <tr><th>Doc</th><th>Status</th><th>Location</th><th>Notes</th></tr>
+      <tr>
+        <td><strong>TAIKO Ownership Grid (this doc)</strong><br><span style="font-size:0.75rem;color:var(--muted)">9-tab ownership roadmap: rhythm, channels, app scope, mesh, hit list</span></td>
+        <td><span class="pill live">LIVE</span></td>
+        <td><a href="ownership-grid.html">ownership-grid.html</a></td>
+        <td>The grid. Updated as pipes are rebuilt and tickets close.</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Future Docs (Not Yet Written)</h3>
+    <table>
+      <tr><th>Doc</th><th>Trigger</th><th>Notes</th></tr>
+      <tr>
+        <td><strong>ZRD-COMMS Sprint Plan</strong></td>
+        <td>When TAIKO starts executing the sprint</td>
+        <td>Per-ticket execution plan. Phases, gates, build order. Lives under taiko/.</td>
+      </tr>
+      <tr>
+        <td><strong>Pipes Registry</strong></td>
+        <td>When ZRD-PIPES-2 begins</td>
+        <td>Formal registry of all 15 atomic tools, 5 super-tools, 5 wires. Firestore-backed. Same pattern as ATLAS.</td>
+      </tr>
+      <tr>
+        <td><strong>ZRD-BEATS Sprint Plan</strong></td>
+        <td>When Beats scaffolding begins</td>
+        <td>5 Beat specialist configs, tool subsets, CCSDK setup on MDJ_SERVER.</td>
+      </tr>
+      <tr>
+        <td><strong>A2P Compliance Trail</strong></td>
+        <td>After COMMS-001 closes</td>
+        <td>Permanent compliance record: campaign registration date, carrier approval, CTA verification, opt-in page URL, consent language version. Legal paper trail.</td>
+      </tr>
+      <tr>
+        <td><strong>TAIKO brain.txt</strong></td>
+        <td>Accumulates over sessions</td>
+        <td>Full archive + entity extraction feed. Grows with every sprint. Reference on demand.</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="insight">
+    <strong>Doc creation rule:</strong> A doc gets written AFTER enough activity to warrant it. Not before. A plan gets written before a sprint starts. A registry doc gets written after the tools are proven. An A2P compliance trail gets written after carrier approval. Don&#x2019;t document what hasn&#x2019;t been done.
+  </div>
+</div>
+
+</div><!-- end .content -->
+
+<div class="footer">
+  &#x1F941; TAIKO &#x592A;&#x9F13; &mdash; Comms Infrastructure Warrior &mdash; The Drum &mdash; Born 2026-04-13<br>
+  Named by MUSASHI &bull; Approved by JDM (&ldquo;Love TAIKO!!!&rdquo;) &bull; Every signal reaches.<br>
+  #RunningOurOwnRACE
+</div>
+
+<script>
+document.querySelectorAll('.tab').forEach(function(tab) {
+  tab.addEventListener('click', function() {
+    var target = tab.dataset.tab;
+    document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+    document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+    tab.classList.add('active');
+    document.getElementById(target).classList.add('active');
+  });
+});
+</script>
+
+</body>
+</html>

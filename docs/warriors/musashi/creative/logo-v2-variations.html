@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RPI Logo v2 — Variations Gallery</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --rpi-289: #0a2240;
+    --rpi-283: #92c0e9;
+    --rpi-medium: #12416b;
+    --rpi-pale: #abd2ef;
+    --rpi-mist: #cae7f9;
+    --ink: #1a1a1a;
+    --ink-soft: #3a4456;
+    --paper: #f4f4f5;
+    --rule: #d0dae6;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Poppins', system-ui, sans-serif; background: var(--paper); color: var(--ink); line-height: 1.6; }
+  .header { background: linear-gradient(135deg, #05101f, #0a2240 60%, #12416b); color: white; padding: 40px 32px 32px; text-align: center; }
+  .header .label { font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--rpi-283); font-weight: 600; margin-bottom: 10px; }
+  .header h1 { font-size: 2.4rem; font-weight: 800; margin-bottom: 10px; }
+  .header p { color: var(--rpi-pale); max-width: 700px; margin: 0 auto; font-size: 1rem; }
+  .wrap { max-width: 1400px; margin: 0 auto; padding: 40px 32px 80px; }
+  .intro { background: white; border: 1px solid var(--rule); border-left: 4px solid var(--rpi-medium); padding: 20px 24px; border-radius: 6px; margin-bottom: 32px; }
+  .intro h2 { font-size: 1.2rem; color: var(--rpi-289); margin-bottom: 8px; }
+  .intro p { color: var(--ink-soft); font-size: 15px; }
+  .intro ul { margin-top: 10px; color: var(--ink-soft); font-size: 14px; padding-left: 20px; }
+
+  .variants { display: grid; gap: 24px; }
+  .variant {
+    background: white; border: 2px solid var(--rule); border-radius: 10px; padding: 24px 28px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .variant:hover { border-color: var(--rpi-medium); box-shadow: 0 4px 20px rgba(10,34,64,0.1); }
+  .variant-head { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1px solid var(--rule); padding-bottom: 12px; margin-bottom: 20px; }
+  .variant-head h3 { font-size: 1.1rem; color: var(--rpi-289); font-weight: 700; }
+  .variant-head .tag { font-family: 'Poppins', sans-serif; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--rpi-medium); font-weight: 600; background: rgba(146,192,233,0.2); padding: 4px 10px; border-radius: 12px; }
+  .variant .desc { color: var(--ink-soft); font-size: 13px; margin-bottom: 16px; }
+  .variant .logo-box { background: var(--paper); padding: 30px; border-radius: 6px; display: flex; justify-content: center; align-items: center; min-height: 180px; }
+  .variant.dark .logo-box { background: var(--rpi-289); }
+  .variant img { max-width: 100%; height: auto; max-height: 180px; }
+
+  .pick-btn { font-family: 'Poppins', sans-serif; font-size: 12px; font-weight: 700; color: var(--rpi-289); background: white; border: 2px solid var(--rpi-medium); padding: 8px 16px; border-radius: 20px; cursor: pointer; margin-top: 16px; letter-spacing: 0.04em; }
+  .pick-btn:hover { background: var(--rpi-medium); color: white; }
+
+  .cta { background: var(--rpi-289); color: white; padding: 28px 32px; border-radius: 10px; margin-top: 40px; text-align: center; }
+  .cta h2 { color: white; font-size: 1.4rem; margin-bottom: 8px; }
+  .cta p { color: var(--rpi-pale); font-size: 15px; max-width: 600px; margin: 0 auto; }
+  .cta code { background: rgba(255,255,255,0.1); padding: 3px 8px; border-radius: 3px; color: var(--rpi-mist); font-size: 13px; }
+  .footer { max-width: 1400px; margin: 2rem auto; padding: 1rem 2rem; color: var(--ink-soft); font-size: 13px; text-align: center; border-top: 1px solid var(--rule); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="label">CMO · Logo v2 · Pick a Variant</div>
+  <h1>RPI Logo v2 — Variations</h1>
+  <p>Eight composed options. All built from the existing authorized RPI wordmark + real Poppins typography. No new shapes. Pick the one that feels right — I'll lock it as the official file and sweep it through both brochures.</p>
+</div>
+
+<div class="wrap">
+
+  <div class="intro">
+    <h2>What's varying</h2>
+    <p>Same wordmark. Same tagline <em>"We're Your People™"</em>. Same brand navy. What changes:</p>
+    <ul>
+      <li><strong>Vertical gap</strong> — tight / medium / loose spacing between wordmark baseline and tagline</li>
+      <li><strong>Horizontal alignment</strong> — centered / right-aligned (under "Inc.") / left-aligned (under "Retirement")</li>
+      <li><strong>Tagline size + weight</strong> — smaller SemiBold / medium SemiBold / larger Bold</li>
+      <li><strong>Graphic device</strong> — with or without a divider line</li>
+      <li><strong>Shield treatment</strong> — baked into existing wordmark (A–G) vs. scaled-up shield on the side (H)</li>
+    </ul>
+  </div>
+
+  <div class="variants">
+
+    <div class="variant">
+      <div class="variant-head">
+        <h3>Variant A — Baseline (current v3 build)</h3>
+        <span class="tag">Centered · Bold 118 · 50px gap</span>
+      </div>
+      <div class="desc">What you've been looking at. Good balance, maybe a touch loose on the vertical spacing.</div>
+      <div class="logo-box"><img src="assets/rpi/logo-variants/v-a-centered-bold-baseline.png" alt="Variant A"></div>
+    </div>
+
+    <div class="variant">
+      <div class="variant-head">
+        <h3>Variant B — Tight</h3>
+        <span class="tag">Centered · Bold 118 · 16px gap</span>
+      </div>
+      <div class="desc">Same weight, but tagline tucked right under the wordmark. Reads as one locked lockup.</div>
+      <div class="logo-box"><img src="assets/rpi/logo-variants/v-b-centered-bold-tight.png" alt="Variant B"></div>
+    </div>
+
+    <div class="variant">
+      <div class="variant-head">
+        <h3>Variant C — Refined Small</h3>
+        <span class="tag">Centered · SemiBold 84 · 20px gap</span>
+      </div>
+      <div class="desc">Smaller, lighter, refined. Tagline sits as a respectful subtitle under the main mark.</div>
+      <div class="logo-box"><img src="assets/rpi/logo-variants/v-c-centered-semibold-small.png" alt="Variant C"></div>
+    </div>
+
+    <div class="variant">
+      <div class="variant-head">
+        <h3>Variant D — Bold Statement</h3>
+        <span class="tag">Centered · Bold 148 · 30px gap</span>
+      </div>
+      <div class="desc">Tagline sized to match the presence of "Retirement Protectors, Inc." Equal voice. Biggest impact.</div>
+      <div class="logo-box"><img src="assets/rpi/logo-variants/v-d-centered-bold-large.png" alt="Variant D"></div>
+    </div>
+
+    <div class="variant">
+      <div class="variant-head">
+        <h3>Variant E — Right-aligned</h3>
+        <span class="tag">Right under "Inc." · SemiBold 104</span>
+      </div>
+      <div class="desc">Tagline sits right-aligned, effectively closing out the name. Executive / editorial feel.</div>
+      <div class="logo-box"><img src="assets/rpi/logo-variants/v-e-right-aligned.png" alt="Variant E"></div>
+    </div>
+
+    <div class="variant">
+      <div class="variant-head">
+        <h3>Variant F — Left-aligned</h3>
+        <span class="tag">Left under "Retirement" · SemiBold 104</span>
+      </div>
+      <div class="desc">Tagline starts at the wordmark's left edge. Reads like a title and byline.</div>
+      <div class="logo-box"><img src="assets/rpi/logo-variants/v-f-left-aligned.png" alt="Variant F"></div>
+    </div>
+
+    <div class="variant">
+      <div class="variant-head">
+        <h3>Variant G — Divider Line</h3>
+        <span class="tag">Centered · Bold 104 · thin rule</span>
+      </div>
+      <div class="desc">Subtle navy rule between wordmark and tagline. Gives the tagline editorial weight without making it louder.</div>
+      <div class="logo-box"><img src="assets/rpi/logo-variants/v-g-divider-line.png" alt="Variant G"></div>
+    </div>
+
+    <div class="variant">
+      <div class="variant-head">
+        <h3>Variant H — Horizontal Lockup (Larger Shield)</h3>
+        <span class="tag">Shield left + wordmark+tagline right</span>
+      </div>
+      <div class="desc"><strong>The one you hinted at.</strong> Shield scaled up 150% and placed to the left as its own mark; wordmark and tagline compose to the right. Different proportions — works best at wide uses (headers, banners).</div>
+      <div class="logo-box"><img src="assets/rpi/logo-variants/v-h-horizontal-big-shield.png" alt="Variant H"></div>
+    </div>
+
+  </div>
+
+  <div class="cta">
+    <h2>Pick one (or combine)</h2>
+    <p>Reply in <code>#musashi</code> with the letter (e.g., "C" or "D but tighter"). I'll lock the winner as <code>rpi-logo-v2.png</code> + white variant, then re-roll both brochures with the final file. Zero other changes to the brochures — just the logo swap.</p>
+  </div>
+
+</div>
+
+<div class="footer">
+  <strong>RPI Logo v2 — Variations Gallery</strong> · 2026-04-13 · MUSASHI, ARTxBLADE, CMO<br>
+  All variants composed from <code>packages/ui/src/logos/rpi/rpi-logo-full-color.png</code> + Poppins typography. No new shapes.
+</div>
+
+</body>
+</html>

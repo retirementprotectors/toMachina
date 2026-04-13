@@ -446,7 +446,7 @@ code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px;
       </select>
     </div>
     <div style="display:flex; justify-content:space-between; align-items:center;">
-      <div style="font-size:0.72rem; color:var(--muted);" id="intelCount">23 items</div>
+      <div style="font-size:0.72rem; color:var(--muted);" id="intelCount">27 items</div>
       <label style="font-size:0.75rem; color:var(--muted); cursor:pointer; display:flex; align-items:center; gap:6px;">
         <input type="checkbox" id="showArchived" onchange="filterIntel()" style="cursor:pointer;"> Show Archived
       </label>
@@ -695,6 +695,46 @@ code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px;
         <td>&mdash;</td>
         <td>NEEDS DEEP READ (Forbes 403) but the playbook is known: Brand (Beats by Dre) + Product (headphones/audio) + Strategic acquisition (Apple, 2014, ~$3B) = billion-dollar exit without a VC-funded tech career. Maps to RPI: Brand (The Machine + warrior identity) + Product (toMachina portals) + Strategic (DAVID acquisitions). Key difference: JDM owns the full stack, not just the brand. Validation / inspiration only.</td>
       </tr>
+      <tr data-status="OPEN" data-owner="SHINOB1" data-priority="HIGH">
+        <td>24</td>
+        <td><strong>Anthropic CC Insights Report</strong><br><span style="font-size:0.75rem;color:var(--muted)">Auto-generated from our session telemetry (<code>~/.claude/usage-data/report.html</code>) &mdash; last refresh 04-12 12:33</span></td>
+        <td>04-12</td>
+        <td><span class="pill hot">HIGH</span></td>
+        <td><span class="pill next">OPEN</span></td>
+        <td>SHINOB1</td>
+        <td>&mdash;</td>
+        <td>Anthropic's own view of how we operate: 5,233 msgs / 67 sessions / 13 days / 1,355 Slack posts / 44% parallel multi-Clauding / 424 commits. Called our operating model "a genuinely novel orchestration pattern." Their 3 suggested CLAUDE.md additions (Slack Protocol / Git Protocol / Deployment Verification) are validation &mdash; we already have stricter versions in hookify + feedback memories. <strong>Action:</strong> (1) Screenshot "At a Glance" header for investor/partner decks &mdash; external validation quote. (2) The 3 Horizon ideas spawned rows #25&ndash;27 below. (3) Monthly refresh &mdash; compare trend (friction events up/down). (4) Feed back to Anthropic via /feedback that we've already implemented their recommendations via hookify + DOJO protocols.</td>
+      </tr>
+      <tr data-status="OPEN" data-owner="SHINOB1" data-priority="HIGH">
+        <td>25</td>
+        <td><strong>Horizon: Parallel Worktree Sprint Pipeline</strong><br><span style="font-size:0.75rem;color:var(--muted)">Source: Anthropic CC Insights &rarr; On the Horizon #2</span></td>
+        <td>04-12</td>
+        <td><span class="pill hot">HIGH</span></td>
+        <td><span class="pill next">OPEN</span></td>
+        <td>SHINOB1</td>
+        <td>&mdash;</td>
+        <td>Anthropic's recommendation: each sub-agent worker gets <code>git worktree add</code> for branch isolation, coordinator rebases + opens PRs. Addresses the "branch tangles from shared worktrees" friction we hit when multiple RONINs edit the same tree. <strong>Our state:</strong> we already ship Shared File Protocol (feedback memory), but actual worktree-per-ticket is not standard. <strong>Action:</strong> Propose FORGE engine update to RONIN: each ticket gets <code>git worktree add ../wt-[ticket] -b feat/[ticket]</code>, coordinator rebases sequentially at merge time. Ticket prefix <code>ZRD-FOR-</code>. Estimate: 1 discovery doc + 1 RONIN sprint. Quick win on a recurring pain point.</td>
+      </tr>
+      <tr data-status="OPEN" data-owner="SHINOB1" data-priority="MEDIUM">
+        <td>26</td>
+        <td><strong>Horizon: Self-Healing CI Guardian</strong><br><span style="font-size:0.75rem;color:var(--muted)">Source: Anthropic CC Insights &rarr; On the Horizon #1</span></td>
+        <td>04-12</td>
+        <td><span class="pill plan">MEDIUM</span></td>
+        <td><span class="pill next">OPEN</span></td>
+        <td>SHINOB1</td>
+        <td>&mdash;</td>
+        <td>Anthropic's recommendation: autonomous agent detects CI failures, spawns fix agents, auto-submits PRs. <strong>Our state:</strong> RAIDEN partially does this reactively for bugs surfaced in Slack. No agent currently watches GitHub Actions webhooks. <strong>Action:</strong> Scope a CI Guardian warrior (or expand RAIDEN) that subscribes to failed-workflow webhooks, reads the error, spawns a Sonnet fix agent in a branch, runs build+test in a loop, opens auto-merge PR. Cost/risk: must NOT run unattended on main. Needs JDM approval gate before merge. Estimate: 1 discovery doc. Could eat into the 66 buggy_code + 61 wrong_approach friction buckets meaningfully.</td>
+      </tr>
+      <tr data-status="OPEN" data-owner="RAIDEN" data-priority="LOW">
+        <td>27</td>
+        <td><strong>Horizon: Verified-Diagnosis Slack Triage</strong><br><span style="font-size:0.75rem;color:var(--muted)">Source: Anthropic CC Insights &rarr; On the Horizon #3</span></td>
+        <td>04-12</td>
+        <td><span class="pill plan">LOW</span></td>
+        <td><span class="pill next">OPEN</span></td>
+        <td>RAIDEN</td>
+        <td>&mdash;</td>
+        <td>Anthropic's recommendation: RAIDEN ACKs immediately, silently investigates (grep+read+bash), only posts diagnosis with file:line evidence, never celebrates until deploy verified. <strong>Our state:</strong> RAIDEN already follows most of this via the Golden Rule + <code>feedback_raiden_golden_rule</code> + <code>feedback_raiden_dojo_protocol</code>. Probably the most-validated of the 3 Horizon items. <strong>Action:</strong> Audit RAIDEN's live behavior against Anthropic's template, patch gaps into RAIDEN's soul.md. Also: confirm RAIDEN's "ACK → investigate → diagnose with evidence" pattern is in the OS docs so it spreads to HERALD when HERALD ships. Lightweight &mdash; 1 RAIDEN self-review.</td>
+      </tr>
     </table>
   </div>
 
@@ -743,6 +783,12 @@ code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px;
         <td>Guardian &mdash; Bug triage, monitoring, kill list</td>
         <td><span class="pill live">AUTONOMOUS</span></td>
         <td>No review needed. Golden Rule + Dojo protocol are sufficient.</td>
+      </tr>
+      <tr>
+        <td><strong>TAIKO</strong> &#x1f941;</td>
+        <td>Comms Infrastructure &mdash; Twilio, SendGrid, Meet, Chat, RPI Connect, alerts</td>
+        <td><span class="pill plan">PLANNING</span></td>
+        <td>Born 2026-04-13. Scope locked (ZRD-COMMS, 16 tickets). App scoped on <a href="../taiko/ownership-grid.html">his roadmap</a>. High-touch CTO review until first sprint ships.</td>
       </tr>
     </table>
   </div>

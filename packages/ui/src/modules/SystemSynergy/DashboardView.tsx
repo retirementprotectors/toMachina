@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { fetchValidated } from '../fetchValidated'
 import { WireHealthCard } from './WireHealthCard'
+import { WarriorActivityCard } from './WarriorActivityCard'
 
 // ── Types ──────────────────────────────────────────────────────────────
 
@@ -678,6 +679,12 @@ export function DashboardView() {
             which queries the wire_runs Firestore collection populated by
             wire-run-tracker.ts. */}
         <WireHealthCard />
+        {/* ZRD-SYN-020j: 6th card — Warrior Activity event log.
+            Self-fetching, auto-refreshes every 30s. Reads from
+            /api/system-synergy/warrior-activity which queries the
+            warrior_events Firestore collection populated by
+            log-event.ts hooks. */}
+        <WarriorActivityCard />
       </div>
     </div>
   )

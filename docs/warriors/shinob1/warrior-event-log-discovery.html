@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Warrior Event Log — Discovery Doc</title>
+<style>
+:root{--bg:#0a0b10;--card:#12141d;--card2:#181b27;--border:#1e2133;--text:#e8e8ec;--muted:#7a7f96;--accent:#2dd4bf;--blue:#4a7ab5;--green:#40bc58;--yellow:#f5a623;--red:#e74c3c;--purple:#a78bfa;--teal:#2dd4bf}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+.container{max-width:1000px;margin:0 auto;padding:2rem}
+h1{font-size:2rem;text-align:center;margin-bottom:0.3rem}
+.subtitle{text-align:center;color:var(--muted);font-size:1rem;margin-bottom:0.3rem}
+.origin{text-align:center;color:var(--teal);font-size:0.85rem;font-style:italic;margin-bottom:1.5rem}
+.tab-bar{display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:2rem;position:sticky;top:0;background:var(--bg);z-index:10;padding-top:0.5rem;flex-wrap:wrap}
+.tab-btn{padding:0.7rem 1.2rem;background:none;border:none;color:var(--muted);font-size:0.88rem;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all 0.2s;font-family:inherit}
+.tab-btn:hover{color:var(--text)}
+.tab-btn.active{color:var(--teal);border-bottom-color:var(--teal)}
+.tab-content{display:none}.tab-content.active{display:block}
+h2{font-size:1.4rem;margin:1.5rem 0 1rem;padding-bottom:0.5rem;border-bottom:1px solid var(--border);color:var(--teal)}
+h2:first-child{margin-top:0}
+h3{font-size:1.1rem;margin:1.2rem 0 0.5rem;color:var(--text)}
+p{color:var(--muted);margin-bottom:0.8rem;font-size:0.92rem}
+ul,ol{color:var(--muted);margin-bottom:1rem;padding-left:1.5rem;font-size:0.92rem}
+li{margin-bottom:0.4rem}
+strong{color:var(--text)}
+code{background:var(--card2);padding:0.15rem 0.4rem;border-radius:4px;font-size:0.85rem;color:var(--teal)}
+pre{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:1rem;margin:1rem 0;overflow-x:auto;font-size:0.82rem;line-height:1.5;color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.25rem;margin-bottom:1rem}
+.card h3{margin-top:0}
+.card-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media(max-width:700px){.card-grid{grid-template-columns:1fr}}
+table{width:100%;border-collapse:collapse;margin:1rem 0}
+th,td{padding:0.6rem 0.75rem;text-align:left;border-bottom:1px solid var(--border);font-size:0.85rem}
+th{color:var(--teal);font-size:0.75rem;text-transform:uppercase;letter-spacing:0.05em;font-weight:600}
+td{color:var(--muted)}
+.tag{display:inline-block;padding:0.15rem 0.5rem;border-radius:8px;font-size:0.72rem;font-weight:600}
+.tag-teal{background:rgba(45,212,191,0.12);color:var(--teal)}
+.tag-green{background:rgba(64,188,88,0.12);color:var(--green)}
+.tag-yellow{background:rgba(245,166,35,0.12);color:var(--yellow)}
+.tag-red{background:rgba(231,76,60,0.12);color:var(--red)}
+.tag-purple{background:rgba(167,139,250,0.12);color:var(--purple)}
+.callout{background:rgba(45,212,191,0.05);border:1px solid rgba(45,212,191,0.2);border-radius:12px;padding:1.25rem;margin:1.5rem 0}
+.callout p{margin:0}
+.flow{display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;margin:1rem 0;font-size:0.85rem}
+.flow-step{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:0.5rem 0.8rem;color:var(--text);font-weight:600;font-size:0.8rem}
+.flow-arrow{color:var(--teal);font-size:1.2rem}
+.ft{text-align:center;padding:2rem 0 1rem;color:var(--muted);font-size:0.8rem;border-top:1px solid var(--border);margin-top:2rem}
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>Warrior Event Log</h1>
+<div class="subtitle">Discovery Doc &mdash; ZRD-SYN-020</div>
+<div class="origin">Inspired by Anthropic's Managed Agents architecture (session-as-external-memory pattern) &mdash; Adapted for the Dojo &mdash; April 12, 2026</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="showTab('problem',this)">Problem</button>
+  <button class="tab-btn" onclick="showTab('solution',this)">Solution</button>
+  <button class="tab-btn" onclick="showTab('schema',this)">Schema</button>
+  <button class="tab-btn" onclick="showTab('integration',this)">Integration</button>
+  <button class="tab-btn" onclick="showTab('impact',this)">Impact</button>
+  <button class="tab-btn" onclick="showTab('phases',this)">Phases</button>
+  <button class="tab-btn" onclick="showTab('tickets',this)">Tickets</button>
+</div>
+
+<!-- ════ PROBLEM ════ -->
+<div id="problem" class="tab-content active">
+  <h2>The Problem</h2>
+
+  <h3>What happens today when a warrior session restarts</h3>
+  <div class="card-grid">
+    <div class="card">
+      <h3 style="color:var(--red)">Context Loss</h3>
+      <p>When a warrior session dies, compacts, or restarts, the conversation context is gone. The warrior doesn't know what it was working on, how far it got, or what's still open.</p>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--red)">JDM Re-Briefing Tax</h3>
+      <p>JDM spends 10-15 minutes per restart re-explaining the context. "We were doing X, you got through Y, Z is still open." This is a direct tax on the CEO's time.</p>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--red)">Soul.md Gap</h3>
+      <p>Soul.md carries <strong>identity</strong> (who am I, what's my role). It does NOT carry <strong>task state</strong> (what was I doing 5 minutes ago). It's a resume, not a to-do list.</p>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--red)">Cross-Warrior Blindness</h3>
+      <p>To know what MEGAZORD did yesterday, SHINOB1 has to post to #megazord and wait. There's no queryable history of warrior activity across the Dojo.</p>
+    </div>
+  </div>
+
+  <h3>Why this gap wasn't visible before</h3>
+  <ul>
+    <li><strong>Long uptimes masked it.</strong> Warriors ran 2+ days without restarting. No restarts = no context loss.</li>
+    <li><strong>JDM was in tmux.</strong> He could see what warriors were doing. Now he's Slack-only &mdash; zero tmux visibility by design.</li>
+    <li><strong>Learning Loop was knowledge-only.</strong> Entity-extractor, brain-sync, knowledge-promote &mdash; all designed for permanent insights, not ephemeral task state.</li>
+    <li><strong>Anthropic showed us the gap.</strong> Their Managed Agents architecture (April 8, 2026) separated "session log" from "model knowledge." We had the knowledge layer. We didn't have the session layer.</li>
+  </ul>
+
+  <div class="callout">
+    <p><strong>The one-liner:</strong> Warriors have permanent memory (soul/spirit/brain) but no working memory (what am I doing right now). The Event Log adds working memory.</p>
+  </div>
+</div>
+
+<!-- ════ SOLUTION ════ -->
+<div id="solution" class="tab-content">
+  <h2>The Solution</h2>
+
+  <h3>Warrior Event Log &mdash; append-only milestone journal</h3>
+  <p>A Firestore collection (<code>warrior_events</code>) that records every significant action a warrior takes. Not every tool call (too noisy). <strong>Milestones only</strong> &mdash; the moments that matter for recovery and visibility.</p>
+
+  <h3>What gets logged</h3>
+  <table>
+    <thead><tr><th>Event Type</th><th>Example</th><th>Logged By</th></tr></thead>
+    <tbody>
+      <tr><td><code>directive</code></td><td>Received "Build Matt Mitchell Discovery Doc" from JDM</td><td>Auto (dispatcher)</td></tr>
+      <tr><td><code>task_started</code></td><td>Started building docs/vision/matt-mitchell-roadmap.html</td><td>Warrior (explicit call)</td></tr>
+      <tr><td><code>pr_shipped</code></td><td>PR #330 merged &mdash; vision docs refresh</td><td>Auto (git hook)</td></tr>
+      <tr><td><code>slack_sent</code></td><td>Posted to #shinob1 &mdash; Matt Mitchell Roll Call</td><td>Auto (post-slack hook)</td></tr>
+      <tr><td><code>delegation</code></td><td>Assigned MEGAZORD: Radius CRM data export research</td><td>Warrior (explicit call)</td></tr>
+      <tr><td><code>milestone</code></td><td>Completed Tab 3 of Discovery Doc</td><td>Warrior (explicit call)</td></tr>
+      <tr><td><code>error</code></td><td>Gmail MCP permission denied &mdash; needs reauth</td><td>Auto (on error)</td></tr>
+      <tr><td><code>decision</code></td><td>Chose Option A &mdash; new Slack channel for Matt (not group DM)</td><td>Warrior (explicit call)</td></tr>
+    </tbody>
+  </table>
+
+  <h3>How it flows</h3>
+  <div class="flow">
+    <div class="flow-step">Warrior acts</div>
+    <div class="flow-arrow">&rarr;</div>
+    <div class="flow-step">Event logged to Firestore</div>
+    <div class="flow-arrow">&rarr;</div>
+    <div class="flow-step">Session restart</div>
+    <div class="flow-arrow">&rarr;</div>
+    <div class="flow-step">wire-warrior-briefing reads last 50 events</div>
+    <div class="flow-arrow">&rarr;</div>
+    <div class="flow-step">Injected into first prompt</div>
+    <div class="flow-arrow">&rarr;</div>
+    <div class="flow-step">Warrior KNOWS</div>
+  </div>
+
+  <div class="callout">
+    <p><strong>JDM's experience:</strong> Zero. He never sees the log. He never checks it. He never briefs anyone. He messages a warrior Monday morning and the warrior already knows what it was doing Friday night.</p>
+  </div>
+</div>
+
+<!-- ════ SCHEMA ════ -->
+<div id="schema" class="tab-content">
+  <h2>Schema</h2>
+
+  <h3>Firestore Collection: <code>warrior_events</code></h3>
+  <pre>{
+  warrior:     "SHINOB1",              // which warrior
+  sessionId:   "f807f374-caea...",     // Claude Code session ID
+  timestamp:   Timestamp,              // when it happened
+  type:        "directive" | "task_started" | "pr_shipped" |
+               "slack_sent" | "delegation" | "milestone" |
+               "error" | "decision",
+  summary:     "Built Matt Mitchell Discovery Doc Tab 3",
+  channel:     "C0AS0LETSBW",          // source Slack channel (if applicable)
+  details: {                           // optional rich payload
+    prNumber:  330,
+    files:     ["docs/vision/tomachina-the-machine.html"],
+    delegateTo: "MEGAZORD",
+    reasoning: "Chose new channel over group DM for searchability"
+  }
+}</pre>
+
+  <h3>Composite Indexes</h3>
+  <table>
+    <thead><tr><th>Fields</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td><code>warrior ASC, timestamp DESC</code></td><td>Recovery query: "last 50 events for SHINOB1"</td></tr>
+      <tr><td><code>type ASC, timestamp DESC</code></td><td>Type filter: "all PRs shipped this week"</td></tr>
+      <tr><td><code>warrior ASC, type ASC, timestamp DESC</code></td><td>Combined: "MEGAZORD's delegations in the last 24h"</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Retention</h3>
+  <p>Events older than 30 days auto-archive to a <code>warrior_events_archive</code> collection via a weekly wire (<code>wire-event-cleanup</code>). The archive is queryable but not loaded into briefings.</p>
+</div>
+
+<!-- ════ INTEGRATION ════ -->
+<div id="integration" class="tab-content">
+  <h2>Integration Points</h2>
+
+  <h3>1. Warrior Briefing (SessionStart) &mdash; AUTOMATIC</h3>
+  <div class="card">
+    <p><strong>File:</strong> <code>services/learning-loop/wire-warrior-briefing.ts</code></p>
+    <p>Already runs on every SessionStart hook. Extended to query <code>warrior_events</code> for the last 50 events and inject a structured "here's what you were doing" briefing into the warrior's first prompt.</p>
+    <p><strong>Output format:</strong></p>
+    <pre>--- Task State Recovery for SHINOB1 ---
+Last session: 2026-04-12 03:00 UTC (8h ago)
+Open tasks:
+  - Matt Mitchell Discovery Doc (Tab 4 in progress)
+  - Wednesday meeting agenda (not started)
+  - Delegated to MEGAZORD: Radius CRM research (pending)
+Last 5 milestones:
+  1. PR #331 merged — MDJ Ai → The Dojo cross-nav
+  2. Sent email to Matt Mitchell via SendGrid
+  3. Injected warrior intros into all 5 tmux sessions
+  4. Posted Integrity analysis to #shinob1
+  5. Delegated MUSASHI: partnership roadmap website
+--- End Recovery ---</pre>
+  </div>
+
+  <h3>2. System Synergy Dashboard &mdash; NEW TILE</h3>
+  <div class="card">
+    <p><strong>File:</strong> <code>packages/ui/src/modules/SystemSynergy/WarriorActivityCard.tsx</code> (new)</p>
+    <p><strong>API:</strong> <code>GET /api/system-synergy/warrior-activity</code> (new route)</p>
+    <p>Shows live warrior status in all 3 portals. One glance, all 6 warriors, current state:</p>
+    <pre>SHINOB1:  Building Matt Mitchell Discovery Doc (Tab 4)  — 2h ago
+MEGAZORD: Fixing Learning Loop timers (2/4 done)         — 45m ago
+MUSASHI:  Building partnership roadmap website             — 1h ago
+VOLTRON:  Medicare readiness check for Arizona             — 3h ago
+RAIDEN:   Idle — monitoring                                — last active 6h ago
+RONIN:    Idle — awaiting sprint                           — last active 1d ago</pre>
+    <p>30-second auto-refresh. Matches existing System Synergy card pattern (WireHealthCard).</p>
+  </div>
+
+  <h3>3. Event Logging &mdash; HOW EVENTS GET WRITTEN</h3>
+  <div class="card-grid">
+    <div class="card">
+      <h3>Auto-logged (no warrior action)</h3>
+      <ul>
+        <li><strong>Directives:</strong> Dispatcher logs every incoming message with channel + user</li>
+        <li><strong>PRs:</strong> Git push/merge hooks log PR number + status</li>
+        <li><strong>Slack posts:</strong> PostToolUse hook on <code>slack_post_message</code> logs channel + summary</li>
+        <li><strong>Errors:</strong> Hook on error catches + logs blockers</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Warrior-logged (explicit call)</h3>
+      <ul>
+        <li><strong>task_started / milestone:</strong> Warrior calls <code>logEvent("milestone", "Finished Tab 3")</code></li>
+        <li><strong>delegation:</strong> When posting to another warrior's channel</li>
+        <li><strong>decision:</strong> When making a judgment call worth remembering</li>
+      </ul>
+      <p style="margin-top:0.5rem;font-size:0.82rem;color:var(--teal)">Lightweight: one function call, one Firestore write. &lt;50ms overhead.</p>
+    </div>
+  </div>
+
+  <h3>4. Cross-Warrior Query</h3>
+  <div class="card">
+    <p>Any warrior can read any other warrior's event log via the System Synergy API:</p>
+    <pre>GET /api/system-synergy/warrior-activity?warrior=MEGAZORD&amp;limit=20</pre>
+    <p>"What did MEGAZORD do yesterday?" &rarr; 5-second answer instead of 5-minute Slack round-trip.</p>
+  </div>
+</div>
+
+<!-- ════ IMPACT ════ -->
+<div id="impact" class="tab-content">
+  <h2>Day-to-Day Impact</h2>
+
+  <h3>For JDM (Sensei)</h3>
+  <table>
+    <thead><tr><th>Before</th><th>After</th></tr></thead>
+    <tbody>
+      <tr><td>Re-brief warriors after every restart (10-15 min each)</td><td>Warriors self-recover. Zero re-briefing.</td></tr>
+      <tr><td>"Did you do X?" &mdash; wait for warrior to check</td><td>Check System Synergy dashboard &mdash; 1 glance</td></tr>
+      <tr><td>Ask SHINOB1 to check on MEGAZORD</td><td>Any warrior queries any other's event log directly</td></tr>
+      <tr><td>"What shipped this week?" &mdash; manual rollup</td><td>Auto-generated from event data</td></tr>
+      <tr><td>Context compaction = lost detail</td><td>Milestones survive compaction in Firestore</td></tr>
+    </tbody>
+  </table>
+
+  <h3>For Warriors</h3>
+  <table>
+    <thead><tr><th>Before</th><th>After</th></tr></thead>
+    <tbody>
+      <tr><td>"I don't have context from the previous session"</td><td>Last 50 events injected on startup. Full task state.</td></tr>
+      <tr><td>Handoffs require manual briefing</td><td>Read the other warrior's event log. Pick up where they left off.</td></tr>
+      <tr><td>Delegations disappear after compaction</td><td>"I delegated X to MEGAZORD 6 hours ago &mdash; checking status"</td></tr>
+    </tbody>
+  </table>
+
+  <h3>For the DAVID Pitch</h3>
+  <div class="callout">
+    <p><strong>"We read Anthropic's Managed Agents architecture paper the day it published. They had a durability model better than ours. So we stole it, adapted it, and shipped it in a week. The Machine doesn't just build &mdash; it learns from the best and gets better."</strong></p>
+  </div>
+
+  <h3>For System Synergy</h3>
+  <p>New "Warrior Activity" tile joins the existing dashboard (Wire Health, Session Browser, Knowledge Pipeline, Cleanup Controls). System Synergy becomes the <strong>single pane of glass</strong> for the entire Dojo &mdash; automation health + warrior task state + knowledge pipeline + platform hygiene. All in one teal-branded app across all 3 portals.</p>
+</div>
+
+<!-- ════ PHASES ════ -->
+<div id="phases" class="tab-content">
+  <h2>Phases</h2>
+
+  <h3>Phase 1 &mdash; Foundation (3-4 days)</h3>
+  <ul>
+    <li>Create <code>warrior_events</code> Firestore collection + composite indexes</li>
+    <li>Build <code>logEvent()</code> helper function (shared library)</li>
+    <li>Extend <code>wire-warrior-briefing</code> to read events on SessionStart</li>
+    <li>Add auto-logging hooks for directives + PRs + Slack posts</li>
+    <li>Test: restart a warrior, verify event recovery works</li>
+  </ul>
+
+  <h3>Phase 2 &mdash; Dashboard (2-3 days)</h3>
+  <ul>
+    <li>Build <code>GET /api/system-synergy/warrior-activity</code> API route</li>
+    <li>Build <code>WarriorActivityCard.tsx</code> UI tile</li>
+    <li>Add to <code>DashboardView.tsx</code> in System Synergy</li>
+    <li>30-second auto-refresh, matches WireHealthCard pattern</li>
+    <li>Ship PR, verify live on all 3 portals</li>
+  </ul>
+
+  <h3>Phase 3 &mdash; Cross-Warrior + Archive (2 days)</h3>
+  <ul>
+    <li>Cross-warrior query API (any warrior reads any other's log)</li>
+    <li><code>wire-event-cleanup</code> &mdash; archive events older than 30 days</li>
+    <li>Weekly rollup auto-generation from event data</li>
+  </ul>
+
+  <div class="callout">
+    <p><strong>Total timeline: ~1 week.</strong> Phase 1 (foundation) is the critical path. Phase 2 (dashboard) makes it visible. Phase 3 (cross-warrior + archive) is polish.</p>
+  </div>
+</div>
+
+<!-- ════ TICKETS ════ -->
+<div id="tickets" class="tab-content">
+  <h2>Sprint Tickets</h2>
+
+  <table>
+    <thead><tr><th>#</th><th>Ticket</th><th>Owner</th><th>Phase</th><th>Est</th></tr></thead>
+    <tbody>
+      <tr><td>ZRD-SYN-020a</td><td>Create <code>warrior_events</code> Firestore collection + indexes</td><td>MEGAZORD</td><td>1</td><td>1h</td></tr>
+      <tr><td>ZRD-SYN-020b</td><td>Build <code>logEvent()</code> shared helper (services/learning-loop/)</td><td>RONIN</td><td>1</td><td>2h</td></tr>
+      <tr><td>ZRD-SYN-020c</td><td>Extend wire-warrior-briefing to read events on SessionStart</td><td>MEGAZORD</td><td>1</td><td>3h</td></tr>
+      <tr><td>ZRD-SYN-020d</td><td>Auto-log hook: directives from dispatcher</td><td>RONIN</td><td>1</td><td>2h</td></tr>
+      <tr><td>ZRD-SYN-020e</td><td>Auto-log hook: PR merge events (git post-merge)</td><td>RONIN</td><td>1</td><td>2h</td></tr>
+      <tr><td>ZRD-SYN-020f</td><td>Auto-log hook: Slack posts (PostToolUse)</td><td>RONIN</td><td>1</td><td>2h</td></tr>
+      <tr><td>ZRD-SYN-020g</td><td>Integration test: restart warrior, verify recovery</td><td>SHINOB1</td><td>1</td><td>1h</td></tr>
+      <tr><td>ZRD-SYN-020h</td><td>API route: <code>GET /api/system-synergy/warrior-activity</code></td><td>RONIN</td><td>2</td><td>2h</td></tr>
+      <tr><td>ZRD-SYN-020i</td><td>UI tile: <code>WarriorActivityCard.tsx</code></td><td>RONIN</td><td>2</td><td>3h</td></tr>
+      <tr><td>ZRD-SYN-020j</td><td>Add tile to DashboardView + deploy</td><td>RONIN</td><td>2</td><td>1h</td></tr>
+      <tr><td>ZRD-SYN-020k</td><td>Cross-warrior query API</td><td>RONIN</td><td>3</td><td>2h</td></tr>
+      <tr><td>ZRD-SYN-020l</td><td><code>wire-event-cleanup</code> (30-day archive)</td><td>MEGAZORD</td><td>3</td><td>2h</td></tr>
+      <tr><td>ZRD-SYN-020m</td><td>Weekly rollup auto-generation</td><td>MEGAZORD</td><td>3</td><td>2h</td></tr>
+    </tbody>
+  </table>
+
+  <p style="margin-top:1rem"><strong>Total: 13 tickets, ~25 hours.</strong> MEGAZORD owns the data layer. RONIN owns the build. SHINOB1 owns the architecture review + integration test.</p>
+</div>
+
+<div class="ft">
+  <p><strong>Warrior Event Log</strong> &mdash; ZRD-SYN-020 &mdash; Discovery Doc</p>
+  <p>Generated by SHINOB1, CTO &mdash; Executive.AI Team &mdash; April 12, 2026</p>
+  <p style="color:var(--teal);margin-top:0.5rem">Inspired by Anthropic Managed Agents &mdash; Adapted for the Dojo</p>
+</div>
+
+</div>
+<script>
+function showTab(id,btn){document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));document.getElementById(id).classList.add('active');btn.classList.add('active');}
+</script>
+</body>
+</html>

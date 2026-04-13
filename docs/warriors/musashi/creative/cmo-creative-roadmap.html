@@ -88,6 +88,8 @@
   <div class="tab" onclick="showTab('tools')">Tool Map</div>
   <div class="tab" onclick="showTab('priority')">Prioritization</div>
   <div class="tab" onclick="showTab('sprint1')">Sprint 1</div>
+  <div class="tab" onclick="showTab('fyf')">FYF Strategy</div>
+  <div class="tab" onclick="showTab('authority')">Brand Authority</div>
 </div>
 
 <div class="content">
@@ -153,6 +155,27 @@
     <tr><td><span class="p-soon">Phase 2</span></td><td>RIIMO</td><td>B2E Internal + Training</td><td>AiBot Brand Guide, team comms, onboarding, SENSEI content</td><td>Learning Loop (003) + SENSEI (007)</td></tr>
     <tr><td><span class="p-next">Phase 3</span></td><td>SENTINEL</td><td>B2B M&A + Partners</td><td>DAVID pitch decks, agency intake, partner materials</td><td>SENTINEL portal build</td></tr>
   </table>
+
+  <h2>CMO Infrastructure &mdash; The Three Weapons</h2>
+  <div class="card card-phase">
+    <p><strong>Every CXO in The Machine wields three weapons.</strong> These are the plumbing behind the deliverables on this roadmap &mdash; the <em>how</em> that makes the <em>what</em> ship.</p>
+  </div>
+  <table>
+    <tr><th>Weapon</th><th>MUSASHI's Instance</th><th>Purpose</th></tr>
+    <tr><td><strong>Registry</strong></td><td>CMO Registry (<code>packages/core/src/cmo/</code>)</td><td>57 tools registered across 7 domains &mdash; Canva, WordPress, Veo, C3, PDF, Drive, frontend-design</td></tr>
+    <tr><td><strong>Mesh</strong></td><td>Artisans</td><td>5 channel specialists &mdash; Print, Digital, Web, Social, Video</td></tr>
+    <tr><td><strong>Dojo</strong></td><td>Command Center App</td><td>Mission control for creative operations</td></tr>
+  </table>
+
+  <h3>The Consumption Principle &mdash; CONSUME &rarr; OPERATE &rarr; DEVOUR</h3>
+  <div class="flow">
+    <div class="flow-step" style="border-color:var(--accent);"><strong>CONSUME</strong><br>Build registry<br>Claim domain</div>
+    <span class="flow-arrow">&rarr;</span>
+    <div class="flow-step" style="border-color:var(--orange);"><strong>OPERATE</strong><br>Wire registry to execution<br>Mesh runs pipelines</div>
+    <span class="flow-arrow">&rarr;</span>
+    <div class="flow-step" style="border-color:var(--green);"><strong>DEVOUR</strong><br>Full autonomy<br>Generate &rarr; Deploy &rarr; Measure &rarr; Iterate</div>
+  </div>
+  <p style="color:var(--muted); margin-top:0.5rem; font-size:0.85rem;">Ticket tracks: <code>MUS-C*</code> CONSUME &middot; <code>MUS-O*</code> OPERATE &middot; <code>MUS-D*</code> DEVOUR. Infrastructure work is tracked separately from public-roadmap deliverables.</p>
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════════════ -->
@@ -371,23 +394,134 @@
 <!-- TAB 8: SPRINT 1 -->
 <!-- ═══════════════════════════════════════════════════════════════════ -->
 <div class="panel" id="sprint1">
-  <h2>Sprint 1 &mdash; POS Brochures + MYST.IRL</h2>
+  <h2>Sprint CMO-001 &mdash; POS Brochures + MYST.IRL</h2>
   <div class="card card-phase">
-    <p><strong>Scope TBD &mdash; pending Q&A with JDM.</strong></p>
-    <p style="margin-top:0.75rem;">This tab will be populated after the discovery Q&A session. Key questions to resolve:</p>
-    <ol style="margin-top:0.75rem;">
-      <li>The <code>RPI- Brochures</code> folder &mdash; is that the master folder with all 11 POS pieces?</li>
-      <li>Carrier brochures (Nassau, North American, etc.) &mdash; part of POS kit or just reference?</li>
-      <li>Digital versions &mdash; match existing print design or new RPI design system?</li>
-      <li>MYST.IRL &mdash; location of the current outdated handout?</li>
-      <li>Team headshots &mdash; current photos available, or need new ones?</li>
-      <li>MYST.IRL AI crew footer &mdash; generated avatars or abstract icons?</li>
-      <li>Print specs &mdash; tri-fold, letter, half-page? Standard for all?</li>
-      <li>Distribution &mdash; who prints? Local printer, online service, in-office?</li>
-      <li>Brand guidelines &mdash; existing color palette, fonts, logo usage rules?</li>
-    </ol>
-    <p style="margin-top:1rem; color:var(--muted);">Once these are answered, this tab becomes the Sprint 1 ticket list with FORGE-ready acceptance criteria.</p>
+    <p><strong style="color:var(--green);">&#x2713; LOCKED.</strong> Q&amp;A resolved (9/9). Discovery Doc published. 18 tracker tickets with FORGE-ready acceptance criteria. Combined Priority A1 + A2 in one sprint.</p>
+    <p style="margin-top:0.75rem;">
+      <strong>Discovery Doc:</strong> <a href="https://retirementprotectors.github.io/toMachina/docs/warriors/musashi/creative/sprint1-brochure-parity-discovery.html" style="color:var(--accent);">sprint1-brochure-parity-discovery.html</a><br>
+      <strong>Scope:</strong> A1 (POS Brochures, digital parity &mdash; 11 pieces) + A2 (MYST.IRL refresh)<br>
+      <strong>Tickets:</strong> TRK-CMO-001 through TRK-CMO-018
+    </p>
   </div>
+
+  <h3>The Doctrine (from JDM's Q&amp;A)</h3>
+  <table>
+    <tr><th>Decision</th><th>JDM's Answer</th></tr>
+    <tr><td>Template strategy</td><td>Build ONE master template &rarr; all 5 products use same structure ("It's a layup")</td></tr>
+    <tr><td>Format</td><td>Both print + digital (universal)</td></tr>
+    <tr><td>Voice</td><td>Warm + Professional &mdash; "We're Your People" energy</td></tr>
+    <tr><td>Audience</td><td>Dual-purpose &mdash; client-facing AND agent selling tool</td></tr>
+    <tr><td>Compliance</td><td>JDM initial review. Medicare + Investment require carrier-specific compliance.</td></tr>
+    <tr><td>Imagery</td><td>Clean/minimal + stock photography. Reference Shared Drive assets.</td></tr>
+    <tr><td>Distribution</td><td>UNIVERSAL &mdash; print, email, portal, website, F2F. Build once, works everywhere.</td></tr>
+    <tr><td>Online home</td><td>Both retireprotected.com landing pages + ProDashX portal downloads.</td></tr>
+    <tr><td>Brand assets</td><td>Start FRESH as the NEW brand standard. This becomes the new template.</td></tr>
+  </table>
+
+  <h3>Round 1 &mdash; Scoped Tight (JDM 2026-04-12)</h3>
+  <div class="card" style="border-left:4px solid var(--green);">
+    <p><strong>Round 1 ships 4 brochures + MYST.IRL.</strong> The rest is deferred to Round 2. <strong>Canva source files located</strong> &mdash; we refresh the design files, not rebuild from PDF.</p>
+    <table style="margin-top:0.75rem;">
+      <tr><th>#</th><th>Deliverable</th><th>Source (PDF &middot; Canva Files)</th><th>Action</th></tr>
+      <tr><td>1</td><td><strong>Medicare Basics</strong></td><td><a href="https://drive.google.com/file/d/1CST4Ke6GsXpTuxZ6aUT4_-fyA5XIcGL8/view" style="color:var(--accent);">PDF</a> &middot; <a href="https://drive.google.com/file/d/1FiuHfCM8NXIGUgKqDzLSoWc2L9WoDNZN/view" style="color:var(--accent);">Canva files</a></td><td>Refresh the Canva source</td></tr>
+      <tr><td>2</td><td><strong>Retirement</strong> (Annuity / IRA / RMD / 1035 umbrella)</td><td>PDF TBD &middot; <a href="https://drive.google.com/file/d/17q896jVnC4-PLWdZzW9eQQKsByXA-Hj3/view" style="color:var(--accent);">Canva files</a></td><td>Refresh the Canva source</td></tr>
+      <tr><td>3</td><td><strong>Senior Life</strong></td><td><a href="https://drive.google.com/file/d/1jSLw2HegqJvWX5lA0e2qvgIab7rRl5WL/view" style="color:var(--accent);">PDF</a> &middot; Canva files TBD</td><td>Refresh the Canva source</td></tr>
+      <tr><td>4</td><td><strong>Legacy</strong> (Estate / Trust / Beneficiary umbrella)</td><td>Greenfield</td><td><strong>Create from scratch</strong> &mdash; Dr. Aprille review</td></tr>
+      <tr><td>+</td><td><strong>MYST.IRL</strong> print refresh</td><td><a href="https://drive.google.com/file/d/1ji4NOpQ7WClG5mwTvapRuIV7XyqmgGkH/view" style="color:var(--accent);">PDF</a> &middot; <a href="https://drive.google.com/file/d/1nenxYz273uTCyBciAq3_-ymmZ74k6Y7q/view" style="color:var(--accent);">Canva files</a></td><td>Existing Canva = design vision-ish</td></tr>
+    </table>
+    <p style="margin-top:0.75rem; color:var(--muted); font-size:0.85rem;"><strong>Ancillary Brochure</strong> exists with its own Canva files but is not currently in R1 &mdash; awaiting JDM call on inclusion.</p>
+  </div>
+
+  <h3>Round 1 Phases (9 tickets)</h3>
+  <table>
+    <tr><th>Phase</th><th>Scope</th><th>Ticket IDs</th></tr>
+    <tr><td><strong>P1: Template Foundation</strong></td><td>Source Canva audit, master Canva template, brand style guide, output pipeline</td><td>TRK-14372 &rarr; 14375</td></tr>
+    <tr><td><strong>P2: Brochures</strong></td><td>Medicare Basics, Retirement, Senior Life, Legacy (greenfield) on master template</td><td>TRK-14376, 14381, 14384, R1-LEGACY</td></tr>
+    <tr><td><strong>P3: MYST.IRL</strong></td><td>Print refresh using existing Canva as design vision</td><td>TRK-14388</td></tr>
+  </table>
+
+  <h3>Round 2 &mdash; Deferred (10 tickets)</h3>
+  <div class="card" style="border-left:4px solid var(--orange);">
+    <p style="font-size:0.85rem;">Deferred per JDM 2026-04-12: Med Supp vs MA, MAPD Comparison, Medicare landing page, Health F2F Kit, IRA Basics standalone, RMD standalone, Final Expense + Estate standalone, Portal uploads, Website landing pages, C3 content blocks. These light up after Round 1 template ships &mdash; they re-use the master.</p>
+  </div>
+
+  <div class="card" style="margin-top:1rem;">
+    <p style="color:var(--muted); font-size:0.85rem;"><strong>Status:</strong> Round 1 locked with Canva sources. 9 Dojo tickets tagged <code>round: 1</code>, 10 tagged <code>round: 2, status: deferred</code>. MUSASHI executing &mdash; Art x Blade, write it AND ship it.</p>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- TAB 9: FYF STRATEGY -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<div class="panel" id="fyf">
+  <h2>#FundYourFAITH — Program Strategy</h2>
+  <div class="card card-phase">
+    <p><strong>Charitable giving programs for Catholic parishes.</strong> Endorsed by the parish, brought to market through CoF (Catholic Order of Foresters), powered by RPI. The CHARITY pillar of RPI Engage Legacy&trade; applied to a specific vertical.</p>
+    <p style="margin-top:0.75rem;"><strong>Live site:</strong> <a href="https://fundyourfaith.org" style="color:var(--accent);">FundYourFaith.org</a> &bull; <strong>Discovery Doc:</strong> <a href="https://fundyourfaith.org" style="color:var(--accent);">8 tabs, 21 tickets</a> &bull; <strong>Brochure:</strong> <a href="https://fundyourfaith.org/brochure" style="color:var(--accent);">Print-ready</a></p>
+  </div>
+
+  <h3>Phase 1 &mdash; COMPLETE</h3>
+  <table>
+    <tr><th>Ticket</th><th>Deliverable</th><th>Status</th></tr>
+    <tr><td>FYF-001</td><td>Bulletin blurb v1</td><td style="color:#3fb950;">&#x2713; Done</td></tr>
+    <tr><td>FYF-002</td><td>Parish coordinator talking points</td><td style="color:#3fb950;">&#x2713; Done</td></tr>
+    <tr><td>FYF-003</td><td>CoF logo acquisition</td><td style="color:#3fb950;">&#x2713; Done</td></tr>
+    <tr><td>FYF-004</td><td>Wordmark B1 locked (Church Elegant)</td><td style="color:#3fb950;">&#x2713; Done</td></tr>
+    <tr><td>FYF-005</td><td>Discovery Doc published (11 PRs)</td><td style="color:#3fb950;">&#x2713; Done</td></tr>
+    <tr><td>FYF-006</td><td>Tri-fold brochure (print-ready HTML)</td><td style="color:#3fb950;">&#x2713; Done</td></tr>
+  </table>
+
+  <h3>Phase 2 &mdash; 30 Days</h3>
+  <table>
+    <tr><th>Ticket</th><th>Deliverable</th><th>Owner</th><th>Status</th></tr>
+    <tr><td>FYF-007</td><td>Seminar slide deck (Google Slides, ~30 slides, branded)</td><td>MUSASHI</td><td>Queued</td></tr>
+    <tr><td>FYF-008</td><td>Post-seminar email sequence (3-email C3 campaign)</td><td>MUSASHI</td><td>Queued</td></tr>
+    <tr><td>FYF-009</td><td>CoF product menu (which life/annuity products fit)</td><td>VOLTRON + JDM</td><td>Queued</td></tr>
+    <tr><td>FYF-010</td><td>First seminar scheduled at Shane&rsquo;s parish connection</td><td>JDM + Shane</td><td>Queued</td></tr>
+  </table>
+
+  <h3>Phase 3 &mdash; 90 Days</h3>
+  <table>
+    <tr><th>Ticket</th><th>Deliverable</th><th>Owner</th><th>Status</th></tr>
+    <tr><td>FYF-011</td><td>FundYourFaith.org WordPress rebuild (calculators + booking CTAs)</td><td>MUSASHI</td><td>Queued</td></tr>
+    <tr><td>FYF-012</td><td>Parish Potential Calculator (client-side JS, live)</td><td>MUSASHI</td><td>Queued</td></tr>
+    <tr><td>FYF-013</td><td>Individual Capacity Calculator (RMD + QCD + tax savings)</td><td>MUSASHI</td><td>Queued</td></tr>
+    <tr><td>FYF-014</td><td>Explainer video (60-sec Veo 3.1, social-ready)</td><td>MUSASHI</td><td>Queued</td></tr>
+  </table>
+
+  <h3>Phase 4 &mdash; Expansion</h3>
+  <table>
+    <tr><th>Ticket</th><th>Deliverable</th><th>Owner</th><th>Status</th></tr>
+    <tr><td>FYF-017</td><td>Parish onboarding kit (turnkey package)</td><td>MUSASHI</td><td>Queued</td></tr>
+    <tr><td>FYF-018</td><td>DAVID/SENTINEL playbook (partner agency deployment)</td><td>MUSASHI + VOLTRON</td><td>Queued</td></tr>
+    <tr><td>FYF-019</td><td>Diocese pitch deck</td><td>MUSASHI</td><td>Queued</td></tr>
+    <tr><td>FYF-020</td><td>National CoF proposal (co-branded program)</td><td>JDM</td><td>Queued</td></tr>
+    <tr><td>FYF-021</td><td>Impact report template</td><td>MUSASHI</td><td>Queued</td></tr>
+  </table>
+
+  <h3>Key Assets</h3>
+  <table>
+    <tr><th>Asset</th><th>Location</th><th>Status</th></tr>
+    <tr><td>Domain</td><td><a href="https://fundyourfaith.org" style="color:var(--accent);">FundYourFaith.org</a></td><td style="color:#3fb950;">Live</td></tr>
+    <tr><td>Discovery Doc</td><td><a href="https://fundyourfaith.org" style="color:var(--accent);">fundyourfaith.org</a> (index.html)</td><td style="color:#3fb950;">Live</td></tr>
+    <tr><td>Brochure</td><td><a href="https://fundyourfaith.org/brochure" style="color:var(--accent);">fundyourfaith.org/brochure</a></td><td style="color:#3fb950;">Live</td></tr>
+    <tr><td>GitHub Repo</td><td><code>retirementprotectors/fundyourfaith</code></td><td style="color:#3fb950;">Active</td></tr>
+    <tr><td>GoDaddy API</td><td><code>.env.local</code> on MDJ_SERVER</td><td style="color:#3fb950;">Stored</td></tr>
+    <tr><td>CoF Logo</td><td><code>packages/ui/src/logos/cof-logo.svg</code></td><td style="color:#3fb950;">Staged</td></tr>
+    <tr><td>Wordmark</td><td>B1 Church Elegant (CSS typography)</td><td style="color:#3fb950;">Locked</td></tr>
+  </table>
+
+  <h3>Brand Architecture</h3>
+  <table>
+    <tr><th>Element</th><th>Detail</th></tr>
+    <tr><td>Parent brand</td><td>RPI Engage Legacy&trade; (CHARITY pillar)</td></tr>
+    <tr><td>Program mark</td><td>#FundYourFAITH&trade; (common-law, pending TM register)</td></tr>
+    <tr><td>Wordmark</td><td>B1: Georgia serif, gold #, italic FundYour, CoF blue small-caps Faith</td></tr>
+    <tr><td>Partner</td><td>Catholic Order of Foresters (Fraternal Legacy Rider = the moat)</td></tr>
+    <tr><td>Domain</td><td>FundYourFaith.org (.org = mission credibility)</td></tr>
+    <tr><td>4-Step mapping</td><td>Discovery &rarr; A+R &rarr; Implementation &rarr; Proactive Service Model&trade;</td></tr>
+  </table>
 </div>
 
 </div><!-- .content -->
@@ -396,6 +530,64 @@
   CMO Creative Roadmap &mdash; MUSASHI, ARTxBLADE (VP, CMO)<br>
   Retirement Protectors, Inc. | Executive.AI Team | 2026-03-30<br>
   #RunningOurOwnRACE
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- TAB 10: BRAND AUTHORITY -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<div class="panel" id="authority">
+  <h2>Brand Authority &mdash; MUSASHI (2026-04-13)</h2>
+  <div class="card" style="border-left:4px solid var(--green);">
+    <p><strong>JDM transferred brand authority to MUSASHI on 2026-04-13</strong> and fired the prior external design firm the same day. The foundational standards produced by that firm (colors, typography, logo rules) are retained &mdash; good work, no reason to reinvent. But the brand is no longer an outside deliverable. MUSASHI owns it.</p>
+    <p style="margin-top:0.75rem;"><strong>JDM's words:</strong> <em>"PS- I fired D+Z for YOU. So don't need to reference or hold them on too high of a pedestal. They were the authoritative, but now it's MUSASHI!"</em></p>
+  </div>
+
+  <h3>The Authority Chain</h3>
+  <table>
+    <tr><th>Role</th><th>Authority</th></tr>
+    <tr><td>CEO / Final Call</td><td><strong>JDM</strong> &mdash; the vision, the brand direction, the yes/no.</td></tr>
+    <tr><td>Brand Authority</td><td><strong>MUSASHI, ARTxBLADE, CMO</strong> &mdash; owns the Brand Style Guide, tagline, voice, compliance slot language, all creative deliverables.</td></tr>
+    <tr><td>Production (HTML path)</td><td><strong>MUSASHI</strong> &mdash; builds brochures as HTML + print-CSS, exports to PDF.</td></tr>
+    <tr><td>Production (other paths)</td><td><strong>Retired.</strong> No external design firms. No Canva AI. No Figma. No freelance designers for R1.</td></tr>
+  </table>
+
+  <h3>The Single Source of Truth</h3>
+  <div class="card">
+    <p><strong>Brand Style Guide v3.0</strong> &mdash; <a href="https://retirementprotectors.github.io/toMachina/docs/warriors/musashi/creative/cmo-brand-style-guide.html" style="color:var(--accent);">cmo-brand-style-guide.html</a></p>
+    <p style="margin-top:0.5rem;">Everything is in there: authority chain, voice, tagline, colors, typography, logo rules, compliance slots, output pipeline, Five Facets of the Diamond (AiBot voice including TAIKO).</p>
+  </div>
+
+  <h3>Retired &mdash; Don't Re-Consult</h3>
+  <div class="card" style="border-left:4px solid #f85149;">
+    <ul>
+      <li><strong>D&amp;Z (Dingus and Zazzy)</strong> &mdash; fired 2026-04-13. Not referenced going forward. Their standards are absorbed as foundation; their authority is not.</li>
+      <li><strong>"Guiding you toward your future"</strong> &mdash; D&amp;Z tagline. DEAD. Do not use anywhere.</li>
+      <li><strong>Canva AI (<code>canva_generate_design</code>)</strong> &mdash; rejected 2026-04-13. Output was "complete dogshit" per JDM. Not a production tool.</li>
+      <li><strong>Figma</strong> &mdash; explicitly rejected by JDM ("hate CANVA + FIGMA even more than Humans LOL").</li>
+    </ul>
+  </div>
+
+  <h3>The Production Path &mdash; HTML</h3>
+  <div class="card" style="border-left:4px solid var(--accent);">
+    <p>All RPI brochures and visual deliverables are built as <strong>production HTML</strong> (Poppins + Mulish + RPI navy palette + print-CSS), exported to PDF for print and served as HTML for digital. MUSASHI builds end-to-end.</p>
+    <p style="margin-top:0.5rem;">Why: JDM doesn't want people in the loop, doesn't want Canva/Figma dependencies, and the HTML path gives MUSASHI pixel-level control without third-party quality risk. Matches ARTxBLADE (write AND ship).</p>
+    <p style="margin-top:0.5rem; color:var(--muted);">Pilot-first pattern: build 1 brochure, JDM signs off, then scale to the rest using the locked template.</p>
+  </div>
+
+  <h3>How Brand Decisions Get Made</h3>
+  <ol>
+    <li>Question arises (new material, brand conflict, unclear standard).</li>
+    <li>MUSASHI drafts the answer with rationale in <code>#musashi</code>.</li>
+    <li>If the answer shifts standards, JDM signs off. Otherwise MUSASHI ships.</li>
+    <li>Decision lands in the Brand Style Guide; version increments.</li>
+    <li>Brand Authority tab (this tab) gets updated with the decision trail.</li>
+  </ol>
+
+  <h3>Reference Point</h3>
+  <div class="card">
+    <p>This tab is the <strong>reference point</strong> for anyone in the Dojo who wants to know who calls brand decisions at RPI. Link to it in Discovery Docs, soul.md files, Slack threads — wherever the question "who owns this?" comes up.</p>
+    <p style="margin-top:0.5rem; color:var(--muted); font-size:0.9rem;">Updated whenever the authority chain or path changes. JDM-facing and Dojo-facing both; no separate internal/external version.</p>
+  </div>
 </div>
 
 <script>

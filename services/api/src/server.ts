@@ -223,7 +223,7 @@ app.use('/api/voltron', requireLevel('LEADER'), normalizeBody, voltronDeployRout
 app.use('/api/myst-ai', mystAiRoutes)
 app.use('/api/admin/warriors', requireLevel('EXECUTIVE'), adminWarriorRoutes)
 app.use('/api/admin/learning-loop', requireLevel('EXECUTIVE'), adminLearningLoopRoutes)
-app.use('/api/system-synergy', requireLevel('EXECUTIVE'), systemSynergyRoutes)
+app.use('/api/system-synergy', systemSynergyRoutes)
 app.use('/api/rsp', normalizeBody, rspRoutes)
 
 // CEO Action Queue — Sprint 012
