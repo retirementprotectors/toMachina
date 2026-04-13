@@ -111,8 +111,12 @@ export default function PortalLayout({
       {/* Notifications Module — slide-out panel */}
       <NotificationsModule portal="sentinel" open={notificationsOpen} onClose={closeNotifications} />
 
-      {/* MDJ — AI Assistant slide-out panel */}
-      <MDJPanel portal="sentinel" open={mdjOpen} onClose={closeMdj} />
+      {/* MDJ — AI Assistant slide-out panel.
+          ZRD-PLAT-MT belt flag: hide for partner users until MT-014 lands
+          VOLTRON partner-context awareness. Prevents default-DB PHI leakage. */}
+      {!user?.partnerId && (
+        <MDJPanel portal="sentinel" open={mdjOpen} onClose={closeMdj} />
+      )}
 
       {/* FORGE Report — screenshot + auto-fill issue tracker */}
       <ReportButton portal="sentinel" />

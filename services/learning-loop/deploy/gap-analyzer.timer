@@ -1,0 +1,16 @@
+# systemd timer for gap analysis — MDJ_SERVER
+# System Synergy — ZRD-SYN-008
+#
+# Deploy to: /etc/systemd/system/gap-analyzer.timer
+# Then: sudo systemctl daemon-reload && sudo systemctl enable --now gap-analyzer.timer
+
+[Unit]
+Description=Daily gap analyzer (3am)
+
+[Timer]
+OnCalendar=*-*-* 03:00:00
+Persistent=true
+AccuracySec=1min
+
+[Install]
+WantedBy=timers.target

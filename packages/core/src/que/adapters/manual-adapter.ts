@@ -15,13 +15,13 @@ export class ManualEntryAdapter implements QueAdapter {
 
   /**
    * Validate that manually entered data has the minimum required fields:
-   * carrier_name, product_name, and at least one premium field.
+   * carrier, product_name, and at least one premium field.
    */
   validate(params: Record<string, unknown>): string | null {
     const errors: string[] = []
 
-    if (!params['carrier_name'] || typeof params['carrier_name'] !== 'string') {
-      errors.push('carrier_name is required')
+    if (!params['carrier'] || typeof params['carrier'] !== 'string') {
+      errors.push('carrier is required')
     }
 
     if (!params['product_name'] || typeof params['product_name'] !== 'string') {
@@ -52,12 +52,12 @@ export class ManualEntryAdapter implements QueAdapter {
       return { success: false, quotes: [], error: validationError }
     }
 
-    const carrierName = params['carrier_name'] as string
+    const carrierName = params['carrier'] as string
     const productName = params['product_name'] as string
 
     // Extract known fields; everything else goes into details
     const knownFields = new Set([
-      'carrier_name',
+      'carrier',
       'product_name',
       'carrier_id',
       'source_id',
@@ -88,7 +88,7 @@ export class ManualEntryAdapter implements QueAdapter {
           carrier_id: typeof params['carrier_id'] === 'string'
             ? params['carrier_id']
             : undefined,
-          carrier_name: carrierName,
+          carrier: carrierName,
           product_name: productName,
           premium_monthly:
             typeof params['premium_monthly'] === 'number'

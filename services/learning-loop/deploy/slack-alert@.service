@@ -1,0 +1,19 @@
+# Templated slack-alert service — fires on failure of any Learning Loop wire
+# System Synergy — LL-08
+#
+# Triggered by OnFailure= directives on each wire .service file.
+# The %i template parameter receives the failing unit name.
+#
+# Deploy to: /etc/systemd/system/slack-alert@.service
+# No timer — fires only via OnFailure=
+
+[Unit]
+Description=RPI Learning Loop Slack Alert — failure notification for %i
+
+[Service]
+Type=oneshot
+User=jdm
+ExecStart=/home/jdm/Projects/toMachina/services/learning-loop/deploy/scripts/slack-alert.sh %i
+StandardOutput=journal
+StandardError=journal
+TimeoutStartSec=30

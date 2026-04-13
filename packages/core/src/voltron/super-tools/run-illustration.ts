@@ -44,7 +44,7 @@ export interface RunIllustrationParams {
 interface ResolvedClientData {
   first_name: string
   last_name: string
-  date_of_birth: string
+  dob: string
   state: string
   gender: 'male' | 'female'
   age?: number
@@ -214,7 +214,7 @@ export async function execute(
     const clientData: ResolvedClientData = {
       first_name: clientResult.data.first_name,
       last_name: clientResult.data.last_name,
-      date_of_birth: clientResult.data.dob,
+      dob: clientResult.data.dob,
       state: clientResult.data.state,
       gender: clientResult.data.gender ?? 'male',
       age: clientResult.data.age,

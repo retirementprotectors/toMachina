@@ -1,0 +1,26 @@
+# systemd service for warrior brain sync — MDJ_SERVER
+# System Synergy — ZRD-SYN-010
+#
+# Deploy to: /etc/systemd/system/wire-brain-sync.service
+# Then: sudo systemctl daemon-reload && sudo systemctl enable wire-brain-sync.timer
+
+[Unit]
+Description=RPI Wire Brain Sync — Daily cross-warrior brain synchronization
+After=network-online.target entity-extractor.service
+Wants=network-online.target
+OnFailure=slack-alert@%p.service
+
+[Service]
+Type=oneshot
+User=jdm
+WorkingDirectory=/home/jdm/Projects/toMachina/services/learning-loop
+Environment="NODE_ENV=production"
+Environment="GOOGLE_APPLICATION_CREDENTIALS=/home/jdm/Projects/dojo-warriors/mdj-agent/sa-key.json"
+EnvironmentFile=/home/jdm/Projects/dojo-warriors/mdj-agent/.env
+ExecStart=/usr/bin/node dist/wire-brain-sync.js
+StandardOutput=journal
+StandardError=journal
+TimeoutStartSec=300
+
+[Install]
+WantedBy=multi-user.target

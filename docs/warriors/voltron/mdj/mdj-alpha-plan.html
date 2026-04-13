@@ -1,0 +1,1314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MDJ-ALPHA — Implementation Plan</title>
+<style>
+  :root {
+    --bg: #0a0e17;
+    --bg-card: #111827;
+    --bg-hover: #1a2236;
+    --border: #1e293b;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --accent: #3b82f6;
+    --accent-glow: rgba(59, 130, 246, 0.15);
+    --green: #22c55e;
+    --orange: #f59e0b;
+    --red: #ef4444;
+    --purple: #a855f7;
+    --pink: #ec4899;
+    --cyan: #06b6d4;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 40px 32px;
+    text-align: center;
+  }
+  .header h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #3b82f6, #a855f7, #ec4899);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 8px;
+  }
+  .header .subtitle {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    max-width: 700px;
+    margin: 0 auto;
+  }
+  .header .badge {
+    display: inline-block;
+    margin-top: 16px;
+    padding: 4px 16px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    background: var(--accent-glow);
+    color: var(--accent);
+    border: 1px solid rgba(59,130,246,0.3);
+  }
+
+  /* Tabs */
+  .tab-container {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .tabs {
+    display: flex;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 16px;
+    gap: 0;
+  }
+  .tab {
+    padding: 14px 20px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: all 0.2s;
+  }
+  .tab:hover { color: var(--text); background: var(--bg-hover); }
+  .tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+    background: var(--accent-glow);
+  }
+
+  /* Content */
+  .content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 32px 24px;
+  }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* Cards */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+  .card h2 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: var(--text);
+  }
+  .card h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 16px 0 8px;
+    color: var(--accent);
+  }
+  .card p { color: var(--text-muted); margin-bottom: 12px; }
+  .card ul { color: var(--text-muted); padding-left: 20px; margin-bottom: 12px; }
+  .card ul li { margin-bottom: 6px; }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    padding: 10px 12px;
+    background: var(--bg-hover);
+    color: var(--accent);
+    font-weight: 600;
+    border-bottom: 1px solid var(--border);
+  }
+  td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-muted);
+    vertical-align: top;
+  }
+  tr:hover td { background: var(--bg-hover); }
+
+  /* Diagram / Code blocks */
+  .diagram {
+    background: #0d1117;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+    overflow-x: auto;
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+    font-size: 0.8rem;
+    line-height: 1.6;
+    color: var(--text-muted);
+    white-space: pre;
+    margin: 16px 0;
+  }
+
+  code {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.8rem;
+    background: rgba(255,255,255,0.06);
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: var(--cyan);
+  }
+
+  /* Phase headers */
+  .phase-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 24px 0 16px;
+    padding: 14px 20px;
+    background: var(--accent-glow);
+    border-radius: 8px;
+    border: 1px solid rgba(59,130,246,0.25);
+  }
+  .phase-header .phase-num {
+    width: 32px; height: 32px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--accent); color: white;
+    border-radius: 6px; font-weight: 700; font-size: 0.85rem;
+    flex-shrink: 0;
+  }
+  .phase-header h3 { color: var(--accent); margin: 0; font-size: 1.05rem; font-weight: 700; }
+  .phase-header .phase-sub { color: var(--text-muted); font-size: 0.85rem; margin-left: auto; }
+
+  /* Track headers */
+  .track-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 20px 0 12px;
+    padding: 10px 14px;
+    border-radius: 6px;
+    border-left: 4px solid;
+  }
+  .track-header.track-a { border-left-color: var(--orange); background: rgba(245,158,11,0.08); }
+  .track-header.track-b { border-left-color: var(--purple); background: rgba(168,85,247,0.08); }
+  .track-header.track-c { border-left-color: var(--cyan); background: rgba(6,182,212,0.08); }
+  .track-header .track-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+  .track-a .track-label { background: rgba(245,158,11,0.2); color: var(--orange); }
+  .track-b .track-label { background: rgba(168,85,247,0.2); color: var(--purple); }
+  .track-c .track-label { background: rgba(6,182,212,0.2); color: var(--cyan); }
+  .track-header h4 { color: var(--text); font-size: 0.95rem; margin: 0; }
+  .track-header .track-machine { color: var(--text-muted); font-size: 0.8rem; margin-left: auto; }
+
+  /* Ticket cards */
+  .ticket {
+    background: var(--bg-hover);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px 20px;
+    margin-bottom: 14px;
+  }
+  .ticket-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .ticket-id {
+    font-family: 'SF Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 4px;
+    background: rgba(59,130,246,0.15);
+    color: var(--accent);
+    border: 1px solid rgba(59,130,246,0.25);
+  }
+  .ticket-title { font-weight: 600; font-size: 0.95rem; color: var(--text); }
+  .ticket-dep { font-size: 0.75rem; color: var(--text-muted); margin-left: auto; }
+  .ticket p { color: var(--text-muted); font-size: 0.875rem; margin-bottom: 10px; }
+  .ticket ul { color: var(--text-muted); font-size: 0.875rem; padding-left: 18px; margin-bottom: 10px; }
+  .ticket ul li { margin-bottom: 4px; }
+  .ticket .file-tree {
+    background: #0d1117;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px 16px;
+    font-family: 'SF Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    white-space: pre;
+    overflow-x: auto;
+    margin: 10px 0;
+  }
+
+  /* Pill badges */
+  .pill {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .pill.new { background: rgba(34,197,94,0.15); color: var(--green); }
+  .pill.mod { background: rgba(59,130,246,0.15); color: var(--accent); }
+  .pill.warn { background: rgba(245,158,11,0.15); color: var(--orange); }
+  .pill.dep { background: rgba(168,85,247,0.15); color: var(--purple); }
+
+  /* Machine role cards */
+  .machine-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+    margin: 16px 0;
+  }
+  .machine-card {
+    background: var(--bg-hover);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px;
+    border-top: 3px solid var(--accent);
+  }
+  .machine-card.air { border-top-color: var(--purple); }
+  .machine-card.mdj1 { border-top-color: var(--orange); }
+  .machine-card.pro { border-top-color: var(--text-muted); }
+  .machine-card h4 { font-size: 1rem; font-weight: 700; margin-bottom: 6px; }
+  .machine-card .role-tag { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 10px; }
+  .machine-card ul { font-size: 0.85rem; color: var(--text-muted); padding-left: 16px; }
+  .machine-card ul li { margin-bottom: 4px; }
+
+  /* Checklist */
+  .checklist {
+    list-style: none;
+    padding: 0;
+    margin: 12px 0;
+  }
+  .checklist li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 0.875rem;
+  }
+  .checklist li:last-child { border-bottom: none; }
+  .checklist .check-box {
+    width: 18px; height: 18px; min-width: 18px;
+    border: 2px solid var(--border);
+    border-radius: 4px;
+    margin-top: 2px;
+  }
+  .checklist li code { font-size: 0.78rem; }
+
+  /* Phase summary row */
+  .phase-summary {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin: 16px 0;
+  }
+  .phase-box {
+    background: var(--bg-hover);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+    text-align: center;
+  }
+  .phase-box .phase-box-num {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+  .phase-box .phase-box-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* Jr prompt box */
+  .prompt-box {
+    background: #0d1117;
+    border: 1px solid rgba(245,158,11,0.3);
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin: 16px 0;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.82rem;
+    line-height: 1.7;
+    color: #e2e8f0;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 32px;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+
+  @media (max-width: 768px) {
+    .header h1 { font-size: 1.8rem; }
+    .content { padding: 16px; }
+    .card { padding: 16px; }
+    .machine-grid { grid-template-columns: 1fr; }
+    .phase-summary { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>MDJ-ALPHA &mdash; Implementation Plan</h1>
+  <div class="subtitle">
+    MyDigitalJosh v1.0 &mdash; The complete build blueprint for wiring an AI assistant into the toMachina platform.
+    20 tickets. 4 phases. 3 machines. Ships overnight.
+  </div>
+  <div class="badge">FORGE Sprint: MDJ-ALPHA &mdash; C0h0Ylibz7724v9c4A5d</div>
+</div>
+
+<div class="tab-container">
+  <div class="tabs">
+    <div class="tab active" data-tab="overview">Overview</div>
+    <div class="tab" data-tab="phase1">Phase 1: Foundation</div>
+    <div class="tab" data-tab="phase2">Phase 2: Tools</div>
+    <div class="tab" data-tab="phase3">Phase 3: Specialists</div>
+    <div class="tab" data-tab="phase4">Phase 4: Production</div>
+    <div class="tab" data-tab="jr">Jr Assignment</div>
+    <div class="tab" data-tab="verify">Verification</div>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- ==================== OVERVIEW ==================== -->
+  <div class="tab-panel active" id="overview">
+
+    <div class="card">
+      <h2>Build Strategy</h2>
+      <p>MDJ is built across 4 sequential phases. Within each phase, tickets run in 3 parallel tracks so nothing blocks. Phase 1 unlocks Phase 2, and so on. Jr (MDJ_SERVER) runs Track A overnight while AIR/GA handles the rest.</p>
+
+      <div class="phase-summary">
+        <div class="phase-box">
+          <div class="phase-box-num">1–5</div>
+          <div class="phase-box-label">Phase 1<br>Foundation</div>
+        </div>
+        <div class="phase-box">
+          <div class="phase-box-num">6–10</div>
+          <div class="phase-box-label">Phase 2<br>Tools</div>
+        </div>
+        <div class="phase-box">
+          <div class="phase-box-num">11–15</div>
+          <div class="phase-box-label">Phase 3<br>Specialists</div>
+        </div>
+        <div class="phase-box">
+          <div class="phase-box-num">16–20</div>
+          <div class="phase-box-label">Phase 4<br>Production</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Machines + Roles</h2>
+      <div class="machine-grid">
+        <div class="machine-card air">
+          <h4>AIR</h4>
+          <div class="role-tag">JDM + GA &mdash; Orchestrator</div>
+          <ul>
+            <li>Plan + review + approve</li>
+            <li>Frontend (Track B)</li>
+            <li>Middleware (Track C)</li>
+            <li>Portal integration + deploy</li>
+          </ul>
+        </div>
+        <div class="machine-card mdj1">
+          <h4>MDJ_SERVER</h4>
+          <div class="role-tag">Jr &mdash; Builder (runs overnight)</div>
+          <ul>
+            <li>Agent service on MDJ_SERVER</li>
+            <li>Tool registry (Track A)</li>
+            <li>MCP bridge</li>
+            <li>Infrastructure hardening</li>
+          </ul>
+        </div>
+        <div class="machine-card pro">
+          <h4>PRO</h4>
+          <div class="role-tag">Standby</div>
+          <ul>
+            <li>FORGE sprint running</li>
+            <li>Client work</li>
+            <li>Available if AIR needs backup</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Phase Execution Order</h2>
+      <p>Phases are sequential. Tickets within each phase are parallel. Track A = MDJ_SERVER/Jr. Track B = AIR/GA. Track C = AIR/GA (after A+B, or concurrent where noted).</p>
+      <table>
+        <tr>
+          <th>Phase</th>
+          <th>Tickets</th>
+          <th>Track A (MDJ_SERVER/Jr)</th>
+          <th>Track B (AIR/GA)</th>
+          <th>Track C (AIR/GA)</th>
+          <th>Gate</th>
+        </tr>
+        <tr>
+          <td><strong>1 — Foundation</strong></td>
+          <td>TRK-001–005</td>
+          <td>Agent service + Firestore seed</td>
+          <td>MDJPanel widget</td>
+          <td>Cloud Run proxy routes</td>
+          <td>Panel opens + streams on all 3 portals</td>
+        </tr>
+        <tr>
+          <td><strong>2 — Tools</strong></td>
+          <td>TRK-006–010</td>
+          <td>TM API tool registry</td>
+          <td>MCP bridge</td>
+          <td>Permissions + review gates + ToolCallCard</td>
+          <td>Claude uses tools, review gate pauses</td>
+        </tr>
+        <tr>
+          <td><strong>3 — Specialists</strong></td>
+          <td>TRK-011–015</td>
+          <td>Specialist router + prompts</td>
+          <td>Conversation persistence</td>
+          <td>Memory extraction + page context</td>
+          <td>Specialist badge shows + conversations persist</td>
+        </tr>
+        <tr>
+          <td><strong>4 — Production</strong></td>
+          <td>TRK-016–020</td>
+          <td>MDJ_SERVER hardening + Cloudflare Tunnel</td>
+          <td>Long context + preferences</td>
+          <td>E2E tests + Admin dashboard</td>
+          <td>Tunnel live, tests pass in CI</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Discovery Reference</h2>
+      <p>The discovery document that informed this plan is live at:</p>
+      <p><a href="https://retirementprotectors.github.io/toMachina/docs/discoveries/mdj-discovery.html" style="color:var(--accent);">https://retirementprotectors.github.io/toMachina/docs/discoveries/mdj-discovery.html</a></p>
+    </div>
+
+  </div><!-- /overview -->
+
+  <!-- ==================== PHASE 1 ==================== -->
+  <div class="tab-panel" id="phase1">
+
+    <div class="phase-header">
+      <div class="phase-num">1</div>
+      <h3>Foundation &mdash; TRK-001 through TRK-005</h3>
+      <span class="phase-sub">5 tickets &mdash; 3 parallel tracks</span>
+    </div>
+
+    <p style="color:var(--text-muted); margin-bottom:20px;">Goal: MDJPanel opens on all 3 portals. Messages stream. Agent service runs on MDJ_SERVER. Firestore collections exist. Cloud Run proxies to MDJ_SERVER.</p>
+
+    <!-- TRACK A -->
+    <div class="track-header track-a">
+      <span class="track-label">Track A</span>
+      <h4>Backend &mdash; Agent Service + Firestore</h4>
+      <span class="track-machine">MDJ_SERVER / Jr &mdash; runs overnight</span>
+    </div>
+
+    <div class="ticket">
+      <div class="ticket-header">
+        <span class="ticket-id">TRK-002</span>
+        <span class="ticket-title">MDJ Agent Service scaffold</span>
+        <span class="pill new">New</span>
+        <span class="ticket-dep">No dependencies &mdash; start immediately</span>
+      </div>
+      <p>Build the Express server at <code>~/mdj-agent/</code> on MDJ_SERVER. This is the AI brain — the process that talks to Claude and streams back SSE.</p>
+      <div class="file-tree">~/mdj-agent/
+  package.json
+  tsconfig.json
+  src/
+    server.ts          — Express, port 4200, CORS, health endpoint
+    agent/
+      claude-client.ts — Anthropic SDK wrapper, messages.create with stream
+      system-prompt.ts — Base system prompt with user context injection
+    middleware/
+      auth.ts          — Verify X-MDJ-Auth shared secret header
+  .env                 — ANTHROPIC_API_KEY, MDJ_AUTH_SECRET</div>
+      <p><strong>Implementation steps:</strong></p>
+      <ul>
+        <li><code>npm init</code> + install: <code>express @anthropic-ai/sdk cors dotenv firebase-admin</code></li>
+        <li>Express server on port 4200 with <code>/health</code> and <code>/agent/chat</code> endpoints</li>
+        <li><code>/agent/chat</code> accepts <code>{ message, user_context, conversation_history }</code>, calls Claude with streaming, returns SSE (<code>Content-Type: text/event-stream</code>)</li>
+        <li>systemd service file at <code>/etc/systemd/system/mdj-agent.service</code></li>
+        <li>Test: <code>curl http://localhost:4200/health</code> returns <code>{ status: "ok" }</code></li>
+      </ul>
+    </div>
+
+    <div class="ticket">
+      <div class="ticket-header">
+        <span class="ticket-id">TRK-001</span>
+        <span class="ticket-title">Firestore collections + rules</span>
+        <span class="pill new">New</span>
+        <span class="ticket-dep">No dependencies &mdash; start immediately</span>
+      </div>
+      <p>Create the Firestore schema that MDJ lives in. Seed the 6 specialist configs. Lock down access with proper rules.</p>
+      <ul>
+        <li>Create seed script: <code>services/api/src/scripts/seed-mdj-collections.ts</code>
+          <ul>
+            <li>Seed 6 specialist configs to <code>mdj_specialist_configs</code>: General, Medicare, Securities, Service, DAVID, Ops</li>
+            <li>Each with: <code>specialist_name, display_name, icon, routing_keywords, required_level, status: 'active'</code></li>
+            <li>System prompts seeded as placeholder text (TRK-012 writes the real ones)</li>
+          </ul>
+        </li>
+        <li>Update <code>firestore.rules</code>:
+          <ul>
+            <li><code>mdj_conversations/{convId}</code> — read/write if <code>isRPIUser()</code> AND user email matches</li>
+            <li><code>mdj_conversations/{convId}/messages/{msgId}</code> — read/write if <code>isRPIUser()</code></li>
+            <li><code>mdj_client_insights/{clientId}</code> — read/write if <code>isRPIUser()</code></li>
+            <li><code>mdj_specialist_configs/{configId}</code> — read if <code>isRPIUser()</code>, write if <code>isOwner()</code></li>
+          </ul>
+        </li>
+        <li>Update <code>packages/db/src/firestore.ts</code> — add <code>mdj_conversations</code>, <code>mdj_client_insights</code>, <code>mdj_specialist_configs</code> typed collection exports</li>
+        <li>Add <code>mdj_preferences</code> type to existing user profile types in <code>packages/db/</code></li>
+      </ul>
+    </div>
+
+    <!-- TRACK B -->
+    <div class="track-header track-b">
+      <span class="track-label">Track B</span>
+      <h4>Frontend &mdash; MDJPanel Widget</h4>
+      <span class="track-machine">AIR / GA</span>
+    </div>
+
+    <div class="ticket">
+      <div class="ticket-header">
+        <span class="ticket-id">TRK-004</span>
+        <span class="ticket-title">MDJPanel widget component</span>
+        <span class="pill new">New</span>
+        <span class="ticket-dep">No dependencies &mdash; start immediately</span>
+      </div>
+      <p>Create <code>packages/ui/src/modules/MDJPanel/</code>. Reference pattern: <code>CommsModule/index.tsx</code> for the slide-out panel shell.</p>
+      <table>
+        <tr><th>File</th><th>What It Does</th></tr>
+        <tr><td><code>index.tsx</code></td><td>Main slide-out panel — responsive widths, backdrop, close button, z-50</td></tr>
+        <tr><td><code>ChatThread.tsx</code></td><td>Message list, auto-scroll, streaming text display</td></tr>
+        <tr><td><code>ChatInput.tsx</code></td><td>Text input, submit on Enter, disable during streaming</td></tr>
+        <tr><td><code>MessageBubble.tsx</code></td><td>User (right-aligned) / Assistant (left-aligned) messages</td></tr>
+        <tr><td><code>useMDJStream.ts</code></td><td>Custom hook: fetch /api/mdj/chat, parse SSE, manage messages state</td></tr>
+        <tr><td><code>types.ts</code></td><td>MDJMessage, MDJConversation, ToolCall interfaces</td></tr>
+      </table>
+      <p style="margin-top:10px;"><strong>Implementation steps:</strong></p>
+      <ul>
+        <li>Copy panel shell from <code>CommsModule/index.tsx</code> — responsive widths, backdrop overlay, close button</li>
+        <li>Replace tab content with <code>ChatThread</code> + <code>ChatInput</code></li>
+        <li><code>useMDJStream</code>: <code>fetch('/api/mdj/chat', { method: 'POST', body, headers })</code> → ReadableStream reader → parse <code>data:</code> lines → update messages state</li>
+        <li>MessageBubble: portal-themed user bubbles (<code>var(--portal)</code>), white/gray assistant bubbles, markdown rendering</li>
+        <li>Export from <code>packages/ui/src/modules/index.ts</code></li>
+      </ul>
+    </div>
+
+    <div class="ticket">
+      <div class="ticket-header">
+        <span class="ticket-id">TRK-005</span>
+        <span class="ticket-title">Portal layout integration</span>
+        <span class="pill mod">Modify</span>
+        <span class="ticket-dep">Depends on TRK-004</span>
+      </div>
+      <p>Wire MDJPanel into all 3 portal layouts and the sidebar action bar.</p>
+      <ul>
+        <li><code>packages/core/src/users/modules.ts</code> — add <code>MDJ</code> to MODULES constant</li>
+        <li><code>packages/auth/src/entitlements.ts</code> — add MDJ module check</li>
+        <li>All 3 portal layouts (<code>apps/{prodash,riimo,sentinel}/app/(portal)/layout.tsx</code>):
+          <ul>
+            <li>Add <code>mdjOpen</code> state</li>
+            <li>Add to <code>panelOpen</code> check for mutual exclusion</li>
+            <li>Render <code>&lt;MDJPanel portal={portal} open={mdjOpen} onClose={() =&gt; setMdjOpen(false)} /&gt;</code></li>
+          </ul>
+        </li>
+        <li>All 3 <code>PortalSidebar.tsx</code> — add MDJ button (<code>smart_toy</code> icon) to action bar</li>
+        <li><code>services/api/src/routes/mdj.ts</code> — add <code>GET /specialists</code> endpoint returning specialist configs</li>
+      </ul>
+    </div>
+
+    <!-- TRACK C -->
+    <div class="track-header track-c">
+      <span class="track-label">Track C</span>
+      <h4>Middleware &mdash; Cloud Run Proxy Routes</h4>
+      <span class="track-machine">AIR / GA &mdash; after A+B</span>
+    </div>
+
+    <div class="ticket">
+      <div class="ticket-header">
+        <span class="ticket-id">TRK-003</span>
+        <span class="ticket-title">Cloud Run /api/mdj/* routes — wire to MDJ_SERVER</span>
+        <span class="pill mod">Modify</span>
+        <span class="ticket-dep">Depends on TRK-002</span>
+      </div>
+      <p>Update <code>services/api/src/routes/mdj.ts</code> to proxy to the live MDJ_SERVER agent service via SSE.</p>
+      <ul>
+        <li>Replace placeholder response with SSE proxy to MDJ_SERVER:
+          <ul>
+            <li><code>POST /api/mdj/chat</code> → forward to <code>MDJ1_URL/agent/chat</code></li>
+            <li>Attach user context: email, level, module_permissions, portal</li>
+            <li>Add <code>X-MDJ-Auth</code> header with shared secret from env var</li>
+            <li>Pipe SSE response back to client</li>
+          </ul>
+        </li>
+        <li>Add conversation CRUD:
+          <ul>
+            <li><code>GET /conversations</code> — list user's conversations from Firestore</li>
+            <li><code>GET /conversations/:id</code> — get conversation + messages</li>
+            <li><code>DELETE /conversations/:id</code> — archive (set status: 'archived')</li>
+          </ul>
+        </li>
+        <li><code>GET /specialists</code> — list active specialist configs from Firestore</li>
+        <li>Add env var: <code>MDJ1_URL</code> (Tailscale Funnel or Cloudflare Tunnel URL)</li>
+      </ul>
+    </div>
+
+  </div><!-- /phase1 -->
+
+  <!-- ==================== PHASE 2 ==================== -->
+  <div class="tab-panel" id="phase2">
+
+    <div class="phase-header">
+      <div class="phase-num">2</div>
+      <h3>Tools + Permissions &mdash; TRK-006 through TRK-010</h3>
+      <span class="phase-sub">5 tickets &mdash; 3 parallel tracks</span>
+    </div>
+
+    <p style="color:var(--text-muted); margin-bottom:20px;">Goal: Claude uses actual tools to answer questions. Tool cards render in chat. Review gate pauses for approval. Level 3 users cannot see admin tools.</p>
+
+    <!-- TRACK A -->
+    <div class="track-header track-a">
+      <span class="track-label">Track A</span>
+      <h4>Tool Registry &mdash; TM API Tools</h4>
+      <span class="track-machine">MDJ_SERVER / Jr</span>
+    </div>
+
+    <div class="ticket">
+      <div class="ticket-header">
+        <span class="ticket-id">TRK-006</span>
+        <span class="ticket-title">TM API tool registry</span>
+        <span class="pill new">New</span>
+        <span class="ticket-dep">Phase 1 complete</span>
+      </div>
+      <p>Create <code>~/mdj-agent/src/tools/tm-api-tools.ts</code>. Read all 57 route files in <code>services/api/src/routes/</code> and define a Claude tool for each.</p>
+      <div class="file-tree">{
+  name: 'tm_search_clients',
+  description: 'Search clients by name, email, or phone',
+  input_schema: { type: 'object', properties: { query: { type: 'string' } } },
+  method: 'GET',
+  path: '/api/search?q={query}&amp;collections=clients',
+  required_level: 3,
+  module_key: 'PRODASH_CLIENTS',
+  requires_approval: false,
+}</div>
+      <ul>
+        <li>Organize tools by domain: clients, accounts, pipelines, comms, que, atlas, flow, etc.</li>
+        <li>Set <code>required_level</code> and <code>module_key</code> on every tool</li>
+        <li>Set <code>requires_approval: true</code> on destructive operations (create, update, delete)</li>
+        <li>Export <code>getAllTmApiTools()</code> function</li>
+      </ul>
+    </div>
+
+    <!-- TRACK B -->
+    <div class="track-header track-b">
+      <span class="track-label">Track B</span>
+      <h4>MCP Bridge</h4>
+      <span class="track-machine">MDJ_SERVER / Jr</span>
+    </div>
+
+    <div class="ticket">
+      <div class="ticket-header">
+        <span class="ticket-id">TRK-007</span>
+        <span class="ticket-title">MCP bridge</span>
+        <span class="pill new">New</span>
+        <span class="ticket-dep">Phase 1 complete. MCP servers must be running on MDJ_SERVER.</span>
+      </div>
+      <p>Create <code>~/mdj-agent/src/tools/mcp-bridge.ts</code>. Connect to all 8 MCP servers and expose their tools to Claude with proper prefixing and approval flags.</p>
+      <ul>
+        <li>For each of 8 MCP servers: connect via stdio (same as Claude Code does)</li>
+        <li>Enumerate available tools from each server on startup</li>
+        <li>Wrap each as a Claude tool definition with <code>mcp_</code> prefix:
+          <ul>
+            <li><code>mcp_gmail_send_email</code> → <code>requires_approval: true</code> (sending email always needs approval)</li>
+            <li><code>mcp_google_calendar_create_event</code> → <code>requires_approval: true</code></li>
+            <li><code>mcp_gdrive_search</code> → <code>requires_approval: false</code></li>
+          </ul>
+        </li>
+        <li>Export <code>getAllMcpTools()</code> function</li>
+      </ul>
+    </div>
+
+    <!-- TRACK C -->
+    <div class="track-header track-c">
+      <span class="track-label">Track C</span>
+      <h4>Permissions + Gates + UI</h4>
+      <span class="track-machine">AIR / GA</span>
+    </div>
+
+    <div class="ticket">
+      <div class="ticket-header">
+        <span class="ticket-id">TRK-008</span>
+        <span class="ticket-title">Permission-scoped tool filtering</span>
+        <span class="pill new">New</span>
+        <span class="ticket-dep">Depends on TRK-006, TRK-007</span>
+      </div>
+      <p>Create <code>~/mdj-agent/src/agent/tool-filter.ts</code>. Called before every Claude API request to build the exact right tool list for this user.</p>
+      <ul>
+        <li><code>filterToolsForUser(allTools, userContext)</code>:
+          <ul>
+            <li>Filter by <code>required_level &lt;= user.level</code></li>
+            <li>Filter by <code>module_key</code> in user's <code>module_permissions</code></li>
+            <li>Specialist mode: if active specialist, filter to specialist's <code>available_tools</code></li>
+          </ul>
+        </li>
+        <li>Returns filtered tool array ready to pass to Claude API</li>
+      </ul>
+    </div>
+
+    <div class="ticket">
+      <div class="ticket-header">
+        <span class="ticket-id">TRK-009</span>
+        <span class="ticket-title">Review gates</span>
+        <span class="pill new">New</span>
+        <span class="ticket-dep">Depends on TRK-008</span>
+      </div>
+      <p>When Claude returns a <code>tool_use</code> block for a gated tool, pause execution and wait for human approval before proceeding.</p>
+      <ul>
+        <li>Agent service: when Claude returns <code>tool_use</code> and <code>requires_approval: true</code>:
+          <ul>
+            <li>Emit SSE <code>approval_required</code> event with tool name, input preview, call_id</li>
+            <li>Pause execution (store state in Firestore)</li>
+            <li>Wait for <code>POST /api/mdj/conversations/:id/approve</code> or <code>reject</code></li>
+          </ul>
+        </li>
+        <li>Cloud Run: add approve/reject endpoints that forward decision to MDJ_SERVER</li>
+        <li>On approve: resume tool execution, return result to Claude</li>
+        <li>On reject: return rejection message to Claude, Claude acknowledges gracefully</li>
+      </ul>
+    </div>
+
+    <div class="ticket">
+      <div class="ticket-header">
+        <span class="ticket-id">TRK-010</span>
+        <span class="ticket-title">Tool execution display (ToolCallCard)</span>
+        <span class="pill new">New</span>
+        <span class="ticket-dep">Depends on TRK-009</span>
+      </div>
+      <p>Create <code>packages/ui/src/modules/MDJPanel/ToolCallCard.tsx</code>. Renders inline in ChatThread when a message includes tool calls.</p>
+      <ul>
+        <li>Shows: tool icon, tool name, status badge (pending / running / completed / failed)</li>
+        <li>Expandable: click to see input parameters + result output</li>
+        <li>Approve / Reject buttons when status is <code>pending</code> and <code>requires_approval: true</code></li>
+        <li>Approve action: <code>POST /api/mdj/conversations/:id/approve</code> with <code>call_id</code></li>
+      </ul>
+    </div>
+
+  </div><!-- /phase2 -->
+
+  <!-- ==================== PHASE 3 ==================== -->
+  <div class="tab-panel" id="phase3">
+
+    <div class="phase-header">
+      <div class="phase-num">3</div>
+      <h3>Specialists + Memory &mdash; TRK-011 through TRK-015</h3>
+      <span class="phase-sub">5 tickets &mdash; 3 parallel tracks</span>
+    </div>
+
+    <p style="color:var(--text-muted); margin-bottom:20px;">Goal: "Medicare" keyword triggers MDJ-Medicare specialist. Specialist badge shows in header. Conversations persist across refresh. Client insights load into context automatically.</p>
+
+    <!-- TRACK A -->
+    <div class="track-header track-a">
+      <span class="track-label">Track A</span>
+      <h4>Specialists &mdash; Router + Prompts</h4>
+      <span class="track-machine">MDJ_SERVER / Jr</span>
+    </div>
+
+    <div class="ticket">
+      <div class="ticket-header">
+        <span class="ticket-id">TRK-011</span>
+        <span class="ticket-title">Specialist routing engine</span>
+        <span class="pill new">New</span>
+        <span class="ticket-dep">Phase 2 complete</span>
+      </div>
+      <p>Create <code>~/mdj-agent/src/agent/specialist-router.ts</code>. Dynamically routes conversations to the right specialist based on message content.</p>
+      <ul>
+        <li>Load specialist configs from Firestore <code>mdj_specialist_configs</code> on startup (cache in memory)</li>
+        <li><code>routeToSpecialist(message, currentSpecialist)</code>:
+          <ul>
+            <li>Step 1: keyword match — scan message for <code>routing_keywords</code>, score each specialist</li>
+            <li>Step 2: if top score &lt; threshold, call Claude (Sonnet) with <code>classify_specialist</code> tool to confirm</li>
+            <li>Return specialist key or null (stay with current)</li>
+          </ul>
+        </li>
+        <li>When specialist changes: swap system prompt, re-filter tools, emit SSE <code>specialist_switch</code> event</li>
+      </ul>
+    </div>
+
+    <div class="ticket">
+      <div class="ticket-header">
+        <span class="ticket-id">TRK-012</span>
+        <span class="ticket-title">Seed specialist prompts</span>
+        <span class="pill new">New</span>
+        <span class="ticket-dep">Phase 2 complete</span>
+      </div>
+      <p>Create <code>services/api/src/scripts/seed-mdj-specialists.ts</code>. Write full, production-quality system prompts for all 6 specialists.</p>
+      <p>Each prompt must include:</p>
+      <ul>
+        <li>Role definition + domain expertise (e.g., MDJ-Medicare knows FIA, MYGA, MAPD, AEP, T65 terminology)</li>
+        <li>RPI-specific terminology from CLAUDE.md industry terms</li>
+        <li>PHI handling rules (always included in every specialist)</li>
+        <li>Available tool descriptions and when to use them</li>
+        <li>User context injection template: <code>{user.display_name}</code>, <code>{user.level}</code>, <code>{page_context}</code></li>
+      </ul>
+      <table>
+        <tr><th>Specialist</th><th>Domain</th><th>Key Routing Keywords</th></tr>
+        <tr><td>MDJ-General</td><td>General RPI knowledge</td><td>default, fallback</td></tr>
+        <tr><td>MDJ-Medicare</td><td>Medicare + MAPD + AEP</td><td>medicare, mapd, aep, t65, part b, supplement</td></tr>
+        <tr><td>MDJ-Securities</td><td>Annuity + Life + RIA/BD</td><td>annuity, fia, myga, 1035, schwab, rbc, gradient</td></tr>
+        <tr><td>MDJ-Service</td><td>Case + client service</td><td>case, service, pending, status, nikki, follow up</td></tr>
+        <tr><td>MDJ-DAVID</td><td>B2B + M&amp;A</td><td>david, sentinel, acquisition, partnership, m&amp;a</td></tr>
+        <tr><td>MDJ-Ops</td><td>Operations + admin</td><td>rapid, import, ops, admin, system, run, build</td></tr>
+      </table>
+    </div>
+
+    <!-- TRACK B -->
+    <div class="track-header track-b">
+      <span class="track-label">Track B</span>
+      <h4>Persistence + Memory</h4>
+      <span class="track-machine">AIR / GA</span>
+    </div>
+
+    <div class="ticket">
+      <div class="ticket-header">
+        <span class="ticket-id">TRK-013</span>
+        <span class="ticket-title">Conversation persistence</span>
+        <span class="pill mod">Modify + New</span>
+        <span class="ticket-dep">Phase 2 complete</span>
+      </div>
+      <p>Conversations survive browser refresh. Past conversations are accessible in a history drawer.</p>
+      <ul>
+        <li><code>useMDJStream.ts</code> update: after each message exchange, write to Firestore <code>mdj_conversations/{id}/messages</code></li>
+        <li>On panel open: load active conversation from Firestore via <code>useCollection</code> onSnapshot listener</li>
+        <li>New <code>ConversationList.tsx</code> component:
+          <ul>
+            <li>Drawer listing past conversations with title, last message timestamp, specialist badge</li>
+            <li>Click to switch to that conversation</li>
+            <li>Swipe-to-archive or archive button</li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+
+    <div class="ticket">
+      <div class="ticket-header">
+        <span class="ticket-id">TRK-014</span>
+        <span class="ticket-title">Memory extraction pipeline</span>
+        <span class="pill new">New</span>
+        <span class="ticket-dep">Phase 2 complete</span>
+      </div>
+      <p>Create <code>~/mdj-agent/src/agent/memory-extractor.ts</code>. MDJ remembers things about clients so it can be smarter in future conversations.</p>
+      <ul>
+        <li>Trigger: after conversation ends, or every 10 messages that reference a client</li>
+        <li>Call Claude (Sonnet) with extraction prompt:
+          <div class="file-tree">Review this conversation. Extract new client insights:
+- Preferences (communication style, timing, risk tolerance)
+- Life events (retirement, health, family changes)
+- Action items, concerns, objections raised
+Return as structured JSON.</div>
+        </li>
+        <li>Merge extracted insights into <code>mdj_client_insights/{client_id}</code> — append new, update summary</li>
+        <li>On next conversation start referencing this client: load insights into system prompt automatically</li>
+      </ul>
+    </div>
+
+    <!-- TRACK C -->
+    <div class="track-header track-c">
+      <span class="track-label">Track C</span>
+      <h4>Context Awareness</h4>
+      <span class="track-machine">AIR / GA</span>
+    </div>
+
+    <div class="ticket">
+      <div class="ticket-header">
+        <span class="ticket-id">TRK-015</span>
+        <span class="ticket-title">Page context awareness</span>
+        <span class="pill mod">Modify</span>
+        <span class="ticket-dep">Phase 2 complete</span>
+      </div>
+      <p>MDJ knows what you're looking at when you open it. No need to explain context — it already knows.</p>
+      <ul>
+        <li><code>MDJPanel/index.tsx</code>: use <code>usePathname()</code> to extract context:
+          <ul>
+            <li><code>/contacts/[id]</code> → extract <code>client_id</code></li>
+            <li><code>/accounts</code> → extract <code>account_id</code></li>
+            <li><code>/pipelines/[key]</code> → extract <code>pipeline_key</code></li>
+            <li>Always: <code>page_path = pathname</code></li>
+          </ul>
+        </li>
+        <li>Pass context with every message in <code>useMDJStream.sendMessage()</code></li>
+        <li>Agent service includes context in system prompt:
+          <div class="file-tree">The user is currently viewing: Client Detail page for {client_name} (ID: {client_id}).
+Relevant client insights: {extracted_insights_summary}</div>
+        </li>
+      </ul>
+    </div>
+
+  </div><!-- /phase3 -->
+
+  <!-- ==================== PHASE 4 ==================== -->
+  <div class="tab-panel" id="phase4">
+
+    <div class="phase-header">
+      <div class="phase-num">4</div>
+      <h3>Production &mdash; TRK-016 through TRK-020</h3>
+      <span class="phase-sub">5 tickets &mdash; 3 parallel tracks</span>
+    </div>
+
+    <p style="color:var(--text-muted); margin-bottom:20px;">Goal: Cloudflare Tunnel is live and serving MDJ_SERVER securely. Long conversations summarize without context loss. Admin dashboard shows real analytics. E2E tests pass in CI.</p>
+
+    <!-- TRACK A -->
+    <div class="track-header track-a">
+      <span class="track-label">Track A</span>
+      <h4>Infrastructure &mdash; MDJ_SERVER Hardening</h4>
+      <span class="track-machine">MDJ_SERVER / Jr</span>
+    </div>
+
+    <div class="ticket">
+      <div class="ticket-header">
+        <span class="ticket-id">TRK-016</span>
+        <span class="ticket-title">MDJ_SERVER production hardening</span>
+        <span class="pill mod">Modify</span>
+        <span class="ticket-dep">Phase 3 complete</span>
+      </div>
+      <p>Lock MDJ_SERVER down and make it bulletproof for 24/7 operation.</p>
+      <ul>
+        <li>Cloudflare Tunnel:
+          <ul>
+            <li><code>cloudflared tunnel create mdj-agent</code></li>
+            <li>Route <code>mdj-agent.tomachina.ai</code> → <code>localhost:4200</code></li>
+            <li>Auth: <code>X-MDJ-Auth</code> header with shared secret from env var (no exposed ports)</li>
+          </ul>
+        </li>
+        <li><code>/health</code> endpoint returns: uptime, memory usage, active conversation count, MCP server status</li>
+        <li>systemd service configured from TRK-002 — verify auto-restart on crash (<code>Restart=always</code>)</li>
+        <li>Rate limiting: per-user, 60 requests/minute (429 response with retry-after)</li>
+        <li>Request logging: structured JSON to <code>/var/log/mdj-agent/</code> with log rotation</li>
+        <li>Error notifications: POST to <code>/api/notifications</code> on the tm-api for critical failures</li>
+      </ul>
+    </div>
+
+    <!-- TRACK B -->
+    <div class="track-header track-b">
+      <span class="track-label">Track B</span>
+      <h4>Features &mdash; Long Context + Preferences</h4>
+      <span class="track-machine">AIR / GA</span>
+    </div>
+
+    <div class="ticket">
+      <div class="ticket-header">
+        <span class="ticket-id">TRK-017</span>
+        <span class="ticket-title">Long context management</span>
+        <span class="pill new">New</span>
+        <span class="ticket-dep">Phase 3 complete</span>
+      </div>
+      <p>Conversations can go on forever without losing context or hitting token limits.</p>
+      <ul>
+        <li>Before each Claude API call: count tokens in conversation history</li>
+        <li>If &gt; 80K tokens: call Claude (Sonnet) to summarize older messages into a compact block</li>
+        <li>Replace old messages with the summary in the context window</li>
+        <li>Store summary string on <code>mdj_conversations</code> Firestore doc</li>
+        <li>New conversation with same user: load last 3 conversation summaries as initial context</li>
+      </ul>
+    </div>
+
+    <div class="ticket">
+      <div class="ticket-header">
+        <span class="ticket-id">TRK-018</span>
+        <span class="ticket-title">User preferences</span>
+        <span class="pill new">New</span>
+        <span class="ticket-dep">Phase 3 complete</span>
+      </div>
+      <p>Let users configure how MDJ behaves for them personally.</p>
+      <ul>
+        <li>Add <code>mdj_preferences</code> section to existing Admin/Config tab in ProDashX</li>
+        <li>UI: per-user toggle cards for:
+          <ul>
+            <li><code>auto_approve_tools</code> — skip review gate for low-risk tools</li>
+            <li><code>show_tool_details</code> — show/hide tool call cards by default</li>
+            <li><code>default_specialist</code> — which specialist to start with</li>
+            <li><code>retention</code> — how long to keep conversation history</li>
+          </ul>
+        </li>
+        <li>Store on <code>users/{email}.mdj_preferences</code> in Firestore</li>
+        <li>Agent service reads preferences on each request, applies to tool filtering + approval gates</li>
+      </ul>
+    </div>
+
+    <!-- TRACK C -->
+    <div class="track-header track-c">
+      <span class="track-label">Track C</span>
+      <h4>Verification &mdash; Tests + Admin Dashboard</h4>
+      <span class="track-machine">AIR / GA</span>
+    </div>
+
+    <div class="ticket">
+      <div class="ticket-header">
+        <span class="ticket-id">TRK-019</span>
+        <span class="ticket-title">E2E testing</span>
+        <span class="pill new">New</span>
+        <span class="ticket-dep">Phase 3 complete</span>
+      </div>
+      <p>MDJ is covered by automated tests that run in CI on every PR.</p>
+      <ul>
+        <li>Playwright (<code>tests/e2e/ui/mdj.spec.ts</code>):
+          <ul>
+            <li>MDJ button visible in all 3 portal sidebars</li>
+            <li>Click opens panel with chat interface</li>
+            <li>Send message, see streaming response appear</li>
+            <li>Tool card renders with correct status</li>
+            <li>Specialist badge appears on topic routing</li>
+          </ul>
+        </li>
+        <li>Vitest (<code>tests/e2e/mdj/mdj-api.test.ts</code>):
+          <ul>
+            <li><code>POST /api/mdj/chat</code> returns valid SSE stream</li>
+            <li><code>GET /api/mdj/conversations</code> returns list for authenticated user</li>
+            <li><code>POST /api/mdj/conversations/:id/approve</code> and <code>reject</code> return 200</li>
+          </ul>
+        </li>
+        <li>Add spec to CI — <code>e2e-ui</code> job picks up <code>mdj.spec.ts</code> automatically</li>
+      </ul>
+    </div>
+
+    <div class="ticket">
+      <div class="ticket-header">
+        <span class="ticket-id">TRK-020</span>
+        <span class="ticket-title">MDJ Admin Dashboard</span>
+        <span class="pill new">New</span>
+        <span class="ticket-dep">Phase 3 complete</span>
+      </div>
+      <p>EXECUTIVE+ only. Real-time analytics on how MDJ is being used across the platform.</p>
+      <ul>
+        <li>New page: <code>apps/riimo/app/(portal)/admin/mdj/page.tsx</code></li>
+        <li>Reads from <code>mdj_conversations</code> Firestore collection. Metrics:
+          <ul>
+            <li>Conversation count (today / this week / this month)</li>
+            <li>Average conversation length (messages + tokens)</li>
+            <li>Most-called tools (ranked by frequency)</li>
+            <li>Specialist routing distribution (% General vs Medicare vs Securities, etc.)</li>
+            <li>Error rate + failed tool calls</li>
+            <li>Token usage tracking (cost estimation)</li>
+          </ul>
+        </li>
+        <li>Entitlement gated: EXECUTIVE+ only (same gate as existing RIIMO admin pages)</li>
+      </ul>
+    </div>
+
+  </div><!-- /phase4 -->
+
+  <!-- ==================== JR ASSIGNMENT ==================== -->
+  <div class="tab-panel" id="jr">
+
+    <div class="card">
+      <h2>Jr (MDJ_SERVER) Overnight Assignment</h2>
+      <p>Jr gets Phase 1 Track A — the two backend tickets that need to run on MDJ_SERVER directly. Everything else builds on top of what Jr ships overnight.</p>
+
+      <table>
+        <tr><th>Ticket</th><th>Task</th><th>Expected Duration</th></tr>
+        <tr>
+          <td><span class="ticket-id" style="display:inline-block; padding:2px 8px; border-radius:4px; font-family:monospace; font-size:0.75rem; background:rgba(59,130,246,0.15); color:var(--accent); border:1px solid rgba(59,130,246,0.25);">TRK-002</span></td>
+          <td>Build <code>mdj-agent</code> Express server on MDJ_SERVER — port 4200, health + chat endpoints, SSE streaming, systemd service</td>
+          <td>1–2 hours</td>
+        </tr>
+        <tr>
+          <td><span class="ticket-id" style="display:inline-block; padding:2px 8px; border-radius:4px; font-family:monospace; font-size:0.75rem; background:rgba(59,130,246,0.15); color:var(--accent); border:1px solid rgba(59,130,246,0.25);">TRK-001</span></td>
+          <td>Seed Firestore collections, update firestore.rules, add typed exports to <code>packages/db/src/firestore.ts</code></td>
+          <td>30 minutes</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Exact Prompt for Jr</h2>
+      <p>Paste this into the tmux session on MDJ_SERVER to kick off Jr. Copy it verbatim — no paraphrasing.</p>
+
+      <div class="prompt-box">You are building the MDJ Agent Service for the MyDigitalJosh AI assistant.
+
+TASK 1 (TRK-002): Build a Node.js Express server at ~/mdj-agent/
+- Port 4200
+- Endpoints: GET /health, POST /agent/chat
+- /agent/chat accepts { message, user_context, conversation_history }
+- Calls Claude API (Anthropic SDK) with streaming
+- Returns SSE stream (Content-Type: text/event-stream)
+- System prompt: "You are MyDigitalJosh (MDJ), an AI assistant for {user_context.display_name}..."
+- Install: express, @anthropic-ai/sdk, cors, dotenv, firebase-admin
+- Create systemd service file at /etc/systemd/system/mdj-agent.service
+- Test: curl http://localhost:4200/health should return { status: "ok" }
+
+TASK 2 (TRK-001): Seed Firestore collections
+- Run from ~/Projects/toMachina/
+- Create seed script: services/api/src/scripts/seed-mdj-collections.ts
+- Seed 6 specialist configs to mdj_specialist_configs collection:
+  General, Medicare, Securities, Service, DAVID, Ops
+  Each with: specialist_name, display_name, icon, routing_keywords, required_level, status: 'active'
+- Update firestore.rules with mdj_* collection rules:
+  mdj_conversations/{convId} — read/write if isRPIUser() AND email matches
+  mdj_conversations/{convId}/messages/{msgId} — read/write if isRPIUser()
+  mdj_client_insights/{clientId} — read/write if isRPIUser()
+  mdj_specialist_configs/{configId} — read if isRPIUser(), write if isOwner()
+- Update packages/db/src/firestore.ts with typed collection exports
+
+ANTHROPIC_API_KEY is in the environment. GCP project: claude-mcp-484718.
+When done, run the health check and report results.</div>
+    </div>
+
+    <div class="card">
+      <h2>While Jr Runs Overnight</h2>
+      <p>AIR/GA works in parallel on the frontend and middleware tracks — no waiting required.</p>
+      <table>
+        <tr><th>Who</th><th>What</th></tr>
+        <tr><td><strong>Jr (MDJ_SERVER)</strong></td><td>TRK-002 (agent service) + TRK-001 (Firestore seed) — runs overnight</td></tr>
+        <tr><td><strong>AIR / GA</strong></td><td>TRK-004 (MDJPanel component) — can start immediately, no dependencies</td></tr>
+        <tr><td><strong>AIR / GA</strong></td><td>TRK-005 (portal integration) — starts after TRK-004</td></tr>
+        <tr><td><strong>AIR / GA</strong></td><td>TRK-003 (Cloud Run proxy) — starts after TRK-002 is running on MDJ_SERVER</td></tr>
+      </table>
+    </div>
+
+  </div><!-- /jr -->
+
+  <!-- ==================== VERIFICATION ==================== -->
+  <div class="tab-panel" id="verify">
+
+    <div class="card">
+      <h2>Phase 1 Complete When:</h2>
+      <ul class="checklist">
+        <li><span class="check-box"></span><code>curl http://mdj1:4200/health</code> returns <code>{ status: "ok" }</code></li>
+        <li><span class="check-box"></span>MDJPanel opens on all 3 portals (ProDash, RIIMO, SENTINEL)</li>
+        <li><span class="check-box"></span>MDJ button visible in all 3 portal sidebars (<code>smart_toy</code> icon)</li>
+        <li><span class="check-box"></span>Send a test message → see streamed response in chat</li>
+        <li><span class="check-box"></span>Firestore collections exist: <code>mdj_conversations</code>, <code>mdj_client_insights</code>, <code>mdj_specialist_configs</code></li>
+        <li><span class="check-box"></span>6 specialist config docs present in <code>mdj_specialist_configs</code></li>
+        <li><span class="check-box"></span><code>npm run build</code> passes (13/13 type-check, 11/11 build)</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>Phase 2 Complete When:</h2>
+      <ul class="checklist">
+        <li><span class="check-box"></span>Ask MDJ "look up client Smith" → Claude calls <code>tm_search_clients</code> tool</li>
+        <li><span class="check-box"></span>Tool card renders inline in chat with status badge</li>
+        <li><span class="check-box"></span>Expandable tool card shows input parameters + result</li>
+        <li><span class="check-box"></span>Review gate pauses on gated tools (approve/reject buttons appear)</li>
+        <li><span class="check-box"></span>Approve → tool executes → result returned to Claude → response continues</li>
+        <li><span class="check-box"></span>Reject → Claude acknowledges gracefully, does not execute</li>
+        <li><span class="check-box"></span>Level 3 user cannot see admin tools in tool list (verify via agent logs)</li>
+        <li><span class="check-box"></span>MCP tools available: Gmail send (gated), Calendar create (gated), Drive search (ungated)</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>Phase 3 Complete When:</h2>
+      <ul class="checklist">
+        <li><span class="check-box"></span>Type "Medicare" → specialist badge switches to MDJ-Medicare</li>
+        <li><span class="check-box"></span>Type "annuity" → specialist badge switches to MDJ-Securities</li>
+        <li><span class="check-box"></span>SpecialistBadge shows in MDJPanel header, clickable to manually switch</li>
+        <li><span class="check-box"></span>Refresh browser → conversation reloads from Firestore (no data loss)</li>
+        <li><span class="check-box"></span>Past conversations accessible in history drawer</li>
+        <li><span class="check-box"></span>Open MDJ on a client detail page → MDJ mentions the client by name in first response</li>
+        <li><span class="check-box"></span>Client insights extracted after conversation and visible in <code>mdj_client_insights</code></li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>Phase 4 Complete When:</h2>
+      <ul class="checklist">
+        <li><span class="check-box"></span>Cloudflare Tunnel live: <code>https://mdj-agent.tomachina.ai/health</code> returns OK</li>
+        <li><span class="check-box"></span>Kill mdj-agent process → systemd auto-restarts within 5 seconds</li>
+        <li><span class="check-box"></span>Send 61 requests in 1 minute → 61st returns 429 with retry-after header</li>
+        <li><span class="check-box"></span>Long conversation (80K+ tokens) → older messages auto-summarized, conversation continues</li>
+        <li><span class="check-box"></span>User preferences saved and applied on next conversation</li>
+        <li><span class="check-box"></span>Playwright E2E: MDJ button visible, panel opens, message sends — all 3 portals</li>
+        <li><span class="check-box"></span>API E2E: chat, conversations list, approve/reject endpoints all return 200</li>
+        <li><span class="check-box"></span>MDJ Admin Dashboard accessible at RIIMO <code>/admin/mdj</code> (EXECUTIVE+ only)</li>
+        <li><span class="check-box"></span>Dashboard shows real conversation counts + tool usage stats</li>
+        <li><span class="check-box"></span><code>npm run build</code> passes (13/13 type-check, 11/11 build)</li>
+        <li><span class="check-box"></span>CI passes on PR — all tests green — deploy fires</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>Sprint ID Reference</h2>
+      <table>
+        <tr><th>Field</th><th>Value</th></tr>
+        <tr><td>Sprint ID</td><td><code>C0h0Ylibz7724v9c4A5d</code></td></tr>
+        <tr><td>Discovery Doc</td><td><a href="https://retirementprotectors.github.io/toMachina/docs/discoveries/mdj-discovery.html" style="color:var(--accent);">mdj-discovery.html</a></td></tr>
+        <tr><td>Total Tickets</td><td>20 (TRK-001 → TRK-020)</td></tr>
+        <tr><td>Total Phases</td><td>4 (sequential at phase level, parallel within)</td></tr>
+        <tr><td>Jr Tickets</td><td>TRK-001, TRK-002, TRK-006, TRK-007, TRK-011, TRK-012, TRK-016</td></tr>
+        <tr><td>AIR/GA Tickets</td><td>TRK-003, TRK-004, TRK-005, TRK-008, TRK-009, TRK-010, TRK-013, TRK-014, TRK-015, TRK-017, TRK-018, TRK-019, TRK-020</td></tr>
+      </table>
+    </div>
+
+  </div><!-- /verify -->
+
+</div><!-- /content -->
+
+<div class="footer">
+  MyDigitalJosh (MDJ) &mdash; Implementation Plan &mdash; FORGE Sprint MDJ-ALPHA &mdash; 2026-03-24
+</div>
+
+<script>
+  const tabs = document.querySelectorAll('.tab');
+  const panels = document.querySelectorAll('.tab-panel');
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const target = tab.dataset.tab;
+      tabs.forEach(t => t.classList.remove('active'));
+      panels.forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById(target).classList.add('active');
+    });
+  });
+</script>
+
+</body>
+</html>

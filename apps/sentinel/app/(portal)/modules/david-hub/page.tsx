@@ -12,7 +12,7 @@ const revenueQuery: Query<DocumentData> = query(collections.revenue())
 const agentsQuery: Query<DocumentData> = query(collections.agents())
 const opportunitiesQuery: Query<DocumentData> = query(collections.opportunities())
 
-interface RevenueRecord { _id: string; agent_name?: string; carrier_name?: string; product_type?: string; premium?: number; total_premium?: number; amount?: number }
+interface RevenueRecord { _id: string; agent_name?: string; carrier?: string; product_type?: string; premium?: number; total_premium?: number; amount?: number }
 interface AgentRecord { _id: string; agent_name?: string; first_name?: string; last_name?: string; status?: string }
 interface OpportunityRecord { _id: string; stage?: string; deal_value?: number; estimated_value?: number }
 

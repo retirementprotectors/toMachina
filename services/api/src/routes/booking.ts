@@ -83,9 +83,10 @@ bookingRoutes.get('/config/:slug', async (req: Request, res: Response) => {
     }
 
     // Look up individual agent by booking_slug
+    // Status field is 'Active' (capitalized) in Firestore — query both for safety
     const usersSnap = await db
       .collection('users')
-      .where('status', '==', 'active')
+      .where('status', 'in', ['active', 'Active'])
       .get()
 
     let agent: Record<string, unknown> | null = null
@@ -104,7 +105,7 @@ bookingRoutes.get('/config/:slug', async (req: Request, res: Response) => {
           display_name: `${data.first_name} ${data.last_name}`.trim(),
           job_title: data.job_title || '',
           slug,
-          photo_url: ep.profile_photo_url || null,
+          photo_url: ep.profile_photo_url || data.photo_url || data.photoURL || null,
           booking_types: ep.calendar_booking_types || STANDARD_BOOKING_TYPES,
           availability: ep.availability || DEFAULT_AVAILABILITY,
           office_address: ep.office_address || '',
@@ -202,8 +203,8 @@ bookingRoutes.post('/', bookingValidation, async (req: Request, res: Response) =
     const db = getFirestore()
     const { agentEmail, agentName, agentSlug, slot, meetingType, mode, client, allEmails } = req.body
 
-    if (!client.name || !client.email) {
-      res.status(400).json(errorResponse('Client name and email are required'))
+    if (!client.name || (!client.email && !client.phone)) {
+      res.status(400).json(errorResponse('Client name and at least one contact method (email or phone) are required'))
       return
     }
 

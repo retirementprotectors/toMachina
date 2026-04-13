@@ -1,7 +1,7 @@
-'use client'
+import { MyRpiClient } from './client'
 
-import { MyRpiProfile } from '@tomachina/ui'
+export const dynamic = 'force-dynamic'
 
 export default function MyRPIPage() {
-  return <MyRpiProfile portal="prodashx" />
+  return <MyRpiClient />
 }

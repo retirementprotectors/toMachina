@@ -1,5 +1,6 @@
 import { Router, type Request, type Response } from 'express'
-import { getFirestore, type Query, type DocumentData } from 'firebase-admin/firestore'
+import { type Query, type DocumentData } from 'firebase-admin/firestore'
+import { getDefaultDb } from '../lib/db.js'
 import { validateWrite } from '../middleware/validate.js'
 import {
   successResponse,
@@ -273,7 +274,7 @@ const SOURCE_COLLECTION = 'source_registry'
  */
 atlasRoutes.get('/sources', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
     const params = getPaginationParams(req)
     if (!params.orderBy) params.orderBy = 'created_at'
 
@@ -284,7 +285,7 @@ atlasRoutes.get('/sources', async (req: Request, res: Response) => {
     if (req.query.current_method) query = query.where('current_method', '==', req.query.current_method)
     if (req.query.data_domain) query = query.where('data_domain', '==', req.query.data_domain)
     if (req.query.product_line) query = query.where('product_line', '==', req.query.product_line)
-    if (req.query.carrier_name) query = query.where('carrier_name', '==', req.query.carrier_name)
+    if (req.query.carrier) query = query.where('carrier', '==', req.query.carrier)
     if (req.query.priority) query = query.where('priority', '==', req.query.priority)
     if (req.query.portal) query = query.where('portal', '==', req.query.portal)
 
@@ -302,7 +303,7 @@ atlasRoutes.get('/sources', async (req: Request, res: Response) => {
  */
 atlasRoutes.get('/sources/:id', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
     const id = param(req.params.id)
     const doc = await db.collection(SOURCE_COLLECTION).doc(id).get()
     if (!doc.exists) { res.status(404).json(errorResponse('Source not found')); return }
@@ -314,8 +315,8 @@ atlasRoutes.get('/sources/:id', async (req: Request, res: Response) => {
 })
 
 const sourceCreateValidation = validateWrite({
-  required: ['carrier_name', 'product_line', 'data_domain'],
-  types: { carrier_name: 'string', product_line: 'string', data_domain: 'string' },
+  required: ['carrier', 'product_line', 'data_domain'],
+  types: { carrier: 'string', product_line: 'string', data_domain: 'string' },
 })
 
 /**
@@ -323,7 +324,7 @@ const sourceCreateValidation = validateWrite({
  */
 atlasRoutes.post('/sources', sourceCreateValidation, async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
     const now = new Date().toISOString()
     const sourceId = `SRC_${randomUUID().slice(0, 8)}`
     const productLine = String(req.body.product_line || '')
@@ -355,7 +356,7 @@ atlasRoutes.post('/sources', sourceCreateValidation, async (req: Request, res: R
  */
 atlasRoutes.patch('/sources/:id', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
     const id = param(req.params.id)
     const docRef = db.collection(SOURCE_COLLECTION).doc(id)
     const doc = await docRef.get()
@@ -383,7 +384,7 @@ atlasRoutes.patch('/sources/:id', async (req: Request, res: Response) => {
  */
 atlasRoutes.delete('/sources/:id', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
     const id = param(req.params.id)
     const docRef = db.collection(SOURCE_COLLECTION).doc(id)
     const doc = await docRef.get()
@@ -405,7 +406,7 @@ atlasRoutes.delete('/sources/:id', async (req: Request, res: Response) => {
  */
 atlasRoutes.post('/sources/bulk-register', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
     const now = new Date().toISOString()
     const { carriers } = req.body as { carriers: Array<{ carrierId: string; carrierName: string; status: string; feedType: string; productLine: string; dataDomain: string; notes?: string }> }
 
@@ -433,7 +434,7 @@ atlasRoutes.post('/sources/bulk-register', async (req: Request, res: Response) =
 
         const data: Record<string, unknown> = {
           source_id: sourceId,
-          carrier_name: carrier.carrierName,
+          carrier: carrier.carrierName,
           product_line: carrier.productLine,
           data_domain: carrier.dataDomain,
           product_category: PRODUCT_CATEGORY_MAP[carrier.productLine] || 'OTHER',
@@ -479,7 +480,7 @@ atlasRoutes.post('/sources/bulk-register', async (req: Request, res: Response) =
  */
 atlasRoutes.get('/sources/health', async (_req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
     const snap = await db.collection(SOURCE_COLLECTION).where('status', '==', 'ACTIVE').get()
 
     let green = 0, yellow = 0, red = 0, gray = 0
@@ -515,7 +516,7 @@ const TOOL_COLLECTION = 'tool_registry'
  */
 atlasRoutes.get('/tools', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
     const params = getPaginationParams(req)
     if (!params.orderBy) params.orderBy = 'created_at'
 
@@ -545,7 +546,7 @@ const toolCreateValidation = validateWrite({
  */
 atlasRoutes.post('/tools', toolCreateValidation, async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
     const now = new Date().toISOString()
     const toolId = `TOOL_${randomUUID().slice(0, 8)}`
 
@@ -574,7 +575,7 @@ atlasRoutes.post('/tools', toolCreateValidation, async (req: Request, res: Respo
  */
 atlasRoutes.patch('/tools/:id', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
     const id = param(req.params.id)
     const docRef = db.collection(TOOL_COLLECTION).doc(id)
     const doc = await docRef.get()
@@ -600,7 +601,7 @@ atlasRoutes.patch('/tools/:id', async (req: Request, res: Response) => {
  */
 atlasRoutes.get('/analytics', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
     const groupBy = (req.query.group_by as string) || 'carrier'
 
     const snap = await db.collection(SOURCE_COLLECTION)
@@ -613,11 +614,11 @@ atlasRoutes.get('/analytics', async (req: Request, res: Response) => {
     const groups: Record<string, Record<string, unknown>[]> = {}
     sources.forEach((s) => {
       let key: string
-      if (groupBy === 'carrier') key = String(s.carrier_name || 'Unknown')
+      if (groupBy === 'carrier') key = String(s.carrier || 'Unknown')
       else if (groupBy === 'category') key = String(s.product_category || 'Unknown')
       else if (groupBy === 'domain') key = String(s.data_domain || 'Unknown')
       else if (groupBy === 'portal') key = String(s.portal || 'ALL')
-      else key = String(s.carrier_name || 'Unknown')
+      else key = String(s.carrier || 'Unknown')
 
       if (!groups[key]) groups[key] = []
       groups[key].push(s)
@@ -665,11 +666,11 @@ atlasRoutes.get('/analytics', async (req: Request, res: Response) => {
  */
 atlasRoutes.get('/analytics/carriers', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
     const carrierName = req.query.carrier as string
 
     let query: Query<DocumentData> = db.collection(SOURCE_COLLECTION).where('status', '==', 'ACTIVE')
-    if (carrierName) query = query.where('carrier_name', '==', carrierName)
+    if (carrierName) query = query.where('carrier', '==', carrierName)
 
     const snap = await query.get()
     const sources = snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Record<string, unknown>)
@@ -677,7 +678,7 @@ atlasRoutes.get('/analytics/carriers', async (req: Request, res: Response) => {
     // Group by carrier
     const carriers: Record<string, Record<string, unknown>[]> = {}
     sources.forEach((s) => {
-      const name = String(s.carrier_name || 'Unknown')
+      const name = String(s.carrier || 'Unknown')
       if (!carriers[name]) carriers[name] = []
       carriers[name].push(s)
     })
@@ -696,7 +697,7 @@ atlasRoutes.get('/analytics/carriers', async (req: Request, res: Response) => {
       })
 
       return {
-        carrier_name: name,
+        carrier: name,
         total_sources: carrierSources.length,
         gap_breakdown: gapBreakdown,
         avg_automation: autoCount > 0 ? Math.round(totalAuto / autoCount) : 0,
@@ -723,7 +724,7 @@ const AUDIT_COLLECTION = 'atlas_audit'
  */
 atlasRoutes.get('/audit', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
     let query: Query<DocumentData> = db.collection(AUDIT_COLLECTION)
 
     if (req.query.source_id) query = query.where('source_id', '==', req.query.source_id)
@@ -751,7 +752,7 @@ const auditValidation = validateWrite({
 
 atlasRoutes.post('/audit', auditValidation, async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
     const now = new Date().toISOString()
     const historyId = `HIST_${randomUUID().slice(0, 8)}`
 
@@ -782,7 +783,7 @@ atlasRoutes.post('/audit', auditValidation, async (req: Request, res: Response) 
  */
 atlasRoutes.get('/pipeline', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
 
     // Read dynamic pipeline stages from config registry (hardcoded fallback)
     const stagesConfig = await getConfig<{ stages: typeof DEFAULT_PIPELINE_STAGES }>('atlas_stages', { stages: DEFAULT_PIPELINE_STAGES })
@@ -884,7 +885,7 @@ atlasRoutes.get('/wires', async (req: Request, res: Response) => {
  */
 atlasRoutes.post('/digest', async (_req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
     const slackToken = process.env.SLACK_BOT_TOKEN
     const JDM_SLACK_ID = 'U09BBHTN8F2'
 
@@ -963,7 +964,7 @@ const STALENESS_THRESHOLD_DAYS = 7
  */
 atlasRoutes.get('/health', async (_req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
 
     // 1. Load recent import runs (last per wire)
     const recentRuns = await getRecentRuns(100)
@@ -1086,7 +1087,7 @@ atlasRoutes.get('/health', async (_req: Request, res: Response) => {
  */
 atlasRoutes.get('/gaps', async (_req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
 
     // Load sources
     const sourceSnap = await db.collection(SOURCE_COLLECTION).where('status', '==', 'ACTIVE').get()
@@ -1124,7 +1125,7 @@ atlasRoutes.get('/gaps', async (_req: Request, res: Response) => {
  */
 atlasRoutes.get('/execution-analytics', async (_req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
 
     const runSnap = await db.collection('ranger_runs')
@@ -1220,7 +1221,7 @@ const IMPORT_RUNS_COLLECTION = 'import_runs'
  */
 atlasRoutes.get('/import-runs', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
     const limitParam = Math.min(Math.max(parseInt(req.query.limit as string) || 20, 1), 100)
 
     let query: Query<DocumentData> = db.collection(IMPORT_RUNS_COLLECTION)
@@ -1246,7 +1247,7 @@ atlasRoutes.get('/import-runs', async (req: Request, res: Response) => {
  */
 atlasRoutes.get('/import-runs/:id', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
     const id = param(req.params.id)
     const doc = await db.collection(IMPORT_RUNS_COLLECTION).doc(id).get()
     if (!doc.exists) { res.status(404).json(errorResponse('Import run not found')); return }
@@ -1263,7 +1264,7 @@ atlasRoutes.get('/import-runs/:id', async (req: Request, res: Response) => {
  */
 atlasRoutes.post('/import-runs/:id/retry', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
     const id = param(req.params.id)
     const docRef = db.collection(IMPORT_RUNS_COLLECTION).doc(id)
     const doc = await docRef.get()
@@ -1299,13 +1300,13 @@ atlasRoutes.post('/import-runs/:id/retry', async (req: Request, res: Response) =
 
 /**
  * GET /api/atlas/formats
- * List saved formats. Filter by carrier_name, default_category.
+ * List saved formats. Filter by carrier, default_category.
  */
 atlasRoutes.get('/formats', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
     let query: Query<DocumentData> = db.collection('atlas').doc('formats').collection('items')
-    if (req.query.carrier_name) query = query.where('carrier_name', '==', req.query.carrier_name)
+    if (req.query.carrier) query = query.where('carrier', '==', req.query.carrier)
     if (req.query.default_category) query = query.where('default_category', '==', req.query.default_category)
     const limit = Math.min(parseInt(req.query.limit as string) || 50, 200)
     const snap = await query.orderBy('last_used_at', 'desc').limit(limit).get()
@@ -1323,7 +1324,7 @@ atlasRoutes.get('/formats', async (req: Request, res: Response) => {
  */
 atlasRoutes.post('/formats', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
     const now = new Date().toISOString()
     const formatId = `FMT_${randomUUID().slice(0, 8)}`
     const data = {
@@ -1348,7 +1349,7 @@ atlasRoutes.post('/formats', async (req: Request, res: Response) => {
  */
 atlasRoutes.patch('/formats/:id', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
     const id = param(req.params.id)
     const ref = db.collection('atlas').doc('formats').collection('items').doc(id)
     const doc = await ref.get()
@@ -1383,7 +1384,7 @@ atlasRoutes.post('/introspect', async (req: Request, res: Response) => {
       res.status(400).json(errorResponse('sample_rows (Record[]) is required')); return
     }
 
-    const db = getFirestore()
+    const db = getDefaultDb()
     const now = new Date().toISOString()
     const fingerprint = hashHeaderFingerprint(headers)
     const runId = `INTR_${randomUUID().slice(0, 8)}`
@@ -1418,7 +1419,7 @@ atlasRoutes.post('/introspect', async (req: Request, res: Response) => {
       res.json(successResponse<IntrospectResultData>({
         run_id: runId, match_method: 'fingerprint_exact', format_id: fpMatch.format.format_id,
         overall_confidence: 100, column_mappings: mappings,
-        carrier_detection: { detected_carrier: fpMatch.format.carrier_name, carrier_confidence: 100, default_category: fpMatch.format.default_category },
+        carrier_detection: { detected_carrier: fpMatch.format.carrier, carrier_confidence: 100, default_category: fpMatch.format.default_category },
         sample_normalized: [],
       } as unknown as IntrospectResultData))
       return
@@ -1447,7 +1448,7 @@ atlasRoutes.post('/introspect', async (req: Request, res: Response) => {
       res.json(successResponse<IntrospectResultData>({
         run_id: runId, match_method: 'carrier_detect', format_id: null,
         overall_confidence: overallConf, column_mappings: mappings,
-        carrier_detection: { detected_carrier: carrierMatch.carrier_name, carrier_confidence: overallConf, default_category: carrierMatch.default_category },
+        carrier_detection: { detected_carrier: carrierMatch.carrier, carrier_confidence: overallConf, default_category: carrierMatch.default_category },
         sample_normalized: [],
       } as unknown as IntrospectResultData))
       return
@@ -1508,7 +1509,7 @@ atlasRoutes.post('/introspect/confirm', async (req: Request, res: Response) => {
       res.status(400).json(errorResponse('confirmed_mappings is required')); return
     }
 
-    const db = getFirestore()
+    const db = getDefaultDb()
     const now = new Date().toISOString()
 
     // Load the introspect run
@@ -1539,7 +1540,7 @@ atlasRoutes.post('/introspect/confirm', async (req: Request, res: Response) => {
       const formatData = {
         format_id: formatId,
         carrier_export_type: carrier_export_type || 'unknown',
-        carrier_name: '',
+        carrier: '',
         header_fingerprint: runData.header_fingerprint,
         column_map: columnMap,
         value_patterns: {},

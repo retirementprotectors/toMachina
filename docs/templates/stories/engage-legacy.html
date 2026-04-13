@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RPI Engage Legacy™ — Children | Care | Charity</title>
+<!--
+  STORY 1-PAGER: RPI Engage Legacy™
+  VERSION: v1 content framework (2026-04-10)
+  OWNER: VOLTRON (CSO) — content | MUSASHI (CMO) — visual design + print + web CTA
+  USE: Recommendation tab | Print handout | Website CTA
+
+  *** CONTENT FRAMEWORK ONLY. MUSASHI owns visual design, brand voice, print layout, and web CTA.
+-->
+<style>
+:root{
+  --bg:#0a0e17;--card:#111827;--card2:#1a2236;--border:#1e293b;
+  --text:#e2e8f0;--muted:#94a3b8;
+  --rpi-blue:#4a7ab5;--green:#22c55e;--gold:#d4a44c;--purple:#a78bfa;--orange:#f59e0b;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+.page{max-width:850px;margin:0 auto;padding:48px 32px}
+.hero{text-align:center;padding:44px 24px;background:linear-gradient(135deg,rgba(212,164,76,0.08),rgba(167,139,250,0.05));border-radius:20px;border:1px solid var(--border);margin-bottom:32px}
+.hero .mark{font-size:0.72rem;text-transform:uppercase;letter-spacing:3px;color:var(--gold);font-weight:700;margin-bottom:12px}
+.hero h1{font-size:2.8rem;font-weight:800;background:linear-gradient(135deg,var(--gold),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:10px;line-height:1.1}
+.hero .sub{font-size:1.1rem;color:var(--muted);max-width:600px;margin:0 auto 6px}
+.hero .tagline{font-size:0.88rem;color:var(--gold);font-weight:600;letter-spacing:1px;margin-top:14px}
+.premise{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:32px;text-align:center;margin-bottom:24px}
+.premise h2{font-size:0.72rem;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:4px}
+.premise .hook{font-size:1.2rem;color:var(--text);line-height:1.5;max-width:620px;margin:0 auto}
+.premise .hook strong{color:var(--gold)}
+.pillar-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin:28px 0}
+@media(max-width:720px){.pillar-grid{grid-template-columns:1fr}}
+.pillar{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px;position:relative;overflow:hidden}
+.pillar::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.pillar.children::before{background:var(--purple)}
+.pillar.care::before{background:var(--orange)}
+.pillar.charity::before{background:var(--gold)}
+.pillar .icon{font-size:2.2rem;margin-bottom:8px}
+.pillar .label{font-size:0.68rem;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:4px}
+.pillar h3{font-size:1.25rem;margin-bottom:10px}
+.pillar.children h3{color:var(--purple)}
+.pillar.care h3{color:var(--orange)}
+.pillar.charity h3{color:var(--gold)}
+.pillar p{font-size:0.88rem;color:var(--muted);margin-bottom:12px}
+.pillar ul{margin-left:20px;font-size:0.82rem;color:var(--muted)}
+.pillar ul li{margin-bottom:5px}
+.comparison-frame{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px;margin-bottom:24px}
+.comparison-frame h2{font-size:1rem;text-transform:uppercase;letter-spacing:1px;color:var(--gold);margin-bottom:14px}
+.placeholder{background:rgba(212,164,76,0.05);border:1px dashed rgba(212,164,76,0.3);border-radius:10px;padding:18px;color:var(--muted);font-style:italic;font-size:0.85rem}
+.placeholder strong{color:var(--gold);font-style:normal}
+.story-block{background:linear-gradient(135deg,rgba(167,139,250,0.05),rgba(212,164,76,0.05));border:1px solid var(--border);border-radius:16px;padding:30px;margin-bottom:24px;text-align:center}
+.story-block .quote{font-size:1.25rem;color:var(--text);font-style:italic;line-height:1.5;max-width:640px;margin:0 auto}
+.cta{background:linear-gradient(135deg,var(--gold),var(--purple));border-radius:16px;padding:32px;text-align:center;color:#fff;margin-top:24px}
+.cta h3{font-size:1.5rem;margin-bottom:8px}
+.cta p{opacity:.94;margin-bottom:16px}
+.note{background:rgba(212,164,76,0.04);border:1px dashed rgba(212,164,76,0.3);border-radius:10px;padding:14px 18px;margin:16px 0;font-size:0.78rem;color:var(--muted);font-style:italic}
+.note strong{color:var(--gold);font-style:normal}
+.footer{text-align:center;padding:24px;color:var(--muted);font-size:0.7rem;border-top:1px solid var(--border);margin-top:40px}
+@media print{
+  body{background:#fff;color:#000}
+  .hero{background:#faf6eb;border:2px solid var(--gold)}
+  .hero h1{-webkit-text-fill-color:#000;color:#000}
+  .pillar,.premise,.comparison-frame,.story-block{background:#fff;border:1px solid #ccc;color:#000}
+  .cta{background:var(--gold)}
+  p,.muted,.hook{color:#444}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="hero">
+    <div class="mark">RPI Product Recommendation</div>
+    <h1>RPI Engage Legacy<sup style="font-size:0.4em;vertical-align:super">™</sup></h1>
+    <div class="sub">Three buckets for the money you won't spend in your lifetime.</div>
+    <div class="tagline">Children &bull; Care &bull; Charity</div>
+  </div>
+
+  <div class="premise">
+    <h2>The Legacy Question</h2>
+    <div class="hook">Most people don't spend everything they have. <strong>The question isn't whether you'll leave a legacy &mdash; it's whether you'll leave the one you wanted.</strong></div>
+  </div>
+
+  <div class="pillar-grid">
+
+    <div class="pillar children">
+      <div class="icon">👨‍👩‍👧‍👦</div>
+      <div class="label">Pillar 1</div>
+      <h3>CHILDREN</h3>
+      <p><strong>Your heirs.</strong> Children, grandchildren, siblings, designated people.</p>
+      <ul>
+        <li>Named beneficiary transfers (no probate)</li>
+        <li>Step-up in basis on appreciated assets</li>
+        <li>Inherited IRA 10-yr rule (SECURE Act)</li>
+        <li>Roth conversions for tax-free inheritance</li>
+        <li>Life insurance as leveraged legacy vehicle</li>
+      </ul>
+    </div>
+
+    <div class="pillar care">
+      <div class="icon">🏥</div>
+      <div class="label">Pillar 2</div>
+      <h3>CARE</h3>
+      <p><strong>Your own protection.</strong> What happens if YOU need long-term care before your heirs inherit?</p>
+      <ul>
+        <li>LTC policies with inflation riders</li>
+        <li>Hybrid life/LTC products</li>
+        <li>Annuity income riders with LTC enhancements</li>
+        <li>Self-funded care reserve</li>
+        <li>Aging-in-place vs facility planning</li>
+      </ul>
+    </div>
+
+    <div class="pillar charity">
+      <div class="icon">⛪</div>
+      <div class="label">Pillar 3</div>
+      <h3>CHARITY</h3>
+      <p><strong>Your causes.</strong> Church, foundation, school, community organizations that matter to you.</p>
+      <ul>
+        <li>Qualified Charitable Distributions (QCD from IRA)</li>
+        <li>Donor-Advised Funds (DAF)</li>
+        <li>Charitable Remainder Trusts (CRT)</li>
+        <li>Named beneficiary of Traditional IRA (IRD-free)</li>
+        <li>Life insurance with charity as beneficiary</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div class="story-block">
+    <div class="quote">&ldquo;A legacy isn't what you had. It's what you passed on. And how you passed it on.&rdquo;</div>
+  </div>
+
+  <div class="comparison-frame">
+    <h2>Side-by-Side Comparison</h2>
+    <div class="placeholder"><strong>Populate:</strong> Legacy vehicle comparison grid. Columns: Vehicle (Life Insurance, Annuity, Trust, CRT, DAF), Current Cost, Tax Treatment at Death, Control During Life, Flexibility to Change, Best For (Children / Care / Charity). Show which vehicle solves which pillar.</div>
+  </div>
+
+  <div class="comparison-frame">
+    <h2>Carrier Illustrations</h2>
+    <div class="placeholder"><strong>Populate:</strong> In-force illustrations of existing life policies (what they project at death) + proposed replacement/enhancement illustrations if recommending 1035 exchange or new coverage. Year-by-year death benefit projection + cash value growth.</div>
+  </div>
+
+  <div class="cta">
+    <h3>Your legacy, your intent.</h3>
+    <p>RPI Engage Legacy™ is how we translate your wishes into the right vehicles so they actually happen the way you want.</p>
+    <div style="font-size:1.3rem;font-weight:800">(888) 620-8587</div>
+  </div>
+
+  <div class="note">
+    <strong>Template Note:</strong> v1 content framework from VOLTRON (CSO). Visual design, final brand voice, typography, print layout, and website CTA copy are MUSASHI (CMO) scope.
+  </div>
+
+  <div class="footer">
+    RPI Engage Legacy™ &bull; Retirement Protectors Inc &bull; #RunningOurOwnRACE &bull; v1 2026-04-10
+  </div>
+
+</div>
+</body>
+</html>

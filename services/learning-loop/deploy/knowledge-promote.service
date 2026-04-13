@@ -1,0 +1,26 @@
+# systemd service for knowledge promotion — MDJ_SERVER
+# System Synergy — ZRD-SYN-009
+#
+# Deploy to: /etc/systemd/system/knowledge-promote.service
+# Then: sudo systemctl daemon-reload && sudo systemctl enable knowledge-promote.timer
+
+[Unit]
+Description=RPI Knowledge Promote — Daily MEMORY to CLAUDE.md promotion
+After=network-online.target
+Wants=network-online.target
+OnFailure=slack-alert@%p.service
+
+[Service]
+Type=oneshot
+User=jdm
+WorkingDirectory=/home/jdm/Projects/toMachina/services/learning-loop
+Environment="NODE_ENV=production"
+Environment="GOOGLE_APPLICATION_CREDENTIALS=/home/jdm/Projects/dojo-warriors/mdj-agent/sa-key.json"
+EnvironmentFile=/home/jdm/Projects/dojo-warriors/mdj-agent/.env
+ExecStart=/usr/bin/node dist/knowledge-promote.js
+StandardOutput=journal
+StandardError=journal
+TimeoutStartSec=300
+
+[Install]
+WantedBy=multi-user.target

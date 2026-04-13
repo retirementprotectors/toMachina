@@ -2,7 +2,7 @@
 
 > The complete vision from migration through full feature buildout.
 > Operating Model: 3-6 Builder Agents + 1 Planner/Auditor Agent
-> Updated: 2026-03-19
+> Updated: 2026-04-06
 
 ---
 
@@ -177,7 +177,8 @@ USER LAYER (Browser)
   ProDashX (B2C) | RIIMO (B2E) | SENTINEL (B2B)
     Shared Modules: CAM | C3 | DEX | ATLAS | CC | MyRPI | Comms | Connect | Admin | FORGE
     Portal-Specific: QUE | NBX | DAVID-HUB | RMD | Beni | Discovery | ProZone
-    Standalone Apps: Pipeline Studio (teal) | FORGE (own brand)
+    Standalone Apps: Pipeline Studio (teal) | The Dojo
+    CXO Command Centers: MEGAZORD (CIO/ATLAS) | VOLTRON (CSO/QUE) | MUSASHI (CMO)
 
 LOGIC LAYER (packages/)
   core/        — financial, matching, normalizers, flow engine, compliance, users
@@ -186,7 +187,7 @@ LOGIC LAYER (packages/)
   ui/          — Shared React components + modules
 
 SERVICE LAYER (Cloud Run + Cloud Functions)
-  services/api/           — 38+ Express routes (tm-api)
+  services/api/           — 87 Express routes (tm-api)
   services/bridge/        — Firestore ↔ Sheets dual-write (tm-bridge, toggle-able)
   services/intake/        — 4 Cloud Functions (SPC, Meet, Mail, Email)
   services/bigquery-stream/ — Real-time BQ sink (2 Cloud Functions)
@@ -212,6 +213,8 @@ GAS LAYER (Maintenance Only — 3 remain)
 | **Migration** | 4-5 | GAS engines + infrastructure | COMPLETE |
 | **Visual** | 6-8 | UI overhaul + pipelines + design polish | COMPLETE |
 | **Stabilization** | 9 | Bug fixes + mockups + CI | COMPLETE |
+| **CXO Division** | Wave 1-3 | 3 CXOs (CIO/CSO/CMO), 3 registries, 3 meshes, 131 tickets, 22K LOC | COMPLETE |
+| **Deferred Maintenance** | DM | Knowledge pipeline, permissions, CI resilience, docs reorg | COMPLETE |
 | **Production Wiring** | 10 | Communications + Connect live | NEXT |
 | **GAS Elimination** | 11 | DEX modernization → zero GAS | PLANNED |
 | **Revenue Tools** | 12-13 | ProZone + Campaign Engine | PLANNED |
@@ -225,13 +228,13 @@ GAS LAYER (Maintenance Only — 3 remain)
 ```
 JDM defines priority
     ↓
-Planner/Auditor writes builder prompts (3-6 builders)
+CTO reviews Discovery Docs → CXOs orchestrate → RONIN builds
     ↓
-Builders execute in parallel (worktree isolation)
+RONINs execute in parallel (worktree isolation)
     ↓
-Planner/Auditor reviews reports + conflict analysis
+CTO reviews + MUSASHI mentorship feedback loop
     ↓
-Merge coordinator integrates
+CTO resolves shared files → auto-merge
     ↓
 Auto-deploy to production (push to main → Firebase App Hosting)
     ↓
@@ -257,6 +260,11 @@ Next sprint
 | 2026-03-14 | /clients/ renamed to /contacts/ | URL matches sidebar label |
 | 2026-03-17 | API proxy architecture (permanent) | GCP org policy blocks allUsers on Cloud Run |
 | 2026-03-18 | BD/RIA → Investments | Account category rename, backward-compat aliases retained |
+| 2026-04-05 | CXO Division: MEGAZORD (CIO), VOLTRON (CSO), MUSASHI (CMO) | Registry Warriors architecture — each CXO owns a registry + mesh |
+| 2026-04-05 | CONSUME → OPERATE → DEVOUR lifecycle | Universal CXO launch pattern |
+| 2026-04-05 | 5 product specialists: Medicare/Annuity/Life-Estate/Investment/Legacy-LTC | Replace old 6 (General/Securities/Service/DAVID/Ops) |
+| 2026-04-05 | MDJ = team chat panel, VOLTRON = CSO Command Center | Separate surfaces, separate brands |
+| 2026-04-06 | Hub Dispatcher — CXO-aware intake routing | One triage point, five destinations |
 | 2026-03-19 | Chrome tab titles: PORTAL \| Feature / toMachina / Portal | 76 pages, dynamic detail breadcrumbs |
 
 ---

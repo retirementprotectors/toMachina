@@ -59,8 +59,7 @@ function resolveFileLabel(
     '{account_number}': String(data.account_number || data.policy_number || ''),
     '{last_name}': String(data.last_name || '').toUpperCase(),
     '{first_name}': String(data.first_name || ''),
-    '{carrier_name}': String(data.carrier_name || ''),
-    '{carrier}': String(data.carrier_name || ''),
+    '{carrier}': String(data.carrier || ''),
     '{document_type}': String(data.document_type || ''),
     '{date}': String(data.document_date || data.as_of_date || new Date().toISOString().slice(0, 10)),
     '{document_date}': String(data.document_date || new Date().toISOString().slice(0, 10)),
@@ -131,7 +130,7 @@ export function labelDocument(input: LabelDocumentInput): LabelDocumentOutput {
     // Default label: "PolicyNum- LASTNAME Carrier DocType Date"
     const policyNum = String(extracted_data.policy_number || extracted_data.account_number || '')
     const lastName = String(extracted_data.last_name || '').toUpperCase()
-    const carrier = String(extracted_data.carrier_name || '')
+    const carrier = String(extracted_data.carrier || '')
     const date = String(extracted_data.document_date || new Date().toISOString().slice(0, 10))
     label = [policyNum, lastName, carrier, match.document_type, date]
       .filter(Boolean)

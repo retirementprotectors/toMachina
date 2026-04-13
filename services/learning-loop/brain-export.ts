@@ -17,6 +17,7 @@ import * as path from 'path'
 import { execSync } from 'child_process'
 
 const DOJO_DIR = '/home/jdm/Projects/dojo-warriors'
+const WARRIORS_DIR = path.join(DOJO_DIR, 'warriors')
 
 // PHI redaction patterns
 const PHI_PATTERNS = [
@@ -63,7 +64,7 @@ function getTranscriptContent(): string {
 
 async function exportBrain(): Promise<void> {
   const warrior = getWarriorName()
-  const warriorDir = path.join(DOJO_DIR, warrior)
+  const warriorDir = path.join(WARRIORS_DIR, warrior)
 
   if (!fs.existsSync(warriorDir)) {
     fs.mkdirSync(warriorDir, { recursive: true })
@@ -79,11 +80,11 @@ async function exportBrain(): Promise<void> {
   fs.appendFileSync(brainPath, separator + redacted + '\n')
 
   const stats = fs.statSync(brainPath)
-  console.log(`[brain-export] Appended ${redacted.length} chars to ${warrior}/brain.txt (total: ${stats.size} bytes)`)
+  console.log(`[brain-export] Appended ${redacted.length} chars to warriors/${warrior}/brain.txt (total: ${stats.size} bytes)`)
 
   // Git commit
   try {
-    execSync(`git -C ${DOJO_DIR} add ${warrior}/brain.txt`, { stdio: 'pipe' })
+    execSync(`git -C ${DOJO_DIR} add warriors/${warrior}/brain.txt`, { stdio: 'pipe' })
     execSync(
       `git -C ${DOJO_DIR} commit -m "brain: ${warrior} export ${new Date().toISOString().slice(0, 10)}"`,
       { stdio: 'pipe' }

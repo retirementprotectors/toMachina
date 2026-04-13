@@ -203,7 +203,7 @@ export function identifyGaps(
   // Check for sources with no format profile
   for (const source of sources) {
     const gapStatus = String(source.gap_status || source.status || '')
-    const carrierName = String(source.carrier_name || '')
+    const carrierName = String(source.carrier || '')
     const formatProfileId = String(source.format_profile_id || source.formatProfileId || '')
 
     if (['GREEN', 'YELLOW'].includes(gapStatus.toUpperCase()) && !formatProfileId) {
@@ -224,9 +224,9 @@ export function identifyGaps(
   for (const source of redSources) {
     gaps.push({
       type: 'UNREGISTERED_SOURCE',
-      description: `${String(source.carrier_name || '')} has RED status — no automated pipeline exists`,
+      description: `${String(source.carrier || '')} has RED status — no automated pipeline exists`,
       severity: 'critical',
-      suggested_action: `Create import pipeline for ${String(source.carrier_name || '')} or obtain sample data`,
+      suggested_action: `Create import pipeline for ${String(source.carrier || '')} or obtain sample data`,
       related_entity: String(source.source_id || ''),
     })
   }
@@ -238,9 +238,9 @@ export function identifyGaps(
       const lastPull = String(source.last_pull || 'never')
       gaps.push({
         type: 'STALE_FORMAT',
-        description: `${String(source.carrier_name || '')} data is stale (last pull: ${lastPull})`,
+        description: `${String(source.carrier || '')} data is stale (last pull: ${lastPull})`,
         severity: 'warning',
-        suggested_action: `Trigger a fresh data pull for ${String(source.carrier_name || '')}`,
+        suggested_action: `Trigger a fresh data pull for ${String(source.carrier || '')}`,
         related_entity: String(source.source_id || ''),
       })
     }

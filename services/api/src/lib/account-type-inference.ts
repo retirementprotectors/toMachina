@@ -34,6 +34,18 @@ const INVESTMENT_SIGNALS = [
   'account number', 'model portfolio',
 ]
 
+const BANKING_SIGNALS = [
+  'cd', 'certificate of deposit', 'savings', 'checking', 'money market',
+  'apy', 'fdic', 'routing', 'bank', 'deposit', 'maturity date',
+  'term months', 'high yield', 'jumbo cd',
+]
+
+const LIABILITY_SIGNALS = [
+  'mortgage', 'loan', 'debt', 'heloc', 'credit card', 'lender',
+  'payoff', 'balance due', 'monthly payment', 'student loan', 'auto loan',
+  'personal loan', 'line of credit', 'interest rate', 'collateral',
+]
+
 /**
  * Infer the account type/category from available data fields.
  *
@@ -46,8 +58,11 @@ export function inferAccountType(data: Record<string, unknown>): string {
   // If explicitly tagged, trust it
   if (data.account_category && typeof data.account_category === 'string') {
     const explicit = data.account_category.toLowerCase().trim()
-    if (['life', 'annuity', 'medicare', 'investments', 'investment', 'bdria', 'bd_ria'].includes(explicit)) {
-      return (explicit === 'bd_ria' || explicit === 'bdria' || explicit === 'investment') ? 'investments' : explicit
+    if (['life', 'annuity', 'medicare', 'investments', 'investment', 'bdria', 'bd_ria', 'banking', 'bank', 'liabilities', 'liability', 'debt'].includes(explicit)) {
+      if (explicit === 'bd_ria' || explicit === 'bdria' || explicit === 'investment') return 'investments'
+      if (explicit === 'bank') return 'banking'
+      if (explicit === 'liability' || explicit === 'debt') return 'liabilities'
+      return explicit
     }
   }
 
@@ -57,6 +72,8 @@ export function inferAccountType(data: Record<string, unknown>): string {
     if (lob.includes('annuit')) return 'annuity'
     if (lob.includes('medicare') || lob.includes('health')) return 'medicare'
     if (lob.includes('invest') || lob.includes('advisory') || lob.includes('brokerage')) return 'investments'
+    if (lob.includes('bank') || lob.includes('cd') || lob.includes('deposit')) return 'banking'
+    if (lob.includes('loan') || lob.includes('mortgage') || lob.includes('debt') || lob.includes('liabilit')) return 'liabilities'
   }
 
   // Build a searchable text blob from all string values + keys
@@ -75,6 +92,8 @@ export function inferAccountType(data: Record<string, unknown>): string {
     annuity: 0,
     medicare: 0,
     investments: 0,
+    banking: 0,
+    liabilities: 0,
   }
 
   for (const signal of LIFE_SIGNALS) {
@@ -89,6 +108,12 @@ export function inferAccountType(data: Record<string, unknown>): string {
   for (const signal of INVESTMENT_SIGNALS) {
     if (blob.includes(signal)) scores.investments++
   }
+  for (const signal of BANKING_SIGNALS) {
+    if (blob.includes(signal)) scores.banking++
+  }
+  for (const signal of LIABILITY_SIGNALS) {
+    if (blob.includes(signal)) scores.liabilities++
+  }
 
   // Structural signals (field presence)
   if (data.face_amount != null || data.death_benefit != null || data.insured_name != null) {
@@ -102,6 +127,12 @@ export function inferAccountType(data: Record<string, unknown>): string {
   }
   if (data.market_value != null || data.cusip != null || data.rep_code != null || data.nav != null) {
     scores.investments += 3
+  }
+  if (data.routing_number != null || data.apy != null || data.fdic_insured != null || data.maturity_date != null) {
+    scores.banking += 3
+  }
+  if (data.loan_type != null || data.monthly_payment != null || data.payoff_date != null || data.collateral != null) {
+    scores.liabilities += 3
   }
 
   // Find winner

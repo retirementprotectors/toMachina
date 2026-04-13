@@ -33,6 +33,16 @@ export interface AuthUser {
   email: string
   displayName: string
   photoURL: string | null
+  /**
+   * Partner slug from the Firebase ID token's `partner_id` custom claim
+   * (set by the `onPartnerUserCreate` Cloud Function — ZRD-PLAT-MT-007).
+   * `null` for RPI users and super-admins. Drives tenant-aware UI gating
+   * such as the MDJ Panel belt flag (hidden from partner users until
+   * VOLTRON's partner-context awareness ships in MT-014).
+   */
+  partnerId: string | null
+  /** Role custom claim: 'rpi', 'partner_agent', 'partner_admin', 'superadmin'. */
+  role: string | null
 }
 
 export interface AuthState {
@@ -59,13 +69,42 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const auth = getFirebaseAuth()
-    const unsubscribe = onAuthStateChanged(auth, (fbUser: User | null) => {
-      if (fbUser && fbUser.email?.endsWith('@retireprotected.com')) {
+    const unsubscribe = onAuthStateChanged(auth, async (fbUser: User | null) => {
+      if (!fbUser) {
+        setUser(null)
+        setLoading(false)
+        return
+      }
+
+      // Read partner_id + role custom claims from the ID token (ZRD-PLAT-MT-002/007).
+      // Partner users may not be on @retireprotected.com — we trust the claim.
+      let partnerId: string | null = null
+      let role: string | null = null
+      try {
+        const tokenResult = await fbUser.getIdTokenResult()
+        const raw = tokenResult.claims as { partner_id?: unknown; role?: unknown }
+        if (typeof raw.partner_id === 'string' && raw.partner_id.length > 0) {
+          partnerId = raw.partner_id
+        }
+        if (typeof raw.role === 'string' && raw.role.length > 0) {
+          role = raw.role
+        }
+      } catch {
+        // non-fatal: absent claims just mean the user is treated as an RPI user
+      }
+
+      const isRpiDomain = fbUser.email?.endsWith('@retireprotected.com') ?? false
+      const isPartnerClaim = partnerId !== null
+      const isSuperAdmin = role === 'superadmin'
+
+      if (isRpiDomain || isPartnerClaim || isSuperAdmin) {
         setUser({
           uid: fbUser.uid,
           email: fbUser.email!,
           displayName: fbUser.displayName || '',
           photoURL: fbUser.photoURL,
+          partnerId,
+          role,
         })
       } else {
         setUser(null)
@@ -100,6 +139,7 @@ export interface UserProfile {
   first_name?: string
   last_name?: string
   display_name?: string
+  photo_url?: string
   /** Numeric level is the single source of truth: 0=OWNER, 1=EXECUTIVE, 2=LEADER, 3=USER */
   level?: number
   /** @deprecated Use `level` instead. Kept for backward compat reads only. */

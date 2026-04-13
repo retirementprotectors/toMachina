@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
-import { AdminPanel } from '@tomachina/ui'
+import { AdminGuard } from './guard'
 export const metadata: Metadata = { title: 'Admin' }
 export default function AdminPage() {
-  return <AdminPanel portal="prodashx" />
+  return <AdminGuard />
 }

@@ -112,7 +112,7 @@ async function main() {
     for (const doc of topLevelSnap.docs) {
       const data = doc.data()
       const clientId = data.client_id || '(no client_id)'
-      const carrier = data.carrier_name || data.carrier || '(no carrier)'
+      const carrier = data.carrier || data.carrier || '(no carrier)'
       console.log(`    ${doc.id}: client=${clientId}, carrier=${carrier}`)
     }
   }

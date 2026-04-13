@@ -29,7 +29,7 @@ interface ClientProfile {
 interface AccountSummary {
   account_id: string
   account_type: string
-  carrier_name: string
+  carrier: string
   policy_number: string
   status: string
   premium: number

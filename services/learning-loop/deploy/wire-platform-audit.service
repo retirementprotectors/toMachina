@@ -1,0 +1,26 @@
+# systemd service for platform audit — MDJ_SERVER
+# System Synergy — ZRD-SYN-011
+#
+# Deploy to: /etc/systemd/system/wire-platform-audit.service
+# Then: sudo systemctl daemon-reload && sudo systemctl enable wire-platform-audit.timer
+
+[Unit]
+Description=RPI Wire Platform Audit — Weekly platform health audit
+After=network-online.target
+Wants=network-online.target
+OnFailure=slack-alert@%p.service
+
+[Service]
+Type=oneshot
+User=jdm
+WorkingDirectory=/home/jdm/Projects/toMachina/services/learning-loop
+Environment="NODE_ENV=production"
+Environment="GOOGLE_APPLICATION_CREDENTIALS=/home/jdm/Projects/dojo-warriors/mdj-agent/sa-key.json"
+EnvironmentFile=/home/jdm/Projects/dojo-warriors/mdj-agent/.env
+ExecStart=/usr/bin/node dist/wire-platform-audit.js
+StandardOutput=journal
+StandardError=journal
+TimeoutStartSec=600
+
+[Install]
+WantedBy=multi-user.target

@@ -1,5 +1,6 @@
 import { Router, type Request, type Response } from 'express'
-import { getFirestore, type Query, type DocumentData } from 'firebase-admin/firestore'
+import { type Query, type DocumentData } from 'firebase-admin/firestore'
+import { getDb } from '../lib/db.js'
 import { createHash, randomUUID } from 'crypto'
 import {
   successResponse,
@@ -18,7 +19,7 @@ const COLLECTION = 'revenue'
 
 revenueRoutes.get('/', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const params = getPaginationParams(req)
     if (!params.orderBy) params.orderBy = 'created_at'
 
@@ -39,7 +40,7 @@ revenueRoutes.get('/', async (req: Request, res: Response) => {
 
 revenueRoutes.get('/summary/by-agent', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     let query: Query<DocumentData> = db.collection(COLLECTION)
     if (req.query.period) query = query.where('period', '==', req.query.period)
 
@@ -64,7 +65,7 @@ revenueRoutes.get('/summary/by-agent', async (req: Request, res: Response) => {
 
 revenueRoutes.get('/:id', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const id = param(req.params.id)
     const doc = await db.collection(COLLECTION).doc(id).get()
     if (!doc.exists) { res.status(404).json(errorResponse('Revenue record not found')); return }
@@ -80,7 +81,7 @@ revenueRoutes.post('/', async (req: Request, res: Response) => {
     const err = validateRequired(req.body, ['account_id', 'amount', 'revenue_type'])
     if (err) { res.status(400).json(errorResponse(err)); return }
 
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const now = new Date().toISOString()
     const revenueId = req.body.revenue_id || db.collection(COLLECTION).doc().id
     const data = { ...req.body, revenue_id: revenueId, amount: parseFloat(req.body.amount) || 0, created_at: req.body.created_at || now, updated_at: now, _created_by: (req as unknown as { user?: { email?: string } }).user?.email || 'api' }
@@ -97,7 +98,7 @@ revenueRoutes.post('/', async (req: Request, res: Response) => {
 
 revenueRoutes.patch('/:id', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const id = param(req.params.id)
     const docRef = db.collection(COLLECTION).doc(id)
     const doc = await docRef.get()
@@ -130,7 +131,7 @@ revenueRoutes.patch('/:id', async (req: Request, res: Response) => {
  */
 revenueRoutes.post('/bulk', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const records: Record<string, unknown>[] = req.body.records || []
     const options = req.body.options || {}
 

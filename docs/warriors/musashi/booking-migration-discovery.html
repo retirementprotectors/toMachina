@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BOOKING MIGRATION Discovery Doc</title>
+<style>
+  :root {
+    --bg: #0a0e17;
+    --card: #111827;
+    --card-hover: #1a2236;
+    --border: #1e293b;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --accent: #d4a44c;
+    --green: #22c55e;
+    --blue: #3b82f6;
+    --red: #ef4444;
+    --orange: #f59e0b;
+    --purple: #a855f7;
+    --teal: #14b8a6;
+    --cyan: #06b6d4;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; line-height: 1.6; }
+  .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-bottom: 3px solid var(--accent); padding: 32px 40px; }
+  .header h1 { font-size: 2rem; font-weight: 800; background: linear-gradient(135deg, var(--accent), #f0d78c); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .header .subtitle { color: var(--muted); font-size: 0.95rem; margin-top: 4px; }
+  .header .meta { display: flex; gap: 24px; margin-top: 16px; flex-wrap: wrap; }
+  .header .meta span { font-size: 0.82rem; color: var(--muted); }
+  .header .meta span strong { color: var(--text); }
+  .tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); background: var(--card); overflow-x: auto; }
+  .tab { padding: 14px 22px; font-size: 0.82rem; font-weight: 600; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; transition: all 0.2s; }
+  .tab:hover { color: var(--text); background: var(--card-hover); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); background: rgba(212,164,76,0.08); }
+  .content { max-width: 960px; margin: 0 auto; padding: 32px 40px; }
+  .section { display: none; }
+  .section.active { display: block; }
+  h2 { font-size: 1.3rem; font-weight: 700; margin: 24px 0 12px; color: var(--text); }
+  h3 { font-size: 1.05rem; font-weight: 600; margin: 20px 0 8px; color: var(--accent); }
+  p, li { font-size: 0.9rem; color: var(--muted); margin-bottom: 8px; }
+  ul, ol { padding-left: 20px; }
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+  th { background: var(--card-hover); color: var(--accent); font-size: 0.72rem; text-transform: uppercase; font-weight: 700; padding: 10px 12px; text-align: left; }
+  td { padding: 10px 12px; border-bottom: 1px solid var(--border); font-size: 0.88rem; color: var(--muted); }
+  td:first-child { color: var(--text); font-weight: 500; }
+  code { background: var(--card-hover); padding: 2px 6px; border-radius: 4px; font-size: 0.82rem; font-family: 'SF Mono', monospace; color: var(--cyan); }
+  pre { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 16px; overflow-x: auto; margin: 12px 0; }
+  pre code { background: none; padding: 0; color: var(--text); }
+  .pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; }
+  .pill-green { background: rgba(34,197,94,0.12); color: var(--green); }
+  .pill-blue { background: rgba(59,130,246,0.12); color: var(--blue); }
+  .pill-orange { background: rgba(245,158,11,0.12); color: var(--orange); }
+  .pill-red { background: rgba(239,68,68,0.12); color: var(--red); }
+  .pill-purple { background: rgba(168,85,247,0.12); color: var(--purple); }
+  .callout { background: var(--card); border-left: 3px solid var(--accent); padding: 16px 20px; border-radius: 0 8px 8px 0; margin: 16px 0; }
+  .callout p { margin: 0; }
+  .ticket { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin: 12px 0; }
+  .ticket-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .ticket-id { font-weight: 700; color: var(--accent); font-size: 0.88rem; }
+  .ticket-title { font-weight: 600; color: var(--text); font-size: 0.95rem; margin-bottom: 8px; }
+  .ac { margin-top: 8px; }
+  .ac li { font-size: 0.82rem; color: var(--muted); }
+  .ac li code { font-size: 0.78rem; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>BOOKING MIGRATION</h1>
+  <div class="subtitle">GAS Booking UI &rarr; toMachina Next.js + Cloud Function Calendar Sync + WordPress Cutover</div>
+  <div class="meta">
+    <span><strong>Sprint:</strong> 010-BOOKING</span>
+    <span><strong>Author:</strong> MUSASHI, ARTxBLADE (CMO)</span>
+    <span><strong>Approved:</strong> SHINOB1, CTO</span>
+    <span><strong>Builder:</strong> RONIN</span>
+    <span><strong>Created:</strong> 2026-04-08</span>
+    <span><strong>Tickets:</strong> 14</span>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab('overview')">Overview</div>
+  <div class="tab" onclick="showTab('architecture')">Architecture</div>
+  <div class="tab" onclick="showTab('ux')">UX Spec</div>
+  <div class="tab" onclick="showTab('api')">API Contract</div>
+  <div class="tab" onclick="showTab('calendar')">Calendar Sync</div>
+  <div class="tab" onclick="showTab('cutover')">Cutover</div>
+  <div class="tab" onclick="showTab('tickets')">Tickets</div>
+  <div class="tab" onclick="showTab('files')">Files</div>
+</div>
+
+<div class="content">
+
+<!-- TAB 1: OVERVIEW -->
+<div class="section active" id="overview">
+
+<h2>Why This Exists</h2>
+<p>RPI's booking pages at <code>retireprotected.com/book/*</code> embed a GAS web app via iframe. The toMachina booking API (<code>services/api/src/routes/booking.ts</code>) has been built for months but has <strong>zero frontend consumers</strong>. The GAS version hard-requires email — blocking COF clients (elderly, many without email) from booking.</p>
+
+<p>CTO Decision: No GAS patches. Build the proper Next.js booking page, swap the WordPress embeds, kill the GAS deployment. When JDM rolls this out to the team, it works correctly from day one.</p>
+
+<div class="callout">
+  <p><strong>The Doctor Analogy applies here.</strong> The booking page is the first thing a COF client touches after getting a text. It behaves like a receptionist: "Let's get you on the calendar. Name and phone is all we need. If you've got email, great — if not, we'll call you." Professional. Zero friction. Respects the person in front of it.</p>
+</div>
+
+<h2>Scope Summary</h2>
+<table>
+  <tr><th>Phase</th><th>What</th><th>Tickets</th><th>LOE</th></tr>
+  <tr><td>1 — Foundation</td><td>Public Next.js booking page + API fix</td><td>BKG-01 through BKG-07</td><td>1.5 days</td></tr>
+  <tr><td>2 — Calendar Sync</td><td>Cloud Function writing to <code>calendar_busy</code></td><td>BKG-08 through BKG-10</td><td>0.5 day</td></tr>
+  <tr><td>3 — Cutover</td><td>WordPress URL swap + GAS retirement</td><td>BKG-11 through BKG-14</td><td>0.5 day</td></tr>
+</table>
+
+<h2>What's NOT In Scope</h2>
+<ul>
+  <li>Google Calendar event creation (already handled by <code>calendar-client.ts</code> — wiring is a follow-up)</li>
+  <li>Google Meet link generation (existing <code>createQuickMeet</code> in API — wire after booking create)</li>
+  <li>Email/SMS confirmation sending (follow-up sprint via C3 campaigns)</li>
+  <li>Internal booking mode (IS_INTERNAL client-search) — defer to Sprint 11, portal-integrated version</li>
+</ul>
+
+<h2>Key Decisions</h2>
+<table>
+  <tr><th>#</th><th>Decision</th><th>Why</th></tr>
+  <tr><td>1</td><td>Public route OUTSIDE <code>(portal)/</code> group</td><td>Auth gate is in <code>(portal)/layout.tsx</code>. Routes outside it inherit only root layout. Zero auth changes needed.</td></tr>
+  <tr><td>2</td><td>Email optional, phone required</td><td>COF demographic. At least one contact method enforced: <code>if (!name || (!email && !phone))</code></td></tr>
+  <tr><td>3</td><td>Dark theme only (no light mode)</td><td>Matches portal design system. One theme = less code. Mobile-friendly contrast.</td></tr>
+  <tr><td>4</td><td>No portal chrome (sidebar/topbar)</td><td>This is iframed in WordPress. Clean, standalone wizard. Max-width 620px matches existing GAS layout.</td></tr>
+  <tr><td>5</td><td>Calendar sync as Cloud Function, not real-time</td><td>30-minute cache is sufficient for booking availability. Real-time Calendar API calls per page load = rate limit risk with 13+ agents.</td></tr>
+  <tr><td>6</td><td>Same slug routing as GAS version</td><td><code>?agent=jdm</code> becomes <code>/book/jdm</code>. WordPress iframe src swap is a clean URL replacement.</td></tr>
+</table>
+
+</div>
+
+<!-- TAB 2: ARCHITECTURE -->
+<div class="section" id="architecture">
+
+<h2>System Architecture</h2>
+<pre><code>Client (phone/desktop)
+  |
+  v
+retireprotected.com/book/jdm/          &lt;-- WordPress page (thin HTML wrapper)
+  |
+  iframe src=
+  |
+  v
+prodash.tomachina.com/book/jdm          &lt;-- Next.js public route (NO auth)
+  |
+  |-- GET /api/booking/config/jdm        &lt;-- Agent config + booking types
+  |-- GET /api/booking/busy?email=...    &lt;-- Month busy periods (from Firestore cache)
+  |-- POST /api/booking                  &lt;-- Create booking
+  |
+  v
+Firestore: booking_log, calendar_busy
+  |
+  v
+Cloud Function: calendarBusySync         &lt;-- every 30min, Google Calendar -> calendar_busy
+</code></pre>
+
+<h2>File Structure</h2>
+<pre><code>apps/prodash/app/
+  book/
+    layout.tsx                  # Minimal layout: fonts + viewport + dark bg. NO auth. NO sidebar.
+    [slug]/
+      page.tsx                  # Server component: fetch config, render BookingWizard
+      booking-wizard.tsx        # Client component: 4-step wizard
+      steps/
+        step-type.tsx           # Step 1: Meeting type picker
+        step-datetime.tsx       # Step 2: Calendar + slot picker + mode selector
+        step-contact.tsx        # Step 3: Contact form (email optional)
+        step-confirm.tsx        # Step 4: Confirmation + next steps
+      calendar.tsx              # Month calendar component
+      slot-picker.tsx           # Time slot grid
+      use-booking.ts            # Hook: API calls, state machine
+
+services/intake/src/
+  calendar-busy-sync.ts         # New Cloud Function: Google Calendar -> calendar_busy
+
+services/api/src/routes/
+  booking.ts                    # EXISTING: fix email validation (line 205)
+</code></pre>
+
+<h2>Auth Carve-Out</h2>
+<p>ProDash auth is 100% client-side in <code>apps/prodash/app/(portal)/layout.tsx</code>. There is no <code>middleware.ts</code>. The <code>(portal)</code> route group convention means only routes nested inside it hit the auth gate.</p>
+
+<p><code>app/book/</code> lives <strong>outside</strong> <code>(portal)/</code>, so it:</p>
+<ul>
+  <li>Inherits only <code>app/layout.tsx</code> (root layout — Providers + fonts)</li>
+  <li>Completely bypasses the auth gate</li>
+  <li>Has <code>AuthProvider</code> in context (from <code>providers.tsx</code>) but doesn't block on it</li>
+  <li>Is fully accessible to unauthenticated visitors (clients)</li>
+</ul>
+<p><strong>No changes to auth package, middleware, or next.config needed.</strong></p>
+
+<h2>API Proxy Note</h2>
+<p>The booking page calls <code>/api/booking/*</code> which is proxied to Cloud Run. In dev, <code>next.config.ts</code> rewrites <code>/api/*</code> to <code>localhost:8080</code>. In prod, the <code>app/api/</code> route handler forwards to Cloud Run.</p>
+
+<p><strong>Problem:</strong> The API auth middleware checks Firebase Auth. The booking page is public — no Firebase token. Booking API endpoints need to accept unauthenticated requests.</p>
+
+<p><strong>Solution:</strong> RONIN must read <code>services/api/src/middleware/auth.ts</code> and the route mount in <code>src/index.ts</code> to determine the correct auth bypass pattern. Options: mount booking before auth middleware, add an <code>unless</code> pattern, or create a <code>/api/public/booking/*</code> prefix. The <code>search-clients</code> endpoint MUST remain auth-gated (client PII).</p>
+
+</div>
+
+<!-- TAB 3: UX SPEC -->
+<div class="section" id="ux">
+
+<h2>The 4-Step Booking Wizard</h2>
+<p>Identical flow to the GAS version. Clients already know this pattern. We're upgrading the engine, not the UX.</p>
+
+<h3>Step 1: Meeting Type</h3>
+<table>
+  <tr><th>Element</th><th>Spec</th></tr>
+  <tr><td>Agent header</td><td>Photo (if available) + display name + job title. Team bookings show team title only.</td></tr>
+  <tr><td>Type cards</td><td>One card per <code>BookingType</code>. Shows name + duration + available modes (icons: video/phone).</td></tr>
+  <tr><td>Selection</td><td>Click card → advance to Step 2. Single selection only.</td></tr>
+</table>
+
+<h3>Step 2: Date &amp; Time</h3>
+<table>
+  <tr><th>Element</th><th>Spec</th></tr>
+  <tr><td>Month calendar</td><td>Grid calendar. Grayed-out: past days, fully-booked days, days beyond <code>max_advance_days</code>.</td></tr>
+  <tr><td>Slot picker</td><td>On day click → show available time slots as pills. Slot computation: <code>business_hours</code> minus <code>busy</code> periods minus <code>buffer_minutes</code>. Duration from selected type. Today: add 30-min minimum lead time.</td></tr>
+  <tr><td>Mode selector</td><td>After slot selection: Video Call / Phone Call buttons (from <code>BookingType.modes</code>).</td></tr>
+  <tr><td>Timezone</td><td>Display agent timezone from config. All times shown in agent timezone (America/Chicago default).</td></tr>
+</table>
+
+<h3>Step 3: Your Information</h3>
+<table>
+  <tr><th>Field</th><th>Type</th><th>Required</th><th>Notes</th></tr>
+  <tr><td>Full Name</td><td>text</td><td><span class="pill pill-red">Required</span></td><td></td></tr>
+  <tr><td>Phone</td><td>tel</td><td><span class="pill pill-red">Required</span></td><td>Primary contact method for COF clients</td></tr>
+  <tr><td>Email</td><td>email</td><td><span class="pill pill-blue">Optional</span></td><td>Label: "Email (optional — we'll call to confirm if no email)"</td></tr>
+  <tr><td>Additional Guests</td><td>text</td><td><span class="pill pill-green">Optional</span></td><td>Comma-separated emails. Hidden if no email provided.</td></tr>
+  <tr><td>What to discuss?</td><td>textarea</td><td><span class="pill pill-green">Optional</span></td><td>Free text, max 500 chars</td></tr>
+</table>
+
+<div class="callout">
+  <p><strong>Validation rule:</strong> <code>name</code> is always required. At least one of <code>email</code> or <code>phone</code> must be provided. In practice, phone is required and email is optional — but the API enforces the "at least one" rule for forward compatibility.</p>
+</div>
+
+<h3>Step 4: Confirmation</h3>
+<table>
+  <tr><th>Scenario</th><th>Confirmation Message</th></tr>
+  <tr><td>Email provided</td><td>"You're all set! A calendar invitation has been sent to <strong>[email]</strong>." + Google Calendar add-to-calendar link.</td></tr>
+  <tr><td>No email</td><td>"You're all set! We'll call you at <strong>[phone]</strong> to confirm your appointment." No calendar link.</td></tr>
+</table>
+
+<h3>Mobile-First Design</h3>
+<ul>
+  <li>Max-width: <code>620px</code> centered (matches WordPress iframe container)</li>
+  <li>Touch targets: minimum <code>44px</code> height on all tappable elements</li>
+  <li>Calendar: full-width on mobile, day cells min <code>44px</code> square</li>
+  <li>Form inputs: <code>16px</code> font-size minimum (prevents iOS zoom)</li>
+  <li>Step indicator: compact dots/numbers at top, not full breadcrumb text</li>
+</ul>
+
+<h3>Visual Design</h3>
+<ul>
+  <li>Background: <code>var(--bg-page)</code> from portal design system</li>
+  <li>Cards: <code>var(--bg-card)</code> bg, <code>var(--border-subtle)</code> border, <code>12px</code> radius</li>
+  <li>Accent: <code>var(--portal)</code> from ProDash = RPI Blue</li>
+  <li>Selected states: accent color at 15% opacity bg + solid accent border</li>
+  <li>Text: <code>var(--text-primary)</code> primary, <code>var(--text-muted)</code> muted</li>
+  <li>Buttons: accent bg, white text, <code>8px</code> radius, <code>600</code> weight</li>
+  <li>No portal sidebar, no topbar, no navigation. Clean standalone wizard.</li>
+</ul>
+
+</div>
+
+<!-- TAB 4: API CONTRACT -->
+<div class="section" id="api">
+
+<h2>Existing API Endpoints (services/api/src/routes/booking.ts)</h2>
+
+<h3>GET /api/booking/config/:slug</h3>
+<pre><code>// Response: { success: true, data: BookingConfigData }
+interface BookingConfigData {
+  agent: BookingAgentInfo
+  bookingTypes: BookingType[]
+  availability: BookingAvailability
+  isTeam: boolean
+}
+
+interface BookingAgentInfo {
+  email: string
+  all_emails?: string[]
+  first_name?: string
+  last_name?: string
+  display_name: string
+  job_title?: string
+  slug: string
+  photo_url?: string | null
+  office_address?: string
+}
+
+interface BookingType {
+  name: string              // 'Discovery Call', 'Follow-Up', etc.
+  duration_minutes: number  // 60, 30, 45, 15
+  category: string          // 'standard'
+  modes: string[]           // ['meet', 'call']
+  auto_confirm: boolean
+}
+
+interface BookingAvailability {
+  timezone: string                                        // 'America/Chicago'
+  business_hours: Record&lt;number, { start: string; end: string }&gt;
+  buffer_minutes: number                                  // 15
+  max_advance_days: number                                // 90
+  slot_increment_minutes: number                          // 30
+}
+</code></pre>
+
+<h3>GET /api/booking/busy</h3>
+<pre><code>// Query: ?email=vince@retireprotected.com&amp;year=2026&amp;month=4
+// Response: { success: true, data: BookingBusyData }
+interface BookingBusyData {
+  busy: Array&lt;{ start: string; end: string }&gt;  // ISO 8601
+}
+</code></pre>
+
+<h3>POST /api/booking</h3>
+<pre><code>// Request body:
+{
+  agentEmail: string,
+  agentName: string,
+  agentSlug: string,
+  slot: { start: string, end: string },
+  meetingType: string,
+  mode: 'meet' | 'call',
+  client: {
+    name: string,       // REQUIRED
+    email: string,      // OPTIONAL (change from current)
+    phone: string,      // REQUIRED
+    guests: string,     // optional, comma-separated
+    reason: string      // optional
+  },
+  allEmails: string[]
+}
+
+// Response: { success: true, data: BookingCreateResult }
+interface BookingCreateResult {
+  booking_id: string
+  agent_name: string
+  meeting_type: string
+  start: string
+  end: string
+  mode: string
+  status: 'confirmed'
+}
+</code></pre>
+
+<h2>API Change Required</h2>
+<div class="ticket">
+  <div class="ticket-header">
+    <span class="ticket-id">booking.ts:205</span>
+    <span class="pill pill-red">Breaking Change</span>
+  </div>
+  <p>Current validation:</p>
+  <pre><code>if (!client.name || !client.email) {
+  res.status(400).json(errorResponse('Client name and email are required'))
+}</code></pre>
+  <p>New validation:</p>
+  <pre><code>if (!client.name || (!client.email &amp;&amp; !client.phone)) {
+  res.status(400).json(errorResponse('Client name and at least one contact method (email or phone) are required'))
+}</code></pre>
+</div>
+
+<h2>Auth on Booking Routes</h2>
+<p><strong>STEP 0 for RONIN:</strong> Read <code>services/api/src/middleware/auth.ts</code> and route mounting in <code>src/index.ts</code>. Determine how auth middleware is applied. Then choose one of:</p>
+<ul>
+  <li><strong>Option A:</strong> Mount booking routes BEFORE the auth middleware in the Express app</li>
+  <li><strong>Option B:</strong> Add an <code>unless</code> pattern that skips auth for <code>/api/booking/*</code> paths</li>
+  <li><strong>Option C:</strong> Create a separate <code>/api/public/booking/*</code> mount point</li>
+</ul>
+<p>Whichever option: the <code>search-clients</code> endpoint MUST remain auth-gated (reads client PII).</p>
+
+</div>
+
+<!-- TAB 5: CALENDAR SYNC -->
+<div class="section" id="calendar">
+
+<h2>Calendar Busy Sync — Cloud Function</h2>
+
+<h3>What It Does</h3>
+<p>Reads Google Calendar events for all bookable agents. Writes busy periods to <code>calendar_busy</code> Firestore collection. Runs every 30 minutes via Cloud Scheduler.</p>
+
+<h3>Existing Infrastructure</h3>
+<table>
+  <tr><th>Asset</th><th>Location</th><th>Status</th></tr>
+  <tr><td>Calendar auth pattern</td><td><code>services/api/src/lib/calendar-client.ts</code></td><td><span class="pill pill-green">Exists</span></td></tr>
+  <tr><td>googleapis dependency</td><td><code>services/intake/package.json</code></td><td><span class="pill pill-green">Exists</span> (v171.4.0)</td></tr>
+  <tr><td><code>calendar_busy</code> reader</td><td><code>booking.ts:169-174</code></td><td><span class="pill pill-green">Exists</span></td></tr>
+  <tr><td><code>calendar_busy</code> writer</td><td>nowhere</td><td><span class="pill pill-red">Gap</span></td></tr>
+  <tr><td>Firestore rule for <code>calendar_busy</code></td><td><code>firestore.rules</code></td><td><span class="pill pill-red">Gap</span></td></tr>
+</table>
+
+<h3>Document Schema</h3>
+<pre><code>// Collection: calendar_busy
+// Document ID: "{email}_{year}_{month}"
+// Example: "vince@retireprotected.com_2026_4"
+{
+  periods: [
+    { start: "2026-04-08T14:00:00-05:00", end: "2026-04-08T15:00:00-05:00" },
+    { start: "2026-04-08T16:30:00-05:00", end: "2026-04-08T17:00:00-05:00" }
+  ],
+  synced_at: "2026-04-08T12:00:00Z",
+  agent_email: "vince@retireprotected.com",
+  year: 2026,
+  month: 4
+}
+</code></pre>
+
+<h3>Sync Logic</h3>
+<ol>
+  <li>Query Firestore <code>users</code> collection: <code>status == 'active'</code> AND has <code>employee_profile.booking_slug</code></li>
+  <li>For each agent email: call <code>calendar.events.list</code> with:
+    <ul>
+      <li><code>calendarId: 'primary'</code></li>
+      <li><code>timeMin</code>: 1st of current month</li>
+      <li><code>timeMax</code>: last day of current month + next month (2 months rolling)</li>
+      <li><code>singleEvents: true</code> (expand recurring)</li>
+      <li><code>orderBy: 'startTime'</code></li>
+    </ul>
+  </li>
+  <li>Extract <code>{ start, end }</code> from each event (use <code>dateTime</code> field, skip all-day events)</li>
+  <li>Group by month, write to <code>calendar_busy/{email}_{year}_{month}</code></li>
+</ol>
+
+<h3>Auth Pattern</h3>
+<p>Copy from <code>services/api/src/lib/calendar-client.ts</code>:</p>
+<ul>
+  <li>Local dev: <code>GOOGLE_CALENDAR_CREDENTIALS</code> env var (JSON service account key)</li>
+  <li>Cloud Run/Functions: keyless domain-wide delegation via IAM Credentials <code>signJwt</code></li>
+  <li>Scope: <code>https://www.googleapis.com/auth/calendar.readonly</code> (read-only is sufficient)</li>
+  <li>Service account: <code>claude-mcp-484718@appspot.gserviceaccount.com</code></li>
+</ul>
+
+<h3>Firestore Rules Addition</h3>
+<pre><code>// Add to firestore.rules:
+match /calendar_busy/{docId} {
+  allow read: if true;
+  allow write: if false;  // Cloud Function uses Admin SDK (bypasses rules)
+}
+</code></pre>
+
+<h3>Function Registration</h3>
+<pre><code>// services/intake/src/index.ts — add alongside existing functions:
+
+export const calendarBusySync = onRequest(
+  { region: 'us-central1', timeoutSeconds: 120, memory: '256MiB' },
+  async (_req, res) =&gt; { ... }
+)
+
+export const calendarBusySyncScheduled = onSchedule(
+  { schedule: 'every 30 minutes', region: 'us-central1', timeoutSeconds: 120, memory: '256MiB' },
+  async () =&gt; { ... }
+)
+</code></pre>
+
+</div>
+
+<!-- TAB 6: CUTOVER -->
+<div class="section" id="cutover">
+
+<h2>WordPress URL Swap</h2>
+
+<h3>Current State</h3>
+<p>21 WordPress pages under <code>/book/</code>. All 20 child pages embed the same GAS iframe:</p>
+<pre><code>&lt;iframe src="https://script.google.com/macros/s/AKfycbwaCzn.../exec?page=booking&amp;agent=jdm"&gt;&lt;/iframe&gt;</code></pre>
+
+<h3>Target State</h3>
+<pre><code>&lt;iframe src="https://prodash.tomachina.com/book/jdm" ...&gt;&lt;/iframe&gt;</code></pre>
+
+<h3>Page Inventory (21 pages)</h3>
+<table>
+  <tr><th>ID</th><th>Slug</th><th>Type</th><th>Old Param</th><th>New URL Path</th></tr>
+  <tr><td>466</td><td>book</td><td>Directory</td><td>n/a</td><td>No iframe — links only</td></tr>
+  <tr><td>467</td><td>jdm</td><td>Agent</td><td><code>agent=jdm</code></td><td><code>/book/jdm</code></td></tr>
+  <tr><td>468</td><td>john</td><td>Agent</td><td><code>agent=john</code></td><td><code>/book/john</code></td></tr>
+  <tr><td>469</td><td>shane</td><td>Agent</td><td><code>agent=shane</code></td><td><code>/book/shane</code></td></tr>
+  <tr><td>470</td><td>nikki</td><td>Agent</td><td><code>agent=nikki</code></td><td><code>/book/nikki</code></td></tr>
+  <tr><td>471</td><td>vince</td><td>Agent</td><td><code>agent=vince</code></td><td><code>/book/vince</code></td></tr>
+  <tr><td>472</td><td>matt</td><td>Agent</td><td><code>agent=matt</code></td><td><code>/book/matt</code></td></tr>
+  <tr><td>473</td><td>aprille</td><td>Agent</td><td><code>agent=aprille</code></td><td><code>/book/aprille</code></td></tr>
+  <tr><td>474</td><td>archer</td><td>Agent</td><td><code>agent=archer</code></td><td><code>/book/archer</code></td></tr>
+  <tr><td>475</td><td>robert</td><td>Agent</td><td><code>agent=robert</code></td><td><code>/book/robert</code></td></tr>
+  <tr><td>476</td><td>lucas</td><td>Agent</td><td><code>agent=lucas</code></td><td><code>/book/lucas</code></td></tr>
+  <tr><td>477</td><td>angelique</td><td>Agent</td><td><code>agent=angelique</code></td><td><code>/book/angelique</code></td></tr>
+  <tr><td>478</td><td>susan</td><td>Agent</td><td><code>agent=susan</code></td><td><code>/book/susan</code></td></tr>
+  <tr><td>515</td><td>retirement-sales</td><td>Team</td><td><code>team=retirement-sales</code></td><td><code>/book/retirement-sales</code></td></tr>
+  <tr><td>516</td><td>retirement-service</td><td>Team</td><td><code>team=retirement-service</code></td><td><code>/book/retirement-service</code></td></tr>
+  <tr><td>517</td><td>medicare-sales</td><td>Team</td><td><code>team=medicare-sales</code></td><td><code>/book/medicare-sales</code></td></tr>
+  <tr><td>518</td><td>medicare-service</td><td>Team</td><td><code>team=medicare-service</code></td><td><code>/book/medicare-service</code></td></tr>
+  <tr><td>519</td><td>legacy-sales</td><td>Team</td><td><code>team=legacy-sales</code></td><td><code>/book/legacy-sales</code></td></tr>
+  <tr><td>520</td><td>legacy-service</td><td>Team</td><td><code>team=legacy-service</code></td><td><code>/book/legacy-service</code></td></tr>
+  <tr><td>521</td><td>general</td><td>Team</td><td><code>team=general</code></td><td><code>/book/general</code></td></tr>
+</table>
+
+<h3>Cutover Sequence</h3>
+<ol>
+  <li><strong>Pre-cutover:</strong> Verify all 20 slugs resolve correctly on <code>prodash.tomachina.com/book/[slug]</code>. Test each one. Agent slugs must match <code>employee_profile.booking_slug</code> in Firestore <code>users</code> collection.</li>
+  <li><strong>WordPress swap:</strong> Use <code>wordpress_update_page</code> MCP tool on all 20 child pages. Replace the GAS iframe URL with the ProDash URL. Batch operation — parallel API calls.</li>
+  <li><strong>Verify:</strong> Load each <code>retireprotected.com/book/*</code> page and confirm the ProDash booking wizard renders inside the iframe.</li>
+  <li><strong>Retire GAS:</strong> Do NOT delete the GAS deployment immediately. Mark as deprecated. After 30 days with zero traffic, archive.</li>
+</ol>
+
+<h3>Rollback Plan</h3>
+<p>If issues arise: revert the 20 WordPress pages to the GAS iframe URL. The GAS deployment remains live (not deleted) for 30 days as a safety net. WordPress page updates via MCP are instant and reversible.</p>
+
+</div>
+
+<!-- TAB 7: TICKETS -->
+<div class="section" id="tickets">
+
+<h2>Phase 1: Foundation (7 tickets)</h2>
+
+<div class="ticket">
+  <div class="ticket-header"><span class="ticket-id">BKG-01</span><span class="pill pill-blue">Foundation</span></div>
+  <div class="ticket-title">Public booking route + minimal layout</div>
+  <p>Create <code>apps/prodash/app/book/layout.tsx</code> and <code>apps/prodash/app/book/[slug]/page.tsx</code> outside the <code>(portal)/</code> route group.</p>
+  <div class="ac"><strong>Acceptance Criteria:</strong>
+    <ul>
+      <li><code>/book/jdm</code> renders without auth gate (no sign-in screen)</li>
+      <li>Layout has dark bg, no sidebar, no topbar, centered max-width 620px container</li>
+      <li>Page is a server component that fetches <code>/api/booking/config/[slug]</code> and passes data to client wizard</li>
+      <li>404 page renders for invalid slugs (API returns 404)</li>
+      <li><code>npm run build</code> passes</li>
+    </ul>
+  </div>
+</div>
+
+<div class="ticket">
+  <div class="ticket-header"><span class="ticket-id">BKG-02</span><span class="pill pill-blue">Foundation</span></div>
+  <div class="ticket-title">Step 1: Meeting Type Picker</div>
+  <p>Create <code>steps/step-type.tsx</code>. Agent header (photo + name + title) and booking type cards.</p>
+  <div class="ac"><strong>Acceptance Criteria:</strong>
+    <ul>
+      <li>Agent photo renders (or initials fallback if no photo_url)</li>
+      <li>Each <code>BookingType</code> renders as a card showing name, duration, and mode icons</li>
+      <li>Clicking a card advances to Step 2 with the selected type</li>
+      <li>Team bookings show team title instead of agent name (when <code>isTeam: true</code>)</li>
+      <li>Mobile: cards stack vertically, min 44px touch target</li>
+    </ul>
+  </div>
+</div>
+
+<div class="ticket">
+  <div class="ticket-header"><span class="ticket-id">BKG-03</span><span class="pill pill-blue">Foundation</span></div>
+  <div class="ticket-title">Step 2: Calendar + Slot Picker + Mode Selector</div>
+  <p>Create <code>calendar.tsx</code>, <code>slot-picker.tsx</code>, and <code>steps/step-datetime.tsx</code>.</p>
+  <div class="ac"><strong>Acceptance Criteria:</strong>
+    <ul>
+      <li>Month calendar renders with navigation (prev/next month)</li>
+      <li>Past days, fully-booked days, and days beyond <code>max_advance_days</code> are grayed out</li>
+      <li>Slot computation respects <code>business_hours</code>, <code>buffer_minutes</code>, <code>slot_increment_minutes</code>, and selected <code>duration_minutes</code></li>
+      <li>Today: slots before (now + 30 minutes) are excluded</li>
+      <li>After slot selection: mode selector shows available modes from <code>BookingType.modes</code></li>
+      <li>Mobile: calendar cells min 44px, slot pills wrap and min 44px height</li>
+      <li>Timezone displayed from agent config</li>
+    </ul>
+  </div>
+</div>
+
+<div class="ticket">
+  <div class="ticket-header"><span class="ticket-id">BKG-04</span><span class="pill pill-blue">Foundation</span></div>
+  <div class="ticket-title">Step 3: Contact Form (email optional)</div>
+  <p>Create <code>steps/step-contact.tsx</code>. Name + phone required, email optional.</p>
+  <div class="ac"><strong>Acceptance Criteria:</strong>
+    <ul>
+      <li>Name field: required, shows error state if empty on submit</li>
+      <li>Phone field: required, <code>type="tel"</code>, shows error state if empty on submit</li>
+      <li>Email field: optional, label reads "Email (optional — we'll call to confirm if no email)"</li>
+      <li>Guests field: hidden when no email. Shown when email is filled.</li>
+      <li>Reason field: optional textarea, max 500 chars</li>
+      <li>Submit validates: <code>name</code> required AND <code>phone</code> required. Calls POST /api/booking</li>
+      <li>Loading state on submit button (disable + spinner)</li>
+      <li>Error banner on API failure (re-enables button)</li>
+      <li>Mobile: inputs min 16px font-size (prevents iOS zoom), full-width</li>
+    </ul>
+  </div>
+</div>
+
+<div class="ticket">
+  <div class="ticket-header"><span class="ticket-id">BKG-05</span><span class="pill pill-blue">Foundation</span></div>
+  <div class="ticket-title">Step 4: Confirmation Screen</div>
+  <p>Create <code>steps/step-confirm.tsx</code>. Two variants: with-email and no-email.</p>
+  <div class="ac"><strong>Acceptance Criteria:</strong>
+    <ul>
+      <li>Shows: agent name, meeting type, date, time, duration, mode</li>
+      <li>With email: "A calendar invitation has been sent to [email]" + Add to Google Calendar link</li>
+      <li>Without email: "We'll call you at [phone] to confirm your appointment"</li>
+      <li>Green checkmark icon at top</li>
+      <li>"Book Another" button resets wizard to Step 1</li>
+    </ul>
+  </div>
+</div>
+
+<div class="ticket">
+  <div class="ticket-header"><span class="ticket-id">BKG-06</span><span class="pill pill-blue">Foundation</span></div>
+  <div class="ticket-title">Booking wizard state hook + API integration</div>
+  <p>Create <code>use-booking.ts</code>. Manages wizard state machine, API calls, error handling.</p>
+  <div class="ac"><strong>Acceptance Criteria:</strong>
+    <ul>
+      <li>State machine: IDLE → TYPE_SELECTED → SLOT_SELECTED → MODE_SELECTED → SUBMITTING → CONFIRMED | ERROR</li>
+      <li>Back navigation works at every step (preserves selections)</li>
+      <li>Calls <code>GET /api/booking/busy</code> when month changes (caches per month)</li>
+      <li>Calls <code>POST /api/booking</code> on form submit</li>
+      <li>Error states surface to UI (banner, not console)</li>
+      <li>No <code>any</code> types — all API responses typed against <code>@tomachina/core</code> booking types</li>
+    </ul>
+  </div>
+</div>
+
+<div class="ticket">
+  <div class="ticket-header"><span class="ticket-id">BKG-07</span><span class="pill pill-orange">API Fix</span></div>
+  <div class="ticket-title">Make email optional in booking API + auth carve-out</div>
+  <p>Two changes to <code>services/api/src/routes/booking.ts</code> and API auth middleware.</p>
+  <div class="ac"><strong>Acceptance Criteria:</strong>
+    <ul>
+      <li>Line 205: validation changed to <code>if (!client.name || (!client.email &amp;&amp; !client.phone))</code></li>
+      <li>Error message updated to mention "at least one contact method"</li>
+      <li>STEP 0: Read <code>services/api/src/middleware/auth.ts</code> and route mount. Determine auth bypass pattern.</li>
+      <li>Booking routes (<code>config/*</code>, <code>busy</code>, <code>POST /</code>) accessible WITHOUT Firebase auth token</li>
+      <li><code>/api/booking/search-clients</code> REMAINS auth-gated (client PII)</li>
+      <li><code>npm run build</code> passes</li>
+    </ul>
+  </div>
+</div>
+
+<h2>Phase 2: Calendar Sync (3 tickets)</h2>
+
+<div class="ticket">
+  <div class="ticket-header"><span class="ticket-id">BKG-08</span><span class="pill pill-purple">Calendar</span></div>
+  <div class="ticket-title">Calendar busy sync Cloud Function</div>
+  <p>Create <code>services/intake/src/calendar-busy-sync.ts</code>.</p>
+  <div class="ac"><strong>Acceptance Criteria:</strong>
+    <ul>
+      <li>Queries <code>users</code> collection for active users with <code>booking_slug</code></li>
+      <li>For each: calls <code>calendar.events.list</code> for current + next month</li>
+      <li>Writes <code>{ periods, synced_at, agent_email, year, month }</code> to <code>calendar_busy/{email}_{year}_{month}</code></li>
+      <li>Skips all-day events (only events with <code>dateTime</code> start/end)</li>
+      <li>Auth: copies pattern from <code>services/api/src/lib/calendar-client.ts</code></li>
+      <li>Returns <code>{ success, users_synced, months_written, errors }</code></li>
+      <li>Follows existing intake function pattern (see <code>meet-intake.ts</code>)</li>
+    </ul>
+  </div>
+</div>
+
+<div class="ticket">
+  <div class="ticket-header"><span class="ticket-id">BKG-09</span><span class="pill pill-purple">Calendar</span></div>
+  <div class="ticket-title">Register + deploy calendar sync function</div>
+  <p>Add to <code>services/intake/src/index.ts</code> + deploy.</p>
+  <div class="ac"><strong>Acceptance Criteria:</strong>
+    <ul>
+      <li><code>calendarBusySync</code> HTTP function registered (manual trigger)</li>
+      <li><code>calendarBusySyncScheduled</code> scheduled function registered (every 30 minutes)</li>
+      <li>Both use <code>region: 'us-central1', timeoutSeconds: 120, memory: '256MiB'</code></li>
+      <li>Manual HTTP trigger returns valid JSON response</li>
+      <li>Scheduled trigger fires and writes to Firestore</li>
+    </ul>
+  </div>
+</div>
+
+<div class="ticket">
+  <div class="ticket-header"><span class="ticket-id">BKG-10</span><span class="pill pill-purple">Calendar</span></div>
+  <div class="ticket-title">Add calendar_busy to Firestore rules</div>
+  <div class="ac"><strong>Acceptance Criteria:</strong>
+    <ul>
+      <li><code>firestore.rules</code> updated with <code>calendar_busy/{docId}</code> match</li>
+      <li><code>allow read: if true</code></li>
+      <li><code>allow write: if false</code> (Cloud Function uses Admin SDK)</li>
+      <li><code>npm run build</code> passes</li>
+      <li>Firestore rules deploy succeeds</li>
+    </ul>
+  </div>
+</div>
+
+<h2>Phase 3: Cutover (4 tickets)</h2>
+
+<div class="ticket">
+  <div class="ticket-header"><span class="ticket-id">BKG-11</span><span class="pill pill-green">Cutover</span></div>
+  <div class="ticket-title">STEP 0: Verify all booking slugs resolve</div>
+  <p>Before touching WordPress: confirm every slug works on prodash.tomachina.com.</p>
+  <div class="ac"><strong>Acceptance Criteria:</strong>
+    <ul>
+      <li>All 13 agent slugs resolve with correct agent info</li>
+      <li>STEP 0 AUDIT: grep Firestore <code>users</code> for each slug in <code>employee_profile.booking_slug</code>. Document every match with email + slug. Include manifest in PR.</li>
+      <li>All 7 team slugs resolve to valid team booking pages</li>
+      <li>Calendar loads and shows available slots for at least one agent</li>
+      <li>Full booking flow completes end-to-end (test booking)</li>
+    </ul>
+  </div>
+</div>
+
+<div class="ticket">
+  <div class="ticket-header"><span class="ticket-id">BKG-12</span><span class="pill pill-green">Cutover</span></div>
+  <div class="ticket-title">WordPress iframe URL swap (20 pages)</div>
+  <div class="ac"><strong>Acceptance Criteria:</strong>
+    <ul>
+      <li>All 20 child pages (IDs 467-478, 515-521) updated via <code>wordpress_update_page</code> MCP</li>
+      <li>Old: <code>script.google.com/macros/s/AKfycbwaCzn.../exec?page=booking&amp;...</code></li>
+      <li>New: <code>prodash.tomachina.com/book/[slug]</code></li>
+      <li>iframe attributes preserved: width, min-height, border, border-radius, loading</li>
+      <li>Each page verified: loads correctly in WordPress context</li>
+    </ul>
+  </div>
+</div>
+
+<div class="ticket">
+  <div class="ticket-header"><span class="ticket-id">BKG-13</span><span class="pill pill-green">Cutover</span></div>
+  <div class="ticket-title">Verify directory page (466) links</div>
+  <div class="ac"><strong>Acceptance Criteria:</strong>
+    <ul>
+      <li>All links on page 466 verified clickable and landing on correct child pages</li>
+      <li>No broken links, no 404s</li>
+      <li>If any links pointed to GAS directly, update them</li>
+    </ul>
+  </div>
+</div>
+
+<div class="ticket">
+  <div class="ticket-header"><span class="ticket-id">BKG-14</span><span class="pill pill-green">Cutover</span></div>
+  <div class="ticket-title">Deprecate GAS booking deployment (30-day sunset)</div>
+  <div class="ac"><strong>Acceptance Criteria:</strong>
+    <ul>
+      <li>GAS deployment remains live but no WordPress pages point to it</li>
+      <li>Add comment to GAS code: "DEPRECATED — replaced by prodash.tomachina.com/book/"</li>
+      <li>Set calendar reminder: 30 days from cutover, check GAS execution logs. If zero, archive.</li>
+    </ul>
+  </div>
+</div>
+
+</div>
+
+<!-- TAB 8: FILES -->
+<div class="section" id="files">
+
+<h2>Files Created</h2>
+<table>
+  <tr><th>File</th><th>Ticket</th><th>Purpose</th></tr>
+  <tr><td><code>apps/prodash/app/book/layout.tsx</code></td><td>BKG-01</td><td>Public layout (no auth, no portal chrome)</td></tr>
+  <tr><td><code>apps/prodash/app/book/[slug]/page.tsx</code></td><td>BKG-01</td><td>Server component: fetch config, render wizard</td></tr>
+  <tr><td><code>apps/prodash/app/book/[slug]/booking-wizard.tsx</code></td><td>BKG-02-05</td><td>Client component: 4-step wizard container</td></tr>
+  <tr><td><code>apps/prodash/app/book/[slug]/steps/step-type.tsx</code></td><td>BKG-02</td><td>Meeting type picker</td></tr>
+  <tr><td><code>apps/prodash/app/book/[slug]/steps/step-datetime.tsx</code></td><td>BKG-03</td><td>Date + time + mode selection</td></tr>
+  <tr><td><code>apps/prodash/app/book/[slug]/steps/step-contact.tsx</code></td><td>BKG-04</td><td>Contact form (email optional)</td></tr>
+  <tr><td><code>apps/prodash/app/book/[slug]/steps/step-confirm.tsx</code></td><td>BKG-05</td><td>Confirmation screen (two variants)</td></tr>
+  <tr><td><code>apps/prodash/app/book/[slug]/calendar.tsx</code></td><td>BKG-03</td><td>Month calendar component</td></tr>
+  <tr><td><code>apps/prodash/app/book/[slug]/slot-picker.tsx</code></td><td>BKG-03</td><td>Time slot grid</td></tr>
+  <tr><td><code>apps/prodash/app/book/[slug]/use-booking.ts</code></td><td>BKG-06</td><td>State hook + API integration</td></tr>
+  <tr><td><code>services/intake/src/calendar-busy-sync.ts</code></td><td>BKG-08</td><td>Calendar sync Cloud Function</td></tr>
+</table>
+
+<h2>Files Modified</h2>
+<table>
+  <tr><th>File</th><th>Ticket</th><th>Change</th></tr>
+  <tr><td><code>services/api/src/routes/booking.ts</code></td><td>BKG-07</td><td>Line 205: email optional validation</td></tr>
+  <tr><td><code>services/api/src/middleware/auth.ts</code> (or route mount)</td><td>BKG-07</td><td>Auth carve-out for public booking endpoints</td></tr>
+  <tr><td><code>services/intake/src/index.ts</code></td><td>BKG-09</td><td>Register calendarBusySync functions</td></tr>
+  <tr><td><code>firestore.rules</code></td><td>BKG-10</td><td>Add calendar_busy collection rules</td></tr>
+</table>
+
+<h2>Files NOT Modified (Verify)</h2>
+<table>
+  <tr><th>File</th><th>Why Not</th></tr>
+  <tr><td><code>apps/prodash/app/(portal)/layout.tsx</code></td><td>Auth gate untouched. /book/ bypasses by being outside the group.</td></tr>
+  <tr><td><code>packages/auth/*</code></td><td>No auth package changes.</td></tr>
+  <tr><td><code>apps/prodash/next.config.ts</code></td><td>No rewrites needed.</td></tr>
+  <tr><td><code>packages/core/src/api-types/client.ts</code></td><td>Booking types already defined. No schema changes.</td></tr>
+</table>
+
+<h2>Zero New Dependencies</h2>
+<table>
+  <tr><th>Dependency</th><th>Status</th></tr>
+  <tr><td><code>@tomachina/core</code> booking types</td><td><span class="pill pill-green">Exists</span></td></tr>
+  <tr><td><code>googleapis</code> in services/intake</td><td><span class="pill pill-green">Exists</span> (v171.4.0)</td></tr>
+  <tr><td>Calendar DWD (domain-wide delegation)</td><td><span class="pill pill-green">Exists</span></td></tr>
+  <tr><td>Firebase App Hosting (ProDash deploy)</td><td><span class="pill pill-green">Exists</span></td></tr>
+  <tr><td>WordPress MCP (page updates)</td><td><span class="pill pill-green">Exists</span></td></tr>
+</table>
+
+<h2>Definition of Done</h2>
+<ul>
+  <li>A COF client without email can book a meeting from their phone via a texted link</li>
+  <li>All 20 WordPress booking pages render the ProDash wizard (not GAS)</li>
+  <li>Calendar shows real availability (synced from Google Calendar every 30 min)</li>
+  <li>Bookings write to Firestore <code>booking_log</code> collection + bridge</li>
+  <li><code>npm run build</code> passes (13/13 type-check + 11/11 build)</li>
+  <li>GAS deployment still live but unused (30-day sunset window)</li>
+  <li>Zero new npm dependencies added</li>
+</ul>
+
+</div>
+</div>
+
+<script>
+function showTab(id) {
+  document.querySelectorAll('.section').forEach(function(s) { s.classList.remove('active'); });
+  document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+}
+</script>
+</body>
+</html>

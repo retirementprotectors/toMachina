@@ -1,0 +1,16 @@
+# systemd timer for warrior brain sync — MDJ_SERVER
+# System Synergy — ZRD-SYN-010
+#
+# Deploy to: /etc/systemd/system/wire-brain-sync.timer
+# Then: sudo systemctl daemon-reload && sudo systemctl enable --now wire-brain-sync.timer
+
+[Unit]
+Description=Daily warrior brain sync (2am, after entity-extractor)
+
+[Timer]
+OnCalendar=*-*-* 02:00:00
+Persistent=true
+AccuracySec=1min
+
+[Install]
+WantedBy=timers.target

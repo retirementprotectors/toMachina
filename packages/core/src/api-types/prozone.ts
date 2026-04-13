@@ -87,7 +87,7 @@ export interface ProspectDTO {
   zip: string
   phone: string
   age: number | null
-  client_status: string
+  status: string
   source: string
   inventory: ProspectInventory
   flags: string[]

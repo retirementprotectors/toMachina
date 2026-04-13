@@ -119,19 +119,46 @@ const MODULE_SECTIONS: SectionDef[] = [
     ],
   },
   {
-    key: 'apps',
-    label: 'Apps',
-    icon: 'apps',
+    key: 'owner-box',
+    label: "Owner's Box",
+    icon: 'workspace_premium',
     items: [
+      { key: 'system-synergy', label: 'System Synergy', icon: 'monitor_heart', moduleKey: 'SYSTEM_SYNERGY' },
+      { key: 'admin', label: 'Admin', icon: 'admin_panel_settings', moduleKey: 'PRODASH_ADMIN' },
+      { key: 'command-center', label: 'Command Center', icon: 'dashboard', moduleKey: 'RPI_COMMAND_CENTER' },
+      { key: 'guardian', label: 'GUARDIAN', icon: 'shield', moduleKey: 'GUARDIAN' },
+    ],
+  },
+  {
+    key: 'exec-floor',
+    label: 'Executive Floor',
+    icon: 'corporate_fare',
+    items: [
+      { key: 'forge', label: 'Dojo', icon: 'construction', moduleKey: 'FORGE' },
       { key: 'megazord', label: 'MEGAZORD', icon: 'hub', moduleKey: 'MEGAZORD' },
+      { key: 'voltron', label: 'VOLTRON', icon: 'smart_toy', moduleKey: 'VOLTRON' },
+      { key: 'musashi', label: 'MUSASHI', icon: 'brush', moduleKey: 'MUSASHI' },
+    ],
+  },
+  {
+    key: 'leader-level',
+    label: 'Leader Level',
+    icon: 'supervisor_account',
+    items: [
+      { key: 'prozone', label: 'ProZONE', icon: 'explore', moduleKey: 'PROZONE' },
+      { key: 'rsp', label: 'RSP', icon: 'assignment', moduleKey: 'RSP' },
+      { key: 'c3', label: 'C3', icon: 'campaign', moduleKey: 'C3' },
       { key: 'cam', label: 'CAM', icon: 'payments', moduleKey: 'CAM' },
       { key: 'dex', label: 'DEX', icon: 'description', moduleKey: 'DEX' },
-      { key: 'c3', label: 'C3', icon: 'campaign', moduleKey: 'C3' },
-      { key: 'command-center', label: 'Command Center', icon: 'dashboard', moduleKey: 'RPI_COMMAND_CENTER' },
       { key: 'pipeline-studio', label: 'Pipeline Studio', icon: 'view_kanban', moduleKey: 'PIPELINE_STUDIO' },
-      { key: 'forge', label: 'FORGE', icon: 'construction', moduleKey: 'FORGE' },
-      { key: 'guardian', label: 'GUARDIAN', icon: 'shield', moduleKey: 'GUARDIAN' },
-      { key: 'prozone', label: 'ProZONE', icon: 'explore', moduleKey: 'PROZONE' },
+    ],
+  },
+  {
+    key: 'team-tray',
+    label: 'Team Tray',
+    icon: 'groups',
+    items: [
+      { key: 'mdj', label: 'MDJ', icon: 'smart_toy', moduleKey: 'MDJ' },
     ],
   },
 ]
@@ -554,7 +581,7 @@ function RoleUnitAssignment({
         </div>
       </div>
 
-      {/* Level preview */}
+      {/* Level preview + tray visibility indicator (APR-10) */}
       <div className="flex items-center gap-2 text-xs">
         <span className="text-[var(--text-muted)]">Derived level:</span>
         <span className="rounded-full bg-[var(--bg-surface)] px-2 py-0.5 text-[10px] font-medium text-[var(--text-primary)]">
@@ -562,6 +589,13 @@ function RoleUnitAssignment({
         </span>
         <span className="text-[var(--text-muted)]">|</span>
         <span className="text-[var(--text-muted)]">{previewModuleCount} modules</span>
+      </div>
+      <div className="flex items-center gap-1.5 text-[10px]">
+        <span className="text-[var(--text-muted)]">This user sees:</span>
+        {derivedLevelNum <= 0 && <span className="rounded-full px-1.5 py-0.5 font-medium" style={{ background: 'rgba(212,164,76,0.12)', color: '#d4a44c' }}>Owner&apos;s Box</span>}
+        {derivedLevelNum <= 1 && <span className="rounded-full px-1.5 py-0.5 font-medium" style={{ background: 'rgba(224,124,62,0.12)', color: '#e07c3e' }}>Executive Floor</span>}
+        {derivedLevelNum <= 2 && <span className="rounded-full px-1.5 py-0.5 font-medium" style={{ background: 'rgba(168,85,247,0.12)', color: '#a855f7' }}>Leader Level</span>}
+        <span className="rounded-full px-1.5 py-0.5 font-medium" style={{ background: 'rgba(59,130,246,0.12)', color: '#3b82f6' }}>Team Tray</span>
       </div>
 
       {/* Permissions preview */}
@@ -1571,7 +1605,7 @@ function MissionControl() {
               <div className="text-[10px] text-[var(--text-muted)]">Phone app for field agents</div>
             </div>
           </a>
-          <a href="https://retirementprotectors.github.io/toMachina/mdj-discovery.html" target="_blank" rel="noopener noreferrer"
+          <a href="https://retirementprotectors.github.io/toMachina/docs/discoveries/mdj-discovery.html" target="_blank" rel="noopener noreferrer"
             className="flex items-center gap-2 rounded-lg bg-[var(--bg-surface)] px-3 py-2.5 hover:bg-[var(--bg-hover)] transition-colors">
             <span className="material-icons-outlined" style={{ fontSize: '16px', color: 'var(--portal)' }}>description</span>
             <div>

@@ -21,6 +21,8 @@ export interface UserLevelDef {
   permissions: string[]
 }
 
+export type TrayKey = 'owner' | 'executive' | 'leader' | 'team'
+
 export interface ModuleDef {
   name: string
   fullName: string
@@ -28,6 +30,8 @@ export interface ModuleDef {
   status: ModuleStatus
   suite: SuiteKey
   minUserLevel: UserLevelName
+  /** Sidebar tray: owner (Owner's Box), executive (Executive Floor), leader (Leader Level), team (Team Tray/fixed dock) */
+  tray: TrayKey
 }
 
 export interface ToolSuiteDef {
@@ -118,7 +122,7 @@ export const TOOL_SUITES: Record<SuiteKey, ToolSuiteDef> = {
     name: 'Admin',
     description: 'Organization & Permissions Management',
     matrix: 'RAPID',
-    modules: ['ORG_STRUCTURE', 'PERMISSIONS', 'RPI_COMMAND_CENTER', 'PIPELINE_STUDIO', 'FORGE', 'GUARDIAN', 'MDJ', 'MEGAZORD', 'VOLTRON', 'MUSASHI'],
+    modules: ['ORG_STRUCTURE', 'PERMISSIONS', 'RPI_COMMAND_CENTER', 'PIPELINE_STUDIO', 'FORGE', 'GUARDIAN', 'MDJ', 'MEGAZORD', 'VOLTRON', 'MUSASHI', 'SYSTEM_SYNERGY'],
   },
 }
 
@@ -135,6 +139,7 @@ export const MODULES: Record<string, ModuleDef> = {
     status: 'active',
     suite: 'RAPID_TOOLS',
     minUserLevel: 'EXECUTIVE',
+    tray: 'executive',
   },
   C3: {
     name: 'C3',
@@ -143,6 +148,7 @@ export const MODULES: Record<string, ModuleDef> = {
     status: 'active',
     suite: 'RAPID_TOOLS',
     minUserLevel: 'USER',
+    tray: 'team',
   },
   CAM: {
     name: 'CAM',
@@ -151,6 +157,7 @@ export const MODULES: Record<string, ModuleDef> = {
     status: 'active',
     suite: 'RAPID_TOOLS',
     minUserLevel: 'EXECUTIVE',
+    tray: 'executive',
   },
   DEX: {
     name: 'DEX',
@@ -159,6 +166,7 @@ export const MODULES: Record<string, ModuleDef> = {
     status: 'active',
     suite: 'RAPID_TOOLS',
     minUserLevel: 'LEADER',
+    tray: 'leader',
   },
   MCP_HUB: {
     name: 'MCP-Hub',
@@ -167,6 +175,7 @@ export const MODULES: Record<string, ModuleDef> = {
     status: 'active',
     suite: 'RAPID_TOOLS',
     minUserLevel: 'USER',
+    tray: 'team',
   },
   MY_RPI: {
     name: 'My RPI',
@@ -175,6 +184,7 @@ export const MODULES: Record<string, ModuleDef> = {
     status: 'active',
     suite: 'RAPID_TOOLS',
     minUserLevel: 'USER',
+    tray: 'team',
   },
   RAPID_IMPORT: {
     name: 'RAPID Import',
@@ -183,6 +193,7 @@ export const MODULES: Record<string, ModuleDef> = {
     status: 'active',
     suite: 'RAPID_TOOLS',
     minUserLevel: 'LEADER',
+    tray: 'leader',
   },
   CONTRACT_GENERATOR: {
     name: 'Contract Generator',
@@ -191,6 +202,7 @@ export const MODULES: Record<string, ModuleDef> = {
     status: 'planned',
     suite: 'RAPID_TOOLS',
     minUserLevel: 'USER',
+    tray: 'team',
   },
   LC3: {
     name: 'LC3',
@@ -199,6 +211,7 @@ export const MODULES: Record<string, ModuleDef> = {
     status: 'planned',
     suite: 'RAPID_TOOLS',
     minUserLevel: 'LEADER',
+    tray: 'leader',
   },
   PROPOSAL_MAKER: {
     name: 'Proposal Maker',
@@ -207,6 +220,7 @@ export const MODULES: Record<string, ModuleDef> = {
     status: 'planned',
     suite: 'RAPID_TOOLS',
     minUserLevel: 'USER',
+    tray: 'team',
   },
   TOMIS: {
     name: 'TOMIS',
@@ -215,6 +229,7 @@ export const MODULES: Record<string, ModuleDef> = {
     status: 'planned',
     suite: 'RAPID_TOOLS',
     minUserLevel: 'USER',
+    tray: 'team',
   },
 
   // ---- DAVID Tools - B2B (6) ----
@@ -225,6 +240,7 @@ export const MODULES: Record<string, ModuleDef> = {
     status: 'active',
     suite: 'DAVID_TOOLS',
     minUserLevel: 'LEADER',
+    tray: 'leader',
   },
   SENTINEL_V2: {
     name: 'SENTINEL v2',
@@ -233,6 +249,7 @@ export const MODULES: Record<string, ModuleDef> = {
     status: 'active',
     suite: 'DAVID_TOOLS',
     minUserLevel: 'USER',
+    tray: 'team',
   },
   SENTINEL_DEALS: {
     name: 'Deals',
@@ -241,6 +258,7 @@ export const MODULES: Record<string, ModuleDef> = {
     status: 'active',
     suite: 'DAVID_TOOLS',
     minUserLevel: 'USER',
+    tray: 'team',
   },
   SENTINEL_PRODUCERS: {
     name: 'Producers',
@@ -249,6 +267,7 @@ export const MODULES: Record<string, ModuleDef> = {
     status: 'active',
     suite: 'DAVID_TOOLS',
     minUserLevel: 'USER',
+    tray: 'team',
   },
   SENTINEL_ANALYSIS: {
     name: 'Analysis',
@@ -257,6 +276,7 @@ export const MODULES: Record<string, ModuleDef> = {
     status: 'active',
     suite: 'DAVID_TOOLS',
     minUserLevel: 'USER',
+    tray: 'team',
   },
   SENTINEL_ADMIN: {
     name: 'SENTINEL Admin',
@@ -265,6 +285,7 @@ export const MODULES: Record<string, ModuleDef> = {
     status: 'active',
     suite: 'DAVID_TOOLS',
     minUserLevel: 'LEADER',
+    tray: 'leader',
   },
 
   // ---- RPI Tools - B2C (14) ----
@@ -275,6 +296,7 @@ export const MODULES: Record<string, ModuleDef> = {
     status: 'active',
     suite: 'RPI_TOOLS',
     minUserLevel: 'USER',
+    tray: 'team',
   },
   QUE_MEDICARE: {
     name: 'QUE- Medicare',
@@ -283,6 +305,7 @@ export const MODULES: Record<string, ModuleDef> = {
     status: 'active',
     suite: 'RPI_TOOLS',
     minUserLevel: 'USER',
+    tray: 'team',
   },
   QUE_LIFE: {
     name: 'QUE- Life',
@@ -291,6 +314,7 @@ export const MODULES: Record<string, ModuleDef> = {
     status: 'planned',
     suite: 'RPI_TOOLS',
     minUserLevel: 'USER',
+    tray: 'team',
   },
   QUE_ANNUITY: {
     name: 'QUE- Annuity',
@@ -299,6 +323,7 @@ export const MODULES: Record<string, ModuleDef> = {
     status: 'planned',
     suite: 'RPI_TOOLS',
     minUserLevel: 'USER',
+    tray: 'team',
   },
   QUE_MEDSUP: {
     name: 'QUE- MedSup',
@@ -307,6 +332,7 @@ export const MODULES: Record<string, ModuleDef> = {
     status: 'planned',
     suite: 'RPI_TOOLS',
     minUserLevel: 'USER',
+    tray: 'team',
   },
   PRODASH_CLIENTS: {
     name: 'Clients',
@@ -315,6 +341,7 @@ export const MODULES: Record<string, ModuleDef> = {
     status: 'active',
     suite: 'RPI_TOOLS',
     minUserLevel: 'USER',
+    tray: 'team',
   },
   PRODASH_ACCOUNTS: {
     name: 'Accounts',
@@ -323,6 +350,7 @@ export const MODULES: Record<string, ModuleDef> = {
     status: 'active',
     suite: 'RPI_TOOLS',
     minUserLevel: 'USER',
+    tray: 'team',
   },
   PRODASH_PIPELINES: {
     name: 'Pipelines',
@@ -331,6 +359,7 @@ export const MODULES: Record<string, ModuleDef> = {
     status: 'active',
     suite: 'RPI_TOOLS',
     minUserLevel: 'USER',
+    tray: 'team',
   },
   PRODASH_CAMPAIGNS: {
     name: 'Campaigns',
@@ -339,6 +368,7 @@ export const MODULES: Record<string, ModuleDef> = {
     status: 'active',
     suite: 'RPI_TOOLS',
     minUserLevel: 'USER',
+    tray: 'team',
   },
   RMD_CENTER: {
     name: 'RMD Center',
@@ -347,6 +377,7 @@ export const MODULES: Record<string, ModuleDef> = {
     status: 'active',
     suite: 'RPI_TOOLS',
     minUserLevel: 'USER',
+    tray: 'team',
   },
   BENI_CENTER: {
     name: 'Beni Center',
@@ -355,6 +386,7 @@ export const MODULES: Record<string, ModuleDef> = {
     status: 'active',
     suite: 'RPI_TOOLS',
     minUserLevel: 'USER',
+    tray: 'team',
   },
   DISCOVERY_KIT: {
     name: 'Discovery Kit',
@@ -363,6 +395,7 @@ export const MODULES: Record<string, ModuleDef> = {
     status: 'active',
     suite: 'RPI_TOOLS',
     minUserLevel: 'USER',
+    tray: 'team',
   },
   PRODASH_ACTIVITY: {
     name: 'Activity Log',
@@ -371,6 +404,7 @@ export const MODULES: Record<string, ModuleDef> = {
     status: 'active',
     suite: 'RPI_TOOLS',
     minUserLevel: 'USER',
+    tray: 'team',
   },
   PRODASH_ADMIN: {
     name: 'PRODASH Admin',
@@ -379,6 +413,7 @@ export const MODULES: Record<string, ModuleDef> = {
     status: 'active',
     suite: 'RPI_TOOLS',
     minUserLevel: 'LEADER',
+    tray: 'leader',
   },
 
   // ---- Pipelines (5) ----
@@ -389,6 +424,7 @@ export const MODULES: Record<string, ModuleDef> = {
     status: 'active',
     suite: 'PIPELINES',
     minUserLevel: 'LEADER',
+    tray: 'leader',
   },
   TECH_MAINTENANCE: {
     name: 'Tech Maintenance',
@@ -397,6 +433,7 @@ export const MODULES: Record<string, ModuleDef> = {
     status: 'active',
     suite: 'PIPELINES',
     minUserLevel: 'LEADER',
+    tray: 'leader',
   },
   SECURITY: {
     name: 'Security',
@@ -405,6 +442,7 @@ export const MODULES: Record<string, ModuleDef> = {
     status: 'active',
     suite: 'PIPELINES',
     minUserLevel: 'EXECUTIVE',
+    tray: 'executive',
   },
   ONBOARDING: {
     name: 'On-Boarding',
@@ -413,6 +451,7 @@ export const MODULES: Record<string, ModuleDef> = {
     status: 'active',
     suite: 'PIPELINES',
     minUserLevel: 'LEADER',
+    tray: 'leader',
   },
   OFFBOARDING: {
     name: 'Off-Boarding',
@@ -421,6 +460,7 @@ export const MODULES: Record<string, ModuleDef> = {
     status: 'active',
     suite: 'PIPELINES',
     minUserLevel: 'LEADER',
+    tray: 'leader',
   },
 
   // ---- Build Tracker (1) ----
@@ -431,6 +471,7 @@ export const MODULES: Record<string, ModuleDef> = {
     status: 'active',
     suite: 'ADMIN_TOOLS',
     minUserLevel: 'OWNER',
+    tray: 'owner',
   },
   FORGE: {
     name: 'FORGE',
@@ -439,6 +480,7 @@ export const MODULES: Record<string, ModuleDef> = {
     status: 'active',
     suite: 'ADMIN_TOOLS',
     minUserLevel: 'OWNER',
+    tray: 'owner',
   },
   GUARDIAN: {
     name: 'GUARDIAN',
@@ -447,6 +489,16 @@ export const MODULES: Record<string, ModuleDef> = {
     status: 'active',
     suite: 'ADMIN_TOOLS',
     minUserLevel: 'OWNER',
+    tray: 'owner',
+  },
+  SYSTEM_SYNERGY: {
+    name: 'System Synergy',
+    fullName: 'Platform Intelligence',
+    description: 'System health monitoring, knowledge pipeline visibility, and automated cleanup controls',
+    status: 'active',
+    suite: 'ADMIN_TOOLS',
+    minUserLevel: 'OWNER',
+    tray: 'owner',
   },
   MDJ: {
     name: 'VOLTRON',
@@ -455,6 +507,7 @@ export const MODULES: Record<string, ModuleDef> = {
     status: 'active',
     suite: 'ADMIN_TOOLS',
     minUserLevel: 'USER',
+    tray: 'team',
   },
   MEGAZORD: {
     name: 'MEGAZORD',
@@ -463,6 +516,7 @@ export const MODULES: Record<string, ModuleDef> = {
     status: 'active',
     suite: 'ADMIN_TOOLS',
     minUserLevel: 'EXECUTIVE',
+    tray: 'executive',
   },
   VOLTRON: {
     name: 'VOLTRON',
@@ -471,6 +525,7 @@ export const MODULES: Record<string, ModuleDef> = {
     status: 'active',
     suite: 'ADMIN_TOOLS',
     minUserLevel: 'EXECUTIVE',
+    tray: 'executive',
   },
   MUSASHI: {
     name: 'MUSASHI',
@@ -479,6 +534,7 @@ export const MODULES: Record<string, ModuleDef> = {
     status: 'active',
     suite: 'ADMIN_TOOLS',
     minUserLevel: 'EXECUTIVE',
+    tray: 'executive',
   },
   PROZONE: {
     name: 'ProZONE',
@@ -487,6 +543,7 @@ export const MODULES: Record<string, ModuleDef> = {
     status: 'active',
     suite: 'RPI_TOOLS',
     minUserLevel: 'LEADER',
+    tray: 'leader',
   },
   RSP: {
     name: 'RSP',
@@ -495,6 +552,7 @@ export const MODULES: Record<string, ModuleDef> = {
     status: 'active',
     suite: 'RPI_TOOLS',
     minUserLevel: 'USER',
+    tray: 'team',
   },
   PRODASH_HOUSEHOLDS: {
     name: 'Households',
@@ -503,6 +561,7 @@ export const MODULES: Record<string, ModuleDef> = {
     status: 'active',
     suite: 'RPI_TOOLS',
     minUserLevel: 'USER',
+    tray: 'team',
   },
 
   // ---- Admin Tools (3) ----
@@ -513,6 +572,7 @@ export const MODULES: Record<string, ModuleDef> = {
     status: 'active',
     suite: 'ADMIN_TOOLS',
     minUserLevel: 'EXECUTIVE',
+    tray: 'executive',
   },
   PERMISSIONS: {
     name: 'Permissions',
@@ -521,6 +581,7 @@ export const MODULES: Record<string, ModuleDef> = {
     status: 'active',
     suite: 'ADMIN_TOOLS',
     minUserLevel: 'EXECUTIVE',
+    tray: 'executive',
   },
   RPI_COMMAND_CENTER: {
     name: 'Command Center',
@@ -529,6 +590,7 @@ export const MODULES: Record<string, ModuleDef> = {
     status: 'active',
     suite: 'ADMIN_TOOLS',
     minUserLevel: 'EXECUTIVE',
+    tray: 'executive',
   },
 }
 

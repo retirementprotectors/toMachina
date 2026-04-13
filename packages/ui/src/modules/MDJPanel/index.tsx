@@ -98,7 +98,7 @@ export function MDJPanel({ portal, open, onClose }: MDJPanelProps) {
               smart_toy
             </span>
             <h2 className="text-sm font-semibold text-[var(--text-primary)]">
-              VOLTRON
+              MDJ
             </h2>
           </div>
           <div className="flex items-center gap-1">

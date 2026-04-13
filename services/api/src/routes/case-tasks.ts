@@ -1,5 +1,6 @@
 import { Router, type Request, type Response } from 'express'
-import { getFirestore, type Query, type DocumentData } from 'firebase-admin/firestore'
+import { type Query, type DocumentData } from 'firebase-admin/firestore'
+import { getDb } from '../lib/db.js'
 import {
   successResponse,
   errorResponse,
@@ -17,7 +18,7 @@ const COLLECTION = 'case_tasks'
 
 caseTaskRoutes.get('/', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const params = getPaginationParams(req)
     if (!params.orderBy) params.orderBy = 'created_at'
 
@@ -37,7 +38,7 @@ caseTaskRoutes.get('/', async (req: Request, res: Response) => {
 
 caseTaskRoutes.get('/:id', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const id = param(req.params.id)
     const doc = await db.collection(COLLECTION).doc(id).get()
     if (!doc.exists) { res.status(404).json(errorResponse('Case task not found')); return }
@@ -53,7 +54,7 @@ caseTaskRoutes.post('/', async (req: Request, res: Response) => {
     const err = validateRequired(req.body, ['task_type', 'status'])
     if (err) { res.status(400).json(errorResponse(err)); return }
 
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const now = new Date().toISOString()
     const taskId = req.body.task_id || db.collection(COLLECTION).doc().id
     const data = { ...req.body, task_id: taskId, created_at: req.body.created_at || now, updated_at: now, _created_by: (req as any).user?.email || 'api' }
@@ -70,7 +71,7 @@ caseTaskRoutes.post('/', async (req: Request, res: Response) => {
 
 caseTaskRoutes.patch('/:id', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const id = param(req.params.id)
     const docRef = db.collection(COLLECTION).doc(id)
     const doc = await docRef.get()

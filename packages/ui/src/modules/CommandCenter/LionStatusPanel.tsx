@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { authFetch } from './auth-fetch'
 
 // ── Types ──────────────────────────────────────────────────────────────
 
@@ -40,7 +41,7 @@ export function LionStatusPanel() {
   useEffect(() => {
     async function fetchSpecs() {
       try {
-        const res = await fetch('/api/mdj/specialists')
+        const res = await authFetch('/api/mdj/specialists')
         if (!res.ok) throw new Error(`HTTP ${res.status}`)
         const json = await res.json()
         setSpecs(json.data ?? [])

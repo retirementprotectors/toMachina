@@ -83,7 +83,7 @@ export type AtlasGapAnalysisData = AtlasGapAnalysisRow[]
 
 /** Single carrier scorecard from GET /api/atlas/analytics/carriers */
 export interface AtlasCarrierScorecard {
-  carrier_name: string
+  carrier: string
   total_sources: number
   gap_breakdown: Record<string, number>
   avg_automation: number
@@ -725,7 +725,7 @@ export interface ImportCommissionReconcileResult {
 export interface CarrierDetectFoundResult {
   detected: true
   carrier_id: string
-  carrier_name: string
+  carrier: string
   default_category: string
   dedup_keys: string[]
   mapped_headers: Record<string, string>
@@ -738,7 +738,7 @@ export interface CarrierDetectNotFoundResult {
   message: string
   available_formats: Array<{
     carrier_id: string
-    carrier_name: string
+    carrier: string
     signatures: string[]
   }>
 }
@@ -756,7 +756,7 @@ export interface ImportCarrierAccountsResult {
   duplicates: number
   errors: number
   carrier_id: string
-  carrier_name: string
+  carrier: string
   error_details: ImportErrorDetail[]
   category_breakdown: Record<string, number>
   dry_run: boolean
@@ -857,7 +857,7 @@ export interface ImportNaicPopulateResult {
 
 /** POST /api/import-agents/resolve -- carrier identity resolution */
 export interface ImportCarrierResolveResult {
-  carrier_name: string
+  carrier: string
   charter: string | null
   charter_code: string | null
   naic: number | null

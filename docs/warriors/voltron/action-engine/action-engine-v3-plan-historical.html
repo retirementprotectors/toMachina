@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VOLTRON Action Engine v3 — Sprint 002 Implementation Plan</title>
+<style>
+  :root { --bg:#0a0a0f; --card:#12121a; --border:#1e1e2e; --accent:#7c3aed; --green:#22c55e; --yellow:#eab308; --red:#ef4444; --cyan:#06b6d4; --text:#e2e8f0; --muted:#64748b; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg); color:var(--text); font-family:'Segoe UI',system-ui,sans-serif; line-height:1.6; padding:2rem; }
+  h1 { color:var(--accent); font-size:1.8rem; border-bottom:2px solid var(--accent); padding-bottom:.5rem; margin-bottom:1rem; }
+  h2 { color:var(--cyan); font-size:1.3rem; margin:1.5rem 0 .5rem; }
+  h3 { color:var(--green); font-size:1.1rem; margin:.8rem 0 .3rem; }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:1rem; margin:.5rem 0; }
+  .wave { border-left:3px solid var(--accent); margin:1rem 0; padding-left:1rem; }
+  .ticket { background:#1a1a2e; border:1px solid #2a2a3e; border-radius:6px; padding:.8rem; margin:.4rem 0; }
+  .ticket-id { color:var(--accent); font-weight:bold; }
+  .type { display:inline-block; padding:1px 6px; border-radius:3px; font-size:.75rem; font-weight:600; }
+  .type-research { background:#7c3aed33; color:#a78bfa; }
+  .type-infra { background:#06b6d433; color:#22d3ee; }
+  .type-feat { background:#22c55e33; color:#4ade80; }
+  .type-refactor { background:#eab30833; color:#facc15; }
+  .type-test { background:#f9731633; color:#fb923c; }
+  .type-deploy { background:#ef444433; color:#f87171; }
+  .file { color:var(--cyan); font-family:monospace; font-size:.85rem; }
+  .dep { color:var(--yellow); font-size:.85rem; }
+  .ac { color:var(--green); font-size:.9rem; }
+  .parallel-tag { background:var(--green); color:#000; padding:1px 8px; border-radius:10px; font-size:.75rem; font-weight:700; }
+  .seq-tag { background:var(--yellow); color:#000; padding:1px 8px; border-radius:10px; font-size:.75rem; font-weight:700; }
+  .build-gate { background:#ef444422; border:1px solid var(--red); border-radius:6px; padding:.5rem; margin:.5rem 0; font-family:monospace; font-size:.85rem; color:var(--red); }
+  table { width:100%; border-collapse:collapse; margin:.5rem 0; }
+  th,td { border:1px solid var(--border); padding:.4rem .6rem; text-align:left; font-size:.85rem; }
+  th { background:#1a1a2e; color:var(--cyan); }
+  .critical { color:var(--red); font-weight:bold; }
+  code { background:#1e1e2e; padding:1px 4px; border-radius:3px; font-size:.85rem; }
+  ul { margin-left:1.2rem; }
+  li { margin:.15rem 0; }
+  .overlap-check { background:#22c55e15; border:1px solid #22c55e44; border-radius:4px; padding:.4rem .6rem; margin:.3rem 0; font-size:.85rem; }
+</style>
+</head>
+<body>
+
+<h1>VOLTRON Action Engine v3 — Sprint 002 Implementation Plan</h1>
+<div class="card">
+  <strong>Sprint:</strong> 002 &nbsp;|&nbsp; <strong>Codename:</strong> VOLTRON Action Engine &nbsp;|&nbsp; <strong>Tickets:</strong> 18 &nbsp;|&nbsp; <strong>Waves:</strong> 9 &nbsp;|&nbsp; <strong>Date:</strong> 2026-03-29<br>
+  <strong>Discovery:</strong> <a href="https://retirementprotectors.github.io/toMachina/docs/discoveries/sprint-002-voltron-action-engine-discovery.html" style="color:var(--cyan)">sprint-002-voltron-action-engine-discovery.html</a><br>
+  <strong>Critical Path:</strong> <span class="critical">14203 → 14204 → 14208 → 14209 → 14210 → 14211 → 14218 → 14220</span>
+</div>
+
+<!-- ═══════════════ ARCHITECTURE CONSTRAINTS ═══════════════ -->
+<h2>Architecture Constraints</h2>
+<div class="card">
+<ol>
+  <li><strong>ATLAS Mirror Pattern</strong> — VOLTRON mirrors ATLAS layered architecture: Atomic → Super Tool → Wire</li>
+  <li><strong>Auto-Generated Registry</strong> — 4-source parser (API routes, Firestore schemas, MCP manifests, Voltron tools) → unified <code>voltron_registry</code></li>
+  <li><strong>Wire Executor</strong> — Sequential execution with output chaining, approval gates, SSE progress, Firestore audit trail</li>
+  <li><strong>Entitlement Filtering</strong> — 5 roles: COORDINATOR(1), SPECIALIST(2), DIRECTOR(3), VP(4), ADMIN(5)</li>
+  <li><strong>MDJ_SERVER owns Agent SDK</strong> — <code>/home/jdm/mdj-agent</code> hosts all claude-agent-sdk code. Cloud Run (tm-api) is REST-only</li>
+  <li><strong>TypeScript Strict</strong> — No <code>any</code> types. All exports typed. <code>npm run build</code> must pass</li>
+  <li><strong>Firestore Collections</strong> — <code>voltron_registry</code>, <code>wire_executions</code>, <code>users</code>, <code>clients/{id}/activity_log</code></li>
+  <li><strong>SSE Streaming</strong> — 6 event types: stage_start, stage_complete, stage_error, approval_required, wire_complete, wire_error</li>
+  <li><strong>Model IDs</strong> — claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001</li>
+  <li><strong>Idempotent Registry</strong> — Re-runs of <code>npm run generate:voltron-registry</code> produce identical output</li>
+</ol>
+</div>
+
+<!-- ═══════════════ TYPE DEFINITIONS ═══════════════ -->
+<h2>Core Type Definitions (packages/core/src/voltron/types.ts)</h2>
+<div class="card">
+<table>
+  <tr><th>Type</th><th>Fields</th></tr>
+  <tr><td><code>VoltronUserRole</code></td><td>'COORDINATOR' | 'SPECIALIST' | 'DIRECTOR' | 'VP' | 'ADMIN'</td></tr>
+  <tr><td><code>VoltronToolType</code></td><td>'ATOMIC' | 'SUPER' | 'WIRE'</td></tr>
+  <tr><td><code>VoltronToolSource</code></td><td>'API_ROUTE' | 'MCP' | 'VOLTRON' | 'FIRESTORE'</td></tr>
+  <tr><td><code>VoltronToolResult&lt;T&gt;</code></td><td>success, data?, error?, metadata?</td></tr>
+  <tr><td><code>VoltronSuperResult&lt;T&gt;</code></td><td>success, data?, tool_results?, duration_ms?</td></tr>
+  <tr><td><code>VoltronContext</code></td><td>client_id, user_role, wire_id, entitlement</td></tr>
+  <tr><td><code>VoltronWireInput</code></td><td>client_id, wire_id, params, entitlement</td></tr>
+  <tr><td><code>VoltronWireResult</code></td><td>success, wire_id, steps[], artifacts[], duration_ms</td></tr>
+  <tr><td><code>VoltronRegistryEntry</code></td><td>tool_id, name, description, type, source, entitlement_min, parameters, server_only, generated_at</td></tr>
+  <tr><td><code>VoltronSSEEvent</code></td><td>type (6 event types), wire_id, step_index, data, timestamp</td></tr>
+  <tr><td><code>VoltronArtifact</code></td><td>type, url, title, mime_type, created_at</td></tr>
+</table>
+</div>
+
+<!-- ═══════════════ ENTITLEMENT MATRIX ═══════════════ -->
+<h2>Entitlement Matrix</h2>
+<div class="card">
+<table>
+  <tr><th>Role</th><th>Rank</th><th>Atomics</th><th>Supers</th><th>Wires</th></tr>
+  <tr><td>COORDINATOR</td><td>1</td><td style="color:var(--green)">✓</td><td style="color:var(--red)">✗</td><td style="color:var(--red)">✗</td></tr>
+  <tr><td>SPECIALIST</td><td>2</td><td style="color:var(--green)">✓</td><td style="color:var(--green)">✓</td><td style="color:var(--red)">✗</td></tr>
+  <tr><td>DIRECTOR</td><td>3</td><td style="color:var(--green)">✓</td><td style="color:var(--green)">✓</td><td style="color:var(--green)">✓</td></tr>
+  <tr><td>VP</td><td>4</td><td style="color:var(--green)">✓</td><td style="color:var(--green)">✓</td><td style="color:var(--green)">✓</td></tr>
+  <tr><td>ADMIN</td><td>5</td><td style="color:var(--green)">✓</td><td style="color:var(--green)">✓</td><td style="color:var(--green)">✓</td></tr>
+</table>
+</div>
+
+<!-- ═══════════════ TICKET-TO-ID MAPPING ═══════════════ -->
+<h2>Ticket ID Mapping</h2>
+<div class="card">
+<table>
+  <tr><th>FORGE ID</th><th>Discovery ID</th><th>Title</th><th>Type</th></tr>
+  <tr><td>TRK-14203</td><td>TRK-S02-001</td><td>ATLAS audit + interface mirror spec</td><td><span class="type type-research">research</span></td></tr>
+  <tr><td>TRK-14204</td><td>TRK-S02-002</td><td>voltron/types.ts — full type definitions</td><td><span class="type type-infra">infra</span></td></tr>
+  <tr><td>TRK-14205</td><td>TRK-S02-003</td><td>Registry generator (4-source parser)</td><td><span class="type type-feat">feat</span></td></tr>
+  <tr><td>TRK-14206</td><td>TRK-S02-004</td><td>voltron_registry Firestore + GET endpoint</td><td><span class="type type-feat">feat</span></td></tr>
+  <tr><td>TRK-14207</td><td>TRK-S02-005</td><td>Migrate 82 hand-coded tools to generated format</td><td><span class="type type-refactor">refactor</span></td></tr>
+  <tr><td>TRK-14208</td><td>TRK-S02-006</td><td>11 new atomic tools</td><td><span class="type type-feat">feat</span></td></tr>
+  <tr><td>TRK-14209</td><td>TRK-S02-007</td><td>8 Super Tools (REVIEW_PREP first)</td><td><span class="type type-feat">feat</span></td></tr>
+  <tr><td>TRK-14210</td><td>TRK-S02-008</td><td>Wire Executor (adapt atlas/wire-executor.ts)</td><td><span class="type type-feat">feat</span></td></tr>
+  <tr><td>TRK-14211</td><td>TRK-S02-009</td><td>4 Wires (ANNUAL_REVIEW, AEP, ONBOARD, NEW_BIZ)</td><td><span class="type type-feat">feat</span></td></tr>
+  <tr><td>TRK-14212</td><td>TRK-S02-010</td><td>Playwright carrier automation (NA + Athene)</td><td><span class="type type-feat">feat</span></td></tr>
+  <tr><td>TRK-14213</td><td>TRK-S02-011</td><td>Entitlement filtering at registry level</td><td><span class="type type-feat">feat</span></td></tr>
+  <tr><td>TRK-14214</td><td>TRK-S02-012</td><td>Registry auto-regeneration on CI deploy</td><td><span class="type type-infra">infra</span></td></tr>
+  <tr><td>TRK-14215</td><td>TRK-S02-013</td><td>ProDashX VOLTRON Mode 1 UI — wire selector</td><td><span class="type type-feat">feat</span></td></tr>
+  <tr><td>TRK-14216</td><td>TRK-S02-014</td><td>E2E: Aswegan REVIEW_PREP + Mineart BUILD_CASEWORK</td><td><span class="type type-test">test</span></td></tr>
+  <tr><td>TRK-14217</td><td>TRK-S02-015</td><td>Deploy + smoke test all Super Tools</td><td><span class="type type-deploy">deploy</span></td></tr>
+  <tr><td>TRK-14218</td><td>TRK-13824</td><td>E2E wire test: ANNUAL_REVIEW + BUILD_CASEWORK</td><td><span class="type type-test">test</span></td></tr>
+  <tr><td>TRK-14219</td><td>TRK-13825</td><td>Playwright carrier automation E2E</td><td><span class="type type-test">test</span></td></tr>
+  <tr><td>TRK-14220</td><td>TRK-13826</td><td>Deploy + smoke test all 8 Super Tools (final)</td><td><span class="type type-deploy">deploy</span></td></tr>
+</table>
+</div>
+
+<!-- ═══════════════ DEPENDENCY GRAPH ═══════════════ -->
+<h2>Dependency Graph</h2>
+<div class="card" style="font-family:monospace; font-size:.85rem; white-space:pre; overflow-x:auto;">
+14203 ──→ 14204 ──┬──→ 14205 ──→ 14206 ──┬──→ 14213 ──┬──→ 14214
+                   │                        │             │
+                   ├──→ 14208 ──→ 14209 ──┬──→ 14210 ──→ 14211 ──┬──→ 14218 ──→ 14220
+                   │                       │                       │
+                   ├──→ 14207              ├──→ 14212 ──→ 14219 ──┘
+                   │                       │
+                   │                       └──→ (14210 → 14211)
+                   │
+                   └──→ (14211 + 14213) ──→ 14215 ──→ 14216 ──→ 14217
+</div>
+
+<!-- ═══════════════ WAVE 1 ═══════════════ -->
+<h2>Wave 1 — Foundation Research <span class="seq-tag">SEQUENTIAL</span></h2>
+<div class="wave">
+
+<div class="ticket">
+  <span class="ticket-id">TRK-14203</span> — ATLAS audit + interface mirror spec <span class="type type-research">research</span><br>
+  <span class="dep">Dependencies: none</span><br>
+  <h3>Files</h3>
+  <ul>
+    <li class="file">packages/core/src/voltron/ATLAS_AUDIT.md</li>
+  </ul>
+  <h3>Acceptance Criteria</h3>
+  <ul class="ac">
+    <li>Interfaces documented with ATLAS comparison</li>
+    <li><code>packages/core/src/voltron/types.ts</code> structure defined</li>
+    <li>Divergence from ATLAS types noted with rationale</li>
+  </ul>
+  <div class="build-gate">npm run build — verify no regressions (research-only, no code changes)</div>
+</div>
+
+</div>
+
+<!-- ═══════════════ WAVE 2 ═══════════════ -->
+<h2>Wave 2 — Type Foundation <span class="seq-tag">SEQUENTIAL</span></h2>
+<div class="wave">
+
+<div class="ticket">
+  <span class="ticket-id">TRK-14204</span> — voltron/types.ts — full type definitions <span class="type type-infra">infra</span><br>
+  <span class="dep">Dependencies: TRK-14203</span><br>
+  <h3>Files</h3>
+  <ul>
+    <li class="file">packages/core/src/voltron/types.ts</li>
+    <li class="file">packages/core/src/voltron/index.ts</li>
+  </ul>
+  <h3>Acceptance Criteria</h3>
+  <ul class="ac">
+    <li><code>VoltronToolResult&lt;T&gt;</code>, <code>VoltronSuperResult&lt;T&gt;</code>, <code>VoltronContext</code>, <code>VoltronWireInput</code>, <code>VoltronWireResult</code> defined</li>
+    <li><code>VoltronRegistryEntry</code>, <code>VoltronSSEEvent</code>, <code>VoltronArtifact</code>, <code>VoltronUserRole</code> defined</li>
+    <li>TypeScript strict mode — no <code>any</code> types</li>
+    <li><code>VOLTRON_ROLE_RANK</code> map: COORDINATOR=1, SPECIALIST=2, DIRECTOR=3, VP=4, ADMIN=5</li>
+    <li><code>isToolTypeAllowed()</code> helper function — fails safely by denying</li>
+  </ul>
+  <div class="build-gate">npm run build — types.ts compiles with strict mode</div>
+</div>
+
+</div>
+
+<!-- ═══════════════ WAVE 3 ═══════════════ -->
+<h2>Wave 3 — Registry + Atomic Tools <span class="parallel-tag">2 PARALLEL</span></h2>
+<div class="wave">
+
+<div class="overlap-check">✅ File Overlap Check: 14205 touches <code>registry-generator.ts</code>, <code>generated/voltron-registry.json</code> | 14208 touches <code>tools/*.ts</code> (new files only) — NO OVERLAP</div>
+
+<div class="ticket">
+  <span class="ticket-id">TRK-14205</span> — Registry generator (4-source parser) <span class="type type-feat">feat</span><br>
+  <span class="dep">Dependencies: TRK-14204</span><br>
+  <h3>Files</h3>
+  <ul>
+    <li class="file">packages/core/src/voltron/registry-generator.ts</li>
+    <li class="file">packages/core/src/voltron/generated/voltron-registry.json</li>
+    <li class="file">scripts/generate-voltron-registry.ts</li>
+  </ul>
+  <h3>4-Source Parser</h3>
+  <table>
+    <tr><th>Source</th><th>Path</th><th>Output Type</th></tr>
+    <tr><td>API Routes</td><td>services/api/src/routes/*.ts</td><td>ATOMIC</td></tr>
+    <tr><td>Firestore</td><td>packages/db/src/firestore.ts</td><td>CRUD</td></tr>
+    <tr><td>MCP Bridge</td><td>mdj-agent/src/tools/mcp-bridge.ts</td><td>25 MCP tools</td></tr>
+    <tr><td>Voltron</td><td>voltron/tools/*.ts + super-tools + wires + legacy map</td><td>VOLTRON native</td></tr>
+  </table>
+  <h3>Acceptance Criteria</h3>
+  <ul class="ac">
+    <li><code>npm run generate:voltron-registry</code> outputs valid JSON</li>
+    <li>Parses all 4 sources correctly</li>
+    <li>Idempotent — re-runs don't duplicate entries</li>
+    <li><code>--dry-run</code> flag prints to stdout only</li>
+  </ul>
+  <div class="build-gate">npm run build &amp;&amp; npm run generate:voltron-registry --dry-run</div>
+</div>
+
+<div class="ticket">
+  <span class="ticket-id">TRK-14208</span> — 11 new atomic tools (<code>get_client_documents</code> priority) <span class="type type-feat">feat</span><br>
+  <span class="dep">Dependencies: TRK-14204</span><br>
+  <h3>Files (all new)</h3>
+  <ul>
+    <li class="file">packages/core/src/voltron/tools/get-client-documents.ts</li>
+    <li class="file">packages/core/src/voltron/tools/get-document.ts</li>
+    <li class="file">packages/core/src/voltron/tools/create-acf-folder.ts</li>
+    <li class="file">packages/core/src/voltron/tools/list-acf-contents.ts</li>
+    <li class="file">packages/core/src/voltron/tools/save-to-drive.ts</li>
+    <li class="file">packages/core/src/voltron/tools/run-que-quote.ts</li>
+    <li class="file">packages/core/src/voltron/tools/schedule-meeting.ts</li>
+    <li class="file">packages/core/src/voltron/tools/send-sms.ts</li>
+    <li class="file">packages/core/src/voltron/tools/create-calendar-event.ts</li>
+    <li class="file">packages/core/src/voltron/tools/log-activity.ts</li>
+    <li class="file">packages/core/src/voltron/tools/run-illustration.ts</li>
+    <li class="file">packages/core/src/voltron/tools/index.ts (re-export)</li>
+  </ul>
+  <h3>Acceptance Criteria</h3>
+  <ul class="ac">
+    <li>All 11 atomic tools implemented with <code>VoltronToolResult&lt;T&gt;</code> return type</li>
+    <li>TypeScript strict mode — no <code>any</code></li>
+    <li><code>get_client_documents</code> + <code>list_acf_contents</code> tested E2E with real client ACF folder</li>
+    <li><code>run_illustration</code> Playwright skeleton works on North American portal</li>
+  </ul>
+  <div class="build-gate">npm run build — all 11 tool files compile</div>
+</div>
+
+</div>
+
+<!-- ═══════════════ WAVE 4 ═══════════════ -->
+<h2>Wave 4 — Registry Endpoint + Migration + Super Tools <span class="parallel-tag">3 PARALLEL</span></h2>
+<div class="wave">
+
+<div class="overlap-check">✅ File Overlap Check: 14206 touches <code>routes/voltron-registry.ts</code> | 14207 touches <code>tools/legacy-tool-map.ts</code> + existing tool files | 14209 touches <code>super-tools/*.ts</code> — NO OVERLAP</div>
+
+<div class="ticket">
+  <span class="ticket-id">TRK-14206</span> — voltron_registry Firestore + GET /api/voltron/registry <span class="type type-feat">feat</span><br>
+  <span class="dep">Dependencies: TRK-14205</span><br>
+  <h3>Files</h3>
+  <ul>
+    <li class="file">services/api/src/routes/voltron-registry.ts</li>
+  </ul>
+  <h3>API Endpoint</h3>
+  <table>
+    <tr><th>Method</th><th>Path</th><th>Auth</th><th>Response</th></tr>
+    <tr><td>GET</td><td>/api/voltron/registry</td><td>Required (Bearer)</td><td>VoltronRegistryEntry[] filtered by caller role</td></tr>
+    <tr><td>POST</td><td>/api/voltron/registry/regenerate</td><td>Admin/CI token</td><td>{ success, count, timestamp }</td></tr>
+  </table>
+  <h3>Acceptance Criteria</h3>
+  <ul class="ac">
+    <li>Role-filtered endpoint live — returns correct subset per role</li>
+    <li>Authentication required on all endpoints</li>
+    <li>Tested with COORDINATOR, SPECIALIST, VP role tokens</li>
+    <li>Firestore <code>voltron_registry</code> collection populated</li>
+  </ul>
+  <div class="build-gate">npm run build</div>
+</div>
+
+<div class="ticket">
+  <span class="ticket-id">TRK-14207</span> — Migrate 82 hand-coded tools to generated format <span class="type type-refactor">refactor</span><br>
+  <span class="dep">Dependencies: TRK-14204</span><br>
+  <h3>Files</h3>
+  <ul>
+    <li class="file">packages/core/src/voltron/tools/legacy-tool-map.ts</li>
+    <li class="file">packages/core/src/voltron/generated/voltron-registry.json</li>
+  </ul>
+  <h3>Acceptance Criteria</h3>
+  <ul class="ac">
+    <li>All 82 existing tools represented in generated registry</li>
+    <li>Equivalence verified — same names, descriptions, parameters</li>
+    <li>Existing VOLTRON chat unaffected — no regression</li>
+    <li>Legacy tool map serves as migration bridge</li>
+  </ul>
+  <div class="build-gate">npm run build &amp;&amp; npm run generate:voltron-registry</div>
+</div>
+
+<div class="ticket">
+  <span class="ticket-id">TRK-14209</span> — 8 Super Tools (REVIEW_PREP first) <span class="type type-feat">feat</span><br>
+  <span class="dep">Dependencies: TRK-14208</span><br>
+  <h3>Files</h3>
+  <ul>
+    <li class="file">packages/core/src/voltron/super-tools/review-prep.ts</li>
+    <li class="file">packages/core/src/voltron/super-tools/build-casework.ts</li>
+    <li class="file">packages/core/src/voltron/super-tools/pull-documents.ts</li>
+    <li class="file">packages/core/src/voltron/super-tools/draft-communication.ts</li>
+    <li class="file">packages/core/src/voltron/super-tools/rmd-analysis.ts</li>
+    <li class="file">packages/core/src/voltron/super-tools/coverage-gap.ts</li>
+    <li class="file">packages/core/src/voltron/super-tools/meeting-prep.ts</li>
+    <li class="file">packages/core/src/voltron/super-tools/run-illustration.ts</li>
+    <li class="file">packages/core/src/voltron/super-tools/index.ts</li>
+  </ul>
+  <h3>Super Tool → Atomic Tool Chains</h3>
+  <table>
+    <tr><th>Super Tool</th><th>Chains Atomics</th></tr>
+    <tr><td>REVIEW_PREP</td><td>get_client_documents → list_acf_contents → rmd_analysis → coverage_gap → draft_communication</td></tr>
+    <tr><td>BUILD_CASEWORK</td><td>get_client_documents → pull_documents → draft_communication → save_to_drive</td></tr>
+    <tr><td>PULL_DOCUMENTS</td><td>get_client_documents → list_acf_contents → get_document → save_to_drive</td></tr>
+    <tr><td>DRAFT_COMMUNICATION</td><td>get_client_documents → draft_communication → save_to_drive</td></tr>
+    <tr><td>RMD_ANALYSIS</td><td>get_client_documents → rmd_analysis → draft_communication</td></tr>
+    <tr><td>COVERAGE_GAP</td><td>get_client_documents → coverage_gap → draft_communication</td></tr>
+    <tr><td>MEETING_PREP</td><td>get_client_documents → list_acf_contents → schedule_meeting → create_calendar_event</td></tr>
+    <tr><td>RUN_ILLUSTRATION</td><td>get_client_documents → run_illustration (Playwright) → save_to_drive</td></tr>
+  </table>
+  <h3>Acceptance Criteria</h3>
+  <ul class="ac">
+    <li>All 8 Super Tools implemented with <code>VoltronSuperResult&lt;T&gt;</code> return type</li>
+    <li>REVIEW_PREP tested E2E with Aswegan client data</li>
+    <li>REVIEW_PREP produces complete review packet via 8+ tool calls</li>
+    <li>Each Super Tool chains its atomic tools with output forwarding</li>
+  </ul>
+  <div class="build-gate">npm run build</div>
+</div>
+
+</div>
+
+<!-- ═══════════════ WAVE 5 ═══════════════ -->
+<h2>Wave 5 — Wire Executor + Playwright + Entitlements <span class="parallel-tag">3 PARALLEL</span></h2>
+<div class="wave">
+
+<div class="overlap-check">✅ File Overlap Check: 14210 touches <code>wire-executor.ts</code> | 14212 touches <code>super-tools/run-illustration.ts</code> (Playwright integration) | 14213 touches <code>types.ts</code> (entitlement filter) + <code>routes/voltron-registry.ts</code> — NO OVERLAP</div>
+
+<div class="ticket">
+  <span class="ticket-id">TRK-14210</span> — Wire Executor (adapt atlas/wire-executor.ts) <span class="type type-feat">feat</span><br>
+  <span class="dep">Dependencies: TRK-14209</span><br>
+  <h3>Files</h3>
+  <ul>
+    <li class="file">packages/core/src/voltron/wire-executor.ts</li>
+    <li class="file">packages/core/src/atlas/wire-executor.ts (reference only)</li>
+  </ul>
+  <h3>SSE Event Types</h3>
+  <table>
+    <tr><th>Event</th><th>Payload</th></tr>
+    <tr><td>stage_start</td><td>{ wire_id, step_index, tool_id, tool_name }</td></tr>
+    <tr><td>stage_complete</td><td>{ wire_id, step_index, tool_id, result, duration_ms }</td></tr>
+    <tr><td>stage_error</td><td>{ wire_id, step_index, tool_id, error }</td></tr>
+    <tr><td>approval_required</td><td>{ wire_id, step_index, tool_id, prompt, options }</td></tr>
+    <tr><td>wire_complete</td><td>{ wire_id, artifacts[], total_duration_ms }</td></tr>
+    <tr><td>wire_error</td><td>{ wire_id, error, failed_step }</td></tr>
+  </table>
+  <h3>Acceptance Criteria</h3>
+  <ul class="ac">
+    <li>Sequential execution with output chaining between steps</li>
+    <li>Approval gate enforcement — pauses wire, emits <code>approval_required</code> SSE event</li>
+    <li>Audit trail writes to <code>wire_executions</code> Firestore collection</li>
+    <li>SSE progress events emitted for Mode 1 UI consumption</li>
+    <li>Simulation mode works — no side effects, returns projected results</li>
+    <li>SUPER_TOOL_MAP resolves all 8 super tools by ID</li>
+  </ul>
+  <div class="build-gate">npm run build</div>
+</div>
+
+<div class="ticket">
+  <span class="ticket-id">TRK-14212</span> — Playwright carrier automation (North American + Athene) <span class="type type-feat">feat</span><br>
+  <span class="dep">Dependencies: TRK-14209</span><br>
+  <h3>Files</h3>
+  <ul>
+    <li class="file">packages/core/src/voltron/super-tools/run-illustration.ts (Playwright flows)</li>
+    <li class="file">MDJ_SERVER: /home/jdm/mdj-agent/src/tools/mcp-bridge.ts (Playwright MCP)</li>
+  </ul>
+  <h3>Acceptance Criteria</h3>
+  <ul class="ac">
+    <li>RUN_ILLUSTRATION completes full illustration flow on North American portal</li>
+    <li>RUN_ILLUSTRATION completes full illustration flow on Athene portal</li>
+    <li>Returns result data (illustration output, premium calculations)</li>
+    <li>PDF saved to client ACF Drive folder</li>
+    <li>Playwright MCP on MDJ_SERVER (<code>/home/jdm/mdj-agent</code>) confirmed operational</li>
+  </ul>
+  <div class="build-gate">npm run build</div>
+</div>
+
+<div class="ticket">
+  <span class="ticket-id">TRK-14213</span> — Entitlement filtering at registry level <span class="type type-feat">feat</span><br>
+  <span class="dep">Dependencies: TRK-14206</span><br>
+  <h3>Files</h3>
+  <ul>
+    <li class="file">services/api/src/routes/voltron-registry.ts (filter logic)</li>
+    <li class="file">packages/core/src/voltron/types.ts (isToolTypeAllowed helper)</li>
+  </ul>
+  <h3>Acceptance Criteria</h3>
+  <ul class="ac">
+    <li>Each role receives correct tool subset from <code>/api/voltron/registry</code></li>
+    <li>COORDINATOR cannot see Wires or Super Tools</li>
+    <li>SPECIALIST sees Atomics + Supers, no Wires</li>
+    <li>VP/ADMIN sees all tool types</li>
+    <li>Verified with all 5 role types</li>
+    <li><code>isToolTypeAllowed()</code> fails safely by denying access</li>
+  </ul>
+  <div class="build-gate">npm run build</div>
+</div>
+
+</div>
+
+<!-- ═══════════════ WAVE 6 ═══════════════ -->
+<h2>Wave 6 — Wires + CI Regen <span class="parallel-tag">2 PARALLEL</span></h2>
+<div class="wave">
+
+<div class="overlap-check">✅ File Overlap Check: 14211 touches <code>wires.ts</code> | 14214 touches <code>.github/workflows/ci.yml</code> — NO OVERLAP</div>
+
+<div class="ticket">
+  <span class="ticket-id">TRK-14211</span> — 4 Wires (ANNUAL_REVIEW, AEP_ENROLLMENT, ONBOARD_AGENCY, NEW_BUSINESS) <span class="type type-feat">feat</span><br>
+  <span class="dep">Dependencies: TRK-14210</span><br>
+  <h3>Files</h3>
+  <ul>
+    <li class="file">packages/core/src/voltron/wires.ts</li>
+  </ul>
+  <h3>Wire Definitions</h3>
+  <table>
+    <tr><th>Wire</th><th>Steps (Super Tools)</th><th>Min Role</th></tr>
+    <tr><td>ANNUAL_REVIEW</td><td>REVIEW_PREP → COVERAGE_GAP → RMD_ANALYSIS → DRAFT_COMMUNICATION → MEETING_PREP</td><td>DIRECTOR</td></tr>
+    <tr><td>AEP_ENROLLMENT</td><td>REVIEW_PREP → COVERAGE_GAP → BUILD_CASEWORK → RUN_ILLUSTRATION → DRAFT_COMMUNICATION</td><td>DIRECTOR</td></tr>
+    <tr><td>ONBOARD_AGENCY</td><td>PULL_DOCUMENTS → BUILD_CASEWORK → MEETING_PREP</td><td>VP</td></tr>
+    <tr><td>NEW_BUSINESS</td><td>PULL_DOCUMENTS → BUILD_CASEWORK → RUN_ILLUSTRATION → DRAFT_COMMUNICATION</td><td>SPECIALIST</td></tr>
+  </table>
+  <h3>Acceptance Criteria</h3>
+  <ul class="ac">
+    <li>All 4 wires defined in <code>voltron/wires.ts</code> with step arrays</li>
+    <li>ANNUAL_REVIEW wire verified with Wire Executor</li>
+    <li>NEW_BUSINESS wire BUILD_CASEWORK step verified in production</li>
+    <li>Each wire specifies minimum entitlement role</li>
+  </ul>
+  <div class="build-gate">npm run build</div>
+</div>
+
+<div class="ticket">
+  <span class="ticket-id">TRK-14214</span> — Registry auto-regeneration on CI deploy <span class="type type-infra">infra</span><br>
+  <span class="dep">Dependencies: TRK-14206, TRK-14213</span><br>
+  <h3>Files</h3>
+  <ul>
+    <li class="file">.github/workflows/ci.yml (post-deploy step)</li>
+  </ul>
+  <h3>Acceptance Criteria</h3>
+  <ul class="ac">
+    <li>Post-deploy CI step calls <code>POST /api/voltron/registry/regenerate</code></li>
+    <li>Uses <code>x-voltron-ci-token</code> secret header for auth</li>
+    <li>Confirmed in GitHub Actions workflow logs</li>
+    <li>Registry timestamp updates after each deploy</li>
+    <li>Non-blocking — workflow continues on regen failure (warning only)</li>
+  </ul>
+  <div class="build-gate">npm run build — verify CI YAML syntax</div>
+</div>
+
+</div>
+
+<!-- ═══════════════ WAVE 7 ═══════════════ -->
+<h2>Wave 7 — Mode 1 UI + E2E Tests <span class="parallel-tag">3 PARALLEL</span></h2>
+<div class="wave">
+
+<div class="overlap-check">✅ File Overlap Check: 14215 touches <code>apps/prodash/…/voltron/*</code> | 14218 touches <code>src/forge/tests/e2e-sprint-002.test.ts</code> | 14219 touches <code>run-illustration.ts</code> E2E on MDJ_SERVER — NO OVERLAP</div>
+
+<div class="ticket">
+  <span class="ticket-id">TRK-14215</span> — ProDashX VOLTRON Mode 1 UI — wire selector <span class="type type-feat">feat</span><br>
+  <span class="dep">Dependencies: TRK-14211, TRK-14213</span><br>
+  <h3>Files</h3>
+  <ul>
+    <li class="file">apps/prodash/app/(portal)/modules/voltron/page.tsx</li>
+    <li class="file">apps/prodash/app/(portal)/modules/voltron/voltron-mode1.tsx</li>
+    <li class="file">apps/prodash/app/(portal)/modules/voltron/components/wire-selector.tsx</li>
+    <li class="file">apps/prodash/app/(portal)/modules/voltron/components/execution-progress.tsx</li>
+    <li class="file">apps/prodash/app/(portal)/modules/voltron/components/artifact-display.tsx</li>
+    <li class="file">apps/prodash/app/(portal)/modules/voltron/components/simulation-toggle.tsx</li>
+    <li class="file">apps/prodash/app/(portal)/modules/voltron/hooks/use-wire-execution.ts</li>
+    <li class="file">apps/prodash/app/(portal)/modules/voltron/hooks/use-registry.ts</li>
+  </ul>
+  <h3>Acceptance Criteria</h3>
+  <ul class="ac">
+    <li>User can select a wire from dropdown or type a natural-language request</li>
+    <li>VOLTRON executes wire and shows real-time SSE progress</li>
+    <li>Approval gate modals pause execution and await user decision</li>
+    <li>Completion displays artifacts (links, summaries, PDFs)</li>
+    <li>Simulation toggle enables dry-run mode</li>
+    <li>Mobile responsive</li>
+  </ul>
+  <div class="build-gate">npm run build</div>
+</div>
+
+<div class="ticket">
+  <span class="ticket-id">TRK-14218</span> — E2E wire test: ANNUAL_REVIEW + BUILD_CASEWORK <span class="type type-test">test</span><br>
+  <span class="dep">Dependencies: TRK-14211</span><br>
+  <h3>Files</h3>
+  <ul>
+    <li class="file">src/forge/tests/e2e-sprint-002.test.ts</li>
+  </ul>
+  <h3>Acceptance Criteria</h3>
+  <ul class="ac">
+    <li>Both wires verified in production with real client data</li>
+    <li>ANNUAL_REVIEW returns complete review packet via 8+ tool calls</li>
+    <li>BUILD_CASEWORK produces casework HTML in ACF Drive folder</li>
+    <li>Slack notification fires on completion</li>
+    <li>Tests documented and pass</li>
+  </ul>
+  <div class="build-gate">npm run build &amp;&amp; npm test -- e2e-sprint-002</div>
+</div>
+
+<div class="ticket">
+  <span class="ticket-id">TRK-14219</span> — Playwright carrier automation E2E <span class="type type-test">test</span><br>
+  <span class="dep">Dependencies: TRK-14212</span><br>
+  <h3>Files</h3>
+  <ul>
+    <li class="file">packages/core/src/voltron/super-tools/run-illustration.ts (E2E validation)</li>
+    <li class="file">MDJ_SERVER: /home/jdm/mdj-agent (Playwright MCP E2E)</li>
+  </ul>
+  <h3>Acceptance Criteria</h3>
+  <ul class="ac">
+    <li>RUN_ILLUSTRATION completes full flow on North American portal</li>
+    <li>RUN_ILLUSTRATION completes full flow on Athene portal</li>
+    <li>Returns result data with correct premium calculations</li>
+    <li>PDF saved to client ACF Drive folder and verified</li>
+    <li>Both carriers verified with real policy parameters</li>
+    <li>Playwright MCP on MDJ_SERVER confirmed operational</li>
+  </ul>
+  <div class="build-gate">npm run build</div>
+</div>
+
+</div>
+
+<!-- ═══════════════ WAVE 8 ═══════════════ -->
+<h2>Wave 8 — E2E Verification + Final Deploy Prep <span class="parallel-tag">2 PARALLEL</span></h2>
+<div class="wave">
+
+<div class="overlap-check">✅ File Overlap Check: 14216 touches test files | 14220 touches deploy config — NO OVERLAP</div>
+
+<div class="ticket">
+  <span class="ticket-id">TRK-14216</span> — E2E: Aswegan REVIEW_PREP + Mineart BUILD_CASEWORK <span class="type type-test">test</span><br>
+  <span class="dep">Dependencies: TRK-14211, TRK-14215</span><br>
+  <h3>Acceptance Criteria</h3>
+  <ul class="ac">
+    <li>Both verified in production with real client data (Aswegan + Mineart)</li>
+    <li>REVIEW_PREP returns complete packet through Mode 1 UI</li>
+    <li>BUILD_CASEWORK produces casework HTML in ACF</li>
+    <li>Slack notification fires</li>
+    <li>Full E2E through ProDashX UI → API → Wire Executor → Super Tools → Atomics</li>
+  </ul>
+  <div class="build-gate">npm run build</div>
+</div>
+
+<div class="ticket">
+  <span class="ticket-id">TRK-14220</span> — Deploy + smoke test all 8 Super Tools (final) <span class="type type-deploy">deploy</span><br>
+  <span class="dep">Dependencies: TRK-14218, TRK-14219</span><br>
+  <h3>Acceptance Criteria</h3>
+  <ul class="ac">
+    <li>PR merged to main</li>
+    <li>All 8 Super Tools callable via Mode 1 UI in production</li>
+    <li>Wire Executor processes at least one full wire E2E without error</li>
+    <li>Audit trail entries written to <code>wire_executions</code> collection</li>
+    <li>Registry auto-regenerates post-deploy (timestamp confirmed)</li>
+    <li>All systems green</li>
+  </ul>
+  <div class="build-gate">npm run build &amp;&amp; deploy to Cloud Run</div>
+</div>
+
+</div>
+
+<!-- ═══════════════ WAVE 9 ═══════════════ -->
+<h2>Wave 9 — Final Deploy + Smoke <span class="seq-tag">SEQUENTIAL</span></h2>
+<div class="wave">
+
+<div class="ticket">
+  <span class="ticket-id">TRK-14217</span> — Deploy + smoke test all Super Tools <span class="type type-deploy">deploy</span><br>
+  <span class="dep">Dependencies: TRK-14216</span><br>
+  <h3>Acceptance Criteria</h3>
+  <ul class="ac">
+    <li>All 8 Super Tools callable via Mode 1 UI in production</li>
+    <li>Wire Executor processes at least one full wire without error</li>
+    <li>Audit trail entries visible in Firestore console</li>
+    <li>Registry auto-generated post-deploy — timestamp updated</li>
+    <li><code>scripts/smoke-test-voltron.ts</code> passes all checks</li>
+  </ul>
+  <div class="build-gate">npm run build &amp;&amp; npm run smoke:voltron</div>
+</div>
+
+</div>
+
+<!-- ═══════════════ ENDPOINT COVERAGE ═══════════════ -->
+<h2>API Endpoint Coverage</h2>
+<div class="card">
+<table>
+  <tr><th>Method</th><th>Path</th><th>Auth</th><th>Handler</th><th>Ticket</th></tr>
+  <tr><td>GET</td><td>/api/voltron/registry</td><td>Bearer + Role filter</td><td>voltron-registry.ts</td><td>TRK-14206, TRK-14213</td></tr>
+  <tr><td>POST</td><td>/api/voltron/registry/regenerate</td><td>Admin/CI token</td><td>voltron-registry.ts</td><td>TRK-14206, TRK-14214</td></tr>
+  <tr><td>POST</td><td>/api/voltron/wires/execute</td><td>Bearer + Entitlement</td><td>voltron-wire.ts</td><td>TRK-14210, TRK-14211</td></tr>
+  <tr><td>POST</td><td>/api/voltron/wires/simulate</td><td>Bearer + Entitlement</td><td>voltron-wire.ts</td><td>TRK-14210</td></tr>
+</table>
+</div>
+
+<!-- ═══════════════ FIRESTORE COLLECTIONS ═══════════════ -->
+<h2>Firestore Collections</h2>
+<div class="card">
+<table>
+  <tr><th>Collection</th><th>Purpose</th><th>Key Fields</th><th>Ticket</th></tr>
+  <tr><td><code>voltron_registry</code></td><td>Auto-generated tool registry</td><td>tool_id, name, type, source, entitlement_min, generated_at</td><td>TRK-14205, TRK-14206</td></tr>
+  <tr><td><code>wire_executions</code></td><td>Wire execution audit trail</td><td>wire_id, user_id, client_id, steps[], status, started_at, completed_at</td><td>TRK-14210</td></tr>
+  <tr><td><code>users</code></td><td>User profiles + roles</td><td>uid, role (VoltronUserRole), entitlement_level</td><td>TRK-14213</td></tr>
+  <tr><td><code>clients/{id}/activity_log</code></td><td>Client activity audit</td><td>action, tool_id, wire_id, timestamp, user_id</td><td>TRK-14208</td></tr>
+</table>
+</div>
+
+<!-- ═══════════════ ENVIRONMENT VARIABLES ═══════════════ -->
+<h2>Environment Variables</h2>
+<div class="card">
+<table>
+  <tr><th>Variable</th><th>Service</th><th>Purpose</th></tr>
+  <tr><td><code>FIREBASE_PROJECT_ID</code></td><td>tm-api, MDJ</td><td>Firestore project targeting</td></tr>
+  <tr><td><code>GOOGLE_DRIVE_API_KEY</code></td><td>tm-api</td><td>Drive API for ACF folder operations</td></tr>
+  <tr><td><code>LEAD_CONNECTOR_API_KEY</code></td><td>tm-api</td><td>SMS + calendar via LeadConnector</td></tr>
+  <tr><td><code>MCP_SERVER_URL</code></td><td>MDJ_SERVER</td><td>MCP bridge endpoint for Playwright</td></tr>
+  <tr><td><code>ANTHROPIC_API_KEY</code></td><td>MDJ_SERVER</td><td>Claude API for agent SDK</td></tr>
+  <tr><td><code>API_BASE_URL</code></td><td>ProDashX</td><td>tm-api Cloud Run URL</td></tr>
+  <tr><td><code>ADMIN_SERVICE_TOKEN</code></td><td>CI/CD</td><td>Registry regeneration auth</td></tr>
+</table>
+</div>
+
+<!-- ═══════════════ EXISTING FILE INVENTORY ═══════════════ -->
+<h2>Existing Codebase Inventory (69 VOLTRON files)</h2>
+<div class="card">
+<table>
+  <tr><th>Category</th><th>Count</th><th>Path</th></tr>
+  <tr><td>Core System</td><td>5</td><td>packages/core/src/voltron/{index,types,wire-executor,wires,registry-generator}.ts</td></tr>
+  <tr><td>Documentation</td><td>1</td><td>packages/core/src/voltron/ATLAS_AUDIT.md</td></tr>
+  <tr><td>Generated</td><td>1</td><td>packages/core/src/voltron/generated/voltron-registry.json</td></tr>
+  <tr><td>Super Tools</td><td>9</td><td>packages/core/src/voltron/super-tools/*.ts</td></tr>
+  <tr><td>Atomic Tools</td><td>13</td><td>packages/core/src/voltron/tools/*.ts</td></tr>
+  <tr><td>API Routes</td><td>3</td><td>services/api/src/routes/voltron-{wire,registry,deploy}.ts</td></tr>
+  <tr><td>ProDashX UI</td><td>14</td><td>apps/prodash/app/(portal)/modules/voltron/**/*</td></tr>
+  <tr><td>Scripts</td><td>2</td><td>scripts/{generate-voltron-registry,smoke-test-voltron}.ts</td></tr>
+  <tr><td>CI</td><td>1</td><td>.github/workflows/ci.yml</td></tr>
+</table>
+</div>
+
+<!-- ═══════════════ RISK MATRIX ═══════════════ -->
+<h2>Risk Matrix</h2>
+<div class="card">
+<table>
+  <tr><th>Risk</th><th>Impact</th><th>Mitigation</th><th>Ticket</th></tr>
+  <tr><td>Playwright MCP flaky on carrier portals</td><td style="color:var(--red)">HIGH</td><td>Retry logic + screenshot capture on failure + simulation fallback</td><td>TRK-14212, TRK-14219</td></tr>
+  <tr><td>82-tool migration breaks existing chat</td><td style="color:var(--red)">HIGH</td><td>Legacy tool map as bridge + regression test before/after</td><td>TRK-14207</td></tr>
+  <tr><td>SSE connection drops on long wires</td><td style="color:var(--yellow)">MED</td><td>Reconnection logic in use-wire-execution.ts hook + Firestore fallback</td><td>TRK-14210, TRK-14215</td></tr>
+  <tr><td>Entitlement bypass via direct API call</td><td style="color:var(--red)">HIGH</td><td>Server-side role check on every endpoint + isToolTypeAllowed() deny-by-default</td><td>TRK-14213</td></tr>
+  <tr><td>Registry generator source path changes</td><td style="color:var(--yellow)">MED</td><td>RegistryGeneratorPaths interface + CI regen validates on every deploy</td><td>TRK-14205, TRK-14214</td></tr>
+</table>
+</div>
+
+<!-- ═══════════════ WAVE SUMMARY ═══════════════ -->
+<h2>Wave Summary</h2>
+<div class="card">
+<table>
+  <tr><th>Wave</th><th>Tickets</th><th>Mode</th><th>Gate</th></tr>
+  <tr><td>1</td><td>TRK-14203</td><td>SEQ</td><td>ATLAS_AUDIT.md reviewed</td></tr>
+  <tr><td>2</td><td>TRK-14204</td><td>SEQ</td><td>npm run build (types compile)</td></tr>
+  <tr><td>3</td><td>TRK-14205, TRK-14208</td><td>2 PARALLEL</td><td>npm run build + registry --dry-run</td></tr>
+  <tr><td>4</td><td>TRK-14206, TRK-14207, TRK-14209</td><td>3 PARALLEL</td><td>npm run build + generate:voltron-registry</td></tr>
+  <tr><td>5</td><td>TRK-14210, TRK-14212, TRK-14213</td><td>3 PARALLEL</td><td>npm run build</td></tr>
+  <tr><td>6</td><td>TRK-14211, TRK-14214</td><td>2 PARALLEL</td><td>npm run build + CI YAML valid</td></tr>
+  <tr><td>7</td><td>TRK-14215, TRK-14218, TRK-14219</td><td>3 PARALLEL</td><td>npm run build + E2E pass</td></tr>
+  <tr><td>8</td><td>TRK-14216, TRK-14220</td><td>2 PARALLEL</td><td>npm run build + deploy</td></tr>
+  <tr><td>9</td><td>TRK-14217</td><td>SEQ</td><td>npm run build + smoke:voltron</td></tr>
+</table>
+</div>
+
+<div class="card" style="margin-top:1rem; border-color:var(--accent);">
+  <strong style="color:var(--accent);">BUILD GATE RULE:</strong> Every wave ends with <code>npm run build</code>. Never use <code>tsc --noEmit</code>. Failure blocks the next wave.
+</div>
+
+</body>
+</html>

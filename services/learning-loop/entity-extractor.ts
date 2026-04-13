@@ -18,16 +18,16 @@ import * as fs from 'fs'
 import * as path from 'path'
 import { KNOWLEDGE_ENTRIES_COLLECTION } from './types/knowledge-entry.js'
 import type { KnowledgeEntryType } from './types/knowledge-entry.js'
+import { trackRun } from './wire-run-tracker.js'
 
 // Firebase Init
-const saPath = process.env.GOOGLE_APPLICATION_CREDENTIALS || '/home/jdm/mdj-agent/sa-key.json'
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const sa = require(saPath)
+const saPath = process.env.GOOGLE_APPLICATION_CREDENTIALS || '/home/jdm/Projects/dojo-warriors/mdj-agent/sa-key.json'
+const sa = JSON.parse(fs.readFileSync(saPath, 'utf-8'))
 initializeApp({ credential: cert(sa) })
 const db = getFirestore()
 
 // Config
-const DOJO_WARRIORS_DIR = '/home/jdm/Projects/dojo-warriors'
+const DOJO_WARRIORS_DIR = '/home/jdm/Projects/dojo-warriors/warriors'
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY || ''
 
 interface ExtractedEntry {
@@ -147,7 +147,7 @@ async function processWarrior(warriorName: string): Promise<number> {
 }
 
 // Main
-async function extract(): Promise<void> {
+async function extract(): Promise<{ entriesWritten: number }> {
   console.log(`[extractor] Starting at ${new Date().toISOString()}`)
 
   // Discover warriors
@@ -167,8 +167,11 @@ async function extract(): Promise<void> {
   }
 
   console.log(`[extractor] Complete. ${total} entries extracted across ${warriors.length} warriors.`)
+  return { entriesWritten: total }
 }
 
-extract()
+// LL-07: wire-run-tracker wraps main() so wire_runs Firestore collection
+// gets a record at start + end. Dashboard tile subscribes to wire_runs.
+trackRun('entity-extractor', extract)
   .then(() => process.exit(0))
   .catch((err) => { console.error('[extractor] Fatal:', err); process.exit(1) })

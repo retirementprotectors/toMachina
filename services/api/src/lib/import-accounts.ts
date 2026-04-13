@@ -57,7 +57,7 @@ export interface ParsedAccount {
   client_email?: string
   client_phone?: string
   product_type: string
-  carrier_name: string
+  carrier: string
   carrier_id?: string
   policy_number: string
   effective_date: string
@@ -315,7 +315,7 @@ function mapCRMRowToAccount(
   return {
     client_name: getVal('client_name') ? String(getVal('client_name')) : undefined,
     product_type: normalizeProductType(String(getVal('product_type') ?? '')),
-    carrier_name: normalizeCarrierName(String(getVal('carrier') ?? '')),
+    carrier: normalizeCarrierName(String(getVal('carrier') ?? '')),
     policy_number: getVal('policy_number') ? String(getVal('policy_number')).trim() : '',
     effective_date: normalizeDate(getVal('effective_date')),
     status: normalizeAccountStatus(getVal('status') ? String(getVal('status')) : null),
@@ -338,7 +338,7 @@ function mapBoBRowToAccount(
     client_last_name: getVal('client_last') ? String(getVal('client_last')) : undefined,
     client_dob: normalizeDate(getVal('dob')),
     product_type: normalizeProductType(String(getVal('product_type') ?? '')),
-    carrier_name: carrierName,
+    carrier: carrierName,
     policy_number: getVal('policy_number') ? String(getVal('policy_number')).trim() : '',
     effective_date: normalizeDate(getVal('effective_date')),
     status: normalizeAccountStatus(getVal('status') ? String(getVal('status')) : null),
@@ -371,7 +371,7 @@ export function validateAccountData(account: Partial<ParsedAccount>): AccountVal
   }
 
   // Carrier required
-  if (!account.carrier_name && !account.carrier_id) {
+  if (!account.carrier && !account.carrier_id) {
     errors.push({ field: 'carrier', message: 'Carrier name or carrier_id is required' })
   }
 
@@ -622,7 +622,7 @@ interface AccountDedupResult {
 
 /**
  * Check if an account already exists under this client.
- * Match by policy_number + carrier_name, or by effective_date + product_type.
+ * Match by policy_number + carrier, or by effective_date + product_type.
  */
 export async function checkAccountDuplicate(
   clientId: string,
@@ -640,7 +640,7 @@ export async function checkAccountDuplicate(
   }
 
   const policyNum = account.policy_number?.trim().toUpperCase()
-  const carrierNorm = normalizeCarrierName(account.carrier_name || '')
+  const carrierNorm = normalizeCarrierName(account.carrier || '')
   const effectiveDateNorm = normalizeDate(account.effective_date)
 
   for (const doc of accountsSnap.docs) {
@@ -651,7 +651,7 @@ export async function checkAccountDuplicate(
     if (
       policyNum &&
       String(existing.policy_number || '').trim().toUpperCase() === policyNum &&
-      normalizeCarrierName(existing.carrier_name || '') === carrierNorm
+      normalizeCarrierName(existing.carrier || '') === carrierNorm
     ) {
       return {
         isDuplicate: true,
@@ -664,7 +664,7 @@ export async function checkAccountDuplicate(
     // Priority 2: same carrier + same effective_date + same product_type
     if (
       carrierNorm &&
-      normalizeCarrierName(existing.carrier_name || '') === carrierNorm &&
+      normalizeCarrierName(existing.carrier || '') === carrierNorm &&
       effectiveDateNorm &&
       normalizeDate(existing.effective_date) === effectiveDateNorm &&
       normalizeProductType(existing.product_type || '') === normalizeProductType(account.product_type || '')
@@ -686,7 +686,7 @@ export async function checkAccountDuplicate(
 // ============================================================================
 
 const UPDATABLE_FIELDS = [
-  'product_type', 'carrier_name', 'carrier_id', 'policy_number',
+  'product_type', 'carrier', 'carrier_id', 'policy_number',
   'effective_date', 'status', 'premium', 'account_value',
   'agent_name', 'product_name', 'plan_name',
 ]
@@ -824,7 +824,7 @@ export async function importSingleAccount(
     account_id: accountId,
     client_id: clientId,
     product_type: accountData.product_type,
-    carrier_name: accountData.carrier_name,
+    carrier: accountData.carrier,
     carrier_id: accountData.carrier_id || undefined,
     policy_number: accountData.policy_number || '',
     effective_date: accountData.effective_date || '',

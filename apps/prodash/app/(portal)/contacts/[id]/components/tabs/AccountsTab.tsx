@@ -1,6 +1,8 @@
 'use client'
 
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback, useEffect } from 'react'
+import { collection, getDocs } from 'firebase/firestore'
+import { getDb } from '@tomachina/db'
 import type { Account } from '@tomachina/core'
 import { formatCurrency, formatDate, str } from '../../lib/formatters'
 import { EmptyState } from '../../lib/ui-helpers'
@@ -18,7 +20,7 @@ interface AccountsTabProps {
   onAccountUpdated?: () => void
 }
 
-type CategoryKey = 'annuity' | 'life' | 'medicare' | 'investments'
+type CategoryKey = 'annuity' | 'life' | 'medicare' | 'investments' | 'banking' | 'liabilities'
 
 // ---------------------------------------------------------------------------
 // Document types per product category
@@ -38,6 +40,8 @@ const CATEGORY_DOCS: Record<CategoryKey, DocType[]> = {
   life: ['statement', 'application', 'illustration', 'policy'],
   medicare: ['statement', 'application', 'plan_summary'],
   investments: ['statement', 'application', 'prospectus'],
+  banking: ['statement', 'application'],
+  liabilities: ['statement', 'application', 'contract'],
 }
 
 const DOC_LABELS: Record<DocType, string> = {
@@ -55,6 +59,8 @@ const CATEGORY_CONFIG: Record<CategoryKey, { label: string; icon: string; color:
   life: { label: 'Life', icon: 'favorite', color: '#10b981' },
   medicare: { label: 'Medicare', icon: 'health_and_safety', color: '#3b82f6' },
   investments: { label: 'Investments', icon: 'show_chart', color: '#a78bfa' },
+  banking: { label: 'Banking', icon: 'account_balance', color: '#06b6d4' },
+  liabilities: { label: 'Liabilities', icon: 'credit_card', color: '#ef4444' },
 }
 
 type FilterKey = 'all' | CategoryKey
@@ -63,6 +69,25 @@ export function AccountsTab({ accounts, loading, clientId, onAccountUpdated }: A
   const [showInactive, setShowInactive] = useState(false)
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [activeFilter, setActiveFilter] = useState<FilterKey>('all')
+  const [ignoredPairs, setIgnoredPairs] = useState<Set<string>>(new Set())
+
+  // Load ignored ddup pairs from Firestore
+  useEffect(() => {
+    async function loadIgnored() {
+      try {
+        const db = getDb()
+        const snap = await getDocs(collection(db, 'ddup_ignored'))
+        const pairs = new Set<string>()
+        snap.forEach((d) => {
+          const data = d.data()
+          if (data.record_a_id) pairs.add(data.record_a_id)
+          if (data.record_b_id) pairs.add(data.record_b_id)
+        })
+        setIgnoredPairs(pairs)
+      } catch { /* ddup_ignored may not exist yet */ }
+    }
+    loadIgnored()
+  }, [])
 
   // Filter inactive
   const visibleAccounts = useMemo(() => {
@@ -74,21 +99,25 @@ export function AccountsTab({ accounts, loading, clientId, onAccountUpdated }: A
     })
   }, [accounts, showInactive])
 
-  // Detect ddup groups among visible accounts
+  // Detect ddup groups among visible accounts, excluding ignored pairs
   const ddupAccountIds = useMemo(() => {
     const groups = findDdupGroups(visibleAccounts)
     const ids = new Set<string>()
     for (const accountIds of groups.values()) {
-      for (const id of accountIds) {
-        ids.add(id)
+      // Filter out accounts that are in ignored pairs
+      const nonIgnored = accountIds.filter(id => !ignoredPairs.has(id))
+      if (nonIgnored.length >= 2) {
+        for (const id of nonIgnored) {
+          ids.add(id)
+        }
       }
     }
     return ids
-  }, [visibleAccounts])
+  }, [visibleAccounts, ignoredPairs])
 
   // Count by category
   const categoryCounts = useMemo(() => {
-    const counts: Record<CategoryKey, number> = { annuity: 0, life: 0, medicare: 0, investments: 0 }
+    const counts: Record<CategoryKey, number> = { annuity: 0, life: 0, medicare: 0, investments: 0, banking: 0, liabilities: 0 }
     for (const acct of visibleAccounts) {
       const cat = getCategory(acct) as CategoryKey
       if (cat in counts) counts[cat]++
@@ -109,6 +138,8 @@ export function AccountsTab({ accounts, loading, clientId, onAccountUpdated }: A
       life: [],
       medicare: [],
       investments: [],
+      banking: [],
+      liabilities: [],
     }
     for (const acct of filteredByCategory) {
       const cat = getCategory(acct)
@@ -387,7 +418,7 @@ function AccountSummaryCard({
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
             <p className="text-xs uppercase tracking-wide text-[var(--text-muted)]">
-              {str(account.carrier_name) || str(account.carrier) || 'Unknown Carrier'}
+              {str(account.carrier) || str(account.carrier) || 'Unknown Carrier'}
             </p>
             {isDdup && (
               <span className="inline-flex items-center gap-0.5 rounded-full bg-[rgba(245,158,11,0.15)] px-2 py-0.5 text-[10px] font-medium text-[#f59e0b]">
@@ -521,7 +552,7 @@ function getSummaryFields(account: Account, category: CategoryKey): SummaryField
     case 'medicare':
       return [
         { label: 'Plan Type', value: str(account.plan_type || account.product_type) },
-        { label: 'Carrier', value: str(account.carrier_name) || str(account.carrier) },
+        { label: 'Carrier', value: str(account.carrier) || str(account.carrier) },
         { label: 'Effective Date', value: formatDate(account.effective_date) },
         { label: 'Premium', value: formatCurrency(account.premium) },
         { label: 'Plan ID', value: str(account.plan_id || account.policy_number), mono: true },
@@ -530,11 +561,29 @@ function getSummaryFields(account: Account, category: CategoryKey): SummaryField
     case 'investments':
       return [
         { label: 'Account Type', value: str(account.account_type) },
-        { label: 'Custodian', value: str(account.custodian) || str(account.carrier_name) },
+        { label: 'Custodian', value: str(account.custodian) || str(account.carrier) },
         { label: 'Value', value: formatCurrency(account.account_value) },
         { label: 'Advisor', value: str(account.advisor) },
         { label: 'Account #', value: str(account.account_number) || str(account.policy_number), mono: true },
         { label: 'Status', value: str(account.status) },
+      ]
+    case 'banking':
+      return [
+        { label: 'Bank', value: str(account.bank_name) || str(account.carrier) },
+        { label: 'Account Type', value: str(account.account_subtype) || str(account.account_type) },
+        { label: 'Balance', value: formatCurrency(account.account_value) },
+        { label: 'APY', value: account.apy ? `${account.apy}%` : '—' },
+        { label: 'Maturity', value: formatDate(account.maturity_date) || '—' },
+        { label: 'Account #', value: str(account.account_number), mono: true },
+      ]
+    case 'liabilities':
+      return [
+        { label: 'Lender', value: str(account.lender) || str(account.carrier) },
+        { label: 'Loan Type', value: str(account.loan_type) || str(account.account_type) },
+        { label: 'Balance', value: formatCurrency(account.current_balance || account.account_value) },
+        { label: 'Rate', value: account.interest_rate ? `${account.interest_rate}%` : '—' },
+        { label: 'Payment', value: formatCurrency(account.monthly_payment) },
+        { label: 'Payoff Date', value: formatDate(account.payoff_date) || '—' },
       ]
     default:
       return []
@@ -547,12 +596,16 @@ function getCategory(acct: Account): string {
   if (cat === 'life') return 'life'
   if (cat === 'medicare') return 'medicare'
   if (cat === 'bdria' || cat === 'investments') return 'investments'
+  if (cat === 'banking' || cat === 'bank') return 'banking'
+  if (cat === 'liabilities' || cat === 'liability' || cat === 'debt') return 'liabilities'
 
   const t = (str(acct.product_type) + ' ' + str(acct.account_type)).toLowerCase()
   if (t.includes('annuity') || t.includes('fia') || t.includes('myga')) return 'annuity'
   if (t.includes('life')) return 'life'
   if (t.includes('medicare') || t.includes('mapd') || t.includes('pdp') || t.includes('med supp')) return 'medicare'
   if (t.includes('bd') || t.includes('ria') || t.includes('advisory') || t.includes('brokerage')) return 'investments'
+  if (t.includes('cd') || t.includes('savings') || t.includes('checking') || t.includes('money market') || t.includes('bank')) return 'banking'
+  if (t.includes('mortgage') || t.includes('loan') || t.includes('debt') || t.includes('heloc') || t.includes('credit card')) return 'liabilities'
   return 'annuity' // default fallback
 }
 
@@ -569,7 +622,7 @@ function findDdupGroups(accounts: Account[]): Map<string, string[]> {
     const s = str(acct.status).toLowerCase()
     if (s === 'inactive' || s === 'terminated' || s === 'lapsed' || s === 'cancelled' || s === 'deleted' || s === 'merged') continue
 
-    const carrier = (str(acct.carrier_name) || str(acct.carrier)).toLowerCase().trim()
+    const carrier = (str(acct.carrier) || str(acct.carrier)).toLowerCase().trim()
     if (!carrier || carrier === 'unknown carrier') continue
 
     const acctId = str(acct.account_id) || str((acct as Record<string, unknown>)._id)

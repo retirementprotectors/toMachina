@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin + Permissions + Sidebar Reorg — Discovery Doc</title>
+<style>
+:root { --bg: #0a0e17; --card: #111827; --card2: #1a2236; --border: #1e293b; --text: #e2e8f0; --muted: #94a3b8; --accent: #e07c3e; --accent-glow: rgba(224,124,62,0.12); --green: #22c55e; --blue: #3b82f6; --red: #ef4444; --orange: #f59e0b; --purple: #a855f7; --teal: #14b8a6; --gold: #d4a44c; --cyan: #06b6d4; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+.header { background: linear-gradient(135deg, #020b1a 0%, #1a0e05 50%, #020b1a 100%); border-bottom: 1px solid var(--border); padding: 40px 32px; text-align: center; }
+.header h1 { font-size: 2.2rem; font-weight: 800; background: linear-gradient(135deg, var(--accent), #f59e0b, var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; }
+.header .subtitle { font-size: 1rem; color: var(--muted); }
+.header .badge { display: inline-block; margin-top: 12px; padding: 4px 16px; border-radius: 999px; font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; background: var(--accent-glow); color: var(--accent); border: 1px solid rgba(224,124,62,0.3); }
+.tab-container { position: sticky; top: 0; z-index: 100; background: var(--bg); border-bottom: 1px solid var(--border); overflow-x: auto; }
+.tabs { display: flex; max-width: 1200px; margin: 0 auto; padding: 0 16px; }
+.tab { padding: 14px 18px; font-size: 0.82rem; font-weight: 600; color: var(--muted); cursor: pointer; white-space: nowrap; border-bottom: 2px solid transparent; transition: all 0.2s; }
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.content { max-width: 1100px; margin: 0 auto; padding: 24px 16px; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 16px; }
+.card h2 { font-size: 1.15rem; margin-bottom: 12px; }
+.card h3 { font-size: 0.95rem; margin: 16px 0 8px; color: var(--accent); }
+.card p { color: var(--muted); font-size: 0.88rem; margin-bottom: 10px; }
+.card ul, .card ol { color: var(--muted); font-size: 0.88rem; margin-left: 20px; margin-bottom: 10px; }
+.card li { margin-bottom: 6px; }
+.card li strong { color: var(--text); }
+table { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin: 10px 0; }
+th { text-align: left; padding: 10px 12px; background: var(--card2); color: var(--accent); font-weight: 700; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); }
+td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--muted); vertical-align: top; }
+td:first-child { color: var(--text); font-weight: 500; }
+code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; font-size: 0.82em; color: #06b6d4; font-family: 'SF Mono', monospace; }
+.pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+.pill.built { background: rgba(34,197,94,0.12); color: var(--green); }
+.pill.rewire { background: rgba(59,130,246,0.12); color: var(--blue); }
+.pill.broken { background: rgba(239,68,68,0.12); color: var(--red); }
+.pill.new { background: rgba(168,85,247,0.12); color: var(--purple); }
+.flow-box { background: #0d1117; border: 1px solid var(--border); border-radius: 8px; padding: 16px; font-family: 'SF Mono', monospace; font-size: 0.78rem; line-height: 1.8; color: #c9d1d9; white-space: pre-wrap; margin: 12px 0; }
+.insight { background: rgba(224,124,62,0.06); border: 1px solid rgba(224,124,62,0.2); border-radius: 8px; padding: 14px 18px; margin: 14px 0; font-size: 0.85rem; color: var(--muted); }
+.insight strong { color: var(--accent); }
+.section-label { font-size: 0.7rem; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; }
+.tray { border-left: 4px solid var(--border); padding: 16px; margin-bottom: 12px; border-radius: 0 8px 8px 0; background: var(--card2); }
+.tray.exec { border-left-color: var(--accent); }
+.tray.leader { border-left-color: var(--purple); }
+.tray.team { border-left-color: var(--blue); }
+.tray h3 { margin: 0 0 8px; font-size: 0.95rem; }
+.tray p { margin: 0; font-size: 0.82rem; color: var(--muted); }
+.footer { text-align: center; padding: 24px; color: var(--muted); font-size: 0.72rem; border-top: 1px solid var(--border); margin-top: 32px; }
+@media (max-width: 768px) { .tab { padding: 12px 14px; font-size: 0.75rem; } }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Admin + Permissions + Sidebar Reorg</h1>
+  <div class="subtitle">4 tiers, 4 levels, 1:1. Rewire what exists. Zero new features.</div>
+  <div class="badge">SHINOB1, CTO &mdash; Discovery Doc &mdash; 2026-04-08</div>
+</div>
+
+<div class="tab-container">
+  <div class="tabs">
+    <div class="tab active" data-tab="overview">Overview</div>
+    <div class="tab" data-tab="trays">3 Trays</div>
+    <div class="tab" data-tab="audit">What Exists</div>
+    <div class="tab" data-tab="broken">What's Broken</div>
+    <div class="tab" data-tab="rewire">The Rewire</div>
+    <div class="tab" data-tab="admin-ui">Admin UI</div>
+    <div class="tab" data-tab="tickets">Tickets</div>
+    <div class="tab" data-tab="verify">Verification</div>
+  </div>
+</div>
+
+<div class="content">
+
+<!-- ═══════════════════ OVERVIEW ═══════════════════ -->
+<div class="tab-panel active" id="overview">
+  <div class="card">
+    <h2>One Surgery, Three Outcomes</h2>
+    <p>This sprint rewires existing infrastructure to deliver three things simultaneously:</p>
+    <ol>
+      <li><strong>Sidebar reorganization</strong> &mdash; flat icon list becomes 4 collapsible tiers (Owner's Box, Executive Floor, Leader Level, Team Tray), gated by user level</li>
+      <li><strong>Permission enforcement</strong> &mdash; API routes actually respect what Admin panel sets (85 of 87 routes currently ignore permissions)</li>
+      <li><strong>Admin config update</strong> &mdash; App Config and Team Config show tray groupings, defaults auto-populate from level assignment</li>
+    </ol>
+  </div>
+
+  <div class="insight">
+    <strong>The principle:</strong> Everything listed below already exists in the codebase. The permission engine (900 lines), the RBAC middleware (with Firestore cache), the admin panel (1,864 lines), the entitlement evaluator, the module definitions (47 modules), the role templates (6 templates). We are connecting dots, not building new ones.
+  </div>
+
+  <div class="card">
+    <h2>The Unbroken Chain</h2>
+    <p>When JDM flips a toggle in Admin panel, this must happen end-to-end:</p>
+    <div class="flow-box">Admin Panel (Team Config)
+  &darr; writes to
+Firestore users/{email}.module_permissions
+  &darr; read by
+Auth Middleware (enriches req.user on every API call, 60s cache)
+  &darr; checked by
+Route Guard (requireLevel + requireModuleAccess from rbac.ts)
+  &darr; enforced at
+API Response (403 if unauthorized)
+  &darr; reflected in
+Sidebar (canAccessModule hides tray / app icon)
+  &darr; reflected in
+UI Component (V/E/A controls what buttons render)</div>
+    <p>Today the chain is broken at step 3 &mdash; 85 routes skip the guard. This sprint completes the circuit.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════ 3 TRAYS ═══════════════════ -->
+<div class="tab-panel" id="trays">
+  <div class="card">
+    <h2>Sidebar Layout &mdash; Fixed Dock + 3 Collapsible Tiers</h2>
+    <p>The <strong>Team Tray is a fixed dock</strong> at the bottom of the sidebar &mdash; always visible, never collapses. The other 3 tiers are collapsible vertical sections that stack ABOVE the dock. Your level determines how many tiers appear above the dock.</p>
+    <div class="flow-box">┌─────────────────────────────────┐
+│ ▼ Owner's Box    (collapsible)  │  ← OWNER only
+│   Synergy │ Admin │ CC          │
+├─────────────────────────────────┤
+│ ▼ Executive Floor (collapsible) │  ← EXECUTIVE+
+│   Dojo │ MEGA │ VOLT │ MUSA    │
+├─────────────────────────────────┤
+│ ▼ Leader Level    (collapsible) │  ← LEADER+
+│   ProZone │ RSP │ C3 │ CAM ... │
+╞═════════════════════════════════╡
+│ ═══ Team Tray ══ FIXED DOCK ══ │  ← ALL users
+│   COMMS │ Connect │ Alerts │MDJ │
+└─────────────────────────────────┘</div>
+    <p>USER sees just the dock. LEADER sees dock + 1 tier above. EXECUTIVE sees dock + 2. OWNER sees everything. The tiers grow upward from the dock based on level.</p>
+  </div>
+
+  <div class="tray" style="border-left-color: var(--gold);">
+    <h3 style="color:var(--gold);">Owner's Box <span class="pill" style="background:rgba(212,164,76,0.12);color:var(--gold);">OWNER ONLY (Level 0)</span></h3>
+    <p>JDM + John Behn only. Platform administration, observability, operational command.</p>
+    <table>
+      <tr><th>App</th><th>Module Key</th><th>Min Level</th><th>Status</th></tr>
+      <tr><td><strong>System Synergy</strong></td><td><code>SYSTEM_SYNERGY</code></td><td>OWNER</td><td><span class="pill built">BUILT</span></td></tr>
+      <tr><td><strong>Admin</strong></td><td><code>PRODASH_ADMIN</code></td><td>OWNER</td><td><span class="pill built">BUILT</span></td></tr>
+      <tr><td><strong>Command Center</strong></td><td><code>RPI_COMMAND_CENTER</code></td><td>OWNER</td><td><span class="pill built">BUILT</span></td></tr>
+    </table>
+  </div>
+
+  <div class="tray exec">
+    <h3 style="color:var(--accent);">Executive Floor <span class="pill" style="background:rgba(224,124,62,0.12);color:var(--accent);">EXECUTIVE+ (Level 1)</span></h3>
+    <p>CXO warrior command centers + AI operations. Executive leadership tools.</p>
+    <table>
+      <tr><th>App</th><th>Module Key</th><th>Min Level</th><th>Status</th></tr>
+      <tr><td><strong>Dojo</strong></td><td><code>FORGE</code></td><td>EXECUTIVE</td><td><span class="pill built">BUILT</span></td></tr>
+      <tr><td><strong>MEGAZORD</strong></td><td><code>MEGAZORD</code></td><td>EXECUTIVE</td><td><span class="pill built">BUILT</span></td></tr>
+      <tr><td><strong>VOLTRON</strong></td><td><code>VOLTRON</code></td><td>EXECUTIVE</td><td><span class="pill built">BUILT</span></td></tr>
+      <tr><td><strong>MUSASHI</strong></td><td><code>MUSASHI</code></td><td>EXECUTIVE</td><td><span class="pill built">BUILT</span></td></tr>
+    </table>
+  </div>
+
+  <div class="tray leader">
+    <h3 style="color:var(--purple);">Leader Level <span class="pill" style="background:rgba(168,85,247,0.12);color:var(--purple);">LEADER+</span></h3>
+    <p>Division leaders (Vince, Nikki, Matt, Aprille). Sales + service apps they run their teams with.</p>
+    <table>
+      <tr><th>App</th><th>Module Key</th><th>Min Level</th><th>Status</th></tr>
+      <tr><td><strong>ProZone</strong></td><td><code>PROZONE</code></td><td>LEADER</td><td><span class="pill built">BUILT</span></td></tr>
+      <tr><td><strong>RSP</strong></td><td><code>RSP</code></td><td>LEADER</td><td><span class="pill built">BUILT</span></td></tr>
+      <tr><td><strong>C3</strong></td><td><code>C3</code></td><td>LEADER</td><td><span class="pill built">BUILT</span></td></tr>
+      <tr><td><strong>CAM</strong></td><td><code>CAM</code></td><td>LEADER</td><td><span class="pill built">BUILT</span></td></tr>
+      <tr><td><strong>DEX</strong></td><td><code>DEX</code></td><td>LEADER</td><td><span class="pill built">BUILT</span></td></tr>
+      <tr><td><strong>Pipeline Studio</strong></td><td><code>PIPELINE_STUDIO</code></td><td>LEADER</td><td><span class="pill built">BUILT</span></td></tr>
+    </table>
+  </div>
+
+  <div class="tray team">
+    <h3 style="color:var(--blue);">Team Tray <span class="pill" style="background:rgba(59,130,246,0.12);color:var(--blue);">ALL USERS</span></h3>
+    <p>Every team member. Daily tools for communication, alerts, AI assistant.</p>
+    <table>
+      <tr><th>Module</th><th>Module Key</th><th>Min Level</th><th>Status</th></tr>
+      <tr><td><strong>Communications</strong></td><td><code>COMMS</code></td><td>USER</td><td><span class="pill new">MOCKUP</span></td></tr>
+      <tr><td><strong>RPI Connect</strong></td><td><code>CONNECT</code></td><td>USER</td><td><span class="pill new">MOCKUP</span></td></tr>
+      <tr><td><strong>Notifications</strong></td><td><code>NOTIFICATIONS</code></td><td>USER</td><td><span class="pill new">DISCOVERY</span></td></tr>
+      <tr><td><strong>MDJ Panel</strong></td><td><code>MDJ</code></td><td>USER</td><td><span class="pill built">BUILT</span></td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Toolbar (Top Right &mdash; Always Visible)</h3>
+    <table>
+      <tr><th>Component</th><th>Min Level</th><th>Status</th></tr>
+      <tr><td><strong>MyRPI</strong></td><td>ALL</td><td><span class="pill built">BUILT</span></td></tr>
+      <tr><td><strong>SENSEI</strong></td><td>ALL</td><td><span class="pill built">BUILT</span></td></tr>
+      <tr><td><strong>Meet Your Service Team</strong></td><td>ALL</td><td><span class="pill built">BUILT</span></td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Level &rarr; Tier Visibility (1:1 Mapping)</h2>
+    <table>
+      <tr><th>Level</th><th>Numeric</th><th>Their Tier</th><th>Sees</th><th>Default V/E/A</th></tr>
+      <tr><td><strong>OWNER</strong></td><td>0</td><td style="color:var(--gold);">Owner's Box</td><td>All 4 tiers + toolbar</td><td>V/E/A on everything</td></tr>
+      <tr><td><strong>EXECUTIVE</strong></td><td>1</td><td style="color:var(--accent);">Executive Floor</td><td>Executive Floor + Leader Level + Team Tray + toolbar</td><td>V/E/A on Exec + Leader, V/E on Team Tray</td></tr>
+      <tr><td><strong>LEADER</strong></td><td>2</td><td style="color:var(--purple);">Leader Level</td><td>Leader Level + Team Tray + toolbar</td><td>V/E/A on Leader, V/E on Team Tray</td></tr>
+      <tr><td><strong>USER</strong></td><td>3</td><td style="color:var(--blue);">Team Tray</td><td>Team Tray + toolbar only</td><td>V on Team Tray</td></tr>
+    </table>
+    <p>4 levels, 4 tiers, 1:1. Each level sees their tier and everything below. When a level is assigned in Team Config, the default V/E/A for that level auto-populates across all modules in the visible tiers. JDM can then override individual apps per user.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════ AUDIT ═══════════════════ -->
+<div class="tab-panel" id="audit">
+  <div class="card">
+    <h2>What Already Exists (No New Code Needed)</h2>
+  </div>
+
+  <div class="card">
+    <h3>Permission Engine</h3>
+    <table>
+      <tr><th>Component</th><th>File</th><th>Lines</th><th>Status</th></tr>
+      <tr><td>Module definitions (47 modules)</td><td><code>core/src/users/modules.ts</code></td><td>~900</td><td><span class="pill built">BUILT</span></td></tr>
+      <tr><td>4 user levels (OWNER/EXEC/LEADER/USER)</td><td><code>core/src/users/modules.ts</code></td><td></td><td><span class="pill built">BUILT</span></td></tr>
+      <tr><td>6 role templates</td><td><code>core/src/users/modules.ts</code></td><td></td><td><span class="pill built">BUILT</span></td></tr>
+      <tr><td><code>evaluateAccess()</code> logic</td><td><code>core/src/users/modules.ts</code></td><td></td><td><span class="pill built">BUILT</span></td></tr>
+      <tr><td><code>canAccessModule()</code></td><td><code>auth/src/entitlements.ts</code></td><td>166</td><td><span class="pill built">BUILT</span></td></tr>
+      <tr><td><code>canPerformAction()</code> (V/E/A)</td><td><code>auth/src/entitlements.ts</code></td><td></td><td><span class="pill built">BUILT</span></td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>RBAC Middleware</h3>
+    <table>
+      <tr><th>Component</th><th>File</th><th>Lines</th><th>Status</th></tr>
+      <tr><td><code>requireLevel(minLevel)</code></td><td><code>api/src/middleware/rbac.ts</code></td><td></td><td><span class="pill built">BUILT</span> (used by 2 routes)</td></tr>
+      <tr><td><code>requireModuleAccess(key, action)</code></td><td><code>api/src/middleware/rbac.ts</code></td><td></td><td><span class="pill built">BUILT</span> (used by 0 routes)</td></tr>
+      <tr><td>Firestore lookup + 60s cache</td><td><code>api/src/middleware/rbac.ts</code></td><td></td><td><span class="pill built">BUILT</span></td></tr>
+      <tr><td><code>invalidateProfileCache()</code></td><td><code>api/src/middleware/rbac.ts</code></td><td></td><td><span class="pill built">BUILT</span></td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Admin UI</h3>
+    <table>
+      <tr><th>Component</th><th>File</th><th>Lines</th><th>Status</th></tr>
+      <tr><td>Admin Panel (7 tabs)</td><td><code>ui/src/modules/AdminPanel.tsx</code></td><td>1,864</td><td><span class="pill built">BUILT</span></td></tr>
+      <tr><td>Module Config (V/E/A toggles)</td><td>Tab in AdminPanel</td><td></td><td><span class="pill built">BUILT</span></td></tr>
+      <tr><td>Team Config (role templates, units)</td><td>Tab in AdminPanel</td><td></td><td><span class="pill built">BUILT</span></td></tr>
+      <tr><td>Sidebar with <code>canAccessModule()</code></td><td><code>prodash/PortalSidebar.tsx</code></td><td>694</td><td><span class="pill built">BUILT</span></td></tr>
+      <tr><td>Auth provider + entitlement context</td><td><code>auth/src/provider.tsx</code></td><td>203</td><td><span class="pill built">BUILT</span></td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Firestore Rules</h3>
+    <p>Comprehensive rule set with <code>isRPIUser()</code>, <code>isOwner()</code>, <code>isExecutiveOrAbove()</code>, <code>isLeaderOrAbove()</code> helpers. Covers all collections. <strong>This is the real enforcement layer for client-side reads/writes.</strong> The API uses Admin SDK which bypasses these &mdash; route guards are the only protection for API calls.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════ BROKEN ═══════════════════ -->
+<div class="tab-panel" id="broken">
+  <div class="card">
+    <h2>What's Broken &mdash; The Chain Gaps</h2>
+  </div>
+
+  <div class="card">
+    <h3>Critical: VOLTRON Entitlement Bypass</h3>
+    <p><code>req.user.role</code> is NEVER populated for Firebase-authenticated users. No <code>setCustomUserClaims()</code> exists anywhere. VOLTRON routes default unknown roles to <code>ADMIN</code> (rank 5, highest). Every authenticated user executes wires at full admin entitlement.</p>
+    <table>
+      <tr><th>File</th><th>Line</th><th>What Happens</th></tr>
+      <tr><td><code>voltron-wire.ts</code></td><td>172</td><td><code>req.user?.role || 'ADMIN'</code> &mdash; always ADMIN</td></tr>
+      <tr><td><code>voltron-registry.ts</code></td><td>116</td><td><code>req.user?.role</code> &mdash; undefined &rarr; defaults ADMIN</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>High: 85 of 87 Routes Skip RBAC</h3>
+    <p><code>rbac.ts</code> exists with proper <code>requireLevel()</code> + Firestore lookup + cache. Only 2 routes use it:</p>
+    <ul>
+      <li><code>PATCH /api/users/:email</code> &mdash; <code>requireLevel('EXECUTIVE')</code></li>
+      <li><code>PUT /api/unit-defaults/:unitKey</code> &mdash; <code>requireLevel('OWNER')</code></li>
+    </ul>
+    <p>Everything else is either unprotected or uses ad-hoc inline guards that duplicate the logic without the cache.</p>
+  </div>
+
+  <div class="card">
+    <h3>High: system-synergy.ts Guard is a Stub</h3>
+    <p>Named <code>requireExecutive</code> but only checks <code>@retireprotected.com</code> domain. All 10 platform observability endpoints accessible to any authenticated user.</p>
+  </div>
+
+  <div class="card">
+    <h3>High: leadership.ts Has Zero Protection</h3>
+    <p>Meetings CRUD, roadmaps, actions, dashboard &mdash; all open to any <code>@retireprotected.com</code> user.</p>
+  </div>
+
+  <div class="card">
+    <h3>Medium: Admin Pages Have No Server-Side Guard</h3>
+    <p><code>/admin</code>, <code>/admin/guardian</code>, <code>/admin/intake-queue</code> render for anyone who navigates directly. Sidebar hides the links but the pages load.</p>
+  </div>
+
+  <div class="card">
+    <h3>Medium: GET /api/users Exposes Full Roster</h3>
+    <p>Any authenticated user can list all team members including level, role, module_permissions. Should require LEADER+.</p>
+  </div>
+
+  <div class="card">
+    <h3>Sidebar: Flat Icon List</h3>
+    <p>All apps shown in one flat section. No tray grouping. No collapse/expand. Level gating works (via <code>canAccessModule</code>) but the visual organization doesn't communicate the hierarchy.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════ THE REWIRE ═══════════════════ -->
+<div class="tab-panel" id="rewire">
+  <div class="card">
+    <h2>The Rewire &mdash; 6 Steps</h2>
+    <p>No new features. Connect what exists.</p>
+  </div>
+
+  <div class="card">
+    <h3>Step 1: Enrich Auth Middleware</h3>
+    <p><strong>File:</strong> <code>services/api/src/middleware/auth.ts</code></p>
+    <p>After Firebase token verification, call the same Firestore lookup that <code>rbac.ts</code> already does. Attach <code>level</code>, <code>role_template</code>, <code>module_permissions</code> to <code>req.user</code>. Use the existing 60-second cache from rbac.ts.</p>
+    <p><strong>Change:</strong> ~15 lines. Import <code>getUserProfile</code> from rbac, call after token verify, spread onto req.user.</p>
+    <p><strong>Result:</strong> Every route handler now has <code>req.user.level</code>, <code>req.user.module_permissions</code> available without any route-level code.</p>
+  </div>
+
+  <div class="card">
+    <h3>Step 2: Standardize Route Guards</h3>
+    <p><strong>Files:</strong> ~15 route files in <code>services/api/src/routes/</code></p>
+    <p>Replace all ad-hoc inline guards with <code>requireLevel()</code> from rbac.ts. Each route group gets a single guard at mount or router level.</p>
+    <table>
+      <tr><th>Route Group</th><th>Current Guard</th><th>New Guard</th></tr>
+      <tr><td>system-synergy</td><td>Domain-only stub</td><td><code>requireLevel('EXECUTIVE')</code></td></tr>
+      <tr><td>leadership</td><td>None</td><td><code>requireLevel('EXECUTIVE')</code></td></tr>
+      <tr><td>admin-warriors</td><td>Ad-hoc inline</td><td><code>requireLevel('EXECUTIVE')</code></td></tr>
+      <tr><td>admin-learning-loop</td><td>Ad-hoc inline</td><td><code>requireLevel('EXECUTIVE')</code></td></tr>
+      <tr><td>flow-admin</td><td>Ad-hoc inline</td><td><code>requireLevel('LEADER')</code></td></tr>
+      <tr><td>voltron-registry</td><td>Broken (defaults ADMIN)</td><td><code>requireLevel('LEADER')</code></td></tr>
+      <tr><td>voltron-wire</td><td>Broken (defaults ADMIN)</td><td><code>requireLevel('LEADER')</code></td></tr>
+      <tr><td>voltron-cases</td><td>Unknown</td><td><code>requireLevel('LEADER')</code></td></tr>
+      <tr><td>voltron-gap-requests</td><td>Unknown</td><td><code>requireLevel('USER')</code></td></tr>
+      <tr><td>users (GET list)</td><td>None</td><td><code>requireLevel('LEADER')</code></td></tr>
+      <tr><td>atlas</td><td>Firestore only</td><td><code>requireLevel('EXECUTIVE')</code></td></tr>
+      <tr><td>config</td><td>None</td><td><code>requireLevel('OWNER')</code></td></tr>
+      <tr><td>rangers</td><td>None</td><td><code>requireLevel('EXECUTIVE')</code></td></tr>
+      <tr><td>cmo-* routes</td><td>Unknown</td><td><code>requireLevel('EXECUTIVE')</code></td></tr>
+      <tr><td>booking (public)</td><td>Exempt</td><td>No change &mdash; public</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Step 3: Fix VOLTRON Role Lookup</h3>
+    <p><strong>Files:</strong> <code>voltron-wire.ts</code>, <code>voltron-registry.ts</code>, <code>voltron-deploy.ts</code></p>
+    <p>Replace <code>req.user?.role || 'ADMIN'</code> with mapping from enriched <code>req.user.level</code>:</p>
+    <div class="flow-box">// Map numeric level to VOLTRON_ROLE_RANK
+const LEVEL_TO_VOLTRON: Record&lt;number, string&gt; = {
+  0: 'ADMIN',       // OWNER
+  1: 'VP',          // EXECUTIVE
+  2: 'DIRECTOR',    // LEADER
+  3: 'COORDINATOR', // USER
+}
+const voltronRole = LEVEL_TO_VOLTRON[req.user.level] || 'COORDINATOR'</div>
+  </div>
+
+  <div class="card">
+    <h3>Step 4: Sidebar &rarr; Fixed Dock + 3 Collapsible Tiers</h3>
+    <p><strong>File:</strong> <code>apps/prodash/app/(portal)/components/PortalSidebar.tsx</code></p>
+    <p>Restructure the sidebar into two distinct zones:</p>
+    <ul>
+      <li><strong>Team Tray (fixed dock)</strong> &mdash; pinned to the bottom of the sidebar. Always visible. Never collapses. COMMS, Connect, Alerts, MDJ laid out across the dock.</li>
+      <li><strong>3 collapsible tiers above the dock</strong> &mdash; Owner's Box, Executive Floor, Leader Level. Each has a header bar (tier name + expand/collapse chevron). Click to expand/collapse. State persisted in localStorage.</li>
+      <li>Tiers only render if <code>userLevel &lt;= tier.minLevel</code></li>
+      <li>Icons within each tier still individually gated by <code>canAccessModule()</code></li>
+      <li>Tiers grow upward from the dock &mdash; USER sees just the dock, each level adds one tier above</li>
+    </ul>
+    <p><strong>Change:</strong> Split existing nav config into dock (fixed) + 3 collapsible groups. Add collapse/expand state. No new components &mdash; reorganize the render loop.</p>
+  </div>
+
+  <div class="card">
+    <h3>Step 5: Admin UI &mdash; Add Tray Grouping</h3>
+    <p><strong>File:</strong> <code>packages/ui/src/modules/AdminPanel.tsx</code></p>
+    <p>In both Module Config and Team Config tabs:</p>
+    <ul>
+      <li>Group modules by tray (Owner's Box / Executive Floor / Leader Level / Team Tray)</li>
+      <li>Show tray label as section header</li>
+      <li>When level is assigned, auto-populate default V/E/A for all modules in visible trays</li>
+      <li>Allow per-module override after defaults populate</li>
+    </ul>
+    <p><strong>Change:</strong> Add a <code>tray</code> property to module definitions in <code>modules.ts</code>. Use it to group the existing permission toggles. Auto-populate logic on level change.</p>
+  </div>
+
+  <div class="card">
+    <h3>Step 6: Page-Level Guards</h3>
+    <p><strong>Files:</strong> ~5 page files in <code>apps/prodash/app/(portal)/</code></p>
+    <p>Each admin/executive page checks <code>canAccessModule()</code> on mount. If unauthorized, redirect to <code>/</code>. Prevents direct URL navigation bypass.</p>
+    <table>
+      <tr><th>Page</th><th>Module Key Check</th></tr>
+      <tr><td><code>/admin</code></td><td><code>PRODASH_ADMIN</code></td></tr>
+      <tr><td><code>/admin/guardian</code></td><td><code>GUARDIAN</code></td></tr>
+      <tr><td><code>/admin/intake-queue</code></td><td><code>PRODASH_ADMIN</code></td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════ ADMIN UI ═══════════════════ -->
+<div class="tab-panel" id="admin-ui">
+  <div class="card">
+    <h2>Admin UI &mdash; Two Views, One Truth</h2>
+    <p>Both views read/write the same Firestore data: <code>users/{email}.module_permissions</code> + <code>users/{email}.level</code>. They are two lenses into one truth.</p>
+  </div>
+
+  <div class="card">
+    <h3>App/Module Config View</h3>
+    <p><em>"What does this app look like?"</em></p>
+    <ul>
+      <li>Pick an app (e.g., ProZone)</li>
+      <li>See which tray it lives in</li>
+      <li>See all users with their V/E/A access for this app</li>
+      <li>Toggle V/E/A per user</li>
+      <li>Changes immediately reflect in Team Config view</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>Team Config View</h3>
+    <p><em>"What does this person see?"</em></p>
+    <ul>
+      <li>Pick a user (e.g., Nikki)</li>
+      <li>See her level &rarr; which trays she sees</li>
+      <li>See all modules grouped by tray with V/E/A status</li>
+      <li>Assign level &rarr; defaults auto-populate</li>
+      <li>Override individual modules after defaults</li>
+      <li>Changes immediately reflect in App Config view</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>What Changes in AdminPanel.tsx</h3>
+    <table>
+      <tr><th>Change</th><th>What</th><th>LOE</th></tr>
+      <tr><td>Add <code>tray</code> to module definitions</td><td>New field in <code>modules.ts</code>: <code>tray: 'owner' | 'executive' | 'leader' | 'team'</code></td><td>10 min</td></tr>
+      <tr><td>Group modules by tray in both config views</td><td>Section headers in the permission grid</td><td>30 min</td></tr>
+      <tr><td>Auto-populate defaults on level change</td><td>When level dropdown changes, write default V/E/A per role template</td><td>30 min</td></tr>
+      <tr><td>Show tray visibility per level</td><td>Visual indicator: "This user sees: Team Tray + Leader Level"</td><td>15 min</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════ TICKETS ═══════════════════ -->
+<div class="tab-panel" id="tickets">
+  <div class="card">
+    <h2>Sprint Tickets &mdash; 12 Items</h2>
+    <p>Prefix: <strong>APR-</strong> (Admin + Permissions + Reorg)</p>
+  </div>
+
+  <div class="card">
+    <div class="section-label">Backend Rewire (5 tickets)</div>
+    <table>
+      <tr><th>Ticket</th><th>What</th><th>File(s)</th></tr>
+      <tr><td><strong>APR-01</strong></td><td>Enrich auth middleware &mdash; Firestore user lookup + cache, attach level/role/permissions to req.user</td><td><code>auth.ts</code></td></tr>
+      <tr><td><strong>APR-02</strong></td><td>Standardize route guards &mdash; replace all ad-hoc inline guards with <code>requireLevel()</code> from rbac.ts across ~15 route files</td><td>~15 route files</td></tr>
+      <tr><td><strong>APR-03</strong></td><td>Fix VOLTRON role lookup &mdash; map from <code>req.user.level</code> instead of non-existent <code>req.user.role</code></td><td><code>voltron-wire.ts</code>, <code>voltron-registry.ts</code>, <code>voltron-deploy.ts</code></td></tr>
+      <tr><td><strong>APR-04</strong></td><td>Fix system-synergy guard &mdash; replace domain-only stub with <code>requireLevel('EXECUTIVE')</code></td><td><code>system-synergy.ts</code></td></tr>
+      <tr><td><strong>APR-05</strong></td><td>Add guards to unprotected routes &mdash; leadership.ts, users GET, config, rangers, atlas API-level, cmo-* routes</td><td>~8 route files</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="section-label">Sidebar Reorg (3 tickets)</div>
+    <table>
+      <tr><th>Ticket</th><th>What</th><th>File(s)</th></tr>
+      <tr><td><strong>APR-06</strong></td><td>Add <code>tray</code> property to all 47 module definitions &mdash; <code>'owner' | 'executive' | 'leader' | 'team'</code></td><td><code>core/src/users/modules.ts</code></td></tr>
+      <tr><td><strong>APR-07</strong></td><td>Restructure PortalSidebar into 4 collapsible tiers &mdash; group icons by tray, collapse/expand with localStorage persistence, tray-level visibility by user level</td><td><code>PortalSidebar.tsx</code></td></tr>
+      <tr><td><strong>APR-08</strong></td><td>Add page-level guards to admin routes &mdash; <code>/admin</code>, <code>/admin/guardian</code>, <code>/admin/intake-queue</code> check <code>canAccessModule()</code> on mount, redirect if unauthorized</td><td>3 page files</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="section-label">Admin UI Update (3 tickets)</div>
+    <table>
+      <tr><th>Ticket</th><th>What</th><th>File(s)</th></tr>
+      <tr><td><strong>APR-09</strong></td><td>Group module permissions by tray in Module Config tab &mdash; section headers for Owner's Box / Executive Floor / Leader Level / Team Tray</td><td><code>AdminPanel.tsx</code></td></tr>
+      <tr><td><strong>APR-10</strong></td><td>Group module permissions by tray in Team Config tab &mdash; same grouping + show "This user sees: [tray list]" indicator based on level</td><td><code>AdminPanel.tsx</code></td></tr>
+      <tr><td><strong>APR-11</strong></td><td>Auto-populate defaults on level assignment &mdash; when level dropdown changes, write default V/E/A from role template for all modules in visible trays</td><td><code>AdminPanel.tsx</code></td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="section-label">Cleanup (1 ticket)</div>
+    <table>
+      <tr><th>Ticket</th><th>What</th><th>File(s)</th></tr>
+      <tr><td><strong>APR-12</strong></td><td>Remove dead code &mdash; delete ad-hoc inline <code>requireExecutive</code>/<code>requireLeader</code> guards from route files after APR-02 replaces them. Remove ghost <code>MDJ</code> module entry. Remove unused <code>Entitlement</code> type and <code>User.entitlements</code> field.</td><td>Multiple</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Warrior Assignments</h3>
+    <table>
+      <tr><th>Phase</th><th>Tickets</th><th>Warrior</th></tr>
+      <tr><td>Backend Rewire</td><td>APR-01 through APR-05</td><td>RONIN</td></tr>
+      <tr><td>Sidebar Reorg</td><td>APR-06 through APR-08</td><td>RONIN</td></tr>
+      <tr><td>Admin UI Update</td><td>APR-09 through APR-11</td><td>RONIN</td></tr>
+      <tr><td>Cleanup</td><td>APR-12</td><td>RONIN</td></tr>
+      <tr><td>Audit</td><td>All</td><td>SHINOB1 (CTO review) + VOLTRON (verify VOLTRON routes)</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════ VERIFICATION ═══════════════════ -->
+<div class="tab-panel" id="verify">
+  <div class="card">
+    <h2>Definition of Done</h2>
+  </div>
+
+  <div class="card">
+    <h3>The Unbroken Chain Test</h3>
+    <ol>
+      <li>In Admin &rarr; Team Config, set Nikki to LEADER level</li>
+      <li>Defaults auto-populate: V/E/A on Leader Level apps, V/E on Team Tray</li>
+      <li>Toggle VOLTRON from hidden to VIEW for Nikki (override &mdash; VOLTRON is Executive Floor but she gets read access)</li>
+      <li>Nikki logs into ProDash</li>
+      <li>Sidebar shows: Team Tray (expanded) + Leader Level (expanded). Executive Floor does NOT render.</li>
+      <li>VOLTRON icon appears in Leader Level (override). She can view but not edit.</li>
+      <li>Nikki navigates directly to <code>/admin</code> &rarr; redirected to <code>/</code> (page-level guard)</li>
+      <li>Nikki calls <code>GET /api/system-synergy/warrior-roster</code> &rarr; 403 (EXECUTIVE required)</li>
+      <li>Nikki calls <code>POST /api/voltron/wire/execute</code> &rarr; 403 (her VOLTRON access is VIEW only)</li>
+      <li>JDM flips Nikki's VOLTRON to EDIT in App Config</li>
+      <li>Within 60 seconds (cache TTL), Nikki can now execute VOLTRON wires</li>
+      <li>Team Config view for Nikki immediately shows VOLTRON: EDIT</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <h3>Build Verification</h3>
+    <ul>
+      <li><code>npm run type-check</code> &mdash; 14/14 pass</li>
+      <li><code>npm run build</code> &mdash; all pass</li>
+      <li>Every route in <code>services/api/src/routes/</code> has an explicit <code>requireLevel()</code> guard (grep verification)</li>
+      <li>Zero ad-hoc inline auth guards remain (grep for removed patterns)</li>
+      <li>Sidebar renders 4 tiers, each collapsible, level-gated (1:1 with user levels)</li>
+      <li>Admin panel shows tray groupings in both config views</li>
+    </ul>
+  </div>
+</div>
+
+</div><!-- end .content -->
+
+<div class="footer">
+  Admin + Permissions + Sidebar Reorg &mdash; SHINOB1, CTO &mdash; April 8, 2026<br>
+  <em>Rewire what exists. One surgery, three outcomes. The chain is unbroken.</em>
+</div>
+
+<script>
+document.querySelectorAll('.tab').forEach(function(tab) {
+  tab.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+    document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+    tab.classList.add('active');
+    document.getElementById(tab.dataset.tab).classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+});
+</script>
+
+</body>
+</html>

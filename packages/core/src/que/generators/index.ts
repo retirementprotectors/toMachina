@@ -18,7 +18,14 @@ export type {
   FactfinderInput,
   TemplateRenderer,
 } from './types'
-export { DESIGN, TAX_HARVESTING_DISCLOSURE } from './types'
+export { DESIGN } from './types'
+export {
+  getSecuritiesDisclosure,
+  getTaxHarvestingDisclosure,
+  getPortfolioAdvisoryDisclosure,
+  ACTIVE_BD_AFFILIATION,
+  type BDAffiliation,
+} from './disclosures'
 
 // Generators
 export { generateSummaryHtml } from './generate-summary-html'

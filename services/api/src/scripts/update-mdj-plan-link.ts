@@ -7,7 +7,7 @@ if (getApps().length === 0) {
 const db = getFirestore()
 
 const SPRINT_DOC_ID = 'C0h0Ylibz7724v9c4A5d'
-const PLAN_LINK = 'https://retirementprotectors.github.io/toMachina/mdj-alpha-plan.html'
+const PLAN_LINK = 'https://retirementprotectors.github.io/toMachina/docs/roadmaps/mdj-alpha-plan.html'
 const NOW = new Date().toISOString()
 
 async function run() {

@@ -15,6 +15,10 @@ import { renderLtcMaxDetail } from './templates/ltc-max-detail'
 import { renderMgeDetailedDetail } from './templates/mge-detailed-detail'
 import { renderRothConversionDetail } from './templates/roth-conversion-detail'
 import { renderTaxHarvestingDetail } from './templates/tax-harvesting-detail'
+import { renderLifeDiscoveryDetail } from './templates/life-discovery-detail'
+import { renderLifeNeedsDetail } from './templates/life-needs-detail'
+import { renderLifeOptionsDetail } from './templates/life-options-detail'
+import { renderLifePresentationDetail } from './templates/life-presentation-detail'
 
 const DETAIL_RENDERERS: Record<CaseworkType, (input: GeneratorInput) => string> = {
   income_now: renderIncomeNowDetail,
@@ -25,6 +29,11 @@ const DETAIL_RENDERERS: Record<CaseworkType, (input: GeneratorInput) => string> 
   mge_detailed: renderMgeDetailedDetail,
   roth_conversion: renderRothConversionDetail,
   tax_harvesting: renderTaxHarvestingDetail,
+  life_discovery: renderLifeDiscoveryDetail,
+  life_needs: renderLifeNeedsDetail,
+  life_options: renderLifeOptionsDetail,
+  life_presentation: renderLifePresentationDetail,
+  life_underwriting: renderLifeOptionsDetail,
 }
 
 export function generateDetailHtml(input: GeneratorInput): string {

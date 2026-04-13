@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VOLTRON Foundation v3 — Implementation Plan</title>
+<style>
+  :root {
+    --bg: #0d1117; --surface: #161b22; --border: #30363d;
+    --text: #e6edf3; --muted: #8b949e; --accent: #58a6ff;
+    --green: #3fb950; --red: #f85149; --yellow: #d29922; --purple: #bc8cff;
+    --orange: #db6d28;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'SF Mono', 'Fira Code', monospace; background: var(--bg); color: var(--text); padding: 2rem; line-height: 1.6; }
+  h1 { color: var(--accent); border-bottom: 2px solid var(--accent); padding-bottom: 0.5rem; margin-bottom: 1rem; font-size: 1.6rem; }
+  h2 { color: var(--purple); margin: 2rem 0 1rem; font-size: 1.3rem; border-left: 4px solid var(--purple); padding-left: 0.75rem; }
+  h3 { color: var(--green); margin: 1.5rem 0 0.75rem; font-size: 1.1rem; }
+  h4 { color: var(--yellow); margin: 1rem 0 0.5rem; font-size: 1rem; }
+  .meta { color: var(--muted); font-size: 0.85rem; margin-bottom: 2rem; }
+  .wave { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; }
+  .wave-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+  .wave-label { background: var(--accent); color: var(--bg); padding: 0.25rem 0.75rem; border-radius: 4px; font-weight: bold; font-size: 0.9rem; }
+  .parallel-badge { background: var(--green); color: var(--bg); padding: 0.15rem 0.5rem; border-radius: 4px; font-size: 0.75rem; }
+  .sequential-badge { background: var(--yellow); color: var(--bg); padding: 0.15rem 0.5rem; border-radius: 4px; font-size: 0.75rem; }
+  .ticket { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; margin: 1rem 0; }
+  .ticket-id { color: var(--accent); font-weight: bold; }
+  .file-list { list-style: none; padding: 0; }
+  .file-list li { padding: 0.2rem 0; font-size: 0.85rem; }
+  .file-new::before { content: "NEW "; color: var(--green); font-weight: bold; }
+  .file-mod::before { content: "MOD "; color: var(--yellow); font-weight: bold; }
+  .file-verify::before { content: "VFY "; color: var(--purple); font-weight: bold; }
+  .ac { background: #0d1f0d; border: 1px solid #1a4a1a; border-radius: 4px; padding: 0.75rem; margin: 0.75rem 0; font-size: 0.85rem; }
+  .ac li { padding: 0.15rem 0; }
+  .build-gate { background: #1f0d0d; border: 1px solid #4a1a1a; border-radius: 4px; padding: 0.5rem 0.75rem; margin: 0.5rem 0; font-size: 0.8rem; color: var(--red); font-weight: bold; }
+  .dep { color: var(--orange); font-size: 0.85rem; }
+  .risk { background: #2d1f0d; border: 1px solid #4a3a1a; border-radius: 4px; padding: 0.75rem; margin: 0.75rem 0; font-size: 0.85rem; }
+  .risk-label { color: var(--red); font-weight: bold; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.85rem; }
+  th, td { border: 1px solid var(--border); padding: 0.5rem 0.75rem; text-align: left; }
+  th { background: var(--surface); color: var(--accent); }
+  code { background: var(--surface); padding: 0.1rem 0.4rem; border-radius: 3px; font-size: 0.85em; color: var(--green); }
+  pre { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1rem; overflow-x: auto; font-size: 0.8rem; margin: 0.75rem 0; }
+  .warning { background: #2d1f0d; border: 2px solid var(--yellow); border-radius: 6px; padding: 1rem; margin: 1rem 0; }
+  .warning::before { content: "WARNING: "; color: var(--yellow); font-weight: bold; }
+  .constraint { background: #1f0d2d; border: 1px solid #3a1a4a; border-radius: 4px; padding: 0.75rem; margin: 0.5rem 0; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+  .dep-graph { font-family: monospace; white-space: pre; background: var(--surface); padding: 1rem; border-radius: 6px; overflow-x: auto; font-size: 0.75rem; line-height: 1.4; }
+</style>
+</head>
+<body>
+
+<h1>VOLTRON Foundation v3 — Implementation Plan</h1>
+<div class="meta">
+  Sprint: 001-voltron-foundation | Generated: 2026-03-29 | Tickets: 18 | Waves: 10<br>
+  Discovery Source: <a href="https://retirementprotectors.github.io/toMachina/docs/discoveries/sprint-001-voltron-foundation-discovery.html" style="color:var(--accent)">sprint-001-voltron-foundation-discovery.html</a><br>
+  MDJ_SERVER: /home/jdm/mdj-agent | ProDashX: /home/jdm/Projects/toMachina/apps/prodash
+</div>
+
+<!-- ============================================================ -->
+<h2>Architecture Constraints (Non-Negotiable)</h2>
+<!-- ============================================================ -->
+
+<div class="constraint">
+  <strong>1. MDJ_SERVER = /home/jdm/mdj-agent</strong> — ALL agent SDK code lives here. VOLTRON, RONIN, any new agent routes go in mdj-agent. NOT Cloud Run.
+</div>
+<div class="constraint">
+  <strong>2. Cloud Run (tm-api)</strong> = portal REST API only. No claude-agent-sdk. No AI orchestration.
+</div>
+<div class="constraint">
+  <strong>3. RONIN_OS_RULES + agent config</strong> lives on MDJ_SERVER in /home/jdm/mdj-agent/ — RONIN cannot reach Cloud Run for its own config.
+</div>
+<div class="constraint">
+  <strong>4. ProDashX module path</strong> = <code>apps/prodash/app/(portal)/modules/voltron/</code> (includes <code>modules/</code> subdirectory).
+</div>
+<div class="constraint">
+  <strong>5. Parallel tracks = zero file overlap.</strong> Same file touched = sequential, never parallel.
+</div>
+
+<div class="warning">
+  <strong>Model ID Override:</strong> Discovery doc uses outdated model strings (<code>claude-opus-4-20251101</code>, <code>claude-sonnet-4-20250514</code>, <code>claude-haiku-4-20250514</code>).
+  Use these EXACT current IDs instead:<br>
+  &bull; Opus = <code>claude-opus-4-6</code><br>
+  &bull; Sonnet = <code>claude-sonnet-4-6</code><br>
+  &bull; Haiku = <code>claude-haiku-4-5-20251001</code>
+</div>
+
+<div class="warning">
+  <strong>Build Gate Override:</strong> Discovery doc mentions <code>npx tsc --noEmit</code> for TRK-14186. OS Rule #6 mandates <code>npm run build</code> for ALL tickets. Every ticket build verification uses <code>npm run build</code> — never <code>tsc --noEmit</code> alone.
+</div>
+
+<!-- ============================================================ -->
+<h2>Dependency Graph</h2>
+<!-- ============================================================ -->
+
+<div class="dep-graph">
+WAVE 1:  TRK-14185 (Rename)
+              |
+              v
+WAVE 2:  TRK-14186 (SDK)  ||  TRK-14195 (CLAUDE.md)  ||  TRK-14190 (Verify Chat)
+              |                       |
+              v                       |
+WAVE 3:  TRK-14187 (SDK Client)  ||  TRK-14188 (Intent Classifier)
+              |                            |
+              v                            v
+WAVE 4:  TRK-14189 (Deploy Endpoint)  ||  TRK-14192 (ProDashX Shell)
+              |          |                      |
+              v          v                      v
+WAVE 5:  TRK-14191   TRK-14193           TRK-14199
+         (canUseTool) (Specialist)        (Wire Classifier)
+              |          |                      |
+              v          v                      |
+WAVE 6:  TRK-14194 (Webhook)  ||  TRK-14198 (Verify Endpoints)
+              |                        |
+              v                        v
+WAVE 7:  TRK-14200 (Webhook Verify)  ||  TRK-14196 (E2E Tests)
+                                              |
+                                              v
+WAVE 8:  TRK-14201 (E2E + Intent Classification)
+              |
+              v
+WAVE 9:  TRK-14197 (Deploy to Production)
+              |
+              v
+WAVE 10: TRK-14202 (Full Smoke Test)
+</div>
+
+<table>
+<tr><th>Wave</th><th>Tickets</th><th>Mode</th><th>Gate</th></tr>
+<tr><td>1</td><td>TRK-14185</td><td>Sequential</td><td>npm run build + grep -r "MDJ1" src/ = 0 results</td></tr>
+<tr><td>2</td><td>TRK-14186, TRK-14195, TRK-14190</td><td>Parallel (3)</td><td>npm run build (each repo)</td></tr>
+<tr><td>3</td><td>TRK-14187, TRK-14188</td><td>Parallel (2)</td><td>npm run build + vitest intent tests</td></tr>
+<tr><td>4</td><td>TRK-14189, TRK-14192</td><td>Parallel (2)</td><td>npm run build (mdj-agent + toMachina)</td></tr>
+<tr><td>5</td><td>TRK-14191, TRK-14193, TRK-14199</td><td>Parallel (3)</td><td>npm run build (both repos)</td></tr>
+<tr><td>6</td><td>TRK-14194, TRK-14198</td><td>Parallel (2)</td><td>npm run build + curl verification</td></tr>
+<tr><td>7</td><td>TRK-14196, TRK-14200</td><td>Parallel (2)</td><td>vitest pass + webhook manual test</td></tr>
+<tr><td>8</td><td>TRK-14201</td><td>Sequential</td><td>vitest pass (all 3 sub-tests)</td></tr>
+<tr><td>9</td><td>TRK-14197</td><td>Sequential</td><td>Production smoke — all systems green</td></tr>
+<tr><td>10</td><td>TRK-14202</td><td>Sequential</td><td>Full regression smoke — all systems green</td></tr>
+</table>
+
+<!-- ============================================================ -->
+<h2>File Ownership Matrix (Overlap Prevention)</h2>
+<!-- ============================================================ -->
+
+<table>
+<tr><th>File / Path</th><th>Primary Ticket</th><th>Secondary Tickets</th><th>Constraint</th></tr>
+<tr><td><code>/home/jdm/mdj-agent/package.json</code></td><td>TRK-14185</td><td>TRK-14186 (verify only)</td><td>Wave 1 only writes</td></tr>
+<tr><td><code>/home/jdm/mdj-agent/src/server.ts</code></td><td>TRK-14185 (rename)</td><td>TRK-14189 (routes), TRK-14193 (specialist wire), TRK-14194 (webhook)</td><td>Sequential across waves</td></tr>
+<tr><td><code>/home/jdm/mdj-agent/src/agent/voltron-sdk-client.ts</code></td><td>TRK-14187 (create)</td><td>TRK-14191 (canUseTool)</td><td>Wave 3 creates, Wave 5 modifies</td></tr>
+<tr><td><code>/home/jdm/mdj-agent/src/agent/intent-classifier.ts</code></td><td>TRK-14188</td><td>None</td><td>Wave 3 only</td></tr>
+<tr><td><code>/home/jdm/mdj-agent/src/agent/claude-client.ts</code></td><td>TRK-14190 (verify zero diff)</td><td>None</td><td>NEVER MODIFY</td></tr>
+<tr><td><code>/home/jdm/mdj-agent/src/forge/templates.ts</code></td><td>TRK-14195</td><td>None</td><td>Wave 2 only</td></tr>
+<tr><td><code>/home/jdm/mdj-agent/CLAUDE.md</code></td><td>TRK-14195</td><td>None</td><td>Wave 2 only</td></tr>
+<tr><td><code>apps/prodash/app/(portal)/modules/voltron/</code></td><td>TRK-14192 (create)</td><td>TRK-14199 (wire classifier)</td><td>Wave 4 creates, Wave 5 enhances</td></tr>
+<tr><td><code>/home/jdm/mdj-agent/src/forge/tests/e2e-sprint-001.test.ts</code></td><td>TRK-14196 (create)</td><td>TRK-14201 (extend)</td><td>Wave 7 creates, Wave 8 extends</td></tr>
+<tr><td><code>/home/jdm/mdj-agent/src/forge/tests/sdk-smoke-test.ts</code></td><td>TRK-14186</td><td>None</td><td>Wave 2 only</td></tr>
+</table>
+
+<hr>
+
+<!-- ============================================================ -->
+<!-- WAVE 1 -->
+<!-- ============================================================ -->
+<div class="wave">
+<div class="wave-header">
+  <span class="wave-label">WAVE 1 — Foundation Rename</span>
+  <span class="sequential-badge">SEQUENTIAL</span>
+</div>
+
+<div class="ticket">
+<h3><span class="ticket-id">TRK-14185</span> — Rename MDJ1 &rarr; VOLTRON</h3>
+<p>Zero "MDJ1" references remain in <code>src/</code> after grep. All identifiers, display strings, configs, and package name updated to VOLTRON.</p>
+
+<h4>File Changes</h4>
+<ul class="file-list">
+  <li class="file-mod"><code>/home/jdm/mdj-agent/package.json</code> — <code>"name": "mdj-agent"</code> &rarr; <code>"name": "voltron-agent"</code></li>
+  <li class="file-mod"><code>/home/jdm/mdj-agent/src/server.ts</code> — Startup log: <code>"VOLTRON running on port 4200"</code>; Health endpoint: add <code>system: "voltron"</code> field; Error handler title: <code>"VOLTRON Error"</code></li>
+  <li class="file-mod"><code>/home/jdm/mdj-agent/src/agent/specialist-router.ts</code> — Fallback specialist: <code>"mdj-general"</code> &rarr; <code>"voltron-general"</code></li>
+  <li class="file-mod"><code>/home/jdm/mdj-agent/src/agent/system-prompt.ts</code> — All <code>"MDJ1"</code> / <code>"MyDigitalJosh"</code> display references &rarr; <code>"VOLTRON"</code></li>
+  <li class="file-mod"><code>/home/jdm/mdj-agent/src/agent/*.ts</code> — Grep all <code>src/</code> for remaining MDJ1 references, update any found</li>
+  <li class="file-verify"><strong>Firestore</strong> — Update <code>mdj_specialist_configs</code> collection: all 6 docs' <code>display_name</code> from "MDJ *" &rarr; "VOLTRON *". Update <code>system_prompt</code> fields: "You are MDJ" &rarr; "You are VOLTRON". <strong>Use API routes only (OS Rule #2).</strong></li>
+</ul>
+
+<h4>Acceptance Criteria</h4>
+<div class="ac">
+<ul>
+  <li><code>grep -r "MDJ1" src/</code> returns 0 results</li>
+  <li><code>package.json</code> name field = <code>"voltron-agent"</code></li>
+  <li>Server startup log displays "VOLTRON running on port 4200"</li>
+  <li><code>GET /health</code> returns <code>{ status: "ok", system: "voltron", ... }</code></li>
+  <li>All 6 Firestore specialist configs have updated <code>display_name</code> fields</li>
+  <li><code>npm run build</code> passes with 0 errors</li>
+</ul>
+</div>
+
+<div class="build-gate">BUILD GATE: cd /home/jdm/mdj-agent &amp;&amp; npm run build (0 errors required)</div>
+
+<p class="dep">Dependencies: None (first ticket)</p>
+</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- WAVE 2 -->
+<!-- ============================================================ -->
+<div class="wave">
+<div class="wave-header">
+  <span class="wave-label">WAVE 2 — Verify + Configure</span>
+  <span class="parallel-badge">3 PARALLEL TRACKS</span>
+</div>
+
+<div class="ticket">
+<h3><span class="ticket-id">TRK-14186</span> — Install + Verify @anthropic-ai/claude-agent-sdk</h3>
+<p>Confirm SDK is installed, importable, and functional. Create smoke test proving <code>query()</code> works.</p>
+
+<h4>File Changes</h4>
+<ul class="file-list">
+  <li class="file-verify"><code>/home/jdm/mdj-agent/package.json</code> — Verify <code>@anthropic-ai/claude-agent-sdk</code> in dependencies with <code>^0.2.83</code> range (READ ONLY)</li>
+  <li class="file-new"><code>/home/jdm/mdj-agent/src/forge/tests/sdk-smoke-test.ts</code> — Standalone test: imports <code>query</code> from SDK, calls with simple prompt "Say hello", asserts non-empty result</li>
+</ul>
+
+<h4>Acceptance Criteria</h4>
+<div class="ac">
+<ul>
+  <li><code>import { query } from '@anthropic-ai/claude-agent-sdk'</code> resolves without TypeScript error</li>
+  <li>Smoke test script calls <code>query()</code> and returns non-empty result</li>
+  <li>Package version in <code>node_modules</code> matches <code>^0.2.83</code> range</li>
+  <li><code>npm run build</code> passes with 0 errors</li>
+</ul>
+</div>
+
+<div class="build-gate">BUILD GATE: cd /home/jdm/mdj-agent &amp;&amp; npm run build (0 errors required)</div>
+<p class="dep">Dependencies: TRK-14185 (Wave 1 — rename complete, package.json stable)</p>
+</div>
+
+<div class="ticket">
+<h3><span class="ticket-id">TRK-14195</span> — Update mdj-agent CLAUDE.md with OS Enforcement Rules</h3>
+<p>Add OS enforcement section to CLAUDE.md and inject RONIN_OS_RULES constant into all RONIN phase prompts via templates.ts.</p>
+
+<h4>File Changes</h4>
+<ul class="file-list">
+  <li class="file-mod"><code>/home/jdm/mdj-agent/CLAUDE.md</code> — Add <code>## OS Enforcement Rules</code> section with all 10 critical rules (table format). Document hookify gap. Update route references to <code>/api/voltron/*</code>. VOLTRON naming throughout.</li>
+  <li class="file-mod"><code>/home/jdm/mdj-agent/src/forge/templates.ts</code> — Add <code>export const RONIN_OS_RULES: string</code> constant. Append <code>\n\n${RONIN_OS_RULES}</code> to each phase prompt template. Rename "MDJ1" to "VOLTRON".</li>
+</ul>
+
+<h4>Acceptance Criteria</h4>
+<div class="ac">
+<ul>
+  <li>CLAUDE.md contains "## OS Enforcement Rules" section with all 10 rules</li>
+  <li>Hookify gap explicitly documented in CLAUDE.md</li>
+  <li><code>RONIN_OS_RULES</code> constant exported from <code>src/forge/templates.ts</code></li>
+  <li>All phase prompt templates append <code>RONIN_OS_RULES</code></li>
+  <li>VOLTRON naming used throughout (not MDJ1)</li>
+  <li>Session URL section references <code>/api/voltron/*</code> routes</li>
+  <li><code>npm run build</code> passes with 0 errors</li>
+</ul>
+</div>
+
+<div class="build-gate">BUILD GATE: cd /home/jdm/mdj-agent &amp;&amp; npm run build (0 errors required)</div>
+<p class="dep">Dependencies: TRK-14185 (Wave 1 — naming finalized)</p>
+</div>
+
+<div class="ticket">
+<h3><span class="ticket-id">TRK-14190</span> — Preserve Existing /agent/chat as Mode 2 (Untouched)</h3>
+<p>Verify that <code>claude-client.ts</code> has zero changes. Mode 2 endpoint works identically before and after Sprint 001.</p>
+
+<h4>File Changes</h4>
+<ul class="file-list">
+  <li class="file-verify"><code>/home/jdm/mdj-agent/src/agent/claude-client.ts</code> — <strong>ZERO modifications.</strong> Git diff confirms no changes.</li>
+</ul>
+
+<h4>Acceptance Criteria</h4>
+<div class="ac">
+<ul>
+  <li><code>git diff src/agent/claude-client.ts</code> shows no changes (empty diff)</li>
+  <li><code>POST /agent/chat</code> works identically to pre-Sprint 001</li>
+  <li>Manual test: send account query — specialist routes, tool calls fire, SSE streams to completion</li>
+  <li>No TypeScript errors introduced to <code>claude-client.ts</code></li>
+  <li><code>npm run build</code> passes with 0 errors</li>
+</ul>
+</div>
+
+<div class="build-gate">BUILD GATE: cd /home/jdm/mdj-agent &amp;&amp; npm run build (0 errors required)</div>
+<p class="dep">Dependencies: TRK-14185 (Wave 1 — rename didn't break chat path)</p>
+</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- WAVE 3 -->
+<!-- ============================================================ -->
+<div class="wave">
+<div class="wave-header">
+  <span class="wave-label">WAVE 3 — Core Engines</span>
+  <span class="parallel-badge">2 PARALLEL TRACKS</span>
+</div>
+
+<div class="ticket">
+<h3><span class="ticket-id">TRK-14187</span> — Create src/agent/voltron-sdk-client.ts</h3>
+<p>New Mode 1 engine wrapping the Claude Agent SDK <code>query()</code> function. Handles model routing, streaming translation, and MCP server configuration.</p>
+
+<h4>File Changes</h4>
+<ul class="file-list">
+  <li class="file-new"><code>/home/jdm/mdj-agent/src/agent/voltron-sdk-client.ts</code> — Full implementation</li>
+</ul>
+
+<h4>Implementation Details</h4>
+<pre>
+// Exports
+export async function* deployGoal(opts: VoltronDeployOptions): AsyncGenerator&lt;SseEvent&gt;
+
+// Types
+interface VoltronDeployOptions {
+  goal: string
+  systemPrompt: string
+  userContext: UserContext
+  allowedTools: Tool[]
+  sessionId: string
+  model?: 'claude-opus-4-6' | 'claude-sonnet-4-6' | 'claude-haiku-4-5-20251001'
+}
+
+// Model Routing (use EXACT model IDs):
+//   Default: 'claude-sonnet-4-6'
+//   OWNER level (level 0) + explicit request: 'claude-opus-4-6'
+//   Low-complexity fallback: 'claude-haiku-4-5-20251001'
+
+// SSE Event Translation:
+type SseEvent =
+  | { type: 'text', text: string }
+  | { type: 'tool_call', tool_name: string, tool_input: object, tool_use_id: string }
+  | { type: 'tool_result', tool_name: string, result: object }
+  | { type: 'approval_required', tool_name: string, tool_input: object, call_id: string }
+  | { type: 'verification', tools_called: Array&lt;{tool_name: string, result: object}&gt; }
+  | '[DONE]'
+</pre>
+
+<h4>Key Requirements</h4>
+<ul>
+  <li>Import <code>query</code> from <code>@anthropic-ai/claude-agent-sdk</code></li>
+  <li>Build MCP server config from environment variables (all servers on MDJ_SERVER)</li>
+  <li>Stub <code>canUseTool</code> callback (returns <code>true</code> for all — TRK-14191 implements real logic)</li>
+  <li>Wire <code>toolRequiresApproval()</code> import from <code>tool-filter.ts</code></li>
+  <li>Translate SDK <code>AsyncGenerator</code> events to SSE event format</li>
+  <li>Emit <code>verification</code> event before final result showing tool call sources</li>
+  <li>TypeScript strict mode — no <code>any</code> types</li>
+  <li>All secrets via <code>process.env</code> (OS Rule #1)</li>
+</ul>
+
+<h4>Acceptance Criteria</h4>
+<div class="ac">
+<ul>
+  <li>File exports <code>deployGoal(opts: VoltronDeployOptions): AsyncGenerator&lt;SseEvent&gt;</code></li>
+  <li><code>query()</code> wrapper handles model routing with correct model IDs</li>
+  <li>Streaming events translate to SSE format (text, tool_call, tool_result, approval_required, [DONE])</li>
+  <li><code>canUseTool</code> callback wired to <code>toolRequiresApproval()</code></li>
+  <li>TypeScript strict mode — no <code>any</code></li>
+  <li><code>npm run build</code> passes with 0 errors</li>
+</ul>
+</div>
+
+<div class="build-gate">BUILD GATE: cd /home/jdm/mdj-agent &amp;&amp; npm run build (0 errors required)</div>
+<p class="dep">Dependencies: TRK-14186 (Wave 2 — SDK verified), TRK-14185 (Wave 1 — naming)</p>
+</div>
+
+<div class="ticket">
+<h3><span class="ticket-id">TRK-14188</span> — Create src/agent/intent-classifier.ts</h3>
+<p>Dual-path intent classifier: keyword scoring (fast, deterministic) with Haiku fallback for ambiguous cases. 20+ Vitest test cases.</p>
+
+<h4>File Changes</h4>
+<ul class="file-list">
+  <li class="file-new"><code>/home/jdm/mdj-agent/src/agent/intent-classifier.ts</code> — Intent classifier implementation</li>
+  <li class="file-new"><code>/home/jdm/mdj-agent/src/agent/__tests__/intent-classifier.test.ts</code> — 20+ Vitest test cases</li>
+</ul>
+
+<h4>Implementation Details</h4>
+<pre>
+// Exports
+export async function classifyIntent(
+  message: string,
+  userContext: UserContext
+): Promise&lt;IntentResult&gt;
+
+// Return Type
+interface IntentResult {
+  mode: 'deploy' | 'chat'
+  confidence: number        // 0.0 - 1.0
+  reasoning: string
+  model_used: 'keyword' | 'haiku'
+}
+
+// Deploy Keywords (Mode 1):
+// deploy, build, create, run, execute, prep, prepare, generate,
+// set up, onboard, process, compile, analyze all, send to,
+// schedule, automate, do the, handle, take care of
+
+// Chat Keywords (Mode 2):
+// what, who, when, where, how, tell me, show me, list, find,
+// lookup, check, is there, do we have, what is, are there
+
+// Logic Flow:
+// 1. Keyword scoring (deterministic)
+// 2. Mode 1 score &gt;= 1 AND exceeds Mode 2 -&gt; deploy
+// 3. Mode 2 score &gt;= 1 AND exceeds Mode 1 -&gt; chat
+// 4. Tied/no signal -&gt; Claude Haiku (claude-haiku-4-5-20251001, max 128 tokens)
+// 5. Default fallback: mode: 'chat' (safe)
+</pre>
+
+<h4>Test Cases (minimum 20)</h4>
+<table>
+<tr><th>#</th><th>Input</th><th>Expected Mode</th><th>Category</th></tr>
+<tr><td>1</td><td>"Build Aswegan meeting prep"</td><td>deploy</td><td>Clear deploy</td></tr>
+<tr><td>2</td><td>"Deploy the new pipeline"</td><td>deploy</td><td>Clear deploy</td></tr>
+<tr><td>3</td><td>"Create a summary report for Jim"</td><td>deploy</td><td>Clear deploy</td></tr>
+<tr><td>4</td><td>"Run the onboarding process"</td><td>deploy</td><td>Clear deploy</td></tr>
+<tr><td>5</td><td>"Prepare the quarterly review"</td><td>deploy</td><td>Clear deploy</td></tr>
+<tr><td>6</td><td>"Automate the billing workflow"</td><td>deploy</td><td>Clear deploy</td></tr>
+<tr><td>7</td><td>"Handle the Aswegan account setup"</td><td>deploy</td><td>Clear deploy</td></tr>
+<tr><td>8</td><td>"Take care of the Medicare enrollment"</td><td>deploy</td><td>Clear deploy</td></tr>
+<tr><td>9</td><td>"What accounts does Jim Aswegan have?"</td><td>chat</td><td>Clear chat</td></tr>
+<tr><td>10</td><td>"Who is the primary agent for Smith?"</td><td>chat</td><td>Clear chat</td></tr>
+<tr><td>11</td><td>"Show me the pipeline status"</td><td>chat</td><td>Clear chat</td></tr>
+<tr><td>12</td><td>"List all active clients"</td><td>chat</td><td>Clear chat</td></tr>
+<tr><td>13</td><td>"When is the next review for Aswegan?"</td><td>chat</td><td>Clear chat</td></tr>
+<tr><td>14</td><td>"How many accounts does Jim have?"</td><td>chat</td><td>Clear chat</td></tr>
+<tr><td>15</td><td>"Is there a pending task for Smith?"</td><td>chat</td><td>Clear chat</td></tr>
+<tr><td>16</td><td>"Check the Aswegan account"</td><td>chat</td><td>Clear chat</td></tr>
+<tr><td>17</td><td>"Aswegan"</td><td>chat</td><td>Ambiguous (fallback)</td></tr>
+<tr><td>18</td><td>""</td><td>chat</td><td>Edge: empty string</td></tr>
+<tr><td>19</td><td>"Build and show me the report"</td><td>deploy</td><td>Mixed signals (deploy wins)</td></tr>
+<tr><td>20</td><td>"What should I build next?"</td><td>chat</td><td>Mixed signals (chat wins)</td></tr>
+<tr><td>21</td><td>"Generate the full analysis"</td><td>deploy</td><td>Clear deploy</td></tr>
+</table>
+
+<h4>Acceptance Criteria</h4>
+<div class="ac">
+<ul>
+  <li>Exports <code>classifyIntent(message, userContext): Promise&lt;IntentResult&gt;</code></li>
+  <li>Returns <code>{ mode, confidence, reasoning, model_used }</code></li>
+  <li>Keyword path fires for clear signals (<code>model_used: 'keyword'</code>)</li>
+  <li>Haiku fallback for ambiguous cases (<code>model_used: 'haiku'</code>, model = <code>claude-haiku-4-5-20251001</code>)</li>
+  <li>Default fallback = <code>mode: 'chat'</code> when confidence low</li>
+  <li>Vitest test file with 20+ cases — ALL pass</li>
+  <li><code>npm run build</code> passes with 0 errors</li>
+</ul>
+</div>
+
+<div class="build-gate">BUILD GATE: cd /home/jdm/mdj-agent &amp;&amp; npm run build (0 errors required)</div>
+<p class="dep">Dependencies: TRK-14185 (Wave 1 — naming)</p>
+</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- WAVE 4 -->
+<!-- ============================================================ -->
+<div class="wave">
+<div class="wave-header">
+  <span class="wave-label">WAVE 4 — API Endpoints + UI Shell</span>
+  <span class="parallel-badge">2 PARALLEL TRACKS</span>
+</div>
+
+<div class="ticket">
+<h3><span class="ticket-id">TRK-14189</span> — Add POST /api/voltron/deploy Endpoint (Mode 1)</h3>
+<p>Register all VOLTRON API routes in server.ts. Deploy endpoint fires <code>deployGoal()</code> asynchronously after returning 202.</p>
+
+<h4>File Changes</h4>
+<ul class="file-list">
+  <li class="file-mod"><code>/home/jdm/mdj-agent/src/server.ts</code> — Add 5 routes: <code>POST /api/voltron/deploy</code>, <code>GET /api/voltron/stream/:sessionId</code>, <code>POST /api/voltron/approve/:sessionId</code>, <code>POST /api/voltron/reject/:sessionId</code>, <code>GET /api/voltron/specialists</code>. All behind Firebase auth middleware.</li>
+</ul>
+
+<h4>Route Specifications</h4>
+<pre>
+// POST /api/voltron/deploy
+// Auth: Firebase token middleware
+// Request: { goal: string (required), user_context: object (required),
+//            specialist_id?: string, client_id?: string, page_path?: string }
+// Response: 202 Accepted
+// Body: { success: true, data: { session_id: "uuid" } }
+// Fires deployGoal() asynchronously after responding
+// Returns 400 if goal or user_context missing
+
+// GET /api/voltron/stream/:sessionId
+// Auth: Firebase token middleware
+// Headers: Content-Type: text/event-stream
+// Subscribes to session event emitter; streams until [DONE]
+
+// POST /api/voltron/approve/:sessionId
+// Auth: Firebase token middleware
+// Request: { approved: boolean, call_id: string }
+// Response: { success: true, data: { status: "resumed" | "rejected" } }
+
+// POST /api/voltron/reject/:sessionId
+// Auth: Firebase token middleware
+// Request: { approved: false, call_id: string }
+// Response: { success: true, data: { status: "rejected" } }
+
+// GET /api/voltron/specialists
+// Auth: Firebase token middleware
+// Alias for existing GET /api/mdj/specialists
+
+// ALL responses follow OS Rule #7: { success: boolean, data?: T, error?: string }
+</pre>
+
+<h4>Acceptance Criteria</h4>
+<div class="ac">
+<ul>
+  <li><code>POST /api/voltron/deploy</code> returns 202 with <code>{ success: true, data: { session_id } }</code> within 100ms</li>
+  <li>Fires <code>deployGoal()</code> asynchronously after responding</li>
+  <li>Requires Firebase token auth — returns 401 without valid token</li>
+  <li>Returns 400 if <code>goal</code> or <code>user_context</code> missing</li>
+  <li>SSE stream available at <code>GET /api/voltron/stream/:sessionId</code></li>
+  <li>Approve/reject endpoints operational</li>
+  <li><code>GET /api/voltron/specialists</code> returns specialist list</li>
+  <li>Deploy errors emit <code>error</code> SSE event without crashing process</li>
+  <li>Tested via curl with Bearer token returns 202</li>
+  <li><code>npm run build</code> passes with 0 errors</li>
+</ul>
+</div>
+
+<div class="build-gate">BUILD GATE: cd /home/jdm/mdj-agent &amp;&amp; npm run build (0 errors required)</div>
+<p class="dep">Dependencies: TRK-14187 (Wave 3 — voltron-sdk-client.ts exists)</p>
+</div>
+
+<div class="ticket">
+<h3><span class="ticket-id">TRK-14192</span> — Update ProDashX VOLTRON App Shell for Two Modes</h3>
+<p>Create the VOLTRON module in ProDashX with single input field, intent-driven routing to Task Mode (Mode 1) or Chat Mode (Mode 2). Dark theme, shadcn/ui.</p>
+
+<h4>File Changes</h4>
+<ul class="file-list">
+  <li class="file-new"><code>apps/prodash/app/(portal)/modules/voltron/page.tsx</code> — Main module page with single input field</li>
+  <li class="file-new"><code>apps/prodash/app/(portal)/modules/voltron/layout.tsx</code> — Module layout wrapper</li>
+  <li class="file-new"><code>apps/prodash/app/(portal)/modules/voltron/components/TaskMode.tsx</code> — Mode 1 UI: goal, streaming progress, tool calls, approval gates, result card</li>
+  <li class="file-new"><code>apps/prodash/app/(portal)/modules/voltron/components/ChatMode.tsx</code> — Mode 2 UI: chat bubbles, specialist indicator, conversation history</li>
+  <li class="file-new"><code>apps/prodash/app/(portal)/modules/voltron/components/InputField.tsx</code> — Unified input: large text area, submit triggers intent classification</li>
+  <li class="file-new"><code>apps/prodash/app/(portal)/modules/voltron/components/ApprovalGate.tsx</code> — Pause UI with approve/reject buttons</li>
+  <li class="file-new"><code>apps/prodash/app/(portal)/modules/voltron/components/ToolCallCard.tsx</code> — Individual tool call display</li>
+  <li class="file-new"><code>apps/prodash/app/(portal)/modules/voltron/hooks/useVoltronStream.ts</code> — SSE hook for /api/voltron/stream/:sessionId</li>
+  <li class="file-new"><code>apps/prodash/app/(portal)/modules/voltron/hooks/useIntentClassifier.ts</code> — Client-side intent classification hook</li>
+</ul>
+
+<h4>Design Requirements</h4>
+<ul>
+  <li>Dark theme using CSS variables (no inline colors)</li>
+  <li>shadcn/ui components throughout</li>
+  <li>No <code>alert()</code> / <code>confirm()</code> / <code>prompt()</code> — use <code>showToast</code> (OS Rule #5)</li>
+  <li>No manual mode toggle visible to user</li>
+  <li>Task Mode header: "What can VOLTRON do for you?"</li>
+</ul>
+
+<h4>Acceptance Criteria</h4>
+<div class="ac">
+<ul>
+  <li>Module exists at <code>apps/prodash/app/(portal)/modules/voltron/</code></li>
+  <li>Single input field — user types and submits</li>
+  <li>Intent classifier fires on submit (stub — full wiring in TRK-14199)</li>
+  <li>Mode 1 (deploy): Task Mode UI shows goal, streaming progress, tool calls, approval gates, result card</li>
+  <li>Mode 2 (chat): Chat Mode with bubble interface</li>
+  <li>No mode picker visible to user</li>
+  <li>Matches toMachina design (dark theme, CSS variables, shadcn/ui)</li>
+  <li><code>npm run build</code> passes with 0 errors (in toMachina repo)</li>
+</ul>
+</div>
+
+<div class="build-gate">BUILD GATE: cd /home/jdm/Projects/toMachina &amp;&amp; npm run build (0 errors in prodash app)</div>
+<p class="dep">Dependencies: TRK-14188 (Wave 3 — intent classifier types for import)</p>
+</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- WAVE 5 -->
+<!-- ============================================================ -->
+<div class="wave">
+<div class="wave-header">
+  <span class="wave-label">WAVE 5 — Wiring &amp; Integration</span>
+  <span class="parallel-badge">3 PARALLEL TRACKS</span>
+</div>
+
+<div class="ticket">
+<h3><span class="ticket-id">TRK-14191</span> — Implement canUseTool Callback (Mode 1)</h3>
+<p>Replace the stub <code>canUseTool</code> in voltron-sdk-client.ts with real approval logic. Sensitive tools pause; OWNER and auto-approved tools bypass.</p>
+
+<h4>File Changes</h4>
+<ul class="file-list">
+  <li class="file-mod"><code>/home/jdm/mdj-agent/src/agent/voltron-sdk-client.ts</code> — Implement real <code>canUseTool</code> callback logic</li>
+</ul>
+
+<h4>Implementation Details</h4>
+<pre>
+canUseTool: (toolName: string, toolInput: object): boolean =&gt; {
+  // 1. OWNER level (user level 0) -&gt; return true (bypass all)
+  // 2. User's auto_approve_tools list -&gt; return true
+  // 3. Tool has requires_approval: true -&gt; return false
+  //    -&gt; Emit approval_required SSE event { tool_name, tool_input, call_id }
+  //    -&gt; Wait for approve/reject endpoint call
+  // 4. Non-sensitive tools -&gt; return true (execute immediately)
+  // 5. 5-minute timeout on pending approvals -&gt; auto-reject + timeout SSE event
+}
+</pre>
+
+<h4>Acceptance Criteria</h4>
+<div class="ac">
+<ul>
+  <li>Sensitive tools (<code>requires_approval: true</code>) cause <code>canUseTool</code> to return <code>false</code> and emit <code>approval_required</code> SSE</li>
+  <li>Non-sensitive tools execute immediately</li>
+  <li>OWNER level (user level 0) bypasses approval for all tools</li>
+  <li>User's <code>auto_approve_tools</code> list bypasses approval</li>
+  <li>Approval via POST approve — resumes session</li>
+  <li>Rejection via POST reject — continues without tool</li>
+  <li>5-minute timeout — auto-rejects with <code>timeout</code> SSE event</li>
+  <li><code>npm run build</code> passes with 0 errors</li>
+</ul>
+</div>
+
+<div class="build-gate">BUILD GATE: cd /home/jdm/mdj-agent &amp;&amp; npm run build (0 errors required)</div>
+<p class="dep">Dependencies: TRK-14187 (Wave 3 — file exists), TRK-14189 (Wave 4 — approve/reject endpoints exist)</p>
+</div>
+
+<div class="ticket">
+<h3><span class="ticket-id">TRK-14193</span> — Specialist Routing for Mode 1</h3>
+<p>Wire <code>routeToSpecialist()</code> into the deploy endpoint so specialist prompt and tools are injected before <code>deployGoal()</code>.</p>
+
+<h4>File Changes</h4>
+<ul class="file-list">
+  <li class="file-mod"><code>/home/jdm/mdj-agent/src/server.ts</code> — In deploy handler: call <code>routeToSpecialist()</code>, pass results to <code>deployGoal()</code></li>
+  <li class="file-verify"><code>/home/jdm/mdj-agent/src/agent/specialist-router.ts</code> — Verify works for Mode 1 goals. Fallback = "voltron-general".</li>
+</ul>
+
+<h4>Implementation Flow</h4>
+<pre>
+// In POST /api/voltron/deploy handler:
+1. const specialist = await routeToSpecialist(goal, user_context, specialist_id)
+2. const allowedTools = filterToolsForUser(specialist.available_tools, user.level)
+3. deployGoal({ goal, systemPrompt: specialist.system_prompt, allowedTools, ... })
+4. Emit specialist_switch SSE event if specialist changes mid-conversation
+</pre>
+
+<h4>Acceptance Criteria</h4>
+<div class="ac">
+<ul>
+  <li><code>routeToSpecialist()</code> called before <code>deployGoal()</code></li>
+  <li>Matched specialist's <code>system_prompt</code> injected into Agent SDK session</li>
+  <li>Matched specialist's <code>available_tools</code> applied via <code>filterToolsForUser()</code></li>
+  <li>Specialist switch SSE event emitted if changed mid-conversation</li>
+  <li>"voltron-general" is fallback specialist</li>
+  <li>Manual test: "medicare" goal routes to voltron-medicare</li>
+  <li>Manual test: "pipeline" goal routes to appropriate specialist</li>
+  <li><code>npm run build</code> passes with 0 errors</li>
+</ul>
+</div>
+
+<div class="build-gate">BUILD GATE: cd /home/jdm/mdj-agent &amp;&amp; npm run build (0 errors required)</div>
+<p class="dep">Dependencies: TRK-14189 (Wave 4 — deploy route exists), TRK-14187 (Wave 3 — deployGoal accepts specialist params)</p>
+</div>
+
+<div class="ticket">
+<h3><span class="ticket-id">TRK-14199</span> — Wire Intent Classifier into ProDashX (Dual-Mode)</h3>
+<p>Connect the intent classifier to the VOLTRON App shell so every submission routes automatically to Mode 1 or Mode 2.</p>
+
+<h4>File Changes</h4>
+<ul class="file-list">
+  <li class="file-mod"><code>apps/prodash/app/(portal)/modules/voltron/page.tsx</code> — Wire <code>classifyIntent()</code> on form submission</li>
+  <li class="file-mod"><code>apps/prodash/app/(portal)/modules/voltron/hooks/useIntentClassifier.ts</code> — Implement actual API call</li>
+  <li class="file-mod"><code>apps/prodash/app/(portal)/modules/voltron/components/InputField.tsx</code> — On submit: classify, log (non-PHI), route</li>
+</ul>
+
+<h4>Acceptance Criteria</h4>
+<div class="ac">
+<ul>
+  <li><code>classifyIntent()</code> called on every submission before routing</li>
+  <li>Deploy-intent inputs route to Mode 1 Task Mode UI</li>
+  <li>Chat-intent inputs route to Mode 2 Chat Mode UI</li>
+  <li>User never sees mode toggle</li>
+  <li>Intent classifier result logged (non-PHI) for monitoring</li>
+  <li><code>npm run build</code> passes with 0 errors (in toMachina repo)</li>
+</ul>
+</div>
+
+<div class="build-gate">BUILD GATE: cd /home/jdm/Projects/toMachina &amp;&amp; npm run build (0 errors in prodash app)</div>
+<p class="dep">Dependencies: TRK-14192 (Wave 4 — ProDashX shell exists), TRK-14188 (Wave 3 — classifier on server)</p>
+</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- WAVE 6 -->
+<!-- ============================================================ -->
+<div class="wave">
+<div class="wave-header">
+  <span class="wave-label">WAVE 6 — Infrastructure + Hardening</span>
+  <span class="parallel-badge">2 PARALLEL TRACKS</span>
+</div>
+
+<div class="ticket">
+<h3><span class="ticket-id">TRK-14194</span> — GitHub Webhook Receiver on MDJ_SERVER</h3>
+<p>Auto-deploy on push to main. HMAC-SHA256 validated, async deploy, rollback-safe on build failure.</p>
+
+<h4>File Changes</h4>
+<ul class="file-list">
+  <li class="file-mod"><code>/home/jdm/mdj-agent/src/server.ts</code> — Add <code>POST /webhook/deploy</code> route with HMAC validation</li>
+  <li class="file-new"><code>/etc/sudoers.d/jdm-voltron</code> — <strong>Manual (JDM):</strong> sudoers entry for systemctl restart</li>
+</ul>
+
+<h4>Implementation Details</h4>
+<pre>
+// POST /webhook/deploy
+// Auth: HMAC-SHA256 via x-hub-signature-256 header
+// Secret: process.env.GITHUB_WEBHOOK_SECRET (OS Rule #1)
+
+function validateGitHubSignature(payload: string, signature: string, secret: string): boolean {
+  const expected = 'sha256=' + crypto
+    .createHmac('sha256', secret)
+    .update(payload, 'utf8')
+    .digest('hex')
+  return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected))
+}
+
+// Flow:
+// 1. Validate signature -&gt; 401 if invalid
+// 2. Check payload.ref === 'refs/heads/main' -&gt; ignore non-main
+// 3. Return 200: { success: true, data: { action: 'deploy_started' } }
+// 4. Async: git pull, npm ci --production=false, npx tsc, sudo systemctl restart
+// 5. Build failure: DO NOT restart, log error, Slack via notifyError()
+</pre>
+
+<h4>Acceptance Criteria</h4>
+<div class="ac">
+<ul>
+  <li><code>POST /webhook/deploy</code> added (unauthenticated HTTP, signature-validated)</li>
+  <li>HMAC-SHA256 validation using <code>process.env.GITHUB_WEBHOOK_SECRET</code></li>
+  <li>Only fires on pushes to <code>refs/heads/main</code></li>
+  <li>Returns 200 immediately, deploys async</li>
+  <li>Deploy: git pull &rarr; npm ci &rarr; npx tsc &rarr; systemctl restart</li>
+  <li>Build failure: service NOT restarted, Slack notification sent</li>
+  <li>Sudoers entry documented</li>
+  <li><code>npm run build</code> passes with 0 errors</li>
+</ul>
+</div>
+
+<div class="build-gate">BUILD GATE: cd /home/jdm/mdj-agent &amp;&amp; npm run build (0 errors required)</div>
+<p class="dep">Dependencies: TRK-14185 (Wave 1), TRK-14189 (Wave 4 — server.ts routes stable)</p>
+</div>
+
+<div class="ticket">
+<h3><span class="ticket-id">TRK-14198</span> — Mode 1 Deploy + SSE + Approve/Reject (Integration Verification)</h3>
+<p>Verify all four Mode 1 endpoints work together end-to-end with auth middleware enforced.</p>
+
+<h4>File Changes</h4>
+<ul class="file-list">
+  <li class="file-verify"><code>/home/jdm/mdj-agent/src/server.ts</code> — Verify auth middleware on all VOLTRON routes</li>
+  <li class="file-verify"><code>/home/jdm/mdj-agent/src/agent/voltron-sdk-client.ts</code> — Verify SSE event emission</li>
+</ul>
+
+<h4>Verification Checklist</h4>
+<pre>
+# 1. Deploy returns 202
+curl -X POST http://localhost:4200/api/voltron/deploy \
+  -H "Authorization: Bearer $TOKEN" \
+  -d '{"goal": "test", "user_context": {...}}'
+
+# 2. SSE stream emits events
+curl -N http://localhost:4200/api/voltron/stream/$SESSION_ID \
+  -H "Authorization: Bearer $TOKEN"
+
+# 3. Approve resumes, Reject continues
+curl -X POST .../approve/$SESSION_ID -d '{"approved": true, "call_id": "..."}'
+curl -X POST .../reject/$SESSION_ID -d '{"approved": false, "call_id": "..."}'
+</pre>
+
+<h4>Acceptance Criteria</h4>
+<div class="ac">
+<ul>
+  <li><code>POST /api/voltron/deploy</code> live, returning 202</li>
+  <li>SSE stream emits real-time events</li>
+  <li>Approve endpoint resumes session</li>
+  <li>Reject endpoint rejects tool</li>
+  <li>Auth middleware enforced on all endpoints (401 without token)</li>
+  <li><code>npm run build</code> passes with 0 errors</li>
+</ul>
+</div>
+
+<div class="build-gate">BUILD GATE: cd /home/jdm/mdj-agent &amp;&amp; npm run build (0 errors required)</div>
+<p class="dep">Dependencies: TRK-14189 (Wave 4), TRK-14191 (Wave 5), TRK-14193 (Wave 5)</p>
+</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- WAVE 7 -->
+<!-- ============================================================ -->
+<div class="wave">
+<div class="wave-header">
+  <span class="wave-label">WAVE 7 — Testing</span>
+  <span class="parallel-badge">2 PARALLEL TRACKS</span>
+</div>
+
+<div class="ticket">
+<h3><span class="ticket-id">TRK-14196</span> — E2E Test: Mode 1 Multi-Step + Mode 2 Q&amp;A</h3>
+<p>Vitest E2E test covering Mode 1 deploy flow, Mode 2 chat flow, and basic intent classification.</p>
+
+<h4>File Changes</h4>
+<ul class="file-list">
+  <li class="file-new"><code>/home/jdm/mdj-agent/src/forge/tests/e2e-sprint-001.test.ts</code> — 3 sub-tests in Vitest</li>
+</ul>
+
+<h4>Test Specifications</h4>
+<pre>
+// Test 1: Mode 1 — "Build Aswegan meeting prep" (OWNER level)
+//   POST /api/voltron/deploy -&gt; 202, session_id
+//   SSE fires 8+ tool_call events, [DONE] received
+
+// Test 2: Mode 2 — "What accounts does Jim Aswegan have?"
+//   POST /agent/chat -&gt; SSE fires &lt;= 3 tool_calls, account data, [DONE]
+
+// Test 3: Intent Classification
+//   "Build Aswegan meeting prep" -&gt; deploy, confidence &gt; 0.7
+//   "What accounts does Jim Aswegan have?" -&gt; chat, confidence &gt; 0.7
+</pre>
+
+<h4>Acceptance Criteria</h4>
+<div class="ac">
+<ul>
+  <li>Mode 1 test: POST returns 202, SSE fires 8+ tool_calls, [DONE]</li>
+  <li>Mode 2 test: SSE fires &le;3 tool_calls, account data present, [DONE]</li>
+  <li>Intent test: deploy goal &rarr; deploy mode, chat goal &rarr; chat mode</li>
+  <li>All 3 sub-tests pass in Vitest</li>
+  <li><code>npm run build</code> passes with 0 errors</li>
+</ul>
+</div>
+
+<div class="build-gate">BUILD GATE: cd /home/jdm/mdj-agent &amp;&amp; npm run build (0 errors required)</div>
+<p class="dep">Dependencies: TRK-14189 (W4), TRK-14190 (W2), TRK-14191 (W5), TRK-14188 (W3)</p>
+</div>
+
+<div class="ticket">
+<h3><span class="ticket-id">TRK-14200</span> — GitHub Webhook Receiver for Auto-Deploy (Verification)</h3>
+<p>Verify and harden the webhook receiver. Confirm Slack error notification, sudoers entry, push-to-deploy flow.</p>
+
+<h4>File Changes</h4>
+<ul class="file-list">
+  <li class="file-verify"><code>/home/jdm/mdj-agent/src/server.ts</code> — Verify edge cases: invalid sig (401), non-main (ignored), malformed (400)</li>
+  <li class="file-verify"><code>/etc/sudoers.d/jdm-voltron</code> — Confirm sudoers entry</li>
+</ul>
+
+<h4>Acceptance Criteria</h4>
+<div class="ac">
+<ul>
+  <li><code>POST /webhook/deploy</code> registered in server.ts</li>
+  <li>HMAC-SHA256 validated against <code>GITHUB_WEBHOOK_SECRET</code></li>
+  <li>Only fires on <code>refs/heads/main</code></li>
+  <li>Build failure: service NOT restarted, Slack notification sent</li>
+  <li>Sudoers entry documented in <code>/etc/sudoers.d/jdm-voltron</code></li>
+  <li><code>npm run build</code> passes with 0 errors</li>
+</ul>
+</div>
+
+<div class="build-gate">BUILD GATE: cd /home/jdm/mdj-agent &amp;&amp; npm run build (0 errors required)</div>
+<p class="dep">Dependencies: TRK-14194 (Wave 6 — webhook exists)</p>
+</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- WAVE 8 -->
+<!-- ============================================================ -->
+<div class="wave">
+<div class="wave-header">
+  <span class="wave-label">WAVE 8 — Integration Test Extension</span>
+  <span class="sequential-badge">SEQUENTIAL</span>
+</div>
+
+<div class="ticket">
+<h3><span class="ticket-id">TRK-14201</span> — E2E Test: Mode 1 + Mode 2 + Intent Classification</h3>
+<p>Extend E2E test with comprehensive intent classification coverage and integration verification.</p>
+
+<h4>File Changes</h4>
+<ul class="file-list">
+  <li class="file-mod"><code>/home/jdm/mdj-agent/src/forge/tests/e2e-sprint-001.test.ts</code> — Extend with additional assertions</li>
+</ul>
+
+<h4>Test Enhancements</h4>
+<pre>
+// Enhanced Mode 1: verify OWNER bypasses approval gates
+// Enhanced Mode 2: verify specific account data fields
+// Enhanced Intent: mixed intents, empty string, ambiguous -&gt; haiku fires
+</pre>
+
+<h4>Acceptance Criteria</h4>
+<div class="ac">
+<ul>
+  <li>Mode 1 — POST deploy, SSE fires 8+ tool_call events, [DONE]</li>
+  <li>Mode 2 — POST chat, SSE fires &le;3 tool_calls, Q&amp;A correct</li>
+  <li>Intent classifier — deploy goal &rarr; deploy, chat goal &rarr; chat</li>
+  <li>All 3 sub-tests pass in Vitest</li>
+  <li><code>npm run build</code> passes with 0 errors</li>
+</ul>
+</div>
+
+<div class="build-gate">BUILD GATE: cd /home/jdm/mdj-agent &amp;&amp; npm run build (0 errors required)</div>
+<p class="dep">Dependencies: TRK-14196 (Wave 7 — base test file), TRK-14199 (Wave 5 — classifier wired)</p>
+</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- WAVE 9 -->
+<!-- ============================================================ -->
+<div class="wave">
+<div class="wave-header">
+  <span class="wave-label">WAVE 9 — Production Deploy</span>
+  <span class="sequential-badge">SEQUENTIAL</span>
+</div>
+
+<div class="ticket">
+<h3><span class="ticket-id">TRK-14197</span> — Deploy to Production + Smoke Test</h3>
+<p>Merge all PRs to main. Restart service. Full smoke test battery — all systems green.</p>
+
+<h4>File Changes</h4>
+<ul class="file-list">
+  <li class="file-verify">All PRs merged to <code>main</code></li>
+  <li class="file-verify"><code>mdj-agent.service</code> restarted on MDJ_SERVER</li>
+</ul>
+
+<h4>Smoke Test Battery</h4>
+<pre>
+# 1. Health: GET /health -&gt; 200, system: "voltron", active_conversations present
+# 2. Mode 2: POST /agent/chat -&gt; SSE stream, correct response
+# 3. Mode 1: POST /api/voltron/deploy -&gt; 202, SSE tool_calls, result
+# 4. Webhook: push commit -&gt; auto-deploy fires, no SSH
+# 5. FORGE: /forge/* routes unaffected, RONIN works
+# 6. ProDashX: VOLTRON App loads, no console errors
+</pre>
+
+<h4>Acceptance Criteria</h4>
+<div class="ac">
+<ul>
+  <li>PR merged to main</li>
+  <li>Service restarted on MDJ_SERVER</li>
+  <li><code>GET /health</code> returns 200 with <code>status: "ok"</code> and <code>system: "voltron"</code></li>
+  <li>VOLTRON App loads in ProDashX without console errors</li>
+  <li>Mode 2 smoke: question streams correct response</li>
+  <li>Mode 1 smoke: goal streams progress and returns result</li>
+  <li>Webhook smoke: push triggers auto-deploy without SSH</li>
+  <li>Health reports <code>active_conversations</code> field</li>
+  <li>FORGE runner routes unaffected — RONIN works</li>
+  <li>All systems green</li>
+</ul>
+</div>
+
+<div class="build-gate">BUILD GATE: cd /home/jdm/mdj-agent &amp;&amp; npm run build (final pre-deploy gate)</div>
+<p class="dep">Dependencies: ALL tickets TRK-14185 through TRK-14201 complete</p>
+</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- WAVE 10 -->
+<!-- ============================================================ -->
+<div class="wave">
+<div class="wave-header">
+  <span class="wave-label">WAVE 10 — Final Verification</span>
+  <span class="sequential-badge">SEQUENTIAL</span>
+</div>
+
+<div class="ticket">
+<h3><span class="ticket-id">TRK-14202</span> — Deploy + Full Smoke Test (Final Sign-Off)</h3>
+<p>Full regression smoke — final "all systems green" gate before Sprint 001 complete.</p>
+
+<h4>File Changes</h4>
+<ul class="file-list">
+  <li class="file-verify">No code changes — verification only</li>
+</ul>
+
+<h4>Full Regression Checklist</h4>
+<pre>
+# 1. GET /health -&gt; 200, system: "voltron"
+# 2. ProDashX VOLTRON App loads, no errors
+# 3. Mode 1: deploy goal -&gt; SSE stream -&gt; tool_calls -&gt; result -&gt; [DONE]
+# 4. Mode 2: chat question -&gt; SSE stream -&gt; correct answer -&gt; [DONE]
+# 5. Webhook: push commit -&gt; auto-deploy, no SSH
+# 6. Intent classifier: deploy input -&gt; Mode 1, chat input -&gt; Mode 2
+# 7. Existing routes: /forge/*, /api/mdj/*, /agent/chat all unchanged
+</pre>
+
+<h4>Acceptance Criteria</h4>
+<div class="ac">
+<ul>
+  <li>PR merged, service restarted</li>
+  <li><code>GET /health</code> returns 200 with <code>system: "voltron"</code></li>
+  <li>ProDashX VOLTRON App loads, no console errors</li>
+  <li>Mode 1 + Mode 2 smoke tests pass</li>
+  <li>Webhook auto-deploy fires without SSH</li>
+  <li>All systems green</li>
+</ul>
+</div>
+
+<div class="build-gate">BUILD GATE: cd /home/jdm/mdj-agent &amp;&amp; npm run build (final confirmation)</div>
+<p class="dep">Dependencies: TRK-14197 (Wave 9 — initial deploy verified)</p>
+</div>
+</div>
+
+<hr>
+
+<!-- ============================================================ -->
+<h2>Risks &amp; Mitigations</h2>
+<!-- ============================================================ -->
+
+<div class="risk">
+<p><span class="risk-label">RISK 1: Agent SDK Breaking Changes</span><br>
+<code>@anthropic-ai/claude-agent-sdk ^0.2.83</code> is pre-1.0. API surface may shift.<br>
+<strong>Mitigation:</strong> TRK-14186 smoke test catches issues early. Pin exact version if unstable.</p>
+</div>
+
+<div class="risk">
+<p><span class="risk-label">RISK 2: server.ts Merge Conflicts</span><br>
+4 tickets modify <code>server.ts</code> across waves: TRK-14185 (W1), TRK-14189 (W4), TRK-14193 (W5), TRK-14194 (W6).<br>
+<strong>Mitigation:</strong> Wave ordering ensures sequential merges. Each PR merges before next wave starts.</p>
+</div>
+
+<div class="risk">
+<p><span class="risk-label">RISK 3: Firestore Config Updates via API</span><br>
+TRK-14185 updates 6 specialist configs. Must use API routes (OS Rule #2).<br>
+<strong>Mitigation:</strong> Use existing PATCH endpoint. Verify API route exists first.</p>
+</div>
+
+<div class="risk">
+<p><span class="risk-label">RISK 4: claude-client.ts Accidental Modification</span><br>
+Wave 1 rename could accidentally touch Mode 2 engine.<br>
+<strong>Mitigation:</strong> TRK-14185 must NOT modify <code>claude-client.ts</code>. Wave 2 TRK-14190 verifies zero diff.</p>
+</div>
+
+<div class="risk">
+<p><span class="risk-label">RISK 5: Model ID Mismatch</span><br>
+Discovery doc uses outdated model IDs.<br>
+<strong>Mitigation:</strong> Plan overrides to: <code>claude-opus-4-6</code>, <code>claude-sonnet-4-6</code>, <code>claude-haiku-4-5-20251001</code>.</p>
+</div>
+
+<div class="risk">
+<p><span class="risk-label">RISK 6: Webhook Security</span><br>
+<code>POST /webhook/deploy</code> is unauthenticated — relies on HMAC-SHA256 only.<br>
+<strong>Mitigation:</strong> <code>crypto.timingSafeEqual</code> prevents timing attacks. Only <code>refs/heads/main</code> triggers deploy.</p>
+</div>
+
+<div class="risk">
+<p><span class="risk-label">RISK 7: Sudoers Configuration</span><br>
+Webhook deploy requires <code>sudo systemctl restart</code>. Missing entry = silent failure.<br>
+<strong>Mitigation:</strong> JDM creates <code>/etc/sudoers.d/jdm-voltron</code> before Wave 7 testing.</p>
+</div>
+
+<hr>
+
+<!-- ============================================================ -->
+<h2>Endpoint Coverage Verification</h2>
+<!-- ============================================================ -->
+
+<p>Every endpoint from the discovery document is covered:</p>
+
+<table>
+<tr><th>Endpoint</th><th>Primary Ticket</th><th>Verification Ticket</th></tr>
+<tr><td><code>POST /api/voltron/deploy</code></td><td>TRK-14189</td><td>TRK-14198</td></tr>
+<tr><td><code>GET /api/voltron/stream/:sessionId</code></td><td>TRK-14189</td><td>TRK-14198</td></tr>
+<tr><td><code>POST /api/voltron/approve/:sessionId</code></td><td>TRK-14189</td><td>TRK-14198</td></tr>
+<tr><td><code>POST /api/voltron/reject/:sessionId</code></td><td>TRK-14189</td><td>TRK-14198</td></tr>
+<tr><td><code>GET /api/voltron/specialists</code></td><td>TRK-14189</td><td>TRK-14193</td></tr>
+<tr><td><code>POST /agent/chat</code> (unchanged)</td><td>TRK-14190</td><td>TRK-14196</td></tr>
+<tr><td><code>GET /health</code> (modified)</td><td>TRK-14185</td><td>TRK-14197, TRK-14202</td></tr>
+<tr><td><code>POST /webhook/deploy</code></td><td>TRK-14194</td><td>TRK-14200</td></tr>
+</table>
+
+<hr>
+
+<!-- ============================================================ -->
+<h2>Git Branching Strategy (OS Rule #8)</h2>
+<!-- ============================================================ -->
+
+<pre>
+# Per ticket:
+git checkout main &amp;&amp; git pull origin main
+git checkout -b voltron/sprint-001-TRK-{id}
+
+# After implementation + npm run build:
+git add [specific files]
+git commit -m "TRK-{id}: {description}"
+gh pr create --title "TRK-{id}: {title}" --body "..." --auto --squash
+
+# NEVER push directly to main
+</pre>
+
+<table>
+<tr><th>Ticket</th><th>Branch Name</th></tr>
+<tr><td>TRK-14185</td><td><code>voltron/sprint-001-TRK-14185</code></td></tr>
+<tr><td>TRK-14186</td><td><code>voltron/sprint-001-TRK-14186</code></td></tr>
+<tr><td>TRK-14187</td><td><code>voltron/sprint-001-TRK-14187</code></td></tr>
+<tr><td>TRK-14188</td><td><code>voltron/sprint-001-TRK-14188</code></td></tr>
+<tr><td>TRK-14189</td><td><code>voltron/sprint-001-TRK-14189</code></td></tr>
+<tr><td>TRK-14190</td><td><code>voltron/sprint-001-TRK-14190</code></td></tr>
+<tr><td>TRK-14191</td><td><code>voltron/sprint-001-TRK-14191</code></td></tr>
+<tr><td>TRK-14192</td><td><code>voltron/sprint-001-TRK-14192</code></td></tr>
+<tr><td>TRK-14193</td><td><code>voltron/sprint-001-TRK-14193</code></td></tr>
+<tr><td>TRK-14194</td><td><code>voltron/sprint-001-TRK-14194</code></td></tr>
+<tr><td>TRK-14195</td><td><code>voltron/sprint-001-TRK-14195</code></td></tr>
+<tr><td>TRK-14196</td><td><code>voltron/sprint-001-TRK-14196</code></td></tr>
+<tr><td>TRK-14197</td><td><code>voltron/sprint-001-TRK-14197</code></td></tr>
+<tr><td>TRK-14198</td><td><code>voltron/sprint-001-TRK-14198</code></td></tr>
+<tr><td>TRK-14199</td><td><code>voltron/sprint-001-TRK-14199</code></td></tr>
+<tr><td>TRK-14200</td><td><code>voltron/sprint-001-TRK-14200</code></td></tr>
+<tr><td>TRK-14201</td><td><code>voltron/sprint-001-TRK-14201</code></td></tr>
+<tr><td>TRK-14202</td><td><code>voltron/sprint-001-TRK-14202</code></td></tr>
+</table>
+
+<hr>
+
+<!-- ============================================================ -->
+<h2>Sprint Summary</h2>
+<!-- ============================================================ -->
+
+<table>
+<tr><th>Metric</th><th>Value</th></tr>
+<tr><td>Total Tickets</td><td>18</td></tr>
+<tr><td>Waves</td><td>10</td></tr>
+<tr><td>Max Parallelism</td><td>3 (Waves 2, 5)</td></tr>
+<tr><td>New Files</td><td>~12 (agent engines, classifier, tests, ProDashX module)</td></tr>
+<tr><td>Modified Files</td><td>~8 (server.ts, package.json, CLAUDE.md, templates.ts, ProDashX wiring)</td></tr>
+<tr><td>Repos Touched</td><td>2 (mdj-agent, toMachina/apps/prodash)</td></tr>
+<tr><td>New Endpoints</td><td>6 (deploy, stream, approve, reject, specialists alias, webhook)</td></tr>
+<tr><td>Modified Endpoints</td><td>1 (GET /health — add system field)</td></tr>
+<tr><td>Preserved Endpoints</td><td>All existing /agent/chat, /api/mdj/*, /forge/*</td></tr>
+<tr><td>Build Gates</td><td>18 (one per ticket — npm run build, 0 errors)</td></tr>
+</table>
+
+<p style="margin-top: 2rem; color: var(--muted); text-align: center; font-size: 0.8rem;">
+  VOLTRON Foundation v3 Plan &mdash; Generated 2026-03-29 &mdash; FORGE Sprint 001
+</p>
+
+</body>
+</html>

@@ -1,0 +1,150 @@
+// ============================================================================
+// firestore.partner.rules.template — MT-009
+//
+// TEMPLATE FILE — Do not deploy directly.
+// Rendered by the MT-008 onboard-partner.ts script at provisioning time.
+// The literal string PARTNER_SLUG is replaced with the actual partner slug
+// (e.g. "midwest-medigap") before deployment to the named Firestore DB
+// partner-<slug>.
+//
+// Design notes:
+//  - isPartnerUser() gates all tenant data to the owning partner's agents only.
+//  - isSuperAdmin() grants RPI super-admins full read/write access for support.
+//  - Super-admin READ access is logged at the API layer (services/api); Firestore
+//    security rules cannot write audit side effects, so audit enforcement lives
+//    in the auth middleware (req.partnerId / role checks in routes).
+//  - Default-deny: every path not explicitly matched is rejected.
+// ============================================================================
+
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helpers ──────────────────────────────────────────────────────────────
+
+    /** True when the requesting user is an authenticated agent for THIS partner. */
+    function isPartnerUser() {
+      return request.auth != null
+          && request.auth.token.partner_id == 'PARTNER_SLUG';
+    }
+
+    /** True when the requesting user has the RPI super-admin role. */
+    function isSuperAdmin() {
+      return request.auth != null
+          && request.auth.token.role == 'superadmin';
+    }
+
+    /** Convenience: either partner agent OR super-admin. */
+    function canAccess() {
+      return isPartnerUser() || isSuperAdmin();
+    }
+
+    // ── Default deny (Firestore rule precedence: most specific wins) ──────────
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // ── Partner client records ────────────────────────────────────────────────
+
+    match /clients/{clientId} {
+      allow read, write: if canAccess();
+
+      // Financial accounts (annuity, life, medicare, investment)
+      match /accounts/{accountId} {
+        allow read, write: if canAccess();
+      }
+
+      // Portal/API access credentials per service
+      match /access_items/{itemId} {
+        allow read, write: if canAccess();
+      }
+    }
+
+    // Collection-group query support for accounts across all clients
+    match /{path=**}/accounts/{accountId} {
+      allow read, write: if canAccess();
+    }
+
+    // ── Household groupings ────────────────────────────────────────────────────
+
+    match /households/{householdId} {
+      allow read, write: if canAccess();
+    }
+
+    // ── Revenue & pipeline ────────────────────────────────────────────────────
+
+    match /revenue/{revenueId} {
+      allow read, write: if canAccess();
+    }
+
+    match /opportunities/{oppId} {
+      allow read, write: if canAccess();
+    }
+
+    // ── Communications ────────────────────────────────────────────────────────
+
+    match /communications/{commId} {
+      allow read, write: if canAccess();
+    }
+
+    // ── Case & task management ────────────────────────────────────────────────
+
+    match /case_tasks/{taskId} {
+      allow read, write: if canAccess();
+    }
+
+    match /activities/{activityId} {
+      allow read, write: if canAccess();
+    }
+
+    // ── Approval queue ────────────────────────────────────────────────────────
+
+    match /approval_queue/{itemId} {
+      allow read, write: if canAccess();
+    }
+
+    // ── Campaign enrollments ──────────────────────────────────────────────────
+
+    match /campaign_enrollments/{enrollmentId} {
+      allow read, write: if canAccess();
+    }
+
+    // ── Org structure ─────────────────────────────────────────────────────────
+
+    match /org/{docId} {
+      allow read, write: if canAccess();
+    }
+
+    // ── VOLTRON / MDJ conversation history ────────────────────────────────────
+
+    match /mdj_conversations/{convId} {
+      allow read, write: if canAccess();
+    }
+
+    // ── Wire execution audit log ──────────────────────────────────────────────
+    // Write-once; updates blocked to preserve audit integrity.
+
+    match /wire_executions/{execId} {
+      allow read:   if canAccess();
+      allow create: if canAccess();
+      allow update, delete: if false;  // Immutable audit records
+    }
+
+    // ── DEX packages ──────────────────────────────────────────────────────────
+
+    match /dex_packages/{packageId} {
+      allow read, write: if canAccess();
+
+      match /dex_package_events/{eventId} {
+        allow read, write: if canAccess();
+      }
+    }
+
+    // Collection-group query support for dex_package_events
+    match /{path=**}/dex_package_events/{eventId} {
+      allow read, write: if canAccess();
+    }
+
+  }
+}

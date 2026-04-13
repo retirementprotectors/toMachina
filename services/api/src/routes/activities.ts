@@ -1,5 +1,5 @@
 import { Router, type Request, type Response } from 'express'
-import { getFirestore } from 'firebase-admin/firestore'
+import { getDb } from '../lib/db.js'
 import {
   successResponse,
   errorResponse,
@@ -18,7 +18,7 @@ export const activityRoutes = Router()
  */
 activityRoutes.get('/', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const params = getPaginationParams(req)
     const entityTypeFilter = (req.query.entityType as string) || ''
 
@@ -45,7 +45,7 @@ activityRoutes.get('/', async (req: Request, res: Response) => {
  */
 activityRoutes.get('/client/:clientId', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const clientId = param(req.params.clientId)
     const params = getPaginationParams(req)
 
@@ -69,7 +69,7 @@ activityRoutes.get('/client/:clientId', async (req: Request, res: Response) => {
  */
 activityRoutes.post('/', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- auth middleware attaches user to req
     const user = (req as any).user as Record<string, unknown> | undefined
     const userEmail = (user?.email as string) || 'system'
@@ -127,7 +127,7 @@ activityRoutes.post('/', async (req: Request, res: Response) => {
  */
 activityRoutes.get('/household/:householdId', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const householdId = param(req.params.householdId)
 
     // Look up household to get member list

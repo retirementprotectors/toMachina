@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import type { CaseOutcome } from '@tomachina/core'
+import { authFetch } from './auth-fetch'
 
 // ── Types ──────────────────────────────────────────────────────────────
 
@@ -46,7 +47,7 @@ export function CaseReviewWidget({ caseId, currentStatus, onReviewComplete }: Ca
         body.revision_notes = notes.trim()
       }
 
-      const res = await fetch(`/api/voltron/cases/${caseId}`, {
+      const res = await authFetch(`/api/voltron/cases/${caseId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),

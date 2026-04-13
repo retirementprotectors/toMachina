@@ -1,0 +1,303 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Medicare Carrier Charters</title>
+<style>
+:root{--bg:#0a0e17;--card:#111827;--card2:#1a2236;--border:#1e293b;--text:#e2e8f0;--muted:#94a3b8;--accent:#10b981;--green:#22c55e;--blue:#3b82f6;--cyan:#06b6d4}
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;padding:24px;max-width:1100px;margin:0 auto}
+h1{font-size:1.8rem;font-weight:800;background:linear-gradient(135deg,var(--blue),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-align:center;margin-bottom:6px}
+.sub{color:var(--muted);font-size:.85rem;text-align:center;margin-bottom:24px}
+.legend{display:flex;gap:20px;justify-content:center;margin-bottom:24px;flex-wrap:wrap}.legend-item{display:flex;align-items:center;gap:6px;font-size:.8rem;color:var(--muted)}.legend-dot{width:14px;height:14px;border-radius:4px}.legend-dot.green{background:var(--green)}.legend-dot.blue{background:var(--blue)}
+.stats{display:flex;gap:12px;justify-content:center;margin-bottom:24px;flex-wrap:wrap}.stat{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px 20px;text-align:center}.stat .n{font-size:1.3rem;font-weight:800;color:var(--blue)}.stat .l{font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+.carrier{background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:14px;padding:20px}.carrier.done{border-color:var(--green);opacity:.75}
+.carrier-head{display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap}.carrier-name{font-size:1.1rem;font-weight:700;color:var(--text);flex:1}.cnt{background:var(--card2);border-radius:6px;padding:3px 10px;font-size:.72rem;font-weight:700;color:var(--blue)}
+.field-section{margin-bottom:12px}.field-title{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;display:flex;align-items:center;gap:8px}.field-title.gn{color:var(--green)}.field-title.bl{color:var(--blue)}.field-hint{font-size:.65rem;font-weight:400;color:var(--muted);text-transform:none;letter-spacing:0}
+.variants{display:flex;flex-wrap:wrap;gap:6px}.v{background:var(--card2);border:2px solid var(--border);border-radius:6px;padding:6px 14px;font-family:monospace;font-size:.82rem;cursor:pointer;transition:all .15s}.v:hover{border-color:var(--muted)}.v.gs{border-color:var(--green);background:rgba(34,197,94,.12);color:var(--green)}.v.bs{border-color:var(--blue);background:rgba(59,130,246,.12);color:var(--blue)}
+.notes-row{margin-top:12px}.notes-row textarea{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:8px 12px;font-size:.82rem;font-family:inherit;resize:vertical;min-height:36px}.notes-row textarea::placeholder{color:var(--muted)}.notes-row textarea:focus{outline:none;border-color:var(--blue)}
+hr{border:none;border-top:1px solid var(--border);margin:10px 0}
+.bottom-bar{position:sticky;bottom:0;background:var(--card);border-top:1px solid var(--border);padding:14px 0;display:flex;justify-content:space-between;align-items:center;margin-top:32px}.ebtn{padding:8px 24px;border-radius:8px;border:none;background:var(--blue);color:#fff;font-weight:700;font-size:.85rem;cursor:pointer}.prog{color:var(--muted);font-size:.8rem}.prog strong{color:var(--blue)}
+</style></head><body>
+<h1>Medicare Carrier Charter Review</h1>
+<div class="sub">Medicare carriers ONLY. Life + Annuity already decided. Click GREEN for the correct carrier name. Click BLUE for ALL correct carrier charters.</div>
+<div class="legend"><div class="legend-item"><div class="legend-dot green"></div>Carrier Name (pick ONE)</div><div class="legend-item"><div class="legend-dot blue"></div>Carrier Charters (pick ALL that apply)</div></div>
+<div class="stats"><div class="stat"><div class="n">21</div><div class="l">Medicare Carriers</div></div><div class="stat"><div class="n">312</div><div class="l">Records</div></div><div class="stat"><div class="n" id="dc">0</div><div class="l">Decided</div></div></div>
+<div id="carriers">
+<div class="carrier" id="c0">
+<div class="carrier-head"><div class="carrier-name">Aetna</div><div class="cnt">153 records</div></div>
+<div class="field-section"><div class="field-title gn">Carrier Name <span class="field-hint">(pick ONE — green)</span></div><div class="variants">
+<div class="v" onclick="pc(0,this)">Aetna</div>
+<div class="v" onclick="pc(0,this)">Aetna / CVS Health</div>
+<div class="v" onclick="pc(0,this)">Continental Life</div>
+</div></div>
+<hr>
+<div class="field-section"><div class="field-title bl">Carrier Charters <span class="field-hint">(click ALL that apply — blue)</span></div><div class="variants">
+<div class="v" onclick="ph(0,this)">AETNA (ACC)- ACCENDO</div>
+<div class="v" onclick="ph(0,this)">AETNA (AHIC)- AETNA Health Insurance Company</div>
+<div class="v" onclick="ph(0,this)">AETNA (AHLC)- AETNA Health + Life Insurance Company</div>
+<div class="v" onclick="ph(0,this)">AETNA (CLI)- Continental Life</div>
+<div class="v" onclick="ph(0,this)">AETNA (MAPD)</div>
+<div class="v" onclick="ph(0,this)">AETNA (PDP)</div>
+<div class="v" onclick="ph(0,this)">Accendo Insurance Company</div>
+<div class="v" onclick="ph(0,this)">Aetna Health + Life Insurance Company</div>
+<div class="v" onclick="ph(0,this)">Aetna Health Insurance Company</div>
+<div class="v" onclick="ph(0,this)">Aetna PDP</div>
+<div class="v" onclick="ph(0,this)">Continental Life Insurance Company</div>
+</div></div>
+<div class="notes-row"><textarea id="n0" placeholder="Notes — corrections or the correct value if not listed" oninput="sn(0)"></textarea></div>
+</div>
+<div class="carrier" id="c1">
+<div class="carrier-head"><div class="carrier-name">Unitedhealthcare</div><div class="cnt">40 records</div></div>
+<div class="field-section"><div class="field-title gn">Carrier Name <span class="field-hint">(pick ONE — green)</span></div><div class="variants">
+<div class="v" onclick="pc(1,this)">Mutual of Omaha</div>
+<div class="v" onclick="pc(1,this)">United Healthcare</div>
+<div class="v" onclick="pc(1,this)">UnitedHealthcare</div>
+</div></div>
+<hr>
+<div class="field-section"><div class="field-title bl">Carrier Charters <span class="field-hint">(click ALL that apply — blue)</span></div><div class="variants">
+<div class="v" onclick="ph(1,this)">Mutual of Omaha (UO)- United of Omaha</div>
+<div class="v" onclick="ph(1,this)">Mutual of Omaha (UW)- United World</div>
+<div class="v" onclick="ph(1,this)">United World Life Insurance Company</div>
+<div class="v" onclick="ph(1,this)">United of Omaha Life Insurance Company</div>
+<div class="v" onclick="ph(1,this)">UnitedHealthcare Insurance Company</div>
+</div></div>
+<div class="notes-row"><textarea id="n1" placeholder="Notes — corrections or the correct value if not listed" oninput="sn(1)"></textarea></div>
+</div>
+<div class="carrier" id="c2">
+<div class="carrier-head"><div class="carrier-name">Wellmark</div><div class="cnt">25 records</div></div>
+<div class="field-section"><div class="field-title gn">Carrier Name <span class="field-hint">(pick ONE — green)</span></div><div class="variants">
+<div class="v" onclick="pc(2,this)">Wellmark BCBS of Iowa</div>
+</div></div>
+<hr>
+<div class="field-section"><div class="field-title bl">Carrier Charters <span class="field-hint">(click ALL that apply — blue)</span></div><div class="variants">
+<div class="v" onclick="ph(2,this)">Wellmark (BCBS of Iowa)</div>
+<div class="v" onclick="ph(2,this)">Wellmark Blue Cross Blue Shield of Iowa</div>
+</div></div>
+<div class="notes-row"><textarea id="n2" placeholder="Notes — corrections or the correct value if not listed" oninput="sn(2)"></textarea></div>
+</div>
+<div class="carrier" id="c3">
+<div class="carrier-head"><div class="carrier-name">Humana</div><div class="cnt">20 records</div></div>
+<div class="field-section"><div class="field-title gn">Carrier Name <span class="field-hint">(pick ONE — green)</span></div><div class="variants">
+<div class="v" onclick="pc(3,this)">Humana</div>
+</div></div>
+<hr>
+<div class="field-section"><div class="field-title bl">Carrier Charters <span class="field-hint">(click ALL that apply — blue)</span></div><div class="variants">
+<div class="v" onclick="ph(3,this)">Humana Insurance Company</div>
+</div></div>
+<div class="notes-row"><textarea id="n3" placeholder="Notes — corrections or the correct value if not listed" oninput="sn(3)"></textarea></div>
+</div>
+<div class="carrier" id="c4">
+<div class="carrier-head"><div class="carrier-name">Wellabe</div><div class="cnt">18 records</div></div>
+<div class="field-section"><div class="field-title gn">Carrier Name <span class="field-hint">(pick ONE — green)</span></div><div class="variants">
+<div class="v" onclick="pc(4,this)">Medico</div>
+<div class="v" onclick="pc(4,this)">Wellabe</div>
+<div class="v" onclick="pc(4,this)">Wellabe / Medico</div>
+</div></div>
+<hr>
+<div class="field-section"><div class="field-title bl">Carrier Charters <span class="field-hint">(click ALL that apply — blue)</span></div><div class="variants">
+<div class="v" onclick="ph(4,this)">Medico Insurance Company</div>
+<div class="v" onclick="ph(4,this)">Medico Life and Health Insurance Company</div>
+<div class="v" onclick="ph(4,this)">Wellabe (M1)- Medico Insurance Company</div>
+</div></div>
+<div class="notes-row"><textarea id="n4" placeholder="Notes — corrections or the correct value if not listed" oninput="sn(4)"></textarea></div>
+</div>
+<div class="carrier" id="c5">
+<div class="carrier-head"><div class="carrier-name">Wellcare</div><div class="cnt">18 records</div></div>
+<div class="field-section"><div class="field-title gn">Carrier Name <span class="field-hint">(pick ONE — green)</span></div><div class="variants">
+<div class="v" onclick="pc(5,this)">WellCare</div>
+<div class="v" onclick="pc(5,this)">WellCare / Centene</div>
+<div class="v" onclick="pc(5,this)">Wellcare</div>
+</div></div>
+<hr>
+<div class="field-section"><div class="field-title bl">Carrier Charters <span class="field-hint">(click ALL that apply — blue)</span></div><div class="variants">
+<div class="v" onclick="ph(5,this)">Aetna Medicare Premier (HMO-POS)</div>
+<div class="v" onclick="ph(5,this)">Aetna PDP</div>
+<div class="v" onclick="ph(5,this)">WellCare Health Plans</div>
+</div></div>
+<div class="notes-row"><textarea id="n5" placeholder="Notes — corrections or the correct value if not listed" oninput="sn(5)"></textarea></div>
+</div>
+<div class="carrier" id="c6">
+<div class="carrier-head"><div class="carrier-name">Mutual Of Omaha</div><div class="cnt">11 records</div></div>
+<div class="field-section"><div class="field-title gn">Carrier Name <span class="field-hint">(pick ONE — green)</span></div><div class="variants">
+<div class="v" onclick="pc(6,this)">Mutual of Omaha</div>
+</div></div>
+<hr>
+<div class="field-section"><div class="field-title bl">Carrier Charters <span class="field-hint">(click ALL that apply — blue)</span></div><div class="variants">
+<div class="v" onclick="ph(6,this)">Mutual of Omaha (MUT)- Mutual of Omaha</div>
+<div class="v" onclick="ph(6,this)">Mutual of Omaha (OIC)- Omaha Insurance Company</div>
+<div class="v" onclick="ph(6,this)">Mutual of Omaha Insurance Company</div>
+<div class="v" onclick="ph(6,this)">Omaha Insurance Company</div>
+<div class="v" onclick="ph(6,this)">United World Life Insurance Company</div>
+</div></div>
+<div class="notes-row"><textarea id="n6" placeholder="Notes — corrections or the correct value if not listed" oninput="sn(6)"></textarea></div>
+</div>
+<div class="carrier" id="c7">
+<div class="carrier-head"><div class="carrier-name">Central</div><div class="cnt">5 records</div></div>
+<div class="field-section"><div class="field-title gn">Carrier Name <span class="field-hint">(pick ONE — green)</span></div><div class="variants">
+<div class="v" onclick="pc(7,this)">Central States Indemnity</div>
+</div></div>
+<hr>
+<div class="field-section"><div class="field-title bl">Carrier Charters <span class="field-hint">(click ALL that apply — blue)</span></div><div class="variants">
+<div class="v" onclick="ph(7,this)">Central States Indemnity Company of Omaha</div>
+</div></div>
+<div class="notes-row"><textarea id="n7" placeholder="Notes — corrections or the correct value if not listed" oninput="sn(7)"></textarea></div>
+</div>
+<div class="carrier" id="c8">
+<div class="carrier-head"><div class="carrier-name">Cigna</div><div class="cnt">4 records</div></div>
+<div class="field-section"><div class="field-title gn">Carrier Name <span class="field-hint">(pick ONE — green)</span></div><div class="variants">
+<div class="v" onclick="pc(8,this)">CIGNA</div>
+</div></div>
+<hr>
+<div class="field-section"><div class="field-title bl">Carrier Charters <span class="field-hint">(click ALL that apply — blue)</span></div><div class="variants">
+<div class="v" onclick="ph(8,this)">CIGNA (CHLIC)- CIGNA Health + Life Insurance Company</div>
+<div class="v" onclick="ph(8,this)">CIGNA (MAPD)</div>
+<div class="v" onclick="ph(8,this)">CIGNA Health + Life Insurance Company</div>
+</div></div>
+<div class="notes-row"><textarea id="n8" placeholder="Notes — corrections or the correct value if not listed" oninput="sn(8)"></textarea></div>
+</div>
+<div class="carrier" id="c9">
+<div class="carrier-head"><div class="carrier-name">Allstate</div><div class="cnt">3 records</div></div>
+<div class="field-section"><div class="field-title gn">Carrier Name <span class="field-hint">(pick ONE — green)</span></div><div class="variants">
+<div class="v" onclick="pc(9,this)">Allstate / National General</div>
+</div></div>
+<hr>
+<div class="field-section"><div class="field-title bl">Carrier Charters <span class="field-hint">(click ALL that apply — blue)</span></div><div class="variants">
+<div class="v" onclick="ph(9,this)">Allstate (NatGen)</div>
+<div class="v" onclick="ph(9,this)">National General Insurance</div>
+</div></div>
+<div class="notes-row"><textarea id="n9" placeholder="Notes — corrections or the correct value if not listed" oninput="sn(9)"></textarea></div>
+</div>
+<div class="carrier" id="c10">
+<div class="carrier-head"><div class="carrier-name">Lumico</div><div class="cnt">3 records</div></div>
+<div class="field-section"><div class="field-title gn">Carrier Name <span class="field-hint">(pick ONE — green)</span></div><div class="variants">
+<div class="v" onclick="pc(10,this)">Lumico</div>
+<div class="v" onclick="pc(10,this)">Lumico / CUNA Mutual</div>
+</div></div>
+<hr>
+<div class="field-section"><div class="field-title bl">Carrier Charters <span class="field-hint">(click ALL that apply — blue)</span></div><div class="variants">
+<div class="v" onclick="ph(10,this)">Elips Life Insurance Company</div>
+<div class="v" onclick="ph(10,this)">Lumico Life Insurance Company</div>
+</div></div>
+<div class="notes-row"><textarea id="n10" placeholder="Notes — corrections or the correct value if not listed" oninput="sn(10)"></textarea></div>
+</div>
+<div class="carrier" id="c11">
+<div class="carrier-head"><div class="carrier-name">Devoted</div><div class="cnt">2 records</div></div>
+<div class="field-section"><div class="field-title gn">Carrier Name <span class="field-hint">(pick ONE — green)</span></div><div class="variants">
+<div class="v" onclick="pc(11,this)">Devoted</div>
+</div></div>
+<hr>
+<div class="field-section"><div class="field-title bl">Carrier Charters <span class="field-hint">(click ALL that apply — blue)</span></div><div class="variants">
+<div class="v" onclick="ph(11,this)">Devoted Health</div>
+</div></div>
+<div class="notes-row"><textarea id="n11" placeholder="Notes — corrections or the correct value if not listed" oninput="sn(11)"></textarea></div>
+</div>
+<div class="carrier" id="c12">
+<div class="carrier-head"><div class="carrier-name">Bluekc</div><div class="cnt">2 records</div></div>
+<div class="field-section"><div class="field-title gn">Carrier Name <span class="field-hint">(pick ONE — green)</span></div><div class="variants">
+<div class="v" onclick="pc(12,this)">Blue KC</div>
+<div class="v" onclick="pc(12,this)">BlueKC</div>
+</div></div>
+<hr>
+<div class="field-section"><div class="field-title bl">Carrier Charters <span class="field-hint">(click ALL that apply — blue)</span></div><div class="variants">
+<div class="v" onclick="ph(12,this)">Blue Cross and Blue Shield of Kansas City</div>
+</div></div>
+<div class="notes-row"><textarea id="n12" placeholder="Notes — corrections or the correct value if not listed" oninput="sn(12)"></textarea></div>
+</div>
+<div class="carrier" id="c13">
+<div class="carrier-head"><div class="carrier-name">Medmutual</div><div class="cnt">1 records</div></div>
+<div class="field-section"><div class="field-title gn">Carrier Name <span class="field-hint">(pick ONE — green)</span></div><div class="variants">
+<div class="v" onclick="pc(13,this)">Medmutual Protect</div>
+</div></div>
+<hr>
+<div class="field-section"><div class="field-title bl">Carrier Charters <span class="field-hint">(click ALL that apply — blue)</span></div><div class="variants">
+<div class="v" onclick="ph(13,this)">Medical Mutual of Ohio</div>
+</div></div>
+<div class="notes-row"><textarea id="n13" placeholder="Notes — corrections or the correct value if not listed" oninput="sn(13)"></textarea></div>
+</div>
+<div class="carrier" id="c14">
+<div class="carrier-head"><div class="carrier-name">Prosperity</div><div class="cnt">1 records</div></div>
+<div class="field-section"><div class="field-title gn">Carrier Name <span class="field-hint">(pick ONE — green)</span></div><div class="variants">
+<div class="v" onclick="pc(14,this)">Prosperity Life (fka S.USA)</div>
+</div></div>
+<hr>
+<div class="field-section"><div class="field-title bl">Carrier Charters <span class="field-hint">(click ALL that apply — blue)</span></div><div class="variants">
+<div class="v" onclick="ph(14,this)">Prosperity (fka S.USA Life)</div>
+<div class="v" onclick="ph(14,this)">Prosperity Life Insurance Group</div>
+</div></div>
+<div class="notes-row"><textarea id="n14" placeholder="Notes — corrections or the correct value if not listed" oninput="sn(14)"></textarea></div>
+</div>
+<div class="carrier" id="c15">
+<div class="carrier-head"><div class="carrier-name">Chubb</div><div class="cnt">1 records</div></div>
+<div class="field-section"><div class="field-title gn">Carrier Name <span class="field-hint">(pick ONE — green)</span></div><div class="variants">
+<div class="v" onclick="pc(15,this)">CHUBB</div>
+</div></div>
+<hr>
+<div class="field-section"><div class="field-title bl">Carrier Charters <span class="field-hint">(click ALL that apply — blue)</span></div><div class="variants">
+<div class="v" onclick="ph(15,this)">CHUBB (ACE)</div>
+</div></div>
+<div class="notes-row"><textarea id="n15" placeholder="Notes — corrections or the correct value if not listed" oninput="sn(15)"></textarea></div>
+</div>
+<div class="carrier" id="c16">
+<div class="carrier-head"><div class="carrier-name">Aflac</div><div class="cnt">1 records</div></div>
+<div class="field-section"><div class="field-title gn">Carrier Name <span class="field-hint">(pick ONE — green)</span></div><div class="variants">
+<div class="v" onclick="pc(16,this)">Aflac</div>
+</div></div>
+<hr>
+<div class="field-section"><div class="field-title bl">Carrier Charters <span class="field-hint">(click ALL that apply — blue)</span></div><div class="variants">
+<div class="v" onclick="ph(16,this)">AFLAC (TierOne)</div>
+<div class="v" onclick="ph(16,this)">Aflac TierOne</div>
+</div></div>
+<div class="notes-row"><textarea id="n16" placeholder="Notes — corrections or the correct value if not listed" oninput="sn(16)"></textarea></div>
+</div>
+<div class="carrier" id="c17">
+<div class="carrier-head"><div class="carrier-name">Manhattan</div><div class="cnt">1 records</div></div>
+<div class="field-section"><div class="field-title gn">Carrier Name <span class="field-hint">(pick ONE — green)</span></div><div class="variants">
+<div class="v" onclick="pc(17,this)">Manhattan Life</div>
+</div></div>
+<hr>
+<div class="field-section"><div class="field-title bl">Carrier Charters <span class="field-hint">(click ALL that apply — blue)</span></div><div class="variants">
+<div class="v" onclick="ph(17,this)">Manhattan Life Insurance Company</div>
+</div></div>
+<div class="notes-row"><textarea id="n17" placeholder="Notes — corrections or the correct value if not listed" oninput="sn(17)"></textarea></div>
+</div>
+<div class="carrier" id="c18">
+<div class="carrier-head"><div class="carrier-name">Silverscript</div><div class="cnt">1 records</div></div>
+<div class="field-section"><div class="field-title gn">Carrier Name <span class="field-hint">(pick ONE — green)</span></div><div class="variants">
+<div class="v" onclick="pc(18,this)">SilverScript</div>
+</div></div>
+<hr>
+<div class="field-section"><div class="field-title bl">Carrier Charters <span class="field-hint">(click ALL that apply — blue)</span></div><div class="variants">
+<div class="v" onclick="ph(18,this)">SilverScript Insurance Company</div>
+</div></div>
+<div class="notes-row"><textarea id="n18" placeholder="Notes — corrections or the correct value if not listed" oninput="sn(18)"></textarea></div>
+</div>
+<div class="carrier" id="c19">
+<div class="carrier-head"><div class="carrier-name">Silac</div><div class="cnt">1 records</div></div>
+<div class="field-section"><div class="field-title gn">Carrier Name <span class="field-hint">(pick ONE — green)</span></div><div class="variants">
+<div class="v" onclick="pc(19,this)">SILAC</div>
+</div></div>
+<hr>
+<div class="field-section"><div class="field-title bl">Carrier Charters <span class="field-hint">(click ALL that apply — blue)</span></div><div class="variants">
+<div class="v" onclick="ph(19,this)">SILAC (fka Equitable)</div>
+<div class="v" onclick="ph(19,this)">SILAC Insurance Company</div>
+</div></div>
+<div class="notes-row"><textarea id="n19" placeholder="Notes — corrections or the correct value if not listed" oninput="sn(19)"></textarea></div>
+</div>
+<div class="carrier" id="c20">
+<div class="carrier-head"><div class="carrier-name">Alignment</div><div class="cnt">1 records</div></div>
+<div class="field-section"><div class="field-title gn">Carrier Name <span class="field-hint">(pick ONE — green)</span></div><div class="variants">
+<div class="v" onclick="pc(20,this)">Alignment Health</div>
+</div></div>
+<hr>
+<div class="field-section"><div class="field-title bl">Carrier Charters <span class="field-hint">(click ALL that apply — blue)</span></div><div class="variants">
+<div class="v" onclick="ph(20,this)">Alignment Health Plan</div>
+</div></div>
+<div class="notes-row"><textarea id="n20" placeholder="Notes — corrections or the correct value if not listed" oninput="sn(20)"></textarea></div>
+</div>
+</div>
+<div class="bottom-bar"><div class="prog"><strong id="pn">0</strong> / 21 decided</div><button class="ebtn" onclick="ex()">Export Decisions</button></div>
+<script>var D={};
+
+function pc(i,el){if(!D[i])D[i]={carrier:null,charters:[],notes:''};var c=document.getElementById('c'+i);c.querySelectorAll('.field-title.gn ~ .variants .v').forEach(function(v){v.classList.remove('gs')});el.classList.add('gs');D[i].carrier=el.textContent;c.classList.add('done');up()}
+function ph(i,el){if(!D[i])D[i]={carrier:null,charters:[],notes:''};if(el.classList.contains('bs')){el.classList.remove('bs');D[i].charters=D[i].charters.filter(function(c){return c!==el.textContent})}else{el.classList.add('bs');D[i].charters.push(el.textContent)}up()}
+function sn(i){if(!D[i])D[i]={carrier:null,charters:[],notes:''};D[i].notes=document.getElementById('n'+i).value;if(D[i].notes.trim())document.getElementById('c'+i).classList.add('done');up()}
+function up(){var c=Object.keys(D).filter(function(k){return D[k].carrier||D[k].notes}).length;document.getElementById('dc').textContent=c;document.getElementById('pn').textContent=c}
+function ex(){var b=new Blob([JSON.stringify(D,null,2)],{type:'application/json'});var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='medicare-charter-decisions.json';a.click()}
+
+</script></body></html>

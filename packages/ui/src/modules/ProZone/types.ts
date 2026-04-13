@@ -68,7 +68,7 @@ export interface ProspectWithInventory {
   zip: string
   phone: string
   age: number | null
-  client_status: string
+  status: string
   source: string
   inventory: InventoryFlags
   flags: string[]

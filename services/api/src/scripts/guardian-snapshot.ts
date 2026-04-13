@@ -34,7 +34,7 @@ const COLLECTIONS: CollectionConfig[] = [
   { name: 'tool_registry', trackedFields: [] },
 ]
 
-const ACCOUNT_TRACKED_FIELDS = ['carrier_name', 'charter', 'naic', 'policy_number', 'status']
+const ACCOUNT_TRACKED_FIELDS = ['carrier', 'charter', 'naic', 'policy_number', 'status']
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 

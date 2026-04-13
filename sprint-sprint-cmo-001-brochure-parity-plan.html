@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PLAN — SPRINT-CMO-001 Brochure Parity</title>
+</head>
+<body>
+<h1>SPRINT-CMO-001 — Brochure Parity Build Order</h1>
+<p><strong>Sprint ID:</strong> CMO-BROCHURE-PARITY<br>
+<strong>Ticket Range:</strong> TRK-14372 → TRK-14389 (18 tickets)<br>
+<strong>Discovery:</strong> <a href="https://retirementprotectors.github.io/toMachina/docs/warriors/musashi/creative/sprint1-brochure-parity-discovery.html">sprint1-brochure-parity-discovery.html</a><br>
+<strong>Owner:</strong> MUSASHI (execution) / ARTxBLADE (CMO)<br>
+<strong>Plan Date:</strong> 2026-04-12</p>
+
+<hr>
+
+<!-- ========== WAVE 1 ========== -->
+<h2>WAVE 1 — Template Foundation (Parallel, No Dependencies)</h2>
+<p>All 4 tickets execute in parallel. <strong>TRK-14373 is a GATE — JDM approval required before Wave 2 begins.</strong></p>
+
+<h3>TRK-14372 · Audit existing print brochures on Shared Drive</h3>
+<ul>
+  <li><strong>Dependencies:</strong> None</li>
+  <li><strong>Tools:</strong> gdrive MCP → listFolder, search</li>
+  <li><strong>Paths (new):</strong>
+    <ul>
+      <li><code>RPI | B2C Division → Brochures/</code> — audit source</li>
+      <li><code>RPI | B2C Division → Brand Assets/Sprint-CMO-001-Audit.gsheet</code> — output spreadsheet</li>
+    </ul>
+  </li>
+  <li><strong>AC:</strong> Spreadsheet in Drive with columns: filename, Drive location, quality rating (print-ready / needs-redesign), content completeness (complete / partial / outdated). Covers at minimum: Medicare POS, IRA Basics, Life Insurance, FIA print PDFs.</li>
+</ul>
+
+<h3>TRK-14373 · Design master Canva template ⚡ GATE</h3>
+<ul>
+  <li><strong>Dependencies:</strong> None (but TRK-14374 brand guide informs — can run parallel)</li>
+  <li><strong>Tools:</strong> rpi-workspace MCP → canva_* tools</li>
+  <li><strong>Paths (new):</strong>
+    <ul>
+      <li>Canva: <code>RPI Master Brochure Template v1</code> (Letter 8.5×11)</li>
+      <li><code>RPI | B2C Division → Brand Assets/Master-Template-Preview.pdf</code> — exported preview for JDM review</li>
+    </ul>
+  </li>
+  <li><strong>AC:</strong> Letter-size template with 7 sections (Cover, Problem/Pain, Solution, How It Works, Why RPI, CTA, Contact+Compliance). Variable slots defined: [PRODUCT_NAME], [PRODUCT_SPECIFIC_CONTENT], [PRODUCT_MECHANISM], [CTA_VARIANT], [CARRIER_LOGOS], [COMPLIANCE_FOOTER]. RPI brand kit linked. <strong>JDM explicit approval before Wave 2 starts.</strong></li>
+</ul>
+
+<h3>TRK-14374 · Create brand style guide page</h3>
+<ul>
+  <li><strong>Dependencies:</strong> None</li>
+  <li><strong>Tools:</strong> rpi-workspace MCP → canva_* or Google Docs</li>
+  <li><strong>Paths (new):</strong>
+    <ul>
+      <li><code>RPI | B2C Division → Brand Assets/RPI-Brand-Style-Guide.pdf</code></li>
+    </ul>
+  </li>
+  <li><strong>AC:</strong> Document defines: RPI Blue (#4a7ab5) + warm palette colors, fonts, imagery rules (warm, human, real — no cold stock), voice guide ("We're Your People" energy). Stored in Drive as brand reference. Accessible to all downstream tickets.</li>
+</ul>
+
+<h3>TRK-14375 · Build output pipeline</h3>
+<ul>
+  <li><strong>Dependencies:</strong> None</li>
+  <li><strong>Tools:</strong> rpi-workspace MCP (canva_export_pdf), gdrive MCP (upload), ProDash ACF module</li>
+  <li><strong>Paths (new):</strong>
+    <ul>
+      <li><code>RPI | B2C Division → Brochures/Pipeline-Test-Sample.pdf</code> — test artifact</li>
+      <li><code>RPI | B2C Division → Brochures/OUTPUT-PIPELINE-RUNBOOK.md</code> — documented steps</li>
+    </ul>
+  </li>
+  <li><strong>AC:</strong> End-to-end pipeline proven: Canva → PDF export → Drive upload → ProDash ACF/Documents link. One sample brochure run through entire chain. Runbook written so MUSASHI can execute for each variant without re-discovery.</li>
+</ul>
+
+<hr>
+
+<!-- ========== GATE ========== -->
+<h2>🚧 GATE — JDM Approval on TRK-14373 (Master Template)</h2>
+<p>Wave 2 CANNOT begin until JDM explicitly approves the master Canva template from TRK-14373. No exceptions. This is the critical path dependency for the entire sprint.</p>
+
+<hr>
+
+<!-- ========== WAVE 2 ========== -->
+<h2>WAVE 2 — All Brochure Creation (Parallel after Gate)</h2>
+<p>8 tickets, all parallel. Each depends on Wave 1 (TRK-14372 audit, TRK-14373 template, TRK-14374 brand guide, TRK-14375 pipeline). Health, Wealth, and Legacy brochures all build simultaneously. Legacy items have async Dr. Aprille review gates.</p>
+
+<h3>TRK-14376 · Medicare POS Brochure (digital from existing print)</h3>
+<ul>
+  <li><strong>Dependencies:</strong> TRK-14372, TRK-14373, TRK-14375</li>
+  <li><strong>Tools:</strong> gdrive MCP (source PDF), rpi-workspace MCP → canva_* (rebuild), output pipeline</li>
+  <li><strong>Paths:</strong>
+    <ul>
+      <li>Source: <code>RPI | B2C Division → Brochures/[existing Medicare POS print PDF]</code></li>
+      <li>Output: <code>RPI | B2C Division → Brochures/Health/RPI-Medicare-POS-Brochure.pdf</code></li>
+      <li>ProDash: <code>ACF/Documents → Health</code></li>
+    </ul>
+  </li>
+  <li><strong>AC:</strong> Print PDF converted to master template format. Digital PDF exported (RGB, web-optimized, &lt;5MB). Uploaded to Drive and ProDash. Content validated against current Medicare rules.</li>
+</ul>
+
+<h3>TRK-14377 · Med Supp vs MA Explainer (new content)</h3>
+<ul>
+  <li><strong>Dependencies:</strong> TRK-14373, TRK-14374, TRK-14375</li>
+  <li><strong>Tools:</strong> rpi-workspace MCP → canva_* (new design), output pipeline</li>
+  <li><strong>Paths (new):</strong>
+    <ul>
+      <li><code>RPI | B2C Division → Brochures/Health/RPI-MedSupp-vs-MA-Explainer.pdf</code></li>
+      <li>ProDash: <code>ACF/Documents → Health</code></li>
+    </ul>
+  </li>
+  <li><strong>AC:</strong> Side-by-side comparison of Medicare Supplement vs Medicare Advantage. New content written, designed in master template. JDM compliance review completed before publish. PDF exported and uploaded.</li>
+</ul>
+
+<h3>TRK-14378 · MAPD Plan Comparison Sheet (RPI wrapper)</h3>
+<ul>
+  <li><strong>Dependencies:</strong> TRK-14372, TRK-14373, TRK-14375</li>
+  <li><strong>Tools:</strong> gdrive MCP (source carrier PDFs from Operations → Carrier Materials), rpi-workspace MCP → canva_*</li>
+  <li><strong>Paths:</strong>
+    <ul>
+      <li>Source: <code>RPI | Operations → Carrier Materials/[MAPD carrier PDFs]</code></li>
+      <li>Output: <code>RPI | B2C Division → Brochures/Health/RPI-MAPD-Comparison-Sheet.pdf</code></li>
+      <li>ProDash: <code>ACF/Documents → Health</code></li>
+    </ul>
+  </li>
+  <li><strong>AC:</strong> Carrier PDFs sourced. RPI branding wrapper applied with contact info + CTA. Carrier compliance footer verified and present. PDF exported.</li>
+</ul>
+
+<h3>TRK-14381 · FIA Product Overview (digital from existing print)</h3>
+<ul>
+  <li><strong>Dependencies:</strong> TRK-14372, TRK-14373, TRK-14375</li>
+  <li><strong>Tools:</strong> gdrive MCP (source), rpi-workspace MCP → canva_*, output pipeline</li>
+  <li><strong>Paths:</strong>
+    <ul>
+      <li>Source: <code>RPI | B2C Division → Brochures/[existing FIA print PDF]</code></li>
+      <li>Output: <code>RPI | B2C Division → Brochures/Wealth/RPI-FIA-Product-Overview.pdf</code></li>
+      <li>ProDash: <code>ACF/Documents → Wealth</code></li>
+    </ul>
+  </li>
+  <li><strong>AC:</strong> Existing print converted to master template. Carrier compliance footer added. Digital PDF exported, uploaded to Drive and ProDash. JDM compliance sign-off before publish.</li>
+</ul>
+
+<h3>TRK-14382 · IRA Basics Brochure (digital from existing print)</h3>
+<ul>
+  <li><strong>Dependencies:</strong> TRK-14372, TRK-14373, TRK-14375</li>
+  <li><strong>Tools:</strong> gdrive MCP (source <code>RPI- IRA Basics Brochure.pdf</code>), rpi-workspace MCP → canva_*, output pipeline</li>
+  <li><strong>Paths:</strong>
+    <ul>
+      <li>Source: <code>RPI | B2C Division → Brochures/RPI- IRA Basics Brochure.pdf</code></li>
+      <li>Output: <code>RPI | B2C Division → Brochures/Wealth/RPI-IRA-Basics-Brochure.pdf</code></li>
+      <li>ProDash: <code>ACF/Documents → Wealth</code></li>
+    </ul>
+  </li>
+  <li><strong>AC:</strong> Source PDF located on Drive. Rebuilt in master template. Digital PDF exported. Uploaded to Drive and ProDash with working download link.</li>
+</ul>
+
+<h3>TRK-14383 · RMD Explainer (new content)</h3>
+<ul>
+  <li><strong>Dependencies:</strong> TRK-14373, TRK-14374, TRK-14375</li>
+  <li><strong>Tools:</strong> rpi-workspace MCP → canva_* (new design), output pipeline</li>
+  <li><strong>Paths (new):</strong>
+    <ul>
+      <li><code>RPI | B2C Division → Brochures/Wealth/RPI-RMD-Explainer.pdf</code></li>
+      <li>ProDash: <code>ACF/Documents → Wealth</code> + RMD Center integration link</li>
+    </ul>
+  </li>
+  <li><strong>AC:</strong> New content covers: what RMDs are, when they start (age 73+), how RPI helps manage them. Ties into RMD Center in ProDash. JDM review before publish. PDF exported and uploaded.</li>
+</ul>
+
+<h3>TRK-14384 · Life Insurance Brochure (digital from existing print)</h3>
+<ul>
+  <li><strong>Dependencies:</strong> TRK-14372, TRK-14373, TRK-14375</li>
+  <li><strong>Tools:</strong> gdrive MCP (source <code>RPI Life Ins Brochure.pdf</code>), rpi-workspace MCP → canva_*, output pipeline</li>
+  <li><strong>Paths:</strong>
+    <ul>
+      <li>Source: <code>RPI | B2C Division → Brochures/RPI Life Ins Brochure.pdf</code></li>
+      <li>Output: <code>RPI | B2C Division → Brochures/Legacy/RPI-Life-Insurance-Brochure.pdf</code></li>
+      <li>ProDash: <code>ACF/Documents → Legacy</code></li>
+    </ul>
+  </li>
+  <li><strong>AC:</strong> Source PDF located on Drive. Rebuilt in master template. <strong>Dr. Aprille review required before publish.</strong> Digital PDF exported, Drive upload, ProDash link created.</li>
+</ul>
+
+<h3>TRK-14385 · Final Expense + Estate Planning materials</h3>
+<ul>
+  <li><strong>Dependencies:</strong> TRK-14373, TRK-14374, TRK-14375</li>
+  <li><strong>Tools:</strong> rpi-workspace MCP → canva_* (2 new designs), output pipeline</li>
+  <li><strong>Paths (new):</strong>
+    <ul>
+      <li><code>RPI | B2C Division → Brochures/Legacy/RPI-Final-Expense-Guide.pdf</code></li>
+      <li><code>RPI | B2C Division → Brochures/Legacy/RPI-Estate-Planning-Primer.pdf</code></li>
+      <li>ProDash: <code>ACF/Documents → Legacy</code> (both)</li>
+    </ul>
+  </li>
+  <li><strong>AC:</strong> Two new pieces: Final Expense Guide + Estate Planning Primer. Tone: exceptionally warm. <strong>Dr. Aprille review and approval required before ANY distribution.</strong> PDFs exported and uploaded to Drive.</li>
+</ul>
+
+<hr>
+
+<!-- ========== WAVE 3 ========== -->
+<h2>WAVE 3 — Distribution, Pages &amp; Kits (After All Brochures)</h2>
+<p>6 tickets. All depend on Wave 2 brochures being complete. Parallel within wave (zero file overlap).</p>
+
+<h3>TRK-14379 · Medicare landing page on RetirementProtectors.com</h3>
+<ul>
+  <li><strong>Dependencies:</strong> TRK-14376 (Medicare POS), TRK-14377 (Med Supp vs MA)</li>
+  <li><strong>Tools:</strong> rpi-workspace MCP → wordpress_update_page</li>
+  <li><strong>Paths (new):</strong>
+    <ul>
+      <li>WordPress: <code>retireprotected.com/medicare-overview</code></li>
+    </ul>
+  </li>
+  <li><strong>AC:</strong> WordPress page live at /medicare-overview. Embeds Medicare POS and Med Supp vs MA brochures. PDF download links verified working. Page findable from site navigation.</li>
+</ul>
+
+<h3>TRK-14380 · Health market F2F Kit assembly</h3>
+<ul>
+  <li><strong>Dependencies:</strong> TRK-14376 (Medicare POS), TRK-14377 (Med Supp vs MA), TRK-14378 (MAPD Comparison)</li>
+  <li><strong>Tools:</strong> gdrive MCP (assemble ZIP), RSP-PIPELINE integration</li>
+  <li><strong>Paths (new):</strong>
+    <ul>
+      <li><code>RPI | B2C Division → F2F Kits/Health-Market-F2F-Kit.zip</code></li>
+    </ul>
+  </li>
+  <li><strong>AC:</strong> ZIP contains: Medicare POS + MAPD Comparison + Med Supp vs MA + RPI contact card. Single downloadable file in Drive. Linked from RSP Pipeline Blue Gate materials.</li>
+</ul>
+
+<h3>TRK-14386 · Upload all brochures to ProDash portal</h3>
+<ul>
+  <li><strong>Dependencies:</strong> ALL Wave 2 brochure tickets (TRK-14376 through TRK-14385)</li>
+  <li><strong>Tools:</strong> ProDash ACF module, gdrive MCP</li>
+  <li><strong>Paths (modified):</strong>
+    <ul>
+      <li><code>ACF/Documents → Health</code> (3 brochures)</li>
+      <li><code>ACF/Documents → Wealth</code> (3 brochures)</li>
+      <li><code>ACF/Documents → Legacy</code> (3 brochures)</li>
+    </ul>
+  </li>
+  <li><strong>AC:</strong> All 9+ brochures uploaded under correct categories (Health, Wealth, Legacy). Every download link verified working. Each brochure accessible from client record in ProDash.</li>
+</ul>
+
+<h3>TRK-14387 · Create website landing pages (Health, Wealth, Legacy)</h3>
+<ul>
+  <li><strong>Dependencies:</strong> ALL Wave 2 brochure tickets</li>
+  <li><strong>Tools:</strong> rpi-workspace MCP → wordpress_update_page (3 pages)</li>
+  <li><strong>Paths (new):</strong>
+    <ul>
+      <li>WordPress: <code>retireprotected.com/health</code></li>
+      <li>WordPress: <code>retireprotected.com/wealth</code></li>
+      <li>WordPress: <code>retireprotected.com/legacy</code></li>
+    </ul>
+  </li>
+  <li><strong>AC:</strong> 3 landing pages live on RetirementProtectors.com — one per market. Brochure PDF downloads embedded on each. Pages are live, publicly accessible, and findable from site navigation.</li>
+</ul>
+
+<h3>TRK-14388 · MYST.IRL page refresh</h3>
+<ul>
+  <li><strong>Dependencies:</strong> TRK-14374 (brand style guide for visual treatment)</li>
+  <li><strong>Tools:</strong> rpi-workspace MCP → wordpress_update_page, gdrive MCP (team photos from <code>B2C Division → Team Photos/</code>)</li>
+  <li><strong>Paths (modified):</strong>
+    <ul>
+      <li>WordPress: <code>retireprotected.com/myst</code> (existing page, refresh)</li>
+      <li>Source: <code>RPI | B2C Division → Team Photos/</code></li>
+    </ul>
+  </li>
+  <li><strong>AC:</strong> /myst page updated with: current team roster (JDM, Behn, Parmenter, Gray, Vazquez, McCormick, Dr. Aprille — confirm with JDM), circular headshots, "We're Your People" positioning. Same visual treatment as MYST.AI. Live and verified.</li>
+</ul>
+
+<h3>TRK-14389 · C3 content blocks — brochure-linked email templates</h3>
+<ul>
+  <li><strong>Dependencies:</strong> ALL Wave 2 brochure tickets (needs final PDFs for preview images + download CTAs)</li>
+  <li><strong>Tools:</strong> C3 campaign builder (SendGrid integration)</li>
+  <li><strong>Paths (new):</strong>
+    <ul>
+      <li>C3 content blocks: one per brochure (9+ blocks)</li>
+      <li>Each block: preview image + headline + PDF download CTA</li>
+    </ul>
+  </li>
+  <li><strong>AC:</strong> Content blocks created for each brochure in C3 campaign builder. Each block contains preview image, headline, and PDF download CTA. At least one test email sent and verified rendering correctly.</li>
+</ul>
+
+<hr>
+
+<!-- ========== DEPENDENCY MATRIX ========== -->
+<h2>Dependency Verification Matrix</h2>
+<table border="1" cellpadding="4" cellspacing="0">
+<tr><th>Ticket</th><th>Wave</th><th>Depends On</th><th>Dep Waves</th><th>Valid</th></tr>
+<tr><td>TRK-14372</td><td>1</td><td>None</td><td>—</td><td>✅</td></tr>
+<tr><td>TRK-14373</td><td>1</td><td>None</td><td>—</td><td>✅</td></tr>
+<tr><td>TRK-14374</td><td>1</td><td>None</td><td>—</td><td>✅</td></tr>
+<tr><td>TRK-14375</td><td>1</td><td>None</td><td>—</td><td>✅</td></tr>
+<tr><td>TRK-14376</td><td>2</td><td>14372, 14373, 14375</td><td>1, 1, 1</td><td>✅</td></tr>
+<tr><td>TRK-14377</td><td>2</td><td>14373, 14374, 14375</td><td>1, 1, 1</td><td>✅</td></tr>
+<tr><td>TRK-14378</td><td>2</td><td>14372, 14373, 14375</td><td>1, 1, 1</td><td>✅</td></tr>
+<tr><td>TRK-14381</td><td>2</td><td>14372, 14373, 14375</td><td>1, 1, 1</td><td>✅</td></tr>
+<tr><td>TRK-14382</td><td>2</td><td>14372, 14373, 14375</td><td>1, 1, 1</td><td>✅</td></tr>
+<tr><td>TRK-14383</td><td>2</td><td>14373, 14374, 14375</td><td>1, 1, 1</td><td>✅</td></tr>
+<tr><td>TRK-14384</td><td>2</td><td>14372, 14373, 14375</td><td>1, 1, 1</td><td>✅</td></tr>
+<tr><td>TRK-14385</td><td>2</td><td>14373, 14374, 14375</td><td>1, 1, 1</td><td>✅</td></tr>
+<tr><td>TRK-14379</td><td>3</td><td>14376, 14377</td><td>2, 2</td><td>✅</td></tr>
+<tr><td>TRK-14380</td><td>3</td><td>14376, 14377, 14378</td><td>2, 2, 2</td><td>✅</td></tr>
+<tr><td>TRK-14386</td><td>3</td><td>14376–14385 (all brochures)</td><td>2</td><td>✅</td></tr>
+<tr><td>TRK-14387</td><td>3</td><td>14376–14385 (all brochures)</td><td>2</td><td>✅</td></tr>
+<tr><td>TRK-14388</td><td>3</td><td>14374</td><td>1</td><td>✅</td></tr>
+<tr><td>TRK-14389</td><td>3</td><td>14376–14385 (all brochures)</td><td>2</td><td>✅</td></tr>
+</table>
+<p><strong>Verification:</strong> Every ticket in Wave N has ALL dependencies in Wave N-1 or earlier. ✅ No violations.</p>
+
+<hr>
+
+<!-- ========== BUILD SUMMARY ========== -->
+<h2>Build Order Summary</h2>
+
+<table border="1" cellpadding="4" cellspacing="0">
+<tr><th>Wave</th><th>Tickets</th><th>Parallel?</th><th>Gate</th><th>Verification</th></tr>
+<tr>
+  <td><strong>1</strong></td>
+  <td>TRK-14372, TRK-14373, TRK-14374, TRK-14375</td>
+  <td>Yes (4 parallel)</td>
+  <td>⚡ TRK-14373 = JDM approval GATE</td>
+  <td>Audit spreadsheet exists, template preview exported, brand guide in Drive, pipeline test PDF in ProDash</td>
+</tr>
+<tr>
+  <td><strong>2</strong></td>
+  <td>TRK-14376, TRK-14377, TRK-14378, TRK-14381, TRK-14382, TRK-14383, TRK-14384, TRK-14385</td>
+  <td>Yes (8 parallel)</td>
+  <td>Dr. Aprille async review on TRK-14384 + TRK-14385</td>
+  <td>Each brochure: PDF exported, in Drive under correct market folder, ProDash link created</td>
+</tr>
+<tr>
+  <td><strong>3</strong></td>
+  <td>TRK-14379, TRK-14380, TRK-14386, TRK-14387, TRK-14388, TRK-14389</td>
+  <td>Yes (6 parallel)</td>
+  <td>None</td>
+  <td>Pages live, kits downloadable, ProDash links verified, C3 test email sent, MYST.IRL live</td>
+</tr>
+</table>
+
+<hr>
+
+<!-- ========== REVIEW GATES ========== -->
+<h2>Human Review Gates</h2>
+<ol>
+  <li><strong>JDM → TRK-14373</strong> (Master Template): BLOCKING. No Wave 2 work starts without approval.</li>
+  <li><strong>JDM → TRK-14377</strong> (Med Supp vs MA): Compliance review before publish.</li>
+  <li><strong>JDM → TRK-14378</strong> (MAPD Comparison): Carrier compliance footer verification.</li>
+  <li><strong>JDM → TRK-14381</strong> (FIA Overview): Compliance sign-off before publish.</li>
+  <li><strong>JDM → TRK-14383</strong> (RMD Explainer): Review before publish.</li>
+  <li><strong>Dr. Aprille → TRK-14384</strong> (Life Insurance): Review before publish.</li>
+  <li><strong>Dr. Aprille → TRK-14385</strong> (Final Expense + Estate Planning): Review + approval before ANY distribution.</li>
+  <li><strong>JDM → TRK-14388</strong> (MYST.IRL): Confirm team roster before publish.</li>
+</ol>
+
+<hr>
+
+<!-- ========== DISTRIBUTION MATRIX ========== -->
+<h2>Distribution Mapping (Reference for Wave 3)</h2>
+<table border="1" cellpadding="4" cellspacing="0">
+<tr><th>Brochure</th><th>RSP Stage</th><th>ProDash Path</th><th>Website Path</th><th>C3 Campaign</th></tr>
+<tr><td>Medicare POS</td><td>Orange</td><td>ACF/Documents → Health</td><td>/medicare-overview</td><td>Medicare AEP sequence</td></tr>
+<tr><td>Med Supp vs MA</td><td>Blue</td><td>ACF/Documents → Health</td><td>/medsup-vs-ma</td><td>T65 sequence</td></tr>
+<tr><td>MAPD Comparison</td><td>Blue</td><td>ACF/Documents → Health</td><td>/mapd-plans</td><td>AEP comparison</td></tr>
+<tr><td>FIA Overview</td><td>Blue</td><td>ACF/Documents → Wealth</td><td>/fixed-index-annuity</td><td>Wealth intake</td></tr>
+<tr><td>IRA Basics</td><td>Orange</td><td>ACF/Documents → Wealth</td><td>/ira-basics</td><td>Retirement ed drip</td></tr>
+<tr><td>RMD Explainer</td><td>Green</td><td>ACF/Documents → Wealth</td><td>/rmd-guide</td><td>RMD Center integration</td></tr>
+<tr><td>Life Insurance</td><td>Blue</td><td>ACF/Documents → Legacy</td><td>/life-insurance</td><td>Legacy review sequence</td></tr>
+<tr><td>Final Expense</td><td>Red</td><td>ACF/Documents → Legacy</td><td>/final-expense</td><td>Late-stage service</td></tr>
+<tr><td>Estate Planning</td><td>Red</td><td>ACF/Documents → Legacy</td><td>/estate-planning</td><td>Annual review trigger</td></tr>
+</table>
+
+<hr>
+
+<!-- ========== TOOLS ========== -->
+<h2>Tool Chain (Builder Reference)</h2>
+<table border="1" cellpadding="4" cellspacing="0">
+<tr><th>Tool</th><th>MCP / Access</th><th>Used By</th></tr>
+<tr><td>Canva</td><td>rpi-workspace MCP → canva_*</td><td>TRK-14373, all Wave 2 brochures</td></tr>
+<tr><td>WordPress</td><td>rpi-workspace MCP → wordpress_update_page</td><td>TRK-14379, TRK-14387, TRK-14388</td></tr>
+<tr><td>Google Drive</td><td>gdrive MCP → listFolder, search, upload</td><td>TRK-14372, all brochures, TRK-14380</td></tr>
+<tr><td>ProDash ACF</td><td>Portal ACF/Documents module</td><td>TRK-14375 (test), TRK-14386 (all)</td></tr>
+<tr><td>C3 / SendGrid</td><td>C3 campaign builder</td><td>TRK-14389</td></tr>
+<tr><td>RSP Pipeline</td><td>Sprint 006 integration</td><td>TRK-14380 (Blue Gate link)</td></tr>
+</table>
+
+<hr>
+
+<h2>Sprint Notes</h2>
+<ul>
+  <li><strong>Zero file overlap:</strong> All Wave 2 brochures write to separate market folders (Health/Wealth/Legacy) and separate Canva projects. Safe for parallel.</li>
+  <li><strong>Build verification:</strong> This is a creative/MCP sprint — no TypeScript builds. Verification = PDF exists in Drive + link works in ProDash + page live on WordPress. <code>npm run build</code> applies only if any ProDash portal code is modified (TRK-14386 may touch ACF module config).</li>
+  <li><strong>No visual asset generation:</strong> OS Rule #4 — MUSASHI does NOT generate SVGs/icons/logos. All visual assets created in Canva under JDM art direction.</li>
+  <li><strong>Secrets:</strong> OS Rule #1 — API keys for SendGrid (C3), WordPress, Drive accessed via MCP environment config. Never hardcoded.</li>
+  <li><strong>PHI:</strong> OS Rule #10 — Brochures are educational/marketing material. No client PII in any brochure content.</li>
+</ul>
+
+</body>
+</html>

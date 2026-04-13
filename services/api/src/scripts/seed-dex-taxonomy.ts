@@ -49,33 +49,33 @@ const COLLECTION_MAP: Record<TaxonomyCollection, string> = {
 
 const CARRIERS: TaxonomyCarrier[] = [
   // BD/RIA
-  { carrier_id: 'GRADIENT_SEC', carrier_name: 'Gradient Securities', carrier_type: 'BD_RIA', domain: 'WEALTH' },
-  { carrier_id: 'GRADIENT_WM', carrier_name: 'Gradient Wealth Management', carrier_type: 'BD_RIA', domain: 'WEALTH' },
-  { carrier_id: 'GRADIENT_INV', carrier_name: 'Gradient Investments', carrier_type: 'BD_RIA', domain: 'WEALTH' },
+  { carrier_id: 'GRADIENT_SEC', carrier: 'Gradient Securities', carrier_type: 'BD_RIA', domain: 'WEALTH' },
+  { carrier_id: 'GRADIENT_WM', carrier: 'Gradient Wealth Management', carrier_type: 'BD_RIA', domain: 'WEALTH' },
+  { carrier_id: 'GRADIENT_INV', carrier: 'Gradient Investments', carrier_type: 'BD_RIA', domain: 'WEALTH' },
 
   // Custodians
-  { carrier_id: 'SCHWAB', carrier_name: 'Charles Schwab', carrier_type: 'CUSTODIAN', domain: 'WEALTH' },
-  { carrier_id: 'RBC', carrier_name: 'RBC Custody', carrier_type: 'CUSTODIAN', domain: 'WEALTH' },
+  { carrier_id: 'SCHWAB', carrier: 'Charles Schwab', carrier_type: 'CUSTODIAN', domain: 'WEALTH' },
+  { carrier_id: 'RBC', carrier: 'RBC Custody', carrier_type: 'CUSTODIAN', domain: 'WEALTH' },
 
   // IMOs
-  { carrier_id: 'GRADIENT_IMO', carrier_name: 'Gradient Insurance Brokerage', carrier_type: 'IMO', domain: 'BOTH' },
+  { carrier_id: 'GRADIENT_IMO', carrier: 'Gradient Insurance Brokerage', carrier_type: 'IMO', domain: 'BOTH' },
 
   // Insurance Carriers — Life & Annuity
-  { carrier_id: 'JOHN_HANCOCK', carrier_name: 'John Hancock', carrier_type: 'INSURANCE', domain: 'WEALTH' },
-  { carrier_id: 'NASSAU', carrier_name: 'Nassau Life & Annuity', carrier_type: 'INSURANCE', domain: 'WEALTH' },
-  { carrier_id: 'NATIONWIDE', carrier_name: 'Nationwide', carrier_type: 'INSURANCE', domain: 'WEALTH' },
-  { carrier_id: 'ATHENE', carrier_name: 'Athene', carrier_type: 'INSURANCE', domain: 'WEALTH' },
-  { carrier_id: 'PROTECTIVE', carrier_name: 'Protective Life', carrier_type: 'INSURANCE', domain: 'WEALTH' },
-  { carrier_id: 'NORTH_AMERICAN', carrier_name: 'North American (Sammons)', carrier_type: 'INSURANCE', domain: 'WEALTH' },
-  { carrier_id: 'ALLIANZ', carrier_name: 'Allianz Life', carrier_type: 'INSURANCE', domain: 'WEALTH' },
-  { carrier_id: 'COF', carrier_name: 'Catholic Order of Foresters', carrier_type: 'INSURANCE', domain: 'WEALTH' },
+  { carrier_id: 'JOHN_HANCOCK', carrier: 'John Hancock', carrier_type: 'INSURANCE', domain: 'WEALTH' },
+  { carrier_id: 'NASSAU', carrier: 'Nassau Life & Annuity', carrier_type: 'INSURANCE', domain: 'WEALTH' },
+  { carrier_id: 'NATIONWIDE', carrier: 'Nationwide', carrier_type: 'INSURANCE', domain: 'WEALTH' },
+  { carrier_id: 'ATHENE', carrier: 'Athene', carrier_type: 'INSURANCE', domain: 'WEALTH' },
+  { carrier_id: 'PROTECTIVE', carrier: 'Protective Life', carrier_type: 'INSURANCE', domain: 'WEALTH' },
+  { carrier_id: 'NORTH_AMERICAN', carrier: 'North American (Sammons)', carrier_type: 'INSURANCE', domain: 'WEALTH' },
+  { carrier_id: 'ALLIANZ', carrier: 'Allianz Life', carrier_type: 'INSURANCE', domain: 'WEALTH' },
+  { carrier_id: 'COF', carrier: 'Catholic Order of Foresters', carrier_type: 'INSURANCE', domain: 'WEALTH' },
 
   // Insurance Carriers — Health
-  { carrier_id: 'AETNA', carrier_name: 'Aetna', carrier_type: 'INSURANCE', domain: 'HEALTH' },
-  { carrier_id: 'HUMANA', carrier_name: 'Humana', carrier_type: 'INSURANCE', domain: 'HEALTH' },
-  { carrier_id: 'UNITEDHEALTHCARE', carrier_name: 'UnitedHealthcare', carrier_type: 'INSURANCE', domain: 'HEALTH' },
-  { carrier_id: 'WELLCARE', carrier_name: 'Wellcare by Health Net', carrier_type: 'INSURANCE', domain: 'HEALTH' },
-  { carrier_id: 'MUTUAL_OMAHA', carrier_name: 'Mutual of Omaha', carrier_type: 'INSURANCE', domain: 'BOTH' },
+  { carrier_id: 'AETNA', carrier: 'Aetna', carrier_type: 'INSURANCE', domain: 'HEALTH' },
+  { carrier_id: 'HUMANA', carrier: 'Humana', carrier_type: 'INSURANCE', domain: 'HEALTH' },
+  { carrier_id: 'UNITEDHEALTHCARE', carrier: 'UnitedHealthcare', carrier_type: 'INSURANCE', domain: 'HEALTH' },
+  { carrier_id: 'WELLCARE', carrier: 'Wellcare by Health Net', carrier_type: 'INSURANCE', domain: 'HEALTH' },
+  { carrier_id: 'MUTUAL_OMAHA', carrier: 'Mutual of Omaha', carrier_type: 'INSURANCE', domain: 'BOTH' },
 ]
 
 // ============================================================================

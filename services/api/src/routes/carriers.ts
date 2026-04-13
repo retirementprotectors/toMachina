@@ -1,5 +1,6 @@
 import { Router, type Request, type Response } from 'express'
-import { getFirestore, type Query, type DocumentData } from 'firebase-admin/firestore'
+import { type Query, type DocumentData } from 'firebase-admin/firestore'
+import { getDefaultDb } from '../lib/db.js'
 import {
   successResponse,
   errorResponse,
@@ -13,7 +14,7 @@ const COLLECTION = 'carriers'
 
 carrierRoutes.get('/', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
     let query: Query<DocumentData> = db.collection(COLLECTION)
 
     const search = (req.query.q as string) || ''
@@ -34,7 +35,7 @@ carrierRoutes.get('/', async (req: Request, res: Response) => {
 
 carrierRoutes.get('/:id', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
     const id = param(req.params.id)
     const doc = await db.collection(COLLECTION).doc(id).get()
     if (!doc.exists) { res.status(404).json(errorResponse('Carrier not found')); return }
@@ -48,7 +49,7 @@ carrierRoutes.get('/:id', async (req: Request, res: Response) => {
 // POST /api/carriers/seed-from-accounts — Extract unique carriers from account docs and populate carriers collection
 carrierRoutes.post('/seed-from-accounts', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDefaultDb()
     const dryRun = req.query.dry_run === 'true'
 
     // Collection group query across all clients/{clientId}/accounts
@@ -57,7 +58,7 @@ carrierRoutes.post('/seed-from-accounts', async (req: Request, res: Response) =>
 
     for (const doc of accountSnap.docs) {
       const data = doc.data()
-      const name = (data.carrier_name as string) || (data.carrier as string) || ''
+      const name = (data.carrier as string) || (data.carrier as string) || ''
       if (name.trim()) {
         carrierNames.add(name.trim())
       }
@@ -70,7 +71,7 @@ carrierRoutes.post('/seed-from-accounts', async (req: Request, res: Response) =>
 
     // Check existing carriers to avoid duplicates
     const existingSnap = await db.collection(COLLECTION).get()
-    const existing = new Set(existingSnap.docs.map((d) => (d.data().carrier_name as string) || ''))
+    const existing = new Set(existingSnap.docs.map((d) => (d.data().carrier as string) || ''))
 
     const now = new Date().toISOString()
     const batch = db.batch()
@@ -81,7 +82,7 @@ carrierRoutes.post('/seed-from-accounts', async (req: Request, res: Response) =>
       const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
       const ref = db.collection(COLLECTION).doc(slug)
       batch.set(ref, {
-        carrier_name: name,
+        carrier: name,
         status: 'active',
         created_at: now,
         updated_at: now,

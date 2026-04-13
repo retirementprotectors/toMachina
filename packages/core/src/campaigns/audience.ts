@@ -5,7 +5,7 @@ import type { AudienceFilter, AudienceResult } from './types'
 interface ClientRecord {
   client_id?: string
   _id?: string
-  client_status?: string
+  status?: string
   product_types?: string[]
   account_types?: string[]
   state?: string
@@ -33,9 +33,9 @@ export function buildAudience(
 
   const eligible = clients.filter((client) => {
     // Status filter
-    if (filter.client_status && filter.client_status.length > 0) {
-      const status = (client.client_status || '').toLowerCase()
-      if (!filter.client_status.some((s) => s.toLowerCase() === status)) return false
+    if (filter.status && filter.status.length > 0) {
+      const status = (client.status || '').toLowerCase()
+      if (!filter.status.some((s) => s.toLowerCase() === status)) return false
     }
 
     // Product type filter

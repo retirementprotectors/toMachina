@@ -223,7 +223,7 @@ export function buildComparisonMatrix(
   }
 
   const headers = quotes.map(
-    (q) => `${q.carrier_name} — ${q.product_name}`,
+    (q) => `${q.carrier} — ${q.product_name}`,
   )
 
   const rows: { label: string; values: (string | number)[] }[] = [

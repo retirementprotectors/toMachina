@@ -1,0 +1,944 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Life Schema Builder</title>
+<style>
+:root{--bg:#0a0e17;--card:#111827;--card2:#1a2236;--border:#1e293b;--text:#e2e8f0;--muted:#94a3b8;--accent:#10b981;--green:#22c55e;--blue:#3b82f6;--orange:#f59e0b;--red:#ef4444;--purple:#a855f7;--cyan:#06b6d4}
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;padding:12px}
+h1{font-size:1.4rem;font-weight:800;color:var(--accent);text-align:center;margin-bottom:4px}
+.sub{color:var(--muted);font-size:.75rem;text-align:center;margin-bottom:12px}
+.legend{display:flex;gap:10px;justify-content:center;margin-bottom:10px;font-size:.65rem;color:var(--muted);flex-wrap:wrap}
+.legend span{display:flex;align-items:center;gap:3px}
+.dot{width:8px;height:8px;border-radius:2px}
+.merge-ref{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:.7rem;color:var(--muted)}
+.merge-ref strong{color:var(--accent)}
+.merge-ref .fields{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.merge-ref .f{background:var(--card2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:monospace;font-size:.65rem;color:var(--text)}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:8px}
+table{width:100%;border-collapse:collapse;font-size:.65rem;min-width:1000px}
+thead th{position:sticky;top:0;z-index:2;padding:6px 4px;background:var(--card2);border-bottom:2px solid var(--border);font-size:.55rem;text-transform:uppercase;letter-spacing:.3px;text-align:center}
+thead th:first-child{text-align:left;min-width:140px;font-size:.6rem}
+thead th:last-child{text-align:left;min-width:120px}
+td{padding:3px 4px;border-bottom:1px solid var(--border);text-align:center;font-size:.6rem}
+td:first-child{text-align:left;font-family:monospace;font-size:.68rem;color:var(--text);font-weight:500}
+td:last-child{text-align:left}
+tr:hover td{background:rgba(16,185,129,.03)}
+tr.sec td{background:var(--card2);color:var(--accent);font-weight:700;font-size:.58rem;text-transform:uppercase;letter-spacing:.8px;text-align:left;padding:6px}
+.cnt{font-size:.55rem;color:var(--muted);display:block}
+.acts{display:inline-flex;gap:1px}
+.ab{width:16px;height:16px;border-radius:2px;border:1px solid var(--border);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:.45rem;background:none;color:var(--muted)}
+.ab:hover{border-color:var(--accent)}
+.ab.ka{border-color:var(--green);background:var(--green);color:#000}
+.ab.ma{border-color:var(--orange);background:var(--orange);color:#000}
+.ab.da{border-color:var(--red);background:var(--red);color:#000}
+.no{color:#222}
+.nt{background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:3px;padding:1px 4px;font-size:.58rem;width:110px}
+.nt:focus{border-color:var(--accent);outline:none}
+.mt select{background:var(--card2);border:1px solid var(--orange);color:var(--orange);border-radius:2px;padding:0 2px;font-size:.55rem;font-family:monospace;max-width:90px}
+.ebar{position:sticky;bottom:0;background:var(--card);border-top:1px solid var(--border);padding:8px 12px;display:flex;justify-content:space-between;align-items:center;margin:12px -12px -12px}
+.ebtn{padding:6px 20px;border-radius:6px;border:none;background:var(--accent);color:#000;font-weight:700;font-size:.8rem;cursor:pointer}
+</style></head><body>
+<h1>Life Insurance Schema Builder — All Types</h1>
+<div class="sub">All life subtypes side by side. ✓/→/✕ per field per type. Notes column at the end. Merge targets at the top.</div>
+<div class="merge-ref"><strong>Available Merge Targets:</strong><div class="fields">
+<span class="f">account_category</span>
+<span class="f">account_number</span>
+<span class="f">account_owner</span>
+<span class="f">account_type</span>
+<span class="f">account_value</span>
+<span class="f">annual_premium</span>
+<span class="f">annualized_premium</span>
+<span class="f">annuity_balance</span>
+<span class="f">as_of_date</span>
+<span class="f">base_cash_value</span>
+<span class="f">beneficiaries</span>
+<span class="f">beneficiary</span>
+<span class="f">billing_mode</span>
+<span class="f">billing_status</span>
+<span class="f">book_of_business</span>
+<span class="f">carrier</span>
+<span class="f">cash_value</span>
+<span class="f">commission_split</span>
+<span class="f">contingent_beneficiary</span>
+<span class="f">contract_number</span>
+<span class="f">cost_basis</span>
+<span class="f">current_year_dividend</span>
+<span class="f">data_source</span>
+<span class="f">db_option</span>
+<span class="f">death_benefit</span>
+<span class="f">death_benefit_option</span>
+<span class="f">dividend_balance</span>
+<span class="f">dividend_option_1</span>
+<span class="f">dividend_value</span>
+<span class="f">documents</span>
+<span class="f">draft_date</span>
+<span class="f">effective_date</span>
+<span class="f">face_amount</span>
+<span class="f">face_value</span>
+<span class="f">fund_value</span>
+<span class="f">guideline_accumulation_level</span>
+<span class="f">guideline_single_premium</span>
+<span class="f">health_class</span>
+<span class="f">insured</span>
+<span class="f">insured_dob</span>
+<span class="f">insured_gender</span>
+<span class="f">insured_name</span>
+<span class="f">is_mec</span>
+<span class="f">issue_age</span>
+<span class="f">issue_date</span>
+<span class="f">joint_owner</span>
+<span class="f">last_transaction_date</span>
+<span class="f">loan_balance</span>
+<span class="f">loan_interest_balance</span>
+<span class="f">loan_interest_rate</span>
+<span class="f">ltc_benefit</span>
+<span class="f">market</span>
+<span class="f">masked_id_last4</span>
+<span class="f">maturity_date</span>
+<span class="f">mec</span>
+<span class="f">modal_premium</span>
+<span class="f">net_csv</span>
+<span class="f">net_loan_amount</span>
+<span class="f">net_surrender_value</span>
+<span class="f">owner_name</span>
+<span class="f">paid_to_date</span>
+<span class="f">plan_code</span>
+<span class="f">plan_name</span>
+<span class="f">plan_option</span>
+<span class="f">policy_number</span>
+<span class="f">policy_owner</span>
+<span class="f">policy_type</span>
+<span class="f">premium</span>
+<span class="f">premium_frequency</span>
+<span class="f">premium_mode</span>
+<span class="f">primary_beneficiary</span>
+<span class="f">primary_beneficiary_pct</span>
+<span class="f">prior_year_dividend</span>
+<span class="f">product_name</span>
+<span class="f">product_type</span>
+<span class="f">risk_class</span>
+<span class="f">scheduled_premium</span>
+<span class="f">source</span>
+<span class="f">status</span>
+<span class="f">surrender_value</span>
+<span class="f">table_rating</span>
+<span class="f">term_period</span>
+<span class="f">total_premiums_paid</span>
+<span class="f">total_transactions</span>
+<span class="f">underwriting_status</span>
+<span class="f">writing_agent_id</span>
+</div></div>
+<div class="legend"><span><div class="dot" style="background:var(--green)"></div>Keep</span><span><div class="dot" style="background:var(--orange)"></div>Merge (select target below)</span><span><div class="dot" style="background:var(--red)"></div>Delete</span></div>
+<div class="tbl-wrap"><table id="tbl"><thead><tr>
+<th>Field</th>
+<th style="color:var(--accent)">Whole Life<br><span style="font-size:.45rem;color:var(--muted)">(1560)</span></th>
+<th style="color:var(--accent)">Term<br><span style="font-size:.45rem;color:var(--muted)">(368)</span></th>
+<th style="color:var(--accent)">UL/Fixed UL<br><span style="font-size:.45rem;color:var(--muted)">(503)</span></th>
+<th style="color:var(--accent)">IUL<br><span style="font-size:.45rem;color:var(--muted)">(78)</span></th>
+<th style="color:var(--accent)">Final Expense<br><span style="font-size:.45rem;color:var(--muted)">(185)</span></th>
+<th style="color:var(--accent)">Other<br><span style="font-size:.45rem;color:var(--muted)">(2409)</span></th>
+<th style="color:var(--muted)">Notes</th>
+</tr></thead><tbody>
+<tr class="sec"><td colspan="8">General</td></tr>
+<tr><td>carrier</td>
+<td><span class="cnt">1558</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','carrier','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','carrier','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','carrier','delete',this)">✕</button></span><span id="mt_Life_WholeLife_carrier"></span></td>
+<td><span class="cnt">368</span><span class="acts"><button class="ab ka" onclick="act('Life_Term','carrier','keep',this)">✓</button><button class="ab" onclick="act('Life_Term','carrier','merge',this)">→</button><button class="ab" onclick="act('Life_Term','carrier','delete',this)">✕</button></span><span id="mt_Life_Term_carrier"></span></td>
+<td><span class="cnt">503</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','carrier','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','carrier','merge',this)">→</button><button class="ab" onclick="act('Life_UL','carrier','delete',this)">✕</button></span><span id="mt_Life_UL_carrier"></span></td>
+<td><span class="cnt">78</span><span class="acts"><button class="ab ka" onclick="act('Life_IUL','carrier','keep',this)">✓</button><button class="ab" onclick="act('Life_IUL','carrier','merge',this)">→</button><button class="ab" onclick="act('Life_IUL','carrier','delete',this)">✕</button></span><span id="mt_Life_IUL_carrier"></span></td>
+<td><span class="cnt">185</span><span class="acts"><button class="ab ka" onclick="act('Life_FinalExpense','carrier','keep',this)">✓</button><button class="ab" onclick="act('Life_FinalExpense','carrier','merge',this)">→</button><button class="ab" onclick="act('Life_FinalExpense','carrier','delete',this)">✕</button></span><span id="mt_Life_FinalExpense_carrier"></span></td>
+<td><span class="cnt">2316</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','carrier','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','carrier','merge',this)">→</button><button class="ab" onclick="act('Life_Other','carrier','delete',this)">✕</button></span><span id="mt_Life_Other_carrier"></span></td>
+<td><input class="nt" id="nt_carrier" placeholder="notes" oninput="sn('carrier',this.value)"></td>
+</tr>
+<tr><td>product_name</td>
+<td><span class="cnt">1548</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','product_name','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','product_name','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','product_name','delete',this)">✕</button></span><span id="mt_Life_WholeLife_product_name"></span></td>
+<td><span class="cnt">337</span><span class="acts"><button class="ab ka" onclick="act('Life_Term','product_name','keep',this)">✓</button><button class="ab" onclick="act('Life_Term','product_name','merge',this)">→</button><button class="ab" onclick="act('Life_Term','product_name','delete',this)">✕</button></span><span id="mt_Life_Term_product_name"></span></td>
+<td><span class="cnt">345</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','product_name','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','product_name','merge',this)">→</button><button class="ab" onclick="act('Life_UL','product_name','delete',this)">✕</button></span><span id="mt_Life_UL_product_name"></span></td>
+<td><span class="cnt">78</span><span class="acts"><button class="ab ka" onclick="act('Life_IUL','product_name','keep',this)">✓</button><button class="ab" onclick="act('Life_IUL','product_name','merge',this)">→</button><button class="ab" onclick="act('Life_IUL','product_name','delete',this)">✕</button></span><span id="mt_Life_IUL_product_name"></span></td>
+<td><span class="cnt">185</span><span class="acts"><button class="ab ka" onclick="act('Life_FinalExpense','product_name','keep',this)">✓</button><button class="ab" onclick="act('Life_FinalExpense','product_name','merge',this)">→</button><button class="ab" onclick="act('Life_FinalExpense','product_name','delete',this)">✕</button></span><span id="mt_Life_FinalExpense_product_name"></span></td>
+<td><span class="cnt">566</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','product_name','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','product_name','merge',this)">→</button><button class="ab" onclick="act('Life_Other','product_name','delete',this)">✕</button></span><span id="mt_Life_Other_product_name"></span></td>
+<td><input class="nt" id="nt_product_name" placeholder="notes" oninput="sn('product_name',this.value)"></td>
+</tr>
+<tr><td>product_type</td>
+<td><span class="cnt">31</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','product_type','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','product_type','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','product_type','delete',this)">✕</button></span><span id="mt_Life_WholeLife_product_type"></span></td>
+<td><span class="cnt">20</span><span class="acts"><button class="ab ka" onclick="act('Life_Term','product_type','keep',this)">✓</button><button class="ab" onclick="act('Life_Term','product_type','merge',this)">→</button><button class="ab" onclick="act('Life_Term','product_type','delete',this)">✕</button></span><span id="mt_Life_Term_product_type"></span></td>
+<td><span class="cnt">183</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','product_type','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','product_type','merge',this)">→</button><button class="ab" onclick="act('Life_UL','product_type','delete',this)">✕</button></span><span id="mt_Life_UL_product_type"></span></td>
+<td><span class="cnt">56</span><span class="acts"><button class="ab ka" onclick="act('Life_IUL','product_type','keep',this)">✓</button><button class="ab" onclick="act('Life_IUL','product_type','merge',this)">→</button><button class="ab" onclick="act('Life_IUL','product_type','delete',this)">✕</button></span><span id="mt_Life_IUL_product_type"></span></td>
+<td><span class="cnt">155</span><span class="acts"><button class="ab ka" onclick="act('Life_FinalExpense','product_type','keep',this)">✓</button><button class="ab" onclick="act('Life_FinalExpense','product_type','merge',this)">→</button><button class="ab" onclick="act('Life_FinalExpense','product_type','delete',this)">✕</button></span><span id="mt_Life_FinalExpense_product_type"></span></td>
+<td><span class="cnt">511</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','product_type','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','product_type','merge',this)">→</button><button class="ab" onclick="act('Life_Other','product_type','delete',this)">✕</button></span><span id="mt_Life_Other_product_type"></span></td>
+<td><input class="nt" id="nt_product_type" placeholder="notes" oninput="sn('product_type',this.value)"></td>
+</tr>
+<tr><td>policy_type</td>
+<td><span class="cnt">583</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','policy_type','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','policy_type','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','policy_type','delete',this)">✕</button></span><span id="mt_Life_WholeLife_policy_type"></span></td>
+<td><span class="cnt">367</span><span class="acts"><button class="ab ka" onclick="act('Life_Term','policy_type','keep',this)">✓</button><button class="ab" onclick="act('Life_Term','policy_type','merge',this)">→</button><button class="ab" onclick="act('Life_Term','policy_type','delete',this)">✕</button></span><span id="mt_Life_Term_policy_type"></span></td>
+<td><span class="cnt">479</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','policy_type','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','policy_type','merge',this)">→</button><button class="ab" onclick="act('Life_UL','policy_type','delete',this)">✕</button></span><span id="mt_Life_UL_policy_type"></span></td>
+<td><span class="cnt">78</span><span class="acts"><button class="ab ka" onclick="act('Life_IUL','policy_type','keep',this)">✓</button><button class="ab" onclick="act('Life_IUL','policy_type','merge',this)">→</button><button class="ab" onclick="act('Life_IUL','policy_type','delete',this)">✕</button></span><span id="mt_Life_IUL_policy_type"></span></td>
+<td><span class="cnt">185</span><span class="acts"><button class="ab ka" onclick="act('Life_FinalExpense','policy_type','keep',this)">✓</button><button class="ab" onclick="act('Life_FinalExpense','policy_type','merge',this)">→</button><button class="ab" onclick="act('Life_FinalExpense','policy_type','delete',this)">✕</button></span><span id="mt_Life_FinalExpense_policy_type"></span></td>
+<td><span class="cnt">436</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','policy_type','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','policy_type','merge',this)">→</button><button class="ab" onclick="act('Life_Other','policy_type','delete',this)">✕</button></span><span id="mt_Life_Other_policy_type"></span></td>
+<td><input class="nt" id="nt_policy_type" placeholder="notes" oninput="sn('policy_type',this.value)"></td>
+</tr>
+<tr><td>account_type</td>
+<td><span class="cnt">3</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','account_type','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','account_type','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','account_type','delete',this)">✕</button></span><span id="mt_Life_WholeLife_account_type"></span></td>
+<td><span class="cnt">1</span><span class="acts"><button class="ab ka" onclick="act('Life_Term','account_type','keep',this)">✓</button><button class="ab" onclick="act('Life_Term','account_type','merge',this)">→</button><button class="ab" onclick="act('Life_Term','account_type','delete',this)">✕</button></span><span id="mt_Life_Term_account_type"></span></td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td><input class="nt" id="nt_account_type" placeholder="notes" oninput="sn('account_type',this.value)"></td>
+</tr>
+<tr><td>status</td>
+<td><span class="cnt">1560</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','status','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','status','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','status','delete',this)">✕</button></span><span id="mt_Life_WholeLife_status"></span></td>
+<td><span class="cnt">368</span><span class="acts"><button class="ab ka" onclick="act('Life_Term','status','keep',this)">✓</button><button class="ab" onclick="act('Life_Term','status','merge',this)">→</button><button class="ab" onclick="act('Life_Term','status','delete',this)">✕</button></span><span id="mt_Life_Term_status"></span></td>
+<td><span class="cnt">503</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','status','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','status','merge',this)">→</button><button class="ab" onclick="act('Life_UL','status','delete',this)">✕</button></span><span id="mt_Life_UL_status"></span></td>
+<td><span class="cnt">78</span><span class="acts"><button class="ab ka" onclick="act('Life_IUL','status','keep',this)">✓</button><button class="ab" onclick="act('Life_IUL','status','merge',this)">→</button><button class="ab" onclick="act('Life_IUL','status','delete',this)">✕</button></span><span id="mt_Life_IUL_status"></span></td>
+<td><span class="cnt">185</span><span class="acts"><button class="ab ka" onclick="act('Life_FinalExpense','status','keep',this)">✓</button><button class="ab" onclick="act('Life_FinalExpense','status','merge',this)">→</button><button class="ab" onclick="act('Life_FinalExpense','status','delete',this)">✕</button></span><span id="mt_Life_FinalExpense_status"></span></td>
+<td><span class="cnt">2409</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','status','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','status','merge',this)">→</button><button class="ab" onclick="act('Life_Other','status','delete',this)">✕</button></span><span id="mt_Life_Other_status"></span></td>
+<td><input class="nt" id="nt_status" placeholder="notes" oninput="sn('status',this.value)"></td>
+</tr>
+<tr><td>effective_date</td>
+<td><span class="cnt">8</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','effective_date','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','effective_date','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','effective_date','delete',this)">✕</button></span><span id="mt_Life_WholeLife_effective_date"></span></td>
+<td><span class="cnt">26</span><span class="acts"><button class="ab ka" onclick="act('Life_Term','effective_date','keep',this)">✓</button><button class="ab" onclick="act('Life_Term','effective_date','merge',this)">→</button><button class="ab" onclick="act('Life_Term','effective_date','delete',this)">✕</button></span><span id="mt_Life_Term_effective_date"></span></td>
+<td><span class="cnt">191</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','effective_date','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','effective_date','merge',this)">→</button><button class="ab" onclick="act('Life_UL','effective_date','delete',this)">✕</button></span><span id="mt_Life_UL_effective_date"></span></td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td><span class="cnt">65</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','effective_date','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','effective_date','merge',this)">→</button><button class="ab" onclick="act('Life_Other','effective_date','delete',this)">✕</button></span><span id="mt_Life_Other_effective_date"></span></td>
+<td><input class="nt" id="nt_effective_date" placeholder="notes" oninput="sn('effective_date',this.value)"></td>
+</tr>
+<tr><td>issue_date</td>
+<td><span class="cnt">1528</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','issue_date','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','issue_date','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','issue_date','delete',this)">✕</button></span><span id="mt_Life_WholeLife_issue_date"></span></td>
+<td><span class="cnt">323</span><span class="acts"><button class="ab ka" onclick="act('Life_Term','issue_date','keep',this)">✓</button><button class="ab" onclick="act('Life_Term','issue_date','merge',this)">→</button><button class="ab" onclick="act('Life_Term','issue_date','delete',this)">✕</button></span><span id="mt_Life_Term_issue_date"></span></td>
+<td><span class="cnt">234</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','issue_date','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','issue_date','merge',this)">→</button><button class="ab" onclick="act('Life_UL','issue_date','delete',this)">✕</button></span><span id="mt_Life_UL_issue_date"></span></td>
+<td><span class="cnt">59</span><span class="acts"><button class="ab ka" onclick="act('Life_IUL','issue_date','keep',this)">✓</button><button class="ab" onclick="act('Life_IUL','issue_date','merge',this)">→</button><button class="ab" onclick="act('Life_IUL','issue_date','delete',this)">✕</button></span><span id="mt_Life_IUL_issue_date"></span></td>
+<td><span class="cnt">29</span><span class="acts"><button class="ab ka" onclick="act('Life_FinalExpense','issue_date','keep',this)">✓</button><button class="ab" onclick="act('Life_FinalExpense','issue_date','merge',this)">→</button><button class="ab" onclick="act('Life_FinalExpense','issue_date','delete',this)">✕</button></span><span id="mt_Life_FinalExpense_issue_date"></span></td>
+<td><span class="cnt">450</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','issue_date','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','issue_date','merge',this)">→</button><button class="ab" onclick="act('Life_Other','issue_date','delete',this)">✕</button></span><span id="mt_Life_Other_issue_date"></span></td>
+<td><input class="nt" id="nt_issue_date" placeholder="notes" oninput="sn('issue_date',this.value)"></td>
+</tr>
+<tr><td>as_of_date</td>
+<td><span class="cnt">7</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','as_of_date','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','as_of_date','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','as_of_date','delete',this)">✕</button></span><span id="mt_Life_WholeLife_as_of_date"></span></td>
+<td><span class="cnt">4</span><span class="acts"><button class="ab ka" onclick="act('Life_Term','as_of_date','keep',this)">✓</button><button class="ab" onclick="act('Life_Term','as_of_date','merge',this)">→</button><button class="ab" onclick="act('Life_Term','as_of_date','delete',this)">✕</button></span><span id="mt_Life_Term_as_of_date"></span></td>
+<td><span class="cnt">19</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','as_of_date','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','as_of_date','merge',this)">→</button><button class="ab" onclick="act('Life_UL','as_of_date','delete',this)">✕</button></span><span id="mt_Life_UL_as_of_date"></span></td>
+<td><span class="cnt">17</span><span class="acts"><button class="ab ka" onclick="act('Life_IUL','as_of_date','keep',this)">✓</button><button class="ab" onclick="act('Life_IUL','as_of_date','merge',this)">→</button><button class="ab" onclick="act('Life_IUL','as_of_date','delete',this)">✕</button></span><span id="mt_Life_IUL_as_of_date"></span></td>
+<td class="no">—</td>
+<td><span class="cnt">10</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','as_of_date','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','as_of_date','merge',this)">→</button><button class="ab" onclick="act('Life_Other','as_of_date','delete',this)">✕</button></span><span id="mt_Life_Other_as_of_date"></span></td>
+<td><input class="nt" id="nt_as_of_date" placeholder="notes" oninput="sn('as_of_date',this.value)"></td>
+</tr>
+<tr><td>market</td>
+<td><span class="cnt">1518</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','market','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','market','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','market','delete',this)">✕</button></span><span id="mt_Life_WholeLife_market"></span></td>
+<td><span class="cnt">312</span><span class="acts"><button class="ab ka" onclick="act('Life_Term','market','keep',this)">✓</button><button class="ab" onclick="act('Life_Term','market','merge',this)">→</button><button class="ab" onclick="act('Life_Term','market','delete',this)">✕</button></span><span id="mt_Life_Term_market"></span></td>
+<td><span class="cnt">156</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','market','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','market','merge',this)">→</button><button class="ab" onclick="act('Life_UL','market','delete',this)">✕</button></span><span id="mt_Life_UL_market"></span></td>
+<td><span class="cnt">33</span><span class="acts"><button class="ab ka" onclick="act('Life_IUL','market','keep',this)">✓</button><button class="ab" onclick="act('Life_IUL','market','merge',this)">→</button><button class="ab" onclick="act('Life_IUL','market','delete',this)">✕</button></span><span id="mt_Life_IUL_market"></span></td>
+<td><span class="cnt">20</span><span class="acts"><button class="ab ka" onclick="act('Life_FinalExpense','market','keep',this)">✓</button><button class="ab" onclick="act('Life_FinalExpense','market','merge',this)">→</button><button class="ab" onclick="act('Life_FinalExpense','market','delete',this)">✕</button></span><span id="mt_Life_FinalExpense_market"></span></td>
+<td><span class="cnt">1980</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','market','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','market','merge',this)">→</button><button class="ab" onclick="act('Life_Other','market','delete',this)">✕</button></span><span id="mt_Life_Other_market"></span></td>
+<td><input class="nt" id="nt_market" placeholder="notes" oninput="sn('market',this.value)"></td>
+</tr>
+<tr><td>book_of_business</td>
+<td><span class="cnt">1513</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','book_of_business','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','book_of_business','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','book_of_business','delete',this)">✕</button></span><span id="mt_Life_WholeLife_book_of_business"></span></td>
+<td><span class="cnt">315</span><span class="acts"><button class="ab ka" onclick="act('Life_Term','book_of_business','keep',this)">✓</button><button class="ab" onclick="act('Life_Term','book_of_business','merge',this)">→</button><button class="ab" onclick="act('Life_Term','book_of_business','delete',this)">✕</button></span><span id="mt_Life_Term_book_of_business"></span></td>
+<td><span class="cnt">154</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','book_of_business','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','book_of_business','merge',this)">→</button><button class="ab" onclick="act('Life_UL','book_of_business','delete',this)">✕</button></span><span id="mt_Life_UL_book_of_business"></span></td>
+<td><span class="cnt">28</span><span class="acts"><button class="ab ka" onclick="act('Life_IUL','book_of_business','keep',this)">✓</button><button class="ab" onclick="act('Life_IUL','book_of_business','merge',this)">→</button><button class="ab" onclick="act('Life_IUL','book_of_business','delete',this)">✕</button></span><span id="mt_Life_IUL_book_of_business"></span></td>
+<td><span class="cnt">6</span><span class="acts"><button class="ab ka" onclick="act('Life_FinalExpense','book_of_business','keep',this)">✓</button><button class="ab" onclick="act('Life_FinalExpense','book_of_business','merge',this)">→</button><button class="ab" onclick="act('Life_FinalExpense','book_of_business','delete',this)">✕</button></span><span id="mt_Life_FinalExpense_book_of_business"></span></td>
+<td><span class="cnt">1958</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','book_of_business','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','book_of_business','merge',this)">→</button><button class="ab" onclick="act('Life_Other','book_of_business','delete',this)">✕</button></span><span id="mt_Life_Other_book_of_business"></span></td>
+<td><input class="nt" id="nt_book_of_business" placeholder="notes" oninput="sn('book_of_business',this.value)"></td>
+</tr>
+<tr><td>data_source</td>
+<td><span class="cnt">528</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','data_source','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','data_source','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','data_source','delete',this)">✕</button></span><span id="mt_Life_WholeLife_data_source"></span></td>
+<td><span class="cnt">311</span><span class="acts"><button class="ab ka" onclick="act('Life_Term','data_source','keep',this)">✓</button><button class="ab" onclick="act('Life_Term','data_source','merge',this)">→</button><button class="ab" onclick="act('Life_Term','data_source','delete',this)">✕</button></span><span id="mt_Life_Term_data_source"></span></td>
+<td><span class="cnt">133</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','data_source','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','data_source','merge',this)">→</button><button class="ab" onclick="act('Life_UL','data_source','delete',this)">✕</button></span><span id="mt_Life_UL_data_source"></span></td>
+<td><span class="cnt">31</span><span class="acts"><button class="ab ka" onclick="act('Life_IUL','data_source','keep',this)">✓</button><button class="ab" onclick="act('Life_IUL','data_source','merge',this)">→</button><button class="ab" onclick="act('Life_IUL','data_source','delete',this)">✕</button></span><span id="mt_Life_IUL_data_source"></span></td>
+<td class="no">—</td>
+<td><span class="cnt">117</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','data_source','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','data_source','merge',this)">→</button><button class="ab" onclick="act('Life_Other','data_source','delete',this)">✕</button></span><span id="mt_Life_Other_data_source"></span></td>
+<td><input class="nt" id="nt_data_source" placeholder="notes" oninput="sn('data_source',this.value)"></td>
+</tr>
+<tr class="sec"><td colspan="8">Identifiers</td></tr>
+<tr><td>policy_number</td>
+<td><span class="cnt">1560</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','policy_number','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','policy_number','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','policy_number','delete',this)">✕</button></span><span id="mt_Life_WholeLife_policy_number"></span></td>
+<td><span class="cnt">367</span><span class="acts"><button class="ab ka" onclick="act('Life_Term','policy_number','keep',this)">✓</button><button class="ab" onclick="act('Life_Term','policy_number','merge',this)">→</button><button class="ab" onclick="act('Life_Term','policy_number','delete',this)">✕</button></span><span id="mt_Life_Term_policy_number"></span></td>
+<td><span class="cnt">503</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','policy_number','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','policy_number','merge',this)">→</button><button class="ab" onclick="act('Life_UL','policy_number','delete',this)">✕</button></span><span id="mt_Life_UL_policy_number"></span></td>
+<td><span class="cnt">77</span><span class="acts"><button class="ab ka" onclick="act('Life_IUL','policy_number','keep',this)">✓</button><button class="ab" onclick="act('Life_IUL','policy_number','merge',this)">→</button><button class="ab" onclick="act('Life_IUL','policy_number','delete',this)">✕</button></span><span id="mt_Life_IUL_policy_number"></span></td>
+<td><span class="cnt">185</span><span class="acts"><button class="ab ka" onclick="act('Life_FinalExpense','policy_number','keep',this)">✓</button><button class="ab" onclick="act('Life_FinalExpense','policy_number','merge',this)">→</button><button class="ab" onclick="act('Life_FinalExpense','policy_number','delete',this)">✕</button></span><span id="mt_Life_FinalExpense_policy_number"></span></td>
+<td><span class="cnt">2408</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','policy_number','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','policy_number','merge',this)">→</button><button class="ab" onclick="act('Life_Other','policy_number','delete',this)">✕</button></span><span id="mt_Life_Other_policy_number"></span></td>
+<td><input class="nt" id="nt_policy_number" placeholder="notes" oninput="sn('policy_number',this.value)"></td>
+</tr>
+<tr><td>account_number</td>
+<td><span class="cnt">30</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','account_number','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','account_number','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','account_number','delete',this)">✕</button></span><span id="mt_Life_WholeLife_account_number"></span></td>
+<td><span class="cnt">20</span><span class="acts"><button class="ab ka" onclick="act('Life_Term','account_number','keep',this)">✓</button><button class="ab" onclick="act('Life_Term','account_number','merge',this)">→</button><button class="ab" onclick="act('Life_Term','account_number','delete',this)">✕</button></span><span id="mt_Life_Term_account_number"></span></td>
+<td><span class="cnt">182</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','account_number','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','account_number','merge',this)">→</button><button class="ab" onclick="act('Life_UL','account_number','delete',this)">✕</button></span><span id="mt_Life_UL_account_number"></span></td>
+<td><span class="cnt">54</span><span class="acts"><button class="ab ka" onclick="act('Life_IUL','account_number','keep',this)">✓</button><button class="ab" onclick="act('Life_IUL','account_number','merge',this)">→</button><button class="ab" onclick="act('Life_IUL','account_number','delete',this)">✕</button></span><span id="mt_Life_IUL_account_number"></span></td>
+<td><span class="cnt">154</span><span class="acts"><button class="ab ka" onclick="act('Life_FinalExpense','account_number','keep',this)">✓</button><button class="ab" onclick="act('Life_FinalExpense','account_number','merge',this)">→</button><button class="ab" onclick="act('Life_FinalExpense','account_number','delete',this)">✕</button></span><span id="mt_Life_FinalExpense_account_number"></span></td>
+<td><span class="cnt">487</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','account_number','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','account_number','merge',this)">→</button><button class="ab" onclick="act('Life_Other','account_number','delete',this)">✕</button></span><span id="mt_Life_Other_account_number"></span></td>
+<td><input class="nt" id="nt_account_number" placeholder="notes" oninput="sn('account_number',this.value)"></td>
+</tr>
+<tr><td>contract_number</td>
+<td><span class="cnt">1</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','contract_number','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','contract_number','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','contract_number','delete',this)">✕</button></span><span id="mt_Life_WholeLife_contract_number"></span></td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td><input class="nt" id="nt_contract_number" placeholder="notes" oninput="sn('contract_number',this.value)"></td>
+</tr>
+<tr class="sec"><td colspan="8">Values</td></tr>
+<tr><td>face_amount</td>
+<td><span class="cnt">543</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','face_amount','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','face_amount','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','face_amount','delete',this)">✕</button></span><span id="mt_Life_WholeLife_face_amount"></span></td>
+<td><span class="cnt">342</span><span class="acts"><button class="ab ka" onclick="act('Life_Term','face_amount','keep',this)">✓</button><button class="ab" onclick="act('Life_Term','face_amount','merge',this)">→</button><button class="ab" onclick="act('Life_Term','face_amount','delete',this)">✕</button></span><span id="mt_Life_Term_face_amount"></span></td>
+<td><span class="cnt">299</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','face_amount','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','face_amount','merge',this)">→</button><button class="ab" onclick="act('Life_UL','face_amount','delete',this)">✕</button></span><span id="mt_Life_UL_face_amount"></span></td>
+<td><span class="cnt">5</span><span class="acts"><button class="ab ka" onclick="act('Life_IUL','face_amount','keep',this)">✓</button><button class="ab" onclick="act('Life_IUL','face_amount','merge',this)">→</button><button class="ab" onclick="act('Life_IUL','face_amount','delete',this)">✕</button></span><span id="mt_Life_IUL_face_amount"></span></td>
+<td class="no">—</td>
+<td><span class="cnt">69</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','face_amount','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','face_amount','merge',this)">→</button><button class="ab" onclick="act('Life_Other','face_amount','delete',this)">✕</button></span><span id="mt_Life_Other_face_amount"></span></td>
+<td><input class="nt" id="nt_face_amount" placeholder="notes" oninput="sn('face_amount',this.value)"></td>
+</tr>
+<tr><td>face_value</td>
+<td><span class="cnt">1481</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','face_value','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','face_value','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','face_value','delete',this)">✕</button></span><span id="mt_Life_WholeLife_face_value"></span></td>
+<td><span class="cnt">260</span><span class="acts"><button class="ab ka" onclick="act('Life_Term','face_value','keep',this)">✓</button><button class="ab" onclick="act('Life_Term','face_value','merge',this)">→</button><button class="ab" onclick="act('Life_Term','face_value','delete',this)">✕</button></span><span id="mt_Life_Term_face_value"></span></td>
+<td><span class="cnt">118</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','face_value','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','face_value','merge',this)">→</button><button class="ab" onclick="act('Life_UL','face_value','delete',this)">✕</button></span><span id="mt_Life_UL_face_value"></span></td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td><span class="cnt">133</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','face_value','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','face_value','merge',this)">→</button><button class="ab" onclick="act('Life_Other','face_value','delete',this)">✕</button></span><span id="mt_Life_Other_face_value"></span></td>
+<td><input class="nt" id="nt_face_value" placeholder="notes" oninput="sn('face_value',this.value)"></td>
+</tr>
+<tr><td>account_value</td>
+<td><span class="cnt">9</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','account_value','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','account_value','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','account_value','delete',this)">✕</button></span><span id="mt_Life_WholeLife_account_value"></span></td>
+<td><span class="cnt">14</span><span class="acts"><button class="ab ka" onclick="act('Life_Term','account_value','keep',this)">✓</button><button class="ab" onclick="act('Life_Term','account_value','merge',this)">→</button><button class="ab" onclick="act('Life_Term','account_value','delete',this)">✕</button></span><span id="mt_Life_Term_account_value"></span></td>
+<td><span class="cnt">187</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','account_value','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','account_value','merge',this)">→</button><button class="ab" onclick="act('Life_UL','account_value','delete',this)">✕</button></span><span id="mt_Life_UL_account_value"></span></td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td><span class="cnt">57</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','account_value','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','account_value','merge',this)">→</button><button class="ab" onclick="act('Life_Other','account_value','delete',this)">✕</button></span><span id="mt_Life_Other_account_value"></span></td>
+<td><input class="nt" id="nt_account_value" placeholder="notes" oninput="sn('account_value',this.value)"></td>
+</tr>
+<tr><td>cash_value</td>
+<td><span class="cnt">1436</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','cash_value','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','cash_value','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','cash_value','delete',this)">✕</button></span><span id="mt_Life_WholeLife_cash_value"></span></td>
+<td><span class="cnt">31</span><span class="acts"><button class="ab ka" onclick="act('Life_Term','cash_value','keep',this)">✓</button><button class="ab" onclick="act('Life_Term','cash_value','merge',this)">→</button><button class="ab" onclick="act('Life_Term','cash_value','delete',this)">✕</button></span><span id="mt_Life_Term_cash_value"></span></td>
+<td><span class="cnt">349</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','cash_value','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','cash_value','merge',this)">→</button><button class="ab" onclick="act('Life_UL','cash_value','delete',this)">✕</button></span><span id="mt_Life_UL_cash_value"></span></td>
+<td><span class="cnt">36</span><span class="acts"><button class="ab ka" onclick="act('Life_IUL','cash_value','keep',this)">✓</button><button class="ab" onclick="act('Life_IUL','cash_value','merge',this)">→</button><button class="ab" onclick="act('Life_IUL','cash_value','delete',this)">✕</button></span><span id="mt_Life_IUL_cash_value"></span></td>
+<td class="no">—</td>
+<td><span class="cnt">348</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','cash_value','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','cash_value','merge',this)">→</button><button class="ab" onclick="act('Life_Other','cash_value','delete',this)">✕</button></span><span id="mt_Life_Other_cash_value"></span></td>
+<td><input class="nt" id="nt_cash_value" placeholder="notes" oninput="sn('cash_value',this.value)"></td>
+</tr>
+<tr><td>surrender_value</td>
+<td><span class="cnt">536</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','surrender_value','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','surrender_value','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','surrender_value','delete',this)">✕</button></span><span id="mt_Life_WholeLife_surrender_value"></span></td>
+<td><span class="cnt">318</span><span class="acts"><button class="ab ka" onclick="act('Life_Term','surrender_value','keep',this)">✓</button><button class="ab" onclick="act('Life_Term','surrender_value','merge',this)">→</button><button class="ab" onclick="act('Life_Term','surrender_value','delete',this)">✕</button></span><span id="mt_Life_Term_surrender_value"></span></td>
+<td><span class="cnt">239</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','surrender_value','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','surrender_value','merge',this)">→</button><button class="ab" onclick="act('Life_UL','surrender_value','delete',this)">✕</button></span><span id="mt_Life_UL_surrender_value"></span></td>
+<td><span class="cnt">27</span><span class="acts"><button class="ab ka" onclick="act('Life_IUL','surrender_value','keep',this)">✓</button><button class="ab" onclick="act('Life_IUL','surrender_value','merge',this)">→</button><button class="ab" onclick="act('Life_IUL','surrender_value','delete',this)">✕</button></span><span id="mt_Life_IUL_surrender_value"></span></td>
+<td class="no">—</td>
+<td><span class="cnt">171</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','surrender_value','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','surrender_value','merge',this)">→</button><button class="ab" onclick="act('Life_Other','surrender_value','delete',this)">✕</button></span><span id="mt_Life_Other_surrender_value"></span></td>
+<td><input class="nt" id="nt_surrender_value" placeholder="notes" oninput="sn('surrender_value',this.value)"></td>
+</tr>
+<tr><td>death_benefit</td>
+<td><span class="cnt">48</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','death_benefit','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','death_benefit','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','death_benefit','delete',this)">✕</button></span><span id="mt_Life_WholeLife_death_benefit"></span></td>
+<td><span class="cnt">11</span><span class="acts"><button class="ab ka" onclick="act('Life_Term','death_benefit','keep',this)">✓</button><button class="ab" onclick="act('Life_Term','death_benefit','merge',this)">→</button><button class="ab" onclick="act('Life_Term','death_benefit','delete',this)">✕</button></span><span id="mt_Life_Term_death_benefit"></span></td>
+<td><span class="cnt">344</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','death_benefit','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','death_benefit','merge',this)">→</button><button class="ab" onclick="act('Life_UL','death_benefit','delete',this)">✕</button></span><span id="mt_Life_UL_death_benefit"></span></td>
+<td><span class="cnt">31</span><span class="acts"><button class="ab ka" onclick="act('Life_IUL','death_benefit','keep',this)">✓</button><button class="ab" onclick="act('Life_IUL','death_benefit','merge',this)">→</button><button class="ab" onclick="act('Life_IUL','death_benefit','delete',this)">✕</button></span><span id="mt_Life_IUL_death_benefit"></span></td>
+<td><span class="cnt">18</span><span class="acts"><button class="ab ka" onclick="act('Life_FinalExpense','death_benefit','keep',this)">✓</button><button class="ab" onclick="act('Life_FinalExpense','death_benefit','merge',this)">→</button><button class="ab" onclick="act('Life_FinalExpense','death_benefit','delete',this)">✕</button></span><span id="mt_Life_FinalExpense_death_benefit"></span></td>
+<td><span class="cnt">134</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','death_benefit','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','death_benefit','merge',this)">→</button><button class="ab" onclick="act('Life_Other','death_benefit','delete',this)">✕</button></span><span id="mt_Life_Other_death_benefit"></span></td>
+<td><input class="nt" id="nt_death_benefit" placeholder="notes" oninput="sn('death_benefit',this.value)"></td>
+</tr>
+<tr><td>death_benefit_option</td>
+<td><span class="cnt">2</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','death_benefit_option','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','death_benefit_option','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','death_benefit_option','delete',this)">✕</button></span><span id="mt_Life_WholeLife_death_benefit_option"></span></td>
+<td class="no">—</td>
+<td><span class="cnt">25</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','death_benefit_option','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','death_benefit_option','merge',this)">→</button><button class="ab" onclick="act('Life_UL','death_benefit_option','delete',this)">✕</button></span><span id="mt_Life_UL_death_benefit_option"></span></td>
+<td><span class="cnt">25</span><span class="acts"><button class="ab ka" onclick="act('Life_IUL','death_benefit_option','keep',this)">✓</button><button class="ab" onclick="act('Life_IUL','death_benefit_option','merge',this)">→</button><button class="ab" onclick="act('Life_IUL','death_benefit_option','delete',this)">✕</button></span><span id="mt_Life_IUL_death_benefit_option"></span></td>
+<td class="no">—</td>
+<td><span class="cnt">66</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','death_benefit_option','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','death_benefit_option','merge',this)">→</button><button class="ab" onclick="act('Life_Other','death_benefit_option','delete',this)">✕</button></span><span id="mt_Life_Other_death_benefit_option"></span></td>
+<td><input class="nt" id="nt_death_benefit_option" placeholder="notes" oninput="sn('death_benefit_option',this.value)"></td>
+</tr>
+<tr><td>fund_value</td>
+<td><span class="cnt">27</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','fund_value','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','fund_value','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','fund_value','delete',this)">✕</button></span><span id="mt_Life_WholeLife_fund_value"></span></td>
+<td class="no">—</td>
+<td><span class="cnt">118</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','fund_value','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','fund_value','merge',this)">→</button><button class="ab" onclick="act('Life_UL','fund_value','delete',this)">✕</button></span><span id="mt_Life_UL_fund_value"></span></td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td><input class="nt" id="nt_fund_value" placeholder="notes" oninput="sn('fund_value',this.value)"></td>
+</tr>
+<tr><td>annuity_balance</td>
+<td><span class="cnt">27</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','annuity_balance','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','annuity_balance','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','annuity_balance','delete',this)">✕</button></span><span id="mt_Life_WholeLife_annuity_balance"></span></td>
+<td class="no">—</td>
+<td><span class="cnt">118</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','annuity_balance','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','annuity_balance','merge',this)">→</button><button class="ab" onclick="act('Life_UL','annuity_balance','delete',this)">✕</button></span><span id="mt_Life_UL_annuity_balance"></span></td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td><input class="nt" id="nt_annuity_balance" placeholder="notes" oninput="sn('annuity_balance',this.value)"></td>
+</tr>
+<tr class="sec"><td colspan="8">Premiums</td></tr>
+<tr><td>premium</td>
+<td><span class="cnt">10</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','premium','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','premium','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','premium','delete',this)">✕</button></span><span id="mt_Life_WholeLife_premium"></span></td>
+<td><span class="cnt">25</span><span class="acts"><button class="ab ka" onclick="act('Life_Term','premium','keep',this)">✓</button><button class="ab" onclick="act('Life_Term','premium','merge',this)">→</button><button class="ab" onclick="act('Life_Term','premium','delete',this)">✕</button></span><span id="mt_Life_Term_premium"></span></td>
+<td><span class="cnt">190</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','premium','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','premium','merge',this)">→</button><button class="ab" onclick="act('Life_UL','premium','delete',this)">✕</button></span><span id="mt_Life_UL_premium"></span></td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td><span class="cnt">65</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','premium','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','premium','merge',this)">→</button><button class="ab" onclick="act('Life_Other','premium','delete',this)">✕</button></span><span id="mt_Life_Other_premium"></span></td>
+<td><input class="nt" id="nt_premium" placeholder="notes" oninput="sn('premium',this.value)"></td>
+</tr>
+<tr><td>annual_premium</td>
+<td><span class="cnt">1354</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','annual_premium','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','annual_premium','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','annual_premium','delete',this)">✕</button></span><span id="mt_Life_WholeLife_annual_premium"></span></td>
+<td><span class="cnt">307</span><span class="acts"><button class="ab ka" onclick="act('Life_Term','annual_premium','keep',this)">✓</button><button class="ab" onclick="act('Life_Term','annual_premium','merge',this)">→</button><button class="ab" onclick="act('Life_Term','annual_premium','delete',this)">✕</button></span><span id="mt_Life_Term_annual_premium"></span></td>
+<td><span class="cnt">141</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','annual_premium','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','annual_premium','merge',this)">→</button><button class="ab" onclick="act('Life_UL','annual_premium','delete',this)">✕</button></span><span id="mt_Life_UL_annual_premium"></span></td>
+<td><span class="cnt">17</span><span class="acts"><button class="ab ka" onclick="act('Life_IUL','annual_premium','keep',this)">✓</button><button class="ab" onclick="act('Life_IUL','annual_premium','merge',this)">→</button><button class="ab" onclick="act('Life_IUL','annual_premium','delete',this)">✕</button></span><span id="mt_Life_IUL_annual_premium"></span></td>
+<td class="no">—</td>
+<td><span class="cnt">203</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','annual_premium','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','annual_premium','merge',this)">→</button><button class="ab" onclick="act('Life_Other','annual_premium','delete',this)">✕</button></span><span id="mt_Life_Other_annual_premium"></span></td>
+<td><input class="nt" id="nt_annual_premium" placeholder="notes" oninput="sn('annual_premium',this.value)"></td>
+</tr>
+<tr><td>annualized_premium</td>
+<td><span class="cnt">2</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','annualized_premium','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','annualized_premium','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','annualized_premium','delete',this)">✕</button></span><span id="mt_Life_WholeLife_annualized_premium"></span></td>
+<td class="no">—</td>
+<td><span class="cnt">8</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','annualized_premium','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','annualized_premium','merge',this)">→</button><button class="ab" onclick="act('Life_UL','annualized_premium','delete',this)">✕</button></span><span id="mt_Life_UL_annualized_premium"></span></td>
+<td><span class="cnt">5</span><span class="acts"><button class="ab ka" onclick="act('Life_IUL','annualized_premium','keep',this)">✓</button><button class="ab" onclick="act('Life_IUL','annualized_premium','merge',this)">→</button><button class="ab" onclick="act('Life_IUL','annualized_premium','delete',this)">✕</button></span><span id="mt_Life_IUL_annualized_premium"></span></td>
+<td class="no">—</td>
+<td><span class="cnt">27</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','annualized_premium','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','annualized_premium','merge',this)">→</button><button class="ab" onclick="act('Life_Other','annualized_premium','delete',this)">✕</button></span><span id="mt_Life_Other_annualized_premium"></span></td>
+<td><input class="nt" id="nt_annualized_premium" placeholder="notes" oninput="sn('annualized_premium',this.value)"></td>
+</tr>
+<tr><td>modal_premium</td>
+<td><span class="cnt">876</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','modal_premium','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','modal_premium','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','modal_premium','delete',this)">✕</button></span><span id="mt_Life_WholeLife_modal_premium"></span></td>
+<td><span class="cnt">251</span><span class="acts"><button class="ab ka" onclick="act('Life_Term','modal_premium','keep',this)">✓</button><button class="ab" onclick="act('Life_Term','modal_premium','merge',this)">→</button><button class="ab" onclick="act('Life_Term','modal_premium','delete',this)">✕</button></span><span id="mt_Life_Term_modal_premium"></span></td>
+<td><span class="cnt">116</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','modal_premium','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','modal_premium','merge',this)">→</button><button class="ab" onclick="act('Life_UL','modal_premium','delete',this)">✕</button></span><span id="mt_Life_UL_modal_premium"></span></td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td><span class="cnt">174</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','modal_premium','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','modal_premium','merge',this)">→</button><button class="ab" onclick="act('Life_Other','modal_premium','delete',this)">✕</button></span><span id="mt_Life_Other_modal_premium"></span></td>
+<td><input class="nt" id="nt_modal_premium" placeholder="notes" oninput="sn('modal_premium',this.value)"></td>
+</tr>
+<tr><td>premium_mode</td>
+<td><span class="cnt">544</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','premium_mode','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','premium_mode','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','premium_mode','delete',this)">✕</button></span><span id="mt_Life_WholeLife_premium_mode"></span></td>
+<td><span class="cnt">342</span><span class="acts"><button class="ab ka" onclick="act('Life_Term','premium_mode','keep',this)">✓</button><button class="ab" onclick="act('Life_Term','premium_mode','merge',this)">→</button><button class="ab" onclick="act('Life_Term','premium_mode','delete',this)">✕</button></span><span id="mt_Life_Term_premium_mode"></span></td>
+<td><span class="cnt">325</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','premium_mode','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','premium_mode','merge',this)">→</button><button class="ab" onclick="act('Life_UL','premium_mode','delete',this)">✕</button></span><span id="mt_Life_UL_premium_mode"></span></td>
+<td><span class="cnt">34</span><span class="acts"><button class="ab ka" onclick="act('Life_IUL','premium_mode','keep',this)">✓</button><button class="ab" onclick="act('Life_IUL','premium_mode','merge',this)">→</button><button class="ab" onclick="act('Life_IUL','premium_mode','delete',this)">✕</button></span><span id="mt_Life_IUL_premium_mode"></span></td>
+<td class="no">—</td>
+<td><span class="cnt">169</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','premium_mode','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','premium_mode','merge',this)">→</button><button class="ab" onclick="act('Life_Other','premium_mode','delete',this)">✕</button></span><span id="mt_Life_Other_premium_mode"></span></td>
+<td><input class="nt" id="nt_premium_mode" placeholder="notes" oninput="sn('premium_mode',this.value)"></td>
+</tr>
+<tr><td>billing_mode</td>
+<td><span class="cnt">1484</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','billing_mode','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','billing_mode','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','billing_mode','delete',this)">✕</button></span><span id="mt_Life_WholeLife_billing_mode"></span></td>
+<td><span class="cnt">259</span><span class="acts"><button class="ab ka" onclick="act('Life_Term','billing_mode','keep',this)">✓</button><button class="ab" onclick="act('Life_Term','billing_mode','merge',this)">→</button><button class="ab" onclick="act('Life_Term','billing_mode','delete',this)">✕</button></span><span id="mt_Life_Term_billing_mode"></span></td>
+<td><span class="cnt">118</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','billing_mode','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','billing_mode','merge',this)">→</button><button class="ab" onclick="act('Life_UL','billing_mode','delete',this)">✕</button></span><span id="mt_Life_UL_billing_mode"></span></td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td><span class="cnt">174</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','billing_mode','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','billing_mode','merge',this)">→</button><button class="ab" onclick="act('Life_Other','billing_mode','delete',this)">✕</button></span><span id="mt_Life_Other_billing_mode"></span></td>
+<td><input class="nt" id="nt_billing_mode" placeholder="notes" oninput="sn('billing_mode',this.value)"></td>
+</tr>
+<tr><td>total_premiums_paid</td>
+<td><span class="cnt">7</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','total_premiums_paid','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','total_premiums_paid','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','total_premiums_paid','delete',this)">✕</button></span><span id="mt_Life_WholeLife_total_premiums_paid"></span></td>
+<td class="no">—</td>
+<td><span class="cnt">288</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','total_premiums_paid','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','total_premiums_paid','merge',this)">→</button><button class="ab" onclick="act('Life_UL','total_premiums_paid','delete',this)">✕</button></span><span id="mt_Life_UL_total_premiums_paid"></span></td>
+<td><span class="cnt">13</span><span class="acts"><button class="ab ka" onclick="act('Life_IUL','total_premiums_paid','keep',this)">✓</button><button class="ab" onclick="act('Life_IUL','total_premiums_paid','merge',this)">→</button><button class="ab" onclick="act('Life_IUL','total_premiums_paid','delete',this)">✕</button></span><span id="mt_Life_IUL_total_premiums_paid"></span></td>
+<td><span class="cnt">1</span><span class="acts"><button class="ab ka" onclick="act('Life_FinalExpense','total_premiums_paid','keep',this)">✓</button><button class="ab" onclick="act('Life_FinalExpense','total_premiums_paid','merge',this)">→</button><button class="ab" onclick="act('Life_FinalExpense','total_premiums_paid','delete',this)">✕</button></span><span id="mt_Life_FinalExpense_total_premiums_paid"></span></td>
+<td><span class="cnt">47</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','total_premiums_paid','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','total_premiums_paid','merge',this)">→</button><button class="ab" onclick="act('Life_Other','total_premiums_paid','delete',this)">✕</button></span><span id="mt_Life_Other_total_premiums_paid"></span></td>
+<td><input class="nt" id="nt_total_premiums_paid" placeholder="notes" oninput="sn('total_premiums_paid',this.value)"></td>
+</tr>
+<tr><td>scheduled_premium</td>
+<td><span class="cnt">399</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','scheduled_premium','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','scheduled_premium','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','scheduled_premium','delete',this)">✕</button></span><span id="mt_Life_WholeLife_scheduled_premium"></span></td>
+<td><span class="cnt">310</span><span class="acts"><button class="ab ka" onclick="act('Life_Term','scheduled_premium','keep',this)">✓</button><button class="ab" onclick="act('Life_Term','scheduled_premium','merge',this)">→</button><button class="ab" onclick="act('Life_Term','scheduled_premium','delete',this)">✕</button></span><span id="mt_Life_Term_scheduled_premium"></span></td>
+<td><span class="cnt">133</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','scheduled_premium','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','scheduled_premium','merge',this)">→</button><button class="ab" onclick="act('Life_UL','scheduled_premium','delete',this)">✕</button></span><span id="mt_Life_UL_scheduled_premium"></span></td>
+<td><span class="cnt">25</span><span class="acts"><button class="ab ka" onclick="act('Life_IUL','scheduled_premium','keep',this)">✓</button><button class="ab" onclick="act('Life_IUL','scheduled_premium','merge',this)">→</button><button class="ab" onclick="act('Life_IUL','scheduled_premium','delete',this)">✕</button></span><span id="mt_Life_IUL_scheduled_premium"></span></td>
+<td class="no">—</td>
+<td><span class="cnt">102</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','scheduled_premium','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','scheduled_premium','merge',this)">→</button><button class="ab" onclick="act('Life_Other','scheduled_premium','delete',this)">✕</button></span><span id="mt_Life_Other_scheduled_premium"></span></td>
+<td><input class="nt" id="nt_scheduled_premium" placeholder="notes" oninput="sn('scheduled_premium',this.value)"></td>
+</tr>
+<tr class="sec"><td colspan="8">Loan</td></tr>
+<tr><td>loan_balance</td>
+<td><span class="cnt">139</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','loan_balance','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','loan_balance','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','loan_balance','delete',this)">✕</button></span><span id="mt_Life_WholeLife_loan_balance"></span></td>
+<td><span class="cnt">18</span><span class="acts"><button class="ab ka" onclick="act('Life_Term','loan_balance','keep',this)">✓</button><button class="ab" onclick="act('Life_Term','loan_balance','merge',this)">→</button><button class="ab" onclick="act('Life_Term','loan_balance','delete',this)">✕</button></span><span id="mt_Life_Term_loan_balance"></span></td>
+<td><span class="cnt">191</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','loan_balance','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','loan_balance','merge',this)">→</button><button class="ab" onclick="act('Life_UL','loan_balance','delete',this)">✕</button></span><span id="mt_Life_UL_loan_balance"></span></td>
+<td><span class="cnt">1</span><span class="acts"><button class="ab ka" onclick="act('Life_IUL','loan_balance','keep',this)">✓</button><button class="ab" onclick="act('Life_IUL','loan_balance','merge',this)">→</button><button class="ab" onclick="act('Life_IUL','loan_balance','delete',this)">✕</button></span><span id="mt_Life_IUL_loan_balance"></span></td>
+<td class="no">—</td>
+<td><span class="cnt">74</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','loan_balance','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','loan_balance','merge',this)">→</button><button class="ab" onclick="act('Life_Other','loan_balance','delete',this)">✕</button></span><span id="mt_Life_Other_loan_balance"></span></td>
+<td><input class="nt" id="nt_loan_balance" placeholder="notes" oninput="sn('loan_balance',this.value)"></td>
+</tr>
+<tr><td>net_loan_amount</td>
+<td><span class="cnt">8</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','net_loan_amount','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','net_loan_amount','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','net_loan_amount','delete',this)">✕</button></span><span id="mt_Life_WholeLife_net_loan_amount"></span></td>
+<td><span class="cnt">17</span><span class="acts"><button class="ab ka" onclick="act('Life_Term','net_loan_amount','keep',this)">✓</button><button class="ab" onclick="act('Life_Term','net_loan_amount','merge',this)">→</button><button class="ab" onclick="act('Life_Term','net_loan_amount','delete',this)">✕</button></span><span id="mt_Life_Term_net_loan_amount"></span></td>
+<td><span class="cnt">187</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','net_loan_amount','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','net_loan_amount','merge',this)">→</button><button class="ab" onclick="act('Life_UL','net_loan_amount','delete',this)">✕</button></span><span id="mt_Life_UL_net_loan_amount"></span></td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td><span class="cnt">58</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','net_loan_amount','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','net_loan_amount','merge',this)">→</button><button class="ab" onclick="act('Life_Other','net_loan_amount','delete',this)">✕</button></span><span id="mt_Life_Other_net_loan_amount"></span></td>
+<td><input class="nt" id="nt_net_loan_amount" placeholder="notes" oninput="sn('net_loan_amount',this.value)"></td>
+</tr>
+<tr><td>loan_interest_rate</td>
+<td><span class="cnt">2</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','loan_interest_rate','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','loan_interest_rate','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','loan_interest_rate','delete',this)">✕</button></span><span id="mt_Life_WholeLife_loan_interest_rate"></span></td>
+<td class="no">—</td>
+<td><span class="cnt">1</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','loan_interest_rate','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','loan_interest_rate','merge',this)">→</button><button class="ab" onclick="act('Life_UL','loan_interest_rate','delete',this)">✕</button></span><span id="mt_Life_UL_loan_interest_rate"></span></td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td><span class="cnt">1</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','loan_interest_rate','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','loan_interest_rate','merge',this)">→</button><button class="ab" onclick="act('Life_Other','loan_interest_rate','delete',this)">✕</button></span><span id="mt_Life_Other_loan_interest_rate"></span></td>
+<td><input class="nt" id="nt_loan_interest_rate" placeholder="notes" oninput="sn('loan_interest_rate',this.value)"></td>
+</tr>
+<tr><td>loan_interest_balance</td>
+<td><span class="cnt">125</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','loan_interest_balance','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','loan_interest_balance','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','loan_interest_balance','delete',this)">✕</button></span><span id="mt_Life_WholeLife_loan_interest_balance"></span></td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td><span class="cnt">13</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','loan_interest_balance','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','loan_interest_balance','merge',this)">→</button><button class="ab" onclick="act('Life_Other','loan_interest_balance','delete',this)">✕</button></span><span id="mt_Life_Other_loan_interest_balance"></span></td>
+<td><input class="nt" id="nt_loan_interest_balance" placeholder="notes" oninput="sn('loan_interest_balance',this.value)"></td>
+</tr>
+<tr class="sec"><td colspan="8">Insured & Owner</td></tr>
+<tr><td>insured_name</td>
+<td><span class="cnt">529</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','insured_name','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','insured_name','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','insured_name','delete',this)">✕</button></span><span id="mt_Life_WholeLife_insured_name"></span></td>
+<td><span class="cnt">312</span><span class="acts"><button class="ab ka" onclick="act('Life_Term','insured_name','keep',this)">✓</button><button class="ab" onclick="act('Life_Term','insured_name','merge',this)">→</button><button class="ab" onclick="act('Life_Term','insured_name','delete',this)">✕</button></span><span id="mt_Life_Term_insured_name"></span></td>
+<td><span class="cnt">99</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','insured_name','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','insured_name','merge',this)">→</button><button class="ab" onclick="act('Life_UL','insured_name','delete',this)">✕</button></span><span id="mt_Life_UL_insured_name"></span></td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td><span class="cnt">44</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','insured_name','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','insured_name','merge',this)">→</button><button class="ab" onclick="act('Life_Other','insured_name','delete',this)">✕</button></span><span id="mt_Life_Other_insured_name"></span></td>
+<td><input class="nt" id="nt_insured_name" placeholder="notes" oninput="sn('insured_name',this.value)"></td>
+</tr>
+<tr><td>insured_dob</td>
+<td><span class="cnt">526</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','insured_dob','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','insured_dob','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','insured_dob','delete',this)">✕</button></span><span id="mt_Life_WholeLife_insured_dob"></span></td>
+<td><span class="cnt">311</span><span class="acts"><button class="ab ka" onclick="act('Life_Term','insured_dob','keep',this)">✓</button><button class="ab" onclick="act('Life_Term','insured_dob','merge',this)">→</button><button class="ab" onclick="act('Life_Term','insured_dob','delete',this)">✕</button></span><span id="mt_Life_Term_insured_dob"></span></td>
+<td><span class="cnt">99</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','insured_dob','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','insured_dob','merge',this)">→</button><button class="ab" onclick="act('Life_UL','insured_dob','delete',this)">✕</button></span><span id="mt_Life_UL_insured_dob"></span></td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td><span class="cnt">42</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','insured_dob','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','insured_dob','merge',this)">→</button><button class="ab" onclick="act('Life_Other','insured_dob','delete',this)">✕</button></span><span id="mt_Life_Other_insured_dob"></span></td>
+<td><input class="nt" id="nt_insured_dob" placeholder="notes" oninput="sn('insured_dob',this.value)"></td>
+</tr>
+<tr><td>insured_gender</td>
+<td><span class="cnt">526</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','insured_gender','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','insured_gender','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','insured_gender','delete',this)">✕</button></span><span id="mt_Life_WholeLife_insured_gender"></span></td>
+<td><span class="cnt">311</span><span class="acts"><button class="ab ka" onclick="act('Life_Term','insured_gender','keep',this)">✓</button><button class="ab" onclick="act('Life_Term','insured_gender','merge',this)">→</button><button class="ab" onclick="act('Life_Term','insured_gender','delete',this)">✕</button></span><span id="mt_Life_Term_insured_gender"></span></td>
+<td><span class="cnt">99</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','insured_gender','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','insured_gender','merge',this)">→</button><button class="ab" onclick="act('Life_UL','insured_gender','delete',this)">✕</button></span><span id="mt_Life_UL_insured_gender"></span></td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td><span class="cnt">42</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','insured_gender','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','insured_gender','merge',this)">→</button><button class="ab" onclick="act('Life_Other','insured_gender','delete',this)">✕</button></span><span id="mt_Life_Other_insured_gender"></span></td>
+<td><input class="nt" id="nt_insured_gender" placeholder="notes" oninput="sn('insured_gender',this.value)"></td>
+</tr>
+<tr><td>owner_name</td>
+<td><span class="cnt">3</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','owner_name','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','owner_name','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','owner_name','delete',this)">✕</button></span><span id="mt_Life_WholeLife_owner_name"></span></td>
+<td><span class="cnt">1</span><span class="acts"><button class="ab ka" onclick="act('Life_Term','owner_name','keep',this)">✓</button><button class="ab" onclick="act('Life_Term','owner_name','merge',this)">→</button><button class="ab" onclick="act('Life_Term','owner_name','delete',this)">✕</button></span><span id="mt_Life_Term_owner_name"></span></td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td><input class="nt" id="nt_owner_name" placeholder="notes" oninput="sn('owner_name',this.value)"></td>
+</tr>
+<tr><td>policy_owner</td>
+<td><span class="cnt">367</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','policy_owner','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','policy_owner','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','policy_owner','delete',this)">✕</button></span><span id="mt_Life_WholeLife_policy_owner"></span></td>
+<td><span class="cnt">247</span><span class="acts"><button class="ab ka" onclick="act('Life_Term','policy_owner','keep',this)">✓</button><button class="ab" onclick="act('Life_Term','policy_owner','merge',this)">→</button><button class="ab" onclick="act('Life_Term','policy_owner','delete',this)">✕</button></span><span id="mt_Life_Term_policy_owner"></span></td>
+<td><span class="cnt">56</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','policy_owner','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','policy_owner','merge',this)">→</button><button class="ab" onclick="act('Life_UL','policy_owner','delete',this)">✕</button></span><span id="mt_Life_UL_policy_owner"></span></td>
+<td><span class="cnt">16</span><span class="acts"><button class="ab ka" onclick="act('Life_IUL','policy_owner','keep',this)">✓</button><button class="ab" onclick="act('Life_IUL','policy_owner','merge',this)">→</button><button class="ab" onclick="act('Life_IUL','policy_owner','delete',this)">✕</button></span><span id="mt_Life_IUL_policy_owner"></span></td>
+<td class="no">—</td>
+<td><span class="cnt">25</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','policy_owner','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','policy_owner','merge',this)">→</button><button class="ab" onclick="act('Life_Other','policy_owner','delete',this)">✕</button></span><span id="mt_Life_Other_policy_owner"></span></td>
+<td><input class="nt" id="nt_policy_owner" placeholder="notes" oninput="sn('policy_owner',this.value)"></td>
+</tr>
+<tr><td>joint_owner</td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td><span class="cnt">1</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','joint_owner','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','joint_owner','merge',this)">→</button><button class="ab" onclick="act('Life_Other','joint_owner','delete',this)">✕</button></span><span id="mt_Life_Other_joint_owner"></span></td>
+<td><input class="nt" id="nt_joint_owner" placeholder="notes" oninput="sn('joint_owner',this.value)"></td>
+</tr>
+<tr><td>beneficiary</td>
+<td><span class="cnt">8</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','beneficiary','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','beneficiary','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','beneficiary','delete',this)">✕</button></span><span id="mt_Life_WholeLife_beneficiary"></span></td>
+<td><span class="cnt">27</span><span class="acts"><button class="ab ka" onclick="act('Life_Term','beneficiary','keep',this)">✓</button><button class="ab" onclick="act('Life_Term','beneficiary','merge',this)">→</button><button class="ab" onclick="act('Life_Term','beneficiary','delete',this)">✕</button></span><span id="mt_Life_Term_beneficiary"></span></td>
+<td><span class="cnt">191</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','beneficiary','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','beneficiary','merge',this)">→</button><button class="ab" onclick="act('Life_UL','beneficiary','delete',this)">✕</button></span><span id="mt_Life_UL_beneficiary"></span></td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td><span class="cnt">65</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','beneficiary','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','beneficiary','merge',this)">→</button><button class="ab" onclick="act('Life_Other','beneficiary','delete',this)">✕</button></span><span id="mt_Life_Other_beneficiary"></span></td>
+<td><input class="nt" id="nt_beneficiary" placeholder="notes" oninput="sn('beneficiary',this.value)"></td>
+</tr>
+<tr><td>primary_beneficiary</td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td><span class="cnt">2</span><span class="acts"><button class="ab ka" onclick="act('Life_IUL','primary_beneficiary','keep',this)">✓</button><button class="ab" onclick="act('Life_IUL','primary_beneficiary','merge',this)">→</button><button class="ab" onclick="act('Life_IUL','primary_beneficiary','delete',this)">✕</button></span><span id="mt_Life_IUL_primary_beneficiary"></span></td>
+<td class="no">—</td>
+<td><span class="cnt">1</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','primary_beneficiary','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','primary_beneficiary','merge',this)">→</button><button class="ab" onclick="act('Life_Other','primary_beneficiary','delete',this)">✕</button></span><span id="mt_Life_Other_primary_beneficiary"></span></td>
+<td><input class="nt" id="nt_primary_beneficiary" placeholder="notes" oninput="sn('primary_beneficiary',this.value)"></td>
+</tr>
+<tr><td>primary_beneficiary_pct</td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td><span class="cnt">2</span><span class="acts"><button class="ab ka" onclick="act('Life_IUL','primary_beneficiary_pct','keep',this)">✓</button><button class="ab" onclick="act('Life_IUL','primary_beneficiary_pct','merge',this)">→</button><button class="ab" onclick="act('Life_IUL','primary_beneficiary_pct','delete',this)">✕</button></span><span id="mt_Life_IUL_primary_beneficiary_pct"></span></td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td><input class="nt" id="nt_primary_beneficiary_pct" placeholder="notes" oninput="sn('primary_beneficiary_pct',this.value)"></td>
+</tr>
+<tr class="sec"><td colspan="8">Underwriting</td></tr>
+<tr><td>health_class</td>
+<td><span class="cnt">527</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','health_class','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','health_class','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','health_class','delete',this)">✕</button></span><span id="mt_Life_WholeLife_health_class"></span></td>
+<td><span class="cnt">312</span><span class="acts"><button class="ab ka" onclick="act('Life_Term','health_class','keep',this)">✓</button><button class="ab" onclick="act('Life_Term','health_class','merge',this)">→</button><button class="ab" onclick="act('Life_Term','health_class','delete',this)">✕</button></span><span id="mt_Life_Term_health_class"></span></td>
+<td><span class="cnt">102</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','health_class','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','health_class','merge',this)">→</button><button class="ab" onclick="act('Life_UL','health_class','delete',this)">✕</button></span><span id="mt_Life_UL_health_class"></span></td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td><span class="cnt">43</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','health_class','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','health_class','merge',this)">→</button><button class="ab" onclick="act('Life_Other','health_class','delete',this)">✕</button></span><span id="mt_Life_Other_health_class"></span></td>
+<td><input class="nt" id="nt_health_class" placeholder="notes" oninput="sn('health_class',this.value)"></td>
+</tr>
+<tr><td>risk_class</td>
+<td><span class="cnt">9</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','risk_class','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','risk_class','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','risk_class','delete',this)">✕</button></span><span id="mt_Life_WholeLife_risk_class"></span></td>
+<td><span class="cnt">25</span><span class="acts"><button class="ab ka" onclick="act('Life_Term','risk_class','keep',this)">✓</button><button class="ab" onclick="act('Life_Term','risk_class','merge',this)">→</button><button class="ab" onclick="act('Life_Term','risk_class','delete',this)">✕</button></span><span id="mt_Life_Term_risk_class"></span></td>
+<td><span class="cnt">190</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','risk_class','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','risk_class','merge',this)">→</button><button class="ab" onclick="act('Life_UL','risk_class','delete',this)">✕</button></span><span id="mt_Life_UL_risk_class"></span></td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td><span class="cnt">65</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','risk_class','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','risk_class','merge',this)">→</button><button class="ab" onclick="act('Life_Other','risk_class','delete',this)">✕</button></span><span id="mt_Life_Other_risk_class"></span></td>
+<td><input class="nt" id="nt_risk_class" placeholder="notes" oninput="sn('risk_class',this.value)"></td>
+</tr>
+<tr><td>issue_age</td>
+<td><span class="cnt">11</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','issue_age','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','issue_age','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','issue_age','delete',this)">✕</button></span><span id="mt_Life_WholeLife_issue_age"></span></td>
+<td><span class="cnt">25</span><span class="acts"><button class="ab ka" onclick="act('Life_Term','issue_age','keep',this)">✓</button><button class="ab" onclick="act('Life_Term','issue_age','merge',this)">→</button><button class="ab" onclick="act('Life_Term','issue_age','delete',this)">✕</button></span><span id="mt_Life_Term_issue_age"></span></td>
+<td><span class="cnt">189</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','issue_age','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','issue_age','merge',this)">→</button><button class="ab" onclick="act('Life_UL','issue_age','delete',this)">✕</button></span><span id="mt_Life_UL_issue_age"></span></td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td><span class="cnt">65</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','issue_age','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','issue_age','merge',this)">→</button><button class="ab" onclick="act('Life_Other','issue_age','delete',this)">✕</button></span><span id="mt_Life_Other_issue_age"></span></td>
+<td><input class="nt" id="nt_issue_age" placeholder="notes" oninput="sn('issue_age',this.value)"></td>
+</tr>
+<tr><td>underwriting_status</td>
+<td><span class="cnt">2</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','underwriting_status','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','underwriting_status','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','underwriting_status','delete',this)">✕</button></span><span id="mt_Life_WholeLife_underwriting_status"></span></td>
+<td class="no">—</td>
+<td><span class="cnt">16</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','underwriting_status','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','underwriting_status','merge',this)">→</button><button class="ab" onclick="act('Life_UL','underwriting_status','delete',this)">✕</button></span><span id="mt_Life_UL_underwriting_status"></span></td>
+<td><span class="cnt">15</span><span class="acts"><button class="ab ka" onclick="act('Life_IUL','underwriting_status','keep',this)">✓</button><button class="ab" onclick="act('Life_IUL','underwriting_status','merge',this)">→</button><button class="ab" onclick="act('Life_IUL','underwriting_status','delete',this)">✕</button></span><span id="mt_Life_IUL_underwriting_status"></span></td>
+<td class="no">—</td>
+<td><span class="cnt">32</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','underwriting_status','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','underwriting_status','merge',this)">→</button><button class="ab" onclick="act('Life_Other','underwriting_status','delete',this)">✕</button></span><span id="mt_Life_Other_underwriting_status"></span></td>
+<td><input class="nt" id="nt_underwriting_status" placeholder="notes" oninput="sn('underwriting_status',this.value)"></td>
+</tr>
+<tr><td>mec</td>
+<td><span class="cnt">2</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','mec','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','mec','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','mec','delete',this)">✕</button></span><span id="mt_Life_WholeLife_mec"></span></td>
+<td class="no">—</td>
+<td><span class="cnt">19</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','mec','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','mec','merge',this)">→</button><button class="ab" onclick="act('Life_UL','mec','delete',this)">✕</button></span><span id="mt_Life_UL_mec"></span></td>
+<td><span class="cnt">8</span><span class="acts"><button class="ab ka" onclick="act('Life_IUL','mec','keep',this)">✓</button><button class="ab" onclick="act('Life_IUL','mec','merge',this)">→</button><button class="ab" onclick="act('Life_IUL','mec','delete',this)">✕</button></span><span id="mt_Life_IUL_mec"></span></td>
+<td class="no">—</td>
+<td><span class="cnt">46</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','mec','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','mec','merge',this)">→</button><button class="ab" onclick="act('Life_Other','mec','delete',this)">✕</button></span><span id="mt_Life_Other_mec"></span></td>
+<td><input class="nt" id="nt_mec" placeholder="notes" oninput="sn('mec',this.value)"></td>
+</tr>
+<tr><td>paid_to_date</td>
+<td><span class="cnt">1483</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','paid_to_date','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','paid_to_date','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','paid_to_date','delete',this)">✕</button></span><span id="mt_Life_WholeLife_paid_to_date"></span></td>
+<td><span class="cnt">259</span><span class="acts"><button class="ab ka" onclick="act('Life_Term','paid_to_date','keep',this)">✓</button><button class="ab" onclick="act('Life_Term','paid_to_date','merge',this)">→</button><button class="ab" onclick="act('Life_Term','paid_to_date','delete',this)">✕</button></span><span id="mt_Life_Term_paid_to_date"></span></td>
+<td><span class="cnt">118</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','paid_to_date','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','paid_to_date','merge',this)">→</button><button class="ab" onclick="act('Life_UL','paid_to_date','delete',this)">✕</button></span><span id="mt_Life_UL_paid_to_date"></span></td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td><span class="cnt">174</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','paid_to_date','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','paid_to_date','merge',this)">→</button><button class="ab" onclick="act('Life_Other','paid_to_date','delete',this)">✕</button></span><span id="mt_Life_Other_paid_to_date"></span></td>
+<td><input class="nt" id="nt_paid_to_date" placeholder="notes" oninput="sn('paid_to_date',this.value)"></td>
+</tr>
+<tr><td>maturity_date</td>
+<td><span class="cnt">8</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','maturity_date','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','maturity_date','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','maturity_date','delete',this)">✕</button></span><span id="mt_Life_WholeLife_maturity_date"></span></td>
+<td><span class="cnt">23</span><span class="acts"><button class="ab ka" onclick="act('Life_Term','maturity_date','keep',this)">✓</button><button class="ab" onclick="act('Life_Term','maturity_date','merge',this)">→</button><button class="ab" onclick="act('Life_Term','maturity_date','delete',this)">✕</button></span><span id="mt_Life_Term_maturity_date"></span></td>
+<td><span class="cnt">187</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','maturity_date','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','maturity_date','merge',this)">→</button><button class="ab" onclick="act('Life_UL','maturity_date','delete',this)">✕</button></span><span id="mt_Life_UL_maturity_date"></span></td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td><span class="cnt">64</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','maturity_date','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','maturity_date','merge',this)">→</button><button class="ab" onclick="act('Life_Other','maturity_date','delete',this)">✕</button></span><span id="mt_Life_Other_maturity_date"></span></td>
+<td><input class="nt" id="nt_maturity_date" placeholder="notes" oninput="sn('maturity_date',this.value)"></td>
+</tr>
+<tr class="sec"><td colspan="8">Agent</td></tr>
+<tr><td>writing_agent_id</td>
+<td><span class="cnt">526</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','writing_agent_id','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','writing_agent_id','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','writing_agent_id','delete',this)">✕</button></span><span id="mt_Life_WholeLife_writing_agent_id"></span></td>
+<td><span class="cnt">311</span><span class="acts"><button class="ab ka" onclick="act('Life_Term','writing_agent_id','keep',this)">✓</button><button class="ab" onclick="act('Life_Term','writing_agent_id','merge',this)">→</button><button class="ab" onclick="act('Life_Term','writing_agent_id','delete',this)">✕</button></span><span id="mt_Life_Term_writing_agent_id"></span></td>
+<td><span class="cnt">99</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','writing_agent_id','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','writing_agent_id','merge',this)">→</button><button class="ab" onclick="act('Life_UL','writing_agent_id','delete',this)">✕</button></span><span id="mt_Life_UL_writing_agent_id"></span></td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td><span class="cnt">42</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','writing_agent_id','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','writing_agent_id','merge',this)">→</button><button class="ab" onclick="act('Life_Other','writing_agent_id','delete',this)">✕</button></span><span id="mt_Life_Other_writing_agent_id"></span></td>
+<td><input class="nt" id="nt_writing_agent_id" placeholder="notes" oninput="sn('writing_agent_id',this.value)"></td>
+</tr>
+<tr><td>commission_split</td>
+<td><span class="cnt">254</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','commission_split','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','commission_split','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','commission_split','delete',this)">✕</button></span><span id="mt_Life_WholeLife_commission_split"></span></td>
+<td><span class="cnt">205</span><span class="acts"><button class="ab ka" onclick="act('Life_Term','commission_split','keep',this)">✓</button><button class="ab" onclick="act('Life_Term','commission_split','merge',this)">→</button><button class="ab" onclick="act('Life_Term','commission_split','delete',this)">✕</button></span><span id="mt_Life_Term_commission_split"></span></td>
+<td><span class="cnt">4</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','commission_split','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','commission_split','merge',this)">→</button><button class="ab" onclick="act('Life_UL','commission_split','delete',this)">✕</button></span><span id="mt_Life_UL_commission_split"></span></td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td><span class="cnt">29</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','commission_split','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','commission_split','merge',this)">→</button><button class="ab" onclick="act('Life_Other','commission_split','delete',this)">✕</button></span><span id="mt_Life_Other_commission_split"></span></td>
+<td><input class="nt" id="nt_commission_split" placeholder="notes" oninput="sn('commission_split',this.value)"></td>
+</tr>
+<tr class="sec"><td colspan="8">Other</td></tr>
+<tr><td>account_category</td>
+<td><span class="cnt">8</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','account_category','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','account_category','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','account_category','delete',this)">✕</button></span><span id="mt_Life_WholeLife_account_category"></span></td>
+<td><span class="cnt">25</span><span class="acts"><button class="ab ka" onclick="act('Life_Term','account_category','keep',this)">✓</button><button class="ab" onclick="act('Life_Term','account_category','merge',this)">→</button><button class="ab" onclick="act('Life_Term','account_category','delete',this)">✕</button></span><span id="mt_Life_Term_account_category"></span></td>
+<td><span class="cnt">156</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','account_category','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','account_category','merge',this)">→</button><button class="ab" onclick="act('Life_UL','account_category','delete',this)">✕</button></span><span id="mt_Life_UL_account_category"></span></td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td><span class="cnt">19</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','account_category','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','account_category','merge',this)">→</button><button class="ab" onclick="act('Life_Other','account_category','delete',this)">✕</button></span><span id="mt_Life_Other_account_category"></span></td>
+<td><input class="nt" id="nt_account_category" placeholder="notes" oninput="sn('account_category',this.value)"></td>
+</tr>
+<tr><td>account_owner</td>
+<td><span class="cnt">3</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','account_owner','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','account_owner','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','account_owner','delete',this)">✕</button></span><span id="mt_Life_WholeLife_account_owner"></span></td>
+<td><span class="cnt">1</span><span class="acts"><button class="ab ka" onclick="act('Life_Term','account_owner','keep',this)">✓</button><button class="ab" onclick="act('Life_Term','account_owner','merge',this)">→</button><button class="ab" onclick="act('Life_Term','account_owner','delete',this)">✕</button></span><span id="mt_Life_Term_account_owner"></span></td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td><input class="nt" id="nt_account_owner" placeholder="notes" oninput="sn('account_owner',this.value)"></td>
+</tr>
+<tr><td>base_cash_value</td>
+<td><span class="cnt">1</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','base_cash_value','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','base_cash_value','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','base_cash_value','delete',this)">✕</button></span><span id="mt_Life_WholeLife_base_cash_value"></span></td>
+<td><span class="cnt">19</span><span class="acts"><button class="ab ka" onclick="act('Life_Term','base_cash_value','keep',this)">✓</button><button class="ab" onclick="act('Life_Term','base_cash_value','merge',this)">→</button><button class="ab" onclick="act('Life_Term','base_cash_value','delete',this)">✕</button></span><span id="mt_Life_Term_base_cash_value"></span></td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td><input class="nt" id="nt_base_cash_value" placeholder="notes" oninput="sn('base_cash_value',this.value)"></td>
+</tr>
+<tr><td>beneficiaries</td>
+<td><span class="cnt">2</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','beneficiaries','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','beneficiaries','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','beneficiaries','delete',this)">✕</button></span><span id="mt_Life_WholeLife_beneficiaries"></span></td>
+<td><span class="cnt">4</span><span class="acts"><button class="ab ka" onclick="act('Life_Term','beneficiaries','keep',this)">✓</button><button class="ab" onclick="act('Life_Term','beneficiaries','merge',this)">→</button><button class="ab" onclick="act('Life_Term','beneficiaries','delete',this)">✕</button></span><span id="mt_Life_Term_beneficiaries"></span></td>
+<td><span class="cnt">1</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','beneficiaries','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','beneficiaries','merge',this)">→</button><button class="ab" onclick="act('Life_UL','beneficiaries','delete',this)">✕</button></span><span id="mt_Life_UL_beneficiaries"></span></td>
+<td><span class="cnt">1</span><span class="acts"><button class="ab ka" onclick="act('Life_IUL','beneficiaries','keep',this)">✓</button><button class="ab" onclick="act('Life_IUL','beneficiaries','merge',this)">→</button><button class="ab" onclick="act('Life_IUL','beneficiaries','delete',this)">✕</button></span><span id="mt_Life_IUL_beneficiaries"></span></td>
+<td class="no">—</td>
+<td><span class="cnt">1</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','beneficiaries','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','beneficiaries','merge',this)">→</button><button class="ab" onclick="act('Life_Other','beneficiaries','delete',this)">✕</button></span><span id="mt_Life_Other_beneficiaries"></span></td>
+<td><input class="nt" id="nt_beneficiaries" placeholder="notes" oninput="sn('beneficiaries',this.value)"></td>
+</tr>
+<tr><td>billing_status</td>
+<td><span class="cnt">7</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','billing_status','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','billing_status','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','billing_status','delete',this)">✕</button></span><span id="mt_Life_WholeLife_billing_status"></span></td>
+<td><span class="cnt">1</span><span class="acts"><button class="ab ka" onclick="act('Life_Term','billing_status','keep',this)">✓</button><button class="ab" onclick="act('Life_Term','billing_status','merge',this)">→</button><button class="ab" onclick="act('Life_Term','billing_status','delete',this)">✕</button></span><span id="mt_Life_Term_billing_status"></span></td>
+<td><span class="cnt">187</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','billing_status','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','billing_status','merge',this)">→</button><button class="ab" onclick="act('Life_UL','billing_status','delete',this)">✕</button></span><span id="mt_Life_UL_billing_status"></span></td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td><span class="cnt">47</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','billing_status','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','billing_status','merge',this)">→</button><button class="ab" onclick="act('Life_Other','billing_status','delete',this)">✕</button></span><span id="mt_Life_Other_billing_status"></span></td>
+<td><input class="nt" id="nt_billing_status" placeholder="notes" oninput="sn('billing_status',this.value)"></td>
+</tr>
+<tr><td>contingent_beneficiary</td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td><span class="cnt">1</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','contingent_beneficiary','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','contingent_beneficiary','merge',this)">→</button><button class="ab" onclick="act('Life_Other','contingent_beneficiary','delete',this)">✕</button></span><span id="mt_Life_Other_contingent_beneficiary"></span></td>
+<td><input class="nt" id="nt_contingent_beneficiary" placeholder="notes" oninput="sn('contingent_beneficiary',this.value)"></td>
+</tr>
+<tr><td>cost_basis</td>
+<td class="no">—</td>
+<td><span class="cnt">1</span><span class="acts"><button class="ab ka" onclick="act('Life_Term','cost_basis','keep',this)">✓</button><button class="ab" onclick="act('Life_Term','cost_basis','merge',this)">→</button><button class="ab" onclick="act('Life_Term','cost_basis','delete',this)">✕</button></span><span id="mt_Life_Term_cost_basis"></span></td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td><input class="nt" id="nt_cost_basis" placeholder="notes" oninput="sn('cost_basis',this.value)"></td>
+</tr>
+<tr><td>current_year_dividend</td>
+<td><span class="cnt">291</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','current_year_dividend','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','current_year_dividend','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','current_year_dividend','delete',this)">✕</button></span><span id="mt_Life_WholeLife_current_year_dividend"></span></td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td><input class="nt" id="nt_current_year_dividend" placeholder="notes" oninput="sn('current_year_dividend',this.value)"></td>
+</tr>
+<tr><td>db_option</td>
+<td><span class="cnt">3</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','db_option','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','db_option','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','db_option','delete',this)">✕</button></span><span id="mt_Life_WholeLife_db_option"></span></td>
+<td class="no">—</td>
+<td><span class="cnt">21</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','db_option','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','db_option','merge',this)">→</button><button class="ab" onclick="act('Life_UL','db_option','delete',this)">✕</button></span><span id="mt_Life_UL_db_option"></span></td>
+<td><span class="cnt">14</span><span class="acts"><button class="ab ka" onclick="act('Life_IUL','db_option','keep',this)">✓</button><button class="ab" onclick="act('Life_IUL','db_option','merge',this)">→</button><button class="ab" onclick="act('Life_IUL','db_option','delete',this)">✕</button></span><span id="mt_Life_IUL_db_option"></span></td>
+<td class="no">—</td>
+<td><span class="cnt">65</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','db_option','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','db_option','merge',this)">→</button><button class="ab" onclick="act('Life_Other','db_option','delete',this)">✕</button></span><span id="mt_Life_Other_db_option"></span></td>
+<td><input class="nt" id="nt_db_option" placeholder="notes" oninput="sn('db_option',this.value)"></td>
+</tr>
+<tr><td>dividend_balance</td>
+<td><span class="cnt">3</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','dividend_balance','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','dividend_balance','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','dividend_balance','delete',this)">✕</button></span><span id="mt_Life_WholeLife_dividend_balance"></span></td>
+<td><span class="cnt">2</span><span class="acts"><button class="ab ka" onclick="act('Life_Term','dividend_balance','keep',this)">✓</button><button class="ab" onclick="act('Life_Term','dividend_balance','merge',this)">→</button><button class="ab" onclick="act('Life_Term','dividend_balance','delete',this)">✕</button></span><span id="mt_Life_Term_dividend_balance"></span></td>
+<td><span class="cnt">1</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','dividend_balance','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','dividend_balance','merge',this)">→</button><button class="ab" onclick="act('Life_UL','dividend_balance','delete',this)">✕</button></span><span id="mt_Life_UL_dividend_balance"></span></td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td><input class="nt" id="nt_dividend_balance" placeholder="notes" oninput="sn('dividend_balance',this.value)"></td>
+</tr>
+<tr><td>dividend_option_1</td>
+<td><span class="cnt">524</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','dividend_option_1','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','dividend_option_1','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','dividend_option_1','delete',this)">✕</button></span><span id="mt_Life_WholeLife_dividend_option_1"></span></td>
+<td><span class="cnt">9</span><span class="acts"><button class="ab ka" onclick="act('Life_Term','dividend_option_1','keep',this)">✓</button><button class="ab" onclick="act('Life_Term','dividend_option_1','merge',this)">→</button><button class="ab" onclick="act('Life_Term','dividend_option_1','delete',this)">✕</button></span><span id="mt_Life_Term_dividend_option_1"></span></td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td><span class="cnt">5</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','dividend_option_1','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','dividend_option_1','merge',this)">→</button><button class="ab" onclick="act('Life_Other','dividend_option_1','delete',this)">✕</button></span><span id="mt_Life_Other_dividend_option_1"></span></td>
+<td><input class="nt" id="nt_dividend_option_1" placeholder="notes" oninput="sn('dividend_option_1',this.value)"></td>
+</tr>
+<tr><td>dividend_value</td>
+<td><span class="cnt">1</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','dividend_value','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','dividend_value','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','dividend_value','delete',this)">✕</button></span><span id="mt_Life_WholeLife_dividend_value"></span></td>
+<td><span class="cnt">12</span><span class="acts"><button class="ab ka" onclick="act('Life_Term','dividend_value','keep',this)">✓</button><button class="ab" onclick="act('Life_Term','dividend_value','merge',this)">→</button><button class="ab" onclick="act('Life_Term','dividend_value','delete',this)">✕</button></span><span id="mt_Life_Term_dividend_value"></span></td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td><input class="nt" id="nt_dividend_value" placeholder="notes" oninput="sn('dividend_value',this.value)"></td>
+</tr>
+<tr><td>documents</td>
+<td><span class="cnt">3</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','documents','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','documents','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','documents','delete',this)">✕</button></span><span id="mt_Life_WholeLife_documents"></span></td>
+<td><span class="cnt">1</span><span class="acts"><button class="ab ka" onclick="act('Life_Term','documents','keep',this)">✓</button><button class="ab" onclick="act('Life_Term','documents','merge',this)">→</button><button class="ab" onclick="act('Life_Term','documents','delete',this)">✕</button></span><span id="mt_Life_Term_documents"></span></td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td><input class="nt" id="nt_documents" placeholder="notes" oninput="sn('documents',this.value)"></td>
+</tr>
+<tr><td>draft_date</td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td><span class="cnt">2</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','draft_date','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','draft_date','merge',this)">→</button><button class="ab" onclick="act('Life_UL','draft_date','delete',this)">✕</button></span><span id="mt_Life_UL_draft_date"></span></td>
+<td><span class="cnt">1</span><span class="acts"><button class="ab ka" onclick="act('Life_IUL','draft_date','keep',this)">✓</button><button class="ab" onclick="act('Life_IUL','draft_date','merge',this)">→</button><button class="ab" onclick="act('Life_IUL','draft_date','delete',this)">✕</button></span><span id="mt_Life_IUL_draft_date"></span></td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td><input class="nt" id="nt_draft_date" placeholder="notes" oninput="sn('draft_date',this.value)"></td>
+</tr>
+<tr><td>guideline_accumulation_level</td>
+<td><span class="cnt">7</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','guideline_accumulation_level','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','guideline_accumulation_level','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','guideline_accumulation_level','delete',this)">✕</button></span><span id="mt_Life_WholeLife_guideline_accumulation_level"></span></td>
+<td class="no">—</td>
+<td><span class="cnt">152</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','guideline_accumulation_level','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','guideline_accumulation_level','merge',this)">→</button><button class="ab" onclick="act('Life_UL','guideline_accumulation_level','delete',this)">✕</button></span><span id="mt_Life_UL_guideline_accumulation_level"></span></td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td><span class="cnt">1</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','guideline_accumulation_level','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','guideline_accumulation_level','merge',this)">→</button><button class="ab" onclick="act('Life_Other','guideline_accumulation_level','delete',this)">✕</button></span><span id="mt_Life_Other_guideline_accumulation_level"></span></td>
+<td><input class="nt" id="nt_guideline_accumulation_level" placeholder="notes" oninput="sn('guideline_accumulation_level',this.value)"></td>
+</tr>
+<tr><td>guideline_single_premium</td>
+<td><span class="cnt">7</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','guideline_single_premium','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','guideline_single_premium','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','guideline_single_premium','delete',this)">✕</button></span><span id="mt_Life_WholeLife_guideline_single_premium"></span></td>
+<td class="no">—</td>
+<td><span class="cnt">187</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','guideline_single_premium','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','guideline_single_premium','merge',this)">→</button><button class="ab" onclick="act('Life_UL','guideline_single_premium','delete',this)">✕</button></span><span id="mt_Life_UL_guideline_single_premium"></span></td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td><span class="cnt">46</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','guideline_single_premium','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','guideline_single_premium','merge',this)">→</button><button class="ab" onclick="act('Life_Other','guideline_single_premium','delete',this)">✕</button></span><span id="mt_Life_Other_guideline_single_premium"></span></td>
+<td><input class="nt" id="nt_guideline_single_premium" placeholder="notes" oninput="sn('guideline_single_premium',this.value)"></td>
+</tr>
+<tr><td>insured</td>
+<td><span class="cnt">10</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','insured','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','insured','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','insured','delete',this)">✕</button></span><span id="mt_Life_WholeLife_insured"></span></td>
+<td><span class="cnt">4</span><span class="acts"><button class="ab ka" onclick="act('Life_Term','insured','keep',this)">✓</button><button class="ab" onclick="act('Life_Term','insured','merge',this)">→</button><button class="ab" onclick="act('Life_Term','insured','delete',this)">✕</button></span><span id="mt_Life_Term_insured"></span></td>
+<td><span class="cnt">14</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','insured','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','insured','merge',this)">→</button><button class="ab" onclick="act('Life_UL','insured','delete',this)">✕</button></span><span id="mt_Life_UL_insured"></span></td>
+<td><span class="cnt">5</span><span class="acts"><button class="ab ka" onclick="act('Life_IUL','insured','keep',this)">✓</button><button class="ab" onclick="act('Life_IUL','insured','merge',this)">→</button><button class="ab" onclick="act('Life_IUL','insured','delete',this)">✕</button></span><span id="mt_Life_IUL_insured"></span></td>
+<td class="no">—</td>
+<td><span class="cnt">12</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','insured','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','insured','merge',this)">→</button><button class="ab" onclick="act('Life_Other','insured','delete',this)">✕</button></span><span id="mt_Life_Other_insured"></span></td>
+<td><input class="nt" id="nt_insured" placeholder="notes" oninput="sn('insured',this.value)"></td>
+</tr>
+<tr><td>is_mec</td>
+<td><span class="cnt">3</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','is_mec','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','is_mec','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','is_mec','delete',this)">✕</button></span><span id="mt_Life_WholeLife_is_mec"></span></td>
+<td class="no">—</td>
+<td><span class="cnt">23</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','is_mec','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','is_mec','merge',this)">→</button><button class="ab" onclick="act('Life_UL','is_mec','delete',this)">✕</button></span><span id="mt_Life_UL_is_mec"></span></td>
+<td><span class="cnt">19</span><span class="acts"><button class="ab ka" onclick="act('Life_IUL','is_mec','keep',this)">✓</button><button class="ab" onclick="act('Life_IUL','is_mec','merge',this)">→</button><button class="ab" onclick="act('Life_IUL','is_mec','delete',this)">✕</button></span><span id="mt_Life_IUL_is_mec"></span></td>
+<td class="no">—</td>
+<td><span class="cnt">49</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','is_mec','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','is_mec','merge',this)">→</button><button class="ab" onclick="act('Life_Other','is_mec','delete',this)">✕</button></span><span id="mt_Life_Other_is_mec"></span></td>
+<td><input class="nt" id="nt_is_mec" placeholder="notes" oninput="sn('is_mec',this.value)"></td>
+</tr>
+<tr><td>last_transaction_date</td>
+<td><span class="cnt">7</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','last_transaction_date','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','last_transaction_date','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','last_transaction_date','delete',this)">✕</button></span><span id="mt_Life_WholeLife_last_transaction_date"></span></td>
+<td class="no">—</td>
+<td><span class="cnt">187</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','last_transaction_date','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','last_transaction_date','merge',this)">→</button><button class="ab" onclick="act('Life_UL','last_transaction_date','delete',this)">✕</button></span><span id="mt_Life_UL_last_transaction_date"></span></td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td><span class="cnt">46</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','last_transaction_date','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','last_transaction_date','merge',this)">→</button><button class="ab" onclick="act('Life_Other','last_transaction_date','delete',this)">✕</button></span><span id="mt_Life_Other_last_transaction_date"></span></td>
+<td><input class="nt" id="nt_last_transaction_date" placeholder="notes" oninput="sn('last_transaction_date',this.value)"></td>
+</tr>
+<tr><td>ltc_benefit</td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td><span class="cnt">2</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','ltc_benefit','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','ltc_benefit','merge',this)">→</button><button class="ab" onclick="act('Life_UL','ltc_benefit','delete',this)">✕</button></span><span id="mt_Life_UL_ltc_benefit"></span></td>
+<td><span class="cnt">7</span><span class="acts"><button class="ab ka" onclick="act('Life_IUL','ltc_benefit','keep',this)">✓</button><button class="ab" onclick="act('Life_IUL','ltc_benefit','merge',this)">→</button><button class="ab" onclick="act('Life_IUL','ltc_benefit','delete',this)">✕</button></span><span id="mt_Life_IUL_ltc_benefit"></span></td>
+<td class="no">—</td>
+<td><span class="cnt">7</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','ltc_benefit','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','ltc_benefit','merge',this)">→</button><button class="ab" onclick="act('Life_Other','ltc_benefit','delete',this)">✕</button></span><span id="mt_Life_Other_ltc_benefit"></span></td>
+<td><input class="nt" id="nt_ltc_benefit" placeholder="notes" oninput="sn('ltc_benefit',this.value)"></td>
+</tr>
+<tr><td>masked_id_last4</td>
+<td><span class="cnt">8</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','masked_id_last4','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','masked_id_last4','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','masked_id_last4','delete',this)">✕</button></span><span id="mt_Life_WholeLife_masked_id_last4"></span></td>
+<td><span class="cnt">23</span><span class="acts"><button class="ab ka" onclick="act('Life_Term','masked_id_last4','keep',this)">✓</button><button class="ab" onclick="act('Life_Term','masked_id_last4','merge',this)">→</button><button class="ab" onclick="act('Life_Term','masked_id_last4','delete',this)">✕</button></span><span id="mt_Life_Term_masked_id_last4"></span></td>
+<td><span class="cnt">152</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','masked_id_last4','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','masked_id_last4','merge',this)">→</button><button class="ab" onclick="act('Life_UL','masked_id_last4','delete',this)">✕</button></span><span id="mt_Life_UL_masked_id_last4"></span></td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td><span class="cnt">1</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','masked_id_last4','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','masked_id_last4','merge',this)">→</button><button class="ab" onclick="act('Life_Other','masked_id_last4','delete',this)">✕</button></span><span id="mt_Life_Other_masked_id_last4"></span></td>
+<td><input class="nt" id="nt_masked_id_last4" placeholder="notes" oninput="sn('masked_id_last4',this.value)"></td>
+</tr>
+<tr><td>net_csv</td>
+<td><span class="cnt">2</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','net_csv','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','net_csv','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','net_csv','delete',this)">✕</button></span><span id="mt_Life_WholeLife_net_csv"></span></td>
+<td class="no">—</td>
+<td><span class="cnt">23</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','net_csv','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','net_csv','merge',this)">→</button><button class="ab" onclick="act('Life_UL','net_csv','delete',this)">✕</button></span><span id="mt_Life_UL_net_csv"></span></td>
+<td><span class="cnt">13</span><span class="acts"><button class="ab ka" onclick="act('Life_IUL','net_csv','keep',this)">✓</button><button class="ab" onclick="act('Life_IUL','net_csv','merge',this)">→</button><button class="ab" onclick="act('Life_IUL','net_csv','delete',this)">✕</button></span><span id="mt_Life_IUL_net_csv"></span></td>
+<td class="no">—</td>
+<td><span class="cnt">58</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','net_csv','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','net_csv','merge',this)">→</button><button class="ab" onclick="act('Life_Other','net_csv','delete',this)">✕</button></span><span id="mt_Life_Other_net_csv"></span></td>
+<td><input class="nt" id="nt_net_csv" placeholder="notes" oninput="sn('net_csv',this.value)"></td>
+</tr>
+<tr><td>net_surrender_value</td>
+<td><span class="cnt">1</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','net_surrender_value','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','net_surrender_value','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','net_surrender_value','delete',this)">✕</button></span><span id="mt_Life_WholeLife_net_surrender_value"></span></td>
+<td><span class="cnt">19</span><span class="acts"><button class="ab ka" onclick="act('Life_Term','net_surrender_value','keep',this)">✓</button><button class="ab" onclick="act('Life_Term','net_surrender_value','merge',this)">→</button><button class="ab" onclick="act('Life_Term','net_surrender_value','delete',this)">✕</button></span><span id="mt_Life_Term_net_surrender_value"></span></td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td><input class="nt" id="nt_net_surrender_value" placeholder="notes" oninput="sn('net_surrender_value',this.value)"></td>
+</tr>
+<tr><td>plan_code</td>
+<td><span class="cnt">8</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','plan_code','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','plan_code','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','plan_code','delete',this)">✕</button></span><span id="mt_Life_WholeLife_plan_code"></span></td>
+<td><span class="cnt">26</span><span class="acts"><button class="ab ka" onclick="act('Life_Term','plan_code','keep',this)">✓</button><button class="ab" onclick="act('Life_Term','plan_code','merge',this)">→</button><button class="ab" onclick="act('Life_Term','plan_code','delete',this)">✕</button></span><span id="mt_Life_Term_plan_code"></span></td>
+<td><span class="cnt">191</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','plan_code','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','plan_code','merge',this)">→</button><button class="ab" onclick="act('Life_UL','plan_code','delete',this)">✕</button></span><span id="mt_Life_UL_plan_code"></span></td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td><span class="cnt">83</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','plan_code','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','plan_code','merge',this)">→</button><button class="ab" onclick="act('Life_Other','plan_code','delete',this)">✕</button></span><span id="mt_Life_Other_plan_code"></span></td>
+<td><input class="nt" id="nt_plan_code" placeholder="notes" oninput="sn('plan_code',this.value)"></td>
+</tr>
+<tr><td>plan_name</td>
+<td><span class="cnt">7</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','plan_name','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','plan_name','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','plan_name','delete',this)">✕</button></span><span id="mt_Life_WholeLife_plan_name"></span></td>
+<td><span class="cnt">26</span><span class="acts"><button class="ab ka" onclick="act('Life_Term','plan_name','keep',this)">✓</button><button class="ab" onclick="act('Life_Term','plan_name','merge',this)">→</button><button class="ab" onclick="act('Life_Term','plan_name','delete',this)">✕</button></span><span id="mt_Life_Term_plan_name"></span></td>
+<td><span class="cnt">191</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','plan_name','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','plan_name','merge',this)">→</button><button class="ab" onclick="act('Life_UL','plan_name','delete',this)">✕</button></span><span id="mt_Life_UL_plan_name"></span></td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td><span class="cnt">64</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','plan_name','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','plan_name','merge',this)">→</button><button class="ab" onclick="act('Life_Other','plan_name','delete',this)">✕</button></span><span id="mt_Life_Other_plan_name"></span></td>
+<td><input class="nt" id="nt_plan_name" placeholder="notes" oninput="sn('plan_name',this.value)"></td>
+</tr>
+<tr><td>plan_option</td>
+<td><span class="cnt">7</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','plan_option','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','plan_option','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','plan_option','delete',this)">✕</button></span><span id="mt_Life_WholeLife_plan_option"></span></td>
+<td class="no">—</td>
+<td><span class="cnt">152</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','plan_option','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','plan_option','merge',this)">→</button><button class="ab" onclick="act('Life_UL','plan_option','delete',this)">✕</button></span><span id="mt_Life_UL_plan_option"></span></td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td><span class="cnt">1</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','plan_option','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','plan_option','merge',this)">→</button><button class="ab" onclick="act('Life_Other','plan_option','delete',this)">✕</button></span><span id="mt_Life_Other_plan_option"></span></td>
+<td><input class="nt" id="nt_plan_option" placeholder="notes" oninput="sn('plan_option',this.value)"></td>
+</tr>
+<tr><td>premium_frequency</td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td><span class="cnt">2</span><span class="acts"><button class="ab ka" onclick="act('Life_IUL','premium_frequency','keep',this)">✓</button><button class="ab" onclick="act('Life_IUL','premium_frequency','merge',this)">→</button><button class="ab" onclick="act('Life_IUL','premium_frequency','delete',this)">✕</button></span><span id="mt_Life_IUL_premium_frequency"></span></td>
+<td class="no">—</td>
+<td><span class="cnt">3</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','premium_frequency','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','premium_frequency','merge',this)">→</button><button class="ab" onclick="act('Life_Other','premium_frequency','delete',this)">✕</button></span><span id="mt_Life_Other_premium_frequency"></span></td>
+<td><input class="nt" id="nt_premium_frequency" placeholder="notes" oninput="sn('premium_frequency',this.value)"></td>
+</tr>
+<tr><td>prior_year_dividend</td>
+<td><span class="cnt">274</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','prior_year_dividend','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','prior_year_dividend','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','prior_year_dividend','delete',this)">✕</button></span><span id="mt_Life_WholeLife_prior_year_dividend"></span></td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td><input class="nt" id="nt_prior_year_dividend" placeholder="notes" oninput="sn('prior_year_dividend',this.value)"></td>
+</tr>
+<tr><td>source</td>
+<td><span class="cnt">1</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','source','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','source','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','source','delete',this)">✕</button></span><span id="mt_Life_WholeLife_source"></span></td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td><input class="nt" id="nt_source" placeholder="notes" oninput="sn('source',this.value)"></td>
+</tr>
+<tr><td>table_rating</td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td><span class="cnt">2</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','table_rating','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','table_rating','merge',this)">→</button><button class="ab" onclick="act('Life_UL','table_rating','delete',this)">✕</button></span><span id="mt_Life_UL_table_rating"></span></td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td><input class="nt" id="nt_table_rating" placeholder="notes" oninput="sn('table_rating',this.value)"></td>
+</tr>
+<tr><td>term_period</td>
+<td class="no">—</td>
+<td><span class="cnt">3</span><span class="acts"><button class="ab ka" onclick="act('Life_Term','term_period','keep',this)">✓</button><button class="ab" onclick="act('Life_Term','term_period','merge',this)">→</button><button class="ab" onclick="act('Life_Term','term_period','delete',this)">✕</button></span><span id="mt_Life_Term_term_period"></span></td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td><input class="nt" id="nt_term_period" placeholder="notes" oninput="sn('term_period',this.value)"></td>
+</tr>
+<tr><td>total_transactions</td>
+<td><span class="cnt">8</span><span class="acts"><button class="ab ka" onclick="act('Life_WholeLife','total_transactions','keep',this)">✓</button><button class="ab" onclick="act('Life_WholeLife','total_transactions','merge',this)">→</button><button class="ab" onclick="act('Life_WholeLife','total_transactions','delete',this)">✕</button></span><span id="mt_Life_WholeLife_total_transactions"></span></td>
+<td><span class="cnt">24</span><span class="acts"><button class="ab ka" onclick="act('Life_Term','total_transactions','keep',this)">✓</button><button class="ab" onclick="act('Life_Term','total_transactions','merge',this)">→</button><button class="ab" onclick="act('Life_Term','total_transactions','delete',this)">✕</button></span><span id="mt_Life_Term_total_transactions"></span></td>
+<td><span class="cnt">190</span><span class="acts"><button class="ab ka" onclick="act('Life_UL','total_transactions','keep',this)">✓</button><button class="ab" onclick="act('Life_UL','total_transactions','merge',this)">→</button><button class="ab" onclick="act('Life_UL','total_transactions','delete',this)">✕</button></span><span id="mt_Life_UL_total_transactions"></span></td>
+<td class="no">—</td>
+<td class="no">—</td>
+<td><span class="cnt">45</span><span class="acts"><button class="ab ka" onclick="act('Life_Other','total_transactions','keep',this)">✓</button><button class="ab" onclick="act('Life_Other','total_transactions','merge',this)">→</button><button class="ab" onclick="act('Life_Other','total_transactions','delete',this)">✕</button></span><span id="mt_Life_Other_total_transactions"></span></td>
+<td><input class="nt" id="nt_total_transactions" placeholder="notes" oninput="sn('total_transactions',this.value)"></td>
+</tr>
+</tbody></table></div>
+<div class="ebar"><div style="color:var(--muted);font-size:.7rem">All life types → Export</div><button class="ebtn" onclick="exp()">Export Life Schema</button></div>
+<script>
+var S={"Life_WholeLife": {}, "Life_Term": {}, "Life_UL": {}, "Life_IUL": {}, "Life_FinalExpense": {}, "Life_Other": {}};
+var N={};
+var OPTS='<option value="">→</option><option value="account_category">account_category</option><option value="account_number">account_number</option><option value="account_owner">account_owner</option><option value="account_type">account_type</option><option value="account_value">account_value</option><option value="annual_premium">annual_premium</option><option value="annualized_premium">annualized_premium</option><option value="annuity_balance">annuity_balance</option><option value="as_of_date">as_of_date</option><option value="base_cash_value">base_cash_value</option><option value="beneficiaries">beneficiaries</option><option value="beneficiary">beneficiary</option><option value="billing_mode">billing_mode</option><option value="billing_status">billing_status</option><option value="book_of_business">book_of_business</option><option value="carrier">carrier</option><option value="cash_value">cash_value</option><option value="commission_split">commission_split</option><option value="contingent_beneficiary">contingent_beneficiary</option><option value="contract_number">contract_number</option><option value="cost_basis">cost_basis</option><option value="current_year_dividend">current_year_dividend</option><option value="data_source">data_source</option><option value="db_option">db_option</option><option value="death_benefit">death_benefit</option><option value="death_benefit_option">death_benefit_option</option><option value="dividend_balance">dividend_balance</option><option value="dividend_option_1">dividend_option_1</option><option value="dividend_value">dividend_value</option><option value="documents">documents</option><option value="draft_date">draft_date</option><option value="effective_date">effective_date</option><option value="face_amount">face_amount</option><option value="face_value">face_value</option><option value="fund_value">fund_value</option><option value="guideline_accumulation_level">guideline_accumulation_level</option><option value="guideline_single_premium">guideline_single_premium</option><option value="health_class">health_class</option><option value="insured">insured</option><option value="insured_dob">insured_dob</option><option value="insured_gender">insured_gender</option><option value="insured_name">insured_name</option><option value="is_mec">is_mec</option><option value="issue_age">issue_age</option><option value="issue_date">issue_date</option><option value="joint_owner">joint_owner</option><option value="last_transaction_date">last_transaction_date</option><option value="loan_balance">loan_balance</option><option value="loan_interest_balance">loan_interest_balance</option><option value="loan_interest_rate">loan_interest_rate</option><option value="ltc_benefit">ltc_benefit</option><option value="market">market</option><option value="masked_id_last4">masked_id_last4</option><option value="maturity_date">maturity_date</option><option value="mec">mec</option><option value="modal_premium">modal_premium</option><option value="net_csv">net_csv</option><option value="net_loan_amount">net_loan_amount</option><option value="net_surrender_value">net_surrender_value</option><option value="owner_name">owner_name</option><option value="paid_to_date">paid_to_date</option><option value="plan_code">plan_code</option><option value="plan_name">plan_name</option><option value="plan_option">plan_option</option><option value="policy_number">policy_number</option><option value="policy_owner">policy_owner</option><option value="policy_type">policy_type</option><option value="premium">premium</option><option value="premium_frequency">premium_frequency</option><option value="premium_mode">premium_mode</option><option value="primary_beneficiary">primary_beneficiary</option><option value="primary_beneficiary_pct">primary_beneficiary_pct</option><option value="prior_year_dividend">prior_year_dividend</option><option value="product_name">product_name</option><option value="product_type">product_type</option><option value="risk_class">risk_class</option><option value="scheduled_premium">scheduled_premium</option><option value="source">source</option><option value="status">status</option><option value="surrender_value">surrender_value</option><option value="table_rating">table_rating</option><option value="term_period">term_period</option><option value="total_premiums_paid">total_premiums_paid</option><option value="total_transactions">total_transactions</option><option value="underwriting_status">underwriting_status</option><option value="writing_agent_id">writing_agent_id</option>';
+function act(lt,f,action,btn) {
+  if(!S[lt])S[lt]={};
+  S[lt][f]={action:action,merge_to:null};
+  var td=btn.closest('td');
+  td.querySelectorAll('.ab').forEach(function(b){b.classList.remove('ka','ma','da')});
+  btn.classList.add(action==='keep'?'ka':action==='merge'?'ma':'da');
+  var mt=document.getElementById('mt_'+lt+'_'+f);
+  if(mt)mt.innerHTML=action==='merge'?'<select class="mt" onchange="S[\''+lt+'\'][\''+f+'\'].merge_to=this.value">'+OPTS+'</select>':'';
+}
+function sn(f,v){N[f]=v;}
+function exp(){
+  var out={schema:S,notes:N};
+  var blob=new Blob([JSON.stringify(out,null,2)],{type:'application/json'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='life-schema.json';a.click();
+}
+</script>
+</body></html>

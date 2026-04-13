@@ -94,6 +94,44 @@ export const QUE_REGISTRY: QueRegistryEntry[] = [
   { id: 'WIRE_MGE_DETAILED', type: 'WIRE', domain: 'que', name: 'MGE Detailed Wire', description: 'ANALYZE_MGE → GENERATE_CASEWORK (all types)', composedOf: ['ANALYZE_MGE', 'GENERATE_CASEWORK'] },
   { id: 'WIRE_REVIEW_MEETING', type: 'WIRE', domain: 'que', name: 'Review Meeting Wire', description: 'ANALYZE_MGE → generate-meeting-prep → file-to-acf', composedOf: ['ANALYZE_MGE', 'generate-meeting-prep'] },
   { id: 'WIRE_ASSEMBLE_B4', type: 'WIRE', domain: 'que', name: 'Assemble B4 Wire', description: 'ASSEMBLE_OUTPUT — package all 5 outputs', composedOf: ['ASSEMBLE_OUTPUT'] },
+  // =============================================
+  // LIFE & ESTATE EXPANSION — CALC TOOLS (8)
+  // =============================================
+  { id: 'calc-income-need', type: 'TOOL', domain: 'que', name: 'Income Need Calculator', description: 'Calculates survivor income replacement need over specified years with inflation' },
+  { id: 'calc-debt-need', type: 'TOOL', domain: 'que', name: 'Debt Need Calculator', description: 'Sums all outstanding debts that would need to be covered at death' },
+  { id: 'calc-misc-cash-need', type: 'TOOL', domain: 'que', name: 'Miscellaneous Cash Need', description: 'Funeral costs, emergency fund, and other immediate cash needs' },
+  { id: 'calc-survivor-cash-need', type: 'TOOL', domain: 'que', name: 'Survivor Cash Need', description: 'Total immediate cash needed at death: debts, funeral, emergency, final expenses' },
+  { id: 'calc-survivor-income-need', type: 'TOOL', domain: 'que', name: 'Survivor Income Need', description: 'Ongoing income gap between survivor expenses and income sources' },
+  { id: 'calc-existing-coverage-offset', type: 'TOOL', domain: 'que', name: 'Existing Coverage Offset', description: 'Total existing life coverage from group, individual, and asset sources' },
+  { id: 'calc-total-life-need', type: 'TOOL', domain: 'que', name: 'Total Life Need Calculator', description: 'Master calculation: all needs minus existing coverage equals face amount target' },
+  { id: 'calc-1035-exchange', type: 'TOOL', domain: 'que', name: '1035 Exchange Calculator', description: 'Tax-free insurance transfer: old CSV to new product with basis carryover' },
+
+  // =============================================
+  // LIFE & ESTATE EXPANSION — LOOKUP TOOLS (5)
+  // =============================================
+  { id: 'lookup-group-portability', type: 'TOOL', domain: 'que', name: 'Group Portability Lookup', description: 'Conversion windows and rate multipliers for employer group life' },
+  { id: 'lookup-health-rating-map', type: 'TOOL', domain: 'que', name: 'Health Rating Map', description: 'Maps health conditions to underwriting rate classes' },
+  { id: 'lookup-paramed-requirements', type: 'TOOL', domain: 'que', name: 'Paramed Requirements', description: 'Medical exam requirements based on face amount thresholds' },
+  { id: 'lookup-life-rate', type: 'TOOL', domain: 'que', name: 'Life Rate Lookup', description: 'Premium lookup by product type, health class, age, and face amount' },
+  { id: 'lookup-life-carrier-product', type: 'TOOL', domain: 'que', name: 'Life Carrier Product Lookup', description: 'Carrier product specs: term, UL, IUL, whole life offerings' },
+
+  { id: 'GENERATE_LIFE_CASEWORK', type: 'SUPER_TOOL', domain: 'que', name: 'Generate Life Casework', description: 'Assembles life analysis outputs into multi-tab HTML presentation', composedOf: ['generate-summary-html', 'generate-detail-html'] },
+  // =============================================
+  // LIFE & ESTATE EXPANSION — SUPER TOOLS (4)
+  // =============================================
+  { id: 'ANALYZE_GROUP_GAP', type: 'SUPER_TOOL', domain: 'que', name: 'Group Gap Analysis', description: 'Assesses employer group coverage gap and portability risk', composedOf: ['lookup-group-portability', 'calc-existing-coverage-offset', 'calc-total-life-need'] },
+  { id: 'ANALYZE_LIFE_NEED', type: 'SUPER_TOOL', domain: 'que', name: 'Life Needs Analysis', description: 'Complete life insurance needs calculation with face amount targets', composedOf: ['calc-income-need', 'calc-debt-need', 'calc-college-funding', 'calc-misc-cash-need', 'calc-existing-coverage-offset', 'calc-survivor-cash-need', 'calc-survivor-income-need', 'calc-total-life-need'] },
+  { id: 'ANALYZE_UNDERWRITING_PATH', type: 'SUPER_TOOL', domain: 'que', name: 'Underwriting Path Analysis', description: 'Health to rate class to exam requirements to price impact', composedOf: ['lookup-health-rating-map', 'lookup-paramed-requirements', 'lookup-life-rate'] },
+  { id: 'ANALYZE_LIFE_OPTIONS', type: 'SUPER_TOOL', domain: 'que', name: 'Life Options Analysis', description: 'Three-option comparison: final expenses, income replacement, Swiss-Army IUL', composedOf: ['calc-total-life-need', 'lookup-life-carrier-product', 'lookup-life-rate', 'calc-net-outlay'] },
+
+  // =============================================
+  // LIFE & ESTATE EXPANSION — WIRES (4)
+  // =============================================
+  { id: 'WIRE_LIFE_DISCOVERY', type: 'WIRE', domain: 'que', name: 'Life Discovery Wire', description: 'Group gap assessment and preliminary need estimate', composedOf: ['ANALYZE_GROUP_GAP'] },
+  { id: 'WIRE_LIFE_NEEDS', type: 'WIRE', domain: 'que', name: 'Life Needs Wire', description: 'Full needs analysis with face amount targets', composedOf: ['ANALYZE_LIFE_NEED'] },
+  { id: 'WIRE_LIFE_OPTIONS', type: 'WIRE', domain: 'que', name: 'Life Options Wire', description: 'Underwriting path plus three-option product comparison', composedOf: ['ANALYZE_UNDERWRITING_PATH', 'ANALYZE_LIFE_OPTIONS'] },
+  { id: 'WIRE_LIFE_PRESENTATION', type: 'WIRE', domain: 'que', name: 'Life Presentation Wire', description: 'Complete multi-tab life insurance presentation', composedOf: ['ANALYZE_GROUP_GAP', 'ANALYZE_LIFE_NEED', 'ANALYZE_UNDERWRITING_PATH', 'ANALYZE_LIFE_OPTIONS'] },
+
 ]
 
 /** Look up a QUE registry entry by ID */

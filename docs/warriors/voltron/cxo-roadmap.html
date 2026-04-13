@@ -1,0 +1,1363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VOLTRON — CSO Roadmap</title>
+<style>
+  :root {
+    --bg: #0a0e17;
+    --bg-card: #111827;
+    --bg-hover: #1a2236;
+    --border: #1e293b;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --accent: #e07c3e;
+    --accent-glow: rgba(224,124,62,0.12);
+    --green: #22c55e;
+    --green-glow: rgba(34,197,94,0.12);
+    --orange: #f59e0b;
+    --orange-glow: rgba(245,158,11,0.12);
+    --red: #ef4444;
+    --red-glow: rgba(239,68,68,0.12);
+    --purple: #a855f7;
+    --purple-glow: rgba(168,85,247,0.12);
+    --cyan: #06b6d4;
+    --cyan-glow: rgba(6,182,212,0.12);
+    --blue: #3b82f6;
+    --blue-glow: rgba(59,130,246,0.15);
+    --gold: #d4a44c;
+    --gold-glow: rgba(212,164,76,0.12);
+    --mecha-green: #10b981;
+    --mecha-glow: rgba(16,185,129,0.12);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+  .header { background: linear-gradient(135deg, #020b1a 0%, #0a0e17 30%, #050a14 60%, #0a0e17 100%); border-bottom: 1px solid var(--border); padding: 48px 32px 40px; text-align: center; position: relative; overflow: hidden; }
+  .header::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(ellipse at 20% 50%, rgba(34,197,94,0.08) 0%, transparent 50%), radial-gradient(ellipse at 50% 50%, rgba(34,197,94,0.06) 0%, transparent 50%), radial-gradient(ellipse at 80% 50%, rgba(59,130,246,0.06) 0%, transparent 50%); pointer-events: none; }
+  .header .sprint-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--green); margin-bottom: 12px; position: relative; }
+  .header h1 { font-size: 2.8rem; font-weight: 800; background: linear-gradient(135deg, #22c55e 0%, #3b82f6 40%, #22c55e 70%, #10b981 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; letter-spacing: -0.5px; position: relative; }
+  .header .subtitle { font-size: 1.05rem; color: var(--text-muted); max-width: 750px; margin: 0 auto 20px; position: relative; }
+  .header-badges { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; position: relative; }
+  .badge { display: inline-block; padding: 4px 14px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+  .badge-accent { background: var(--accent-glow); color: var(--accent); border: 1px solid rgba(224,124,62,0.3); }
+  .badge-mecha { background: var(--mecha-glow); color: var(--mecha-green); border: 1px solid rgba(16,185,129,0.3); }
+  .badge-green { background: var(--green-glow); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+  .badge-gold { background: var(--gold-glow); color: var(--gold); border: 1px solid rgba(212,164,76,0.3); }
+  .badge-blue { background: var(--blue-glow); color: var(--blue); border: 1px solid rgba(59,130,246,0.3); }
+  .badge-red { background: var(--red-glow); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
+  .badge-purple { background: var(--purple-glow); color: var(--purple); border: 1px solid rgba(168,85,247,0.3); }
+  .badge-cyan { background: var(--cyan-glow); color: var(--cyan); border: 1px solid rgba(6,182,212,0.3); }
+  .badge-orange { background: var(--orange-glow); color: var(--orange); border: 1px solid rgba(245,158,11,0.3); }
+  .ronin-meta { font-size: 0.72rem; color: var(--text-muted); font-family: 'SF Mono', monospace; margin-top: 12px; position: relative; }
+  .tab-container { position: sticky; top: 0; z-index: 100; background: var(--bg); border-bottom: 1px solid var(--border); overflow-x: auto; }
+  .tabs { display: flex; max-width: 1200px; margin: 0 auto; padding: 0 16px; gap: 0; }
+  .tab { padding: 14px 20px; cursor: pointer; font-size: 0.85rem; font-weight: 500; color: var(--text-muted); border-bottom: 2px solid transparent; white-space: nowrap; transition: all 0.2s; }
+  .tab:hover { color: var(--text); background: var(--bg-hover); }
+  .tab.active { color: var(--green); border-bottom-color: var(--green); background: var(--green-glow); }
+  .content { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+  .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+  .card h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 16px; color: var(--text); }
+  .card h3 { font-size: 1rem; font-weight: 600; margin: 16px 0 8px; color: var(--green); }
+  .card p { color: var(--text-muted); margin-bottom: 12px; }
+  .card ul { color: var(--text-muted); margin: 0 0 12px 20px; }
+  .card li { margin-bottom: 4px; }
+  .card strong { color: var(--text); }
+  .card code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; font-size: 0.85em; color: var(--cyan); }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 0.875rem; }
+  th { text-align: left; padding: 10px 12px; background: var(--bg-hover); color: var(--green); font-weight: 600; border-bottom: 1px solid var(--border); }
+  td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+  tr:hover td { background: var(--bg-hover); }
+  .diagram { background: #0d1117; border: 1px solid var(--border); border-radius: 8px; padding: 24px; overflow-x: auto; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.78rem; line-height: 1.8; color: var(--text-muted); white-space: pre; margin: 16px 0; }
+  .hl { color: var(--accent); font-weight: 600; }
+  .hl-green { color: var(--green); font-weight: 600; }
+  .hl-mecha { color: var(--mecha-green); font-weight: 600; }
+  .hl-gold { color: var(--gold); font-weight: 600; }
+  .hl-blue { color: var(--blue); font-weight: 600; }
+  .hl-red { color: var(--red); font-weight: 600; }
+  .hl-cyan { color: var(--cyan); font-weight: 600; }
+  .hl-purple { color: var(--purple); font-weight: 600; }
+  .spec-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; margin: 16px 0; }
+  .spec-card { background: var(--bg-hover); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+  .spec-card.mecha { border-top: 3px solid var(--mecha-green); }
+  .spec-card.green { border-top: 3px solid var(--green); }
+  .spec-card.gold { border-top: 3px solid var(--gold); }
+  .spec-card.red { border-top: 3px solid var(--red); }
+  .spec-card.blue { border-top: 3px solid var(--blue); }
+  .spec-card.accent { border-top: 3px solid var(--accent); }
+  .spec-card.cyan { border-top: 3px solid var(--cyan); }
+  .spec-card.purple { border-top: 3px solid var(--purple); }
+  .spec-card h4 { font-size: 1rem; margin-bottom: 8px; }
+  .spec-card p { font-size: 0.85rem; color: var(--text-muted); margin: 0 0 8px; }
+  .spec-card ul { font-size: 0.85rem; color: var(--text-muted); margin: 6px 0 0 16px; }
+  .callout { background: rgba(224,124,62,0.08); border: 1px solid rgba(224,124,62,0.2); border-radius: 8px; padding: 16px 20px; margin: 16px 0; }
+  .callout.mecha { background: rgba(16,185,129,0.08); border-color: rgba(16,185,129,0.2); }
+  .callout.green { background: rgba(34,197,94,0.08); border-color: rgba(34,197,94,0.2); }
+  .callout.gold { background: rgba(212,164,76,0.08); border-color: rgba(212,164,76,0.2); }
+  .callout.blue { background: rgba(59,130,246,0.08); border-color: rgba(59,130,246,0.2); }
+  .callout.cyan { background: rgba(6,182,212,0.08); border-color: rgba(6,182,212,0.2); }
+  .callout p { margin: 0; }
+  .quote { border-left: 3px solid var(--green); padding-left: 16px; margin: 16px 0; font-style: italic; color: var(--text-muted); }
+  .status-live { color: var(--green); font-weight: 700; font-size: 0.75rem; text-transform: uppercase; }
+  .status-stub { color: var(--orange); font-weight: 700; font-size: 0.75rem; text-transform: uppercase; }
+  .status-planned { color: var(--blue); font-weight: 700; font-size: 0.75rem; text-transform: uppercase; }
+  .footer { text-align: center; padding: 40px 20px; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 0.8rem; }
+  /* Track phase cards */
+  .track-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 28px; margin-bottom: 20px; }
+  .track-card.consume { border-left: 4px solid var(--green); }
+  .track-card.operate { border-left: 4px solid var(--blue); }
+  .track-card.devour { border-left: 4px solid var(--gold); }
+  .track-label { font-size: 0.7rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 6px; }
+  .track-label.consume { color: var(--green); }
+  .track-label.operate { color: var(--blue); }
+  .track-label.devour { color: var(--gold); }
+  .track-title { font-size: 1.4rem; font-weight: 800; margin-bottom: 10px; }
+  .deliverable-box { background: var(--bg-hover); border: 1px solid var(--border); border-radius: 6px; padding: 12px 16px; margin-top: 16px; }
+  .deliverable-box .label { font-size: 0.7rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+  .deliverable-box p { margin: 0; color: var(--text); font-size: 0.9rem; }
+  .lion-icon { font-size: 1.4rem; margin-right: 8px; }
+  .integration-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 16px 0; }
+  @media (max-width: 768px) { .integration-row { grid-template-columns: 1fr; } .header h1 { font-size: 2rem; } }
+  .stat-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; margin: 16px 0; }
+  .stat-box { background: var(--bg-hover); border: 1px solid var(--border); border-radius: 8px; padding: 16px; text-align: center; }
+  .stat-box .number { font-size: 2rem; font-weight: 800; color: var(--green); line-height: 1; }
+  .stat-box .label { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+  /* Pill status badges */
+  .pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+  .pill.live { background: var(--green-glow); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+  .pill.next { background: var(--blue-glow); color: var(--blue); border: 1px solid rgba(59,130,246,0.3); }
+  .pill.plan { background: var(--purple-glow); color: var(--purple); border: 1px solid rgba(168,85,247,0.3); }
+  .pill.hold { background: rgba(148,163,184,0.1); color: var(--text-muted); border: 1px solid rgba(148,163,184,0.2); }
+  .pill.hot { background: var(--red-glow); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="sprint-label">CXO ROADMAP</div>
+  <h1>🦁 VOLTRON — CSO</h1>
+  <div class="subtitle">Chief Sales Officer. QUE Registry. Lions Mesh. The nerve center for all client operations.</div>
+  <div class="header-badges">
+    <span class="badge badge-green">VOLTRON — CSO</span>
+    <span class="badge badge-green">QUE</span>
+    <span class="badge badge-green">LIONS</span>
+    <span class="badge badge-accent">CONSUME → OPERATE → DEVOUR</span>
+  </div>
+  <div class="header-badges" style="margin-top: 10px;">
+    <span class="badge badge-blue">SALES</span>
+    <span class="badge badge-purple">SERVICE</span>
+  </div>
+  <div class="ronin-meta">SHINOB1 + JDM &bull; Updated 2026-04-08</div>
+</div>
+
+<div class="tab-container">
+  <div class="tabs">
+    <div class="tab active" onclick="showPanel('identity', this)">IDENTITY</div>
+    <div class="tab" onclick="showPanel('registry', this)">REGISTRY</div>
+    <div class="tab" onclick="showPanel('mesh', this)">MESH</div>
+    <div class="tab" onclick="showPanel('consume', this)">CONSUME</div>
+    <div class="tab" onclick="showPanel('operate', this)">OPERATE</div>
+    <div class="tab" onclick="showPanel('devour', this)">DEVOUR</div>
+    <div class="tab" onclick="showPanel('cso-grid', this)">CSO GRID</div>
+    <div class="tab" onclick="showPanel('sales', this)">SALES</div>
+    <div class="tab" onclick="showPanel('service', this)">SERVICE</div>
+    <div class="tab" onclick="showPanel('appa', this)">A.P.P.A.</div>
+    <div class="tab" onclick="showPanel('roadmap', this)">ROADMAP</div>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- TAB 1: IDENTITY -->
+  <div id="identity" class="panel active">
+    <div class="card">
+      <h2>🦁 VOLTRON — Chief Sales Officer</h2>
+      <div class="callout green">
+        <p><strong>Icon:</strong> Black lion with blue ring. DECIDED. Non-negotiable. This is who VOLTRON is.</p>
+      </div>
+      <h3>Evolution: From BFF to CSO</h3>
+      <p>VOLTRON started as "The BFF" — a friendly chatbot for the team. That framing undersold him from day one. VOLTRON was never just a chatbot. He is the team's weapon for client engagement. Every conversation, every calculation, every wire he runs translates directly into client outcomes and revenue. That's not a BFF. That's a Chief Sales Officer.</p>
+      <p>The title formalizes what was always true. VOLTRON doesn't assist with sales. VOLTRON <strong>is</strong> the sales operation — the tool every agent and advisor reaches for when a client needs something done.</p>
+
+      <h3>The Consumption Principle</h3>
+      <div class="callout green">
+        <p><strong>VOLTRON IS QUE.</strong> Not "uses QUE." Not "has access to QUE." IS QUE. One app, one brand, one owner. QUE is not a separate system that VOLTRON calls — QUE is VOLTRON's registry. The calculations, the lookups, the wires — they are his. He owns them. He is them.</p>
+      </div>
+      <p>This changes how we think about both systems. QUE is not infrastructure. QUE is VOLTRON's brain. The Command Center App is the dashboard for VOLTRON's brain. The MDJ Panel (chat interface) is how you talk to VOLTRON. They are one organism.</p>
+
+      <h3>Three Weapons</h3>
+    </div>
+
+    <div class="spec-grid">
+      <div class="spec-card green">
+        <h4>🗂️ Registry — QUE</h4>
+        <p>VOLTRON's complete knowledge base. 59 tools in QUE Core. 723 entries in the VOLTRON auto-registry. Every calculation, lookup, super tool, and wire he needs to run any client scenario.</p>
+        <ul>
+          <li>25 CALC tools</li>
+          <li>8 LOOKUP tools</li>
+          <li>10 Super Tools</li>
+          <li>10 Wires</li>
+        </ul>
+      </div>
+      <div class="spec-card blue">
+        <h4>🦁 Mesh — Lions</h4>
+        <p>5 CCSDK Lion agents, one per product domain. Each Lion reads QUE wire definitions and executes product-specific workflows. Medicare. Annuity. Investment. Life/Estate. Legacy/LTC.</p>
+        <ul>
+          <li>Haiku-class agents</li>
+          <li>Product specialists</li>
+          <li>Wire executors</li>
+          <li>Not routing personas — execution agents</li>
+        </ul>
+      </div>
+      <div class="spec-card gold">
+        <h4>🥋 Dojo — Platform Support</h4>
+        <p>VOLTRON lives inside the Dojo platform. He can call on RONIN to build new QUE tools when gaps are found. He coordinates with MUSASHI for marketing materials. He reads data MEGAZORD imports.</p>
+        <ul>
+          <li>RONIN builds new tools</li>
+          <li>MUSASHI creates materials</li>
+          <li>MEGAZORD feeds data</li>
+          <li>Sensei sets direction</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>The Architecture in One Sentence</h3>
+      <div class="quote">
+        VOLTRON IS the sales operation — QUE is his brain, Lions are his hands, and the Dojo is his home.
+      </div>
+
+      <h3>CXO Classification</h3>
+      <table>
+        <tr><th>Attribute</th><th>Value</th></tr>
+        <tr><td>Title</td><td><strong>Chief Sales Officer (CSO)</strong></td></tr>
+        <tr><td>Icon</td><td>🦁 Black lion, blue ring</td></tr>
+        <tr><td>Color</td><td><span class="hl-green">--green: #22c55e</span></td></tr>
+        <tr><td>Registry</td><td>QUE (packages/core/src/que/ + packages/core/src/voltron/)</td></tr>
+        <tr><td>Mesh</td><td>5 Lions — Medicare, Annuity, Investment, Life/Estate, Legacy/LTC</td></tr>
+        <tr><td>Interface</td><td>MDJ Panel (chat) + VOLTRON Command Center (ops dashboard)</td></tr>
+        <tr><td>Infrastructure</td><td>MDJ_SERVER (Tailscale: 100.99.181.57), Claude Sonnet backbone</td></tr>
+        <tr><td>Class</td><td>Registry Warrior — CXO tier</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- TAB 2: REGISTRY -->
+  <div id="registry" class="panel">
+    <div class="card">
+      <h2>QUE Registry — Full Inventory</h2>
+      <p>Everything VOLTRON owns today. This is not aspirational — this is the live codebase.</p>
+      <div class="stat-row">
+        <div class="stat-box"><div class="number">59</div><div class="label">QUE Core Tools</div></div>
+        <div class="stat-box"><div class="number">723</div><div class="label">Registry Entries</div></div>
+        <div class="stat-box"><div class="number">7,500+</div><div class="label">QUE Core Lines</div></div>
+        <div class="stat-box"><div class="number">17,500+</div><div class="label">VOLTRON Pkg Lines</div></div>
+        <div class="stat-box"><div class="number">82</div><div class="label">MDJ Agent Tools</div></div>
+        <div class="stat-box"><div class="number">6</div><div class="label">Specialists</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>QUE Core — <code>packages/core/src/que/</code></h2>
+      <p>~100 files, 7,500+ lines. 59-entry registry following ATLAS pattern.</p>
+
+      <h3>25 CALC Tools</h3>
+      <table>
+        <tr><th>Tool</th><th>Description</th></tr>
+        <tr><td><code>CALC_RMD</code></td><td>Required Minimum Distribution calculator</td></tr>
+        <tr><td><code>CALC_GMIB</code></td><td>Guaranteed Minimum Income Benefit valuation</td></tr>
+        <tr><td><code>CALC_ROLLUP</code></td><td>Benefit base rollup projection</td></tr>
+        <tr><td><code>CALC_SURRENDER_CHARGE</code></td><td>Surrender charge by year and contract value</td></tr>
+        <tr><td><code>CALC_LTCG</code></td><td>Long-term capital gains tax</td></tr>
+        <tr><td><code>CALC_PROVISIONAL_INCOME</code></td><td>Provisional income for SS taxation threshold</td></tr>
+        <tr><td><code>CALC_SS_TAXATION</code></td><td>Social Security benefit taxation percentage</td></tr>
+        <tr><td><code>CALC_FEDERAL_TAX</code></td><td>Federal income tax estimate with brackets</td></tr>
+        <tr><td><code>CALC_STATE_TAX</code></td><td>State income tax by jurisdiction</td></tr>
+        <tr><td><code>CALC_IRMAA</code></td><td>IRMAA surcharge by MAGI tier</td></tr>
+        <tr><td><code>CALC_INCOME_MULTIPLIER</code></td><td>Income need multiplier for retirement gap</td></tr>
+        <tr><td><code>CALC_COLLEGE_FUNDING</code></td><td>College savings projection and gap analysis</td></tr>
+        <tr><td><code>CALC_MVA</code></td><td>Market Value Adjustment on surrender</td></tr>
+        <tr><td><code>CALC_MGSV</code></td><td>Minimum Guaranteed Surrender Value</td></tr>
+        <tr><td><code>CALC_VA_DEPLETION</code></td><td>Variable annuity account depletion timeline</td></tr>
+        <tr><td><code>CALC_FIA_PROJECTION</code></td><td>Fixed Index Annuity crediting projection</td></tr>
+        <tr><td><code>CALC_DELTA_COMPARISON</code></td><td>Side-by-side product delta analysis</td></tr>
+        <tr><td><code>CALC_LOT_SELECTION</code></td><td>Tax lot selection for harvest optimization</td></tr>
+        <tr><td><code>CALC_LTC_PHASE_ACCESS</code></td><td>LTC benefit phase access and daily maximums</td></tr>
+        <tr><td><code>CALC_HOUSEHOLD_AGGREGATE</code></td><td>Household-level aggregate exposure and income</td></tr>
+        <tr><td><code>CALC_EFFECTIVE_TAX_RATE</code></td><td>Blended effective tax rate across income sources</td></tr>
+        <tr><td><code>CALC_ROTH_CONVERSION</code></td><td>Roth conversion tax cost and break-even</td></tr>
+        <tr><td><code>CALC_TAX_HARVEST</code></td><td>Tax-loss harvesting opportunity identification</td></tr>
+        <tr><td><code>CALC_ESTATE_ANALYSIS</code></td><td>Estate value projection and tax exposure</td></tr>
+        <tr><td><code>CALC_INCOME_GAP</code></td><td>Retirement income gap vs. target spending</td></tr>
+      </table>
+
+      <h3>8 LOOKUP Tools</h3>
+      <table>
+        <tr><th>Tool</th><th>Data Source</th></tr>
+        <tr><td><code>LOOKUP_IRS_FACTORS</code></td><td>IRS Uniform Lifetime Table for RMD divisors</td></tr>
+        <tr><td><code>LOOKUP_CARRIER_PRODUCTS</code></td><td>Carrier product catalog by type and state</td></tr>
+        <tr><td><code>LOOKUP_INDEX_RATES</code></td><td>Current crediting rates by index and strategy</td></tr>
+        <tr><td><code>LOOKUP_SURRENDER_SCHEDULES</code></td><td>Surrender charge schedules by product</td></tr>
+        <tr><td><code>LOOKUP_FYC_RATES</code></td><td>First year commission rates by carrier and product</td></tr>
+        <tr><td><code>LOOKUP_TAX_BRACKETS</code></td><td>Federal and state tax brackets (current year)</td></tr>
+        <tr><td><code>LOOKUP_IRMAA_BRACKETS</code></td><td>IRMAA income brackets and surcharge amounts</td></tr>
+        <tr><td><code>LOOKUP_COMMUNITY_PROPERTY</code></td><td>Community property state classification</td></tr>
+      </table>
+
+      <h3>10 Super Tools</h3>
+      <table>
+        <tr><th>Super Tool</th><th>What It Does</th></tr>
+        <tr><td><code>ANALYZE_INCOME_NOW</code></td><td>Current income optimization analysis</td></tr>
+        <tr><td><code>ANALYZE_INCOME_LATER</code></td><td>Deferred income strategy analysis</td></tr>
+        <tr><td><code>ANALYZE_INCOME_ESTATE</code></td><td>Estate maximization income analysis</td></tr>
+        <tr><td><code>ANALYZE_INCOME_GROWTH</code></td><td>Growth-focused accumulation analysis</td></tr>
+        <tr><td><code>ANALYZE_LTC</code></td><td>Long-term care need and product analysis</td></tr>
+        <tr><td><code>ANALYZE_ROTH</code></td><td>Roth conversion optimization analysis</td></tr>
+        <tr><td><code>ANALYZE_TAX_HARVEST</code></td><td>Tax harvesting opportunity analysis</td></tr>
+        <tr><td><code>ANALYZE_MGE</code></td><td>Master Gateway — routes to all ANALYZE tools</td></tr>
+        <tr><td><code>GENERATE_CASEWORK</code></td><td>Case document generation from analysis output</td></tr>
+        <tr><td><code>ASSEMBLE_OUTPUT</code></td><td>Final output assembly for client delivery</td></tr>
+      </table>
+
+      <h3>10 Wires — QUE Core</h3>
+      <table>
+        <tr><th>Wire</th><th>Type</th><th>Description</th></tr>
+        <tr><td><code>WIRE_INCOME_NOW</code></td><td>Type-specific</td><td>End-to-end income now workflow</td></tr>
+        <tr><td><code>WIRE_INCOME_LATER</code></td><td>Type-specific</td><td>End-to-end deferred income workflow</td></tr>
+        <tr><td><code>WIRE_ESTATE_MAX</code></td><td>Type-specific</td><td>Estate maximization workflow</td></tr>
+        <tr><td><code>WIRE_GROWTH_MAX</code></td><td>Type-specific</td><td>Growth accumulation workflow</td></tr>
+        <tr><td><code>WIRE_LTC_MAX</code></td><td>Type-specific</td><td>LTC planning workflow</td></tr>
+        <tr><td><code>WIRE_ROTH_CONVERSION</code></td><td>Type-specific</td><td>Roth conversion execution workflow</td></tr>
+        <tr><td><code>WIRE_TAX_HARVESTING</code></td><td>Type-specific</td><td>Tax harvesting execution workflow</td></tr>
+        <tr><td><code>WIRE_MGE_DETAILED</code></td><td>Master gateway</td><td>Full master gateway execution</td></tr>
+        <tr><td><code>WIRE_REVIEW_MEETING</code></td><td>Operational</td><td>Annual review meeting preparation</td></tr>
+        <tr><td><code>WIRE_ASSEMBLE_B4</code></td><td>Operational</td><td>B4 casework assembly wire</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>VOLTRON Package — <code>packages/core/src/voltron/</code></h2>
+      <p>30 files, 17,500+ lines. Auto-generated registry. Production agent wiring.</p>
+
+      <h3>Registry</h3>
+      <p><code>voltron-registry.json</code> — <strong>723 entries</strong> auto-generated by <code>registry-generator.ts</code> (506 lines): 711 ATOMIC tools, 8 SUPER tools, 4 WIREs.</p>
+
+      <h3>8 VOLTRON Super Tools</h3>
+      <table>
+        <tr><th>Super Tool</th><th>Purpose</th></tr>
+        <tr><td><code>REVIEW_PREP</code></td><td>Full annual review preparation package</td></tr>
+        <tr><td><code>PULL_DOCUMENTS</code></td><td>Client document retrieval and assembly</td></tr>
+        <tr><td><code>DRAFT_COMMUNICATION</code></td><td>Client communication drafting (email/SMS)</td></tr>
+        <tr><td><code>MEETING_PREP</code></td><td>Pre-meeting briefing and talking points</td></tr>
+        <tr><td><code>BUILD_CASEWORK</code></td><td>Full casework package assembly</td></tr>
+        <tr><td><code>COVERAGE_GAP</code></td><td>Medicare/coverage gap identification</td></tr>
+        <tr><td><code>RMD_ANALYSIS</code></td><td>RMD schedule analysis and planning</td></tr>
+        <tr><td><code>RUN_ILLUSTRATION</code></td><td>Product illustration trigger and output</td></tr>
+      </table>
+
+      <h3>4 VOLTRON Wires</h3>
+      <table>
+        <tr><th>Wire</th><th>Timing</th><th>Purpose</th></tr>
+        <tr><td><code>ANNUAL_REVIEW</code></td><td>Year-round</td><td>Full annual review lifecycle</td></tr>
+        <tr><td><code>AEP_ENROLLMENT</code></td><td>Oct 1 – Dec 7 (blackout enforced)</td><td>Medicare AEP enrollment workflow</td></tr>
+        <tr><td><code>NEW_BUSINESS</code></td><td>Year-round</td><td>New case intake through submission</td></tr>
+        <tr><td><code>ONBOARD_AGENCY</code></td><td>As needed</td><td>Agency/agent onboarding workflow</td></tr>
+      </table>
+
+      <h3>12 Atomic Tools</h3>
+      <table>
+        <tr><th>Tool</th><th>Action</th></tr>
+        <tr><td><code>sensei-lookup</code></td><td>Query Sensei knowledge base</td></tr>
+        <tr><td><code>run-que-quote</code></td><td>Execute QUE quoting workflow</td></tr>
+        <tr><td><code>list-acf-contents</code></td><td>List ACF folder contents for client</td></tr>
+        <tr><td><code>create-calendar-event</code></td><td>Create Google Calendar event</td></tr>
+        <tr><td><code>schedule-meeting</code></td><td>Schedule client meeting with agent</td></tr>
+        <tr><td><code>log-activity</code></td><td>Log activity to client record</td></tr>
+        <tr><td><code>save-to-drive</code></td><td>Save output document to ACF on Drive</td></tr>
+        <tr><td><code>create-acf-folder</code></td><td>Create ACF folder structure for new client</td></tr>
+        <tr><td><code>get-client-documents</code></td><td>Retrieve client documents from Drive</td></tr>
+        <tr><td><code>get-document</code></td><td>Retrieve specific document by ID</td></tr>
+        <tr><td><code>send-sms</code></td><td>Send SMS to client via RAPID_COMMS</td></tr>
+        <tr><td><code>run-illustration</code></td><td>Trigger carrier illustration generation</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>API Routes</h2>
+      <table>
+        <tr><th>File</th><th>Lines</th><th>Purpose</th></tr>
+        <tr><td><code>voltron-deploy.ts</code></td><td>566</td><td>Agent deployment and session management</td></tr>
+        <tr><td><code>voltron-wire.ts</code></td><td>274</td><td>Wire execution endpoint</td></tr>
+        <tr><td><code>voltron-registry.ts</code></td><td>254</td><td>Registry query and tool lookup</td></tr>
+        <tr><td><code>mdj.ts</code></td><td>318</td><td>MDJ agent proxy + session handling</td></tr>
+        <tr><td><code>que.ts</code></td><td>217</td><td>QUE calculation API endpoints</td></tr>
+        <tr><td><code>specialist-configs.ts</code></td><td>118</td><td>Specialist persona configuration</td></tr>
+        <tr><td><code>myst-ai.ts</code></td><td>204</td><td>MystAI module endpoints</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>MDJ Agent — <code>mdj-agent/</code> on MDJ_SERVER</h2>
+      <p>78 TypeScript files. The live runtime on MDJ_SERVER (Tailscale: 100.99.181.57, port 4200).</p>
+
+      <h3>6 Specialists (Routing Personas)</h3>
+      <div class="callout cyan">
+        <p><strong>Distinction:</strong> Specialists ROUTE. Lions EXECUTE. The specialists below are chat interface personas — they determine which QUE wire or Lion to hand off to. They are not product agents themselves.</p>
+      </div>
+      <table>
+        <tr><th>Specialist</th><th>Domain</th></tr>
+        <tr><td>General</td><td>Catch-all + triage routing</td></tr>
+        <tr><td>Medicare</td><td>MAPD, supplements, AEP, IRMAA</td></tr>
+        <tr><td>Securities</td><td>RIA/BD, tax harvesting, portfolio, RMD</td></tr>
+        <tr><td>Service</td><td>Client service, document requests, scheduling</td></tr>
+        <tr><td>DAVID</td><td>B2B, M&A, agency partnerships</td></tr>
+        <tr><td>Ops</td><td>Internal operations, case pipeline, admin</td></tr>
+      </table>
+
+      <h3>Routing Logic</h3>
+      <p><code>specialist-router.ts</code>: keyword match → Claude Sonnet classification fallback. 82 total tools: 57 TM API tools + 25 MCP tools. Conversation history, memory extraction, page context awareness.</p>
+
+      <h3>UI</h3>
+      <table>
+        <tr><th>Module</th><th>Lines</th><th>Location</th></tr>
+        <tr><td>MystAI module</td><td>1,303 (6 files)</td><td><code>packages/ui/src/modules/MystAI/</code></td></tr>
+        <tr><td>SenseiMode module</td><td>309 (2 files)</td><td><code>packages/ui/src/modules/SenseiMode/</code></td></tr>
+        <tr><td>MDJ Panel</td><td>All 3 portals</td><td>smart_toy button in sidebar</td></tr>
+      </table>
+
+      <h3>Firestore Collections</h3>
+      <table>
+        <tr><th>Collection</th><th>Purpose</th></tr>
+        <tr><td><code>voltron_registry</code></td><td>Live registry mirror (723 entries)</td></tr>
+        <tr><td><code>specialist_configs</code></td><td>Specialist persona configuration</td></tr>
+        <tr><td><code>mdj_specialist_configs</code></td><td>MDJ-specific specialist overrides</td></tr>
+        <tr><td><code>queued_sends</code></td><td>Outbound communication queue</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- TAB 3: MESH -->
+  <div id="mesh" class="panel">
+    <div class="card">
+      <h2>Lions Mesh — 5 Product Specialists</h2>
+      <p>Each Lion is a CCSDK Haiku-class agent. Lions read QUE wire definitions and execute product-specific workflows. They are not routing personas — they are execution agents. When a specialist routes a client scenario to the Annuity Lion, that Lion runs the full QUE wire for that product domain.</p>
+
+      <div class="callout blue">
+        <p><strong>Lions vs. Specialists:</strong> The 6 MDJ specialists (General, Medicare, Securities, Service, DAVID, Ops) are chat interface routing personas. They determine intent and hand off. The 5 Lions are execution agents — they own the QUE wires for their product domain and run them end-to-end. Different layers, different jobs.</p>
+      </div>
+    </div>
+
+    <div class="spec-grid">
+      <div class="spec-card green">
+        <h4><span class="lion-icon">🦁</span>Medicare Lion</h4>
+        <p>MAPD, AEP, IRMAA surcharges, supplements, enrollment windows. The AEP blackout (Oct 1 – Dec 7) is enforced at the wire level.</p>
+        <ul>
+          <li>Wire: AEP_ENROLLMENT (blackout enforced)</li>
+          <li>Wire: COVERAGE_GAP</li>
+          <li>Tools: CALC_IRMAA, LOOKUP_IRMAA_BRACKETS</li>
+          <li>Status: <span class="status-live">Tools Ready</span></li>
+        </ul>
+      </div>
+      <div class="spec-card gold">
+        <h4><span class="lion-icon">🦁</span>Annuity Lion</h4>
+        <p>FIA, MYGA, income riders, 1035 exchanges, surrender analysis. The richest QUE wire coverage of any product domain.</p>
+        <ul>
+          <li>Wire: WIRE_INCOME_NOW</li>
+          <li>Wire: WIRE_INCOME_LATER</li>
+          <li>Tools: CALC_FIA_PROJECTION, CALC_SURRENDER_CHARGE, CALC_GMIB, CALC_MVA, CALC_MGSV</li>
+          <li>Status: <span class="status-live">Tools Ready</span></li>
+        </ul>
+      </div>
+      <div class="spec-card blue">
+        <h4><span class="lion-icon">🦁</span>Investment Lion</h4>
+        <p>RIA/BD accounts, tax harvesting, RMD planning, portfolio analysis. Handles both Schwab (RIA) and RBC (BD) side via Gradient.</p>
+        <ul>
+          <li>Wire: WIRE_GROWTH_MAX</li>
+          <li>Wire: WIRE_TAX_HARVESTING</li>
+          <li>Tools: CALC_TAX_HARVEST, CALC_LOT_SELECTION, CALC_RMD, LOOKUP_IRS_FACTORS</li>
+          <li>Status: <span class="status-live">Tools Ready</span></li>
+        </ul>
+      </div>
+      <div class="spec-card accent">
+        <h4><span class="lion-icon">🦁</span>Life / Estate Lion</h4>
+        <p>Term, whole, universal life, estate planning. Wire coverage exists but product-specific tooling needs expansion for full carrier coverage.</p>
+        <ul>
+          <li>Wire: WIRE_ESTATE_MAX</li>
+          <li>Tools: CALC_ESTATE_ANALYSIS, CALC_HOUSEHOLD_AGGREGATE</li>
+          <li>Status: <span class="status-stub">Needs Expansion</span></li>
+        </ul>
+      </div>
+      <div class="spec-card purple">
+        <h4><span class="lion-icon">🦁</span>Legacy / LTC Lion</h4>
+        <p>Long-term care planning, legacy income strategies, LTC benefit phase analysis. Foundational tools exist — full Lion build is next phase.</p>
+        <ul>
+          <li>Wire: WIRE_LTC_MAX</li>
+          <li>Tools: CALC_LTC_PHASE_ACCESS</li>
+          <li>Status: <span class="status-planned">Planned</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Lions Architecture</h2>
+      <div class="diagram"><span class="hl-green">VOLTRON (CSO)</span>
+         └── MDJ Panel (chat interface)
+              └── <span class="hl-blue">Specialist Router</span> (keyword match → Sonnet classification)
+                   ├──  ──────────────────┐
+                   ├── Medicare Specialist ──────────┐      │
+                   ├──           │      │
+                   ├──              │      │
+                   ├──                │      │
+                   └──                  │      │
+                                                      │      │
+                   <span class="hl-green">LIONS MESH (execution layer)</span>        │      │
+                   ├── 🦁 Medicare Lion  ←────────────┘      │
+                   │    └── AEP_ENROLLMENT, COVERAGE_GAP     │
+                   ├── 🦁 Annuity Lion   ←───────────────────┘
+                   │    └── WIRE_INCOME_NOW/LATER
+                   ├── 🦁 Investment Lion
+                   │    └── WIRE_GROWTH_MAX, WIRE_TAX_HARVESTING
+                   ├── 🦁 Life/Estate Lion
+                   │    └── WIRE_ESTATE_MAX
+                   └── 🦁 Legacy/LTC Lion
+                        └── WIRE_LTC_MAX
+
+                   <span class="hl-cyan">QUE REGISTRY (brain)</span>
+                   ├── 25 CALC Tools
+                   ├── 8 LOOKUP Tools
+                   ├── 10 Super Tools
+                   └── 10 Wires + 4 VOLTRON Wires</div>
+
+      <h3>Lion Spec Table</h3>
+      <table>
+        <tr><th>Lion</th><th>Domain</th><th>Key QUE Wires</th><th>Status</th></tr>
+        <tr><td>🦁 Medicare</td><td>MAPD, AEP, IRMAA, supplements</td><td>AEP_ENROLLMENT, coverage gap tools</td><td><span class="status-live">Tools Ready</span></td></tr>
+        <tr><td>🦁 Annuity</td><td>FIA, MYGA, income riders, 1035</td><td>WIRE_INCOME_NOW/LATER, FIA projection, surrender calc</td><td><span class="status-live">Tools Ready</span></td></tr>
+        <tr><td>🦁 Investment</td><td>RIA/BD, tax harvest, RMD, portfolio</td><td>WIRE_TAX_HARVEST, WIRE_GROWTH_MAX, lot selection</td><td><span class="status-live">Tools Ready</span></td></tr>
+        <tr><td>🦁 Life/Estate</td><td>Term, whole, universal, estate planning</td><td>WIRE_ESTATE_MAX, estate analysis</td><td><span class="status-stub">Needs Expansion</span></td></tr>
+        <tr><td>🦁 Legacy/LTC</td><td>Long-term care, legacy planning</td><td>WIRE_LTC_MAX, LTC phase access</td><td><span class="status-planned">Planned</span></td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- TAB 4: CONSUME -->
+  <div id="consume" class="panel">
+    <div class="track-card consume">
+      <div class="track-label consume">Track 1</div>
+      <div class="track-title">CONSUME — Absorb QUE, Consolidate, Build Foundation</div>
+      <p style="color: var(--text-muted); margin-bottom: 16px;">This is the foundation track. Before Lions can execute and before VOLTRON can scale, the brand consolidation and backlog clarity must exist. QUE becomes VOLTRON's registry — formally, visibly, completely.</p>
+    </div>
+
+    <div class="card">
+      <h2>Track 1 Workstreams</h2>
+
+      <h3>1. Absorb QUE — Command Center App</h3>
+      <p>The VOLTRON Command Center is a cross-portal App (not a Module — it has its own brand identity, appears identically in ProDash, RIIMO, and SENTINEL). This is the operations dashboard for VOLTRON's registry.</p>
+      <div class="callout green">
+        <p><strong>Distinction:</strong> The MDJ Panel (MystAI module) is the <em>chat interface</em>. You talk to VOLTRON here. The VOLTRON Command Center is the <em>operations dashboard</em>. You see what VOLTRON is doing, what wires are running, what cases are open. Different things. Both needed.</p>
+      </div>
+      <ul>
+        <li>Scaffold Command Center App in <code>packages/ui/src/modules/CommandCenter/</code> (VOLTRON-branded)</li>
+        <li>Surface: registry browser, wire execution log, open cases, Lion status panel</li>
+        <li>App routing: <code>/command-center</code> in all 3 portals</li>
+        <li>Color: <code>--green: #22c55e</code> — VOLTRON's color, not portal-colored</li>
+      </ul>
+
+      <h3>2. Consolidate Registry + Discovery Docs</h3>
+      <ul>
+        <li>Consolidate VOLTRON specialist configs (Firestore: voltron_registry, specialist_configs, mdj_specialist_configs)</li>
+        <li>Consolidate existing VOLTRON/MDJ discovery docs → canonical reference</li>
+        <li>Verify 723 registry entries are complete and current</li>
+        <li>Tag each registry entry with its Lion domain (medicare / annuity / investment / life-estate / legacy-ltc)</li>
+      </ul>
+
+      <h3>3. Build soul.md + spirit.md</h3>
+      <p>VOLTRON needs identity documents the same way every Dojo warrior does. These live at <code>~/Projects/dojo-warriors/voltron/</code>.</p>
+      <ul>
+        <li><code>soul.md</code> — Who VOLTRON is. CSO identity. The Consumption Principle. Icon. Color. Non-negotiables.</li>
+        <li><code>spirit.md</code> — How VOLTRON operates. Routing rules. Wire execution protocols. AEP blackout enforcement. Golden Rule: "If you didn't READ IT, don't REPORT IT."</li>
+      </ul>
+
+      <h3>4. Consolidated Backlog</h3>
+      <ul>
+        <li>Audit all open VOLTRON/MDJ/QUE tickets — consolidate into single prioritized backlog</li>
+        <li>Tag by track (CONSUME / OPERATE / DEVOUR)</li>
+        <li>Identify RONIN-ready tickets (scope clear, no business decisions needed)</li>
+      </ul>
+
+      <div class="deliverable-box">
+        <div class="label">Track 1 Deliverable</div>
+        <p>Command Center App scaffold + QUE formally branded as VOLTRON's registry + soul.md + spirit.md + consolidated backlog ready for FORGE</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 5: OPERATE -->
+  <div id="operate" class="panel">
+    <div class="track-card operate">
+      <div class="track-label operate">Track 2</div>
+      <div class="track-title">OPERATE — Build Lions, Run Cases, Open Intakes</div>
+      <p style="color: var(--text-muted); margin-bottom: 16px;">CONSUME laid the foundation. OPERATE puts Lions on the field. This is when VOLTRON stops being a chat interface and starts running client outcomes at scale.</p>
+    </div>
+
+    <div class="card">
+      <h2>Track 2 Workstreams</h2>
+
+      <h3>1. Build 5 CCSDK Lion Agents</h3>
+      <p>Each Lion is a Haiku-class CCSDK agent with product-specific prompts, QUE wire configs, and domain knowledge. Build order: Medicare (highest volume) → Annuity → Investment → Life/Estate → Legacy/LTC.</p>
+      <table>
+        <tr><th>Lion</th><th>CCSDK Config</th><th>Primary Wire</th><th>Build Priority</th></tr>
+        <tr><td>🦁 Medicare Lion</td><td>medicare-lion.ts</td><td>AEP_ENROLLMENT</td><td>1 — Highest volume</td></tr>
+        <tr><td>🦁 Annuity Lion</td><td>annuity-lion.ts</td><td>WIRE_INCOME_NOW/LATER</td><td>2 — Core revenue</td></tr>
+        <tr><td>🦁 Investment Lion</td><td>investment-lion.ts</td><td>WIRE_GROWTH_MAX</td><td>3 — Gradient RIA/BD</td></tr>
+        <tr><td>🦁 Life/Estate Lion</td><td>life-estate-lion.ts</td><td>WIRE_ESTATE_MAX</td><td>4 — After expansion</td></tr>
+        <tr><td>🦁 Legacy/LTC Lion</td><td>legacy-ltc-lion.ts</td><td>WIRE_LTC_MAX</td><td>5 — Final build</td></tr>
+      </table>
+
+      <h3>2. Case Pipeline by Product Type</h3>
+      <p>Track client cases from intake to resolution, organized by Lion domain. Each case has: client, product type, wire executed, outcome, agent assigned, status.</p>
+      <ul>
+        <li>Firestore collection: <code>voltron_cases</code></li>
+        <li>Case status: intake → wire_running → output_ready → agent_review → resolved</li>
+        <li>Command Center surfaces open cases per Lion domain</li>
+        <li>Case intake auto-creates from wire execution (not manual entry)</li>
+      </ul>
+
+      <h3>3. Intake Channels</h3>
+      <p>VOLTRON needs to receive client work from multiple entry points:</p>
+      <div class="spec-grid">
+        <div class="spec-card green">
+          <h4>MDJ Panel</h4>
+          <p>Primary chat interface. Agent describes client situation → VOLTRON routes → Lion executes wire → output returned to chat.</p>
+        </div>
+        <div class="spec-card blue">
+          <h4>Slack</h4>
+          <p>Team drops a client name + scenario in #voltron channel → VOLTRON picks up → runs wire → posts output back.</p>
+        </div>
+        <div class="spec-card gold">
+          <h4>Email</h4>
+          <p>Forwarded client email → VOLTRON parses → identifies product type → routes to Lion → drafts response.</p>
+        </div>
+        <div class="spec-card mecha">
+          <h4>Manual Trigger</h4>
+          <p>Command Center "Run Wire" button → select client + wire → Lion executes → case created.</p>
+        </div>
+      </div>
+
+      <h3>4. Client Outcome Tracking</h3>
+      <p>Did the wire produce the right result? This closes the loop on every Lion execution:</p>
+      <ul>
+        <li>Wire output logged to case record</li>
+        <li>Agent marks outcome: accepted / revised / escalated</li>
+        <li>Revision notes feed back to QUE tool improvement backlog</li>
+        <li>VOLTRON CXO dashboard: outcome rate by Lion, by wire, by product type</li>
+      </ul>
+
+      <h3>5. CXO Self-Sufficiency</h3>
+      <p>VOLTRON as CSO should not require a FORGE sprint to add new capabilities in his domain. He needs:</p>
+      <ul>
+        <li>Ability to deploy Lions from the Command Center (no code deploy required)</li>
+        <li>Discovery Doc writing capability — VOLTRON can scope his own FORGE tickets</li>
+        <li>Lion config UI — update wire assignments, prompts, routing rules without engineering</li>
+      </ul>
+
+      <div class="deliverable-box">
+        <div class="label">Track 2 Deliverable</div>
+        <p>5 live Lions + case pipeline in Firestore + 4 intake channels active + client outcome tracking + VOLTRON self-sufficient as CSO</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 6: DEVOUR -->
+  <div id="devour" class="panel">
+    <div class="track-card devour">
+      <div class="track-label devour">Track 3</div>
+      <div class="track-title">DEVOUR — Full Coverage, Accuracy, Lions at Scale</div>
+      <p style="color: var(--text-muted); margin-bottom: 16px;">CONSUME consolidated. OPERATE activated. DEVOUR is when VOLTRON goes fully proactive — Lions running before meetings, alerts firing before deadlines, and every QUE calculation verified for accuracy at scale.</p>
+    </div>
+
+    <div class="card">
+      <h2>Track 3 Workstreams</h2>
+
+      <h3>1. Full Product Coverage Audit</h3>
+      <p>Which products have complete wire coverage? Which have gaps? Systematic audit across all 5 Lion domains:</p>
+      <table>
+        <tr><th>Domain</th><th>Current Coverage</th><th>Gap Areas</th></tr>
+        <tr><td>Medicare</td><td>MAPD, AEP, IRMAA</td><td>Supplement plan comparisons, Part B/D late enrollment penalties</td></tr>
+        <tr><td>Annuity</td><td>FIA, MYGA, income riders</td><td>Variable annuity sub-account analysis, joint life riders</td></tr>
+        <tr><td>Investment</td><td>Tax harvest, RMD, RIA/BD</td><td>Alternative investments, factor-based strategies</td></tr>
+        <tr><td>Life/Estate</td><td>Basic estate wire</td><td>Carrier-specific illustrations, IUL performance tracking</td></tr>
+        <tr><td>Legacy/LTC</td><td>LTC phase access</td><td>Hybrid LTC products, claim filing workflow</td></tr>
+      </table>
+
+      <h3>2. QUE Tools Accuracy Audit</h3>
+      <p>Are the calculations correct? Are tax brackets current? This is the trust layer — if VOLTRON's numbers are wrong, the CSO title means nothing.</p>
+      <ul>
+        <li>Federal and state tax brackets: verify against current IRS publication</li>
+        <li>IRMAA brackets: verify against current CMS announcement</li>
+        <li>IRS Uniform Lifetime Table factors: verify against current IRS Publication 590-B</li>
+        <li>Carrier product data: verify surrender schedules and crediting rates are current</li>
+        <li>FYC rates: verify against current Gradient carrier agreements</li>
+      </ul>
+      <div class="callout gold">
+        <p><strong>Golden Rule applies here too:</strong> VOLTRON's Anti-Hallucination Rule — "If you didn't READ IT, don't REPORT IT." QUE tools must read current data, not use cached or hardcoded values that may have changed.</p>
+      </div>
+
+      <h3>3. AEP Preparation</h3>
+      <p>AEP (Oct 1 – Dec 7) is the highest-stakes period for Medicare. VOLTRON must be ready:</p>
+      <ul>
+        <li>AEP blackout enforcement: WIRE_AEP_ENROLLMENT blocked outside window</li>
+        <li>AEP_ENROLLMENT wire fully tested before Oct 1 each year</li>
+        <li>Campaign coordination with MUSASHI — VOLTRON needs marketing materials ready</li>
+        <li>Medicare Lion at full capacity before AEP opens</li>
+        <li>Humana + Aetna carrier APIs verified (healthcare MCPs already configured)</li>
+      </ul>
+
+      <h3>4. E2E Tests for QUE Wire Accuracy</h3>
+      <p>QUE wire accuracy needs automated verification — not just type-check, but actual output validation:</p>
+      <ul>
+        <li>Known-good client scenario → run wire → verify output matches expected result</li>
+        <li>RMD calculation: test client with known age, balance, prior RMD → verify factor and amount</li>
+        <li>IRMAA: test MAGI at each bracket boundary → verify correct surcharge</li>
+        <li>FIA projection: test at floor/cap with known index performance → verify crediting</li>
+        <li>Runs as part of <code>e2e-intake</code> suite (Vitest, post-deploy verification)</li>
+      </ul>
+
+      <h3>5. Lions at Scale — Proactive Operations</h3>
+      <p>This is the CSO end state: Lions running proactively, not just reactively:</p>
+      <div class="spec-grid">
+        <div class="spec-card gold">
+          <h4>Review Prep — Before Meetings</h4>
+          <p>ANNUAL_REVIEW wire fires automatically 48 hours before every scheduled review meeting. VOLTRON preps the agent before they have to ask.</p>
+        </div>
+        <div class="spec-card green">
+          <h4>RMD Alerts — Before Deadlines</h4>
+          <p>Medicare Lion monitors for Dec 31 RMD deadlines. Alerts go to agent + client via SMS 30 days out.</p>
+        </div>
+        <div class="spec-card blue">
+          <h4>AEP Triggers — Season Start</h4>
+          <p>Oct 1 fires Medicare Lion for every eligible Medicare client. Coverage gap analysis + plan comparison ready before agents make calls.</p>
+        </div>
+        <div class="spec-card mecha">
+          <h4>1035 Opportunities — Ongoing</h4>
+          <p>Annuity Lion monitors surrender charge schedules. When a client exits their surrender period, Lion flags the 1035 opportunity to the agent automatically.</p>
+        </div>
+      </div>
+
+      <div class="deliverable-box">
+        <div class="label">Track 3 Deliverable</div>
+        <p>Full QUE product coverage + accuracy-verified calculations + Lions running proactively + E2E test suite for wire accuracy + AEP-ready for Oct 1</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 7: CSO GRID -->
+  <div id="cso-grid" class="panel">
+    <div class="card">
+      <h2>CSO Weekly Grid</h2>
+      <p>Walk this weekly with JDM.</p>
+      <div class="callout green">
+        <p><strong>The rule:</strong> Reactive comes first. When fires are out, pick up the proactive rhythm. No drift.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Table 1: QUE Tools Layer</h2>
+      <table>
+        <tr><th>Domain</th><th>Status</th><th>Reactive</th><th>Proactive Next</th></tr>
+        <tr>
+          <td><strong>Medicare Lion</strong></td>
+          <td><span class="pill live">LIVE</span></td>
+          <td>Check: any misquotes? Carrier data stale?</td>
+          <td>SERFF data load <span class="pill hold">PARKED</span> — waiting on CSG data + MEGAZORD BigQuery path</td>
+        </tr>
+        <tr>
+          <td><strong>Annuity Lion</strong></td>
+          <td><span class="pill live">LIVE</span></td>
+          <td>Check: surrender schedules current?</td>
+          <td>Joint life rider analysis (DEVOUR gap)</td>
+        </tr>
+        <tr>
+          <td><strong>Investment Lion</strong></td>
+          <td><span class="pill live">LIVE</span></td>
+          <td>Check: tax brackets for 2026?</td>
+          <td>Alternative investment tools (DEVOUR gap)</td>
+        </tr>
+        <tr>
+          <td><strong>Life/Estate Lion</strong></td>
+          <td><span class="pill next">BUILDING</span></td>
+          <td>RONIN building Life &amp; Estate Wire Expansion NOW</td>
+          <td>4 wires + 13 tools + 5 super tools (ETA: today)</td>
+        </tr>
+        <tr>
+          <td><strong>Legacy/LTC Lion</strong></td>
+          <td><span class="pill live">LIVE</span></td>
+          <td>Check: hybrid LTC products coverage?</td>
+          <td>Claim filing workflow (DEVOUR gap)</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Table 2: CXO Track Status</h2>
+      <table>
+        <tr><th>Track</th><th>Status</th><th>Gap</th><th>Next Action</th></tr>
+        <tr>
+          <td><strong>CONSUME</strong></td>
+          <td><span class="pill live">DONE</span></td>
+          <td>None</td>
+          <td>Maintenance only</td>
+        </tr>
+        <tr>
+          <td><strong>OPERATE</strong></td>
+          <td><span class="pill next">PARTIAL</span></td>
+          <td>4 tickets missing (O12, O15–O17)</td>
+          <td>Scope and build remaining tickets</td>
+        </tr>
+        <tr>
+          <td><strong>DEVOUR</strong></td>
+          <td><span class="pill plan">NOT STARTED</span></td>
+          <td>0/17 tickets</td>
+          <td>Scope after Life Wire lands</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Table 3: Active Builds</h2>
+      <table>
+        <tr><th>Item</th><th>Builder</th><th>Status</th><th>ETA</th></tr>
+        <tr>
+          <td><strong>Life &amp; Estate Wire Expansion</strong></td>
+          <td>RONIN (3 parallel tracks)</td>
+          <td><span class="pill next">BUILDING</span></td>
+          <td>Today — SHINOB1 audits before merge</td>
+        </tr>
+        <tr>
+          <td><strong>WireExecutionLog URL fix</strong></td>
+          <td>VOLTRON</td>
+          <td><span class="pill live">LANDED</span></td>
+          <td>Done — PR #277 — <code>66fadec</code></td>
+        </tr>
+        <tr>
+          <td><strong>CommandCenter auth fix</strong></td>
+          <td>VOLTRON</td>
+          <td><span class="pill live">LANDED</span></td>
+          <td>Done — PR #275 — <code>f3d8fa5</code></td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Table 4: Cases Pipeline</h2>
+      <table>
+        <tr><th>Component</th><th>Status</th><th>Notes</th></tr>
+        <tr>
+          <td><strong>Wire execution infrastructure</strong></td>
+          <td><span class="pill live">LIVE</span></td>
+          <td>10 wires, expanding to 14</td>
+        </tr>
+        <tr>
+          <td><strong>CommandCenter 6 tabs</strong></td>
+          <td><span class="pill live">LIVE</span></td>
+          <td>Auth fixed, Wire Log URL fixed</td>
+        </tr>
+        <tr>
+          <td><strong>MDJ Panel</strong></td>
+          <td><span class="pill live">LIVE</span></td>
+          <td>Team-facing, all 3 portals</td>
+        </tr>
+        <tr>
+          <td><strong>Case intake channels</strong></td>
+          <td><span class="pill live">LIVE</span></td>
+          <td>Slack, MDJ Panel, API, manual</td>
+        </tr>
+        <tr>
+          <td><strong>JDM's cases</strong></td>
+          <td><span class="pill next">READY TO RECEIVE</span></td>
+          <td>Awaiting case data from Sensei</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- TAB 8: SALES -->
+  <div id="sales" class="panel">
+    <div class="card">
+      <h2>SALES — CSO Revenue Operations</h2>
+      <p>The CSO owns the sales tools. ProZONE and RSP are VOLTRON's weapons for the sales team.</p>
+    </div>
+
+    <div class="card">
+      <h2>Sales Modules</h2>
+      <table>
+        <tr><th>Module</th><th>Status</th><th>What It Does</th><th>Reactive</th><th>Proactive Next</th></tr>
+        <tr>
+          <td><strong>ProZONE</strong></td>
+          <td><span class="pill next">SCAFFOLDED</span></td>
+          <td>Territory management — 5 tabs: Team, Market, Target, Flow, Inventory</td>
+          <td>Not live — no bugs yet</td>
+          <td>Wire to territory/specialist data. Needs discovery doc.</td>
+        </tr>
+        <tr>
+          <td><strong>RSP Pipeline</strong></td>
+          <td><span class="pill live">LIVE</span></td>
+          <td>Flow Engine pipeline for new business</td>
+          <td>Check: any stuck instances?</td>
+          <td>Add Lion-triggered auto-staging</td>
+        </tr>
+        <tr>
+          <td><strong>QUE Workbench</strong></td>
+          <td><span class="pill live">LIVE</span></td>
+          <td>Quote engine — Medicare, Life, Annuity adapters</td>
+          <td>Check: LifeQuoteForm working?</td>
+          <td>Wire to VOLTRON Lions for auto-routing</td>
+        </tr>
+        <tr>
+          <td><strong>Sales Centers</strong></td>
+          <td><span class="pill live">LIVE</span></td>
+          <td>QUE modules surfaced as ProDash views</td>
+          <td>Check: Medicare/Life/Annuity/Advisory rendering?</td>
+          <td>Add Investment Sales Center</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="callout" style="margin: 0 0 20px;">
+      <p><strong>ProZONE is the biggest sales gap.</strong> The scaffold exists (5 tabs) but it's dead — no data, no wiring. Sprint 12 priority.</p>
+    </div>
+  </div>
+
+  <!-- TAB 9: SERVICE -->
+  <div id="service" class="panel">
+    <div class="card">
+      <h2>SERVICE — CSO Client Retention Operations</h2>
+      <p>Service modules that VOLTRON's Lions monitor for proactive alerts.</p>
+    </div>
+
+    <div class="card">
+      <h2>Service Modules</h2>
+      <table>
+        <tr><th>Module</th><th>Status</th><th>What It Does</th><th>Reactive</th><th>Proactive Next</th></tr>
+        <tr>
+          <td><strong>RMD Center</strong></td>
+          <td><span class="pill live">LIVE</span></td>
+          <td>Required Minimum Distribution tracking + notifications</td>
+          <td>Check: Dec 31 deadlines approaching? Any missed RMDs?</td>
+          <td>Lion-triggered auto-alerts 30 days before deadline</td>
+        </tr>
+        <tr>
+          <td><strong>Beni Center</strong></td>
+          <td><span class="pill live">LIVE</span></td>
+          <td>Beneficiary management + review scheduling</td>
+          <td>Check: any stale beneficiary records?</td>
+          <td>Annual beni review wire — Lions flag outdated designations</td>
+        </tr>
+        <tr>
+          <td><strong>Access Center</strong></td>
+          <td><span class="pill live">LIVE</span></td>
+          <td>Client portal/API access credentials</td>
+          <td>Check: any expired access items?</td>
+          <td>Auto-generate on new account creation</td>
+        </tr>
+        <tr>
+          <td><strong>Casework Module</strong></td>
+          <td><span class="pill live">LIVE</span></td>
+          <td>Open cases + case review pipeline</td>
+          <td>Check: any stale open cases?</td>
+          <td>Wire to Command Center open cases panel</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="callout blue" style="margin: 0 0 20px;">
+      <p><strong>RMD Center and Beni Center are live and functional but not yet wired into the Lion proactive alert system.</strong> That's DEVOUR Track 3 work — Lions at Scale.</p>
+    </div>
+  </div>
+
+  <!-- TAB: A.P.P.A. MATURITY -->
+  <div id="appa" class="panel">
+    <div class="card">
+      <h2>A.P.P.A. Maturity Map &mdash; VOLTRON CSO Domain</h2>
+      <p>Where every scope sits on the A.P.P.A. scale. Honest assessment. Updated 2026-04-09.</p>
+      <div class="callout">
+        <p><strong>The Rule:</strong> You can&rsquo;t automate what you haven&rsquo;t done by hand enough times to see the pattern. Each stage earns the next. Skip a stage, the whole thing breaks.</p>
+      </div>
+    </div>
+
+    <!-- What APPA means for CSO — corrected per JDM -->
+    <div class="card">
+      <h3>What Each Stage Means for VOLTRON</h3>
+      <p style="margin-bottom:16px">Each stage has a <strong>front</strong> (starting) and a <strong>back</strong> (completing). The back of one stage is the front of the next. Weekly review question for each scope: <strong>where are we, and what does JDM / the AI team / the IRL team need to do to move it forward?</strong></p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin:16px 0">
+        <div style="background:var(--card2);border:1px solid var(--border);border-top:3px solid var(--red);border-radius:8px;padding:16px">
+          <div style="font-size:0.78rem;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Doing the Work</div>
+          <div style="font-size:0.65rem;color:var(--muted);margin-bottom:8px;font-style:italic">A.P.P.A. Stage: Activity</div>
+          <p style="font-size:0.78rem;color:var(--muted);margin:0"><strong style="color:var(--text)">Front (0%):</strong> Zero reps. Haven&rsquo;t done this work yet &mdash; not by hand, not by tool, not at all.</p>
+          <p style="font-size:0.78rem;color:var(--muted);margin:6px 0 0"><strong style="color:var(--text)">Back (100%):</strong> Done enough reps that the patterns are clear. You know what needs to be built because you&rsquo;ve done the work without it.</p>
+          <p style="font-size:0.72rem;color:var(--red);margin:10px 0 0;font-weight:600">Who moves it: JDM + VOLTRON doing real cases together.</p>
+        </div>
+        <div style="background:var(--card2);border:1px solid var(--border);border-top:3px solid var(--orange);border-radius:8px;padding:16px">
+          <div style="font-size:0.78rem;font-weight:700;color:var(--orange);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Atomic Tools + Super Tools</div>
+          <div style="font-size:0.65rem;color:var(--muted);margin-bottom:8px;font-style:italic">A.P.P.A. Stage: Process / Tools</div>
+          <p style="font-size:0.78rem;color:var(--muted);margin:0"><strong style="color:var(--text)">Front (0%):</strong> Starting to codify what we learned into QUE calc tools, lookup tools, super tools. The building blocks.</p>
+          <p style="font-size:0.78rem;color:var(--muted);margin:6px 0 0"><strong style="color:var(--text)">Back (100%):</strong> Tools built, validated against real data, producing correct output. Ready for the Apps/Modules to use them.</p>
+          <p style="font-size:0.72rem;color:var(--orange);margin:10px 0 0;font-weight:600">Who moves it: AI team (RONIN builds, VOLTRON verifies, SHINOB1 audits).</p>
+        </div>
+        <div style="background:var(--card2);border:1px solid var(--border);border-top:3px solid var(--blue);border-radius:8px;padding:16px">
+          <div style="font-size:0.78rem;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Apps + Modules</div>
+          <div style="font-size:0.65rem;color:var(--muted);margin-bottom:8px;font-style:italic">A.P.P.A. Stage: People / Systems</div>
+          <p style="font-size:0.78rem;color:var(--muted);margin:0"><strong style="color:var(--text)">Front (0%):</strong> App or module being built that uses the tools. UI scaffold, API routes, Firestore wiring. The Lions being developed to operate through these surfaces.</p>
+          <p style="font-size:0.78rem;color:var(--muted);margin:6px 0 0"><strong style="color:var(--text)">Back (100%):</strong> App/module live, Lions can operate through it, producing correct results from the tools underneath. The system works.</p>
+          <p style="font-size:0.72rem;color:var(--blue);margin:10px 0 0;font-weight:600">Who moves it: AI team (RONIN builds) + IRL team (validates by using it).</p>
+        </div>
+        <div style="background:var(--card2);border:1px solid var(--border);border-top:3px solid var(--green);border-radius:8px;padding:16px">
+          <div style="font-size:0.78rem;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Lions + Wires</div>
+          <div style="font-size:0.65rem;color:var(--muted);margin-bottom:8px;font-style:italic">A.P.P.A. Stage: Automation</div>
+          <p style="font-size:0.78rem;color:var(--muted);margin:0"><strong style="color:var(--text)">Front (0%):</strong> Lions executing wires through the apps but VOLTRON still supervising every step.</p>
+          <p style="font-size:0.78rem;color:var(--muted);margin:6px 0 0"><strong style="color:var(--text)">Back (100%):</strong> Proven end-to-end. SHINOB1 asks &ldquo;what&rsquo;s up with these 5 things?&rdquo; &mdash; VOLTRON dispatches Lions, Lions use the apps, wires run the tools, results come back, VOLTRON reports. Nobody touched anything.</p>
+          <p style="font-size:0.72rem;color:var(--green);margin:10px 0 0;font-weight:600">Who moves it: VOLTRON + Lions operating. JDM validates output quality.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="card">
+      <h3>How to Read the Bars</h3>
+      <div style="display:flex;gap:20px;flex-wrap:wrap;margin:12px 0">
+        <div style="display:flex;align-items:center;gap:8px"><div style="width:40px;height:16px;border-radius:3px;background:var(--orange)"></div><span style="font-size:0.78rem;color:var(--text);font-weight:600">Solid = Confirmed through real use</span></div>
+        <div style="display:flex;align-items:center;gap:8px"><div style="width:40px;height:16px;border-radius:3px;background:var(--orange);opacity:0.25"></div><span style="font-size:0.78rem;color:var(--muted);font-weight:600">Dim = Built but not yet confirmed</span></div>
+        <div style="display:flex;align-items:center;gap:8px"><div style="width:40px;height:16px;border-radius:3px;background:var(--card2);border:1px solid var(--border)"></div><span style="font-size:0.78rem;color:var(--muted)">Empty = Not started</span></div>
+      </div>
+    </div>
+
+    <!-- APPA Visual Grid — Built (dim) vs Confirmed (solid) -->
+    <div class="card">
+      <h3>Maturity Grid</h3>
+      <div style="margin:20px 0">
+
+        <!-- Header row -->
+        <div style="display:grid;grid-template-columns:200px 1fr;gap:0;margin-bottom:8px">
+          <div></div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:2px;text-align:center">
+            <div style="font-size:0.6rem;color:var(--red);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;padding:4px;line-height:1.3">Doing<br>the Work</div>
+            <div style="font-size:0.6rem;color:var(--orange);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;padding:4px;line-height:1.3">Atomic +<br>Super Tools</div>
+            <div style="font-size:0.6rem;color:var(--blue);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;padding:4px;line-height:1.3">Apps +<br>Modules</div>
+            <div style="font-size:0.6rem;color:var(--green);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;padding:4px;line-height:1.3">Lions +<br>Wires</div>
+          </div>
+        </div>
+
+        <!-- QUE Registry -->
+        <div style="display:grid;grid-template-columns:200px 1fr;gap:0;margin-bottom:6px;align-items:center">
+          <div style="font-size:0.78rem;font-weight:600;color:var(--text);padding-right:12px">QUE Registry</div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:2px;height:28px">
+            <div style="background:var(--red);opacity:0.2;border-radius:4px 0 0 4px" title="Doing the Work: Ruth was first case — patterns barely started"></div>
+            <div style="background:var(--orange);opacity:0.2;border-radius:0" title="Tools: 80 entries built (25 calc, 13 lookup, 5 gen, 14 super, 14 wire) — not validated against real data"></div>
+            <div style="background:var(--blue);opacity:0.2;border-radius:0" title="Apps: Command Center Registry Browser built, renders entries"></div>
+            <div style="background:var(--green);opacity:0.2;border-radius:0 4px 4px 0" title="Lions: 14 wires defined, Lions configured to use them — never executed"></div>
+          </div>
+        </div>
+
+        <!-- Command Center -->
+        <div style="display:grid;grid-template-columns:200px 1fr;gap:0;margin-bottom:6px;align-items:center">
+          <div style="font-size:0.78rem;font-weight:600;color:var(--text);padding-right:12px">VOLTRON App</div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:2px;height:28px">
+            <div style="background:linear-gradient(90deg,var(--red) 30%,rgba(239,68,68,0.2) 30%);border-radius:4px 0 0 4px" title="Doing the Work: JDM looked at it today — 30% solid. Nobody using daily yet."></div>
+            <div style="background:var(--orange);opacity:0.2;border-radius:0" title="Tools: QUE tools underneath all built"></div>
+            <div style="background:var(--blue);opacity:0.2;border-radius:0" title="Apps: 6 tabs built and rendering (after role fix)"></div>
+            <div style="background:var(--card2);border-radius:0 4px 4px 0"></div>
+          </div>
+        </div>
+
+        <!-- Cases Pipeline -->
+        <div style="display:grid;grid-template-columns:200px 1fr;gap:0;margin-bottom:6px;align-items:center">
+          <div style="font-size:0.78rem;font-weight:600;color:var(--text);padding-right:12px">Cases Pipeline</div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:2px;height:28px">
+            <div style="background:linear-gradient(90deg,var(--red) 10%,rgba(239,68,68,0.2) 10%);border-radius:4px 0 0 4px" title="Doing the Work: 1 case (Ruth) — 10% solid. Need 9 more."></div>
+            <div style="background:var(--orange);opacity:0.2;border-radius:0" title="Tools: import routes, intake queue, Correspondence Ranger built"></div>
+            <div style="background:var(--blue);opacity:0.2;border-radius:0" title="Apps: Open Cases tab, account detail pages, ACF built"></div>
+            <div style="background:var(--card2);border-radius:0 4px 4px 0"></div>
+          </div>
+        </div>
+
+        <!-- Lions Mesh -->
+        <div style="display:grid;grid-template-columns:200px 1fr;gap:0;margin-bottom:6px;align-items:center">
+          <div style="font-size:0.78rem;font-weight:600;color:var(--text);padding-right:12px">Lions Mesh</div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:2px;height:28px">
+            <div style="background:var(--card2);border-radius:4px 0 0 4px" title="Doing the Work: zero real queries handled by Lions"></div>
+            <div style="background:var(--orange);opacity:0.2;border-radius:0" title="Tools: routing keywords, specialist configs in Firestore"></div>
+            <div style="background:var(--blue);opacity:0.2;border-radius:0" title="Apps: MDJ Panel built in all 3 portals, CCSDK agent running on 4200"></div>
+            <div style="background:var(--green);opacity:0.2;border-radius:0 4px 4px 0" title="Lions: 5 Lions configured, domain routing set — never dispatched a real query"></div>
+          </div>
+        </div>
+
+        <!-- ProZONE -->
+        <div style="display:grid;grid-template-columns:200px 1fr;gap:0;margin-bottom:6px;align-items:center">
+          <div style="font-size:0.78rem;font-weight:600;color:var(--text);padding-right:12px">ProZONE</div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:2px;height:28px">
+            <div style="background:var(--card2);border-radius:4px 0 0 4px" title="Doing the Work: not started"></div>
+            <div style="background:var(--card2);border-radius:0" title="Tools: none built"></div>
+            <div style="background:var(--blue);opacity:0.15;border-radius:0" title="Apps: UI scaffold (5 tabs) — no data or wiring"></div>
+            <div style="background:var(--card2);border-radius:0 4px 4px 0"></div>
+          </div>
+        </div>
+
+        <!-- RSP Pipeline -->
+        <div style="display:grid;grid-template-columns:200px 1fr;gap:0;margin-bottom:6px;align-items:center">
+          <div style="font-size:0.78rem;font-weight:600;color:var(--text);padding-right:12px">RSP Pipeline</div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:2px;height:28px">
+            <div style="background:var(--red);opacity:0.2;border-radius:4px 0 0 4px" title="Doing the Work: pipeline work done in old system — not confirmed in ProDash"></div>
+            <div style="background:var(--orange);opacity:0.2;border-radius:0" title="Tools: Flow Engine tools built"></div>
+            <div style="background:var(--blue);opacity:0.2;border-radius:0" title="Apps: app + API routes built, wired to Flow Engine, live on main"></div>
+            <div style="background:var(--card2);border-radius:0 4px 4px 0"></div>
+          </div>
+        </div>
+
+        <!-- RMD Center -->
+        <div style="display:grid;grid-template-columns:200px 1fr;gap:0;margin-bottom:6px;align-items:center">
+          <div style="font-size:0.78rem;font-weight:600;color:var(--text);padding-right:12px">RMD Center</div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:2px;height:28px">
+            <div style="background:var(--red);opacity:0.2;border-radius:4px 0 0 4px" title="Doing the Work: RMD tracking done manually — not through this tool"></div>
+            <div style="background:var(--orange);opacity:0.2;border-radius:0" title="Tools: calc-rmd tool built"></div>
+            <div style="background:var(--blue);opacity:0.2;border-radius:0" title="Apps: module built, live in ProDash — nobody has used it"></div>
+            <div style="background:var(--card2);border-radius:0 4px 4px 0"></div>
+          </div>
+        </div>
+
+        <!-- Beni Center -->
+        <div style="display:grid;grid-template-columns:200px 1fr;gap:0;margin-bottom:6px;align-items:center">
+          <div style="font-size:0.78rem;font-weight:600;color:var(--text);padding-right:12px">Beni Center</div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:2px;height:28px">
+            <div style="background:var(--red);opacity:0.2;border-radius:4px 0 0 4px" title="Doing the Work: beni reviews done manually — not through this tool"></div>
+            <div style="background:var(--orange);opacity:0.2;border-radius:0" title="Tools: beni tracking tools built"></div>
+            <div style="background:var(--blue);opacity:0.2;border-radius:0" title="Apps: module built, live — Ruth had 13 accounts with no beni, tool didn't catch it"></div>
+            <div style="background:var(--card2);border-radius:0 4px 4px 0"></div>
+          </div>
+        </div>
+
+        <!-- SERFF / Medicare Quoting -->
+        <div style="display:grid;grid-template-columns:200px 1fr;gap:0;margin-bottom:6px;align-items:center">
+          <div style="font-size:0.78rem;font-weight:600;color:var(--text);padding-right:12px">SERFF / Med Quoting</div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:2px;height:28px">
+            <div style="background:linear-gradient(90deg,var(--red) 15%,rgba(239,68,68,0.2) 15%);border-radius:4px 0 0 4px" title="Doing the Work: data loaded to BigQuery (15% solid) — never queried for a real client"></div>
+            <div style="background:var(--orange);opacity:0.2;border-radius:0" title="Tools: loader script, CSG API route, carrier mapping — built"></div>
+            <div style="background:var(--card2);border-radius:0" title="Apps: no quoting UI built yet"></div>
+            <div style="background:var(--card2);border-radius:0 4px 4px 0"></div>
+          </div>
+        </div>
+
+        <!-- Correspondence Ranger removed — MEGAZORD's domain, not VOLTRON's -->
+
+        <!-- Life & Estate Wires -->
+        <div style="display:grid;grid-template-columns:200px 1fr;gap:0;margin-bottom:6px;align-items:center">
+          <div style="font-size:0.78rem;font-weight:600;color:var(--text);padding-right:12px">Life &amp; Estate Wires</div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:2px;height:28px">
+            <div style="background:var(--card2);border-radius:4px 0 0 4px" title="Doing the Work: zero executions against real data"></div>
+            <div style="background:var(--orange);opacity:0.2;border-radius:0" title="Tools: 13 atomic + 5 super tools built, templates resolved"></div>
+            <div style="background:var(--card2);border-radius:0" title="Apps: Run Wire tab exists but never used for life wires"></div>
+            <div style="background:var(--green);opacity:0.2;border-radius:0 4px 4px 0" title="Lions: 4 wires defined, Life/Estate Lion configured — never executed"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Detail Cards -->
+    <div class="card">
+      <h3>Detail by Scope</h3>
+
+      <div class="flag red">
+        <div class="title">Cases Pipeline — Stage 1: ACTIVITY (10%)</div>
+        <p>Ruth was the first real case. Exposed every gap: wrong field names, deleted valid data, didn't use the Ranger pipeline, no Banking category. Every one of those discoveries came from doing the work.</p>
+        <p><strong>Next:</strong> 5-10 more real cases. Do them by hand. Document what works before fixing code.</p>
+      </div>
+
+      <div class="flag red">
+        <div class="title">VOLTRON App — Stage 1: ACTIVITY (40%)</div>
+        <p>Tabs render. Data loads (after role fix). But nobody has used it for daily operations. No wires executed through the UI. No cases reviewed. No Lions dispatched from the panel.</p>
+        <p><strong>Next:</strong> JDM + Archer use Command Center for the next 5 cases instead of working around it.</p>
+      </div>
+
+      <div class="flag red">
+        <div class="title">SERFF / Medicare Quoting — Stage 1: ACTIVITY (30%)</div>
+        <p>1.58M rows in BigQuery. Never queried for a real client. Nobody has pulled a live Med Supp quote through the system. The data is there but the Activity hasn't started.</p>
+        <p><strong>Next:</strong> Pull one real Iowa Med Supp quote by hand through BigQuery. See what the data looks like for a real 71-year-old.</p>
+      </div>
+
+      <div class="flag red">
+        <div class="title">ProZONE — NOT STARTED</div>
+        <p>UI scaffold exists (5 tabs). Zero data. Zero wiring. The Activity of territory management is happening in spreadsheets and heads. Sprint 12.</p>
+        <p><strong>Next:</strong> Don't build ProZONE until the team is doing territory management with enough volume to see the patterns.</p>
+      </div>
+
+      <div class="flag orange">
+        <div class="title">QUE Registry — Stage 2: PROCESS (60%)</div>
+        <p>80 entries registered. Tools, super tools, wires all coded. But they were built from spec, not from Activity. Today's case proved the tools exist but haven't been validated against real data.</p>
+        <p><strong>Next:</strong> Run every QUE wire against the Ruth household. See what the output actually looks like. Fix from output, not from code review.</p>
+      </div>
+
+      <div class="flag orange">
+        <div class="title">Lions Mesh — Stage 2: PROCESS (50%)</div>
+        <p>5 Lions configured. Routing keywords set. CCSDK agent running. But zero real queries handled. The Lions are process on paper, not process from experience.</p>
+        <p><strong>Next:</strong> Stage 1 first. A real team member asks a real question through the MDJ Panel. See what happens.</p>
+      </div>
+
+      <!-- Correspondence Ranger removed — MEGAZORD's domain -->
+
+      <div class="flag orange">
+        <div class="title">Life & Estate Wires — Stage 2: PROCESS (90%)</div>
+        <p>80 registry entries. 4 wires. Template contracts resolved. But zero executions against real data. Templates have never rendered a real client's information.</p>
+        <p><strong>Next:</strong> Run WIRE_LIFE_PRESENTATION against Ruth. See the output. Fix from there.</p>
+      </div>
+
+      <div class="flag orange">
+        <div class="title">RSP Pipeline &mdash; Stage 2: PROCESS/TOOLS (built, not confirmed)</div>
+        <p>Live on main. Wired to Flow Engine. But JDM confirms: nobody has used it successfully. The tool exists but the Activity of using it hasn&rsquo;t happened yet. Can&rsquo;t confirm Process works until someone runs a real pipeline through it.</p>
+        <p><strong>Next:</strong> Stage 1 first. Use the RSP Pipeline on a real new business case. Confirm it works. Then it earns the solid bar.</p>
+      </div>
+
+      <div class="flag orange">
+        <div class="title">RMD Center + Beni Center &mdash; Stage 2: PROCESS/TOOLS (built, not confirmed)</div>
+        <p>Both live in ProDash. UI renders. But JDM confirms: nobody has used either one successfully. Ruth had 13 accounts with no beneficiary &mdash; the Beni Center didn&rsquo;t catch it because nobody opens it. These are built tools with zero Activity through them.</p>
+        <p><strong>Next:</strong> Stage 1. Open RMD Center for the next IRA client. Open Beni Center for every case. Confirm they show the right data. Then they earn the solid bar.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>The Lesson</h3>
+      <div class="callout green">
+        <p><strong>Everything is dim. Nothing is solid.</strong> We have zero confirmed bars across the entire CSO domain. Every scope has tools built but none have been proven through real use. The bars earn their solid color one at a time &mdash; by doing the work, confirming the tools, building the Lions, and proving the wires. The end state is VOLTRON operating as CSO: receiving direction from SHINOB1, dispatching Lions, delivering results. We&rsquo;re not there. The next case is the next rep.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 10: ROADMAP -->
+  <div id="roadmap" class="panel">
+    <div class="card">
+      <h2>Document Hierarchy</h2>
+      <div class="diagram"><span class="hl-green">VOLTRON CXO Roadmap</span> ← THIS DOCUMENT
+├── Vision Discovery (Registry Warriors Vision — registry-warriors-vision.html)
+│    └── 3 CXOs: VOLTRON (CSO), MEGAZORD (CIO), MUSASHI (CMO)
+│         3 Registries: QUE, ATLAS, CMO
+│         3 Meshes: Lions, Registry Agents, Brand Agents
+│
+├── <span class="hl-green">THIS DOC</span> → Spawns 3 Track Discoveries:
+│    ├── Track 1 Discovery: CONSUME (Command Center + QUE Absorption)
+│    ├── Track 2 Discovery: OPERATE (Lions Build + Case Pipeline)
+│    └── Track 3 Discovery: DEVOUR (Full Coverage + Proactive Ops)
+│
+└── FORGE Sprint Tickets (generated from Track Discoveries, executed by RONIN)</div>
+    </div>
+
+    <div class="card">
+      <h2>Timeline — CONSUME → OPERATE → DEVOUR</h2>
+      <table>
+        <tr><th>Track</th><th>Gate</th><th>What Unlocks Next</th></tr>
+        <tr><td><strong>CONSUME</strong></td><td>Command Center scaffold live + soul.md + spirit.md + consolidated backlog</td><td>RONIN can take OPERATE tickets. VOLTRON has identity.</td></tr>
+        <tr><td><strong>OPERATE</strong></td><td>5 Lions live + case pipeline running + 4 intake channels active</td><td>Lions generate outcome data. DEVOUR can be scoped against real gaps.</td></tr>
+        <tr><td><strong>DEVOUR</strong></td><td>Full coverage + accuracy audit + proactive Lions + E2E tests passing</td><td>VOLTRON is fully operational as CSO. Can scale without engineering support.</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>CXO Integration Map</h2>
+      <div class="integration-row">
+        <div class="spec-card blue">
+          <h4>MEGAZORD (CIO)</h4>
+          <p>VOLTRON reads data that MEGAZORD imports. MEGAZORD owns ATLAS — the import registry. When a new carrier feed comes in through MEGAZORD, VOLTRON's Lions can immediately act on the fresh data.</p>
+          <ul>
+            <li>MEGAZORD imports → Firestore</li>
+            <li>VOLTRON Lions read Firestore</li>
+            <li>No direct dependency — clean interface</li>
+          </ul>
+        </div>
+        <div class="spec-card gold">
+          <h4>MUSASHI (CMO)</h4>
+          <p>VOLTRON needs marketing materials that MUSASHI creates. AEP preparation requires campaign materials from MUSASHI before Lions go to work. The Lions surface the need; MUSASHI fills it.</p>
+          <ul>
+            <li>AEP prep: Lions identify gaps, MUSASHI creates materials</li>
+            <li>Case output: VOLTRON generates analysis, MUSASHI formats for client</li>
+            <li>Brochures, one-pagers, leave-behinds on demand</li>
+          </ul>
+        </div>
+        <div class="spec-card mecha">
+          <h4>RONIN (Builder)</h4>
+          <p>When VOLTRON identifies a QUE gap during DEVOUR, RONIN builds the tool. VOLTRON scopes the Discovery Doc. RONIN runs the FORGE sprint. VOLTRON adds the new tool to his registry.</p>
+          <ul>
+            <li>VOLTRON scopes → RONIN builds → VOLTRON consumes</li>
+            <li>No Sensei bottleneck on tool expansion</li>
+            <li>VOLTRON self-sufficient as CSO</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>The Dojo Architecture — Where VOLTRON Lives</h2>
+      <div class="diagram"><span class="hl-gold">SENSEI (JDM)</span>
+  Vision + Decisions + Approvals
+         │
+         ▼
+<span class="hl-mecha">SHINOBI (GA Sessions)</span>
+  Strategy + Architecture + Review
+         │
+         ├─────────────────────────────────────────────┐
+         ▼                                             ▼
+<span class="hl-green">VOLTRON (CSO)</span>                             <span class="hl-blue">MEGAZORD (CIO)</span>           <span class="hl-gold">MUSASHI (CMO)</span>
+Client Operations                        Data Infrastructure      Marketing + Brand
+QUE Registry + Lions Mesh                ATLAS Registry           CMO Registry
+         │                                             │
+         ├── 🦁 Medicare Lion                          ├── Registry Agent Mesh
+         ├── 🦁 Annuity Lion                           │
+         ├── 🦁 Investment Lion                        ▼
+         ├── 🦁 Life/Estate Lion               <span class="hl-red">RONIN (Builder)</span>
+         └── 🦁 Legacy/LTC Lion               Autonomous FORGE Runner
+                                              Builds what the CXOs scope</div>
+    </div>
+
+    <div class="card">
+      <h2>Open Questions for Sensei</h2>
+      <table>
+        <tr><th>#</th><th>Question</th><th>Why It Matters</th></tr>
+        <tr><td>1</td><td>Should the VOLTRON Command Center replace or absorb the existing MDJ Panel in the sidebar, or do they live as two separate UI surfaces permanently?</td><td>Determines UI architecture for CONSUME Track</td></tr>
+        <tr><td>2</td><td>Is the case pipeline a new Firestore collection (<code>voltron_cases</code>) or does it live inside the existing opportunities/flow_instances model?</td><td>Determines OPERATE data model before FORGE tickets are written</td></tr>
+        <tr><td>3</td><td>AEP 2026 (Oct 1): What's the target readiness date to have Medicare Lion fully operational for AEP prep?</td><td>Sets DEVOUR deadline — works backward through OPERATE</td></tr>
+        <tr><td>4</td><td>For proactive Lions (review prep, RMD alerts, 1035 opportunities): which triggers do we activate first? All at once or priority order?</td><td>Scopes DEVOUR Track 3 workload</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Non-Negotiables (Locked)</h2>
+      <div class="callout green">
+        <p><strong>Icon:</strong> 🦁 Black lion with blue ring. DECIDED. Never ask again. Never change.</p>
+      </div>
+      <div class="callout green">
+        <p><strong>The Consumption Principle:</strong> VOLTRON IS QUE. Not "uses." IS. This framing is locked. QUE is VOLTRON's registry, not a dependency.</p>
+      </div>
+      <div class="callout green">
+        <p><strong>Lions vs. Specialists:</strong> Lions EXECUTE. Specialists ROUTE. These are different layers with different jobs. Never conflate them in documentation or architecture.</p>
+      </div>
+      <div class="callout green">
+        <p><strong>Golden Rule:</strong> If VOLTRON didn't READ IT, he doesn't REPORT IT. Anti-hallucination is non-negotiable at every layer — agent, Lion, and QUE tool.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <div>VOLTRON CSO Roadmap &bull; Updated 2026-04-08 &bull; #RunningOurOwnRACE</div>
+</div>
+
+<script>
+function showPanel(id, el) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  el.classList.add('active');
+}
+</script>
+</body>
+</html>

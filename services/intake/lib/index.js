@@ -7,6 +7,7 @@ import { initializeApp, getApps } from 'firebase-admin/app';
 import { onRequest } from 'firebase-functions/v2/https';
 import { onSchedule } from 'firebase-functions/v2/scheduler';
 import { onClientWrite, onAccountWrite } from './notification-triggers.js';
+import { onPartnerUserCreate, refreshPartnerClaims } from './onPartnerUserCreate.js';
 import { onIntakeQueueCreated } from './wire-trigger.js';
 import { scanSpcFolders } from './spc-intake.js';
 import { scanMeetRecordings } from './meet-intake.js';
@@ -15,6 +16,7 @@ import { scanEmailInboxes } from './email-intake.js';
 import { scanCommissionIntake } from './commission-intake.js';
 import { scanDriveIntake } from './drive-watcher.js';
 import { getQueueDepth, getQueueDepthBySource } from './queue.js';
+import { syncCalendarBusy } from './calendar-busy-sync.js';
 // Initialize Firebase Admin
 if (getApps().length === 0) {
     initializeApp({ projectId: process.env.GCP_PROJECT_ID || 'claude-mcp-484718' });
@@ -113,9 +115,27 @@ export const queueStatus = onRequest({ region: 'us-central1', timeoutSeconds: 30
  */
 export { onClientWrite, onAccountWrite };
 /**
+ * MT-007: Partner User Create — assign custom claims on new user signup.
+ * beforeUserCreated trigger: sets role + partner_id claims based on email domain.
+ * refreshPartnerClaims: HTTP trigger for manual claim refresh after partner changes.
+ */
+export { onPartnerUserCreate, refreshPartnerClaims };
+/**
  * Wire Trigger — process intake_queue entries through wire executor.
  * Firestore onCreate on intake_queue/{queueId}.
  * Maps source field to wire ID and calls executeWire().
  */
 export { onIntakeQueueCreated };
+/**
+ * Calendar Busy Sync — BKG-08/09
+ * Syncs Google Calendar events to Firestore calendar_busy collection.
+ * HTTP trigger for manual runs + scheduled every 30 minutes.
+ */
+export const calendarBusySync = onRequest({ region: 'us-central1', timeoutSeconds: 120, memory: '256MiB' }, async (_req, res) => {
+    const result = await syncCalendarBusy();
+    res.json({ success: result.success, data: result });
+});
+export const calendarBusySyncScheduled = onSchedule({ schedule: 'every 30 minutes', region: 'us-central1', timeoutSeconds: 120, memory: '256MiB' }, async () => {
+    await syncCalendarBusy();
+});
 //# sourceMappingURL=index.js.map

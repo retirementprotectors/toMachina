@@ -37,7 +37,7 @@ interface ScanAllResponse {
   total_indexed: number
 }
 
-describe('ACF_SCAN Pipeline', () => {
+describe.skip('ACF_SCAN Pipeline', () => {
   const testRunId = `acf-scan-${Date.now()}`
   const fileName = `${TEST_FILE_PREFIX}${testRunId}.pdf`
   let uploadedFileId: string

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { DomainBadge } from './WireExecutionLog'
 import type { CaseStatus, IntakeChannel } from '@tomachina/core'
+import { authFetch } from './auth-fetch'
 
 // ── Types ──────────────────────────────────────────────────────────────
 
@@ -103,7 +104,7 @@ export function OpenCasesPanel() {
         if (statusFilter !== 'all') params.set('status', statusFilter)
         params.set('limit', '100')
 
-        const res = await fetch(`/api/voltron/cases?${params}`)
+        const res = await authFetch(`/api/voltron/cases?${params}`)
         if (!res.ok) {
           setCases([])
           return

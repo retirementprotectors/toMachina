@@ -26,10 +26,24 @@ interface MeetRoom {
   status?: string
 }
 
+import { BookingConfig } from './BookingConfig'
+
 interface BookingType {
   name: string
   duration_minutes: number
   category?: string
+  modes?: string[]
+  buffer_minutes?: number
+  windows?: Array<{ day: number; start: string; end: string }>
+  color?: string
+}
+
+interface BookingAvailability {
+  timezone: string
+  business_hours: Record<number, { start: string; end: string } | null>
+  buffer_minutes: number
+  max_advance_days: number
+  slot_increment_minutes: number
 }
 
 interface CalendarSlotConfig {
@@ -41,6 +55,7 @@ interface EmployeeProfile {
   meet_room?: MeetRoom
   calendar_booking_types?: BookingType[]
   calendar_config?: CalendarSlotConfig
+  availability?: BookingAvailability
   drive_folder_url?: string
   booking_slug?: string
   profile_photo_url?: string
@@ -1000,6 +1015,25 @@ export function MyRpiProfile({ portal }: MyRpiProfileProps) {
   const [newMtCategory, setNewMtCategory] = useState('')
   const [mtSaving, setMtSaving] = useState(false)
   const [mtSaved, setMtSaved] = useState(false)
+  const [newMtModes, setNewMtModes] = useState<string[]>(['meet', 'call'])
+
+  // Availability config
+  const DEFAULT_AVAILABILITY: BookingAvailability = {
+    timezone: 'America/Chicago',
+    business_hours: {
+      1: { start: '09:00', end: '17:00' },
+      2: { start: '09:00', end: '17:00' },
+      3: { start: '09:00', end: '17:00' },
+      4: { start: '09:00', end: '17:00' },
+      5: { start: '09:00', end: '12:00' },
+    },
+    buffer_minutes: 15,
+    max_advance_days: 90,
+    slot_increment_minutes: 30,
+  }
+  const [availability, setAvailability] = useState<BookingAvailability>(DEFAULT_AVAILABILITY)
+  const [availSaving, setAvailSaving] = useState(false)
+  const [availSaved, setAvailSaved] = useState(false)
 
   // Build entitlement context for LEADER+ check
   const entitlementCtx = useMemo(() => buildEntitlementContext(user), [user])
@@ -1053,6 +1087,9 @@ export function MyRpiProfile({ portal }: MyRpiProfileProps) {
 
   // Initialize calendar config from Firestore
   useEffect(() => {
+    if (empProfile?.availability) {
+      setAvailability({ ...DEFAULT_AVAILABILITY, ...empProfile.availability })
+    }
     if (empProfile?.calendar_config) {
       setCalendarConfig(empProfile.calendar_config)
     }
@@ -1132,6 +1169,25 @@ export function MyRpiProfile({ portal }: MyRpiProfileProps) {
     }
   }, [profile, calendarConfig])
 
+  // Save availability settings
+  const saveAvailability = useCallback(async () => {
+    if (!profile?._id) return
+    setAvailSaving(true)
+    try {
+      const ref = doc(getDb(), 'users', profile._id)
+      await updateDoc(ref, {
+        'employee_profile.availability': availability,
+        updated_at: new Date().toISOString(),
+      })
+      setAvailSaved(true)
+      setTimeout(() => setAvailSaved(false), 2000)
+    } catch {
+      // Error
+    } finally {
+      setAvailSaving(false)
+    }
+  }, [profile, availability])
+
   // Save drop zone links
   const saveDropLinks = useCallback(async () => {
     if (!profile?._id) return
@@ -1208,6 +1264,7 @@ export function MyRpiProfile({ portal }: MyRpiProfileProps) {
     const newType: BookingType = {
       name,
       duration_minutes: newMtDuration,
+      modes: newMtModes.length > 0 ? newMtModes : ['meet', 'call'],
       ...(newMtCategory.trim() ? { category: newMtCategory.trim() } : {}),
     }
     const updated = [...localMeetingTypes, newType]
@@ -1215,8 +1272,9 @@ export function MyRpiProfile({ portal }: MyRpiProfileProps) {
     setNewMtName('')
     setNewMtDuration(30)
     setNewMtCategory('')
+    setNewMtModes(['meet', 'call'])
     await persistMeetingTypes(updated)
-  }, [newMtName, newMtDuration, newMtCategory, localMeetingTypes, persistMeetingTypes])
+  }, [newMtName, newMtDuration, newMtCategory, newMtModes, localMeetingTypes, persistMeetingTypes])
 
   // Remove meeting type
   const removeMeetingType = useCallback(async (idx: number) => {
@@ -1707,226 +1765,31 @@ export function MyRpiProfile({ portal }: MyRpiProfileProps) {
         </div>
       </div>
 
-      {/* ─── Section 5: Meeting Config ─── */}
-      <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-6">
-        <div className="mb-4 flex items-center gap-2">
-          <h3 className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-[var(--text-muted)]">
-            <span className="material-icons-outlined" style={{ fontSize: '16px' }}>event_available</span>
-            Meeting Configuration
-          </h3>
-          {mtSaving && (
-            <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-[var(--portal)] border-t-transparent" />
-          )}
-          {mtSaved && (
-            <span className="flex items-center gap-1 text-xs text-[var(--success)]">
-              <span className="material-icons-outlined" style={{ fontSize: '14px' }}>check_circle</span>
-              Saved
-            </span>
-          )}
-        </div>
 
-        {meetingTypes.length > 0 ? (
-          <div className="space-y-2">
-            {meetingTypes.map((mt, i) => (
-              <div
-                key={i}
-                className="flex items-center justify-between rounded-lg bg-[var(--bg-surface)] px-4 py-3"
-              >
-                <div className="flex items-center gap-3">
-                  <span
-                    className="flex h-8 w-8 items-center justify-center rounded-lg"
-                    style={{ background: 'var(--portal-glow)' }}
-                  >
-                    <span className="material-icons-outlined" style={{ fontSize: '16px', color: 'var(--portal)' }}>
-                      schedule
-                    </span>
-                  </span>
-                  <div>
-                    <span className="text-sm font-medium text-[var(--text-primary)]">{mt.name}</span>
-                    {mt.category && (
-                      <p className="text-xs text-[var(--text-muted)]">{mt.category}</p>
-                    )}
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="rounded-full bg-[var(--portal-glow)] px-2.5 py-0.5 text-xs font-medium text-[var(--portal-accent)]">
-                    {mt.duration_minutes} min
-                  </span>
-                  {isOwnProfile && (
-                    <button
-                      onClick={() => void removeMeetingType(i)}
-                      className="flex h-7 w-7 items-center justify-center rounded-md text-[var(--text-muted)] transition-colors hover:bg-[rgba(239,68,68,0.1)] hover:text-[var(--error)]"
-                      title={`Remove "${mt.name}"`}
-                    >
-                      <span className="material-icons-outlined" style={{ fontSize: '16px' }}>close</span>
-                    </button>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[var(--border-subtle)] py-8">
-            <span className="material-icons-outlined text-3xl text-[var(--text-muted)]">event_busy</span>
-            <p className="mt-2 text-sm text-[var(--text-muted)]">
-              No meeting types configured yet.{isOwnProfile ? ' Add one below.' : ''}
-            </p>
-          </div>
-        )}
-
-        {/* Add meeting type form */}
-        {isOwnProfile && (
-          <div className="mt-4 border-t border-[var(--border-subtle)] pt-4">
-            <div className="flex flex-wrap items-end gap-2">
-              <div className="flex flex-col gap-1">
-                <label className="text-[11px] font-medium uppercase tracking-wider text-[var(--text-muted)]">
-                  Name
-                </label>
-                <input
-                  type="text"
-                  value={newMtName}
-                  onChange={(e) => setNewMtName(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === 'Enter') void addMeetingType() }}
-                  placeholder="e.g. Initial Consult"
-                  className="w-40 rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2.5 py-1.5 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--portal)]"
-                />
-              </div>
-              <div className="flex flex-col gap-1">
-                <label className="text-[11px] font-medium uppercase tracking-wider text-[var(--text-muted)]">
-                  Duration
-                </label>
-                <div className="flex items-center gap-1">
-                  <input
-                    type="number"
-                    value={newMtDuration}
-                    onChange={(e) => setNewMtDuration(Math.max(5, parseInt(e.target.value) || 5))}
-                    onKeyDown={(e) => { if (e.key === 'Enter') void addMeetingType() }}
-                    min={5}
-                    step={5}
-                    className="w-16 rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2.5 py-1.5 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--portal)]"
-                  />
-                  <span className="text-xs text-[var(--text-muted)]">min</span>
-                </div>
-              </div>
-              <div className="flex flex-col gap-1">
-                <label className="text-[11px] font-medium uppercase tracking-wider text-[var(--text-muted)]">
-                  Category
-                </label>
-                <input
-                  type="text"
-                  value={newMtCategory}
-                  onChange={(e) => setNewMtCategory(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === 'Enter') void addMeetingType() }}
-                  placeholder="Optional"
-                  className="w-28 rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2.5 py-1.5 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--portal)]"
-                />
-              </div>
-              <button
-                onClick={() => void addMeetingType()}
-                disabled={!newMtName.trim() || mtSaving}
-                className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-white transition-colors disabled:opacity-40"
-                style={{ background: 'var(--portal)' }}
-              >
-                <span className="material-icons-outlined" style={{ fontSize: '14px' }}>add</span>
-                Add
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* ─── Section 6: Calendar Config ─── */}
-      {meetingTypes.length > 0 && isOwnProfile && (
-        <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-6">
-          <div className="mb-4 flex items-center justify-between">
-            <h3 className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-[var(--text-muted)]">
-              <span className="material-icons-outlined" style={{ fontSize: '16px' }}>date_range</span>
-              Weekly Availability
-            </h3>
-            <button
-              onClick={() => void saveCalendarConfig()}
-              disabled={calendarSaving}
-              className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-white transition-colors disabled:opacity-50"
-              style={{ background: 'var(--portal)' }}
-            >
-              {calendarSaving ? (
-                <>
-                  <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                  Saving...
-                </>
-              ) : calendarSaved ? (
-                <>
-                  <span className="material-icons-outlined" style={{ fontSize: '14px' }}>check</span>
-                  Saved
-                </>
-              ) : (
-                <>
-                  <span className="material-icons-outlined" style={{ fontSize: '14px' }}>save</span>
-                  Save
-                </>
-              )}
-            </button>
-          </div>
-
-          <p className="mb-4 text-xs text-[var(--text-muted)]">
-            Select which meeting types you accept for each time slot. Your Google Calendar availability is also checked when booking.
-          </p>
-
-          <div className="overflow-x-auto">
-            <table className="w-full text-xs">
-              <thead>
-                <tr>
-                  <th className="sticky left-0 z-10 bg-[var(--bg-card)] pb-2 pr-3 text-left font-medium text-[var(--text-muted)]">
-                    Time
-                  </th>
-                  {DAYS.map((day) => (
-                    <th key={day} className="pb-2 text-center font-medium text-[var(--text-muted)]" style={{ minWidth: '100px' }}>
-                      {day.slice(0, 3)}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {TIME_SLOTS.map((slot) => (
-                  <tr key={slot} className="border-t border-[var(--border-subtle)]">
-                    <td className="sticky left-0 z-10 bg-[var(--bg-card)] py-1.5 pr-3 text-[var(--text-muted)]">
-                      {slot}
-                    </td>
-                    {DAYS.map((day) => {
-                      const dayConfig = calendarConfig[day] || {}
-                      const slotTypes = dayConfig[slot] || []
-                      return (
-                        <td key={day} className="py-1.5 text-center">
-                          <div className="flex flex-wrap justify-center gap-0.5">
-                            {meetingTypes.map((mt) => {
-                              const isActive = slotTypes.includes(mt.name)
-                              return (
-                                <button
-                                  key={mt.name}
-                                  onClick={() => toggleCalendarSlot(day, slot, mt.name)}
-                                  className={`rounded px-1 py-0.5 text-[9px] font-medium transition-colors ${
-                                    isActive
-                                      ? 'text-white'
-                                      : 'bg-[var(--bg-surface)] text-[var(--text-muted)] hover:bg-[var(--bg-hover)]'
-                                  }`}
-                                  style={isActive ? { background: 'var(--portal)' } : undefined}
-                                  title={mt.name}
-                                >
-                                  {mt.name.slice(0, 4)}
-                                </button>
-                              )
-                            })}
-                          </div>
-                        </td>
-                      )
-                    })}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
+      {/* ─── Section 5: Booking Configuration (v2) ─── */}
+      <BookingConfig
+        meetingTypes={(meetingTypes || []).map(mt => ({
+          ...mt,
+          buffer_minutes: mt.buffer_minutes ?? 15,
+          modes: mt.modes || ['meet', 'call'],
+          windows: mt.windows || [],
+        }))}
+        availability={{
+          timezone: availability.timezone,
+          business_hours: availability.business_hours,
+          max_advance_days: availability.max_advance_days,
+          slot_increment_minutes: availability.slot_increment_minutes,
+        }}
+        bookingSlug={bookingSlug}
+        isOwnProfile={isOwnProfile}
+        onSaveMeetingTypes={async (types) => {
+          await persistMeetingTypes(types as unknown as BookingType[])
+        }}
+        onSaveAvailability={async (avail) => {
+          setAvailability(avail as unknown as BookingAvailability)
+          await saveAvailability()
+        }}
+      />
 
       {/* Profile not found warning */}
       {!profile && (

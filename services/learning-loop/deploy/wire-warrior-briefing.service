@@ -1,0 +1,27 @@
+# systemd service for warrior briefing — MDJ_SERVER
+# System Synergy — ZRD-SYN-012
+# NOTE: No timer — hook-triggered only (session-start-briefing.sh)
+#
+# Deploy to: /etc/systemd/system/wire-warrior-briefing.service
+# Manual invocation: sudo systemctl start wire-warrior-briefing.service
+# Or use hooks/session-start-briefing.sh for hook-driven execution
+
+[Unit]
+Description=RPI Wire Warrior Briefing — Cross-warrior session briefing (hook-triggered)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=jdm
+WorkingDirectory=/home/jdm/Projects/toMachina/services/learning-loop
+Environment="NODE_ENV=production"
+Environment="GOOGLE_APPLICATION_CREDENTIALS=/home/jdm/Projects/dojo-warriors/mdj-agent/sa-key.json"
+EnvironmentFile=/home/jdm/Projects/dojo-warriors/mdj-agent/.env
+ExecStart=/usr/bin/node dist/wire-warrior-briefing.js
+StandardOutput=journal
+StandardError=journal
+TimeoutStartSec=120
+
+[Install]
+WantedBy=multi-user.target

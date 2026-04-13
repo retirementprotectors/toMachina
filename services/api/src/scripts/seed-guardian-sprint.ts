@@ -76,7 +76,7 @@ const ITEMS = [
   },
   {
     title: 'Collection Schemas — Required field definitions',
-    description: 'packages/core/src/validation/collection-schemas.ts — Defines required, neverNull, immutableAfterCreate, and recommended fields per collection. Clients: first_name, last_name, status required. Accounts: client_id, carrier_name, status required. Carriers: carrier_id, display_name, parent_brand required.',
+    description: 'packages/core/src/validation/collection-schemas.ts — Defines required, neverNull, immutableAfterCreate, and recommended fields per collection. Clients: first_name, last_name, status required. Accounts: client_id, carrier, status required. Carriers: carrier_id, display_name, parent_brand required.',
     portal: 'INFRA',
     scope: 'Platform',
     component: 'GUARDIAN',

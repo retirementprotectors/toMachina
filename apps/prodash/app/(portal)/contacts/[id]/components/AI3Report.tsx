@@ -401,7 +401,7 @@ export const AI3Report = forwardRef<HTMLDivElement, AI3ReportProps>(
                   <tbody>
                     {catAccounts.map((acct, i) => (
                       <tr key={i}>
-                        <td style={styles.td}>{safeStr(acct.carrier || acct.carrier_name)}</td>
+                        <td style={styles.td}>{safeStr(acct.carrier || acct.carrier)}</td>
                         <td style={styles.td}>{safeStr(acct.product || acct.product_name)}</td>
                         <td style={styles.td}>{safeStr(acct.policy_number)}</td>
                         <td style={styles.td}>{safeStr(acct.status)}</td>
@@ -428,7 +428,7 @@ export const AI3Report = forwardRef<HTMLDivElement, AI3ReportProps>(
               <div style={styles.summaryCardValue}>{medicareAccounts.length}</div>
               <div style={styles.summaryCardSub}>
                 {medicareAccounts.length > 0
-                  ? `${safeStr(medicareAccounts[0].carrier || medicareAccounts[0].carrier_name)} - ${safeStr(medicareAccounts[0].product || medicareAccounts[0].product_name)}`
+                  ? `${safeStr(medicareAccounts[0].carrier || medicareAccounts[0].carrier)} - ${safeStr(medicareAccounts[0].product || medicareAccounts[0].product_name)}`
                   : 'No Medicare plans'}
               </div>
             </div>

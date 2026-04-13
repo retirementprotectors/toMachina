@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>System Synergy — Discovery Doc</title>
+<style>
+:root { --bg: #0a0e17; --card: #111827; --card2: #1a2236; --border: #1e293b; --text: #e2e8f0; --muted: #94a3b8; --accent: #14b8a6; --accent-glow: rgba(20,184,166,0.12); --green: #22c55e; --blue: #3b82f6; --red: #ef4444; --orange: #f59e0b; --purple: #a855f7; --gold: #d4a44c; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+.header { background: linear-gradient(135deg, #0f172a 0%, #134e4a 50%, #0f172a 100%); border-bottom: 1px solid var(--border); padding: 40px 32px; text-align: center; }
+.header h1 { font-size: 2.2rem; font-weight: 800; background: linear-gradient(135deg, var(--accent), #5eead4, #99f6e4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; }
+.header .subtitle { font-size: 1rem; color: var(--muted); max-width: 700px; margin: 0 auto; }
+.header .badge { display: inline-block; margin-top: 12px; padding: 4px 16px; border-radius: 999px; font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; background: var(--accent-glow); color: var(--accent); border: 1px solid rgba(20,184,166,0.3); }
+.tab-container { position: sticky; top: 0; z-index: 100; background: var(--bg); border-bottom: 1px solid var(--border); overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.tabs { display: flex; max-width: 1200px; margin: 0 auto; padding: 0 16px; }
+.tab { padding: 14px 20px; font-size: 0.82rem; font-weight: 600; color: var(--muted); cursor: pointer; white-space: nowrap; border-bottom: 2px solid transparent; transition: all 0.2s; }
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.content { max-width: 1100px; margin: 0 auto; padding: 24px 16px; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 16px; }
+.card h2 { font-size: 1.15rem; margin-bottom: 12px; color: var(--text); }
+.card h3 { font-size: 0.95rem; margin: 16px 0 8px; color: var(--accent); }
+.card p { color: var(--muted); font-size: 0.88rem; margin-bottom: 10px; }
+.card ul, .card ol { color: var(--muted); font-size: 0.88rem; margin-left: 20px; margin-bottom: 10px; }
+.card li { margin-bottom: 6px; }
+.card li strong { color: var(--text); }
+table { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin: 10px 0; }
+th { text-align: left; padding: 10px 12px; background: var(--card2); color: var(--accent); font-weight: 700; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); }
+td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--muted); vertical-align: top; }
+td:first-child { color: var(--text); font-weight: 500; }
+code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; font-size: 0.82em; color: #06b6d4; font-family: 'SF Mono', monospace; }
+.pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+.pill.active { background: rgba(34,197,94,0.12); color: var(--green); }
+.pill.dead { background: rgba(239,68,68,0.12); color: var(--red); }
+.pill.built { background: rgba(245,158,11,0.12); color: var(--orange); }
+.pill.new { background: rgba(168,85,247,0.12); color: var(--purple); }
+.pill.wired { background: rgba(20,184,166,0.12); color: var(--accent); }
+.flow-box { background: #0d1117; border: 1px solid var(--border); border-radius: 8px; padding: 16px; font-family: 'SF Mono', monospace; font-size: 0.78rem; line-height: 1.8; color: #c9d1d9; white-space: pre-wrap; margin: 12px 0; }
+.insight { background: rgba(20,184,166,0.06); border: 1px solid rgba(20,184,166,0.2); border-radius: 8px; padding: 14px 18px; margin: 14px 0; font-size: 0.85rem; color: var(--muted); }
+.insight strong { color: var(--accent); }
+.section-label { font-size: 0.7rem; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; }
+.footer { text-align: center; padding: 24px; color: var(--muted); font-size: 0.72rem; border-top: 1px solid var(--border); margin-top: 32px; }
+@media (max-width: 768px) { .tab { padding: 12px 14px; font-size: 0.75rem; } }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>System Synergy</h1>
+  <div class="subtitle">Learning Loop + Warrior Wisdom + Platform Intelligence</div>
+  <div class="badge">Discovery Doc — SHINOB1, CTO</div>
+</div>
+
+<div class="tab-container">
+  <div class="tabs">
+    <div class="tab active" data-tab="overview">Overview</div>
+    <div class="tab" data-tab="learning-loop">Learning Loop</div>
+    <div class="tab" data-tab="warrior-wisdom">Warrior Wisdom</div>
+    <div class="tab" data-tab="claude-layers">Claude Layers</div>
+    <div class="tab" data-tab="atlas">Tools / Supers / Wires</div>
+    <div class="tab" data-tab="inventory">Inventory</div>
+    <div class="tab" data-tab="kill-list">Kill List</div>
+    <div class="tab" data-tab="phases">Implementation</div>
+  </div>
+</div>
+
+<div class="content">
+
+<!-- ═══════════════════ OVERVIEW ═══════════════════ -->
+<div class="tab-panel active" id="overview">
+  <div class="card">
+    <h2>What Is System Synergy?</h2>
+    <p>The observability + hygiene layer for The Machine itself. It answers three questions:</p>
+    <ol>
+      <li><strong>Is the knowledge pipeline flowing?</strong> — Are warriors getting smarter across sessions?</li>
+      <li><strong>Is the platform healthy?</strong> — Deploys, hooks, sessions, duplicates, orphans?</li>
+      <li><strong>Where are the gaps?</strong> — What questions can't VOLTRON answer? What's stale?</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <h2>The Problem</h2>
+    <p>The Learning Loop and Warrior Wisdom systems are half-built. The pipes exist but aren't connected:</p>
+    <table>
+      <tr><th>What</th><th>Status</th><th>Gap</th></tr>
+      <tr><td>Entity extractor</td><td><span class="pill built">BUILT</span></td><td>Never deployed as a scheduled job</td></tr>
+      <tr><td>Knowledge promote</td><td><span class="pill active">ACTIVE</span></td><td>Only sends Slack DM — doesn't auto-write to CLAUDE.md</td></tr>
+      <tr><td>Gap analyzer</td><td><span class="pill built">BUILT</span></td><td>Never deployed</td></tr>
+      <tr><td>Brain export</td><td><span class="pill built">BUILT</span></td><td>Manual only — no session-end hook</td></tr>
+      <tr><td>Cross-warrior briefing</td><td><span class="pill built">BUILT</span></td><td>Not wired to any hook or trigger</td></tr>
+      <tr><td>V2 auto-write to CLAUDE.md</td><td><span class="pill dead">DEAD</span></td><td>macOS script, never ported to Linux</td></tr>
+      <tr><td>RONIN + VOLTRON brain.txt</td><td><span class="pill dead">MISSING</span></td><td>No brain files exist for these warriors</td></tr>
+    </table>
+  </div>
+
+  <div class="insight">
+    <strong>Key insight:</strong> Claude Code has 8 built-in persistence layers. Layers 1-4 are automatic raw data. Layers 5-8 are curated instruction. <strong>Nothing moves data from 1-4 into 5-8 automatically.</strong> That's the gap.
+  </div>
+
+  <div class="card">
+    <h2>Two Systems, One Pipeline</h2>
+    <table>
+      <tr><th>System</th><th>Scope</th><th>Purpose</th><th>Audience</th></tr>
+      <tr><td>Learning Loop</td><td>Business / Platform</td><td>Knowledge ALL warriors need — rules, compliance, architecture, client patterns</td><td>Every warrior, every session</td></tr>
+      <tr><td>Warrior Wisdom</td><td>Role / Individual</td><td>Knowledge that makes THIS warrior smarter — their decisions, domain, relationship with JDM</td><td>Single warrior, across sessions</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════ LEARNING LOOP ═══════════════════ -->
+<div class="tab-panel" id="learning-loop">
+  <div class="card">
+    <h2>How the Learning Loop SHOULD Work</h2>
+    <p>Platform-wide knowledge that ALL warriors need. Business rules, compliance, architecture decisions, client patterns, process changes.</p>
+    <div class="flow-box">SESSION
+  |
+  v
+auto-memory writes to MEMORY.md (Claude built-in)
+  |
+  v
+entity-extractor (daily 2am) reads warrior soul/spirit/brain files
+  |
+  v
+Firestore knowledge_entries (confidence-scored)
+  |
+  v
+knowledge-promote (daily 4am) queries high-confidence entries
+  |
+  v
+AUTO-WRITES to CLAUDE.md (not just Slack DM)
+  |
+  v
+gap-analyzer (daily 3am) finds blind spots
+  |
+  v
+Next session is smarter</div>
+  </div>
+
+  <div class="card">
+    <h2>Pipeline Steps</h2>
+    <table>
+      <tr><th>Step</th><th>Schedule</th><th>Input</th><th>Output</th><th>Status</th></tr>
+      <tr><td>1. Warriors work sessions</td><td>Continuous</td><td>User interaction</td><td>MEMORY.md entries, session JSONL</td><td><span class="pill active">ACTIVE</span></td></tr>
+      <tr><td>2. Entity extractor</td><td>Daily 2am</td><td>soul.md, spirit.md, brain.txt</td><td>Firestore <code>knowledge_entries</code></td><td><span class="pill built">BUILT</span></td></tr>
+      <tr><td>3. Knowledge promote</td><td>Daily 4am</td><td>Firestore entries (confidence &ge; 0.8)</td><td>CLAUDE.md auto-writes + Slack digest</td><td><span class="pill orange">PARTIAL</span></td></tr>
+      <tr><td>4. Gap analyzer</td><td>Daily 3am</td><td>VOLTRON low-confidence responses</td><td>Learning targets in Firestore</td><td><span class="pill built">BUILT</span></td></tr>
+      <tr><td>5. Stale cleanup</td><td>With promote</td><td>Entries 21+ days unconfirmed</td><td>Auto-delete</td><td><span class="pill new">NEW</span></td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Confidence Scoring</h2>
+    <table>
+      <tr><th>Source</th><th>Confidence</th><th>Tag</th></tr>
+      <tr><td>soul.md (curated)</td><td>0.9 - 1.0</td><td><code>soul-curated</code></td></tr>
+      <tr><td>spirit.md (curated)</td><td>0.85 - 0.95</td><td><code>spirit-curated</code></td></tr>
+      <tr><td>brain.txt (raw)</td><td>0.5 - 0.8</td><td><code>warrior-context</code></td></tr>
+      <tr><td>FORGE phase output</td><td>0.7 - 0.9</td><td><code>sprint-{id}</code></td></tr>
+      <tr><td>VOLTRON gap cluster</td><td>0.6</td><td><code>voltron-gap</code></td></tr>
+    </table>
+    <p>Promotion threshold: <strong>&ge; 0.8 confidence</strong>. Confirmed by 3+ sessions = auto-promote. Stale 21+ days = auto-delete.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════ WARRIOR WISDOM ═══════════════════ -->
+<div class="tab-panel" id="warrior-wisdom">
+  <div class="card">
+    <h2>How Warrior Wisdom SHOULD Work</h2>
+    <p>Per-warrior context that makes THAT warrior smarter across sessions. Their decisions, their style, their domain knowledge, their relationship with JDM.</p>
+    <div class="flow-box">SESSION
+  |
+  +--&gt; soul.md    (operational brain, ~400 lines, loaded every session)
+  +--&gt; spirit.md  (relationship + personality, ~400 lines, loaded every session)
+  +--&gt; brain.txt  (raw archive, append-only, feeds entity extractor)
+  +--&gt; MEMORY.md  (auto-memory, loaded by Claude Code automatically)</div>
+  </div>
+
+  <div class="card">
+    <h2>Warrior Files Inventory</h2>
+    <table>
+      <tr><th>Warrior</th><th>soul.md</th><th>spirit.md</th><th>brain.txt</th><th>Lines</th></tr>
+      <tr><td>SHINOB1</td><td><span class="pill active">YES</span></td><td><span class="pill active">YES</span></td><td><span class="pill active">YES</span></td><td>69,293</td></tr>
+      <tr><td>MEGAZORD</td><td><span class="pill active">YES</span></td><td><span class="pill active">YES</span></td><td><span class="pill active">YES</span></td><td>32,363</td></tr>
+      <tr><td>MUSASHI</td><td><span class="pill active">YES</span></td><td><span class="pill active">YES</span></td><td><span class="pill active">YES</span></td><td>18,976</td></tr>
+      <tr><td>RAIDEN</td><td><span class="pill active">YES</span></td><td><span class="pill active">YES</span></td><td><span class="pill active">YES</span></td><td>10,492</td></tr>
+      <tr><td>VOLTRON</td><td><span class="pill active">YES</span></td><td><span class="pill active">YES</span></td><td><span class="pill dead">NO</span></td><td>0</td></tr>
+      <tr><td>RONIN</td><td><span class="pill active">YES</span></td><td><span class="pill active">YES</span></td><td><span class="pill dead">NO</span></td><td>0</td></tr>
+    </table>
+    <p>Total brain archive: <strong>131,124 lines</strong> across 4 warriors. VOLTRON and RONIN have extraction scripts built but never run.</p>
+  </div>
+
+  <div class="card">
+    <h2>Cross-Warrior Briefings</h2>
+    <p>At session start, each warrior gets a briefing of what OTHER warriors learned since their last session. Prevents knowledge silos.</p>
+    <table>
+      <tr><th>Component</th><th>Status</th><th>What It Does</th></tr>
+      <tr><td><code>pre-session-briefing.ts</code></td><td><span class="pill built">BUILT</span></td><td>Queries Firestore for recent cross-warrior entries</td></tr>
+      <tr><td><code>cross-warrior-briefing.ts</code></td><td><span class="pill built">BUILT</span></td><td>Extended version: reads soul.md highlights from other warriors</td></tr>
+      <tr><td>SessionStart hook</td><td><span class="pill dead">MISSING</span></td><td>Nothing triggers these at session start</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════ CLAUDE LAYERS ═══════════════════ -->
+<div class="tab-panel" id="claude-layers">
+  <div class="card">
+    <h2>Claude Code Built-In Persistence Layers</h2>
+    <table>
+      <tr><th>#</th><th>Layer</th><th>Path</th><th>Scope</th><th>Count</th><th>Auto?</th></tr>
+      <tr><td>1</td><td>sessions/</td><td><code>~/.claude/sessions/*.json</code></td><td>PID to session ID mapping</td><td>3</td><td>Yes</td></tr>
+      <tr><td>2</td><td>session-env/</td><td><code>~/.claude/session-env/{id}/</code></td><td>Environment snapshot per session</td><td>451</td><td>Yes</td></tr>
+      <tr><td>3</td><td>Session JSONL</td><td><code>~/.claude/projects/{proj}/{id}.jsonl</code></td><td>Full conversation transcript</td><td>657</td><td>Yes</td></tr>
+      <tr><td>4</td><td>Subagent JSONL</td><td><code>~/.claude/projects/{proj}/{id}/subagents/</code></td><td>Sub-agent transcripts</td><td>varies</td><td>Yes</td></tr>
+      <tr><td>5</td><td>Project Memory</td><td><code>~/.claude/projects/{proj}/memory/</code></td><td>Cross-session memory per project</td><td>41 files</td><td>Partial</td></tr>
+      <tr><td>6</td><td>Global CLAUDE.md</td><td><code>~/.claude/CLAUDE.md</code></td><td>Instructions for ALL sessions</td><td>900+ lines</td><td>Auto-loaded</td></tr>
+      <tr><td>7</td><td>Project CLAUDE.md</td><td><code>{project}/CLAUDE.md</code></td><td>Instructions for that project</td><td>3 projects</td><td>Auto-loaded</td></tr>
+      <tr><td>8</td><td>/export TXT</td><td>Manual file</td><td>Full conversation snapshot</td><td>on-demand</td><td>Manual</td></tr>
+    </table>
+  </div>
+
+  <div class="insight">
+    <strong>Layers 1-4 = raw data.</strong> Automatic, comprehensive, untouched.<br>
+    <strong>Layers 5-8 = curated instruction.</strong> What warriors actually read and follow.<br>
+    <strong>The gap:</strong> Nothing moves data from 1-4 into 5-8 automatically.
+  </div>
+
+  <div class="card">
+    <h2>How to Leverage Each Layer</h2>
+    <table>
+      <tr><th>Layer</th><th>Learning Loop Use</th><th>Warrior Wisdom Use</th></tr>
+      <tr><td>Session JSONL (657)</td><td>Entity extraction source — mine for business decisions</td><td>Brain.txt source — auto-append PHI-redacted transcripts</td></tr>
+      <tr><td>Session-env (451)</td><td>Audit: detect orphaned contexts, stale sessions</td><td>Track which warrior ran which session</td></tr>
+      <tr><td>Project Memory</td><td>Promotion candidates via confidence scoring</td><td>Already working — add cross-warrior sync</td></tr>
+      <tr><td>Global CLAUDE.md</td><td>Destination for promoted platform knowledge</td><td>Source of truth all warriors inherit</td></tr>
+      <tr><td>Project CLAUDE.md</td><td>Per-project rules for all warriors</td><td>Auto-loaded by Claude Code</td></tr>
+      <tr><td>/export TXT</td><td>Session handoff — could auto-trigger brain append</td><td>Already used for session continuity</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════ ATLAS PATTERN ═══════════════════ -->
+<div class="tab-panel" id="atlas">
+  <div class="card">
+    <h2>Atomic Tools (10)</h2>
+    <table>
+      <tr><th>Tool</th><th>What It Does</th></tr>
+      <tr><td><code>session-inventory</code></td><td>List all sessions with metadata: warrior, cwd, date, size, subagent count</td></tr>
+      <tr><td><code>memory-inventory</code></td><td>List all MEMORY.md entries across all projects with staleness scoring</td></tr>
+      <tr><td><code>claude-md-diff</code></td><td>Show what changed in any CLAUDE.md over N days</td></tr>
+      <tr><td><code>brain-health</code></td><td>Per-warrior brain.txt stats: lines, last updated, PHI scan</td></tr>
+      <tr><td><code>knowledge-query</code></td><td>Query Firestore <code>knowledge_entries</code> by type/confidence/warrior/date</td></tr>
+      <tr><td><code>session-env-audit</code></td><td>Map session-env dirs to sessions, find orphans</td></tr>
+      <tr><td><code>duplicate-detector</code></td><td>Find duplicate/conflicting entries across MEMORY.md files</td></tr>
+      <tr><td><code>warrior-roster</code></td><td>Which warriors have tmux sessions, queue depth, last activity</td></tr>
+      <tr><td><code>deploy-status</code></td><td>Current state of all CI runs, last successful deploy timestamp</td></tr>
+      <tr><td><code>hook-audit</code></td><td>Verify hookify symlinks, report missing/broken rules per project</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Super Tools (4)</h2>
+    <table>
+      <tr><th>Super Tool</th><th>Composed From</th><th>What It Does</th></tr>
+      <tr><td><code>platform-health</code></td><td>session-inventory + warrior-roster + deploy-status + hook-audit</td><td>Full platform status in one call</td></tr>
+      <tr><td><code>knowledge-pipeline-status</code></td><td>knowledge-query + memory-inventory + brain-health + claude-md-diff</td><td>Is the learning loop flowing? Where's it stuck?</td></tr>
+      <tr><td><code>session-forensics</code></td><td>session-inventory + session-env-audit + duplicate-detector</td><td>Debug session issues, find orphaned state</td></tr>
+      <tr><td><code>warrior-readiness</code></td><td>warrior-roster + brain-health + memory-inventory</td><td>Is each warrior's context fresh and complete?</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Wires (4)</h2>
+    <table>
+      <tr><th>Wire</th><th>Schedule</th><th>Composed From</th><th>Output</th></tr>
+      <tr><td><code>WIRE_KNOWLEDGE_PROMOTE</code></td><td>Daily 4am</td><td>entity-extractor &rarr; knowledge-query &rarr; claude-md-diff &rarr; auto-write</td><td>Updated CLAUDE.md + Slack digest</td></tr>
+      <tr><td><code>WIRE_BRAIN_SYNC</code></td><td>Daily 2am</td><td>session-inventory &rarr; brain-export &rarr; brain-health</td><td>Updated brain.txt per warrior</td></tr>
+      <tr><td><code>WIRE_PLATFORM_AUDIT</code></td><td>Weekly Sun 3am</td><td>platform-health + session-forensics + duplicate-detector</td><td>Cleanup report + auto-delete orphans</td></tr>
+      <tr><td><code>WIRE_WARRIOR_BRIEFING</code></td><td>Session start</td><td>warrior-readiness + cross-warrior knowledge-query</td><td>Injected context for warrior</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════ INVENTORY ═══════════════════ -->
+<div class="tab-panel" id="inventory">
+  <div class="card">
+    <h2>Already Built — Wire In</h2>
+    <table>
+      <tr><th>Component</th><th>Location</th><th>Status</th><th>Action</th></tr>
+      <tr><td><code>entity-extractor.ts</code></td><td><code>services/learning-loop/</code></td><td><span class="pill built">BUILT</span></td><td>Deploy systemd timer, daily 2am</td></tr>
+      <tr><td><code>knowledge-promote.ts</code></td><td><code>mdj-agent/src/cron/</code></td><td><span class="pill active">ACTIVE</span></td><td>Port v2 auto-write logic</td></tr>
+      <tr><td><code>gap-analyzer.ts</code></td><td><code>services/learning-loop/</code></td><td><span class="pill built">BUILT</span></td><td>Deploy systemd timer, daily 3am</td></tr>
+      <tr><td><code>claude-md-tracker.ts</code></td><td><code>services/learning-loop/</code></td><td><span class="pill built">BUILT</span></td><td>Deploy systemd timer, weekly Sun 3am</td></tr>
+      <tr><td><code>brain-export.ts</code></td><td><code>services/learning-loop/</code></td><td><span class="pill built">BUILT</span></td><td>Wire into SessionEnd hook</td></tr>
+      <tr><td><code>cross-warrior-briefing.ts</code></td><td><code>services/learning-loop/</code></td><td><span class="pill built">BUILT</span></td><td>Wire into SessionStart hook</td></tr>
+      <tr><td><code>phase-memory.ts</code></td><td><code>services/learning-loop/</code></td><td><span class="pill wired">WIRED</span></td><td>Keep as-is</td></tr>
+      <tr><td><code>admin-learning-loop.ts</code></td><td><code>services/api/src/routes/</code></td><td><span class="pill wired">WIRED</span></td><td>Build UI in ProDash</td></tr>
+      <tr><td><code>admin-warriors.ts</code></td><td><code>services/api/src/routes/</code></td><td><span class="pill wired">WIRED</span></td><td>Build UI in ProDash</td></tr>
+      <tr><td><code>dojo-sync.timer</code></td><td>systemd</td><td><span class="pill active">ACTIVE</span></td><td>Keep as-is (30 min sync)</td></tr>
+      <tr><td><code>extract-voltron-brain.ts</code></td><td><code>services/api/src/scripts/</code></td><td><span class="pill built">BUILT</span></td><td>Automate into WIRE_BRAIN_SYNC</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Net New Needed</h2>
+    <table>
+      <tr><th>Component</th><th>What</th><th>Where</th></tr>
+      <tr><td>System Synergy API</td><td>10 atomic tool endpoints</td><td><code>services/api/src/routes/system-synergy.ts</code></td></tr>
+      <tr><td>System Synergy UI</td><td>App-branded module (teal, like Pipeline Studio)</td><td><code>packages/ui/src/modules/system-synergy/</code></td></tr>
+      <tr><td>SessionEnd hook</td><td>Auto-trigger brain-export on session close</td><td><code>~/.claude/settings.json</code></td></tr>
+      <tr><td>SessionStart hook</td><td>Inject cross-warrior briefing</td><td><code>~/.claude/settings.json</code></td></tr>
+      <tr><td>systemd timers (3)</td><td>entity-extractor, gap-analyzer, claude-md-tracker</td><td><code>/etc/systemd/system/</code></td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════ KILL LIST ═══════════════════ -->
+<div class="tab-panel" id="kill-list">
+  <div class="card">
+    <h2>Kill / Consolidate</h2>
+    <p>Dead code, duplicates, and broken services that need to go.</p>
+    <table>
+      <tr><th>Component</th><th>Why</th><th>Action</th></tr>
+      <tr><td>V1 <code>dispatcher.ts</code></td><td>V2 dispatchers are the live ones. V1 still runs inside mdj-agent and posts duplicates.</td><td><span class="pill dead">KILL</span></td></tr>
+      <tr><td>V1 <code>git-monitor.ts</code></td><td>V2 <code>mdj-dispatch-git</code> replaced this. V1 was still posting #LandedIt.</td><td><span class="pill dead">KILL</span></td></tr>
+      <tr><td><code>mdj-agent/src/cron/knowledge-promote.ts</code></td><td>Duplicate of <code>services/learning-loop/</code> version. Consolidate to one.</td><td><span class="pill dead">REPLACE</span></td></tr>
+      <tr><td><code>raiden-guardian.py</code></td><td>Already disabled. Python backup for Node RAIDEN scheduler.</td><td><span class="pill dead">DELETE</span></td></tr>
+      <tr><td>Archived <code>knowledge-promote.js</code> (macOS v2)</td><td>Port the auto-write + confidence scoring logic, then archive forever.</td><td><span class="pill dead">PORT + DELETE</span></td></tr>
+      <tr><td><code>dojo-watchdog</code> timer + service</td><td>Disabled. Either wire it or kill it.</td><td><span class="pill dead">DECIDE</span></td></tr>
+      <tr><td><code>memory-guardian.service</code></td><td>Enabled but FAILING — path points to wrong location.</td><td><span class="pill dead">FIX PATH</span></td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Services Status — MDJ_SERVER</h2>
+    <table>
+      <tr><th>Service</th><th>Status</th><th>Purpose</th></tr>
+      <tr><td><code>mdj-agent.service</code></td><td><span class="pill active">ACTIVE</span></td><td>Main server: RAIDEN, VOLTRON, git-monitor, knowledge-promote</td></tr>
+      <tr><td><code>mdj-dispatch-dojo</code></td><td><span class="pill active">ACTIVE</span></td><td>Slack event router</td></tr>
+      <tr><td><code>mdj-dispatch-git</code></td><td><span class="pill active">ACTIVE</span></td><td>CI/deploy watcher</td></tr>
+      <tr><td><code>mdj-dispatch-assess</code></td><td><span class="pill active">ACTIVE</span></td><td>FORGE ticket analyzer</td></tr>
+      <tr><td><code>mdj-dispatch-digest</code></td><td><span class="pill active">ACTIVE</span></td><td>Mesh health monitor</td></tr>
+      <tr><td><code>mdj-dispatch-intake</code></td><td><span class="pill active">ACTIVE</span></td><td>Firestore queue watcher</td></tr>
+      <tr><td><code>dojo-sync.timer</code></td><td><span class="pill active">ACTIVE</span></td><td>CLAUDE.md sync every 30 min</td></tr>
+      <tr><td><code>memory-guardian</code></td><td><span class="pill dead">FAILING</span></td><td>OOM protection — wrong script path</td></tr>
+      <tr><td><code>dojo-watchdog</code></td><td><span class="pill dead">DISABLED</span></td><td>Warrior health check + queue injection</td></tr>
+      <tr><td><code>raiden-guardian</code></td><td><span class="pill dead">DISABLED</span></td><td>Python Slack poller backup</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════ IMPLEMENTATION ═══════════════════ -->
+<div class="tab-panel" id="phases">
+  <div class="card">
+    <div class="section-label">Phase 1 — Close the Loop</div>
+    <h2>Wire What's Already Built</h2>
+    <ol>
+      <li>Deploy <code>entity-extractor.ts</code> as systemd timer — daily 2am</li>
+      <li>Deploy <code>gap-analyzer.ts</code> as systemd timer — daily 3am</li>
+      <li>Deploy <code>claude-md-tracker.ts</code> timer — weekly Sunday 3am</li>
+      <li>Port v2 auto-write logic into <code>knowledge-promote.ts</code> — replace Slack-only with actual CLAUDE.md writes</li>
+      <li>Add SessionEnd hook &rarr; <code>brain-export</code> — auto-append to brain.txt</li>
+      <li>Add SessionStart hook &rarr; <code>cross-warrior-briefing</code></li>
+      <li>Fix <code>memory-guardian.service</code> path</li>
+      <li>Kill V1 dispatcher + git-monitor code from mdj-agent</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <div class="section-label">Phase 2 — System Synergy Atomic Tools</div>
+    <h2>Build the Observability Layer</h2>
+    <ol>
+      <li>Build 10 atomic tool API routes in <code>system-synergy.ts</code></li>
+      <li>Register all 10 in ATLAS as tools</li>
+      <li>Compose into 4 Super Tools</li>
+      <li>Wire into 4 Wires (KNOWLEDGE_PROMOTE, BRAIN_SYNC, PLATFORM_AUDIT, WARRIOR_BRIEFING)</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <div class="section-label">Phase 3 — System Synergy UI</div>
+    <h2>The App</h2>
+    <ol>
+      <li>Build System Synergy App — teal-branded, all 3 portals</li>
+      <li>Dashboard: platform health, knowledge pipeline status, warrior readiness</li>
+      <li>Admin: manual promote/demote, session browser, cleanup triggers</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <h2>Verification</h2>
+    <table>
+      <tr><th>After Phase</th><th>How You Know It Works</th></tr>
+      <tr><td>Phase 1</td><td>Entity extractor populates Firestore &rarr; knowledge-promote auto-writes to CLAUDE.md &rarr; brain.txt grows automatically &rarr; cross-warrior briefing appears at session start</td></tr>
+      <tr><td>Phase 2</td><td><code>GET /api/system-synergy/platform-health</code> returns full status</td></tr>
+      <tr><td>Phase 3</td><td>UI visible in all 3 portals under System Synergy section</td></tr>
+    </table>
+  </div>
+
+  <div class="insight">
+    <strong>Net effect:</strong> 50% of troubleshooting effort eliminated proactively. Warriors get smarter every session without manual intervention. Orphaned state, stale memories, broken hooks, and duplicate configs are caught before they cause problems.
+  </div>
+</div>
+
+</div><!-- end .content -->
+
+<div class="footer">
+  System Synergy Discovery Doc — SHINOB1, CTO — April 7, 2026<br>
+  <em>The Machine watches itself.</em>
+</div>
+
+<script>
+document.querySelectorAll('.tab').forEach(function(tab) {
+  tab.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+    document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+    tab.classList.add('active');
+    document.getElementById(tab.dataset.tab).classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+});
+</script>
+
+</body>
+</html>

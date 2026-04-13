@@ -54,10 +54,10 @@ const FILTER_TABS: { key: FilterKey; label: string; color: string }[] = [
 
 // Default column keys per product type
 const DEFAULT_COLUMNS: Record<FilterKey, string[]> = {
-  all: ['_clientName', 'account_number', 'carrier_name', 'product_type', 'status', 'effective_date', 'account_value'],
-  annuity: ['_clientName', 'carrier_name', 'product_name', 'account_type', 'tax_status', 'issue_date', 'market', 'account_value', 'account_number'],
-  life: ['_clientName', 'carrier_name', 'product_name', 'face_amount', 'premium', 'issue_date', 'status', 'cash_value', 'account_number'],
-  medicare: ['_clientName', 'carrier_name', 'plan_type', 'plan_id', 'effective_date', 'premium', 'coverage_type', 'status', 'account_number'],
+  all: ['_clientName', 'account_number', 'carrier', 'product_type', 'status', 'effective_date', 'account_value'],
+  annuity: ['_clientName', 'carrier', 'product_name', 'account_type', 'tax_status', 'issue_date', 'market', 'account_value', 'account_number'],
+  life: ['_clientName', 'carrier', 'product_name', 'face_amount', 'premium', 'issue_date', 'status', 'cash_value', 'account_number'],
+  medicare: ['_clientName', 'carrier', 'plan_type', 'plan_id', 'effective_date', 'premium', 'coverage_type', 'status', 'account_number'],
   investments: ['_clientName', 'custodian', 'account_type', 'account_value', 'advisor', 'account_number', 'effective_date', 'status'],
 }
 
@@ -65,7 +65,7 @@ const DEFAULT_COLUMNS: Record<FilterKey, string[]> = {
 const COLUMN_LABELS: Record<string, string> = {
   _clientName: 'Client',
   account_number: 'Account #',
-  carrier_name: 'Carrier',
+  carrier: 'Carrier',
   product_type: 'Type',
   product_name: 'Product',
   plan_name: 'Plan Name',
@@ -250,7 +250,7 @@ function NewAccountModal({ onClose, onCreated }: NewAccountModalProps) {
       const db = getDb()
       const accountData = {
         client_id: selectedClient.id,
-        carrier_name: carrierName.trim(),
+        carrier: carrierName.trim(),
         product_type: productType,
         account_number: accountNumber.trim(),
         status,
@@ -450,7 +450,7 @@ export default function AccountsPage() {
   const [showColumnPicker, setShowColumnPicker] = useState(false)
   const [dragColIdx, setDragColIdx] = useState<number | null>(null)
   const [overColIdx, setOverColIdx] = useState<number | null>(null)
-  const [sortKey, setSortKey] = useState<string | null>('carrier_name')
+  const [sortKey, setSortKey] = useState<string | null>('carrier')
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc')
   const [page, setPage] = useState(0)
   const [showNewModal, setShowNewModal] = useState(false)
@@ -472,7 +472,7 @@ export default function AccountsPage() {
   const loadAllAccounts = useCallback(async () => {
     try {
       const db = getDb()
-      const q = query(collectionGroup(db, 'accounts'), orderBy('carrier_name'))
+      const q = query(collectionGroup(db, 'accounts'), orderBy('carrier'))
       const snap = await getDocs(q)
       const rows: AccountRow[] = snap.docs.map((d) => {
         const data = d.data() as unknown as Account
@@ -535,7 +535,7 @@ export default function AccountsPage() {
   // Unique carriers — from ALL accounts
   const carriers = useMemo(() => {
     const set = new Set<string>()
-    accounts.forEach((a) => { const c = str(a.carrier_name) || str(a.carrier); if (c) set.add(c) })
+    accounts.forEach((a) => { const c = str(a.carrier); if (c) set.add(c) })
     return Array.from(set).sort()
   }, [accounts])
 
@@ -548,13 +548,13 @@ export default function AccountsPage() {
     }
 
     if (carrierFilter !== 'All') {
-      result = result.filter((a) => (str(a.carrier_name) || str(a.carrier)) === carrierFilter)
+      result = result.filter((a) => (str(a.carrier)) === carrierFilter)
     }
 
     if (search.trim()) {
       const q = search.toLowerCase()
       result = result.filter((a) =>
-        str(a.carrier_name).toLowerCase().includes(q) ||
+        str(a.carrier).toLowerCase().includes(q) ||
         str(a.product_name).toLowerCase().includes(q) ||
         str(a.plan_name).toLowerCase().includes(q) ||
         str(a.account_number).toLowerCase().includes(q) ||

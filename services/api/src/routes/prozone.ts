@@ -210,7 +210,7 @@ prozoneRoutes.get('/prospects/:specialist_id', async (req: Request, res: Respons
         zip: client.zip,
         phone: client.phone || client.phone_primary || '',
         age,
-        client_status: client.status || client.client_status,
+        status: client.status,
         source: client.source || '',
         inventory,
         flags,

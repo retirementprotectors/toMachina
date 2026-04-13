@@ -7,7 +7,7 @@
  *
  * Rule: A contact qualifies if:
  *   A) Has at least 1 account in their accounts subcollection, OR
- *   B) Has first_name AND last_name AND at least 1 of: phone, email, address_street
+ *   B) Has first_name AND last_name AND at least 1 of: phone, email, address
  *
  * Run: cd ~/Projects/toMachina && npx tsx services/api/src/scripts/validate-client-qualification.ts
  */
@@ -31,7 +31,7 @@ interface ClientRecord {
   last_name?: string
   phone?: string
   email?: string
-  address_street?: string
+  address?: string
   client_status?: string
   book_of_business?: string
   ghl_contact_id?: string
@@ -56,7 +56,7 @@ async function registerTool(): Promise<void> {
     description: 'Validates that a contact meets minimum data requirements: has an account OR has first+last name plus at least one contact method (phone, email, address)',
     type: 'VALIDATOR',
     status: 'ACTIVE',
-    rule: 'HAS_ACCOUNT || (first_name && last_name && (phone || email || address_street))',
+    rule: 'HAS_ACCOUNT || (first_name && last_name && (phone || email || address))',
     placement: 'Pre-import filter on all client demographic wires',
     created_at: new Date().toISOString(),
   }
@@ -123,7 +123,7 @@ async function validateClients(): Promise<{ qualified: ClientRecord[]; disqualif
       const hasLastName = hasValue(data.last_name)
       const hasPhone = hasValue(data.phone)
       const hasEmail = hasValue(data.email)
-      const hasAddress = hasValue(data.address_street)
+      const hasAddress = hasValue(data.address)
       const hasContactMethod = hasPhone || hasEmail || hasAddress
       const hasNameAndContact = hasFirstName && hasLastName && hasContactMethod
 
@@ -135,7 +135,7 @@ async function validateClients(): Promise<{ qualified: ClientRecord[]; disqualif
         last_name: data.last_name || '',
         phone: data.phone || '',
         email: data.email || '',
-        address_street: data.address_street || '',
+        address: data.address || '',
         client_status: data.client_status || '',
         book_of_business: data.book_of_business || '',
         ghl_contact_id: data.ghl_contact_id || '',
@@ -186,7 +186,7 @@ async function validateClients(): Promise<{ qualified: ClientRecord[]; disqualif
       console.log(`    BoB:        ${r.book_of_business || '(empty)'}`)
       console.log(`    Phone:      ${r.phone || '(empty)'}`)
       console.log(`    Email:      ${r.email || '(empty)'}`)
-      console.log(`    Address:    ${r.address_street || '(empty)'}`)
+      console.log(`    Address:    ${r.address || '(empty)'}`)
       console.log(`    GHL ID:     ${r.ghl_contact_id || '(empty)'}`)
       console.log(`    Accounts:   ${r.account_count}`)
       console.log(`    Reason:     ${r.disqualification_reason}`)
@@ -200,7 +200,7 @@ async function validateClients(): Promise<{ qualified: ClientRecord[]; disqualif
     console.log('')
     for (const r of qualified) {
       const name = `${r.first_name || '?'} ${r.last_name || '?'}`
-      const contact = [r.phone, r.email, r.address_street].filter(Boolean).join(' | ')
+      const contact = [r.phone, r.email, r.address].filter(Boolean).join(' | ')
       const accts = r.account_count > 0 ? ` [${r.account_count} acct(s)]` : ''
       console.log(`  ${r.doc_id} — ${name} — ${contact || '(no contact info)'}${accts}`)
     }

@@ -8,29 +8,29 @@ import type { CollectionSchema } from '../types/guardian'
 
 export const COLLECTION_SCHEMAS: Record<string, CollectionSchema> = {
   clients: {
-    required: ['first_name', 'last_name', 'client_status'],
+    required: ['first_name', 'last_name', 'status'],
     neverNull: ['first_name', 'last_name'],
     immutableAfterCreate: ['client_id', 'created_at'],
     recommended: ['email', 'phone', 'dob', 'household_id'],
   },
 
   accounts: {
-    required: ['client_id', 'carrier_name', 'status'],
-    neverNull: ['client_id', 'carrier_name'],
+    required: ['client_id', 'carrier', 'status'],
+    neverNull: ['client_id', 'carrier'],
     immutableAfterCreate: ['created_at'],
     recommended: ['charter', 'naic', 'carrier_id', 'policy_number'],
   },
 
   accounts_life: {
-    required: ['client_id', 'carrier_name', 'status'],
-    neverNull: ['client_id', 'carrier_name'],
+    required: ['client_id', 'carrier', 'status'],
+    neverNull: ['client_id', 'carrier'],
     immutableAfterCreate: ['created_at'],
     recommended: ['charter', 'naic', 'carrier_id', 'policy_number'],
   },
 
   accounts_investments: {
-    required: ['client_id', 'carrier_name', 'status'],
-    neverNull: ['client_id', 'carrier_name'],
+    required: ['client_id', 'carrier', 'status'],
+    neverNull: ['client_id', 'carrier'],
     immutableAfterCreate: ['created_at'],
     recommended: ['charter', 'naic', 'carrier_id'],
   },
@@ -61,7 +61,7 @@ export const COLLECTION_SCHEMAS: Record<string, CollectionSchema> = {
   },
 
   revenue: {
-    required: ['client_id', 'carrier_name', 'amount'],
+    required: ['client_id', 'carrier', 'amount'],
     neverNull: ['client_id'],
     immutableAfterCreate: ['created_at'],
   },

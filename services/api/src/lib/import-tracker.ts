@@ -175,9 +175,9 @@ async function updateSourceRegistryFromRun(
 ): Promise<void> {
   const db = getFirestore()
 
-  // Try matching by carrier_name or source_name
+  // Try matching by carrier or source_name
   const queries = [
-    db.collection(SOURCE_COLLECTION).where('carrier_name', '==', source).limit(1),
+    db.collection(SOURCE_COLLECTION).where('carrier', '==', source).limit(1),
     db.collection(SOURCE_COLLECTION).where('source_name', '==', source).limit(1),
   ]
 

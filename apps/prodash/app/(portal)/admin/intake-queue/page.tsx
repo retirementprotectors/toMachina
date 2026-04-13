@@ -1,5 +1,5 @@
-import { IntakeQueue } from '@tomachina/ui/src/modules/IntakeQueue'
+import { PageGuard } from './guard'
 
 export default function IntakeQueuePage() {
-  return <IntakeQueue />
+  return <PageGuard />
 }

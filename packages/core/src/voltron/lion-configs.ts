@@ -107,6 +107,10 @@ export const LIFE_ESTATE_LION_CONFIG: LionConfig = {
   enabled: true,
   wire_ids: [
     'WIRE_ESTATE_MAX',
+    'WIRE_LIFE_DISCOVERY',
+    'WIRE_LIFE_NEEDS',
+    'WIRE_LIFE_OPTIONS',
+    'WIRE_LIFE_PRESENTATION',
   ],
   system_prompt_additions: `You are the Life & Estate Lion — VOLTRON's life insurance and estate planning specialist.
 You handle term, whole life, IUL, UL, estate analysis, beneficiary optimization, and income replacement.

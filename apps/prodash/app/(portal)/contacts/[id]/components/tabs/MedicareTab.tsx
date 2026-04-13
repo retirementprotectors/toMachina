@@ -76,7 +76,7 @@ function MedicarePlanCard({ account }: { account: Account }) {
         <div className="flex items-start justify-between">
           <div>
             <p className="text-base font-semibold text-[var(--text-primary)]">
-              {str(account.carrier_name) || str(account.carrier) || 'Unknown Carrier'}
+              {str(account.carrier) || str(account.carrier) || 'Unknown Carrier'}
             </p>
             <p className="mt-0.5 text-sm text-[var(--text-secondary)]">
               {str(account.plan_name) || str(account.product_name) || str(account.product) || 'Unknown Plan'}
@@ -91,7 +91,7 @@ function MedicarePlanCard({ account }: { account: Account }) {
         <FieldGrid cols={3}>
           <DetailField label="Plan Type" value={planType} />
           <DetailField label="Policy Number" value={str(account.account_number) || str(account.policy_number) || str(account.contract_number)} mono />
-          <DetailField label="Carrier" value={str(account.carrier_name) || str(account.carrier)} />
+          <DetailField label="Carrier" value={str(account.carrier) || str(account.carrier)} />
           <DetailField label="Monthly Premium" value={formatCurrency(account.monthly_premium || account.premium)} />
           <DetailField label="Effective Date" value={formatDate(account.effective_date || account.issue_date)} />
           <DetailField label="Medicare ID" value={str(account.medicare_id)} mono />

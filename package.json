@@ -6,7 +6,6 @@
     "packages/*",
     "services/api",
     "services/bigquery-stream",
-    "services/bridge",
     "services/intake",
     "services/webhooks"
   ],
@@ -27,7 +26,8 @@
     "test:e2e:ui": "npx playwright test --project=setup --project=chromium",
     "test:e2e:seed": "npx tsx tests/e2e/scripts/seed-test-client.ts",
     "test:e2e:pure": "vitest run --config tests/e2e/vitest.pure.config.ts",
-    "generate:voltron-registry": "npx tsx scripts/generate-voltron-registry.ts"
+    "generate:voltron-registry": "npx tsx scripts/generate-voltron-registry.ts",
+    "onboard-partner": "npx tsx services/api/src/scripts/onboard-partner.ts"
   },
   "devDependencies": {
     "@anthropic-ai/sdk": "^0.82.0",

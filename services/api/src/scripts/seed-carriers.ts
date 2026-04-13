@@ -1294,10 +1294,10 @@ async function seedFirestoreCarriers(
     // Write alias fields so all consumers work regardless of which field name they read:
     // - display_name: original seed field
     // - name: core Carrier interface + accounts page
-    // - carrier_name: pipeline page + API search
+    // - carrier: pipeline page + API search
     writes.push({
       docId: carrier.carrier_id,
-      data: { ...carrier, name: carrier.display_name, carrier_name: carrier.display_name },
+      data: { ...carrier, name: carrier.display_name, carrier: carrier.display_name },
     })
   }
 
@@ -1345,7 +1345,7 @@ async function seedBigQueryMapping(dryRun: boolean): Promise<number> {
   const rows: Array<{
     serff_company: string
     serff_naic: number
-    rpi_carrier_name: string
+    rpi_carrier: string
     rpi_carrier_id: string
     match_method: string
     verified: boolean
@@ -1358,7 +1358,7 @@ async function seedBigQueryMapping(dryRun: boolean): Promise<number> {
         rows.push({
           serff_company: charter.legal_name,
           serff_naic: charter.naic,
-          rpi_carrier_name: carrier.display_name,
+          rpi_carrier: carrier.display_name,
           rpi_carrier_id: carrier.carrier_id,
           match_method: 'manual_seed',
           verified: true,
@@ -1373,7 +1373,7 @@ async function seedBigQueryMapping(dryRun: boolean): Promise<number> {
   if (dryRun) {
     console.log('  [DRY RUN] Would insert:')
     for (const r of rows) {
-      console.log(`    ${r.serff_naic} | ${r.serff_company} → ${r.rpi_carrier_name} (${r.rpi_carrier_id})`)
+      console.log(`    ${r.serff_naic} | ${r.serff_company} → ${r.rpi_carrier} (${r.rpi_carrier_id})`)
     }
     return rows.length
   }
@@ -1400,7 +1400,7 @@ async function seedBigQueryMapping(dryRun: boolean): Promise<number> {
 // ============================================================================
 
 /**
- * Parse GHL-format carrier_name into components.
+ * Parse GHL-format carrier into components.
  *
  * Patterns:
  *   "AETNA (ACC)- ACCENDO"       → parent: AETNA, short_code: ACC, charter_name: ACCENDO
@@ -1448,8 +1448,8 @@ function parseCarrierName(name: string): ParsedCarrierName {
 }
 
 /**
- * Build a lookup index for matching carrier_name to our carrier data.
- * Returns a function that takes a carrier_name and returns the match result.
+ * Build a lookup index for matching carrier to our carrier data.
+ * Returns a function that takes a carrier and returns the match result.
  */
 interface MatchResult {
   carrier_id: string
@@ -1749,7 +1749,7 @@ async function updateMedicareAccounts(
 
       for (const accDoc of accountsSnap.docs) {
         const data = accDoc.data()
-        const carrierName = data.carrier_name as string | undefined
+        const carrierName = data.carrier as string | undefined
 
         if (!carrierName) continue
         totalAccounts++
@@ -1790,13 +1790,13 @@ async function updateMedicareAccounts(
     }
 
     clientsProcessed += clientSnap.size
-    process.stdout.write(`\r  Processed ${clientsProcessed} clients, ${totalAccounts} accounts with carrier_name, ${matched} matched, ${unmatched} unmatched`)
+    process.stdout.write(`\r  Processed ${clientsProcessed} clients, ${totalAccounts} accounts with carrier, ${matched} matched, ${unmatched} unmatched`)
   }
 
   console.log('') // newline after progress
   console.log(`\n  Summary:`)
   console.log(`    Clients processed: ${clientsProcessed}`)
-  console.log(`    Accounts with carrier_name: ${totalAccounts}`)
+  console.log(`    Accounts with carrier: ${totalAccounts}`)
   console.log(`    Matched to parent carrier: ${matched}`)
   console.log(`    Unmatched: ${unmatched}`)
 

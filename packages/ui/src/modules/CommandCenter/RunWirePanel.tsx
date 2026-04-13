@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import type { VoltronLionDomain } from '@tomachina/core'
+import { authFetch } from './auth-fetch'
 
 // ── Types ──────────────────────────────────────────────────────────────
 
@@ -100,7 +101,7 @@ export function RunWirePanel() {
     setSearching(true)
     try {
       const normalized = normalizeSearch(query)
-      const res = await fetch(`/api/clients?search=${encodeURIComponent(normalized)}&limit=10`)
+      const res = await authFetch(`/api/clients?search=${encodeURIComponent(normalized)}&limit=10`)
       if (res.ok) {
         const json = await res.json()
         const clients = (json.data ?? []).map((c: Record<string, unknown>) => ({
@@ -132,7 +133,7 @@ export function RunWirePanel() {
     setResult(null)
 
     try {
-      const res = await fetch('/api/voltron/wire/execute', {
+      const res = await authFetch('/api/voltron/wire/execute', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

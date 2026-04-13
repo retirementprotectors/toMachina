@@ -156,12 +156,15 @@ export default function AccountDetailPage({
   if (error || !account) {
     return (
       <div className="mx-auto max-w-4xl space-y-6">
-        <div className="flex items-center gap-4">
-          <Link href="/accounts" className="inline-flex items-center gap-1.5 text-sm text-[var(--text-muted)] hover:text-[var(--portal)]">
-            <span className="material-icons-outlined text-[18px]">arrow_back</span>
-            Back to Accounts
+        <nav className="flex items-center gap-1.5 text-sm">
+          <Link href="/accounts" className="text-[var(--text-muted)] transition-colors hover:text-[var(--portal)]">
+            Accounts
           </Link>
-        </div>
+          <span className="material-icons-outlined text-[14px] text-[var(--text-muted)]">chevron_right</span>
+          <Link href={`/contacts/${clientId}`} className="text-[var(--text-muted)] transition-colors hover:text-[var(--portal)]">
+            {client ? `${str(client.first_name)} ${str(client.last_name)}` : 'Client'}
+          </Link>
+        </nav>
         <div className="flex flex-col items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] py-20">
           <span className="material-icons-outlined text-5xl text-[var(--text-muted)]">account_balance_wallet</span>
           <h2 className="mt-4 text-xl font-semibold text-[var(--text-primary)]">Account not found</h2>
@@ -176,20 +179,20 @@ export default function AccountDetailPage({
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
-      {/* Navigation buttons */}
-      <div className="flex items-center justify-between">
-        <Link href="/accounts" className="inline-flex items-center gap-1.5 text-sm text-[var(--text-muted)] hover:text-[var(--portal)]">
-          <span className="material-icons-outlined text-[18px]">arrow_back</span>
-          Back to Accounts
+      {/* Breadcrumb navigation */}
+      <nav className="flex items-center gap-1.5 text-sm">
+        <Link href="/accounts" className="text-[var(--text-muted)] transition-colors hover:text-[var(--portal)]">
+          Accounts
         </Link>
-        <Link
-          href={`/contacts/${clientId}`}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--portal)] px-4 py-2 text-sm font-medium text-white transition-colors hover:brightness-110"
-        >
-          <span className="material-icons-outlined text-[16px]">person</span>
-          View Client
+        <span className="material-icons-outlined text-[14px] text-[var(--text-muted)]">chevron_right</span>
+        <Link href={`/contacts/${clientId}`} className="text-[var(--text-muted)] transition-colors hover:text-[var(--portal)]">
+          {clientName}
         </Link>
-      </div>
+        <span className="material-icons-outlined text-[14px] text-[var(--text-muted)]">chevron_right</span>
+        <span className="font-medium text-[var(--text-primary)]">
+          {str(account.carrier) || str(account.product_name) || 'Account'}
+        </span>
+      </nav>
 
       {/* Header card */}
       <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-6">
@@ -199,7 +202,7 @@ export default function AccountDetailPage({
               {str(account.product_type) || str(account.account_type_category) || str(account.account_type) || 'Account'}
             </p>
             <h1 className="mt-1 text-2xl font-bold text-[var(--text-primary)]">
-              {str(account.carrier_name) || str(account.carrier) || 'Unknown Carrier'}
+              {str(account.carrier) || str(account.carrier) || 'Unknown Carrier'}
             </h1>
             <p className="mt-1 text-sm text-[var(--text-secondary)]">
               {str(account.product_name) || str(account.plan_name) || ''}
@@ -332,7 +335,7 @@ function buildAnnuitySections(a: Account): SectionDef[] {
     {
       title: 'Contract Details', icon: 'savings',
       fields: [
-        f('Carrier', 'carrier_name', a.carrier_name),
+        f('Carrier', 'carrier', a.carrier),
         f('Product', 'product_name', a.product_name),
         f('Account Type', 'account_type', a.account_type),
         f('Tax Status', 'tax_status', a.tax_status, { type: 'select', options: ['IRA','Roth IRA','Non-Qualified','401(k)','403(b)','SEP IRA','SIMPLE IRA','Inherited IRA'].map(v => ({ label: v, value: v })) }),
@@ -423,7 +426,7 @@ function buildLifeSections(a: Account): SectionDef[] {
     {
       title: 'Policy Details', icon: 'favorite',
       fields: [
-        f('Carrier', 'carrier_name', a.carrier_name),
+        f('Carrier', 'carrier', a.carrier),
         f('Parent Carrier', 'parent_carrier', a.parent_carrier),
         f('Product', 'product_name', a.product_name),
         f('Policy Type', 'policy_type', a.policy_type || a.product_type),
@@ -500,7 +503,7 @@ function buildMedicareSections(a: Account): SectionDef[] {
     {
       title: 'Plan Details', icon: 'health_and_safety',
       fields: [
-        f('Carrier', 'carrier_name', a.carrier_name),
+        f('Carrier', 'carrier', a.carrier),
         f('Parent Carrier', 'parent_carrier', a.parent_carrier),
         f('Plan Name', 'plan_name', a.plan_name),
         f('Plan Type', 'plan_type', a.plan_type || a.product_type),
@@ -556,7 +559,7 @@ function buildInvestmentSections(a: Account): SectionDef[] {
     {
       title: 'Account Details', icon: 'show_chart',
       fields: [
-        f('Custodian', 'custodian', a.custodian || a.carrier_name),
+        f('Custodian', 'custodian', a.custodian || a.carrier),
         f('Custodian ID', 'custodian_id', a.custodian_id, { mono: true }),
         f('Custodian Account #', 'custodian_account_number', a.custodian_account_number, { mono: true }),
         f('Account Type', 'account_type', a.account_type),
@@ -605,7 +608,7 @@ function buildInvestmentSections(a: Account): SectionDef[] {
 
 function buildGenericSections(a: Account): SectionDef[] {
   const skip = new Set(['_id', '_migrated_at', '_source', 'client_id', 'ghl_contact_id', 'ghl_object_id', 'import_source', 'created_at', 'updated_at', 'account_type_category'])
-  const headerShown = new Set(['carrier_name', 'product_name', 'plan_name', 'product_type', 'account_type', 'status', 'account_value', 'premium', 'annual_premium', 'account_number', 'policy_number', 'contract_number', 'issue_date', 'effective_date'])
+  const headerShown = new Set(['carrier', 'product_name', 'plan_name', 'product_type', 'account_type', 'status', 'account_value', 'premium', 'annual_premium', 'account_number', 'policy_number', 'contract_number', 'issue_date', 'effective_date'])
 
   const fields: FieldDef[] = []
   for (const [key, val] of Object.entries(a)) {

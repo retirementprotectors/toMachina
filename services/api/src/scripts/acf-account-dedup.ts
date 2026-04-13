@@ -2,7 +2,7 @@
  * ACF Account Dedup (TRK-13603)
  *
  * Detects duplicate accounts across all client subcollections:
- *   - Groups by normalized policy_number::carrier_name
+ *   - Groups by normalized policy_number::carrier
  *   - Same-client dupes: auto-merge eligible (keep richer, backfill blanks)
  *   - Cross-client dupes: flagged for review (may indicate missed client merge)
  *   - All actions logged to atlas_audit
@@ -34,7 +34,7 @@ interface AccountRecord {
   policy_number?: string
   account_number?: string
   contract_number?: string
-  carrier_name?: string
+  carrier?: string
   custodian?: string
   status?: string
   [key: string]: unknown
@@ -84,7 +84,7 @@ function buildDedupKey(account: AccountRecord): string | null {
   ).trim().toLowerCase()
 
   const carrier = (
-    account.carrier_name ||
+    account.carrier ||
     account.custodian ||
     ''
   ).trim().toLowerCase()
