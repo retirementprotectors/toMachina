@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Retirement — Retirement Protectors, Inc.</title>
+<meta name="description" content="Retirement, planned. Your income blueprint — Traditional IRA, Roth, 401(k), annuities, and the tax moves that make them work together.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;600&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --rpi-289: #0a2240;
+    --rpi-283: #92c0e9;
+    --rpi-medium: #12416b;
+    --rpi-pale: #abd2ef;
+    --rpi-royal: #23558c;
+    --rpi-mist: #cae7f9;
+    --ink: #1a1a1a;
+    --ink-soft: #3a4456;
+    --paper: #f4f4f5;
+    --paper-warm: #fafbfc;
+    --rule: #d0dae6;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: var(--paper); color: var(--ink); font-family: 'Mulish', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; line-height: 1.55; }
+  h1, h2, h3, h4, h5 { font-family: 'Poppins', sans-serif; color: var(--rpi-289); line-height: 1.2; letter-spacing: -0.01em; }
+  .page { width: 8.5in; min-height: 11in; background: white; margin: 0.5in auto; padding: 0.6in 0.65in; box-shadow: 0 1px 24px rgba(10,34,64,0.08); position: relative; }
+  .page + .page { margin-top: 1rem; }
+
+  /* Page header — white-label editorial (logo moved to footer per JDM 2026-04-13) */
+  .hero { border-bottom: 3px solid var(--rpi-289); padding-bottom: 22px; margin-bottom: 28px; }
+  .eyebrow { font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--rpi-medium); margin-bottom: 12px; }
+  .hero h1 { font-size: 54px; font-weight: 800; color: var(--rpi-289); margin-bottom: 10px; letter-spacing: -0.025em; line-height: 1.02; }
+  .hero-tagline { font-family: 'Poppins', sans-serif; font-weight: 500; font-size: 18px; color: var(--ink-soft); max-width: 75%; }
+  .shield { width: 42px; height: auto; vertical-align: middle; }
+  .shield-sm { width: 28px; height: auto; vertical-align: middle; }
+
+  .intro { font-family: 'Poppins', sans-serif; font-weight: 400; font-size: 14.5px; line-height: 1.65; color: var(--ink-soft); margin-bottom: 28px; max-width: 88%; }
+  .intro strong { color: var(--rpi-289); font-weight: 600; }
+
+  /* Steps */
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 28px; }
+  .step { background: var(--paper-warm); border: 1px solid var(--rule); border-left: 4px solid var(--rpi-royal); padding: 16px 16px 14px; border-radius: 4px; }
+  .step-num { font-family: 'Poppins', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--rpi-royal); margin-bottom: 6px; }
+  .step h3 { font-size: 15px; font-weight: 700; color: var(--rpi-289); margin-bottom: 6px; }
+  .step p { font-size: 12.5px; color: var(--ink-soft); line-height: 1.5; }
+
+  /* Parts table */
+  h2 { font-size: 22px; font-weight: 700; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--rule); }
+  .parts-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-bottom: 24px; }
+  .part { padding: 14px 16px; border-radius: 4px; background: var(--paper-warm); border: 1px solid var(--rule); }
+  .part-label { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--rpi-medium); margin-bottom: 4px; }
+  .part h4 { font-size: 16px; font-weight: 700; color: var(--rpi-289); margin-bottom: 8px; }
+  .part p { font-size: 12.5px; color: var(--ink-soft); line-height: 1.55; }
+  .part.accent { background: linear-gradient(180deg, rgba(146,192,233,0.2), rgba(146,192,233,0.05)); border-color: var(--rpi-283); }
+
+  /* Key numbers */
+  .numbers { background: var(--rpi-289); color: white; padding: 22px 24px; border-radius: 6px; margin-bottom: 20px; position: relative; overflow: hidden; }
+  .numbers::before { content: ''; position: absolute; top: -20px; right: -20px; width: 140px; height: 140px; background-image: url('../assets/rpi/rpi-shield-mark.png'); background-size: contain; background-repeat: no-repeat; background-position: right top; opacity: 0.12; pointer-events: none; }
+  .numbers h2 { color: white; border-bottom-color: rgba(255,255,255,0.2); position: relative; z-index: 1; }
+  .numbers .num-grid { position: relative; z-index: 1; }
+  .num-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-top: 12px; }
+  .num { text-align: center; }
+  .num .value { font-family: 'Poppins', sans-serif; font-size: 22px; font-weight: 700; color: white; line-height: 1.1; }
+  .num .label { font-size: 10px; color: var(--rpi-pale); line-height: 1.4; margin-top: 4px; letter-spacing: 0.02em; }
+
+  /* Page 2 — RMD table */
+  .medigap-grid { width: 100%; border-collapse: collapse; font-size: 11.5px; margin-bottom: 20px; }
+  .medigap-grid th, .medigap-grid td { padding: 7px 5px; text-align: center; border: 1px solid var(--rule); }
+  .medigap-grid thead th { background: var(--rpi-289); color: white; font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 11px; letter-spacing: 0.04em; }
+  .medigap-grid tbody td:first-child { text-align: left; padding-left: 10px; font-weight: 500; color: var(--rpi-medium); font-size: 11px; }
+  .medigap-grid .dot { color: var(--rpi-royal); font-weight: 700; }
+  .medigap-grid .partial { color: var(--ink-soft); font-size: 10px; }
+
+  /* 72(t) callout */
+  .aep { background: linear-gradient(135deg, var(--rpi-medium), var(--rpi-289)); color: white; padding: 18px 22px; border-radius: 6px; margin-bottom: 20px; display: flex; gap: 18px; align-items: center; }
+  .aep .shield { width: 52px; filter: brightness(1.1); flex-shrink: 0; }
+  .aep-text h3 { color: white; font-size: 16px; margin-bottom: 4px; }
+  .aep-text p { font-size: 12px; color: var(--rpi-pale); line-height: 1.5; }
+
+  /* Beneficiary / distribution event list */
+  .sep { background: var(--paper-warm); border: 1px solid var(--rule); padding: 16px 20px; border-radius: 4px; margin-bottom: 20px; }
+  .sep h3 { font-size: 15px; margin-bottom: 10px; }
+  .sep ul { column-count: 2; column-gap: 24px; list-style: none; font-size: 12.5px; color: var(--ink-soft); }
+  .sep ul li { padding-left: 18px; position: relative; margin-bottom: 5px; break-inside: avoid; }
+  .sep ul li::before { content: '▪'; color: var(--rpi-royal); position: absolute; left: 0; top: 0; }
+
+  /* Footer — white-label band (JDM 2026-04-13: logo lives at bottom, partner-swap friendly) */
+  .footer { margin-top: 28px; padding-top: 18px; border-top: 2px solid var(--rpi-289); display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+  .footer-logo-zone { flex: 1; }
+  .footer-logo { width: 220px; height: auto; display: block; }
+  .footer-contact { text-align: right; font-size: 11px; color: var(--ink-soft); line-height: 1.7; font-family: 'Poppins', sans-serif; }
+  .footer-contact strong { color: var(--rpi-289); font-size: 11.5px; display: block; margin-bottom: 2px; font-weight: 700; }
+  .footer-meta { font-family: 'Poppins', sans-serif; font-size: 10.5px; color: var(--ink-soft); letter-spacing: 0.08em; text-transform: uppercase; }
+  .footer-meta .pg { color: var(--rpi-medium); font-weight: 700; }
+  .footer-contact strong { color: var(--rpi-289); }
+
+  .compliance { background: #f7f9fc; border: 1px solid var(--rule); padding: 10px 13px; border-radius: 4px; font-size: 9.5px; color: var(--ink-soft); line-height: 1.5; margin-top: 14px; }
+  .compliance strong { color: var(--rpi-medium); }
+
+  /* Preview (non-print) navigation */
+  .preview-nav { position: fixed; top: 10px; right: 10px; background: var(--rpi-289); color: white; padding: 10px 14px; border-radius: 6px; font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 600; box-shadow: 0 2px 12px rgba(0,0,0,0.25); z-index: 1000; }
+  .preview-nav a { color: var(--rpi-pale); text-decoration: none; margin-left: 10px; }
+  .preview-nav a:hover { color: white; }
+
+  /* Print */
+  @media print {
+    body { background: white; }
+    .page { margin: 0; box-shadow: none; width: 100%; min-height: 100vh; page-break-after: always; padding: 0.5in 0.55in; }
+    .page:last-child { page-break-after: auto; }
+    .preview-nav { display: none; }
+    @page { size: letter; margin: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="preview-nav">
+  DRAFT · Retirement v1 · <a href="#p1">P1</a> <a href="#p2">P2</a> <a onclick="window.print()" style="cursor:pointer">Print</a>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- PAGE 1 -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<div class="page" id="p1">
+
+  <div class="hero">
+    <div class="eyebrow">Retirement &middot; Income + Tax Planning</div>
+    <h1>Retirement, Planned.</h1>
+    <div class="hero-tagline">Your income blueprint &mdash; Traditional IRA, Roth, 401(k), annuities, and the tax moves that make them work together.</div>
+  </div>
+
+  <p class="intro">
+    Retirement isn't one account type &mdash; it's a stack. Tax-deferred, tax-free, and taxable. Pre-tax contributions, Roth conversions, Required Minimum Distributions, 1035 exchanges. <strong>This guide walks you through the moving parts so you can see the whole picture</strong> &mdash; and the tax strategy that lets it breathe.
+  </p>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">Step 1</div>
+      <h3>Know your accounts</h3>
+      <p>Pre-tax (Traditional IRA, 401(k), 403(b), 457, TSP, SEP, SIMPLE) vs. Roth (after-tax contributions, tax-free growth) vs. Taxable brokerage (capital gains treatment).</p>
+    </div>
+    <div class="step">
+      <div class="step-num">Step 2</div>
+      <h3>Know your income</h3>
+      <p>Systematic withdrawals, annuities (FIA, MYGA, variable), Social Security coordination, and RMDs &mdash; timing each source changes your tax picture entirely.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">Step 3</div>
+      <h3>Know your taxes</h3>
+      <p>1035 exchanges (tax-free between annuities/life), Roth conversion windows, RMD timing, 72(t) SEPP &mdash; the levers that determine what you actually keep.</p>
+    </div>
+  </div>
+
+  <h2>4 Account Types</h2>
+  <div class="parts-grid">
+    <div class="part">
+      <div class="part-label">Traditional IRA</div>
+      <h4>Pre-Tax, Tax-Deferred Growth</h4>
+      <p>Contributions are pre-tax (deductibility phased out by income if you have a workplace plan). Distributions are ordinary income. RMDs begin at age 73. Rollovers from employer plans accepted.</p>
+    </div>
+    <div class="part">
+      <div class="part-label">Roth IRA</div>
+      <h4>After-Tax, Tax-Free Growth</h4>
+      <p>After-tax contributions; earnings grow and distribute tax-free. No RMDs during the owner's lifetime. 5-year rule applies to earnings. Income limits apply to direct contributions &mdash; backdoor strategies available.</p>
+    </div>
+    <div class="part accent">
+      <div class="part-label">Employer Plans</div>
+      <h4>401(k) / 403(b) / 457 / TSP</h4>
+      <p>Pre-tax or Roth variants. Employer match is free money &mdash; take it all. Higher contribution limits than IRA. Can roll to IRA at separation or retirement. 457(b) has no early-withdrawal penalty.</p>
+    </div>
+    <div class="part">
+      <div class="part-label">Non-Qualified Annuity</div>
+      <h4>After-Tax, Tax-Deferred Growth</h4>
+      <p>After-tax contribution, tax-deferred growth inside the contract. Ordinary income only on the earnings portion (not basis). 1035 exchange moves the contract tax-free, preserving cost basis. No contribution limits.</p>
+    </div>
+  </div>
+
+  <div class="numbers">
+    <h2>Key Numbers &mdash; 2026</h2>
+    <div class="num-grid">
+      <div class="num"><div class="value">$7,000</div><div class="label">IRA Contribution<br>Limit</div></div>
+      <div class="num"><div class="value">$1,000</div><div class="label">IRA Catch-up<br>Age 50+</div></div>
+      <div class="num"><div class="value">$23,500</div><div class="label">401(k) Contribution<br>Limit</div></div>
+      <div class="num"><div class="value">$7,500</div><div class="label">401(k) Catch-up<br>Age 50+</div></div>
+      <div class="num"><div class="value">73</div><div class="label">RMD Age<br>(SECURE 2.0)</div></div>
+    </div>
+    <p style="font-size:10px; color:var(--rpi-pale); margin-top:12px; position:relative; z-index:1;">Source: IRS 2026. Roth conversions have no income limit. Backdoor Roth strategies remain available.</p>
+  </div>
+
+  <div class="footer">
+    <div class="footer-logo-zone">
+      <img src="../assets/rpi/rpi-logo-v2-color.png" alt="Retirement Protectors, Inc. — We're Your People" class="footer-logo" />
+    </div>
+    <div class="footer-contact">
+      <strong>RetireProtected.com</strong>
+      515-992-5000 &middot; 877-650-7015<br>
+      Service@RetireProtected.com
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- PAGE 2 -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<div class="page" id="p2">
+
+  <div class="hero">
+    <div class="eyebrow">Retirement &middot; RMDs + Distribution Rules</div>
+    <h1>When the IRS Comes Knocking.</h1>
+    <div class="hero-tagline">Required Minimum Distributions, 72(t) exceptions, and beneficiary rules that protect your heirs.</div>
+  </div>
+
+  <h2>RMD Uniform Lifetime Table &mdash; 2026</h2>
+  <p class="intro" style="margin-bottom:16px;">
+    The IRS requires withdrawals from pre-tax retirement accounts beginning at age 73. <strong>Your RMD = prior year-end balance &divide; your Uniform Lifetime Table divisor.</strong> Missing or under-withdrawing triggers a 25% excise tax on the shortfall (reduced to 10% if corrected within 2 years).
+  </p>
+
+  <table class="medigap-grid">
+    <thead>
+      <tr>
+        <th style="text-align:left; padding-left:10px;">Age</th>
+        <th>Divisor</th>
+        <th>% Required</th>
+        <th style="text-align:left; padding-left:10px;">Age</th>
+        <th>Divisor</th>
+        <th>% Required</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="text-align:left; padding-left:10px; font-weight:600; color:var(--rpi-medium);">73</td><td>26.5</td><td>3.77%</td>
+        <td style="text-align:left; padding-left:10px; font-weight:600; color:var(--rpi-medium);">80</td><td>20.2</td><td>4.95%</td>
+      </tr>
+      <tr>
+        <td style="text-align:left; padding-left:10px; font-weight:600; color:var(--rpi-medium);">74</td><td>25.5</td><td>3.92%</td>
+        <td style="text-align:left; padding-left:10px; font-weight:600; color:var(--rpi-medium);">82</td><td>18.5</td><td>5.41%</td>
+      </tr>
+      <tr>
+        <td style="text-align:left; padding-left:10px; font-weight:600; color:var(--rpi-medium);">75</td><td>24.6</td><td>4.07%</td>
+        <td style="text-align:left; padding-left:10px; font-weight:600; color:var(--rpi-medium);">85</td><td>16.0</td><td>6.25%</td>
+      </tr>
+      <tr>
+        <td style="text-align:left; padding-left:10px; font-weight:600; color:var(--rpi-medium);">76</td><td>23.7</td><td>4.22%</td>
+        <td style="text-align:left; padding-left:10px; font-weight:600; color:var(--rpi-medium);">87</td><td>14.4</td><td>6.94%</td>
+      </tr>
+      <tr>
+        <td style="text-align:left; padding-left:10px; font-weight:600; color:var(--rpi-medium);">77</td><td>22.9</td><td>4.37%</td>
+        <td style="text-align:left; padding-left:10px; font-weight:600; color:var(--rpi-medium);">90</td><td>12.2</td><td>8.20%</td>
+      </tr>
+      <tr>
+        <td style="text-align:left; padding-left:10px; font-weight:600; color:var(--rpi-medium);">78</td><td>22.0</td><td>4.55%</td>
+        <td style="text-align:left; padding-left:10px; font-weight:600; color:var(--rpi-medium);">93</td><td>9.9</td><td>10.10%</td>
+      </tr>
+      <tr>
+        <td style="text-align:left; padding-left:10px; font-weight:600; color:var(--rpi-medium);">79</td><td>21.1</td><td>4.74%</td>
+        <td style="text-align:left; padding-left:10px; font-weight:600; color:var(--rpi-medium);">95</td><td>8.3</td><td>12.05%</td>
+      </tr>
+    </tbody>
+  </table>
+  <p style="font-size:10px; color:var(--ink-soft); margin-bottom:18px;">Multiply your 12/31 prior-year balance by the % to get this year's RMD. Source: IRS Publication 590-B, Uniform Lifetime Table (2022 update). Spouse as sole beneficiary &gt;10 years younger: use Joint Life Table for a lower divisor.</p>
+
+  <div class="aep">
+    <img src="../assets/rpi/rpi-shield-mark.png" alt="" class="shield" />
+    <div class="aep-text">
+      <h3>Withdraw Before 59&frac12; Without the 10% Penalty &mdash; 72(t) SEPP</h3>
+      <p>Three IRS-approved calculation methods: <strong>Amortization, Annuitization, or RMD-based.</strong> You must take consistent payments for the longer of 5 years or until you reach 59&frac12;. Any deviation &mdash; stopping, changing amounts, or rolling the account &mdash; triggers the 10% penalty <em>retroactive to day one</em>. This is a one-way door. Plan carefully before starting.</p>
+    </div>
+  </div>
+
+  <div class="sep">
+    <h3>Life Events That Trigger Distribution Decisions</h3>
+    <ul>
+      <li>Retirement (when to start drawing and from which accounts)</li>
+      <li>Job change / separation (roll to IRA or new plan?)</li>
+      <li>Disability (72(t) exception, no penalty)</li>
+      <li>Inheriting an account &mdash; spouse as beneficiary</li>
+      <li>Inheriting an account &mdash; non-spouse beneficiary</li>
+      <li>Divorce (QDRO required for employer plan division)</li>
+      <li>Death of account owner (triggers beneficiary RMD rules)</li>
+      <li>Reaching age 59&frac12;, 62, 65, or 73 (each has a rule change)</li>
+    </ul>
+  </div>
+
+  <h2>Beneficiary Rules (Post-SECURE Act)</h2>
+  <p style="font-size:12.5px; color:var(--ink-soft); margin-bottom:10px;">Who inherits your IRA determines how long the money can keep growing tax-deferred. <strong style="color:var(--rpi-289);">The wrong beneficiary designation can compress a 40-year stretch into 10 years</strong> &mdash; or even 5.</p>
+  <table class="medigap-grid" style="margin-bottom:14px;">
+    <thead>
+      <tr>
+        <th style="text-align:left; padding-left:10px;">Beneficiary Type</th>
+        <th style="text-align:left;">RMD Rule</th>
+        <th style="text-align:left;">Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td style="text-align:left; padding-left:10px; font-weight:500; color:var(--rpi-medium);">Spouse (primary)</td><td style="text-align:left;">Roll to own IRA &mdash; delay RMDs to their age 73</td><td style="text-align:left; font-size:10px;">Most favorable option; can treat as their own</td></tr>
+      <tr><td style="text-align:left; padding-left:10px; font-weight:500; color:var(--rpi-medium);">Non-spouse (primary)</td><td style="text-align:left;">10-year payout rule (SECURE Act)</td><td style="text-align:left; font-size:10px;">Annual RMDs required if owner had started RMDs</td></tr>
+      <tr><td style="text-align:left; padding-left:10px; font-weight:500; color:var(--rpi-medium);">Eligible Designated Beneficiary</td><td style="text-align:left;">Lifetime stretch RMDs</td><td style="text-align:left; font-size:10px;">Minor children (until 21), disabled/chronically ill, &lt;10 yrs younger than owner</td></tr>
+      <tr><td style="text-align:left; padding-left:10px; font-weight:500; color:var(--rpi-medium);">Estate or Trust</td><td style="text-align:left;">5-year rule</td><td style="text-align:left; font-size:10px;">Full distribution within 5 years of death; see-through trust rules apply</td></tr>
+      <tr><td style="text-align:left; padding-left:10px; font-weight:500; color:var(--rpi-medium);">No designated beneficiary</td><td style="text-align:left;">5-year rule</td><td style="text-align:left; font-size:10px;">Passes through probate; update beneficiary designations now</td></tr>
+    </tbody>
+  </table>
+  <p style="font-size:10px; color:var(--ink-soft); margin-bottom:22px;">Beneficiary designations on retirement accounts and annuities override your will. Review and update every 3&ndash;5 years or after any major life event. We can review yours at your next meeting &mdash; no cost.</p>
+
+  <div class="compliance" style="margin-top: 18px;">
+    <strong>Disclosure.</strong> Securities and investment advisory services offered through Gradient Securities, LLC, Member FINRA/SIPC. Retirement Protectors, Inc. is a separate entity from Gradient Securities. This material is intended for informational use only and does not constitute tax or legal advice. Please consult a qualified tax professional regarding your specific situation. &copy; 2026 Retirement Protectors, Inc. All rights reserved.
+  </div>
+
+  <div class="footer">
+    <div class="footer-logo-zone">
+      <img src="../assets/rpi/rpi-logo-v2-color.png" alt="Retirement Protectors, Inc. — We're Your People" class="footer-logo" />
+    </div>
+    <div class="footer-contact">
+      <strong>RetireProtected.com</strong>
+      515-992-5000 &middot; 877-650-7015<br>
+      Service@RetireProtected.com
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

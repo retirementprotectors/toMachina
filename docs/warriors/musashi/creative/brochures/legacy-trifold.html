@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Legacy Planning — Tri-fold — Retirement Protectors, Inc.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;600&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --rpi-289: #0a2240;
+    --rpi-283: #92c0e9;
+    --rpi-medium: #12416b;
+    --rpi-pale: #abd2ef;
+    --rpi-royal: #23558c;
+    --rpi-mist: #cae7f9;
+    --ink: #1a1a1a;
+    --ink-soft: #3a4456;
+    --paper: #f4f4f5;
+    --paper-warm: #fafbfc;
+    --rule: #d0dae6;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: var(--paper); color: var(--ink); font-family: 'Mulish', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; line-height: 1.45; }
+  h1, h2, h3, h4 { font-family: 'Poppins', sans-serif; color: var(--rpi-289); line-height: 1.2; letter-spacing: -0.01em; }
+
+  /* Tri-fold sheet: 11" wide x 8.5" tall landscape, 3 panels per side */
+  .sheet { width: 11in; height: 8.5in; background: white; margin: 0.5in auto; box-shadow: 0 1px 24px rgba(10,34,64,0.08); display: grid; grid-template-columns: repeat(3, 1fr); position: relative; overflow: hidden; }
+  .sheet + .sheet { margin-top: 0.6rem; }
+  .panel { padding: 0.3in 0.28in; border-right: 1px dashed var(--rule); position: relative; overflow: hidden; display: flex; flex-direction: column; }
+  .panel:last-child { border-right: none; }
+  .panel-label { position: absolute; top: 6px; left: 6px; font-family: 'Poppins', sans-serif; font-size: 8px; font-weight: 600; color: var(--rule); letter-spacing: 0.08em; text-transform: uppercase; pointer-events: none; }
+
+  /* Typography scales for tri-fold */
+  h1 { font-size: 38px; font-weight: 800; margin-bottom: 10px; }
+  h2 { font-size: 20px; font-weight: 700; margin-bottom: 12px; padding-bottom: 7px; border-bottom: 1px solid var(--rule); color: var(--rpi-medium); }
+  h3 { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
+  p, li { font-size: 14px; color: var(--ink-soft); line-height: 1.55; }
+  .eyebrow { font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--rpi-medium); margin-bottom: 12px; }
+
+  /* MYST team strip */
+  .myst { background: var(--paper-warm); border: 1px solid var(--rule); border-radius: 6px; padding: 14px 14px 12px; margin: 14px 0 12px; }
+  .myst-eyebrow { font-family: 'Poppins', sans-serif; font-size: 9.5px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--rpi-royal); margin-bottom: 8px; text-align: center; }
+  .myst-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .myst-card { text-align: center; }
+  .myst-photo { width: 84px; height: 84px; border-radius: 50%; object-fit: cover; border: 3px solid var(--rpi-289); margin: 0 auto 6px; display: block; }
+  .myst-name { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 12px; color: var(--rpi-289); line-height: 1.15; margin-bottom: 2px; }
+  .myst-title { font-size: 10.5px; color: var(--ink-soft); line-height: 1.3; }
+
+  /* COVER PANEL — V3 TWO-TONE LOCKED 2026-04-13 */
+  .cover { background: white; color: var(--ink); padding: 0 !important; display: flex; flex-direction: column; }
+  .cover-top { position: relative; z-index: 1; background: white; padding: 0.4in 0.34in 0.34in; }
+  .cover-top .cover-eyebrow { font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--rpi-medium); margin-bottom: 14px; }
+  .cover-top h1 { color: var(--rpi-289); font-size: 52px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 18px; line-height: 1.02; }
+  .cover-top .cover-sub { font-family: 'Poppins', sans-serif; font-size: 16px; color: var(--ink-soft); font-weight: 500; line-height: 1.5; }
+  .cover-top .cover-sub strong { color: var(--rpi-289); }
+  .cover-bottom { flex: 1; background: linear-gradient(160deg, var(--rpi-289) 0%, var(--rpi-medium) 60%, var(--rpi-royal) 100%); position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; padding: 0 0.3in; }
+  .cover-shield { width: 92%; aspect-ratio: 318 / 284; background-image: url('../assets/rpi/rpi-shield-mark.png'); background-size: contain; background-position: center; background-repeat: no-repeat; opacity: 0.26; flex-shrink: 0; }
+  .cover-wyp { font-family: 'Poppins', sans-serif; font-weight: 900; font-size: 40px; letter-spacing: 0.03em; color: white; text-align: center; line-height: 1.02; text-shadow: 0 1px 2px rgba(0,0,0,0.25); flex-shrink: 0; }
+  .cover-wyp .tm { font-size: 0.55em; vertical-align: super; font-weight: 700; letter-spacing: 0.05em; margin-left: 2px; }
+
+  /* BACK PANEL */
+  .back { background: var(--paper-warm); justify-content: space-between; }
+  .back-top { }
+  .back-top .back-logo { width: 220px; margin-bottom: 16px; display: block; }
+  .back h2 { border-bottom-color: var(--rpi-283); color: var(--rpi-289); font-size: 14px; }
+  .back-contact { background: white; border: 1px solid var(--rule); border-left: 4px solid var(--rpi-royal); padding: 10px 12px; border-radius: 4px; font-size: 10.5px; line-height: 1.7; color: var(--ink-soft); margin-top: 10px; }
+  .back-contact strong { color: var(--rpi-289); display: block; font-size: 11px; margin-bottom: 3px; font-family: 'Poppins', sans-serif; }
+  .back-disclaimer { font-size: 8.5px; color: var(--ink-soft); line-height: 1.5; border-top: 1px solid var(--rule); padding-top: 8px; margin-top: auto; }
+
+  /* INSIDE PANEL (flap) */
+  .flap { background: white; }
+  .flap .eyebrow { margin-bottom: 4px; }
+  .flap .intro { font-family: 'Poppins', sans-serif; font-size: 11px; color: var(--ink-soft); line-height: 1.55; margin-bottom: 12px; }
+
+  /* Steps block */
+  .step { background: var(--paper-warm); border-left: 4px solid var(--rpi-royal); padding: 11px 13px; border-radius: 3px; margin-bottom: 11px; }
+  .step-num { font-family: 'Poppins', sans-serif; font-size: 9.5px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--rpi-royal); margin-bottom: 3px; }
+  .step h3 { font-size: 14px; margin-bottom: 4px; color: var(--rpi-289); }
+  .step p { font-size: 12px; line-height: 1.5; }
+
+  /* Parts (2x2 grid) */
+  .parts-mini { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+  .part-mini { background: var(--paper-warm); border: 1px solid var(--rule); border-radius: 4px; padding: 10px 12px; }
+  .part-mini .label { font-family: 'Poppins', sans-serif; font-size: 9.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--rpi-medium); margin-bottom: 3px; }
+  .part-mini h4 { font-size: 13px; margin-bottom: 4px; color: var(--rpi-289); }
+  .part-mini p { font-size: 11px; line-height: 1.5; }
+  .part-mini.accent { background: linear-gradient(180deg, rgba(146,192,233,0.22), rgba(146,192,233,0.04)); border-color: var(--rpi-283); }
+
+  /* Numbers card */
+  .numbers-mini { background: var(--rpi-289); color: white; border-radius: 5px; padding: 13px 15px; position: relative; overflow: hidden; }
+  .numbers-mini::before { content: ''; position: absolute; top: 20px; right: 14px; width: 150px; height: 150px; background-image: url('../assets/rpi/rpi-shield-mark.png'); background-size: contain; background-position: right top; background-repeat: no-repeat; opacity: 0.18; pointer-events: none; }
+  .numbers-mini h3 { color: white; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; font-weight: 600; position: relative; z-index: 1; }
+  .numbers-mini table { width: 100%; font-size: 11.5px; position: relative; z-index: 1; }
+  .numbers-mini td { padding: 4px 0; color: var(--rpi-pale); }
+  .numbers-mini td:last-child { text-align: right; font-family: 'Poppins', sans-serif; font-weight: 700; color: white; }
+
+  /* Audit matrix mini */
+  .audit-mini { width: 100%; border-collapse: collapse; font-size: 10px; margin-bottom: 10px; }
+  .audit-mini th, .audit-mini td { padding: 4px 3px; text-align: center; border: 1px solid var(--rule); }
+  .audit-mini thead th { background: var(--rpi-289); color: white; font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 10px; }
+  .audit-mini tbody td:first-child { text-align: left; padding-left: 6px; font-weight: 500; color: var(--rpi-medium); font-size: 9.5px; }
+  .audit-mini .dot { color: var(--rpi-royal); font-weight: 700; font-size: 12px; }
+
+  /* Annual review callout */
+  .aep-mini { background: linear-gradient(135deg, var(--rpi-medium), var(--rpi-289)); color: white; padding: 12px 14px; border-radius: 5px; display: flex; gap: 12px; align-items: center; margin: 14px 0 12px; }
+  .aep-mini img { width: 36px; height: auto; filter: brightness(1.15); flex-shrink: 0; }
+  .aep-mini h3 { color: white; font-size: 13px; margin-bottom: 3px; }
+  .aep-mini p { color: var(--rpi-pale); font-size: 11.5px; line-height: 1.45; }
+
+  /* Life events list */
+  .sep-mini { background: var(--paper-warm); border: 1px solid var(--rule); border-radius: 4px; padding: 11px 13px; margin-bottom: 10px; }
+  .sep-mini h3 { font-size: 13px; margin-bottom: 8px; color: var(--rpi-289); }
+  .sep-mini ul { list-style: none; }
+  .sep-mini li { font-size: 11.5px; padding-left: 14px; position: relative; margin-bottom: 4px; line-height: 1.45; }
+  .sep-mini li::before { content: '▪'; color: var(--rpi-royal); position: absolute; left: 0; font-size: 12px; top: -1px; }
+
+  .preview-nav { position: fixed; top: 10px; right: 10px; background: var(--rpi-289); color: white; padding: 10px 14px; border-radius: 6px; font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 600; box-shadow: 0 2px 12px rgba(0,0,0,0.25); z-index: 1000; }
+  .preview-nav a { color: var(--rpi-pale); text-decoration: none; margin-left: 10px; cursor: pointer; }
+  .preview-nav a:hover { color: white; }
+  .fold-note { max-width: 11in; margin: 0 auto 0.3rem; padding: 0.5rem 1rem; background: var(--paper-warm); border-left: 4px solid var(--rpi-royal); font-size: 12px; color: var(--ink-soft); font-family: 'Poppins', sans-serif; }
+  .fold-note strong { color: var(--rpi-289); }
+
+  @media print {
+    body { background: white; }
+    .sheet { margin: 0; box-shadow: none; page-break-after: always; }
+    .sheet:last-child { page-break-after: auto; }
+    .preview-nav, .fold-note { display: none; }
+    .panel { border-right: none; }
+    @page { size: 11in 8.5in; margin: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="preview-nav">
+  Tri-fold · Legacy v1 · <a onclick="window.print()">Print (landscape)</a>
+</div>
+
+<div class="fold-note"><strong>Tri-fold format.</strong> Print both sheets double-sided on 11"&times;8.5" landscape letter. Fold into thirds: outside panels (Back / [blank strip] / Cover) on one side, inside panels (Conversations / Documents &amp; Numbers / Audit &amp; Trust Types) on the other. Panel order matches standard brochure fold.</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- OUTSIDE (Back Panel | Inside-back | Front Cover) -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<div class="sheet">
+
+  <!-- PANEL 1 — BACK OF BROCHURE (when folded) — The Hour That Matters Most -->
+  <div class="panel back">
+    <span class="panel-label">Outside · Panel 1 (Back)</span>
+    <div class="back-top">
+      <div class="eyebrow">Legacy &middot; The Beneficiary Audit</div>
+      <h1 style="font-size:32px; margin-bottom:10px;">The Hour That<br>Matters Most.</h1>
+      <p style="font-size:14px; color:var(--ink-soft); line-height:1.6; margin-bottom:14px;">An hour reviewing your beneficiaries prevents 90% of estate disasters. A will directs what happens to assets without named beneficiaries. But IRAs, 401(k)s, life insurance, and annuities pass by <strong style="color:var(--rpi-289);">DESIGNATION</strong> &mdash; the form you filled out years ago at the bank or HR.</p>
+      <p style="font-size:14px; color:var(--ink-soft); line-height:1.6; margin-bottom:14px;">Audit it annually. It&rsquo;s the cheapest estate planning you&rsquo;ll ever do.</p>
+      <div style="background: var(--rpi-289); color: white; border-radius: 5px; padding: 16px 18px; margin-top: 6px;">
+        <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:14px; margin-bottom:8px; color:white;">Bring your statements.<br>We&rsquo;ll walk through them with you.</div>
+        <p style="font-size:12.5px; color:var(--rpi-pale); line-height:1.6;">Dr. Aprille Trupiano personally reviews every Legacy file. Schedule your no-cost consultation today.</p>
+      </div>
+      <div class="back-contact" style="margin-top:14px;">
+        <strong>RetireProtected.com</strong>
+        515-992-5000 &middot; 877-650-7015<br>
+        Service@RetireProtected.com
+      </div>
+    </div>
+    <div class="back-disclaimer">
+      Retirement Protectors, Inc. does not provide legal advice. Legacy planning documents must be drafted and executed by a licensed attorney in your state. This material is for informational purposes only and should not be construed as legal, tax, or investment advice. &copy; 2026 Retirement Protectors, Inc. All rights reserved.
+    </div>
+  </div>
+
+  <!-- PANEL 2 — INSIDE FLAP (tucks under cover when folded) — Legacy Team -->
+  <div class="panel flap">
+    <span class="panel-label">Outside · Panel 2 (Tuck flap)</span>
+    <div class="eyebrow">We&rsquo;re Your People&trade;</div>
+    <h1 style="font-size:30px; margin-bottom:8px;">Your Legacy Team.</h1>
+    <p class="intro" style="font-size:14px;">Three people, one goal: make sure the life you&rsquo;ve built protects the people you love. Call any of us direct, or schedule a review together &mdash; we&rsquo;ll bring the plan to you.</p>
+
+    <div class="myst" style="margin-top:18px;">
+      <div class="myst-eyebrow">Legacy Services &middot; Retirement Protectors, Inc.</div>
+      <div class="myst-grid">
+        <div class="myst-card">
+          <img src="../assets/team/aprille-trupiano.jpg" alt="Dr. Aprille Trupiano" class="myst-photo" />
+          <div class="myst-name">Dr. Aprille Trupiano</div>
+          <div class="myst-title">Legacy Services Director</div>
+        </div>
+        <div class="myst-card">
+          <img src="../assets/team/john-behn.jpg" alt="John Behn" class="myst-photo" />
+          <div class="myst-name">John Behn</div>
+          <div class="myst-title">COO / CFO</div>
+        </div>
+        <div class="myst-card">
+          <img src="../assets/team/nikki-gray.jpg" alt="Nikki Gray" class="myst-photo" />
+          <div class="myst-name">Nikki Gray</div>
+          <div class="myst-title">Service Leader</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:var(--rpi-289); color:white; padding:18px 20px; border-radius:6px; margin-top:18px;">
+      <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:15px; margin-bottom:6px;">Schedule your no-cost Legacy review.</div>
+      <div style="font-size:13px; color:var(--rpi-pale); line-height:1.7;">
+        <strong style="color:white;">RetireProtected.com</strong><br>
+        515-992-5000 &middot; 877-650-7015<br>
+        Service@RetireProtected.com
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL 3 — FRONT COVER — V3 TWO-TONE (locked) -->
+  <div class="panel cover">
+    <span class="panel-label">Outside · Panel 3 (Front Cover)</span>
+    <div class="cover-top">
+      <div class="cover-eyebrow">Legacy · Estate + Trust + Beneficiary</div>
+      <h1>Passing It On,<br>On Purpose.</h1>
+      <div class="cover-sub">Wills, trusts, beneficiary audits &mdash; the decisions that protect everything you&rsquo;ve built.</div>
+    </div>
+    <div class="cover-bottom">
+      <div class="cover-shield"></div>
+      <div class="cover-wyp">We&rsquo;re Your People<span class="tm">&trade;</span></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- INSIDE (Conversations | Documents + Numbers | Audit + Trust Types) -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<div class="sheet">
+
+  <!-- INSIDE PANEL 1 — THREE LEGACY CONVERSATIONS -->
+  <div class="panel flap">
+    <span class="panel-label">Inside · Panel 1</span>
+    <div class="eyebrow">Legacy · Step by Step</div>
+    <h2>Three Legacy Conversations</h2>
+    <p class="intro">Every legacy plan runs through the same three conversations. Have all three before a crisis forces them.</p>
+
+    <div class="step">
+      <div class="step-num">Conversation 1</div>
+      <h3>The document conversation</h3>
+      <p><strong>Will, Living Trust, Durable Power of Attorney, Healthcare Directive.</strong> Everyone needs all four. Having one or two is not enough.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">Conversation 2</div>
+      <h3>The beneficiary conversation</h3>
+      <p>Named beneficiaries on IRAs, 401(k)s, life insurance, and annuities <strong>override your will.</strong> Audit every account every year &mdash; life changes fast.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">Conversation 3</div>
+      <h3>The tax conversation</h3>
+      <p>Federal + state estate tax, income tax on inherited retirement accounts, and <strong>step-up in basis</strong> for taxable accounts. The rules matter and they change.</p>
+    </div>
+
+    <h2 style="margin-top:10px;">You&rsquo;re Not Alone</h2>
+    <p>Every RPI Legacy client gets Dr. Aprille Trupiano&rsquo;s personal review. We coordinate with estate planning attorneys in our network or yours &mdash; you don&rsquo;t have to find your own.</p>
+  </div>
+
+  <!-- INSIDE PANEL 2 — FOUR DOCUMENTS + KEY NUMBERS -->
+  <div class="panel flap">
+    <span class="panel-label">Inside · Panel 2</span>
+    <div class="eyebrow">The Four Essential Documents</div>
+    <h2>What Every Adult Needs</h2>
+    <div class="parts-mini">
+      <div class="part-mini">
+        <div class="label">Document 1</div>
+        <h4>Last Will &amp; Testament</h4>
+        <p>Directs non-designated assets. Names guardians for minors. Goes through probate.</p>
+      </div>
+      <div class="part-mini accent">
+        <div class="label">Document 2</div>
+        <h4>Living Trust</h4>
+        <p>Avoids probate. Privacy + speed. Revocable or Irrevocable &mdash; choose with your attorney.</p>
+      </div>
+      <div class="part-mini">
+        <div class="label">Document 3</div>
+        <h4>Durable POA</h4>
+        <p>Names someone to manage finances if you&rsquo;re incapacitated. Durable = survives incapacity.</p>
+      </div>
+      <div class="part-mini">
+        <div class="label">Document 4</div>
+        <h4>Healthcare Directive</h4>
+        <p>Documents end-of-life wishes. Names a healthcare agent. Critical for ICU scenarios.</p>
+      </div>
+    </div>
+
+    <div class="numbers-mini">
+      <h3>Legacy Landscape &mdash; 2026</h3>
+      <table>
+        <tr><td>Federal Estate Tax Exemption</td><td>$13.99M/person</td></tr>
+        <tr><td>Couples Combined Exemption</td><td>$27.98M</td></tr>
+        <tr><td>Annual Gift Exclusion</td><td>$19,000/recipient</td></tr>
+        <tr><td>Average Probate Cost</td><td>3&ndash;7% of estate</td></tr>
+        <tr><td>Americans Without a Will</td><td>67%</td></tr>
+      </table>
+    </div>
+    <p style="font-size:10.5px; color:var(--ink-soft); margin-top:10px; line-height:1.5;"><strong style="color:var(--rpi-medium);">Step-up in basis</strong> is preserved for inherited taxable assets under current law. Source: IRS 2026 / AARP Estate Planning Survey.</p>
+  </div>
+
+  <!-- INSIDE PANEL 3 — BENEFICIARY AUDIT + TRUST TYPES + ANNUAL REVIEW + LIFE EVENTS -->
+  <div class="panel flap">
+    <span class="panel-label">Inside · Panel 3</span>
+    <div class="eyebrow">Audit + Trust Types</div>
+    <h2>Beneficiary Audit</h2>
+    <table class="audit-mini">
+      <thead>
+        <tr>
+          <th style="text-align:left; padding-left:4px;">Account</th>
+          <th>Primary</th>
+          <th>Contingent</th>
+          <th style="font-size:9px;">Note</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>IRA (Trad + Roth)</td><td class="dot">✓</td><td class="dot">✓</td><td style="font-size:9px; color:var(--ink-soft);">Per Stirpes rec.</td></tr>
+        <tr><td>401(k) / 403(b) / TSP</td><td class="dot">✓</td><td class="dot">✓</td><td style="font-size:9px; color:var(--ink-soft);">Spouse presumed</td></tr>
+        <tr><td>Life Insurance</td><td class="dot">✓</td><td class="dot">✓</td><td style="font-size:9px; color:var(--ink-soft);">Per Stirpes</td></tr>
+        <tr><td>Annuities</td><td class="dot">✓</td><td class="dot">✓</td><td style="font-size:9px; color:var(--ink-soft);">Per Stirpes</td></tr>
+        <tr><td>Bank / Brokerage TOD</td><td class="dot">✓</td><td class="dot">✓</td><td style="font-size:9px; color:var(--ink-soft);">Overrides will</td></tr>
+        <tr><td>Real Estate</td><td style="font-size:9px; color:var(--ink-soft);" colspan="2">Via deed / Lady Bird deed</td><td style="font-size:9px; color:var(--ink-soft);">State-specific</td></tr>
+      </tbody>
+    </table>
+
+    <h2 style="font-size:14px; margin-bottom:8px;">Trust Types at a Glance</h2>
+    <div style="font-size:11px; color:var(--ink-soft); margin-bottom:10px; line-height:1.5;">
+      <div style="margin-bottom:6px;"><strong style="color:var(--rpi-289);">Revocable Living</strong> &mdash; Avoids probate. No estate tax/creditor protection.</div>
+      <div style="margin-bottom:6px;"><strong style="color:var(--rpi-289);">Irrevocable</strong> &mdash; Out of estate. Tax + asset protection. Hard to change.</div>
+      <div style="margin-bottom:6px;"><strong style="color:var(--rpi-289);">Special Needs</strong> &mdash; Preserves government benefit eligibility.</div>
+      <div style="margin-bottom:6px;"><strong style="color:var(--rpi-289);">CRT</strong> &mdash; Income to grantor; remainder to charity. Tax benefits.</div>
+      <div style="margin-bottom:6px;"><strong style="color:var(--rpi-289);">ILIT</strong> &mdash; Removes life insurance from taxable estate.</div>
+      <div><strong style="color:var(--rpi-289);">Testamentary</strong> &mdash; Created by will at death. Useful for minor children.</div>
+    </div>
+
+    <div class="aep-mini">
+      <img src="../assets/rpi/rpi-shield-mark.png" alt="" />
+      <div>
+        <h3>The Annual Review</h3>
+        <p>Birthday or tax time: review beneficiaries, update documents, ask about SECURE Act changes. One hour.</p>
+      </div>
+    </div>
+
+    <div class="sep-mini">
+      <h3>Life Events That Require Updates</h3>
+      <ul>
+        <li>Marriage or divorce</li>
+        <li>Birth or adoption</li>
+        <li>Death of a beneficiary</li>
+        <li>Significant asset change</li>
+        <li>Move to a new state</li>
+        <li>Business sale or formation</li>
+        <li>Adult child&rsquo;s divorce</li>
+        <li>Health diagnosis</li>
+        <li>Inheritance</li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
