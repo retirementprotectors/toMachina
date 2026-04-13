@@ -1,0 +1,91 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Medicare Master Schema</title>
+<style>
+:root{--bg:#0a0e17;--card:#111827;--card2:#1a2236;--border:#1e293b;--text:#e2e8f0;--muted:#94a3b8;--accent:#10b981;--green:#22c55e;--blue:#3b82f6;--orange:#f59e0b;--red:#ef4444;--purple:#a855f7;--cyan:#06b6d4}
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;padding:16px}
+h1{font-size:1.5rem;font-weight:800;color:var(--accent);text-align:center;margin-bottom:4px}
+.sub{color:var(--muted);font-size:.78rem;text-align:center;margin-bottom:16px}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:10px}
+table{width:100%;border-collapse:collapse;font-size:.72rem;min-width:700px}
+thead th{position:sticky;top:0;z-index:2;padding:10px 8px;background:var(--card2);border-bottom:2px solid var(--border);font-size:.65rem;text-transform:uppercase;letter-spacing:.5px;text-align:center}
+thead th:first-child{text-align:left;min-width:180px}
+td{padding:5px 8px;border-bottom:1px solid var(--border);text-align:center;font-size:.72rem}
+td:first-child{text-align:left;font-family:monospace;font-size:.75rem;color:var(--text);font-weight:500}
+tr:hover td{background:rgba(16,185,129,.03)}
+tr.sec td{background:var(--card2);color:var(--accent);font-weight:700;font-size:.65rem;text-transform:uppercase;letter-spacing:1px;text-align:left;padding:8px}
+.k{color:var(--green)}
+.r{color:var(--purple);font-size:.65rem}
+.n{color:#222}
+.drag{cursor:grab;color:var(--muted);margin-right:4px;font-size:.9rem}
+.drag:active{cursor:grabbing}
+tr.dragging{opacity:.4}
+tr.drag-over td{border-top:2px solid var(--accent)}
+.ebar{position:sticky;bottom:0;background:var(--card);border-top:1px solid var(--border);padding:8px 16px;display:flex;justify-content:space-between;align-items:center;margin:16px -16px -16px}
+.ebtn{padding:6px 20px;border-radius:6px;border:none;background:var(--accent);color:#000;font-weight:700;font-size:.8rem;cursor:pointer}
+.changes{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:16px;margin:16px 0;font-size:.75rem}
+.changes h3{color:var(--orange);font-size:.8rem;margin-bottom:8px}
+.changes li{color:var(--muted);margin-bottom:4px}
+.changes strong{color:var(--text)}
+</style></head><body>
+<h1>Medicare Master Schema — Final</h1>
+<div class="sub">All 4 types locked. Drag ⠿ to reorder. Export captures field order.</div>
+<div class="changes"><h3>Changes from Previous Version</h3><ul>
+<li><strong>member_id → policy_number</strong> on Med Supp + Ancillary</li>
+<li><strong>writing_agent_id → agent_writing_number</strong> on MAPD, PDP, Med Supp</li>
+<li><strong>core_product_type</strong> — KILLED (product_type is the only type field)</li>
+<li><strong>ancillary_type</strong> — KILLED (product_type is the only type field)</li>
+<li><strong>CMS Plan Details</strong> — NEW section (MAPD/PDP plan + enrollment fields)</li>
+<li><strong>Non-CMS Plans</strong> — renamed from Plan Details, merged SERFF into it (Med Supp/Ancillary)</li>
+</ul></div>
+<div class="tbl-wrap"><table id="tbl"><thead><tr>
+<th style="color:var(--text)">Field</th>
+<th style="color:var(--green)">MAPD</th>
+<th style="color:var(--blue)">PDP</th>
+<th style="color:var(--cyan)">Med Supp</th>
+<th style="color:var(--orange)">Ancillary</th>
+</tr></thead><tbody id="tbody">
+<tr class="sec"><td colspan="5">General</td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>carrier</td><td><span class="k">✓</span></td><td><span class="k">✓</span></td><td><span class="k">✓</span></td><td><span class="k">✓</span></td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>status</td><td><span class="k">✓</span></td><td><span class="k">✓</span></td><td><span class="k">✓</span></td><td><span class="k">✓</span></td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>product_type</td><td><span class="k">✓</span></td><td><span class="k">✓</span></td><td><span class="k">✓</span></td><td><span class="k">✓</span></td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>effective_date</td><td><span class="k">✓</span></td><td><span class="k">✓</span></td><td><span class="k">✓</span></td><td><span class="k">✓</span></td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>submitted_date</td><td><span class="k">✓</span></td><td><span class="k">✓</span></td><td><span class="k">✓</span></td><td><span class="k">✓</span></td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>market</td><td><span class="k">✓</span></td><td><span class="k">✓</span></td><td><span class="k">✓</span></td><td><span class="k">✓</span></td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>book_of_business</td><td><span class="k">✓</span></td><td><span class="k">✓</span></td><td><span class="k">✓</span></td><td><span class="k">✓</span></td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>member_id</td><td><span class="k">✓</span></td><td><span class="k">✓</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>agent_writing_number</td><td><span class="k">✓</span></td><td><span class="k">✓</span></td><td><span class="k">✓</span></td><td><span class="k">✓</span></td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>policy_number</td><td><span class="n">—</span></td><td><span class="n">—</span></td><td><span class="k">✓</span></td><td><span class="k">✓</span></td></tr>
+<tr class="sec"><td colspan="5">CMS Plan Details</td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>plan_name</td><td><span class="k">✓</span></td><td><span class="k">✓</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>mapd_type</td><td><span class="k">✓</span></td><td><span class="k">✓</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>monthly_premium</td><td><span class="k">✓</span></td><td><span class="k">✓</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>cms_plan_code</td><td><span class="k">✓</span></td><td><span class="k">✓</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>contract_id</td><td><span class="k">✓</span></td><td><span class="k">✓</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>election_type</td><td><span class="k">✓</span></td><td><span class="k">✓</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>termination_date</td><td><span class="k">✓</span></td><td><span class="k">✓</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>enrollment_period</td><td><span class="k">✓</span></td><td><span class="k">✓</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>termination_reason</td><td><span class="k">✓</span></td><td><span class="k">✓</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td></tr>
+<tr class="sec"><td colspan="5">Non-CMS Plans</td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>plan_letter</td><td><span class="n">—</span></td><td><span class="n">—</span></td><td><span class="k">✓</span></td><td><span class="n">—</span></td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>premium_mode</td><td><span class="n">—</span></td><td><span class="n">—</span></td><td><span class="k">✓</span></td><td><span class="k">✓</span></td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>annualized_premium</td><td><span class="n">—</span></td><td><span class="n">—</span></td><td><span class="k">✓</span></td><td><span class="k">✓</span></td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>discount_types</td><td><span class="n">—</span></td><td><span class="n">—</span></td><td><span class="k">✓</span></td><td><span class="n">—</span></td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>planned_premium</td><td><span class="n">—</span></td><td><span class="n">—</span></td><td><span class="k">✓</span></td><td><span class="k">✓</span></td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>carrier_charter</td><td><span class="n">—</span></td><td><span class="n">—</span></td><td><span class="k">✓</span></td><td><span class="n">—</span></td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>naic_code</td><td><span class="n">—</span></td><td><span class="n">—</span></td><td><span class="k">✓</span></td><td><span class="n">—</span></td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>commissionable_premium</td><td><span class="n">—</span></td><td><span class="n">—</span></td><td><span class="k">✓</span></td><td><span class="n">—</span></td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>cumulative_rate_increase</td><td><span class="n">—</span></td><td><span class="n">—</span></td><td><span class="k">✓</span></td><td><span class="n">—</span></td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>product_name</td><td><span class="n">—</span></td><td><span class="n">—</span></td><td><span class="n">—</span></td><td><span class="k">✓</span></td></tr>
+<tr class="sec"><td colspan="5">Routes</td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>medicare_id → Client</td><td><span class="r">→ CLIENT</span></td><td><span class="r">→ CLIENT</span></td><td><span class="r">→ CLIENT</span></td><td><span class="r">→ CLIENT</span></td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span>medicare_beneficiary_id → Client</td><td><span class="r">→ CLIENT</span></td><td><span class="r">→ CLIENT</span></td><td><span class="r">→ CLIENT</span></td><td><span class="r">→ CLIENT</span></td></tr>
+</tbody></table></div>
+<div class="ebar"><div style="color:var(--muted);font-size:.72rem">Drag to reorder → Export</div><button class="ebtn" onclick="exp()">Export Field Order</button></div>
+<script>
+var dragRow=null;
+function ds(e){dragRow=e.target.closest('tr');if(dragRow.classList.contains('sec')){e.preventDefault();return;}e.dataTransfer.effectAllowed='move';dragRow.classList.add('dragging');}
+function dv(e){e.preventDefault();var t=e.target.closest('tr');if(t&&t!==dragRow&&!t.classList.contains('sec')){document.querySelectorAll('tr').forEach(function(r){r.classList.remove('drag-over')});t.classList.add('drag-over');}}
+function dl(e){e.target.closest('tr')?.classList.remove('drag-over');}
+function dp(e){e.preventDefault();var t=e.target.closest('tr');document.querySelectorAll('tr').forEach(function(r){r.classList.remove('drag-over','dragging')});if(t&&t!==dragRow&&!t.classList.contains('sec')){t.parentNode.insertBefore(dragRow,t);}}
+function exp(){var order=[];document.querySelectorAll('#tbody tr:not(.sec)').forEach(function(r){var f=r.cells[0].textContent.replace('⠿','').trim();order.push(f);});var blob=new Blob([JSON.stringify({medicare_field_order:order},null,2)],{type:'application/json'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='medicare-field-order.json';a.click();}
+</script>
+</body></html>

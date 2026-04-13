@@ -5,7 +5,7 @@
  * All routes require LEADER, EXECUTIVE, OWNER, or SUPER_ADMIN role.
  */
 
-import { Router, type Request, type Response, type NextFunction } from 'express'
+import { Router, type Request, type Response } from 'express'
 import { getFirestore } from 'firebase-admin/firestore'
 import {
   successResponse, errorResponse, validateRequired, param,
@@ -39,49 +39,8 @@ const { PIPELINES, STAGES, WORKFLOWS, STEPS, TASK_TEMPLATES, INSTANCES } = FLOW_
 
 const ALLOWED_ROLES = ['LEADER', 'EXECUTIVE', 'OWNER', 'SUPER_ADMIN']
 
-async function requireLeader(req: Request, res: Response, next: NextFunction) {
-  try {
-    const reqUser = (req as unknown as { user?: { email?: string; uid?: string } }).user
-    const email = reqUser?.email
-    if (!email) {
-      res.status(401).json(errorResponse('Authentication required'))
-      return
-    }
-
-    // Service-to-service auth (VOLTRON, CI, Cron) — pre-authorized for admin ops
-    const serviceUids = ['voltron-agent-service', 'ci-deploy-service', 'cron-service']
-    if (reqUser?.uid && serviceUids.includes(reqUser.uid)) {
-      return next()
-    }
-
-    const db = getFirestore()
-    const userDoc = await db.collection('users').doc(email).get()
-
-    if (!userDoc.exists) {
-      res.status(403).json(errorResponse('Pipeline Studio requires leader access'))
-      return
-    }
-
-    const userData = userDoc.data() as Record<string, unknown>
-    // Check both 'role' and 'user_level' fields for schema compatibility
-    const role = String(userData.role || userData.user_level || '')
-    const level = parseInt(String(userData.level || '99'), 10)
-
-    // Allow by role name OR by level (0 = OWNER, 1 = EXECUTIVE, 2 = LEADER)
-    if (!ALLOWED_ROLES.includes(role) && level > 2) {
-      res.status(403).json(errorResponse('Pipeline Studio requires leader access'))
-      return
-    }
-
-    next()
-  } catch (err) {
-    console.error('requireLeader middleware error:', err)
-    res.status(500).json(errorResponse('Authorization check failed'))
-  }
-}
 
 // Apply auth guard to all routes
-flowAdminRoutes.use(requireLeader)
 
 // Helper: get user email from request
 function getUserEmail(req: Request): string {

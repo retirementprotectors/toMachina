@@ -62,7 +62,7 @@ code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px;
 <div class="header">
   <h1>CTO Ownership Grid</h1>
   <div class="subtitle">SHINOB1 + JDM — What we own, what's next, how we work the week</div>
-  <div class="badge">The OG Ninja &mdash; Updated 2026-04-07</div>
+  <div class="badge">The OG Ninja &mdash; Updated 2026-04-09</div>
 </div>
 
 <div class="tab-container">
@@ -446,7 +446,7 @@ code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px;
       </select>
     </div>
     <div style="display:flex; justify-content:space-between; align-items:center;">
-      <div style="font-size:0.72rem; color:var(--muted);" id="intelCount">17 items</div>
+      <div style="font-size:0.72rem; color:var(--muted);" id="intelCount">27 items</div>
       <label style="font-size:0.75rem; color:var(--muted); cursor:pointer; display:flex; align-items:center; gap:6px;">
         <input type="checkbox" id="showArchived" onchange="filterIntel()" style="cursor:pointer;"> Show Archived
       </label>
@@ -635,6 +635,106 @@ code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px;
         <td>&mdash;</td>
         <td>Validation. FORGE + RONIN already does this on MDJ_SERVER.</td>
       </tr>
+      <tr data-status="OPEN" data-owner="SHINOB1" data-priority="CRITICAL">
+        <td>18</td>
+        <td><a href="https://www.infoworld.com/article/4154973/enterprise-developers-question-claude-codes-reliability-for-complex-engineering.html" target="_blank"><strong>InfoWorld: Claude Code Reliability Concerns</strong></a><br><span style="font-size:0.75rem;color:var(--muted)">Enterprise devs report Opus quality regression after Feb update</span></td>
+        <td>04-09</td>
+        <td><span class="pill hot">CRITICAL</span></td>
+        <td><span class="pill next">OPEN</span></td>
+        <td>SHINOB1</td>
+        <td>&mdash;</td>
+        <td>Analysis of 17K thinking blocks + 234K tool calls across 6.8K sessions shows measurable degradation. AMD senior AI director documented quality drop on complex multi-file work. Failure pattern: "edit without reading, stop without finishing, dodge responsibility, take the simplest fix." Anthropic attributes it to GPU capacity, has implemented usage throttles. <strong>Our exposure:</strong> Opus is the GA layer in our model routing — if it's degrading, our CTO/strategy layer gets worse. <strong>Our mitigations already in place:</strong> (1) Hookify "if you didn't READ IT don't REPORT IT" is literally the anti-shallow-reasoning rule. (2) FORGE gates catch premature "done". (3) Dedicated MDJ_SERVER throughput insulates us from shared-tenant throttling. <strong>Action:</strong> Benchmark Opus on our hardest real tasks this week. If degraded, #12/#14 (Gemma 4 + Ollama/Qdrant) jump to IMMEDIATE priority — GPU install becomes the unblock.</td>
+      </tr>
+      <tr data-status="OPEN" data-owner="SHINOB1" data-priority="HIGH">
+        <td>19</td>
+        <td><a href="https://www.wired.com/story/anthropic-launches-claude-managed-agents/" target="_blank"><strong>Anthropic: Claude Managed Agents</strong></a><br><span style="font-size:0.75rem;color:var(--muted)">/v1/agents + /v1/sessions — Anthropic hosts agent state</span></td>
+        <td>04-09</td>
+        <td><span class="pill hot">HIGH</span></td>
+        <td><span class="pill next">OPEN</span></td>
+        <td>SHINOB1</td>
+        <td>Wired paywall &mdash; needs deep read</td>
+        <td>NEEDS DEEP READ (Wired 403'd me). From the claude-api skill description + endpoint names: Anthropic now hosts <code>/v1/agents</code> + <code>/v1/sessions</code> — meaning session state, tool registry, and lifecycle are managed by Anthropic instead of the developer. <strong>Implications:</strong> Could replace / supplement mdj-agent for some workloads. <strong>Tradeoff:</strong> lose tmux-based architecture + full control. <strong>Win:</strong> zero infra, unlimited horizontal scale, official SLA. <strong>Action:</strong> (1) Fetch full article via MUSASHI or browse Playwright. (2) Benchmark ONE VOLTRON specialist (Medicare) as managed agent vs our runner — compare cost, latency, tool availability. (3) Decide whether Managed Agents is a backup path, a cost-cut for light specialists, or irrelevant for our use case.</td>
+      </tr>
+      <tr data-status="OPEN" data-owner="SHINOB1" data-priority="MEDIUM">
+        <td>20</td>
+        <td><a href="https://blog.jetbrains.com/ai/2026/04/using-acp-deep-agents-to-demystify-modern-software-engineering/" target="_blank"><strong>JetBrains: ACP + Deep Agents</strong></a><br><span style="font-size:0.75rem;color:var(--muted)">Agent Client Protocol open standard + LangChain Deep Agents framework</span></td>
+        <td>04-09</td>
+        <td><span class="pill plan">MEDIUM</span></td>
+        <td><span class="pill next">OPEN</span></td>
+        <td>SHINOB1</td>
+        <td>&mdash;</td>
+        <td>ACP = open protocol for IDE &harr; agent communication (WebStorm, Zed are early adopters). Deep Agents (LangChain) = filesystem + shell + planning (<code>write_todos</code>) + HITL approvals + sub-agent spawning. <strong>This is the pattern we built from scratch in FORGE, now open-sourced.</strong> <strong>Action items:</strong> (1) Read Deep Agents source — they may have solved state management / sub-agent context partitioning better than we did. Steal what's good. (2) Evaluate exposing our warriors via ACP so JDM could run a warrior from inside WebStorm/Zed with <code>@file</code> mentions. (3) ACP could become the standard protocol for RONIN ingress — external Discovery Doc submissions via IDE.</td>
+      </tr>
+      <tr data-status="OPEN" data-owner="SHINOB1" data-priority="MEDIUM">
+        <td>21</td>
+        <td><a href="https://www.forbes.com/councils/forbestechcouncil/2026/04/08/the-ai-native-codebase-how-to-keep-up-quality-when-agents-code/" target="_blank"><strong>Forbes: AI-Native Codebase Quality</strong></a><br><span style="font-size:0.75rem;color:var(--muted)">Quality practices for codebases written by agents</span></td>
+        <td>04-09</td>
+        <td><span class="pill plan">MEDIUM</span></td>
+        <td><span class="pill next">OPEN</span></td>
+        <td>SHINOB1</td>
+        <td>Forbes 403 &mdash; needs deep read</td>
+        <td>NEEDS DEEP READ (Forbes blocked me). Title suggests quality gates + guardrails for AI-generated code. <strong>What we already run:</strong> Hookify (35 rules, tool-level enforcement), FORGE lifecycle (11-step audit at every phase), CI gates (type-check 13/13 + build 11/11), E2E (Playwright + Vitest), CodeQL + Dependabot, branch protection. <strong>Why it still matters:</strong> This is validation of the architecture and a chance to steal any new patterns we haven't adopted. <strong>Action:</strong> Ask MUSASHI or Playwright to fetch the full article, extract any patterns we don't already run, ticket gaps.</td>
+      </tr>
+      <tr data-status="OPEN" data-owner="SHINOB1" data-priority="LOW">
+        <td>22</td>
+        <td><a href="https://www.geekwire.com/2026/amazon-revamps-s3-cloud-storage-for-the-ai-era-removing-a-key-barrier-for-apps-and-agents/" target="_blank"><strong>GeekWire: Amazon S3 AI Revamp</strong></a><br><span style="font-size:0.75rem;color:var(--muted)">S3 changes "removing a key barrier for apps and agents"</span></td>
+        <td>04-09</td>
+        <td><span class="pill plan">LOW</span></td>
+        <td><span class="pill next">OPEN</span></td>
+        <td>SHINOB1</td>
+        <td>GeekWire 403 &mdash; needs deep read</td>
+        <td>NEEDS DEEP READ (GeekWire 403'd me). Likely candidates for the "key barrier": vector/semantic object queries, faster range reads for context loading, metadata search, or tiered hot/cold for agent memory. <strong>Our stack today:</strong> Firestore + Google Drive for client + doc storage. S3 is not in our dependency tree. <strong>Why still worth reading:</strong> If DAVID acquires an AWS-native firm, we'd inherit S3 dependencies. Also relevant if we spin up a high-scale vector/doc search layer later. <strong>Action:</strong> Low priority parse; archive if not directly applicable.</td>
+      </tr>
+      <tr data-status="ARCHIVED" data-owner="JDM" data-priority="LOW" style="opacity:0.5;">
+        <td>23</td>
+        <td><a href="https://www.forbes.com/sites/mattcraig/2026/04/07/dr-dre-is-now-a-billionaire/" target="_blank"><strong>Forbes: Dr. Dre Billionaire</strong></a><br><span style="font-size:0.75rem;color:var(--muted)">Beats + Apple acquisition playbook — brand &rarr; product &rarr; exit</span></td>
+        <td>04-09</td>
+        <td><span class="pill plan">LOW</span></td>
+        <td><span class="pill hold">ARCHIVED</span></td>
+        <td>JDM</td>
+        <td>&mdash;</td>
+        <td>NEEDS DEEP READ (Forbes 403) but the playbook is known: Brand (Beats by Dre) + Product (headphones/audio) + Strategic acquisition (Apple, 2014, ~$3B) = billion-dollar exit without a VC-funded tech career. Maps to RPI: Brand (The Machine + warrior identity) + Product (toMachina portals) + Strategic (DAVID acquisitions). Key difference: JDM owns the full stack, not just the brand. Validation / inspiration only.</td>
+      </tr>
+      <tr data-status="OPEN" data-owner="SHINOB1" data-priority="HIGH">
+        <td>24</td>
+        <td><strong>Anthropic CC Insights Report</strong><br><span style="font-size:0.75rem;color:var(--muted)">Auto-generated from our session telemetry (<code>~/.claude/usage-data/report.html</code>) &mdash; last refresh 04-12 12:33</span></td>
+        <td>04-12</td>
+        <td><span class="pill hot">HIGH</span></td>
+        <td><span class="pill next">OPEN</span></td>
+        <td>SHINOB1</td>
+        <td>&mdash;</td>
+        <td>Anthropic's own view of how we operate: 5,233 msgs / 67 sessions / 13 days / 1,355 Slack posts / 44% parallel multi-Clauding / 424 commits. Called our operating model "a genuinely novel orchestration pattern." Their 3 suggested CLAUDE.md additions (Slack Protocol / Git Protocol / Deployment Verification) are validation &mdash; we already have stricter versions in hookify + feedback memories. <strong>Action:</strong> (1) Screenshot "At a Glance" header for investor/partner decks &mdash; external validation quote. (2) The 3 Horizon ideas spawned rows #25&ndash;27 below. (3) Monthly refresh &mdash; compare trend (friction events up/down). (4) Feed back to Anthropic via /feedback that we've already implemented their recommendations via hookify + DOJO protocols.</td>
+      </tr>
+      <tr data-status="OPEN" data-owner="SHINOB1" data-priority="HIGH">
+        <td>25</td>
+        <td><strong>Horizon: Parallel Worktree Sprint Pipeline</strong><br><span style="font-size:0.75rem;color:var(--muted)">Source: Anthropic CC Insights &rarr; On the Horizon #2</span></td>
+        <td>04-12</td>
+        <td><span class="pill hot">HIGH</span></td>
+        <td><span class="pill next">OPEN</span></td>
+        <td>SHINOB1</td>
+        <td>&mdash;</td>
+        <td>Anthropic's recommendation: each sub-agent worker gets <code>git worktree add</code> for branch isolation, coordinator rebases + opens PRs. Addresses the "branch tangles from shared worktrees" friction we hit when multiple RONINs edit the same tree. <strong>Our state:</strong> we already ship Shared File Protocol (feedback memory), but actual worktree-per-ticket is not standard. <strong>Action:</strong> Propose FORGE engine update to RONIN: each ticket gets <code>git worktree add ../wt-[ticket] -b feat/[ticket]</code>, coordinator rebases sequentially at merge time. Ticket prefix <code>ZRD-FOR-</code>. Estimate: 1 discovery doc + 1 RONIN sprint. Quick win on a recurring pain point.</td>
+      </tr>
+      <tr data-status="OPEN" data-owner="SHINOB1" data-priority="MEDIUM">
+        <td>26</td>
+        <td><strong>Horizon: Self-Healing CI Guardian</strong><br><span style="font-size:0.75rem;color:var(--muted)">Source: Anthropic CC Insights &rarr; On the Horizon #1</span></td>
+        <td>04-12</td>
+        <td><span class="pill plan">MEDIUM</span></td>
+        <td><span class="pill next">OPEN</span></td>
+        <td>SHINOB1</td>
+        <td>&mdash;</td>
+        <td>Anthropic's recommendation: autonomous agent detects CI failures, spawns fix agents, auto-submits PRs. <strong>Our state:</strong> RAIDEN partially does this reactively for bugs surfaced in Slack. No agent currently watches GitHub Actions webhooks. <strong>Action:</strong> Scope a CI Guardian warrior (or expand RAIDEN) that subscribes to failed-workflow webhooks, reads the error, spawns a Sonnet fix agent in a branch, runs build+test in a loop, opens auto-merge PR. Cost/risk: must NOT run unattended on main. Needs JDM approval gate before merge. Estimate: 1 discovery doc. Could eat into the 66 buggy_code + 61 wrong_approach friction buckets meaningfully.</td>
+      </tr>
+      <tr data-status="OPEN" data-owner="RAIDEN" data-priority="LOW">
+        <td>27</td>
+        <td><strong>Horizon: Verified-Diagnosis Slack Triage</strong><br><span style="font-size:0.75rem;color:var(--muted)">Source: Anthropic CC Insights &rarr; On the Horizon #3</span></td>
+        <td>04-12</td>
+        <td><span class="pill plan">LOW</span></td>
+        <td><span class="pill next">OPEN</span></td>
+        <td>RAIDEN</td>
+        <td>&mdash;</td>
+        <td>Anthropic's recommendation: RAIDEN ACKs immediately, silently investigates (grep+read+bash), only posts diagnosis with file:line evidence, never celebrates until deploy verified. <strong>Our state:</strong> RAIDEN already follows most of this via the Golden Rule + <code>feedback_raiden_golden_rule</code> + <code>feedback_raiden_dojo_protocol</code>. Probably the most-validated of the 3 Horizon items. <strong>Action:</strong> Audit RAIDEN's live behavior against Anthropic's template, patch gaps into RAIDEN's soul.md. Also: confirm RAIDEN's "ACK → investigate → diagnose with evidence" pattern is in the OS docs so it spreads to HERALD when HERALD ships. Lightweight &mdash; 1 RAIDEN self-review.</td>
+      </tr>
     </table>
   </div>
 
@@ -684,6 +784,12 @@ code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px;
         <td><span class="pill live">AUTONOMOUS</span></td>
         <td>No review needed. Golden Rule + Dojo protocol are sufficient.</td>
       </tr>
+      <tr>
+        <td><strong>TAIKO</strong> &#x1f941;</td>
+        <td>Comms Infrastructure &mdash; Twilio, SendGrid, Meet, Chat, RPI Connect, alerts</td>
+        <td><span class="pill plan">PLANNING</span></td>
+        <td>Born 2026-04-13. Scope locked (ZRD-COMMS, 16 tickets). App scoped on <a href="../taiko/ownership-grid.html">his roadmap</a>. High-touch CTO review until first sprint ships.</td>
+      </tr>
     </table>
   </div>
 
@@ -702,12 +808,27 @@ code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px;
 
   <div class="hit-item">
     <div class="status"><span class="pill hot">HOT</span></div>
-    <div class="desc"><strong>COMMS Module wiring</strong> &mdash; Sprint 011. Twilio voice + SMS + email compose in the slide-out panel. Team Tray priority.</div>
+    <div class="desc"><strong>Admin + Permissions + Sidebar Reorg</strong> &mdash; 12 APR- tickets. 4 tiers (Owner's Box / Executive Floor / Leader Level / Team Tray dock). RONIN building NOW. <a href="1-team-tray/admin-permissions-sidebar-discovery.html">Discovery doc</a></div>
   </div>
 
   <div class="hit-item">
     <div class="status"><span class="pill hot">HOT</span></div>
-    <div class="desc"><strong>VOLTRON brain.txt + RONIN brain.txt</strong> &mdash; WIRE_BRAIN_SYNC runs tonight at 2am. Verify both populate tomorrow.</div>
+    <div class="desc"><strong>Booking Config bugs (2)</strong> &mdash; Weekly schedule colored blocks not rendering + avatar not rendering. Need JDM F12 console dump to diagnose client-side.</div>
+  </div>
+
+  <div class="hit-item">
+    <div class="status"><span class="pill hot">HOT</span></div>
+    <div class="desc"><strong>Booking Phase 3 WordPress cutover</strong> &mdash; BKG-11 to 14. 19 slugs verified. Ready to swap 28 WordPress iframe URLs. Awaiting JDM green light once booking config is solid.</div>
+  </div>
+
+  <div class="hit-item">
+    <div class="status"><span class="pill next">NEXT</span></div>
+    <div class="desc"><strong>Life &amp; Estate PR #288 re-audit</strong> &mdash; VOLTRON found 5 bugs, RONIN fixed. Needs CTO re-audit before merge.</div>
+  </div>
+
+  <div class="hit-item">
+    <div class="status"><span class="pill next">NEXT</span></div>
+    <div class="desc"><strong>COMMS Module wiring</strong> &mdash; Sprint 011. Twilio voice + SMS + email compose in the slide-out panel. Team Tray priority.</div>
   </div>
 
   <div class="hit-item">
@@ -717,11 +838,11 @@ code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px;
 
   <div class="hit-item">
     <div class="status"><span class="pill next">NEXT</span></div>
-    <div class="desc"><strong>E2E Playwright coverage for Command Center tabs</strong> &mdash; VOLTRON flagged zero coverage. Assign RONIN.</div>
+    <div class="desc"><strong>E2E Playwright coverage for Command Center tabs</strong> &mdash; Zero coverage. Assign RONIN.</div>
   </div>
 
   <div class="hit-item">
-    <div class="status"><span class="pill next">NEXT</span></div>
+    <div class="status"><span class="pill plan">PLAN</span></div>
     <div class="desc"><strong>ProZone UI/UX polish</strong> &mdash; Discovery doc migrated to MUSASHI. Ready for sprint.</div>
   </div>
 

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
-import { Guardian } from '@tomachina/ui'
+import { PageGuard } from './guard'
 export const metadata: Metadata = { title: 'Guardian' }
 export default function GuardianPage() {
-  return <Guardian portal="PRODASHX" />
+  return <PageGuard />
 }

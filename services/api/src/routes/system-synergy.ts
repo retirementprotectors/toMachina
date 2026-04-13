@@ -15,29 +15,6 @@ import { execSync } from 'child_process'
 
 export const systemSynergyRoutes = Router()
 
-// ─── Auth Guard ───────────────────────────────────────────────────────────────
-const ALLOWED_ROLES = ['EXECUTIVE', 'OWNER', 'SUPER_ADMIN']
-
-async function requireExecutive(req: Request, res: Response, next: NextFunction) {
-  try {
-    const email: string | undefined = (req as unknown as { user?: { email?: string } }).user?.email
-    if (!email) {
-      res.status(401).json(errorResponse('Authentication required'))
-      return
-    }
-    // Domain-gated: any @retireprotected.com user passes.
-    // Module-level access (OWNER) is enforced by the portal UI entitlements.
-    if (!email.endsWith('@retireprotected.com')) {
-      res.status(403).json(errorResponse('System Synergy requires @retireprotected.com domain'))
-      return
-    }
-    next()
-  } catch (err) {
-    console.error('[system-synergy] Auth check failed:', err)
-    res.status(500).json(errorResponse('Authorization check failed'))
-  }
-}
-
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const HOME = process.env.HOME || '/home/jdm'
 const CLAUDE_DIR = path.join(HOME, '.claude')
@@ -78,7 +55,7 @@ function tsToIso(val: unknown): string {
 }
 
 // ─── Tool 1: session-inventory ────────────────────────────────────────────────
-systemSynergyRoutes.get('/session-inventory', requireExecutive, async (_req: Request, res: Response) => {
+systemSynergyRoutes.get('/session-inventory', async (_req: Request, res: Response) => {
   try {
     const sessionsDir = path.join(CLAUDE_DIR, 'sessions')
     const sessionFiles = safeReadDir(sessionsDir).filter(f => f.endsWith('.json'))
@@ -130,7 +107,7 @@ systemSynergyRoutes.get('/session-inventory', requireExecutive, async (_req: Req
 })
 
 // ─── Tool 2: memory-inventory ─────────────────────────────────────────────────
-systemSynergyRoutes.get('/memory-inventory', requireExecutive, async (_req: Request, res: Response) => {
+systemSynergyRoutes.get('/memory-inventory', async (_req: Request, res: Response) => {
   try {
     const projectsDir = path.join(CLAUDE_DIR, 'projects')
     const projectDirs = safeReadDir(projectsDir)
@@ -186,7 +163,7 @@ systemSynergyRoutes.get('/memory-inventory', requireExecutive, async (_req: Requ
 })
 
 // ─── Tool 3: claude-md-diff ───────────────────────────────────────────────────
-systemSynergyRoutes.get('/claude-md-diff', requireExecutive, async (req: Request, res: Response) => {
+systemSynergyRoutes.get('/claude-md-diff', async (req: Request, res: Response) => {
   try {
     const days = parseInt(req.query.days as string) || 7
     const target = (req.query.target as string) || 'all'
@@ -232,7 +209,7 @@ systemSynergyRoutes.get('/claude-md-diff', requireExecutive, async (req: Request
 })
 
 // ─── Tool 4: brain-health ─────────────────────────────────────────────────────
-systemSynergyRoutes.get('/brain-health', requireExecutive, async (_req: Request, res: Response) => {
+systemSynergyRoutes.get('/brain-health', async (_req: Request, res: Response) => {
   try {
     const warriorDirs = safeReadDir(WARRIORS_DIR)
 
@@ -276,7 +253,7 @@ systemSynergyRoutes.get('/brain-health', requireExecutive, async (_req: Request,
 })
 
 // ─── Tool 5: knowledge-query ──────────────────────────────────────────────────
-systemSynergyRoutes.get('/knowledge-query', requireExecutive, async (req: Request, res: Response) => {
+systemSynergyRoutes.get('/knowledge-query', async (req: Request, res: Response) => {
   try {
     const db = getDb()
     const type = req.query.type as string | undefined
@@ -318,7 +295,7 @@ systemSynergyRoutes.get('/knowledge-query', requireExecutive, async (req: Reques
 })
 
 // ─── Tool 6: session-env-audit ────────────────────────────────────────────────
-systemSynergyRoutes.get('/session-env-audit', requireExecutive, async (_req: Request, res: Response) => {
+systemSynergyRoutes.get('/session-env-audit', async (_req: Request, res: Response) => {
   try {
     const sessionEnvDir = path.join(CLAUDE_DIR, 'session-env')
     const envDirs = safeReadDir(sessionEnvDir)
@@ -369,7 +346,7 @@ systemSynergyRoutes.get('/session-env-audit', requireExecutive, async (_req: Req
 })
 
 // ─── Tool 7: duplicate-detector ───────────────────────────────────────────────
-systemSynergyRoutes.get('/duplicate-detector', requireExecutive, async (_req: Request, res: Response) => {
+systemSynergyRoutes.get('/duplicate-detector', async (_req: Request, res: Response) => {
   try {
     const projectsDir = path.join(CLAUDE_DIR, 'projects')
     const projectDirs = safeReadDir(projectsDir)
@@ -425,7 +402,7 @@ systemSynergyRoutes.get('/duplicate-detector', requireExecutive, async (_req: Re
 })
 
 // ─── Tool 8: warrior-roster ───────────────────────────────────────────────────
-systemSynergyRoutes.get('/warrior-roster', requireExecutive, async (_req: Request, res: Response) => {
+systemSynergyRoutes.get('/warrior-roster', async (_req: Request, res: Response) => {
   try {
     // Check tmux sessions
     const tmuxOutput = safeExec('tmux list-sessions -F "#{session_name}:#{session_activity}:#{session_windows}" 2>/dev/null')
@@ -482,7 +459,7 @@ systemSynergyRoutes.get('/warrior-roster', requireExecutive, async (_req: Reques
 })
 
 // ─── Tool 9: deploy-status ────────────────────────────────────────────────────
-systemSynergyRoutes.get('/deploy-status', requireExecutive, async (_req: Request, res: Response) => {
+systemSynergyRoutes.get('/deploy-status', async (_req: Request, res: Response) => {
   try {
     const ghToken = process.env.GITHUB_TOKEN || ''
     const repo = 'retirementprotectors/toMachina'
@@ -511,14 +488,34 @@ systemSynergyRoutes.get('/deploy-status', requireExecutive, async (_req: Request
     }
 
     // Get last deploy from git log
-    const lastDeployCommit = safeExec(`cd "${path.join(PROJECTS_DIR, 'toMachina')}" && git log --oneline -1 origin/main 2>/dev/null`)
-    const lastDeployTime = safeExec(`cd "${path.join(PROJECTS_DIR, 'toMachina')}" && git log -1 --format="%ci" origin/main 2>/dev/null`)
+    const lastDeploySha = safeExec(`cd "${path.join(PROJECTS_DIR, 'toMachina')}" && git log -1 --format="%H" origin/main 2>/dev/null`)
+
+    // Pending PRs (from GitHub API if available)
+    let pendingPrs: unknown[] = []
+    if (ghToken) {
+      try {
+        const prResponse = await fetch(`https://api.github.com/repos/${repo}/pulls?state=open&per_page=10`, {
+          headers: { Authorization: `token ${ghToken}`, Accept: 'application/vnd.github.v3+json' },
+          signal: AbortSignal.timeout(5000),
+        })
+        if (prResponse.ok) {
+          const prData = await prResponse.json() as Array<Record<string, unknown>>
+          pendingPrs = prData.map(pr => ({
+            number: pr.number,
+            title: pr.title,
+            state: pr.state,
+            author: (pr.user as Record<string, unknown>)?.login || 'unknown',
+            created_at: pr.created_at,
+            html_url: pr.html_url,
+          }))
+        }
+      } catch { /* GitHub API unavailable */ }
+    }
 
     res.json(successResponse({
       ci_runs: ciRuns,
-      ci_runs_count: ciRuns.length,
-      last_main_commit: lastDeployCommit || null,
-      last_main_timestamp: lastDeployTime || null,
+      pending_prs: pendingPrs,
+      last_deploy_sha: lastDeploySha || null,
       github_api_available: ciRuns.length > 0,
     }))
   } catch (err) {
@@ -528,7 +525,7 @@ systemSynergyRoutes.get('/deploy-status', requireExecutive, async (_req: Request
 })
 
 // ─── Tool 10: hook-audit ──────────────────────────────────────────────────────
-systemSynergyRoutes.get('/hook-audit', requireExecutive, async (_req: Request, res: Response) => {
+systemSynergyRoutes.get('/hook-audit', async (_req: Request, res: Response) => {
   try {
     const hookifySource = path.join(PROJECTS_DIR, '_RPI_STANDARDS', 'hookify')
     const sourceRules = safeReadDir(hookifySource).filter(f => f.endsWith('.local.md'))
@@ -586,5 +583,287 @@ systemSynergyRoutes.get('/hook-audit', requireExecutive, async (_req: Request, r
   } catch (err) {
     console.error('[system-synergy] hook-audit failed:', err)
     res.status(500).json(errorResponse('Failed to audit hooks'))
+  }
+})
+
+// ─── Tool 11: wire-health ────────────────────────────────────────────────────
+// LL-07: System Synergy Dashboard tile data source. Queries the wire_runs
+// Firestore collection (populated by services/learning-loop/wire-run-tracker.ts)
+// and returns the latest run per wire + aggregate status. The tile subscribes
+// to this endpoint to show green/yellow/red per wire.
+//
+// Response shape matches WireHealthSnapshot — see packages/ui/src/modules/SystemSynergy.
+
+interface WireHealthSnapshot {
+  wires: WireHealthRow[]
+  all_healthy: boolean
+  total_runs_last_24h: number
+  failures_last_24h: number
+  last_snapshot_at: string
+}
+
+interface WireHealthRow {
+  wireName: string
+  lastRunAt: string | null
+  lastSuccessAt: string | null
+  lastFailureAt: string | null
+  status: 'unknown' | 'running' | 'success' | 'failure'
+  durationMs: number | null
+  entriesWritten: number | null
+  error: string | null
+  host: string | null
+}
+
+// The canonical list of wires expected to exist. Used so the dashboard shows
+// a row even if a wire has NEVER run (the thing that broke the Learning Loop
+// for 48 hours silently). "unknown" is a valid status — it means "nothing
+// has ever reported from this wire," which is a red flag, not an empty row.
+const EXPECTED_WIRES = [
+  'entity-extractor',
+  'wire-brain-sync',
+  'gap-analyzer',
+  'knowledge-promote',
+  'wire-platform-audit',
+  'wire-warrior-briefing',
+]
+
+systemSynergyRoutes.get('/wire-health', async (_req: Request, res: Response) => {
+  try {
+    const db = getDb()
+    const now = Date.now()
+    const oneDayAgoMs = now - 24 * 60 * 60 * 1000
+
+    // Pull the last ~200 runs across all wires, sorted newest first.
+    // Uses the wire_runs composite index on startedAt DESC.
+    const snapshot = await db
+      .collection('wire_runs')
+      .orderBy('startedAt', 'desc')
+      .limit(200)
+      .get()
+
+    const rowsByWire = new Map<string, WireHealthRow>()
+    let totalRunsLast24h = 0
+    let failuresLast24h = 0
+
+    for (const wire of EXPECTED_WIRES) {
+      rowsByWire.set(wire, {
+        wireName: wire,
+        lastRunAt: null,
+        lastSuccessAt: null,
+        lastFailureAt: null,
+        status: 'unknown',
+        durationMs: null,
+        entriesWritten: null,
+        error: null,
+        host: null,
+      })
+    }
+
+    for (const doc of snapshot.docs) {
+      const data = doc.data()
+      const wireName = String(data.wireName || '')
+      if (!wireName) continue
+
+      const startedAt = data.startedAt
+      const startedMs =
+        startedAt instanceof Timestamp ? startedAt.toMillis() : null
+
+      if (startedMs !== null && startedMs >= oneDayAgoMs) {
+        totalRunsLast24h++
+        if (data.status === 'failure') failuresLast24h++
+      }
+
+      const existing = rowsByWire.get(wireName)
+      const row: WireHealthRow = existing ?? {
+        wireName,
+        lastRunAt: null,
+        lastSuccessAt: null,
+        lastFailureAt: null,
+        status: 'unknown',
+        durationMs: null,
+        entriesWritten: null,
+        error: null,
+        host: null,
+      }
+
+      if (!row.lastRunAt) {
+        row.lastRunAt = tsToIso(startedAt)
+        row.status = (data.status as WireHealthRow['status']) ?? 'unknown'
+        row.durationMs = typeof data.durationMs === 'number' ? data.durationMs : null
+        row.entriesWritten =
+          typeof data.entriesWritten === 'number' ? data.entriesWritten : null
+        row.error = typeof data.error === 'string' ? data.error : null
+        row.host = typeof data.host === 'string' ? data.host : null
+      }
+
+      if (!row.lastSuccessAt && data.status === 'success') {
+        row.lastSuccessAt = tsToIso(startedAt)
+      }
+      if (!row.lastFailureAt && data.status === 'failure') {
+        row.lastFailureAt = tsToIso(startedAt)
+      }
+
+      rowsByWire.set(wireName, row)
+    }
+
+    const wires = Array.from(rowsByWire.values())
+    const allHealthy = wires.every(
+      w => w.status === 'success' || w.status === 'running',
+    )
+
+    const result: WireHealthSnapshot = {
+      wires,
+      all_healthy: allHealthy,
+      total_runs_last_24h: totalRunsLast24h,
+      failures_last_24h: failuresLast24h,
+      last_snapshot_at: new Date().toISOString(),
+    }
+
+    res.json(successResponse(result))
+  } catch (err) {
+    console.error('[system-synergy] wire-health failed:', err)
+    res.status(500).json(errorResponse('Failed to query wire_runs'))
+  }
+})
+
+// ─── Tool 12: warrior-activity (ZRD-SYN-020h + 020k) ────────────────────────
+// Warrior Event Log dashboard data. Queries warrior_events collection.
+// Supports cross-warrior queries via ?warrior= filter.
+//
+// Query params:
+//   warrior  - filter to a specific warrior (e.g. RONIN)
+//   type     - filter by event type (e.g. pr_shipped, directive)
+//   limit    - max results (default 50, max 200)
+//   since    - ISO timestamp, only return events after this time
+//
+// Response shape matches WarriorActivitySnapshot for the dashboard tile.
+
+interface WarriorActivityEvent {
+  id: string
+  warrior: string
+  sessionId: string
+  timestamp: string
+  type: string
+  summary: string
+  channel?: string
+  details?: Record<string, unknown>
+}
+
+interface WarriorStatusSummary {
+  warrior: string
+  lastEventAt: string | null
+  lastEventType: string | null
+  lastEventSummary: string | null
+  eventCount24h: number
+  isActive: boolean
+}
+
+interface WarriorActivitySnapshot {
+  events: WarriorActivityEvent[]
+  warriors: WarriorStatusSummary[]
+  total_events_24h: number
+  active_warrior_count: number
+  last_snapshot_at: string
+}
+
+const ALL_WARRIORS = ['SHINOB1', 'MEGAZORD', 'MUSASHI', 'VOLTRON', 'RAIDEN', 'RONIN']
+
+systemSynergyRoutes.get('/warrior-activity', async (req: Request, res: Response) => {
+  try {
+    const db = getDb()
+    const warriorFilter = (req.query.warrior as string)?.toUpperCase() || null
+    const typeFilter = req.query.type as string || null
+    const limit = Math.min(parseInt(req.query.limit as string) || 50, 200)
+    const sinceParam = req.query.since as string || null
+
+    const now = Date.now()
+    const oneDayAgoMs = now - 24 * 60 * 60 * 1000
+
+    // Build the query
+    let query = db.collection('warrior_events')
+      .orderBy('timestamp', 'desc') as FirebaseFirestore.Query
+
+    if (warriorFilter) {
+      query = query.where('warrior', '==', warriorFilter)
+    }
+    if (typeFilter) {
+      query = query.where('type', '==', typeFilter)
+    }
+    if (sinceParam) {
+      const sinceDate = new Date(sinceParam)
+      if (!Number.isNaN(sinceDate.getTime())) {
+        query = query.where('timestamp', '>=', Timestamp.fromDate(sinceDate))
+      }
+    }
+
+    const snapshot = await query.limit(limit).get()
+
+    // Build event list
+    const events: WarriorActivityEvent[] = snapshot.docs.map(doc => {
+      const data = doc.data()
+      return {
+        id: doc.id,
+        warrior: String(data.warrior || ''),
+        sessionId: String(data.sessionId || ''),
+        timestamp: tsToIso(data.timestamp),
+        type: String(data.type || ''),
+        summary: String(data.summary || ''),
+        ...(data.channel ? { channel: String(data.channel) } : {}),
+        ...(data.details ? { details: data.details as Record<string, unknown> } : {}),
+      }
+    })
+
+    // Build per-warrior status summaries (always show all 6 warriors)
+    const warriorMap = new Map<string, { lastEvent: WarriorActivityEvent | null; count24h: number }>()
+    for (const w of ALL_WARRIORS) {
+      warriorMap.set(w, { lastEvent: null, count24h: 0 })
+    }
+
+    for (const event of events) {
+      const entry = warriorMap.get(event.warrior)
+      if (!entry) continue
+
+      if (!entry.lastEvent) {
+        entry.lastEvent = event
+      }
+
+      const eventMs = new Date(event.timestamp).getTime()
+      if (!Number.isNaN(eventMs) && eventMs >= oneDayAgoMs) {
+        entry.count24h++
+      }
+    }
+
+    const warriors: WarriorStatusSummary[] = ALL_WARRIORS.map(w => {
+      const entry = warriorMap.get(w)!
+      const lastEvent = entry.lastEvent
+      const isActive = lastEvent
+        ? (now - new Date(lastEvent.timestamp).getTime()) < 2 * 60 * 60 * 1000
+        : false
+
+      return {
+        warrior: w,
+        lastEventAt: lastEvent?.timestamp ?? null,
+        lastEventType: lastEvent?.type ?? null,
+        lastEventSummary: lastEvent?.summary ?? null,
+        eventCount24h: entry.count24h,
+        isActive,
+      }
+    })
+
+    const totalEvents24h = Array.from(warriorMap.values()).reduce((sum, e) => sum + e.count24h, 0)
+    const activeCount = warriors.filter(w => w.isActive).length
+
+    const result: WarriorActivitySnapshot = {
+      events,
+      warriors,
+      total_events_24h: totalEvents24h,
+      active_warrior_count: activeCount,
+      last_snapshot_at: new Date().toISOString(),
+    }
+
+    res.json(successResponse(result))
+  } catch (err) {
+    console.error('[system-synergy] warrior-activity failed:', err)
+    res.status(500).json(errorResponse('Failed to query warrior_events'))
   }
 })

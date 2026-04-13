@@ -8,13 +8,14 @@
 Description=RPI Gap Analyzer — Daily knowledge gap analysis
 After=network-online.target
 Wants=network-online.target
+OnFailure=slack-alert@%p.service
 
 [Service]
 Type=oneshot
 User=jdm
 WorkingDirectory=/home/jdm/Projects/toMachina/services/learning-loop
 Environment="NODE_ENV=production"
-Environment="GOOGLE_APPLICATION_CREDENTIALS=/home/jdm/mdj-agent/sa-key.json"
+Environment="GOOGLE_APPLICATION_CREDENTIALS=/home/jdm/Projects/dojo-warriors/mdj-agent/sa-key.json"
 EnvironmentFile=/home/jdm/Projects/dojo-warriors/mdj-agent/.env
 ExecStart=/usr/bin/node dist/gap-analyzer.js
 StandardOutput=journal

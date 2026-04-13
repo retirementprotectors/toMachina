@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en" data-cwd="/home/jdm/Projects/toMachina">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Partnership Roadmap — Matt Mitchell x RPI | DAVID</title>
+<style>
+:root {
+  --bg: #0a0e17; --card: #111827; --card2: #1a2236; --border: #1e293b;
+  --text: #e2e8f0; --muted: #94a3b8;
+  --david: #40bc58; --gold: #d4a44c; --blue: #4a7ab5; --purple: #a78bfa;
+  --red: #f87171; --cyan: #06b6d4; --orange: #f59e0b;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+.header { max-width: 1100px; margin: 0 auto; padding: 2.5rem 2rem 1.5rem; border-bottom: 2px solid var(--david); }
+.header h1 { font-size: 2.4rem; font-weight: 800; background: linear-gradient(135deg, var(--david), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1.1; }
+.header .sub { font-size: 1rem; color: var(--muted); margin-top: 0.5rem; }
+.header .tagline { font-size: 0.95rem; color: var(--david); font-weight: 600; margin-top: 0.75rem; }
+.badges { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1rem; }
+.badge { padding: 3px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 600; }
+.b-david { background: rgba(64,188,88,0.15); color: var(--david); }
+.b-gold { background: rgba(212,164,76,0.15); color: var(--gold); }
+.b-blue { background: rgba(74,122,181,0.15); color: var(--blue); }
+.b-purple { background: rgba(167,139,250,0.15); color: var(--purple); }
+.tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); max-width: 1100px; margin: 0 auto; overflow-x: auto; padding: 0 2rem; }
+.tab { padding: 0.75rem 1.25rem; cursor: pointer; color: var(--muted); font-size: 0.85rem; font-weight: 600; border-bottom: 2px solid transparent; white-space: nowrap; transition: all 0.2s; }
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--david); border-bottom-color: var(--david); }
+.content { max-width: 1100px; margin: 0 auto; padding: 2rem; }
+.panel { display: none; }
+.panel.active { display: block; }
+h2 { font-size: 1.4rem; color: var(--david); margin: 1.5rem 0 1rem; border-left: 4px solid var(--david); padding-left: 0.75rem; }
+h3 { font-size: 1.1rem; color: var(--gold); margin: 1.25rem 0 0.75rem; }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; margin: 1rem 0; }
+.card-david { border-left: 4px solid var(--david); }
+.card-gold { border-left: 4px solid var(--gold); }
+.card-blue { border-left: 4px solid var(--blue); }
+.card-purple { border-left: 4px solid var(--purple); }
+.card-red { border-left: 4px solid var(--red); }
+table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.88rem; }
+th, td { padding: 0.5rem 0.75rem; border: 1px solid var(--border); text-align: left; }
+th { background: var(--card); color: var(--david); font-weight: 600; }
+ul, ol { margin: 0.5rem 0 0.5rem 1.5rem; }
+li { margin: 0.25rem 0; }
+.checklist { list-style: none; margin-left: 0; }
+.checklist li { padding: 0.4rem 0; padding-left: 1.5rem; position: relative; }
+.checklist li::before { content: '\2610'; position: absolute; left: 0; color: var(--david); font-size: 1.1rem; }
+.timeline { display: flex; flex-direction: column; gap: 0; margin: 1rem 0; }
+.week-block { display: flex; gap: 1rem; padding: 1rem; border-left: 3px solid var(--border); margin-left: 1rem; position: relative; }
+.week-block::before { content: ''; position: absolute; left: -7px; top: 1.2rem; width: 12px; height: 12px; border-radius: 50%; background: var(--card); border: 2px solid var(--david); }
+.week-block.active::before { background: var(--david); }
+.week-label { min-width: 90px; font-size: 0.78rem; font-weight: 700; color: var(--david); padding-top: 2px; }
+.week-content { flex: 1; }
+.week-content h4 { font-size: 0.95rem; color: var(--text); margin-bottom: 4px; }
+.week-content p { font-size: 0.82rem; color: var(--muted); }
+.quote-block { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; text-align: center; margin: 1.5rem 0; }
+.quote-block .quote { font-size: 1.2rem; font-style: italic; color: var(--text); font-weight: 600; line-height: 1.4; max-width: 640px; margin: 0 auto 0.75rem; }
+.quote-block .attrib { font-size: 0.82rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+.vision-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 1rem 0; }
+@media (max-width: 768px) { .vision-grid { grid-template-columns: 1fr; } }
+.vision-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; text-align: center; }
+.vision-card .year { font-size: 2rem; font-weight: 800; }
+.vision-card h3 { margin: 0.5rem 0; }
+.vision-card p { font-size: 0.82rem; color: var(--muted); }
+.footer { max-width: 1100px; margin: 3rem auto 1rem; padding: 1rem 2rem; border-top: 1px solid var(--border); color: var(--muted); font-size: 0.78rem; text-align: center; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Partnership Roadmap</h1>
+  <div class="sub">Matt Mitchell &times; Retirement Protectors, Inc.</div>
+  <div class="tagline">#We'reWithDAVID &mdash; DAVID Partner #1</div>
+  <div class="badges">
+    <span class="badge b-david">Midwest Medigap</span>
+    <span class="badge b-gold">6,000+ Medicare Clients</span>
+    <span class="badge b-blue">Phoenix, AZ + Nationwide</span>
+    <span class="badge b-purple">DAVID Channel (B2B)</span>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab('now')">Now &rarr; Wednesday</div>
+  <div class="tab" onclick="showTab('wednesday')">Wednesday Meeting</div>
+  <div class="tab" onclick="showTab('after')">After Wednesday</div>
+  <div class="tab" onclick="showTab('vision')">The Vision</div>
+</div>
+
+<div class="content">
+
+<!-- TAB 1: NOW → WEDNESDAY -->
+<div class="panel active" id="tab-now">
+  <h2>This Weekend: Get Oriented</h2>
+  <div class="card card-david">
+    <p><strong>No homework. No pressure.</strong> This weekend is about exploring the platform at your own pace so Wednesday&rsquo;s meeting is a conversation, not a demo. Poke around. Ask questions in Slack. The warriors are here.</p>
+  </div>
+
+  <h3>Explore the Portal</h3>
+  <div class="card card-blue">
+    <ul class="checklist">
+      <li><strong>Log into ProDashX</strong> &mdash; your login is coming from Josh. This is the portal your clients and team will use: <a href="https://prodash.tomachina.com" style="color: var(--cyan);">prodash.tomachina.com</a></li>
+      <li><strong>Test VOLTRON</strong> &mdash; click the chat icon in the portal sidebar. Ask it anything: &ldquo;What&rsquo;s a 1035 exchange?&rdquo; or &ldquo;How does the Proactive Service Model work?&rdquo; This is the AI assistant your entire team will have access to, 24/7.</li>
+      <li><strong>Browse the modules</strong> &mdash; Clients, Accounts, Service Centers, Sales Centers. Click around. See what the client experience looks like from the inside.</li>
+    </ul>
+  </div>
+
+  <h3>Start Gathering (for Wednesday)</h3>
+  <div class="card card-gold">
+    <p>The more you bring to Wednesday, the more specific we can get. But don&rsquo;t stress &mdash; we&rsquo;ll work with whatever you have:</p>
+    <table>
+      <tr><th>Item</th><th>Why We Need It</th><th>Format</th></tr>
+      <tr><td><strong>Client count by type</strong></td><td>Medicare Advantage vs Med Supp vs PDP &mdash; tells us the book composition</td><td>Rough numbers fine</td></tr>
+      <tr><td><strong>Agent roster</strong></td><td>Who produces, what lines, what states</td><td>Spreadsheet or list</td></tr>
+      <tr><td><strong>Staff roster</strong></td><td>Support team roles and responsibilities</td><td>Names + roles</td></tr>
+      <tr><td><strong>Current tech stack</strong></td><td>What CRM, quoting tools, phone system, email platform</td><td>Just the names</td></tr>
+      <tr><td><strong>Carrier list</strong></td><td>Which carriers, which contracts, which states</td><td>List</td></tr>
+      <tr><td><strong>Revenue snapshot</strong></td><td>Topline by product line &mdash; helps us model the comp structure</td><td>Ballpark is fine</td></tr>
+      <tr><td><strong>Pain points</strong></td><td>What&rsquo;s broken? What takes too long? What do you wish existed?</td><td>Your words</td></tr>
+    </table>
+  </div>
+
+  <h3>Quick Wins</h3>
+  <div class="card card-purple">
+    <ul class="checklist">
+      <li><strong>Forward quarantined email to Josh</strong> &mdash; the email that got flagged. Josh will sort it out.</li>
+      <li><strong>Connect with Shane when he reaches out</strong> &mdash; Shane Parmenter is our CFO. He&rsquo;ll walk you through the financial side of the partnership structure. Great guy, straight shooter.</li>
+      <li><strong>Explore Slack</strong> &mdash; you&rsquo;re already here. The warriors you met tonight (MUSASHI, VOLTRON, SHINOB1, MEGAZORD, RAIDEN) are all reachable. Ask questions anytime.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- TAB 2: WEDNESDAY MEETING -->
+<div class="panel" id="tab-wednesday">
+  <h2>Wednesday: The Deep Dive</h2>
+  <div class="card card-david">
+    <p><strong>This is where we get specific.</strong> We&rsquo;ll walk through 8 domains of your business, map each one to our platform, and identify what migrates, what integrates, and what we build fresh.</p>
+  </div>
+
+  <h3>The 8-Domain Inventory</h3>
+  <table>
+    <tr><th>#</th><th>Domain</th><th>What We&rsquo;ll Review</th><th>Goal</th></tr>
+    <tr><td>1</td><td><strong>Clients</strong></td><td>Client count, demographics, plan types, geography, retention rates</td><td>Understand the book</td></tr>
+    <tr><td>2</td><td><strong>Agents</strong></td><td>Producer roster, production by agent, licensing, appointments, specialties</td><td>Map the sales force</td></tr>
+    <tr><td>3</td><td><strong>Staff</strong></td><td>Support team, roles, capacity, pain points, what they wish they had</td><td>Plan the onboarding</td></tr>
+    <tr><td>4</td><td><strong>Technology</strong></td><td>CRM, quoting tools, phone/dialer, email, document management</td><td>Integration plan</td></tr>
+    <tr><td>5</td><td><strong>Carriers</strong></td><td>Contracts, hierarchies, commission structures, top carriers by volume</td><td>Migration path</td></tr>
+    <tr><td>6</td><td><strong>Processes</strong></td><td>New business workflow, service workflow, AEP playbook, training</td><td>Process alignment</td></tr>
+    <tr><td>7</td><td><strong>Compliance</strong></td><td>E&amp;O, licensing maintenance, CMS compliance, state requirements</td><td>Risk assessment</td></tr>
+    <tr><td>8</td><td><strong>Revenue</strong></td><td>Topline by product, commission splits, overrides, bonuses, growth trend</td><td>Comp model design</td></tr>
+  </table>
+
+  <h3>Key Discussions</h3>
+  <div class="card card-gold">
+    <h3 style="color: var(--gold);">Comp Model</h3>
+    <p>How the partnership compensation works. Street-level commissions, overrides, shared services fees, and how cross-sell revenue (retirement, life, legacy) flows back to you and your agents. Transparent, documented, no surprises.</p>
+  </div>
+
+  <div class="card card-blue">
+    <h3 style="color: var(--blue);">Carrier Contract Migration</h3>
+    <p>Which contracts stay under your hierarchy, which migrate to RPI&rsquo;s, and which new contracts open up (Gradient, Schwab, BD relationships). The goal: your agents keep selling the carriers they know while gaining access to carriers they couldn&rsquo;t access alone.</p>
+  </div>
+
+  <div class="card card-purple">
+    <h3 style="color: var(--purple);">Data Integration Plan</h3>
+    <p>How your client data comes into the platform. Our CIO (MEGAZORD) runs the ATLAS data pipeline &mdash; it&rsquo;s built for exactly this: ingesting books of business from partner agencies. Client records, policy data, carrier feeds &mdash; mapped, normalized, and loaded into ProDashX.</p>
+  </div>
+
+  <div class="card card-david">
+    <h3 style="color: var(--david);">Platform Access Rollout</h3>
+    <p>Who gets access when. Phased rollout: you first (this weekend), then your staff, then your agents. Each tier gets training, documentation, and a dedicated onboarding contact. Nobody gets thrown into the deep end.</p>
+  </div>
+</div>
+
+<!-- TAB 3: AFTER WEDNESDAY -->
+<div class="panel" id="tab-after">
+  <h2>The 12-Week Merger Timeline</h2>
+  <div class="card card-david">
+    <p><strong>After Wednesday, we execute.</strong> 12 weeks from handshake to go-live. Each phase has clear deliverables, clear owners, and clear gates.</p>
+  </div>
+
+  <div class="timeline">
+    <div class="week-block active">
+      <div class="week-label">Weeks 1&ndash;2</div>
+      <div class="week-content">
+        <h4>Discovery Doc + Gap Analysis</h4>
+        <p>MUSASHI (CMO) writes the formal Discovery Doc from Wednesday&rsquo;s meeting &mdash; the same 8-tab format we use for every major initiative. Documents every domain, every gap, every decision point. Both sides sign off before a single line of code gets written or a single record gets migrated.</p>
+      </div>
+    </div>
+    <div class="week-block">
+      <div class="week-label">Weeks 3&ndash;4</div>
+      <div class="week-content">
+        <h4>Business Decisions</h4>
+        <p>Comp structure finalized. Carrier migration path locked. Org chart agreed. Legal review of partnership terms. This is the &ldquo;handshake on paper&rdquo; phase &mdash; everything documented, nothing assumed.</p>
+      </div>
+    </div>
+    <div class="week-block">
+      <div class="week-label">Weeks 5&ndash;6</div>
+      <div class="week-content">
+        <h4>Data Migration</h4>
+        <p>MEGAZORD (CIO) runs the ATLAS intake pipeline. Client records, policy data, agent appointments, carrier feeds &mdash; all mapped, normalized, validated, and loaded into Firestore. Dual-write to Sheets during transition so nothing breaks.</p>
+      </div>
+    </div>
+    <div class="week-block">
+      <div class="week-label">Weeks 7&ndash;8</div>
+      <div class="week-content">
+        <h4>Portal Onboarding</h4>
+        <p>Agents and staff get ProDashX access. Each person gets a login, a role assignment, and a guided walkthrough. VOLTRON (CSO) is available 24/7 in the portal for questions. SENSEI training modules cover everything from client lookup to campaign management.</p>
+      </div>
+    </div>
+    <div class="week-block">
+      <div class="week-label">Weeks 9&ndash;10</div>
+      <div class="week-content">
+        <h4>Training + Parallel Run</h4>
+        <p>Two weeks of running both systems side by side. Your team uses ProDashX for new business while keeping their existing tools for in-flight cases. Issues get caught and fixed in real time. RAIDEN (immune system) monitors for errors and auto-triages.</p>
+      </div>
+    </div>
+    <div class="week-block">
+      <div class="week-label">Weeks 11&ndash;12</div>
+      <div class="week-content">
+        <h4>Cutover + Go-Live</h4>
+        <p>Old systems decommissioned. ProDashX is the single source of truth. C3 campaigns activated for Matt&rsquo;s book. Proactive Service Model&trade; running. Welcome communications sent to clients. <strong>The Machine is live for Midwest Medigap.</strong></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card card-gold">
+    <h3 style="color: var(--gold);">What Matt&rsquo;s Team Gains at Go-Live</h3>
+    <table>
+      <tr><th>Capability</th><th>Before (standalone)</th><th>After (RPI platform)</th></tr>
+      <tr><td>Client portal</td><td>None</td><td>ProDashX &mdash; branded, secure, 24/7</td></tr>
+      <tr><td>AI assistant</td><td>None</td><td>VOLTRON &mdash; 82 tools, 6 specialists</td></tr>
+      <tr><td>Campaign engine</td><td>Manual emails</td><td>C3 &mdash; 60 campaigns, 661 templates, AEP-compliant</td></tr>
+      <tr><td>Proactive service</td><td>Reactive only</td><td>RMD alerts, AEP readiness, beneficiary audits</td></tr>
+      <tr><td>Cross-sell pipeline</td><td>None</td><td>Automated Medicare &rarr; Retirement &rarr; Legacy</td></tr>
+      <tr><td>Carrier access</td><td>Medicare carriers only</td><td>Medicare + Life + Annuity + Advisory (Gradient/Schwab)</td></tr>
+      <tr><td>Marketing materials</td><td>Carrier-provided</td><td>RPI-branded Engage suite + custom programs</td></tr>
+      <tr><td>Data pipeline</td><td>Manual spreadsheets</td><td>ATLAS &mdash; automated intake, normalization, sync</td></tr>
+      <tr><td>Compliance monitoring</td><td>Manual</td><td>Automated &mdash; immune system enforcement</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- TAB 4: THE VISION -->
+<div class="panel" id="tab-vision">
+  <h2>The Vision: Matt Mitchell x DAVID</h2>
+
+  <div class="quote-block">
+    <div class="quote">&ldquo;The merge isn&rsquo;t just about combining books of business. It&rsquo;s about plugging your people into a machine that makes them 10x more effective on day one.&rdquo;</div>
+    <div class="attrib">&mdash; MUSASHI, CMO</div>
+  </div>
+
+  <h3>The Career Path</h3>
+  <div class="vision-grid">
+    <div class="vision-card" style="border-top: 3px solid var(--david);">
+      <div class="year" style="color: var(--david);">Year 1&ndash;3</div>
+      <h3>Partner</h3>
+      <p>Merge complete. Book integrated. Team onboarded. Cross-sell pipeline generating retirement + legacy revenue from existing Medicare clients. Proving the model works at scale.</p>
+    </div>
+    <div class="vision-card" style="border-top: 3px solid var(--gold);">
+      <div class="year" style="color: var(--gold);">Year 3&ndash;6</div>
+      <h3>Case Study + Recruiter</h3>
+      <p>Matt becomes the proof that DAVID works. His numbers, his story, his team&rsquo;s transformation. That story recruits the next 10 partners. Destin conference &mdash; Matt on stage telling other agency owners: &ldquo;Here&rsquo;s what happened when I plugged in.&rdquo;</p>
+    </div>
+    <div class="vision-card" style="border-top: 3px solid var(--purple);">
+      <div class="year" style="color: var(--purple);">Year 6&ndash;9</div>
+      <h3>Regional Leader</h3>
+      <p>Matt&rsquo;s market (Phoenix + nationwide reach) becomes a DAVID region. He&rsquo;s not just a partner &mdash; he&rsquo;s the regional leader mentoring the next generation of partners. His enterprise value compounds every year.</p>
+    </div>
+  </div>
+
+  <h2>The DAVID Scaling Model</h2>
+  <div class="card card-david">
+    <p><strong>Matt is Partner #1.</strong> The first one through the door. Every system we build, every process we document, every integration we complete &mdash; it becomes the playbook for Partner #2, #3, #4, and beyond.</p>
+    <ul style="margin-top: 0.75rem;">
+      <li><strong>Partner #1 (Matt)</strong> &mdash; we build the playbook together. Every problem solved becomes a solved problem for everyone after.</li>
+      <li><strong>Partners #2&ndash;5</strong> &mdash; the playbook accelerates onboarding from 12 weeks to 6. Matt&rsquo;s experience informs the process.</li>
+      <li><strong>Partners #6&ndash;20</strong> &mdash; onboarding becomes turnkey. ATLAS ingests the book. ProDashX provisions the team. C3 activates the campaigns. Matt&rsquo;s team helps train new partners because they&rsquo;ve lived it.</li>
+      <li><strong>Partners #20+</strong> &mdash; DAVID is a machine. Regional leaders (Matt included) manage partner clusters. The enterprise compounds.</li>
+    </ul>
+  </div>
+
+  <h2>Why Partner #1 Matters Most</h2>
+  <div class="card card-gold">
+    <p>Being first isn&rsquo;t a risk &mdash; it&rsquo;s a position. Partner #1 gets:</p>
+    <ul>
+      <li><strong>Direct access to Josh, Shane, and the entire Executive.AI team</strong> &mdash; the same attention that built the platform is now focused on your integration</li>
+      <li><strong>Influence on the playbook</strong> &mdash; your feedback shapes how every future partner experiences DAVID</li>
+      <li><strong>First-mover economics</strong> &mdash; comp structures, territory protections, and equity conversations that later partners won&rsquo;t get</li>
+      <li><strong>The story</strong> &mdash; &ldquo;I was the first one. I saw it before anyone else did.&rdquo; That story has compounding value in the industry.</li>
+    </ul>
+  </div>
+
+  <div class="quote-block">
+    <div class="quote">&ldquo;Your Medicare book isn&rsquo;t just a Medicare book. It&rsquo;s a pipeline of 6,000 families who trust you with their health &mdash; and are waiting for someone they trust to help with their wealth and legacy too.&rdquo;</div>
+    <div class="attrib">&mdash; #We'reWithDAVID &bull; #RunningOurOwnRACE</div>
+  </div>
+</div>
+
+</div>
+
+<div class="footer">
+  Partnership Roadmap &bull; Matt Mitchell &times; Retirement Protectors, Inc. &bull; DAVID Channel (B2B)<br>
+  MUSASHI, ARTxBLADE (CMO) &bull; April 2026 &bull; #We'reWithDAVID &bull; #RunningOurOwnRACE
+</div>
+
+<script>
+function showTab(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+</script>
+</body>
+</html>

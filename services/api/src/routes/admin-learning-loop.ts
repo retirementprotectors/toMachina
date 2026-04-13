@@ -6,46 +6,15 @@
  * Requires JDM entitlement (EXECUTIVE or OWNER role).
  */
 
-import { Router, type Request, type Response, type NextFunction } from 'express'
-import { getFirestore, Timestamp } from 'firebase-admin/firestore'
+import { Router, type Request, type Response } from 'express'
+import { Timestamp } from 'firebase-admin/firestore'
+import { getDefaultDb } from '../lib/db.js'
 import { successResponse, errorResponse } from '../lib/helpers.js'
 
 export const adminLearningLoopRoutes = Router()
 
 // Auth Guard — require executive-level access
-const ALLOWED_ROLES = ['EXECUTIVE', 'OWNER', 'SUPER_ADMIN']
 
-async function requireExecutive(req: Request, res: Response, next: NextFunction) {
-  try {
-    const email: string | undefined = (req as unknown as { user?: { email?: string } }).user?.email
-    if (!email) {
-      res.status(401).json(errorResponse('Authentication required'))
-      return
-    }
-
-    const db = getFirestore()
-    const userDoc = await db.collection('users').doc(email).get()
-
-    if (!userDoc.exists) {
-      res.status(403).json(errorResponse('Learning Loop dashboard requires executive access'))
-      return
-    }
-
-    const userData = userDoc.data() as Record<string, unknown>
-    const role = String(userData.role || '')
-    const level = parseInt(String(userData.level || '99'), 10)
-
-    if (!ALLOWED_ROLES.includes(role) && level > 1) {
-      res.status(403).json(errorResponse('Learning Loop dashboard requires executive access'))
-      return
-    }
-
-    next()
-  } catch (err) {
-    console.error('[admin-learning-loop] Auth check failed:', err)
-    res.status(500).json(errorResponse('Authorization check failed'))
-  }
-}
 
 // Knowledge Entry Stats
 interface KnowledgeStats {
@@ -57,7 +26,7 @@ interface KnowledgeStats {
 }
 
 async function getKnowledgeStats(): Promise<KnowledgeStats> {
-  const db = getFirestore()
+  const db = getDefaultDb()
   const snapshot = await db.collection('knowledge_entries').orderBy('created_at', 'desc').limit(200).get()
 
   const stats: KnowledgeStats = {
@@ -102,7 +71,7 @@ interface VoltronGap {
 }
 
 async function getVoltronGaps(): Promise<VoltronGap[]> {
-  const db = getFirestore()
+  const db = getDefaultDb()
   const snapshot = await db
     .collection('knowledge_entries')
     .where('tags', 'array-contains', 'voltron-gap')
@@ -123,7 +92,7 @@ async function getVoltronGaps(): Promise<VoltronGap[]> {
 
 // Warrior Registry Summary
 async function getWarriorSummary(): Promise<Array<{ name: string; status: string; type: string; last_brain_update: string | null }>> {
-  const db = getFirestore()
+  const db = getDefaultDb()
   const snapshot = await db.collection('dojo_warriors').get()
 
   return snapshot.docs.map((doc) => {
@@ -140,7 +109,7 @@ async function getWarriorSummary(): Promise<Array<{ name: string; status: string
 }
 
 // GET /api/admin/learning-loop — dashboard data
-adminLearningLoopRoutes.get('/', requireExecutive, async (_req: Request, res: Response) => {
+adminLearningLoopRoutes.get('/', async (_req: Request, res: Response) => {
   try {
     const [knowledgeStats, voltronGaps, warriors] = await Promise.all([
       getKnowledgeStats(),

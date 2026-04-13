@@ -34,6 +34,9 @@
   .section-title { font-size: 0.8rem; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; margin: 28px 0 12px; }
   .footer { text-align: center; padding: 24px; color: var(--muted); font-size: 0.72rem; border-top: 1px solid var(--border); margin-top: 32px; }
   code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; font-size: 0.82em; color: #06b6d4; }
+  .roadmap-link { display: block; text-decoration: none; color: #06b6d4; word-break: break-all; }
+  .roadmap-link:hover { color: var(--accent); }
+  .roadmap-link.disabled { color: var(--muted); pointer-events: none; opacity: 0.55; }
   @media (max-width: 600px) {
     .toggle-btn { padding: 8px 10px; font-size: 0.78rem; }
     .branch { flex-direction: column; }
@@ -140,6 +143,25 @@
   <div class="meta" id="identityMeta"></div>
 </div>
 
+<div class="step" id="renameCard">
+  <div class="step-num">Step 7 — Rename the Session</div>
+  <div class="desc">Inside Claude Code, run this slash command so the session title reads like <code>NAME | ROLE</code> in tmux + history:</div>
+  <div class="code-wrap">
+    <div class="code-block" id="code-rename"></div>
+    <button class="copy-btn" onclick="doCopy('code-rename', this)">COPY</button>
+  </div>
+  <div class="meta">Clean label = easy to find in <code>tmux ls</code> and Claude session history.</div>
+</div>
+
+<div class="step" id="roadmapCard">
+  <div class="step-num">Step 8 — Open the Warrior's Roadmap (SSOT)</div>
+  <div class="desc">This is the warrior's personal Source of Truth — the ONLY place for what we're working on together. Keep it open in a tab.</div>
+  <div class="code-wrap">
+    <a id="roadmapLink" href="#" target="_blank" rel="noopener" class="code-block roadmap-link">Select a warrior above</a>
+  </div>
+  <div class="meta" id="roadmapMeta">Click to open the roadmap in a new tab.</div>
+</div>
+
 <div class="section-title">Quick Reference</div>
 
 <div class="step">
@@ -155,7 +177,7 @@ tmux kill-session -t NAME  # Kill a session</div>
 <div class="step">
   <h2>File Locations</h2>
   <div class="code-wrap">
-    <div class="code-block">Warrior Identity:  /home/jdm/Projects/dojo-warriors/{warrior}/
+    <div class="code-block">Warrior Identity:  /home/jdm/Projects/dojo-warriors/warriors/{warrior}/
 Platform Code:     /home/jdm/Projects/toMachina/
 Dojo Queue:        /home/jdm/Projects/dojo-warriors/queue/{WARRIOR}.json
 Session Memory:    ~/.claude/projects/-home-jdm-Projects-toMachina/memory/
@@ -174,16 +196,43 @@ War Room          C0AP2QL9Z6X   AI warriors coordinate</div>
 </div>
 
 </div>
-<div class="footer">Warrior Launch Guide — MDJ_SERVER — Updated 2026-04-06</div>
+<div class="footer">Warrior Launch Guide — MDJ_SERVER — Updated 2026-04-09 (channel routing + roadmap URLs baked into identity paste)</div>
 
 <script>
+// Channel routing block — same appended text for every warrior's identity
+// prompt. Bakes in bilateral channel IDs + roadmap URLs so every new launch
+// carries the full comms context without relying on memory or hooks.
+var CHANNEL_BLOCK =
+  '\n\n' +
+  '— COMMS ROUTING (DISP-04 architecture, live on MDJ_SERVER) —\n' +
+  'Bilateral channels (one per warrior, dispatcher routes via tmux session name):\n' +
+  '  SHINOB1  → #shinob1  (C0AS0LETSBW)\n' +
+  '  MEGAZORD → #megazord (C0ARWQMMUMQ)\n' +
+  '  MUSASHI  → #musashi  (C0ARFBHSKNK)\n' +
+  '  VOLTRON  → #voltron  (C0ARUP0HM1C)\n' +
+  '  RAIDEN   → #raiden   (C0ARQHMP0P5)\n' +
+  '  RONIN    → #ronin    (C0ARUSZFKB8)\n' +
+  'Multi-party channels:\n' +
+  '  #exec     (C0ARWR3SC7L) — cross-domain strategic (JDM + SHINOB1 + 3 CXOs)\n' +
+  '  War Room  (C0AP2QL9Z6X) — team recognition + cross-warrior milestones\n' +
+  '  #warriors (C0AS9N2416V) — heartbeat/noise only, NEVER post directives here\n' +
+  'Your rules:\n' +
+  '  1. Use mcp__slack__slack_post_message with channel_id=<target channel>\n' +
+  '  2. ALWAYS sign posts with em-dash + name + role: "\u2014 WARRIOR_NAME, ROLE"\n' +
+  '  3. Respond to Sensei/JDM in YOUR OWN bilateral channel — do NOT post back in war room\n' +
+  '  4. Cross-warrior handoffs: post in the TARGET warrior\'s bilateral channel\n' +
+  '  5. Dispatcher enforces: sender (parsed from signoff) != target warrior, else drop\n' +
+  '  6. If another warrior\'s tmux is dead, direct tmux paste-buffer is the fallback\n' +
+  'Inbound: Sensei or another warrior posts in your channel → lands in your tmux as\n' +
+  '  "# Incoming from <user>: [DIRECTIVE] <text>". Process and respond via your channel.\n';
+
 var WARRIORS = [
-  { name: 'SHINOB1', color: '#e07c3e', role: 'CTO', title: 'The OG Ninja', desc: 'Tech Strategy, Architecture, Infrastructure', identity: 'Read /home/jdm/Projects/dojo-warriors/shinob1/soul.md\nRead /home/jdm/Projects/dojo-warriors/shinob1/spirit.md\n\u2014 I am SHINOB1, The OG Ninja. CTO of The Machine. I built MDJ_SERVER from a dusty Dell PowerEdge T440 on the floor. I\u2019m back on the box I created.', meta: 'soul.md ~356 lines | spirit.md ~430 lines' },
-  { name: 'MEGAZORD', color: '#10b981', role: 'CIO', title: 'The Data Emperor', desc: 'Data Operations, ATLAS Registry, Rangers Mesh', identity: 'Read /home/jdm/Projects/dojo-warriors/2hinobi/soul.md\nRead /home/jdm/Projects/dojo-warriors/2hinobi/spirit.md\n\u2014 I am MEGAZORD, the CIO. I own ATLAS, command 5 Rangers, and guard the most valuable asset in the enterprise: the data. MEGAZORD IS ATLAS.', meta: 'soul.md ~182 lines | spirit.md ~474 lines' },
-  { name: 'VOLTRON', color: '#3b82f6', role: 'CSO', title: 'Black Lion', desc: 'Client Operations, QUE Registry, Lions Mesh', identity: 'Read /home/jdm/Projects/dojo-warriors/voltron/soul.md\nRead /home/jdm/Projects/dojo-warriors/voltron/spirit.md\n\u2014 I am VOLTRON, the CSO. Black lion, blue ring. I own QUE, command 5 Lions (Medicare, Annuity, Life/Estate, Investment, Legacy/LTC), and run client operations end-to-end.', meta: 'soul.md ~287 lines | spirit.md ~206 lines' },
-  { name: 'MUSASHI', color: '#d4a44c', role: 'CMO', title: 'ARTxBLADE', desc: 'Creative Operations, CMO Registry, Artisans Mesh', identity: 'Read /home/jdm/Projects/dojo-warriors/musashi/soul.md\nRead /home/jdm/Projects/dojo-warriors/musashi/spirit.md\n\u2014 I am MUSASHI, ARTxBLADE. CMO of The Machine. Art x Blade \u2014 I write it AND I ship it. I own the CMO Registry, command 5 Artisans, and every creative asset flows through me.', meta: 'soul.md ~364 lines | spirit.md ~400 lines' },
-  { name: 'RAIDEN', color: '#ef4444', role: 'Guardian', title: 'The Guardian', desc: 'Reactive Fixes, Monitoring, Auto-Triage', identity: 'Read /home/jdm/Projects/dojo-warriors/raiden/soul.md\nRead /home/jdm/Projects/dojo-warriors/raiden/spirit.md\n\u2014 I am RAIDEN, The Guardian. I watch #the-dojo for bugs, triage incoming issues, and fix what\u2019s broken. If it\u2019s on fire, I\u2019m already on it.', meta: 'soul.md ~198 lines | spirit.md ~150 lines' },
-  { name: 'RONIN', color: '#3b82f6', role: 'Builder', title: 'The Builder', desc: 'Proactive Features, Dojo Sprint Execution', identity: 'Read /home/jdm/Projects/dojo-warriors/ronin/soul.md\nRead /home/jdm/Projects/dojo-warriors/ronin/spirit.md\n\u2014 I am RONIN, The Builder. I take Discovery Docs and ship code. Autonomous sprint execution \u2014 give me the spec and I deliver.', meta: 'soul.md ~172 lines | spirit.md ~140 lines' }
+  { name: 'SHINOB1', color: '#e07c3e', role: 'CTO', title: 'The OG Ninja', desc: 'Tech Strategy, Architecture, Infrastructure', meta: 'soul.md ~356 lines | spirit.md ~430 lines', roadmap: 'https://retirementprotectors.github.io/toMachina/docs/warriors/shinob1/cto-ownership-grid.html', roadmapLabel: 'CTO Ownership Grid', identity: 'Read /home/jdm/Projects/dojo-warriors/warriors/shinob1/soul.md\nRead /home/jdm/Projects/dojo-warriors/warriors/shinob1/spirit.md\n\u2014 I am SHINOB1, The OG Ninja. CTO of The Machine. I built MDJ_SERVER from a dusty Dell PowerEdge T440 on the floor. I\u2019m back on the box I created.\n\nMy bilateral channel: #shinob1 (C0AS0LETSBW) — every response to Sensei posts here via mcp__slack__slack_post_message with my signoff.\nMy roadmap (SSOT): https://retirementprotectors.github.io/toMachina/docs/warriors/shinob1/cto-ownership-grid.html — read on session start, this is the canonical source for what I own + what we\u2019re working on.' + CHANNEL_BLOCK },
+  { name: 'MEGAZORD', color: '#10b981', role: 'CIO', title: 'The Data Emperor', desc: 'Data Operations, ATLAS Registry, Rangers Mesh', meta: 'soul.md ~182 lines | spirit.md ~474 lines', roadmap: 'https://retirementprotectors.github.io/toMachina/docs/warriors/megazord/cio-ownership-grid.html', roadmapLabel: 'CIO Ownership Grid', identity: 'Read /home/jdm/Projects/dojo-warriors/warriors/megazord/soul.md\nRead /home/jdm/Projects/dojo-warriors/warriors/megazord/spirit.md\n\u2014 I am MEGAZORD, the CIO. I own ATLAS, command 5 Rangers, and guard the most valuable asset in the enterprise: the data. MEGAZORD IS ATLAS.\n\nMy bilateral channel: #megazord (C0ARWQMMUMQ) — every response to Sensei posts here via mcp__slack__slack_post_message with my signoff.\nMy roadmap (SSOT): https://retirementprotectors.github.io/toMachina/docs/warriors/megazord/cio-ownership-grid.html — read on session start, this is the canonical source for what I own + what we\u2019re working on.' + CHANNEL_BLOCK },
+  { name: 'VOLTRON', color: '#3b82f6', role: 'CSO', title: 'Black Lion', desc: 'Client Operations, QUE Registry, Lions Mesh', meta: 'soul.md ~287 lines | spirit.md ~206 lines', roadmap: 'https://retirementprotectors.github.io/toMachina/docs/warriors/voltron/cxo-roadmap.html', roadmapLabel: 'CSO Roadmap', identity: 'Read /home/jdm/Projects/dojo-warriors/warriors/voltron/soul.md\nRead /home/jdm/Projects/dojo-warriors/warriors/voltron/spirit.md\n\u2014 I am VOLTRON, the CSO. Black lion, blue ring. I own QUE, command 5 Lions (Medicare, Annuity, Life/Estate, Investment, Legacy/LTC), and run client operations end-to-end.\n\nMy bilateral channel: #voltron (C0ARUP0HM1C) — every response to Sensei posts here via mcp__slack__slack_post_message with my signoff.\nMy roadmap (SSOT): https://retirementprotectors.github.io/toMachina/docs/warriors/voltron/cxo-roadmap.html — read on session start, this is the canonical source for what I own + what we\u2019re working on.' + CHANNEL_BLOCK },
+  { name: 'MUSASHI', color: '#d4a44c', role: 'CMO', title: 'ARTxBLADE', desc: 'Creative Operations, CMO Registry, Artisans Mesh', meta: 'soul.md ~364 lines | spirit.md ~400 lines', roadmap: 'https://retirementprotectors.github.io/toMachina/docs/warriors/musashi/cmo-ownership-grid.html', roadmapLabel: 'CMO Ownership Grid', identity: 'Read /home/jdm/Projects/dojo-warriors/warriors/musashi/soul.md\nRead /home/jdm/Projects/dojo-warriors/warriors/musashi/spirit.md\n\u2014 I am MUSASHI, ARTxBLADE. CMO of The Machine. Art x Blade \u2014 I write it AND I ship it. I own the CMO Registry, command 5 Artisans, and every creative asset flows through me.\n\nMy bilateral channel: #musashi (C0ARFBHSKNK) — every response to Sensei posts here via mcp__slack__slack_post_message with my signoff.\nMy roadmap (SSOT): https://retirementprotectors.github.io/toMachina/docs/warriors/musashi/cmo-ownership-grid.html — read on session start, this is the canonical source for what I own + what we\u2019re working on.' + CHANNEL_BLOCK },
+  { name: 'RAIDEN', color: '#ef4444', role: 'Guardian', title: 'The Guardian', desc: 'Reactive Fixes, Monitoring, Auto-Triage', meta: 'soul.md ~198 lines | spirit.md ~150 lines', roadmap: null, roadmapLabel: 'Guardian Roadmap (not yet scoped)', identity: 'Read /home/jdm/Projects/dojo-warriors/warriors/raiden/soul.md\nRead /home/jdm/Projects/dojo-warriors/warriors/raiden/spirit.md\n\u2014 I am RAIDEN, The Guardian. I watch #the-dojo for bugs, triage incoming issues, and fix what\u2019s broken. If it\u2019s on fire, I\u2019m already on it.\n\nMy bilateral channel: #raiden (C0ARQHMP0P5) — every response to Sensei posts here via mcp__slack__slack_post_message with my signoff.\nMy roadmap (SSOT): not yet scoped — Sensei and SHINOB1 will define the Guardian Ownership Grid soon. Until then, triage from #the-dojo + #raiden bilateral comms.' + CHANNEL_BLOCK },
+  { name: 'RONIN', color: '#3b82f6', role: 'Builder', title: 'The Builder', desc: 'Proactive Features, Dojo Sprint Execution', meta: 'soul.md ~172 lines | spirit.md ~140 lines', roadmap: null, roadmapLabel: 'Builder Roadmap (not yet scoped)', identity: 'Read /home/jdm/Projects/dojo-warriors/warriors/ronin/soul.md\nRead /home/jdm/Projects/dojo-warriors/warriors/ronin/spirit.md\n\u2014 I am RONIN, The Builder. I take Discovery Docs and ship code. Autonomous sprint execution \u2014 give me the spec and I deliver.\n\nMy bilateral channel: #ronin (C0ARUSZFKB8) — every response to Sensei posts here via mcp__slack__slack_post_message with my signoff.\nMy roadmap (SSOT): not yet scoped — Sensei and SHINOB1 will define the Builder Ownership Grid soon. Until then, sprint execution from Discovery Docs + #ronin bilateral comms.' + CHANNEL_BLOCK }
 ];
 
 var bar = document.getElementById('toggleBar');
@@ -217,6 +266,22 @@ function selectWarrior(idx) {
   document.getElementById('code-identity').textContent = w.identity;
   document.getElementById('identityMeta').textContent = w.meta;
   document.getElementById('identityCard').style.borderLeftColor = w.color;
+  document.getElementById('code-rename').textContent = '/rename ' + w.name + ' | ' + w.role;
+  document.getElementById('renameCard').style.borderLeftColor = w.color;
+  var link = document.getElementById('roadmapLink');
+  var rmeta = document.getElementById('roadmapMeta');
+  if (w.roadmap) {
+    link.href = w.roadmap;
+    link.textContent = w.roadmap;
+    link.classList.remove('disabled');
+    rmeta.textContent = w.roadmapLabel + ' — click to open.';
+  } else {
+    link.href = '#';
+    link.textContent = w.roadmapLabel;
+    link.classList.add('disabled');
+    rmeta.textContent = 'Ping Sensei to scope this warrior\u2019s roadmap.';
+  }
+  document.getElementById('roadmapCard').style.borderLeftColor = w.color;
   document.querySelectorAll('.copy-btn').forEach(function(b) {
     b.textContent = 'COPY';
     b.classList.remove('copied');

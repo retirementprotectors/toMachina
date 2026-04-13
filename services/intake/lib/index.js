@@ -7,6 +7,7 @@ import { initializeApp, getApps } from 'firebase-admin/app';
 import { onRequest } from 'firebase-functions/v2/https';
 import { onSchedule } from 'firebase-functions/v2/scheduler';
 import { onClientWrite, onAccountWrite } from './notification-triggers.js';
+import { onPartnerUserCreate, refreshPartnerClaims } from './onPartnerUserCreate.js';
 import { onIntakeQueueCreated } from './wire-trigger.js';
 import { scanSpcFolders } from './spc-intake.js';
 import { scanMeetRecordings } from './meet-intake.js';
@@ -113,6 +114,12 @@ export const queueStatus = onRequest({ region: 'us-central1', timeoutSeconds: 30
  * Notification Triggers — create notification docs on client/account writes.
  */
 export { onClientWrite, onAccountWrite };
+/**
+ * MT-007: Partner User Create — assign custom claims on new user signup.
+ * beforeUserCreated trigger: sets role + partner_id claims based on email domain.
+ * refreshPartnerClaims: HTTP trigger for manual claim refresh after partner changes.
+ */
+export { onPartnerUserCreate, refreshPartnerClaims };
 /**
  * Wire Trigger — process intake_queue entries through wire executor.
  * Firestore onCreate on intake_queue/{queueId}.

@@ -1,5 +1,5 @@
 import { Router, type Request, type Response } from 'express'
-import { getFirestore } from 'firebase-admin/firestore'
+import { getDb } from '../lib/db.js'
 import {
   successResponse,
   errorResponse,
@@ -25,7 +25,7 @@ const COLLECTION = 'households'
 // ─── GET / — list households with filters + search ───
 householdRoutes.get('/', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const snapshot = await db.collection(COLLECTION).orderBy('household_name', 'asc').get()
     let data: Record<string, unknown>[] = snapshot.docs.map(doc =>
       stripInternalFields({ id: doc.id, ...doc.data() } as Record<string, unknown>)
@@ -59,7 +59,7 @@ householdRoutes.get('/', async (req: Request, res: Response) => {
 // ─── GET /:id — single household with members + aggregate ───
 householdRoutes.get('/:id', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const id = param(req.params.id)
     const doc = await db.collection(COLLECTION).doc(id).get()
     if (!doc.exists) { res.status(404).json(errorResponse('Household not found')); return }
@@ -77,7 +77,7 @@ householdRoutes.post('/', async (req: Request, res: Response) => {
     if (!household_name) { res.status(400).json(errorResponse('household_name is required')); return }
     if (!primary_contact_id) { res.status(400).json(errorResponse('primary_contact_id is required')); return }
 
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const now = new Date().toISOString()
     const householdId = db.collection(COLLECTION).doc().id
     const email = (req as unknown as Record<string, unknown> & { user?: { email?: string } }).user?.email || 'api'
@@ -117,7 +117,7 @@ householdRoutes.post('/', async (req: Request, res: Response) => {
 // ─── PATCH /:id — update household ───
 householdRoutes.patch('/:id', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const id = param(req.params.id)
     const docRef = db.collection(COLLECTION).doc(id)
     const doc = await docRef.get()
@@ -144,7 +144,7 @@ householdRoutes.patch('/:id', async (req: Request, res: Response) => {
 // ─── DELETE /:id — soft delete (set status inactive) ───
 householdRoutes.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const id = param(req.params.id)
     const docRef = db.collection(COLLECTION).doc(id)
     const doc = await docRef.get()
@@ -169,7 +169,7 @@ householdRoutes.post('/:id/members', async (req: Request, res: Response) => {
     const { client_id, role, relationship } = req.body as { client_id?: string; role?: string; relationship?: string }
     if (!client_id) { res.status(400).json(errorResponse('client_id is required')); return }
 
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const id = param(req.params.id)
     const docRef = db.collection(COLLECTION).doc(id)
     const doc = await docRef.get()
@@ -215,7 +215,7 @@ householdRoutes.post('/:id/members', async (req: Request, res: Response) => {
 // ─── DELETE /:id/members/:clientId — remove member ───
 householdRoutes.delete('/:id/members/:clientId', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const id = param(req.params.id)
     const clientId = param(req.params.clientId)
 
@@ -249,7 +249,7 @@ householdRoutes.delete('/:id/members/:clientId', async (req: Request, res: Respo
 // ─── POST /:id/recalculate — recalculate aggregate financials ───
 householdRoutes.post('/:id/recalculate', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const id = param(req.params.id)
     const docRef = db.collection(COLLECTION).doc(id)
     const doc = await docRef.get()
@@ -310,7 +310,7 @@ householdRoutes.post('/:id/recalculate', async (req: Request, res: Response) => 
 // ─── GET /:id/meeting-prep — Generate household meeting preparation data ───
 householdRoutes.get('/:id/meeting-prep', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const id = param(req.params.id)
     const docSnap = await db.collection(COLLECTION).doc(id).get()
     if (!docSnap.exists) { res.status(404).json(errorResponse('Household not found')); return }
@@ -437,7 +437,7 @@ householdRoutes.post('/:id/appointments', async (req: Request, res: Response) =>
     if (!time) { res.status(400).json(errorResponse('time is required')); return }
     if (!specialist_id) { res.status(400).json(errorResponse('specialist_id is required')); return }
 
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const id = param(req.params.id)
     const docRef = db.collection(COLLECTION).doc(id)
     const doc = await docRef.get()
@@ -473,7 +473,7 @@ householdRoutes.post('/:id/appointments', async (req: Request, res: Response) =>
 // ─── POST /enrich-territories — batch enrichment of household territory data ───
 householdRoutes.post('/enrich-territories', async (req: Request, res: Response) => {
   try {
-    const db = getFirestore()
+    const db = getDb(req.partnerId)
     const snap = await db.collection(COLLECTION).where('household_status', '==', 'Active').get()
     if (snap.empty) {
       res.json(successResponse<HouseholdEnrichTerritoriesResult>({ enriched: 0, skipped: 0, total: 0 } as unknown as HouseholdEnrichTerritoriesResult))

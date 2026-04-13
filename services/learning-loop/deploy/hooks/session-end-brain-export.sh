@@ -27,7 +27,7 @@ TRANSCRIPT=$(cat)
 if [ -z "$TRANSCRIPT" ]; then exit 0; fi
 
 echo "$TRANSCRIPT" | WARRIOR_NAME="$WARRIOR_NAME" \
-  GOOGLE_APPLICATION_CREDENTIALS=/home/jdm/mdj-agent/sa-key.json \
+  GOOGLE_APPLICATION_CREDENTIALS=/home/jdm/Projects/dojo-warriors/mdj-agent/sa-key.json \
   /usr/bin/node /home/jdm/Projects/toMachina/services/learning-loop/dist/brain-export.js "$WARRIOR_NAME"
 
 exit 0

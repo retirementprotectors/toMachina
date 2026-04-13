@@ -72,12 +72,8 @@ export interface Account {
   effective_date: string
   /** Underwriting charter legal entity (e.g., "Accendo Insurance Company") */
   carrier_charter?: string
-  /** Charter short code (e.g., "ACC") */
-  charter_code?: string
   /** NAIC code for the underwriting charter */
   naic_code?: string
-  /** Parent brand (e.g., "Aetna / CVS Health") */
-  parent_carrier?: string
   /** Carrier doc ID in Firestore carriers collection */
   carrier_id?: string
   rider_name?: string
@@ -92,6 +88,19 @@ export interface Account {
   cash_value?: number
   surrender_value?: number
   account_value?: number
+  // Premium fields
+  /** Billing frequency — Monthly, Quarterly, Semi-Annual, Annual */
+  premium_mode?: string
+  /** Per-payment premium amount (e.g., $9.32/month) */
+  modal_premium?: number
+  /** Next scheduled premium payment amount */
+  scheduled_premium?: number
+  /** Cumulative lifetime premiums paid */
+  total_premiums_paid?: number
+  /** Annual premium — life/medicare only. For annuities, use net_deposits. */
+  annual_premium?: number
+  /** Net deposit amount — annuity products only */
+  net_deposits?: number
   // Banking fields
   bank_name?: string
   routing_number?: string
@@ -110,6 +119,256 @@ export interface Account {
   monthly_payment?: number
   payoff_date?: string
   collateral?: string
+
+  // ═══════════════════════════════════════════════════════════════════
+  // GHL Field Map additions (103 new fields, 2026-04-11)
+  // Source: JDM's GHL white label screenshots, mapped by MEGAZORD CIO
+  // These are ADDITIVE to the existing locked schemas — no deletions.
+  // ═══════════════════════════════════════════════════════════════════
+
+  // ── General additions (shared across product types) ───────────────
+  /** Underwriting status (dropdown — e.g., "Approved", "Pending") */
+  underwriting_status?: string
+  /** Tax status (dropdown — e.g., "IRA", "Non-Qualified", "Roth") */
+  tax_status?: string
+  /** Product type/subtype (e.g., "FIA (Fixed Indexed)", "Advisory (Fee-Based)") */
+  product_type?: string
+  /** Product name (e.g., "Income Pay Pro", "Retirement Cornerstone") */
+  product_name?: string
+  /** Policy subtype (e.g., "Whole Life", "Term", "UL") */
+  policy_type?: string
+  /** Issue date (when policy was issued) */
+  issue_date?: string
+  /** Submitted date */
+  submitted_date?: string
+  /** As-of date for current values */
+  as_of_date?: string
+  /** Market (Internal/External/Affiliate) */
+  market?: string
+  /** Book of business identifier */
+  book_of_business?: string
+  /** Data source (e.g., "Carrier - Statement") */
+  data_source?: string
+  /** Agent writing number */
+  agent_writing_number?: string
+
+  // ── Current Values additions (Annuity) ────────────────────────────
+  /** Cumulative return percentage */
+  return_pct_cumulative?: number
+  /** Annualized return percentage */
+  return_pct_annualized?: number
+  /** Benefit base for income rider calculations */
+  benefit_base?: number
+  /** Income benefit value */
+  income_benefit?: number
+  /** Long-term care benefit value */
+  ltc_benefit?: number
+  /** Death benefit option type (A=Level, B=Increasing, C=Return of Premium) */
+  death_benefit_option?: string
+
+  // ── Parties additions ─────────────────────────────────────────────
+  /** Owner name (if different from applicant) */
+  owner_name?: string
+  /** Joint owner name */
+  joint_owner_name?: string
+  /** Annuitant name (if different from owner) — annuity only */
+  annuitant_name?: string
+  /** Joint annuitant — annuity only */
+  joint_annuitant?: string
+  /** Insured name — life only */
+  insured_name?: string
+  /** Primary beneficiary name (summary — full detail in Beni Center) */
+  primary_beneficiary?: string
+  /** Primary beneficiary percentage */
+  primary_beneficiary_pct?: number
+
+  // ── Contract Elements — Surrender + Bonus (Annuity) ───────────────
+  /** Surrender charge schedule by year (array of percentages, Year 1-15) */
+  surrender_schedule?: number[]
+  /** Premium bonus dollar amount */
+  premium_bonus_amount?: number
+  /** Premium bonus percentage */
+  premium_bonus_pct?: number
+  /** Bonus vesting schedule by year (array of percentages, Year 1-11) */
+  vesting_schedule?: number[]
+
+  // ── Contract Elements — Riders (Annuity) ──────────────────────────
+  /** Riders array — Income, Death Benefit, LTC riders as nested objects */
+  riders?: Array<{
+    /** Rider type: 'income' | 'death_benefit' | 'ltc' */
+    type: string
+    /** Exact rider name (e.g., "GWLB") */
+    name: string
+    /** Individual or Joint */
+    individual_joint?: string
+    /** Whether rider is activated */
+    activated?: boolean
+    /** Annual fee percentage */
+    fee_pct?: number
+    /** Up-front bonus amount or percentage */
+    upfront_bonus?: number
+    /** Deferral bonus percentage */
+    deferral_bonus_pct?: number
+    /** Number of deferral years */
+    deferral_years?: number
+    /** Compound or Simple interest */
+    compound_or_simple?: string
+    /** Payout years (for DB/LTC riders) */
+    payout_years?: number
+    /** Age-banded payout factors */
+    payout_bands?: Array<{
+      start_age: number
+      end_age: number
+      payout_factor: number
+    }>
+  }>
+
+  // ── Fixed Annuity / MYGA Rates ────────────────────────────────────
+  /** MYGA guaranteed rate */
+  myga_rate?: number
+  /** MYGA guarantee period (years) */
+  myga_guarantee_period?: number
+  /** Fixed annuity 1st year bonus percentage */
+  fixed_annuity_1st_year_bonus?: number
+  /** Fixed annuity 1st year total percentage */
+  fixed_annuity_1st_year_total?: number
+  /** Fixed annuity current rate percentage */
+  fixed_annuity_current_rate?: number
+  /** Fixed annuity guaranteed rate percentage */
+  fixed_annuity_guaranteed_rate?: number
+
+  // ── SPIA Details ──────────────────────────────────────────────────
+  /** SPIA payment amount (per payment) */
+  spia_payment_amount?: number
+  /** SPIA payment mode */
+  spia_payment_mode?: string
+  /** SPIA payment frequency */
+  spia_payment_frequency?: string
+  /** SPIA payout options */
+  spia_payout_options?: string
+
+  // ── Account CashFlow (shared: Annuity + Investment) ───────────────
+  /** Gross income amount per payment */
+  income_gross?: number
+  /** Income payment frequency */
+  income_frequency?: string
+  /** Gross income annualized */
+  income_annualized?: number
+  /** Federal withholding amount */
+  income_fed_wh?: number
+  /** State withholding amount */
+  income_state_wh?: number
+  /** Other/fixed withholding amount */
+  income_other_wh?: number
+  /** Net income amount per payment */
+  income_net?: number
+  /** Income type */
+  income_type?: string
+  /** Income location */
+  income_location?: string
+  /** Income as percentage of CSV (calculated) */
+  income_pct_csv?: number
+
+  // ── Investment-specific ───────────────────────────────────────────
+  /** Date account was opened (Investment) */
+  opened_date?: string
+  /** ADF link (Investment) */
+  adf_link?: string
+  /** Advisory fees annualized dollar amount */
+  advisory_fees_annualized?: number
+  /** Advisory fees calculated percentage */
+  advisory_fees_pct?: number
+  /** Advisory fees calculation method */
+  advisory_fees_calculation?: string
+  /** Account registration type (e.g., "N2 (Individual)") */
+  account_registration?: string
+  /** BD / RIA firm name */
+  bd_ria_firm?: string
+  /** Custodian (e.g., "Charles Schwab") */
+  custodian?: string
+  /** Broker/Advisor of Record */
+  broker_of_record?: string
+  /** RPI portfolio identifier */
+  rpi_portfolio?: string
+  /** Fund family (direct holdings) */
+  fund_family?: string
+  /** Account registration detail */
+  registration_detail?: string
+  /** Estate tax ID (estate accounts only) */
+  estate_tax_id?: string
+  /** Decedent first name (estate accounts only) */
+  decedent_first_name?: string
+  /** Decedent middle name */
+  decedent_middle_name?: string
+  /** Decedent last name */
+  decedent_last_name?: string
+  /** Decedent SSN — PHI, mask in display */
+  decedent_ssn?: string
+  /** Decedent date of birth — PHI, mask in display */
+  decedent_dob?: string
+  /** Decedent date of death */
+  decedent_dod?: string
+
+  // ── Medicare Med Supp additions (gaps in locked schema) ───────────
+  /** Preferred draft date for premium payments */
+  preferred_draft_date?: string
+  /** Planned premium at attained age */
+  planned_premium_attained?: number
+  /** Commissionable premium at issued rate */
+  commissionable_premium_issued?: number
+  /** Annualized rate increases history */
+  annualized_rate_increases?: string
+  /** Approved rate action — new premium amount */
+  approved_rate_action_premium?: number
+  /** Approved rate action — effective date */
+  approved_rate_action_date?: string
+  /** Discount types applied */
+  discounts_type?: string
+  /** Total discount percentage (policy level) */
+  discounts_total_pct?: number
+  /** Whether guaranteed issue is available */
+  guaranteed_issue_available?: boolean
+
+  // ── Life additions (gaps in locked schema) ─────────────────────────
+  /** Approved underwriting class (e.g., "Standard | Non-Tobacco") */
+  underwriting_approved?: string
+  /** Projected underwriting class */
+  underwriting_projected?: string
+  /** ROPY level term period (years) — Return of Premium */
+  ropy_level_term_period?: number
+  /** In-force illustration scenarios */
+  illustrations?: Array<{
+    /** Scenario type: 'current' | 'face_solve' | 'premium_solve' | 'lower_face' | 'zero_premium' | 'term_doc' */
+    scenario: string
+    death_benefit?: number
+    annualized_premium?: number
+    /** 1035 exchange net cash value */
+    net_cash_1035x?: number
+    lapse_age_current?: number
+    lapse_age_guaranteed?: number
+    /** Term doc page specific fields */
+    conversion_age?: number
+    conversion_rules?: string
+    new_annualized_premium?: number
+    new_death_benefit?: number
+  }>
+  // ── Life — Dividend Details (fills the TBD section from locked schema) ──
+  /** Dividend option 1 */
+  dividend_option_1?: string
+  /** Dividend option 2 */
+  dividend_option_2?: string
+  /** Current dividend balance */
+  dividend_balance?: number
+  /** Last year's dividend amount */
+  last_year_dividend?: number
+  /** Last year's paid-up additions increase */
+  last_year_pua_increase?: number
+  /** Current year's dividend amount */
+  current_year_dividend?: number
+  /** Current year's paid-up additions increase */
+  current_year_pua_increase?: number
+
+  // ── Existing fields (unchanged) ───────────────────────────────────
   created_at: string
   updated_at: string
   [key: string]: unknown

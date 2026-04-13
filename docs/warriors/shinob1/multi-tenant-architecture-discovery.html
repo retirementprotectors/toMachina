@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Multi-Tenant Firestore Architecture — Discovery Doc — ZRD-PLAT-MT</title>
+<style>
+:root{--bg:#0a0b10;--card:#12141d;--card2:#181b27;--border:#1e2133;--text:#e8e8ec;--muted:#7a7f96;--accent:#2dd4bf;--blue:#4a7ab5;--green:#40bc58;--yellow:#f5a623;--red:#e74c3c;--purple:#a78bfa;--teal:#2dd4bf;--gold:#d4a44c;--david:#40bc58}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+.container{max-width:1000px;margin:0 auto;padding:2rem}
+h1{font-size:2rem;text-align:center;margin-bottom:0.3rem}
+.subtitle{text-align:center;color:var(--muted);font-size:1rem;margin-bottom:0.3rem}
+.origin{text-align:center;color:var(--teal);font-size:0.85rem;font-style:italic;margin-bottom:1.5rem}
+.tab-bar{display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:2rem;position:sticky;top:0;background:var(--bg);z-index:10;padding-top:0.5rem;flex-wrap:wrap}
+.tab-btn{padding:0.7rem 1.2rem;background:none;border:none;color:var(--muted);font-size:0.88rem;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all 0.2s;font-family:inherit}
+.tab-btn:hover{color:var(--text)}
+.tab-btn.active{color:var(--teal);border-bottom-color:var(--teal)}
+.tab-content{display:none}.tab-content.active{display:block}
+h2{font-size:1.4rem;margin:1.5rem 0 1rem;padding-bottom:0.5rem;border-bottom:1px solid var(--border);color:var(--teal)}
+h2:first-child{margin-top:0}
+h3{font-size:1.1rem;margin:1.2rem 0 0.5rem;color:var(--text)}
+p{color:var(--muted);margin-bottom:0.8rem;font-size:0.92rem}
+ul,ol{color:var(--muted);margin-bottom:1rem;padding-left:1.5rem;font-size:0.92rem}
+li{margin-bottom:0.4rem}
+strong{color:var(--text)}
+code{background:var(--card2);padding:0.15rem 0.4rem;border-radius:4px;font-size:0.85rem;color:var(--teal)}
+pre{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:1rem;margin:1rem 0;overflow-x:auto;font-size:0.82rem;line-height:1.5;color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.25rem;margin-bottom:1rem}
+.card h3{margin-top:0}
+.card-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media(max-width:700px){.card-grid{grid-template-columns:1fr}}
+table{width:100%;border-collapse:collapse;margin:1rem 0}
+th,td{padding:0.6rem 0.75rem;text-align:left;border-bottom:1px solid var(--border);font-size:0.85rem}
+th{color:var(--teal);font-size:0.75rem;text-transform:uppercase;letter-spacing:0.05em;font-weight:600}
+td{color:var(--muted)}
+.tag{display:inline-block;padding:0.15rem 0.5rem;border-radius:8px;font-size:0.72rem;font-weight:600}
+.tag-teal{background:rgba(45,212,191,0.12);color:var(--teal)}
+.tag-green{background:rgba(64,188,88,0.12);color:var(--green)}
+.tag-yellow{background:rgba(245,166,35,0.12);color:var(--yellow)}
+.tag-red{background:rgba(231,76,60,0.12);color:var(--red)}
+.tag-purple{background:rgba(167,139,250,0.12);color:var(--purple)}
+.tag-blue{background:rgba(74,122,181,0.12);color:var(--blue)}
+.callout{background:rgba(45,212,191,0.05);border:1px solid rgba(45,212,191,0.2);border-radius:12px;padding:1.25rem;margin:1.5rem 0}
+.callout p{margin:0}
+.callout-red{background:rgba(231,76,60,0.05);border:1px solid rgba(231,76,60,0.3);border-radius:12px;padding:1.25rem;margin:1.5rem 0}
+.callout-red p{margin:0;color:var(--muted)}
+.callout-yellow{background:rgba(245,166,35,0.05);border:1px solid rgba(245,166,35,0.3);border-radius:12px;padding:1.25rem;margin:1.5rem 0}
+.callout-yellow p{margin:0;color:var(--muted)}
+.callout-david{background:rgba(64,188,88,0.05);border:1px solid rgba(64,188,88,0.3);border-radius:12px;padding:1.25rem;margin:1.5rem 0}
+.callout-david p{margin:0;color:var(--muted)}
+.flow{display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;margin:1rem 0;font-size:0.85rem}
+.flow-step{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:0.5rem 0.8rem;color:var(--text);font-weight:600;font-size:0.8rem}
+.flow-arrow{color:var(--teal);font-size:1.2rem}
+.path-block{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin:1rem 0}
+.path-block h3{margin-top:0}
+.path-block.path-a{border-left:4px solid var(--red)}
+.path-block.path-b{border-left:4px solid var(--teal)}
+.path-block.path-c{border-left:4px solid var(--yellow)}
+.ticket{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1.1rem;margin-bottom:0.75rem}
+.ticket-header{display:flex;align-items:center;gap:0.75rem;margin-bottom:0.5rem;flex-wrap:wrap}
+.ticket-id{font-family:monospace;font-size:0.8rem;color:var(--teal);font-weight:700;white-space:nowrap}
+.ticket-title{font-size:0.95rem;font-weight:600;color:var(--text)}
+.ticket-meta{display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;margin-bottom:0.5rem}
+.ticket p{color:var(--muted);font-size:0.88rem;margin-bottom:0.4rem}
+.ticket p:last-child{margin-bottom:0}
+.phase-header{font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--teal);margin:1.5rem 0 0.75rem;padding:0.4rem 0;border-bottom:1px solid var(--border)}
+.arch-diagram{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:1.25rem;margin:1rem 0;font-family:monospace;font-size:0.8rem;line-height:1.7;color:var(--muted);overflow-x:auto}
+.arch-diagram .hl{color:var(--teal)}
+.arch-diagram .hl-green{color:var(--green)}
+.arch-diagram .hl-red{color:var(--red)}
+.arch-diagram .hl-yellow{color:var(--yellow)}
+.arch-diagram .hl-blue{color:var(--blue)}
+.risk-block{background:var(--card);border-left:4px solid var(--red);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0.75rem 0}
+.risk-block.medium{border-left-color:var(--yellow)}
+.risk-block.low{border-left-color:var(--teal)}
+.gate-step{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:0.9rem 1.1rem;margin:0.5rem 0;display:flex;gap:1rem;align-items:flex-start}
+.gate-num{font-size:1.3rem;font-weight:800;color:var(--teal);min-width:2rem;line-height:1}
+.gate-content{flex:1}
+.gate-content strong{color:var(--text);display:block;margin-bottom:0.2rem}
+.gate-content p{margin:0;font-size:0.88rem}
+.summary-table-wrapper{overflow-x:auto}
+.ft{text-align:center;padding:2rem 0 1rem;color:var(--muted);font-size:0.8rem;border-top:1px solid var(--border);margin-top:2rem}
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>Multi-Tenant Firestore Architecture</h1>
+<div class="subtitle">Discovery Doc &mdash; ZRD-PLAT-MT &mdash; Platform Infrastructure</div>
+<div class="origin">JDM + SHINOB1 &mdash; April 12, 2026 &mdash; "Your data is yours. Day one. Full stop."</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="showTab('why',this)">Why</button>
+  <button class="tab-btn" onclick="showTab('what',this)">What</button>
+  <button class="tab-btn" onclick="showTab('how',this)">How</button>
+  <button class="tab-btn" onclick="showTab('tickets',this)">Tickets</button>
+  <button class="tab-btn" onclick="showTab('files',this)">Files</button>
+  <button class="tab-btn" onclick="showTab('gates',this)">Gates</button>
+  <button class="tab-btn" onclick="showTab('timeline',this)">Timeline</button>
+  <button class="tab-btn" onclick="showTab('risks',this)">Risks</button>
+</div>
+
+<!-- ════ WHY ════ -->
+<div id="why" class="tab-content active">
+  <h2>Why This Exists</h2>
+
+  <h3>The business case in one sentence</h3>
+  <p>Matt Mitchell just became DAVID Partner #1. There will be a Partner #2 and #3. Every one of them will ask a version of the same question before they sign anything: <em>"What happens to my 6,000 clients' data if this partnership ends?"</em> Right now, the answer is uncomfortable. This doc is how we fix that.</p>
+
+  <div class="callout-david">
+    <p><strong>"Your data is yours."</strong> That's the promise JDM makes to every DAVID partner. Today, The Machine cannot technically keep that promise — all partner data lives in the same <code>(default)</code> Firestore database as RPI's own data, with no physical boundary between them. Multi-tenant architecture is what makes the promise true.</p>
+  </div>
+
+  <h3>The four forces driving this</h3>
+
+  <div class="card-grid">
+    <div class="card">
+      <h3 style="color:var(--david)">Exit Clause Portability</h3>
+      <p>Matt's term sheet will include an exit clause. That clause means: if the partnership dissolves, Matt gets his clients' data back — cleanly, completely, immediately. With a single shared DB, "cleanly" is a manual export process that takes days and risks leaving data behind. With per-partner isolation, it's one command: export the <code>partner-midwest-medigap</code> database. Done in minutes.</p>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--red)">HIPAA Comfort</h3>
+      <p>We don't need to claim separate databases are legally required for HIPAA — they aren't. But every sophisticated partner and their counsel will ask about data isolation. "Your clients' Medicare data lives in the same database as another partner's clients" is a friction point in every enterprise deal. Physical isolation eliminates the question entirely. The audit story is clean.</p>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--yellow)">Cross-Tenant Leak Prevention</h3>
+      <p>Today's Firestore rules are written for a single-tenant world: <code>isRPIUser()</code> grants access across all 29,000+ documents. As partner users are onboarded, that function becomes a landmine. A misconfigured rule or a query that forgets a filter could surface Matt's client records to RPI staff or vice versa. Physical separation at the DB level means a bug in a query can never reach another tenant's data.</p>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--purple)">Per-Partner Analytics</h3>
+      <p>Matt will want a dashboard showing his book's performance — his clients, his revenue, his AEP pipeline. RPI will want to see cross-portfolio analytics across all partners. Per-partner databases feed into per-partner BigQuery datasets. Cross-partner rollup happens in BigQuery, where there's no risk of live cross-tenant data access. Clean analytics from day one.</p>
+    </div>
+  </div>
+
+  <h3>The current state: what's wired in today</h3>
+  <p>The platform has <strong>556 direct <code>getFirestore()</code> calls</strong> across 87 API route files and cron jobs — every single one assumes a single Firestore database (the GCP default). The <code>@tomachina/db</code> package exports a <code>getDb()</code> function (used in frontend) that initializes against the same implicit default. The Firestore rules file has one set of rules that applies to that one database.</p>
+  <p>None of this is wrong for where The Machine was six months ago. It's a real refactor for where it needs to go. The question is how we sequence it.</p>
+
+  <h3>DAVID's scaling trajectory</h3>
+  <p>Matt is Partner #1. The DAVID channel strategy calls for 3&ndash;5 partners in 2026, 10&ndash;15 by 2027. Each partner brings a book of business measured in hundreds to thousands of clients. At 5 partners, a single-tenant architecture becomes untenable &mdash; and retrofitting it after 5 firms are already loaded is a much harder job than wiring it right for Partner #1.</p>
+
+  <div class="callout">
+    <p><strong>The window is now.</strong> Matt's book hasn't landed in Firestore yet. MEGAZORD built the intake field mapper (PR #345). That wire has nowhere to write yet. This is the greenfield moment — we design the destination before we move the data.</p>
+  </div>
+</div>
+
+<!-- ════ WHAT ════ -->
+<div id="what" class="tab-content">
+  <h2>What We're Building</h2>
+
+  <h3>The three options — and why Option B wins</h3>
+
+  <div class="card-grid">
+    <div class="card">
+      <h3 style="color:var(--red)">Option A: Shared DB with <code>partner_id</code> field</h3>
+      <p>Add a <code>partner_id</code> field to every client/account document. All data stays in the <code>(default)</code> database. Queries add <code>.where('partner_id', '==', partnerId)</code>. Firestore rules check the field.</p>
+      <p><strong>Why rejected:</strong></p>
+      <ul>
+        <li>One bug (a query without a <code>partner_id</code> filter) surfaces another tenant's data. No physical safety net.</li>
+        <li>Exit clause portability is still a manual export problem &mdash; you cannot export one tenant's data cleanly without scanning the entire collection.</li>
+        <li>Firestore rules that check document fields for tenant scope are notoriously fragile and cannot be validated with the same confidence as DB-level isolation.</li>
+        <li>The easiest path today becomes permanent technical debt. "We'll refactor later" is how we end up explaining a cross-tenant leak to Matt's attorney.</li>
+      </ul>
+      <p><span class="tag tag-red">REJECTED</span></p>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--teal)">Option B: Per-Partner Named Firestore Database — RECOMMENDED</h3>
+      <p>GCP Firestore supports multiple named databases within a single GCP project (GA since 2023). Each partner gets a named database: <code>partner-midwest-medigap</code>, <code>partner-xyz</code>, etc. RPI stays in <code>(default)</code>. Shared catalogs (carriers, products, campaigns) live in <code>(default)</code> and are read-only accessed via a shared-catalog DB reference.</p>
+      <p><strong>Why this wins:</strong></p>
+      <ul>
+        <li>Physical isolation: a query in the wrong tenant context gets a permissions error, not a data leak.</li>
+        <li>Exit portability: <code>gcloud firestore export --database=partner-midwest-medigap</code>. One command. Clean.</li>
+        <li>Firestore rules per database: Matt's DB has rules that only recognize Matt's users. RPI users can have a super-admin claim that crosses DBs for support purposes, but it's explicit and audited.</li>
+        <li>BigQuery streaming: each DB has its own export sink. Per-partner analytics and cross-partner rollup are architecturally clean.</li>
+        <li>Cost: no per-DB minimum charge. Named databases use the same free tier quota as the default. At RPI's current write volume, this is $0 additional cost.</li>
+        <li>Same GCP project, same billing account, same IAM, same observability stack. We're not managing multiple cloud accounts.</li>
+      </ul>
+      <p><span class="tag tag-teal">RECOMMENDED</span></p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 style="color:var(--yellow)">Option C: Per-Partner GCP Project</h3>
+    <p>Each partner gets their own GCP project with their own Firestore, their own Firebase project, their own billing. Maximum isolation — each partner's data is literally in a different cloud account.</p>
+    <p><strong>Why deferred:</strong> The overhead is significant. Separate GCP projects means separate CI/CD targets, separate IAM management, separate billing, and a dramatically more complex deploy pipeline. The isolation benefit over Option B is marginal for HIPAA purposes. Reserve Option C for partners with explicit regulatory mandates that require separate billing or separate cloud accounts (e.g., certain government contractors, HIPAA-covered entities that require contractually separate infrastructure). Matt doesn't need this.</p>
+    <p><span class="tag tag-yellow">DEFERRED — regulatory exceptions only</span></p>
+  </div>
+
+  <h2>Physical Architecture — Option B</h2>
+
+  <div class="arch-diagram">
+<span class="hl">GCP Project: claude-mcp-484718</span>
+├── <span class="hl">Firestore (default)</span>  ← RPI data + shared catalogs
+│   ├── /clients            ← RPI's own clients (Vince, Nikki, etc.)
+│   ├── /accounts           ← RPI's accounts
+│   ├── /users              ← ALL portal users (RPI + partner staff) — shared
+│   ├── /carriers           ← Shared catalog — read-only for partners
+│   ├── /products           ← Shared catalog — read-only for partners
+│   ├── /campaigns          ← RPI campaigns (partner campaigns stay in their DB)
+│   ├── /source_registry    ← ATLAS registry — shared
+│   ├── /tool_registry      ← ATLAS registry — shared
+│   ├── /partner_registry   ← NEW: tenant directory (slug → DB name, config)
+│   ├── /tracker_items      ← Dojo sprints — shared
+│   └── ... (all other RPI-only collections)
+│
+├── <span class="hl-green">Firestore (partner-midwest-medigap)</span>  ← Matt Mitchell's tenant DB
+│   ├── /clients            ← Matt's 6,000+ Medicare clients
+│   ├── /accounts           ← Matt's accounts
+│   ├── /households         ← Matt's households
+│   ├── /revenue            ← Matt's revenue records
+│   ├── /opportunities      ← Matt's pipeline
+│   ├── /communications     ← Matt's client comms
+│   ├── /case_tasks         ← Matt's service tasks
+│   ├── /activities         ← Matt's activity log
+│   └── /approval_queue     ← Matt's import approvals
+│
+├── <span class="hl-yellow">Firestore (partner-xyz)</span>  ← Partner #2 (same schema)
+│   └── ...
+│
+├── <span class="hl-blue">Firebase Auth</span>  ← Single auth pool, custom claims carry partner_id
+│   ├── josh@retireprotected.com     → { role: 'superadmin', partner_ids: ['*'] }
+│   ├── matt@midwestmedigap.com      → { role: 'partner_admin', partner_id: 'midwest-medigap' }
+│   └── agent@midwestmedigap.com     → { role: 'partner_agent', partner_id: 'midwest-medigap' }
+│
+└── <span class="hl">Cloud Run (tm-api)</span>  ← Single API, partner_id extracted from auth token → routes to correct DB
+  </div>
+
+  <h3>Collection split: what stays in <code>default</code>, what goes per-partner</h3>
+
+  <table>
+    <thead>
+      <tr><th>Collection</th><th>Location</th><th>Rationale</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>clients</code></td><td><span class="tag tag-green">Per-Partner DB</span></td><td>Core tenant PII/PHI — must be isolated</td></tr>
+      <tr><td><code>accounts</code> (subcollection)</td><td><span class="tag tag-green">Per-Partner DB</span></td><td>Partner's book of business — must be isolated</td></tr>
+      <tr><td><code>households</code></td><td><span class="tag tag-green">Per-Partner DB</span></td><td>Tenant relationship data</td></tr>
+      <tr><td><code>revenue</code></td><td><span class="tag tag-green">Per-Partner DB</span></td><td>Sensitive financial data, partner-specific</td></tr>
+      <tr><td><code>opportunities</code></td><td><span class="tag tag-green">Per-Partner DB</span></td><td>Partner pipeline data</td></tr>
+      <tr><td><code>communications</code></td><td><span class="tag tag-green">Per-Partner DB</span></td><td>Partner client comms</td></tr>
+      <tr><td><code>case_tasks</code></td><td><span class="tag tag-green">Per-Partner DB</span></td><td>Partner service work</td></tr>
+      <tr><td><code>activities</code></td><td><span class="tag tag-green">Per-Partner DB</span></td><td>Partner activity log</td></tr>
+      <tr><td><code>approval_queue</code></td><td><span class="tag tag-green">Per-Partner DB</span></td><td>Partner import approvals</td></tr>
+      <tr><td><code>campaign_enrollments</code></td><td><span class="tag tag-green">Per-Partner DB</span></td><td>Which partner clients are enrolled in which campaigns</td></tr>
+      <tr><td><code>carriers</code></td><td><span class="tag tag-teal">Default (shared catalog)</span></td><td>Carrier definitions don't change per partner</td></tr>
+      <tr><td><code>products</code></td><td><span class="tag tag-teal">Default (shared catalog)</span></td><td>Product definitions are global</td></tr>
+      <tr><td><code>campaigns</code></td><td><span class="tag tag-teal">Default (shared catalog)</span></td><td>C3 campaign templates shared across partners</td></tr>
+      <tr><td><code>templates</code></td><td><span class="tag tag-teal">Default (shared catalog)</span></td><td>Message templates shared by C3</td></tr>
+      <tr><td><code>users</code></td><td><span class="tag tag-teal">Default (shared)</span></td><td>Single auth pool; <code>partner_id</code> claim on token, not data</td></tr>
+      <tr><td><code>source_registry</code> / <code>tool_registry</code></td><td><span class="tag tag-teal">Default (shared)</span></td><td>ATLAS is a platform-level registry, not per-partner</td></tr>
+      <tr><td><code>tracker_items</code> / <code>sprints</code></td><td><span class="tag tag-teal">Default (shared)</span></td><td>Dojo build tracker is RPI infrastructure</td></tr>
+      <tr><td><code>org</code></td><td><span class="tag tag-teal">Default (shared)</span></td><td>RPI org structure only — partners have their own in their DB</td></tr>
+      <tr><td><code>org</code> (partner copy)</td><td><span class="tag tag-green">Per-Partner DB</span></td><td>Partner's own team structure (staff, roles)</td></tr>
+      <tr><td><code>mdj_conversations</code></td><td><span class="tag tag-green">Per-Partner DB</span></td><td>VOLTRON conversations must be tenant-scoped (PHI exposure risk)</td></tr>
+      <tr><td><code>wire_executions</code></td><td><span class="tag tag-green">Per-Partner DB</span></td><td>Audit log for tenant-specific data ops</td></tr>
+      <tr><td><code>dex_packages</code> / <code>dex_package_events</code></td><td><span class="tag tag-green">Per-Partner DB</span></td><td>DEX packages include client PHI attachments</td></tr>
+      <tr><td><code>partner_registry</code></td><td><span class="tag tag-teal">Default only</span></td><td>NEW collection: tenant directory, onboarding config, DB names</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Firebase Auth custom claims design</h3>
+  <p>Auth stays in a single Firebase Auth pool. Custom claims on the ID token carry tenant context. The API extracts claims from the verified token — no round-trip to Firestore on every request.</p>
+  <pre>// Custom claim shapes
+// RPI user (full platform access)
+{ role: 'rpi', email_verified: true }
+
+// Partner admin (manages their tenant)
+{ role: 'partner_admin', partner_id: 'midwest-medigap' }
+
+// Partner agent (accesses their tenant's data)
+{ role: 'partner_agent', partner_id: 'midwest-medigap' }
+
+// Super admin (JDM + John) — crosses all tenant DBs for support
+{ role: 'superadmin', partner_ids: ['*'] }</pre>
+
+  <h3>The <code>getDb(partnerId)</code> helper contract</h3>
+  <p>The single most important code change in this entire doc. One function replaces the raw <code>getFirestore()</code> call that appears 556 times.</p>
+  <pre>// packages/db/src/firestore-admin.ts (server-side, new file)
+// Uses firebase-admin (not firebase client SDK)
+
+const DB_CACHE = new Map&lt;string, Firestore&gt;()
+
+export function getDb(partnerId?: string): Firestore {
+  // No partnerId → default database (RPI data + shared catalogs)
+  const dbId = partnerId ? `partner-${partnerId}` : '(default)'
+
+  if (DB_CACHE.has(dbId)) return DB_CACHE.get(dbId)!
+
+  const app = getAdminApp() // singleton admin app
+  const db = getFirestore(app, dbId)
+  DB_CACHE.set(dbId, db)
+  return db
+}
+
+// In API middleware: extract from auth token, inject into request
+// req.partnerId = decoded.partner_id ?? null
+// Then in route handlers:
+// const db = getDb(req.partnerId)</pre>
+
+  <h3>BigQuery per-partner sink</h3>
+  <p>Each partner DB streams to its own BigQuery dataset: <code>partner_midwest_medigap</code>. Cross-partner rollup happens in BigQuery views, not in Firestore. JDM's executive analytics query the rollup view. Matt's analytics query his dataset only. No live cross-tenant access at any layer.</p>
+</div>
+
+<!-- ════ HOW ════ -->
+<div id="how" class="tab-content">
+  <h2>Technical Implementation — How It Gets Built</h2>
+
+  <h3>The migration truth: this is an API-level refactor, not a rewrite</h3>
+  <p>The good news: the <code>@tomachina/db</code> frontend package (<code>packages/db/src/firestore.ts</code>) uses the Firebase client SDK, which is auth-scoped by Firebase rules. The multi-tenant rules change applies here. But the heavy lifting is in <code>services/api/</code> — 87 route files call <code>getFirestore()</code> directly via firebase-admin.</p>
+
+  <p>The approach:</p>
+  <ol>
+    <li><strong>Create a tenant-aware <code>getDb(partnerId)</code> helper</strong> in a new <code>services/api/src/lib/db.ts</code> module that wraps <code>firebase-admin/firestore</code>'s named DB support.</li>
+    <li><strong>Add API middleware</strong> that extracts <code>partner_id</code> from the verified Firebase Auth token and attaches it to <code>req.partnerId</code>.</li>
+    <li><strong>Refactor route handlers</strong> to replace <code>getFirestore()</code> with <code>getDb(req.partnerId)</code>. Since <code>req.partnerId</code> is <code>null</code> for RPI users, they continue hitting the <code>(default)</code> DB transparently.</li>
+    <li><strong>Create partner-specific Firestore rules</strong> per named DB. These rules are simpler than the default rules — they only need to validate that the authenticated user belongs to that partner.</li>
+    <li><strong>Build the provisioning script</strong> that creates a new partner DB, seeds it with required structure, sets rules, and registers the partner in <code>partner_registry</code>.</li>
+    <li><strong>Wire MEGAZORD's intake</strong> to point at <code>partner-midwest-medigap</code> when writing Matt's imported data.</li>
+  </ol>
+
+  <h3>What stays the same for RPI users</h3>
+  <p>Every RPI user (Vince, Nikki, Aprille, etc.) continues to work exactly as today. Their auth token has no <code>partner_id</code> claim, so <code>getDb(undefined)</code> returns the <code>(default)</code> database. From their perspective nothing changed. The refactor is transparent to them.</p>
+
+  <h3>What changes for partner users</h3>
+  <p>Partner users authenticate with their own <code>@midwestmedigap.com</code> email via Google Workspace SSO (or email/password if they don't use Google Workspace). On first sign-in, a Cloud Function sets their custom claim: <code>{ role: 'partner_agent', partner_id: 'midwest-medigap' }</code>. Every subsequent API call automatically routes to their tenant DB. The portal UI looks the same — same modules, same navigation — but data is scoped to their book.</p>
+
+  <h3>Super-admin cross-tenant access</h3>
+  <p>JDM and John Behn have the <code>superadmin</code> claim. A super-admin support view in RIIMO can query any partner DB by passing an explicit <code>partner_id</code> query param. The API checks for <code>superadmin</code> claim before allowing cross-tenant access. Every cross-tenant read is logged to <code>guardian_audits</code> in the <code>(default)</code> DB.</p>
+
+  <h3>The <code>collectionGroup</code> complication</h3>
+  <p>The accounts route currently uses <code>db.collectionGroup('accounts')</code> to query across all clients. With named databases, a collection group query is scoped to that database — it cannot span databases. This is actually a feature, not a problem: partner users can only collectionGroup-query their own DB. RPI users collection-group-query the default DB. Cross-partner rollups happen in BigQuery. No code change needed beyond the <code>getDb()</code> swap.</p>
+
+  <h3>VOLTRON and the MDJ Agent</h3>
+  <p>VOLTRON currently uses the <code>mdj-agent</code> SA key to query Firestore. That SA key needs access to both the <code>(default)</code> DB and any partner DB it serves. The SA already has project-level Firestore access — named databases are included automatically. The MDJ Agent code needs to be updated to call <code>getFirestore(app, dbName)</code> when a partner context is passed via the conversation (from the auth token in the portal widget request). One file change in <code>~/mdj-agent/</code>.</p>
+</div>
+
+<!-- ════ TICKETS ════ -->
+<div id="tickets" class="tab-content">
+  <h2>Ticket Breakdown — ZRD-PLAT-MT</h2>
+  <p>16 tickets. Honest RONIN-execution hour estimates. Dependencies are explicit. Three parallel tracks are possible after the first two foundation tickets land.</p>
+
+  <div class="phase-header">Phase 1 — Foundation (Sequential, must land before anything else)</div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">ZRD-PLAT-MT-001</span>
+      <span class="ticket-title">Create tenant-aware <code>getDb()</code> helper + <code>partner_registry</code> collection</span>
+    </div>
+    <div class="ticket-meta">
+      <span class="tag tag-teal">2.5 hrs</span>
+      <span class="tag tag-yellow">SHINOB1 review</span>
+      <span class="tag tag-blue">Phase 1 gate</span>
+    </div>
+    <p><strong>Files:</strong> <code>services/api/src/lib/db.ts</code> (new), <code>services/api/src/server.ts</code> (import), <code>firestore.rules</code> (add <code>partner_registry</code> collection rule to default DB rules)</p>
+    <p><strong>What:</strong> Create <code>getDb(partnerId?: string): Firestore</code> using firebase-admin named database support. Connection cache via <code>Map&lt;string, Firestore&gt;</code>. Export alongside existing helpers. Add <code>partner_registry</code> collection to default DB Firestore rules (owner-write, executive-read).</p>
+    <p><strong>Test:</strong> Unit test: <code>getDb()</code> returns default DB; <code>getDb('midwest-medigap')</code> returns a distinct Firestore instance pointing at <code>partner-midwest-medigap</code> database.</p>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">ZRD-PLAT-MT-002</span>
+      <span class="ticket-title">API middleware: extract <code>partner_id</code> from auth token → <code>req.partnerId</code></span>
+    </div>
+    <div class="ticket-meta">
+      <span class="tag tag-teal">1.5 hrs</span>
+      <span class="tag tag-yellow">SHINOB1 review</span>
+      <span class="tag tag-blue">Phase 1 gate</span>
+    </div>
+    <p><strong>Files:</strong> <code>services/api/src/middleware/auth.ts</code> (extend existing auth middleware), <code>services/api/src/types/express.d.ts</code> (extend Request interface)</p>
+    <p><strong>What:</strong> Auth middleware already verifies the Firebase ID token. Extend it to extract <code>decodedToken.partner_id ?? null</code> and set <code>req.partnerId</code>. Extend the Express Request type to include <code>partnerId: string | null</code>. RPI users get <code>null</code>. Partner users get their slug.</p>
+    <p><strong>Test:</strong> Integration test: RPI token → <code>req.partnerId === null</code>. Partner token with <code>partner_id: 'midwest-medigap'</code> claim → <code>req.partnerId === 'midwest-medigap'</code>.</p>
+  </div>
+
+  <div class="phase-header">Phase 2 — Three Parallel Tracks (run after MT-001 + MT-002 land)</div>
+
+  <p style="margin-bottom:1rem"><strong>Track A: Route Refactor</strong> &mdash; Swap all <code>getFirestore()</code> to <code>getDb(req.partnerId)</code> across API routes. This is mechanical but wide. RONIN can batch this in parallel sub-agents, one batch per route file group.</p>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">ZRD-PLAT-MT-003</span>
+      <span class="ticket-title">Refactor client + account routes to <code>getDb(req.partnerId)</code></span>
+    </div>
+    <div class="ticket-meta">
+      <span class="tag tag-teal">2 hrs</span>
+      <span class="tag tag-green">RONIN</span>
+      <span class="tag tag-blue">Track A</span>
+    </div>
+    <p><strong>Files:</strong> <code>services/api/src/routes/clients.ts</code>, <code>services/api/src/routes/accounts.ts</code>, <code>services/api/src/routes/access.ts</code>, <code>services/api/src/routes/activities.ts</code></p>
+    <p><strong>What:</strong> Replace every <code>getFirestore()</code> call with <code>getDb(req.partnerId)</code>. These are the highest-volume tenant data routes. 4 files, ~50 call sites.</p>
+    <p><strong>Test:</strong> Existing integration tests must pass. Add: request with partner token queries partner DB, not default.</p>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">ZRD-PLAT-MT-004</span>
+      <span class="ticket-title">Refactor service-work routes: opportunities, case_tasks, communications, revenue</span>
+    </div>
+    <div class="ticket-meta">
+      <span class="tag tag-teal">2 hrs</span>
+      <span class="tag tag-green">RONIN</span>
+      <span class="tag tag-blue">Track A</span>
+    </div>
+    <p><strong>Files:</strong> <code>routes/opportunities.ts</code>, <code>routes/case-tasks.ts</code>, <code>routes/communications.ts</code>, <code>routes/revenue.ts</code>, <code>routes/call-sessions.ts</code></p>
+    <p><strong>What:</strong> Same mechanical swap. These are all per-partner collections. 5 files, ~40 call sites.</p>
+    <p><strong>Test:</strong> Same pattern as MT-003.</p>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">ZRD-PLAT-MT-005</span>
+      <span class="ticket-title">Refactor remaining routes: households, approval_queue, DEX, wire_executions</span>
+    </div>
+    <div class="ticket-meta">
+      <span class="tag tag-teal">2 hrs</span>
+      <span class="tag tag-green">RONIN</span>
+      <span class="tag tag-blue">Track A</span>
+    </div>
+    <p><strong>Files:</strong> <code>routes/households.ts</code>, <code>routes/approval.ts</code>, <code>routes/acf.ts</code>, all DEX routes (<code>dex*.ts</code>)</p>
+    <p><strong>What:</strong> Same swap. DEX packages contain PHI attachments — confirmed per-partner. ~6 files.</p>
+    <p><strong>Test:</strong> Same pattern. DEX package create/read routes confirmed tenant-scoped.</p>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">ZRD-PLAT-MT-006</span>
+      <span class="ticket-title">Refactor shared-catalog routes: mark as default-only, add <code>getDb()</code> explicit call</span>
+    </div>
+    <div class="ticket-meta">
+      <span class="tag tag-teal">1 hrs</span>
+      <span class="tag tag-green">RONIN</span>
+      <span class="tag tag-blue">Track A</span>
+    </div>
+    <p><strong>Files:</strong> <code>routes/carriers.ts</code>, <code>routes/products.ts</code>, <code>routes/campaigns.ts</code>, <code>routes/templates.ts</code>, <code>routes/atlas.ts</code>, <code>routes/admin-*.ts</code></p>
+    <p><strong>What:</strong> These collections stay in <code>default</code> regardless of caller's <code>partner_id</code>. Replace <code>getFirestore()</code> with explicit <code>getDb()</code> (no argument) and add a comment marking them as shared-catalog routes. Prevents future bugs where someone adds <code>req.partnerId</code> when they shouldn't.</p>
+    <p><strong>Test:</strong> Partner-token request to <code>GET /api/carriers</code> still returns global carrier list.</p>
+  </div>
+
+  <p style="margin-bottom:1rem"><strong>Track B: Auth + Provisioning</strong></p>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">ZRD-PLAT-MT-007</span>
+      <span class="ticket-title">Firebase Auth custom claims provisioning Cloud Function</span>
+    </div>
+    <div class="ticket-meta">
+      <span class="tag tag-teal">2.5 hrs</span>
+      <span class="tag tag-yellow">SHINOB1 review</span>
+      <span class="tag tag-blue">Track B</span>
+    </div>
+    <p><strong>Files:</strong> <code>services/intake/src/functions/onPartnerUserCreate.ts</code> (new Cloud Function), <code>services/intake/package.json</code></p>
+    <p><strong>What:</strong> Firebase Auth <code>onCreate</code> trigger. When a new user signs in, look up their email domain in <code>partner_registry</code>. If a match exists, set the custom claim <code>{ role: 'partner_agent', partner_id: slug }</code>. If <code>@retireprotected.com</code>, set <code>{ role: 'rpi' }</code>. If in the super-admin list (Josh, John), set <code>{ role: 'superadmin' }</code>. Claims are immutable by the user; only Cloud Functions and Admin SDK can set them.</p>
+    <p><strong>Test:</strong> Create a test user with <code>@midwestmedigap-test.com</code>. Verify claim is set on the token within 60 seconds. Verify RPI user gets no partner claim.</p>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">ZRD-PLAT-MT-008</span>
+      <span class="ticket-title">Partner provisioning script: <code>npm run onboard-partner &lt;slug&gt; &lt;domain&gt;</code></span>
+    </div>
+    <div class="ticket-meta">
+      <span class="tag tag-teal">3 hrs</span>
+      <span class="tag tag-yellow">SHINOB1 review</span>
+      <span class="tag tag-blue">Track B</span>
+    </div>
+    <p><strong>Files:</strong> <code>services/api/src/scripts/onboard-partner.ts</code> (new), <code>package.json</code> (add script entry)</p>
+    <p><strong>What:</strong> CLI script that:</p>
+    <ul>
+      <li>Creates the named Firestore database (<code>partner-{slug}</code>) via GCP REST API or <code>gcloud firestore databases create</code></li>
+      <li>Deploys the partner Firestore rules template to that database</li>
+      <li>Seeds <code>default/partner_registry/{slug}</code> with: <code>{ slug, db_name, domain, display_name, status: 'active', created_at }</code></li>
+      <li>Runs a smoke-test write/read to the new DB to confirm it's operational</li>
+      <li>Prints a summary: DB created, rules deployed, registry updated, smoke test passed</li>
+    </ul>
+    <p><strong>Usage:</strong> <code>npx ts-node services/api/src/scripts/onboard-partner.ts midwest-medigap midwestmedigap.com "Midwest Medigap"</code></p>
+    <p><strong>Test:</strong> Run against a test slug. Verify DB exists in GCP console. Verify registry doc written. Verify rules deployed.</p>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">ZRD-PLAT-MT-009</span>
+      <span class="ticket-title">Partner Firestore rules template — per-tenant DB security</span>
+    </div>
+    <div class="ticket-meta">
+      <span class="tag tag-teal">2 hrs</span>
+      <span class="tag tag-yellow">SHINOB1 review</span>
+      <span class="tag tag-blue">Track B</span>
+    </div>
+    <p><strong>Files:</strong> <code>firestore.partner.rules.template</code> (new, at repo root), <code>services/api/src/scripts/onboard-partner.ts</code> (references template)</p>
+    <p><strong>What:</strong> A Firestore rules file template for partner databases. Simpler than the default rules. Key function: <code>isPartnerUser()</code> — checks that <code>request.auth.token.partner_id == PARTNER_SLUG</code> (PARTNER_SLUG is injected by the provisioning script). Super-admin access: <code>request.auth.token.role == 'superadmin'</code>. All cross-tenant reads by super-admins are allowed but every rule logs to <code>guardian_audits</code> (handled in the API layer, not rules — rules can't write side effects).</p>
+    <p><strong>Test:</strong> Security rules simulator tests: partner user can read their own clients. RPI user cannot read partner clients. Super-admin can read everything.</p>
+  </div>
+
+  <p style="margin-bottom:1rem"><strong>Track C: Intake + Analytics</strong></p>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">ZRD-PLAT-MT-010</span>
+      <span class="ticket-title">MEGAZORD intake wire — point <code>midwest-medigap</code> writes at partner DB</span>
+    </div>
+    <div class="ticket-meta">
+      <span class="tag tag-teal">2 hrs</span>
+      <span class="tag tag-green">RONIN</span>
+      <span class="tag tag-blue">Track C — UNBLOCKS MATT'S ONBOARDING</span>
+    </div>
+    <p><strong>Files:</strong> The MEGAZORD intake wire code from PR #345 (exact file paths in that PR). The wire writes to Firestore — update the write target to <code>getDb('midwest-medigap')</code> when the source is a Midwest Medigap import.</p>
+    <p><strong>What:</strong> The intake field mapper from PR #345 knows the source (carrier → Midwest Medigap territory). When the wire executes, it must call <code>getDb('midwest-medigap')</code> to write to the partner DB, not the default. Add a <code>partner_id</code> parameter to the wire definition in ATLAS.</p>
+    <p><strong>Dependency:</strong> MT-001 must be merged first (provides <code>getDb()</code>). MT-008 must have run to create the database.</p>
+    <p><strong>Test:</strong> Run the intake wire against a test record. Verify the client document appears in <code>partner-midwest-medigap</code> database, not <code>(default)</code>.</p>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">ZRD-PLAT-MT-011</span>
+      <span class="ticket-title">BigQuery streaming: per-partner export sink configuration</span>
+    </div>
+    <div class="ticket-meta">
+      <span class="tag tag-teal">1.5 hrs</span>
+      <span class="tag tag-green">RONIN</span>
+      <span class="tag tag-blue">Track C</span>
+    </div>
+    <p><strong>Files:</strong> <code>services/bigquery-stream/</code> — extend the existing BigQuery streaming config to support named databases. Add partner DB configuration to the export pipeline.</p>
+    <p><strong>What:</strong> Firestore named databases can each have their own BigQuery export enabled. Configure the <code>partner-midwest-medigap</code> DB to stream to a <code>partner_midwest_medigap</code> BigQuery dataset. Add this step to the provisioning script (MT-008).</p>
+    <p><strong>Test:</strong> Write a test client to partner DB. Verify it appears in BigQuery dataset within 60 seconds.</p>
+  </div>
+
+  <div class="phase-header">Phase 3 — Cross-Tenant Safety + Observability</div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">ZRD-PLAT-MT-012</span>
+      <span class="ticket-title">Cross-tenant isolation test suite</span>
+    </div>
+    <div class="ticket-meta">
+      <span class="tag tag-teal">2 hrs</span>
+      <span class="tag tag-yellow">SHINOB1 review gate</span>
+      <span class="tag tag-red">MUST PASS BEFORE ANY PARTNER DATA MIGRATES</span>
+    </div>
+    <p><strong>Files:</strong> <code>services/api/src/__tests__/cross-tenant-isolation.test.ts</code> (new)</p>
+    <p><strong>What:</strong> A suite of integration tests that attempt cross-tenant reads and verify they fail. Scenarios:</p>
+    <ul>
+      <li>Partner A token → attempt to read Partner B's <code>/clients</code> → expect 403 or empty result (not Partner B's data)</li>
+      <li>Partner token → attempt to read RPI's <code>/clients</code> → expect 403 or scoped to partner DB only</li>
+      <li>RPI token → attempt to read partner DB directly → expect 403 (they use <code>req.partnerId === null</code> → default DB only)</li>
+      <li>Super-admin token → reads partner DB → expect 200, data present, audit log entry written</li>
+      <li>Un-authenticated request → expect 401 on all routes</li>
+    </ul>
+    <p><strong>Test:</strong> This IS the test. All 5 scenarios must pass. CI gate: this test suite blocks merge of MT-010 (the intake wire) if any scenario fails.</p>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">ZRD-PLAT-MT-013</span>
+      <span class="ticket-title">Super-admin cross-tenant support view in RIIMO</span>
+    </div>
+    <div class="ticket-meta">
+      <span class="tag tag-teal">2.5 hrs</span>
+      <span class="tag tag-green">RONIN</span>
+    </div>
+    <p><strong>Files:</strong> <code>apps/riimo/app/(portal)/admin/partners/</code> (new route group), <code>services/api/src/routes/admin-partners.ts</code> (new)</p>
+    <p><strong>What:</strong> A RIIMO admin page showing all registered partners (from <code>partner_registry</code>). For each partner: name, DB status, last import, client count. A support context selector: pick a partner → subsequent API calls pass <code>?context=midwest-medigap</code> → API routes check for super-admin claim and allow cross-tenant access. Every cross-tenant access logged to <code>guardian_audits</code>.</p>
+    <p><strong>Test:</strong> JDM logs in, selects Midwest Medigap context, views Matt's client list. Log entry appears in guardian_audits with Josh's email + partner accessed.</p>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">ZRD-PLAT-MT-014</span>
+      <span class="ticket-title">VOLTRON (MDJ Agent) partner context awareness</span>
+    </div>
+    <div class="ticket-meta">
+      <span class="tag tag-teal">1.5 hrs</span>
+      <span class="tag tag-green">RONIN</span>
+    </div>
+    <p><strong>Files:</strong> <code>~/mdj-agent/src/server.ts</code> (or equivalent), the tool handler that calls Firestore</p>
+    <p><strong>What:</strong> The MDJ Panel in the portals passes the user's auth token to the MDJ agent. The agent decodes the <code>partner_id</code> claim and passes it to any Firestore tool calls. When a partner user asks VOLTRON about their clients, VOLTRON queries the partner DB, not the default. Update the SA key's Firestore permission check — it already has project-level access, named databases are included.</p>
+    <p><strong>Test:</strong> Matt's staff user opens MDJ Panel, asks "show me my Medicare clients." VOLTRON returns results from <code>partner-midwest-medigap</code> DB, not RPI's clients.</p>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">ZRD-PLAT-MT-015</span>
+      <span class="ticket-title">Per-partner observability: Cloud Monitoring dashboards + error budgets</span>
+    </div>
+    <div class="ticket-meta">
+      <span class="tag tag-teal">1 hr</span>
+      <span class="tag tag-green">RONIN</span>
+    </div>
+    <p><strong>Files:</strong> GCP Cloud Monitoring configuration (infrastructure, not code). Add to provisioning script (MT-008).</p>
+    <p><strong>What:</strong> Add to the provisioning script: create a Cloud Monitoring dashboard for the new partner DB showing read/write ops, error rates, and latency. Set an alert if error rate exceeds 1% for 5 minutes. This runs automatically when a new partner is provisioned.</p>
+    <p><strong>Test:</strong> Run provisioning script for a test partner. Verify dashboard appears in Cloud Monitoring console.</p>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">ZRD-PLAT-MT-016</span>
+      <span class="ticket-title">Migration runbook: RPI's own data to <code>partner-rpi</code> DB (future-proofing doc only)</span>
+    </div>
+    <div class="ticket-meta">
+      <span class="tag tag-teal">1 hr</span>
+      <span class="tag tag-yellow">SHINOB1 authors</span>
+    </div>
+    <p><strong>Files:</strong> <code>docs/warriors/shinob1/runbooks/rpi-db-migration.md</code> (new)</p>
+    <p><strong>What:</strong> RPI's own clients currently live in <code>(default)</code>. At some future point (likely when Partner #3&ndash;4 land and the platform is fully battle-tested on named DBs), JDM may want RPI's data in a <code>partner-rpi</code> named DB so the default only holds shared catalogs. This ticket writes the migration runbook — not the migration itself. Runbook covers: export procedure, validation, re-point API routes, cutover window, rollback plan. Estimated future effort if we run it: 4&ndash;6 hours for RONIN execution, 30-minute cutover window.</p>
+    <p><strong>Test:</strong> Runbook reviewed by JDM and SHINOB1 before filing.</p>
+  </div>
+</div>
+
+<!-- ════ FILES ════ -->
+<div id="files" class="tab-content">
+  <h2>Files Created or Modified</h2>
+
+  <h3>New Files</h3>
+  <table>
+    <thead><tr><th>File</th><th>Ticket</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td><code>services/api/src/lib/db.ts</code></td><td>MT-001</td><td>Tenant-aware <code>getDb(partnerId)</code> helper with connection cache</td></tr>
+      <tr><td><code>services/api/src/scripts/onboard-partner.ts</code></td><td>MT-008</td><td>Partner provisioning CLI script</td></tr>
+      <tr><td><code>firestore.partner.rules.template</code></td><td>MT-009</td><td>Per-partner Firestore security rules template</td></tr>
+      <tr><td><code>services/intake/src/functions/onPartnerUserCreate.ts</code></td><td>MT-007</td><td>Cloud Function: set custom claims on partner user sign-in</td></tr>
+      <tr><td><code>services/api/src/__tests__/cross-tenant-isolation.test.ts</code></td><td>MT-012</td><td>Cross-tenant read isolation test suite (5 scenarios)</td></tr>
+      <tr><td><code>apps/riimo/app/(portal)/admin/partners/page.tsx</code></td><td>MT-013</td><td>RIIMO super-admin partner directory + support context selector</td></tr>
+      <tr><td><code>services/api/src/routes/admin-partners.ts</code></td><td>MT-013</td><td>API route: partner registry read + cross-tenant support context</td></tr>
+      <tr><td><code>docs/warriors/shinob1/runbooks/rpi-db-migration.md</code></td><td>MT-016</td><td>Future migration runbook for RPI's own data</td></tr>
+      <tr><td><code>services/api/src/types/express.d.ts</code> (if not exists)</td><td>MT-002</td><td>Extend Express Request with <code>partnerId: string | null</code></td></tr>
+    </tbody>
+  </table>
+
+  <h3>Modified Files</h3>
+  <table>
+    <thead><tr><th>File</th><th>Ticket</th><th>Change</th></tr></thead>
+    <tbody>
+      <tr><td><code>services/api/src/middleware/auth.ts</code></td><td>MT-002</td><td>Extract <code>partner_id</code> claim → set <code>req.partnerId</code></td></tr>
+      <tr><td><code>services/api/src/lib/helpers.ts</code></td><td>MT-001</td><td>Import <code>getDb</code> from new <code>db.ts</code>, deprecate direct <code>getFirestore()</code> import</td></tr>
+      <tr><td><code>services/api/src/routes/clients.ts</code></td><td>MT-003</td><td><code>getFirestore()</code> → <code>getDb(req.partnerId)</code> (all 30+ call sites)</td></tr>
+      <tr><td><code>services/api/src/routes/accounts.ts</code></td><td>MT-003</td><td>Same swap</td></tr>
+      <tr><td><code>services/api/src/routes/access.ts</code></td><td>MT-003</td><td>Same swap</td></tr>
+      <tr><td><code>services/api/src/routes/activities.ts</code></td><td>MT-003</td><td>Same swap</td></tr>
+      <tr><td><code>services/api/src/routes/opportunities.ts</code></td><td>MT-004</td><td>Same swap</td></tr>
+      <tr><td><code>services/api/src/routes/case-tasks.ts</code></td><td>MT-004</td><td>Same swap</td></tr>
+      <tr><td><code>services/api/src/routes/communications.ts</code></td><td>MT-004</td><td>Same swap</td></tr>
+      <tr><td><code>services/api/src/routes/revenue.ts</code></td><td>MT-004</td><td>Same swap</td></tr>
+      <tr><td><code>services/api/src/routes/call-sessions.ts</code></td><td>MT-004</td><td>Same swap</td></tr>
+      <tr><td><code>services/api/src/routes/households.ts</code></td><td>MT-005</td><td>Same swap</td></tr>
+      <tr><td><code>services/api/src/routes/approval.ts</code></td><td>MT-005</td><td>Same swap</td></tr>
+      <tr><td><code>services/api/src/routes/acf.ts</code></td><td>MT-005</td><td>Same swap (DEX packages are per-partner)</td></tr>
+      <tr><td><code>services/api/src/routes/carriers.ts</code></td><td>MT-006</td><td>Explicit <code>getDb()</code> no-arg + shared-catalog comment</td></tr>
+      <tr><td><code>services/api/src/routes/products.ts</code></td><td>MT-006</td><td>Same</td></tr>
+      <tr><td><code>services/api/src/routes/campaigns.ts</code></td><td>MT-006</td><td>Same</td></tr>
+      <tr><td><code>services/api/src/routes/atlas.ts</code></td><td>MT-006</td><td>Same</td></tr>
+      <tr><td><code>services/api/src/cron/scheduled-wires.ts</code></td><td>MT-006</td><td>Cron jobs that write to shared collections: explicit <code>getDb()</code></td></tr>
+      <tr><td><code>firestore.rules</code></td><td>MT-001, MT-009</td><td>Add <code>partner_registry</code> rule. Note: partner DBs use the <em>template</em>, not this file.</td></tr>
+      <tr><td>MEGAZORD intake wire file(s) from PR #345</td><td>MT-010</td><td>Write target → <code>getDb('midwest-medigap')</code></td></tr>
+      <tr><td><code>services/bigquery-stream/</code> config</td><td>MT-011</td><td>Add named DB export pipeline support</td></tr>
+      <tr><td><code>~/mdj-agent/src/server.ts</code></td><td>MT-014</td><td>Extract <code>partner_id</code> from portal auth token, pass to Firestore tool calls</td></tr>
+      <tr><td><code>package.json</code> (root or api service)</td><td>MT-008</td><td>Add <code>"onboard-partner": "ts-node ..."</code> script entry</td></tr>
+    </tbody>
+  </table>
+
+  <h3>What is NOT touched</h3>
+  <ul>
+    <li><code>packages/db/src/firestore.ts</code> — client-side SDK, used by portal frontend. Auth rules handle isolation here. No structural change needed.</li>
+    <li><code>packages/auth/</code> — no changes. Auth pool stays single-tenant. Claims are the mechanism.</li>
+    <li><code>apps/prodash/</code>, <code>apps/riimo/</code>, <code>apps/sentinel/</code> — no direct changes. Portal UX is unchanged for all user types. MT-013 adds a RIIMO admin page but does not alter existing pages.</li>
+    <li>ATLAS route (<code>routes/atlas.ts</code>) — marked shared-catalog but otherwise untouched.</li>
+  </ul>
+</div>
+
+<!-- ════ GATES ════ -->
+<div id="gates" class="tab-content">
+  <h2>Phase Gates + Audit Checkpoints</h2>
+
+  <h3>Non-negotiable quality bars</h3>
+  <div class="callout-red">
+    <p><strong>Gate Zero — before any partner data moves:</strong> The cross-tenant isolation test suite (MT-012) must pass all 5 scenarios on the deployed API. Not in CI. On the live Cloud Run instance. This is not optional and cannot be waived by any warrior including SHINOB1.</p>
+  </div>
+
+  <div class="gate-step">
+    <div class="gate-num">1</div>
+    <div class="gate-content">
+      <strong>MT-001 + MT-002 merged and deployed</strong>
+      <p>The <code>getDb()</code> helper and auth middleware changes must be in production before any route refactoring starts. RONIN does not start MT-003&ndash;006 until Cloud Run confirms both are live.</p>
+    </div>
+  </div>
+
+  <div class="gate-step">
+    <div class="gate-num">2</div>
+    <div class="gate-content">
+      <strong>MT-008 provisioning script runs successfully on a test partner</strong>
+      <p>Run: <code>npm run onboard-partner test-partner test.com "Test Partner"</code>. Verify in GCP console: database created, rules deployed, registry doc written. SHINOB1 signs off. This is the pattern Matt will go through &mdash; it must work cleanly before his real onboarding.</p>
+    </div>
+  </div>
+
+  <div class="gate-step">
+    <div class="gate-num">3</div>
+    <div class="gate-content">
+      <strong>MT-009 Firestore rules pass security rules simulator</strong>
+      <p>Run the Firebase security rules simulator against the partner rules template. All 5 isolation scenarios must fail as expected (non-partner reads blocked, cross-partner reads blocked). SHINOB1 reviews the rules file before provisioning script deploys it to any real partner DB.</p>
+    </div>
+  </div>
+
+  <div class="gate-step">
+    <div class="gate-num">4</div>
+    <div class="gate-content">
+      <strong>MT-012 isolation tests pass on live Cloud Run — JDM sign-off required</strong>
+      <p>This is the Sensei gate. SHINOB1 runs the tests, posts results. JDM reviews. JDM's explicit approval ("TCO") is required before the Midwest Medigap DB is provisioned for real and before MT-010 runs the intake wire with live data.</p>
+    </div>
+  </div>
+
+  <div class="gate-step">
+    <div class="gate-num">5</div>
+    <div class="gate-content">
+      <strong>MT-010 intake wire smoke test with real data</strong>
+      <p>Run the intake wire against 5 test client records from the Midwest Medigap carrier exports. Verify: records appear in <code>partner-midwest-medigap</code> DB. Verify: records do NOT appear in <code>(default)</code> DB. Verify: BigQuery stream picks up the records. Only after this passes does bulk intake begin.</p>
+    </div>
+  </div>
+
+  <div class="gate-step">
+    <div class="gate-num">6</div>
+    <div class="gate-content">
+      <strong>Matt can log in and see his data (demo gate)</strong>
+      <p>JDM demos the portal to Matt. Matt logs in with his email. He sees his clients, his accounts, his pipeline. He does NOT see RPI's data. This is the business acceptance gate. Before this demo, nothing gets announced to Matt's team.</p>
+    </div>
+  </div>
+
+  <h3>CI additions</h3>
+  <ul>
+    <li>The cross-tenant isolation test suite (MT-012) is added to the CI pipeline. It runs on every PR. A failure blocks merge.</li>
+    <li>A linter rule added to catch raw <code>getFirestore()</code> calls in API route files post-refactor. Any new route that imports directly from <code>firebase-admin/firestore</code> instead of from <code>../lib/db</code> fails CI.</li>
+  </ul>
+</div>
+
+<!-- ════ TIMELINE ════ -->
+<div id="timeline" class="tab-content">
+  <h2>Timeline &amp; Sequencing — Three Paths</h2>
+
+  <p>All estimates assume RONIN execution speed on this codebase. The route-swap work (MT-003&ndash;006) is mechanical — it's the kind of task where RONIN's speed exceeds a human dev by 4&ndash;5x. The architecture tickets (MT-001, MT-002, MT-008, MT-009) require careful thought and SHINOB1 review cycles that cannot be compressed.</p>
+
+  <div class="callout-yellow">
+    <p><strong>Parallel track capacity:</strong> This sprint can run 3&ndash;4 parallel RONIN tracks efficiently. Track A (route refactor) is 4 tickets that can subdivide further. Track B (auth/provisioning) and Track C (intake/analytics) are independent of each other after MT-001 + MT-002 land. Wall-clock time is significantly lower than sum-of-hours for that reason.</p>
+  </div>
+
+  <div class="path-block path-a">
+    <h3>Path 1 — Quick &amp; Dirty: Ship Matt in <code>default</code> with <code>partner_id</code> field</h3>
+    <p><strong>Tickets:</strong> Only MT-010 (modified to write a <code>partner_id</code> field on each doc). Skip everything else.</p>
+    <p><strong>Honest hour estimate:</strong> 2&ndash;3 hours of RONIN time. Matt's data is in Firestore today.</p>
+    <p><strong>When Matt can see a demo:</strong> Tomorrow.</p>
+    <p><strong>The real cost:</strong></p>
+    <ul>
+      <li>Physical isolation is not achieved. A Firestore rules bug or a query without a filter = cross-tenant data exposure. You're betting on code quality, not architecture.</li>
+      <li>Exit portability is still a manual export problem. When Matt's attorney asks for a data export on exit, you're running a collection query and hoping nothing is missed.</li>
+      <li>Every partner that joins after Matt lands in the same shared DB. At Partner #3&ndash;4, you WILL do this refactor under pressure, while partner data is live, with less runway.</li>
+      <li>"We'll refactor later" has a name: it's called Sprint 14. And it costs 3x what doing it now costs because you're migrating live data.</li>
+    </ul>
+    <p><strong>Verdict:</strong> <span class="tag tag-red">HIGH RISK</span> — Viable only if there's a hard deadline in the next 48 hours that cannot move. Otherwise this is the wrong choice.</p>
+  </div>
+
+  <div class="path-block path-b">
+    <h3>Path 2 — Full Build First: All 16 tickets, Matt lands in his own DB on day one</h3>
+    <p><strong>Tickets:</strong> All MT-001 through MT-016.</p>
+    <p><strong>Honest hour estimate, sequential:</strong> ~31 hours total. With 3&ndash;4 parallel RONIN tracks: <strong>wall-clock ~12&ndash;14 hours</strong>. Call it a full workday of parallel execution.</p>
+    <p><strong>Track breakdown (parallel after MT-001 + MT-002):</strong></p>
+    <table>
+      <thead><tr><th>Track</th><th>Tickets</th><th>Hours (sequential within track)</th></tr></thead>
+      <tbody>
+        <tr><td>Foundation (sequential, must go first)</td><td>MT-001, MT-002</td><td>4 hrs</td></tr>
+        <tr><td>Track A: Route refactor</td><td>MT-003, MT-004, MT-005, MT-006</td><td>7 hrs</td></tr>
+        <tr><td>Track B: Auth + Provisioning</td><td>MT-007, MT-008, MT-009</td><td>7.5 hrs</td></tr>
+        <tr><td>Track C: Intake + Analytics</td><td>MT-010, MT-011</td><td>3.5 hrs</td></tr>
+        <tr><td>Phase 3: Safety + Observability</td><td>MT-012, MT-013, MT-014, MT-015, MT-016</td><td>8 hrs</td></tr>
+      </tbody>
+    </table>
+    <p><strong>Wall-clock with parallel execution:</strong> Foundation (4 hrs) → Tracks A/B/C in parallel (~7.5 hrs longest track) → Phase 3 (~4 hrs wall-clock with 2 parallel) = <strong>~16 hours wall-clock</strong>. Call it 2 RONIN overnight sessions.</p>
+    <p><strong>When Matt can see a demo:</strong> After the MT-004 + MT-012 gate. Realistically: 2&ndash;3 days from green light, including SHINOB1 review cycles and CI turnaround.</p>
+    <p><strong>Risks:</strong></p>
+    <ul>
+      <li>MT-008 (provisioning script) touches GCP admin APIs — there may be permission issues with the Firestore database creation API that require a console action from JDM. Low probability, worth flagging.</li>
+      <li>The MEGAZORD intake wire (MT-010) depends on seeing exactly how PR #345 wrote its Firestore target. If the wire abstraction is clean, this is 2 hours. If it's tightly coupled, add 1 hour.</li>
+    </ul>
+    <p><strong>Verdict:</strong> <span class="tag tag-teal">RECOMMENDED</span> — Right architecture, right timeline, positions DAVID scaling correctly from Partner #1.</p>
+  </div>
+
+  <div class="path-block path-c">
+    <h3>Path 3 — Hybrid: Create the DB now, defer portal/middleware refactor</h3>
+    <p><strong>Minimum to onboard Matt cleanly:</strong> MT-001, MT-002, MT-007, MT-008, MT-009, MT-010, MT-011, MT-012. Skip route refactor (MT-003&ndash;006), skip RIIMO admin view (MT-013), skip VOLTRON context (MT-014).</p>
+    <p><strong>What this gives you:</strong></p>
+    <ul>
+      <li>Matt's data physically isolated in his own DB from day one. ✓</li>
+      <li>Intake wire writes to the right place. ✓</li>
+      <li>Cross-tenant isolation tests pass. ✓</li>
+      <li>BigQuery analytics feed per-partner. ✓</li>
+      <li>Auth claims set correctly on partner user sign-in. ✓</li>
+    </ul>
+    <p><strong>What this defers:</strong></p>
+    <ul>
+      <li>The API route refactor (MT-003&ndash;006) — RPI's API still calls <code>getFirestore()</code> directly. This is OK because <code>req.partnerId</code> from MT-002 will be <code>null</code> for RPI users, meaning <code>getDb(null)</code> returns the default. But partner users can't yet use the portals to browse their data — the routes don't route to their DB yet. Matt can't log into ProDash and see his clients this way. That's the tradeoff.</li>
+      <li>VOLTRON context awareness (MT-014) — VOLTRON would serve RPI data to partner users. Problematic.</li>
+    </ul>
+    <p><strong>Honest hybrid hour estimate:</strong> ~17 hours sequential, <strong>~9&ndash;10 hours wall-clock</strong> with parallel execution (MT-007/MT-008/MT-009 run in parallel). Call it an overnight session.</p>
+    <p><strong>Follow-up sprint estimate (MT-003&ndash;006 + MT-013&ndash;015):</strong> ~12 hours sequential, ~6 hours wall-clock. One more overnight session.</p>
+    <p><strong>When Matt can see a demo (Hybrid):</strong> After Session 1 (~1 day), Matt's data is in his DB. But he can't log into the portal and browse it until Session 2 completes. So for the demo: JDM shows the partner registry in GCP console + the BigQuery dataset. Not a full portal demo yet.</p>
+    <p><strong>Verdict:</strong> <span class="tag tag-yellow">VIABLE</span> — Best if JDM wants to show Matt "your data is physically in your own database" within 24 hours, then complete the portal UX in the days following. Not recommended if Matt's visit involves a full portal walkthrough.</p>
+  </div>
+
+  <h3>The Recommendation</h3>
+  <div class="callout">
+    <p><strong>Path 2 if Matt's portal demo is more than 3 days out. Path 3 if Matt needs to see the DB isolation in 24&ndash;48 hours.</strong> Path 1 is only acceptable as a stopgap with a committed sprint to do Path 2 immediately after — and even then, it's a risky promise to make to a DAVID partner whose attorney will eventually read the term sheet.</p>
+  </div>
+</div>
+
+<!-- ════ RISKS ════ -->
+<div id="risks" class="tab-content">
+  <h2>Risks &amp; Open Questions</h2>
+
+  <h3>Critical risks</h3>
+
+  <div class="risk-block">
+    <h3>Firestore rules mistake → HIPAA incident</h3>
+    <p><strong>Scenario:</strong> A bug in the partner Firestore rules template allows an RPI user to read Matt's clients' collection, or allows Matt's staff to read another partner's data. With 6,000+ Medicare clients' PHI in the partner DB, this is a reportable HIPAA breach — even if the read was accidental and limited.</p>
+    <p><strong>Mitigation:</strong> MT-009 (rules template) requires SHINOB1 review and security rules simulator validation before it deploys to any real partner DB. MT-012 (isolation test suite) must pass on the live API before data moves. The rules template is simple by design — the fewer lines in a security rules file, the fewer ways it can be wrong.</p>
+    <p><strong>Severity:</strong> <span class="tag tag-red">CRITICAL</span></p>
+  </div>
+
+  <div class="risk-block medium">
+    <h3>Shared users with cross-tenant read needs</h3>
+    <p><strong>Scenario:</strong> JDM or John Behn needs to see Matt's data for support or QA purposes. The super-admin claim handles this — but if the claim logic is wrong, they either can't read it (support is blocked) or can read everything without logging (audit gap).</p>
+    <p><strong>Mitigation:</strong> Super-admin access is implemented in the API layer, not the Firestore rules. Every cross-tenant read via the API explicitly writes to <code>guardian_audits</code>. The claim check is binary: <code>role === 'superadmin'</code>. MT-013 (the RIIMO support view) makes this access intentional and audited, not accidental.</p>
+    <p><strong>Severity:</strong> <span class="tag tag-yellow">MEDIUM</span></p>
+  </div>
+
+  <div class="risk-block medium">
+    <h3>VOLTRON serves RPI data to partner users before MT-014 ships</h3>
+    <p><strong>Scenario:</strong> If Path 3 (Hybrid) is chosen and MT-014 is deferred, a partner user who opens the MDJ Panel and asks about "my clients" could receive results from the default DB (RPI's clients). This is a cross-tenant PHI exposure via the AI layer.</p>
+    <p><strong>Mitigation:</strong> In Path 3, disable the MDJ Panel for partner users until MT-014 ships. The portal widget can check for the <code>partner_id</code> claim and hide the panel if VOLTRON isn't partner-aware yet. One-line conditional in the portal sidebar component.</p>
+    <p><strong>Severity:</strong> <span class="tag tag-yellow">MEDIUM — manageable with a portal feature flag</span></p>
+  </div>
+
+  <div class="risk-block low">
+    <h3>Firestore named database creation API permissions</h3>
+    <p><strong>Scenario:</strong> The provisioning script (MT-008) calls the GCP Firestore Admin API to create a new named database. The service account used for Cloud Run (<code>tm-api</code>) may not have the <code>datastore.databases.create</code> IAM permission — this permission was historically restricted. The script may fail on the database creation step even though it has full Firestore data access.</p>
+    <p><strong>Mitigation:</strong> Run the provisioning script manually the first time from JDM's gcloud CLI (which has owner-level IAM). Once confirmed, grant the necessary IAM role to the SA for subsequent automated provisioning. If the IAM issue surfaces: one console click by JDM, TCO, done. Alternatively, pre-create databases manually via GCP console and have the script skip creation if the DB already exists.</p>
+    <p><strong>Severity:</strong> <span class="tag tag-teal">LOW — operational, not architectural</span></p>
+  </div>
+
+  <div class="risk-block low">
+    <h3>ATLAS tooling tenant scope</h3>
+    <p><strong>Scenario:</strong> ATLAS tools in the <code>source_registry</code> and <code>tool_registry</code> are in the <code>(default)</code> DB and are global. If a partner ever needs tenant-specific ATLAS configurations (e.g., partner-specific import sources), the current architecture has no mechanism for that.</p>
+    <p><strong>Mitigation:</strong> ATLAS stays global (Option B, as designed). Per-partner intake configuration lives in the partner's DB as a separate <code>intake_config</code> collection (already in the per-partner collection list). ATLAS source and tool registries describe what's possible; per-partner intake config describes what's activated. This boundary is clean and doesn't need architecture change.</p>
+    <p><strong>Severity:</strong> <span class="tag tag-teal">LOW — solved by design</span></p>
+  </div>
+
+  <h3>Open questions</h3>
+
+  <table>
+    <thead><tr><th>Question</th><th>Answer</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>Any per-DB minimum charge in Firestore?</td>
+        <td>No. Named databases in Firestore use the same pricing model as the default database. No per-DB minimum. At our write volume (&lt;1K writes/day per partner), the marginal cost per partner DB is $0. Pricing changes only at &gt;50K writes/day per DB or &gt;1GB storage per DB.</td>
+      </tr>
+      <tr>
+        <td>Firestore concurrency limits — does named DB model affect throughput?</td>
+        <td>Each named database has its own 5,000 writes/second limit. This is an improvement over a shared DB. Matt's 6,000 clients at bulk import pace might hit 200&ndash;300 writes/second during intake, well under 5K. The named DB model actually gives us more headroom, not less.</td>
+      </tr>
+      <tr>
+        <td>What about <code>org_structure</code> — shared or per-partner?</td>
+        <td>The <code>org</code> collection in <code>(default)</code> is RPI's internal org structure (divisions, teams). Partners have their own org structure (staff, agents). Partners get their own <code>org</code> collection in their DB. The two are not shared. Matt's team roster has nothing to do with RPI's org structure.</td>
+      </tr>
+      <tr>
+        <td>MCPs and CCSDK — does VOLTRON need per-partner SA credentials?</td>
+        <td>No. The <code>mdj-agent</code> SA key already has project-level Firestore access, which includes all named databases in the same project. VOLTRON just needs to know which database to query (determined by the user's <code>partner_id</code> claim in the portal widget auth token). No additional credentials needed.</td>
+      </tr>
+      <tr>
+        <td>What if a partner staff member leaves? Offboarding?</td>
+        <td>Firebase Auth offboarding disables the user account, which revokes the custom claim. No per-DB-level user management needed. Standard Google Workspace offboard process applies. The custom claim provisioning Cloud Function (MT-007) is the only new step: it fires on sign-in, not on offboard, so no offboard trigger is needed for the claims themselves.</td>
+      </tr>
+      <tr>
+        <td>Can two partners' staff see each other's data if they share a domain?</td>
+        <td>The custom claim is tied to <code>partner_id</code> from the <code>partner_registry</code> domain lookup, not just the email domain. If two different agencies happen to use the same email provider (e.g., both use Gmail), the lookup fails to find a match and defaults to no partner claim (access blocked). Partners with shared email domains need a different claim-setting mechanism — handled case-by-case via manual claim assignment. Covered in the provisioning script notes.</td>
+      </tr>
+      <tr>
+        <td>What about the BigQuery streaming Cloud Function that was disabled in Sprint 5?</td>
+        <td>The BigQuery streaming is handled by a Cloud Function in <code>services/bigquery-stream/</code>. MT-011 extends its config to include named databases. The disabled service (Sprint 5) was replaced by a direct streaming mechanism — check current state before MT-011 executes. If the streaming is already live via another mechanism, MT-011 scope narrows to adding the new DB to whatever config that uses.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>The single most important risk in this document</h3>
+  <div class="callout-red">
+    <p><strong>The VOLTRON PHI cross-contamination risk (before MT-014).</strong> Every other risk in this doc has a clean technical mitigation. The VOLTRON risk is the one where the failure mode is silent: partner user opens MDJ Panel, asks a question, gets an answer based on another tenant's PHI, doesn't notice, and the breach goes undetected. The mitigation is a feature flag on the portal sidebar. But it must be in place before any partner user is given access to the portal. This is the non-negotiable item that JDM needs to be aware of when sequencing Path 3.</p>
+  </div>
+</div>
+
+<div class="ft">ZRD-PLAT-MT &mdash; Multi-Tenant Firestore Architecture Discovery Doc &mdash; toMachina Platform &mdash; SHINOB1, CTO &mdash; April 12, 2026</div>
+
+</div>
+
+<script>
+function showTab(id, btn) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (btn) btn.classList.add('active');
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+# systemd timer for claude-md-writer — MDJ_SERVER
+# Fires daily at 04:05 UTC — 5 minutes after knowledge-promote.timer (04:00)
+# so both share the same nightly knowledge extraction window.
+
+[Unit]
+Description=RPI Claude MD Writer Timer — Daily 04:05 UTC
+Requires=claude-md-writer.service
+
+[Timer]
+OnCalendar=*-*-* 04:05:00
+Persistent=true
+Unit=claude-md-writer.service
+
+[Install]
+WantedBy=timers.target

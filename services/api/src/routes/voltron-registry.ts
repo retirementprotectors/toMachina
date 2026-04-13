@@ -113,7 +113,9 @@ function filterByEntitlement(
 voltronRegistryRoutes.get('/', async (req: Request, res: Response) => {
   try {
     // TRK-13801: Validate and normalize role before any filtering
-    const rawRole = (req as any).user?.role as string | undefined
+    const userLevel = ((req as any).user?.level as number) ?? 3
+    const LEVEL_TO_VOLTRON: Record<number, string> = { 0: 'ADMIN', 1: 'VP', 2: 'DIRECTOR', 3: 'COORDINATOR' }
+    const rawRole = LEVEL_TO_VOLTRON[userLevel] || 'COORDINATOR'
     const { role: userRole, normalized } = validateRole(rawRole)
     const callerRank = getRoleRank(userRole)
 
@@ -211,7 +213,8 @@ voltronRegistryRoutes.get('/', async (req: Request, res: Response) => {
 voltronRegistryRoutes.post('/regenerate', async (req: Request, res: Response) => {
   try {
     // TRK-13801: Use validated role for regenerate endpoint too
-    const { role: userRole } = validateRole((req as any).user?.role as string | undefined)
+    const userLevel2 = ((req as any).user?.level as number) ?? 3
+    const { role: userRole } = validateRole(({ 0: 'ADMIN', 1: 'VP', 2: 'DIRECTOR', 3: 'COORDINATOR' } as Record<number, string>)[userLevel2] || 'COORDINATOR')
     const callerRank = getRoleRank(userRole)
 
     // VP+ only (rank >= 4)

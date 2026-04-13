@@ -592,5 +592,19 @@ service cloud.firestore {
       allow read: if isRPIUser();
       allow write: if true;  // Public booking creates records
     }
+
+    // ----------------------------------------------------------------
+    // Partner Registry — DAVID multi-tenant directory (ZRD-PLAT-MT-001)
+    // ----------------------------------------------------------------
+    // Canonical tenant directory: slug → named DB, domain, display_name, status.
+    // Lives in (default) only. Per-partner named databases use the separate
+    // firestore.partner.rules.template deployed by the onboard-partner script.
+    //
+    // Read: executive-and-above (RIIMO partner directory + cross-tenant support).
+    // Write: owner-only (JDM + John). Provisioning is a super-admin action.
+    match /partner_registry/{slug} {
+      allow read: if isExecutiveOrAbove();
+      allow write: if isOwner();
+    }
   }
 }

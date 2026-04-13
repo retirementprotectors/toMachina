@@ -169,7 +169,9 @@ voltronWireRoutes.post('/execute', async (req: Request, res: Response) => {
     if (err) { res.status(400).json(errorResponse(err)); return }
 
     const userEmail = ((req as any).user?.email as string) || 'unknown'
-    const userRole = ((req as any).user?.role as string) || 'ADMIN'
+    const userLevel = ((req as any).user?.level as number) ?? 3
+    const LEVEL_TO_VOLTRON: Record<number, string> = { 0: 'ADMIN', 1: 'VP', 2: 'DIRECTOR', 3: 'COORDINATOR' }
+    const userRole = LEVEL_TO_VOLTRON[userLevel] || 'COORDINATOR'
     const entitlement = VOLTRON_ROLE_RANK[userRole as VoltronUserRole] ?? 1
 
     // Validate wire exists
@@ -382,7 +384,9 @@ voltronWireRoutes.post('/:id/approve', async (req: Request, res: Response) => {
     })
 
     const { resumeVoltronWireAfterApproval } = await loadVoltronWireExecutor()
-    const userRole = ((req as any).user?.role as string) || 'ADMIN'
+    const userLevel = ((req as any).user?.level as number) ?? 3
+    const LEVEL_TO_VOLTRON: Record<number, string> = { 0: 'ADMIN', 1: 'VP', 2: 'DIRECTOR', 3: 'COORDINATOR' }
+    const userRole = LEVEL_TO_VOLTRON[userLevel] || 'COORDINATOR'
     const entitlement = VOLTRON_ROLE_RANK[userRole as VoltronUserRole] ?? 1
 
     const result = await resumeVoltronWireAfterApproval(

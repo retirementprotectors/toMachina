@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>ZRD-PLAT-MT Build Order</title></head>
+<body>
+<h1>ZRD-PLAT-MT — Multi-Tenant Firestore Architecture</h1>
+<p><strong>Sprint:</strong> ZRD-PLAT-MT | <strong>Planned:</strong> 2026-04-12 | <strong>Tickets:</strong> 16 | <strong>Waves:</strong> 4</p>
+<p><strong>Architecture:</strong> Option B — Named Firestore databases per partner within GCP project <code>claude-mcp-484718</code>. RPI stays in <code>(default)</code>. Partner #1: Midwest Medigap → <code>partner-midwest-medigap</code>.</p>
+
+<hr>
+
+<h2>Wave 1 — Foundation (Parallel, No Dependencies)</h2>
+
+<h3>TRK-14356 — Create tenant-aware getDb() helper + partner_registry collection</h3>
+<table>
+<tr><td><strong>Wave</strong></td><td>1</td></tr>
+<tr><td><strong>Dependencies</strong></td><td>None</td></tr>
+<tr><td><strong>New files</strong></td><td><code>services/api/src/lib/db.ts</code></td></tr>
+<tr><td><strong>Modified files</strong></td><td><code>services/api/src/server.ts</code> (import), <code>firestore.rules</code> (add partner_registry rule)</td></tr>
+<tr><td><strong>AC</strong></td><td>1) getDb() returns (default) Firestore instance; getDb('midwest-medigap') returns distinct partner-midwest-medigap instance. 2) Connection caching via Map — same slug returns same instance. 3) partner_registry rule in firestore.rules: owner-write, executive-read. 4) npm run build passes zero errors.</td></tr>
+</table>
+
+<h3>TRK-14364 — Partner Firestore rules template — per-tenant DB security</h3>
+<table>
+<tr><td><strong>Wave</strong></td><td>1</td></tr>
+<tr><td><strong>Dependencies</strong></td><td>None</td></tr>
+<tr><td><strong>New files</strong></td><td><code>firestore.partner.rules.template</code> (repo root)</td></tr>
+<tr><td><strong>Modified files</strong></td><td>None</td></tr>
+<tr><td><strong>AC</strong></td><td>1) Template contains isPartnerUser() checking request.auth.token.partner_id == PARTNER_SLUG. 2) Super-admin clause allows read across all DBs. 3) Security rules simulator confirms: partner user reads own data, cross-tenant read blocked, super-admin reads all. 4) npm run build passes zero errors.</td></tr>
+</table>
+
+<h3>TRK-14371 — Migration runbook: RPI data to partner-rpi DB (future-proofing doc only)</h3>
+<table>
+<tr><td><strong>Wave</strong></td><td>1</td></tr>
+<tr><td><strong>Dependencies</strong></td><td>None</td></tr>
+<tr><td><strong>New files</strong></td><td><code>docs/warriors/shinob1/runbooks/rpi-db-migration.md</code></td></tr>
+<tr><td><strong>Modified files</strong></td><td>None</td></tr>
+<tr><td><strong>AC</strong></td><td>1) Runbook covers: export procedure, validation steps, route re-pointing, cutover window estimate, rollback plan. 2) Estimated future execution: 4-6 hours documented. 3) Reviewed by JDM and SHINOB1 before filing. 4) Documentation only — no code changes. npm run build passes zero errors.</td></tr>
+</table>
+
+<hr>
+
+<h2>Wave 2 — Auth + Provisioning (Parallel, Depends on Wave 1)</h2>
+
+<h3>TRK-14357 — API middleware: extract partner_id from auth token → req.partnerId</h3>
+<table>
+<tr><td><strong>Wave</strong></td><td>2</td></tr>
+<tr><td><strong>Dependencies</strong></td><td>TRK-14356</td></tr>
+<tr><td><strong>New files</strong></td><td><code>services/api/src/types/express.d.ts</code> (or extend existing)</td></tr>
+<tr><td><strong>Modified files</strong></td><td><code>services/api/src/middleware/auth.ts</code></td></tr>
+<tr><td><strong>AC</strong></td><td>1) req.partnerId extracted from decodedToken.partner_id ?? null. 2) Express Request type extended with partnerId?: string | null. 3) Integration test: RPI token yields req.partnerId === null; partner token yields req.partnerId === 'midwest-medigap'. 4) npm run build passes zero errors.</td></tr>
+</table>
+
+<h3>TRK-14362 — Firebase Auth custom claims provisioning Cloud Function</h3>
+<table>
+<tr><td><strong>Wave</strong></td><td>2</td></tr>
+<tr><td><strong>Dependencies</strong></td><td>TRK-14356 (partner_registry collection must exist)</td></tr>
+<tr><td><strong>New files</strong></td><td><code>services/intake/src/functions/onPartnerUserCreate.ts</code></td></tr>
+<tr><td><strong>Modified files</strong></td><td>Cloud Functions index/config to register onCreate trigger</td></tr>
+<tr><td><strong>AC</strong></td><td>1) onCreate trigger looks up email domain in partner_registry. 2) Partner domain match sets { role: 'partner_agent', partner_id: slug }. 3) @retireprotected.com sets { role: 'rpi' }. 4) Josh + John get { role: 'superadmin' }. 5) Claims delivered within 60 seconds. 6) npm run build passes zero errors.</td></tr>
+</table>
+
+<h3>TRK-14363 — Partner provisioning script: npm run onboard-partner</h3>
+<table>
+<tr><td><strong>Wave</strong></td><td>2</td></tr>
+<tr><td><strong>Dependencies</strong></td><td>TRK-14356 (getDb), TRK-14364 (rules template)</td></tr>
+<tr><td><strong>New files</strong></td><td><code>services/api/src/scripts/onboard-partner.ts</code></td></tr>
+<tr><td><strong>Modified files</strong></td><td><code>package.json</code> (add onboard-partner script)</td></tr>
+<tr><td><strong>AC</strong></td><td>1) Usage: npx ts-node services/api/src/scripts/onboard-partner.ts midwest-medigap midwestmedigap.com "Midwest Medigap". 2) Creates named Firestore DB via GCP API. 3) Deploys partner rules template instantiated with slug. 4) Seeds partner_registry/{slug} in default DB with: slug, db_name, domain, display_name, status, created_at. 5) Runs smoke-test write/read. 6) Prints summary. 7) npm run build passes zero errors.</td></tr>
+</table>
+
+<hr>
+
+<h2>Wave 3 — Route Refactoring + Integration + Analytics (Parallel, Depends on Wave 2)</h2>
+
+<p><strong>File overlap check:</strong> All 8 tickets touch distinct files. Confirmed parallel-safe.</p>
+
+<h3>TRK-14358 — Refactor client + account routes to getDb(req.partnerId)</h3>
+<table>
+<tr><td><strong>Wave</strong></td><td>3</td></tr>
+<tr><td><strong>Dependencies</strong></td><td>TRK-14356, TRK-14357</td></tr>
+<tr><td><strong>New files</strong></td><td>None</td></tr>
+<tr><td><strong>Modified files</strong></td><td><code>services/api/src/routes/clients.ts</code>, <code>accounts.ts</code>, <code>access.ts</code>, <code>activities.ts</code> (~50 call sites)</td></tr>
+<tr><td><strong>AC</strong></td><td>1) All getFirestore() replaced with getDb(req.partnerId). 2) Existing integration tests pass. 3) Partner token queries partner DB only — verified via test. 4) npm run build passes zero errors.</td></tr>
+</table>
+
+<h3>TRK-14359 — Refactor service-work routes</h3>
+<table>
+<tr><td><strong>Wave</strong></td><td>3</td></tr>
+<tr><td><strong>Dependencies</strong></td><td>TRK-14356, TRK-14357</td></tr>
+<tr><td><strong>New files</strong></td><td>None</td></tr>
+<tr><td><strong>Modified files</strong></td><td><code>services/api/src/routes/opportunities.ts</code>, <code>case-tasks.ts</code>, <code>communications.ts</code>, <code>revenue.ts</code>, <code>call-sessions.ts</code> (~40 call sites)</td></tr>
+<tr><td><strong>AC</strong></td><td>1) All getFirestore() replaced with getDb(req.partnerId). 2) Per-partner collection isolation confirmed via test. 3) npm run build passes zero errors.</td></tr>
+</table>
+
+<h3>TRK-14360 — Refactor remaining routes: households, approval_queue, DEX, wire_executions</h3>
+<table>
+<tr><td><strong>Wave</strong></td><td>3</td></tr>
+<tr><td><strong>Dependencies</strong></td><td>TRK-14356, TRK-14357</td></tr>
+<tr><td><strong>New files</strong></td><td>None</td></tr>
+<tr><td><strong>Modified files</strong></td><td><code>services/api/src/routes/households.ts</code>, <code>approval.ts</code>, <code>acf.ts</code>, DEX routes</td></tr>
+<tr><td><strong>AC</strong></td><td>1) All getFirestore() replaced with getDb(req.partnerId). 2) DEX packages (containing PHI attachments) confirmed tenant-scoped. 3) Integration test coverage verified. 4) npm run build passes zero errors.</td></tr>
+</table>
+
+<h3>TRK-14361 — Refactor shared-catalog routes: mark as default-only, add getDb() explicit call</h3>
+<table>
+<tr><td><strong>Wave</strong></td><td>3</td></tr>
+<tr><td><strong>Dependencies</strong></td><td>TRK-14356</td></tr>
+<tr><td><strong>New files</strong></td><td>None</td></tr>
+<tr><td><strong>Modified files</strong></td><td><code>services/api/src/routes/carriers.ts</code>, <code>products.ts</code>, <code>campaigns.ts</code>, <code>templates.ts</code>, <code>atlas.ts</code>, <code>admin-*.ts</code> (existing), <code>services/api/src/cron/scheduled-wires.ts</code></td></tr>
+<tr><td><strong>AC</strong></td><td>1) All use explicit getDb() with no argument. 2) Comment marks each as SHARED CATALOG ROUTE. 3) Partner-token request to GET /api/carriers returns global catalog unchanged. 4) npm run build passes zero errors.</td></tr>
+</table>
+
+<h3>TRK-14367 — Cross-tenant isolation test suite</h3>
+<table>
+<tr><td><strong>Wave</strong></td><td>3</td></tr>
+<tr><td><strong>Dependencies</strong></td><td>TRK-14356, TRK-14357</td></tr>
+<tr><td><strong>New files</strong></td><td><code>services/api/src/__tests__/cross-tenant-isolation.test.ts</code></td></tr>
+<tr><td><strong>Modified files</strong></td><td>None</td></tr>
+<tr><td><strong>AC</strong></td><td>1) 5 scenarios: (a) Partner A token → Partner B client read → 403/empty, (b) Partner token → RPI client read → 403, (c) RPI token → partner DB read → 403, (d) Super-admin token → partner DB read → 200 with audit log entry in guardian_audits, (e) Unauthenticated request → 401. 2) CI gate: blocks TRK-14365 merge if any scenario fails. 3) Must pass on live Cloud Run before partner data migrates. 4) npm run build passes zero errors.</td></tr>
+</table>
+
+<h3>TRK-14368 — Super-admin cross-tenant support view in RIIMO</h3>
+<table>
+<tr><td><strong>Wave</strong></td><td>3</td></tr>
+<tr><td><strong>Dependencies</strong></td><td>TRK-14356, TRK-14357</td></tr>
+<tr><td><strong>New files</strong></td><td><code>apps/riimo/app/(portal)/admin/partners/page.tsx</code>, <code>services/api/src/routes/admin-partners.ts</code></td></tr>
+<tr><td><strong>Modified files</strong></td><td><code>services/api/src/server.ts</code> (register admin-partners route)</td></tr>
+<tr><td><strong>AC</strong></td><td>1) Admin page displays all partner_registry entries: name, DB status, last import, client count. 2) Support context selector — pick partner, subsequent API calls pass ?context=partner-slug. 3) API checks superadmin claim before cross-tenant access. 4) Every access logged to guardian_audits in default DB. 5) npm run build passes zero errors.</td></tr>
+</table>
+
+<h3>TRK-14369 — VOLTRON (MDJ Agent) partner context awareness</h3>
+<table>
+<tr><td><strong>Wave</strong></td><td>3</td></tr>
+<tr><td><strong>Dependencies</strong></td><td>TRK-14356, TRK-14357</td></tr>
+<tr><td><strong>New files</strong></td><td>None</td></tr>
+<tr><td><strong>Modified files</strong></td><td><code>/home/jdm/Projects/dojo-warriors/mdj-agent/src/server.ts</code> (or equivalent tool handler in mdj-agent)</td></tr>
+<tr><td><strong>AC</strong></td><td>1) MDJ Agent decodes partner_id claim from portal auth token. 2) Firestore tool calls use getDb(partner_id) — partner users see only their tenant DB. 3) SA key already has project-level access; no new credentials needed. 4) npm run build passes zero errors (in mdj-agent repo).</td></tr>
+</table>
+
+<h3>TRK-14366 — BigQuery streaming: per-partner export sink configuration</h3>
+<table>
+<tr><td><strong>Wave</strong></td><td>3</td></tr>
+<tr><td><strong>Dependencies</strong></td><td>TRK-14363 (provisioning script to extend)</td></tr>
+<tr><td><strong>New files</strong></td><td>None</td></tr>
+<tr><td><strong>Modified files</strong></td><td><code>services/bigquery-stream/</code> config, <code>services/api/src/scripts/onboard-partner.ts</code> (add BQ setup step)</td></tr>
+<tr><td><strong>AC</strong></td><td>1) partner-midwest-medigap DB streams to partner_midwest_medigap BigQuery dataset. 2) BQ setup step added to provisioning script. 3) Test: write client record to partner DB, verify appearance in BigQuery within 60 seconds. 4) npm run build passes zero errors.</td></tr>
+</table>
+
+<hr>
+
+<h2>Wave 4 — Intake + Observability (Parallel, Depends on Wave 3)</h2>
+
+<h3>TRK-14365 — MEGAZORD intake wire — point midwest-medigap writes at partner DB</h3>
+<table>
+<tr><td><strong>Wave</strong></td><td>4</td></tr>
+<tr><td><strong>Dependencies</strong></td><td>TRK-14356 (getDb), TRK-14363 (partner DB provisioned), TRK-14367 (CI gate — isolation tests must pass)</td></tr>
+<tr><td><strong>New files</strong></td><td>None</td></tr>
+<tr><td><strong>Modified files</strong></td><td>MEGAZORD intake wire (from PR #345), ATLAS wire definition (add partner_id parameter)</td></tr>
+<tr><td><strong>AC</strong></td><td>1) Intake wire calls getDb('midwest-medigap') when source is Midwest Medigap territory. 2) partner_id parameter added to ATLAS wire definition. 3) Smoke test: run intake against test record, client doc appears in partner-midwest-medigap DB, NOT (default). 4) npm run build passes zero errors.</td></tr>
+</table>
+
+<h3>TRK-14370 — Per-partner observability: Cloud Monitoring dashboards + error budgets</h3>
+<table>
+<tr><td><strong>Wave</strong></td><td>4</td></tr>
+<tr><td><strong>Dependencies</strong></td><td>TRK-14363 (provisioning script), TRK-14366 (BQ step already added — avoid file conflict on onboard-partner.ts)</td></tr>
+<tr><td><strong>New files</strong></td><td>None</td></tr>
+<tr><td><strong>Modified files</strong></td><td><code>services/api/src/scripts/onboard-partner.ts</code> (add monitoring dashboard creation step)</td></tr>
+<tr><td><strong>AC</strong></td><td>1) Provisioning script creates Cloud Monitoring dashboard per partner: read/write ops, error rates, latency. 2) Alert fires if error rate exceeds 1% for 5 minutes. 3) Dashboard visible in GCP console post-provisioning. 4) npm run build passes zero errors.</td></tr>
+</table>
+
+<hr>
+
+<h2>Dependency Graph</h2>
+<pre>
+WAVE 1 (parallel)                WAVE 2 (parallel)              WAVE 3 (parallel)                    WAVE 4 (parallel)
+─────────────────                ─────────────────              ─────────────────                    ─────────────────
+TRK-14356 (getDb)        ──►    TRK-14357 (middleware)   ──►   TRK-14358 (client routes)
+                          ──►                              ──►   TRK-14359 (svc-work routes)
+                          ──►                              ──►   TRK-14360 (remaining routes)
+                          ──►                              ──►   TRK-14361 (shared-catalog routes)
+                          ──►                              ──►   TRK-14367 (isolation tests)    ──►   TRK-14365 (MEGAZORD intake)
+                          ──►                              ──►   TRK-14368 (RIIMO admin)
+                          ──►                              ──►   TRK-14369 (VOLTRON MDJ)
+                          ──►    TRK-14362 (auth claims)
+TRK-14364 (rules tpl)    ──►    TRK-14363 (provisioning)  ──►   TRK-14366 (BigQuery)           ──►   TRK-14370 (observability)
+TRK-14371 (runbook)
+</pre>
+
+<hr>
+
+<h2>Wave Dependency Verification</h2>
+<table>
+<tr><th>Ticket</th><th>Wave</th><th>Depends On</th><th>All Deps Earlier?</th></tr>
+<tr><td>TRK-14356</td><td>1</td><td>None</td><td>YES</td></tr>
+<tr><td>TRK-14364</td><td>1</td><td>None</td><td>YES</td></tr>
+<tr><td>TRK-14371</td><td>1</td><td>None</td><td>YES</td></tr>
+<tr><td>TRK-14357</td><td>2</td><td>TRK-14356 (W1)</td><td>YES</td></tr>
+<tr><td>TRK-14362</td><td>2</td><td>TRK-14356 (W1)</td><td>YES</td></tr>
+<tr><td>TRK-14363</td><td>2</td><td>TRK-14356 (W1), TRK-14364 (W1)</td><td>YES</td></tr>
+<tr><td>TRK-14358</td><td>3</td><td>TRK-14356 (W1), TRK-14357 (W2)</td><td>YES</td></tr>
+<tr><td>TRK-14359</td><td>3</td><td>TRK-14356 (W1), TRK-14357 (W2)</td><td>YES</td></tr>
+<tr><td>TRK-14360</td><td>3</td><td>TRK-14356 (W1), TRK-14357 (W2)</td><td>YES</td></tr>
+<tr><td>TRK-14361</td><td>3</td><td>TRK-14356 (W1)</td><td>YES</td></tr>
+<tr><td>TRK-14367</td><td>3</td><td>TRK-14356 (W1), TRK-14357 (W2)</td><td>YES</td></tr>
+<tr><td>TRK-14368</td><td>3</td><td>TRK-14356 (W1), TRK-14357 (W2)</td><td>YES</td></tr>
+<tr><td>TRK-14369</td><td>3</td><td>TRK-14356 (W1), TRK-14357 (W2)</td><td>YES</td></tr>
+<tr><td>TRK-14366</td><td>3</td><td>TRK-14363 (W2)</td><td>YES</td></tr>
+<tr><td>TRK-14365</td><td>4</td><td>TRK-14356 (W1), TRK-14363 (W2), TRK-14367 (W3)</td><td>YES</td></tr>
+<tr><td>TRK-14370</td><td>4</td><td>TRK-14363 (W2), TRK-14366 (W3)</td><td>YES</td></tr>
+</table>
+
+<hr>
+
+<h2>File Overlap Verification (Parallel Safety)</h2>
+<table>
+<tr><th>Wave</th><th>Tickets</th><th>Conflicts</th></tr>
+<tr><td>1</td><td>TRK-14356, TRK-14364, TRK-14371</td><td>None — db.ts vs rules template vs runbook md</td></tr>
+<tr><td>2</td><td>TRK-14357, TRK-14362, TRK-14363</td><td>None — auth.ts vs onPartnerUserCreate.ts vs onboard-partner.ts</td></tr>
+<tr><td>3</td><td>TRK-14358 thru TRK-14369, TRK-14366</td><td>None — each touches distinct route files, test file, RIIMO page, mdj-agent repo, or bigquery config</td></tr>
+<tr><td>4</td><td>TRK-14365, TRK-14370</td><td>None — MEGAZORD intake wire vs onboard-partner.ts</td></tr>
+</table>
+
+<hr>
+
+<h2>Phase Gates (from Discovery Doc)</h2>
+<ol>
+<li><strong>Gate 1:</strong> TRK-14356 + TRK-14357 merged and deployed to production before Wave 3 route refactors begin.</li>
+<li><strong>Gate 2:</strong> TRK-14363 provisioning script runs successfully on test partner — GCP DB created, rules deployed, registry seeded, smoke test passed.</li>
+<li><strong>Gate 3:</strong> TRK-14364 Firestore rules pass security rules simulator — all isolation scenarios confirmed.</li>
+<li><strong>Gate 4 (JDM Sign-Off):</strong> TRK-14367 isolation tests pass on live Cloud Run. JDM explicitly approves before provisioning Midwest Medigap DB with real data.</li>
+<li><strong>Gate 5:</strong> TRK-14365 intake wire smoke test — 5 real test records land in partner-midwest-medigap DB, not (default). BigQuery picks up records.</li>
+<li><strong>Gate 6 (Business Acceptance):</strong> JDM demos portal to Matt. Matt logs in, sees his clients, does NOT see RPI data.</li>
+</ol>
+
+<hr>
+
+<h2>Critical Risk: VOLTRON PHI Cross-Contamination</h2>
+<p>If TRK-14369 defers: partner user opening MDJ Panel before VOLTRON has tenant awareness will see RPI client data. <strong>Mitigation:</strong> portal widget must check partner_id claim and hide MDJ Panel for partner users until TRK-14369 ships. Feature flag is non-negotiable before any partner user accesses portal.</p>
+
+<hr>
+
+<h2>Build Verification (Every Ticket)</h2>
+<pre>
+npm run build   # REQUIRED — zero errors gate
+# NOT just tsc --noEmit
+# toMachina repo root for all tickets except TRK-14369
+# TRK-14369 builds in /home/jdm/Projects/dojo-warriors/mdj-agent/
+</pre>
+
+<hr>
+
+<h2>Architecture Constraints</h2>
+<ul>
+<li><strong>TRK-14369 (VOLTRON):</strong> Code lives in /home/jdm/Projects/dojo-warriors/mdj-agent/ — NOT Cloud Run.</li>
+<li><strong>TRK-14368 (RIIMO admin):</strong> Route group at apps/riimo/app/(portal)/admin/partners/.</li>
+<li><strong>All API routes:</strong> Return { success: boolean, data?: T, error?: string }.</li>
+<li><strong>No hardcoded secrets:</strong> GCP project ID, SA keys via process.env only.</li>
+<li><strong>No PHI logging:</strong> Log document IDs only, never SSN/DOB/Medicare ID/health data.</li>
+</ul>
+
+</body>
+</html>

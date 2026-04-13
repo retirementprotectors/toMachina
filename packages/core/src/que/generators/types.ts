@@ -80,4 +80,10 @@ export const DESIGN = {
   detailSize: '8.5pt',
 } as const
 
-export const TAX_HARVESTING_DISCLOSURE = `This analysis is provided for informational purposes only and does not constitute tax, legal, or investment advice. Tax lot selection and liquidation strategies should be reviewed with a qualified tax advisor. Securities offered through Signal Advisors Wealth, member FINRA/SIPC. Advisory services offered through Signal Advisors Wealth, a registered investment advisor. Retirement Protectors, Inc. and Signal Advisors Wealth are not affiliated entities. Past performance is not indicative of future results.`
+/**
+ * @deprecated Use `getTaxHarvestingDisclosure()` from `../disclosures` instead.
+ * Hardcoded Signal/Gradient language was removed 2026-04-13 when RPI ended
+ * its BD affiliation. Access via the hard-gated helper; it throws while no
+ * BD is active, preventing client-facing docs with stale affiliation data.
+ */
+export { getTaxHarvestingDisclosure as TAX_HARVESTING_DISCLOSURE_FN } from './disclosures'

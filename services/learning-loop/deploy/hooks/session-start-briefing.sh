@@ -21,7 +21,7 @@ case "$WARRIOR" in
   *) exit 0 ;;
 esac
 
-GOOGLE_APPLICATION_CREDENTIALS=/home/jdm/mdj-agent/sa-key.json \
+GOOGLE_APPLICATION_CREDENTIALS=/home/jdm/Projects/dojo-warriors/mdj-agent/sa-key.json \
 WARRIOR_NAME="$WARRIOR_NAME" \
   /usr/bin/node /home/jdm/Projects/toMachina/services/learning-loop/dist/wire-warrior-briefing.js "$WARRIOR_NAME" 2>/dev/null
 

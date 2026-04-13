@@ -1,0 +1,138 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Life Schema — Final Review</title>
+<style>
+:root{--bg:#0a0e17;--card:#111827;--card2:#1a2236;--border:#1e293b;--text:#e2e8f0;--muted:#94a3b8;--accent:#10b981;--green:#22c55e;--orange:#f59e0b;--red:#ef4444;--blue:#3b82f6}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;padding:32px 24px;max-width:1200px;margin:0 auto}
+h1{font-size:1.75rem;font-weight:800;color:var(--accent);text-align:center;margin-bottom:6px}
+.sub{color:var(--muted);font-size:.85rem;text-align:center;margin-bottom:24px}
+.stats{display:flex;justify-content:center;gap:24px;margin-bottom:24px;flex-wrap:wrap}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px 18px;text-align:center}
+.stat .num{font-size:1.4rem;font-weight:800;color:var(--accent)}
+.stat .lbl{font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+.changes{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px 20px;margin-bottom:24px}
+.changes h2{font-size:.75rem;color:var(--orange);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
+.changes ul{list-style:none;font-size:.8rem;color:var(--muted)}
+.changes li{padding:4px 0;border-bottom:1px dashed var(--border)}
+.changes li:last-child{border:none}
+.changes .kill{color:var(--red)}
+.changes .merge{color:var(--orange)}
+.changes .move{color:var(--blue)}
+.changes code{background:var(--card2);padding:2px 6px;border-radius:3px;color:var(--text);font-size:.72rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-bottom:24px}
+.section{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.section h3{background:var(--card2);color:var(--accent);font-size:.72rem;text-transform:uppercase;letter-spacing:1.2px;padding:10px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)}
+.section h3 .cnt{background:var(--bg);color:var(--muted);font-size:.65rem;padding:2px 8px;border-radius:10px;font-weight:600}
+.section ul{list-style:none;padding:8px 0}
+.section li{padding:6px 16px;font-family:monospace;font-size:.78rem;color:var(--text);border-bottom:1px solid rgba(30,41,59,.5);display:flex;align-items:center;gap:8px}
+.section li:last-child{border:none}
+.section li:hover{background:rgba(16,185,129,.04)}
+.section li.empty{color:var(--muted);font-style:italic;font-family:inherit;font-size:.72rem}
+.rule{display:block;color:var(--orange);font-size:.62rem;font-family:-apple-system,sans-serif;margin-top:3px;font-style:italic}
+.legend{display:flex;justify-content:center;gap:16px;margin-top:16px;font-size:.7rem;color:var(--muted);flex-wrap:wrap}
+.legend span{display:flex;align-items:center;gap:6px}
+.legend .dot{width:8px;height:8px;border-radius:50%}
+.lock{text-align:center;margin-top:24px;padding:16px;background:var(--card);border:1px solid var(--border);border-radius:10px}
+.lock .status{color:var(--green);font-size:.85rem;font-weight:700;text-transform:uppercase;letter-spacing:1px}
+.lock .meta{color:var(--muted);font-size:.7rem;margin-top:4px}
+</style></head><body>
+<h1>Life Insurance Schema — Final Review</h1>
+<div class="sub">Last spin through before lock-in · 2026-04-09</div>
+
+<div class="stats">
+<div class="stat"><div class="num">5</div><div class="lbl">Sections</div></div>
+<div class="stat"><div class="num">31</div><div class="lbl">Fields</div></div>
+<div class="stat"><div class="num">3</div><div class="lbl">Killed</div></div>
+<div class="stat"><div class="num">2</div><div class="lbl">Merged</div></div>
+</div>
+
+<div class="changes">
+<h2>What changed in this pass</h2>
+<ul>
+<li><span class="kill">● KILLED</span> &nbsp; <code>insured_dob</code> · <code>insured_gender</code> · <code>paid_to_date</code></li>
+<li><span class="merge">● MERGED</span> &nbsp; <code>net_loan_amount</code> → <code>loan_balance</code></li>
+<li><span class="merge">● MERGED</span> &nbsp; <code>loan_interest_balance</code> → <code>loan_balance</code></li>
+<li><span class="merge">● RULE</span> &nbsp; <code>loan_balance = MAX(loan_balance, net_loan_amount, loan_interest_balance)</code></li>
+<li><span class="move">● MOVED</span> &nbsp; <code>loan_balance</code> + <code>loan_interest_rate</code> → Current Values</li>
+<li><span class="kill">● REMOVED</span> &nbsp; Loan Details section (collapsed into Current Values)</li>
+</ul>
+</div>
+
+<div class="grid">
+
+<div class="section">
+<h3>General <span class="cnt">12</span></h3>
+<ul>
+<li>carrier</li>
+<li>status</li>
+<li>product_type</li>
+<li>policy_type</li>
+<li>issue_date</li>
+<li>submitted_date</li>
+<li>as_of_date</li>
+<li>market</li>
+<li>book_of_business</li>
+<li>policy_number</li>
+<li>data_source</li>
+<li>agent_writing_number</li>
+</ul>
+</div>
+
+<div class="section">
+<h3>Current Values <span class="cnt">12</span></h3>
+<ul>
+<li>face_amount</li>
+<li>cash_value</li>
+<li>surrender_value</li>
+<li>death_benefit</li>
+<li>death_benefit_option</li>
+<li>annualized_premium</li>
+<li>modal_premium</li>
+<li>premium_mode</li>
+<li>total_premiums_paid</li>
+<li>billing_status</li>
+<li>loan_balance<span class="rule">max(loan_balance, net_loan_amount, loan_interest_balance)</span></li>
+<li>loan_interest_rate</li>
+</ul>
+</div>
+
+<div class="section">
+<h3>Parties <span class="cnt">5</span></h3>
+<ul>
+<li>insured_name</li>
+<li>owner_name</li>
+<li>joint_owner_name</li>
+<li>primary_beneficiary</li>
+<li>primary_beneficiary_pct</li>
+</ul>
+</div>
+
+<div class="section">
+<h3>Contract Elements <span class="cnt">2</span></h3>
+<ul>
+<li>risk_class</li>
+<li>mec</li>
+</ul>
+</div>
+
+<div class="section">
+<h3>Dividend Details <span class="cnt">0</span></h3>
+<ul>
+<li class="empty">Fields TBD — awaiting your field list</li>
+</ul>
+</div>
+
+</div>
+
+<div class="legend">
+<span><span class="dot" style="background:var(--red)"></span>Killed</span>
+<span><span class="dot" style="background:var(--orange)"></span>Merged / Rule</span>
+<span><span class="dot" style="background:var(--blue)"></span>Moved</span>
+<span><span class="dot" style="background:var(--green)"></span>Locked</span>
+</div>
+
+<div class="lock">
+<div class="status">● Ready to lock in</div>
+<div class="meta">Only open item: Dividend Details field list</div>
+</div>
+
+</body></html>

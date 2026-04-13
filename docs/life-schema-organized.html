@@ -1,0 +1,81 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Life Schema — Final</title>
+<style>
+:root{--bg:#0a0e17;--card:#111827;--card2:#1a2236;--border:#1e293b;--text:#e2e8f0;--muted:#94a3b8;--accent:#10b981;--green:#22c55e;--orange:#f59e0b;--red:#ef4444}
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;padding:24px;max-width:700px;margin:0 auto}
+h1{font-size:1.5rem;font-weight:800;color:var(--accent);text-align:center;margin-bottom:4px}
+.sub{color:var(--muted);font-size:.8rem;text-align:center;margin-bottom:16px}
+.changes{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:.75rem;color:var(--muted)}
+.changes strong{color:var(--orange)}
+.changes li{margin-bottom:3px}
+table{width:100%;border-collapse:collapse;font-size:.8rem}
+th{text-align:left;padding:8px 12px;background:var(--card2);color:var(--accent);font-size:.65rem;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border)}
+td{padding:6px 12px;border-bottom:1px solid var(--border);color:var(--muted)}
+td:nth-child(2){font-family:monospace;color:var(--text);font-weight:500}
+tr:hover td{background:rgba(16,185,129,.03)}
+tr.sec td{background:var(--card2);color:var(--accent);font-weight:700;font-size:.7rem;text-transform:uppercase;letter-spacing:1px}
+tr.empty td{color:var(--muted);font-style:italic;font-size:.75rem}
+.drag{cursor:grab;color:var(--muted);font-size:.9rem;padding:0 6px}
+.drag:active{cursor:grabbing}
+tr.dragging{opacity:.4}
+tr.drag-over td{border-top:2px solid var(--accent)}
+.ebar{position:sticky;bottom:0;background:var(--card);border-top:1px solid var(--border);padding:10px 16px;display:flex;justify-content:space-between;align-items:center;margin:24px -24px -24px}
+.ebtn{padding:8px 24px;border-radius:6px;border:none;background:var(--accent);color:#000;font-weight:700;font-size:.85rem;cursor:pointer}
+</style></head><body>
+<h1>Life Insurance Schema — Final</h1>
+<div class="sub">5 sections. Loan Details collapsed into Current Values. Drag ⠿ to reorder.</div>
+<div class="changes"><strong>Latest changes:</strong><ul>
+<li><strong>Killed:</strong> insured_dob, insured_gender, paid_to_date</li>
+<li><strong>Merged into loan_balance</strong> (rule: <em>greater of the three</em>): net_loan_amount, loan_interest_balance</li>
+<li>loan_balance + loan_interest_rate moved into Current Values</li>
+<li>Loan Details section eliminated</li>
+<li>Dividend Details — empty, ready for you to define fields</li>
+</ul></div>
+<table id="tbl"><thead><tr><th></th><th>Field</th><th>Section</th></tr></thead><tbody id="tbody">
+<tr class="sec"><td colspan="3">General</td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span></td><td>carrier</td><td style="font-size:.7rem">General</td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span></td><td>status</td><td style="font-size:.7rem">General</td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span></td><td>product_type</td><td style="font-size:.7rem">General</td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span></td><td>policy_type</td><td style="font-size:.7rem">General</td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span></td><td>issue_date</td><td style="font-size:.7rem">General</td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span></td><td>submitted_date</td><td style="font-size:.7rem">General</td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span></td><td>as_of_date</td><td style="font-size:.7rem">General</td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span></td><td>market</td><td style="font-size:.7rem">General</td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span></td><td>book_of_business</td><td style="font-size:.7rem">General</td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span></td><td>policy_number</td><td style="font-size:.7rem">General</td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span></td><td>data_source</td><td style="font-size:.7rem">General</td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span></td><td>agent_writing_number</td><td style="font-size:.7rem">General</td></tr>
+<tr class="sec"><td colspan="3">Current Values</td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span></td><td>face_amount</td><td style="font-size:.7rem">Current Values</td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span></td><td>cash_value</td><td style="font-size:.7rem">Current Values</td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span></td><td>surrender_value</td><td style="font-size:.7rem">Current Values</td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span></td><td>death_benefit</td><td style="font-size:.7rem">Current Values</td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span></td><td>death_benefit_option</td><td style="font-size:.7rem">Current Values</td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span></td><td>annualized_premium</td><td style="font-size:.7rem">Current Values</td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span></td><td>modal_premium</td><td style="font-size:.7rem">Current Values</td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span></td><td>premium_mode</td><td style="font-size:.7rem">Current Values</td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span></td><td>total_premiums_paid</td><td style="font-size:.7rem">Current Values</td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span></td><td>billing_status</td><td style="font-size:.7rem">Current Values</td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span></td><td>loan_balance <span style="color:var(--orange);font-size:.65rem">← max(loan_balance, net_loan_amount, loan_interest_balance)</span></td><td style="font-size:.7rem">Current Values</td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span></td><td>loan_interest_rate</td><td style="font-size:.7rem">Current Values</td></tr>
+<tr class="sec"><td colspan="3">Parties</td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span></td><td>insured_name</td><td style="font-size:.7rem">Parties</td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span></td><td>owner_name</td><td style="font-size:.7rem">Parties</td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span></td><td>joint_owner_name</td><td style="font-size:.7rem">Parties</td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span></td><td>primary_beneficiary</td><td style="font-size:.7rem">Parties</td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span></td><td>primary_beneficiary_pct</td><td style="font-size:.7rem">Parties</td></tr>
+<tr class="sec"><td colspan="3">Contract Elements</td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span></td><td>risk_class</td><td style="font-size:.7rem">Contract Elements</td></tr>
+<tr draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)" ondragleave="dl(event)"><td><span class="drag">⠿</span></td><td>mec</td><td style="font-size:.7rem">Contract Elements</td></tr>
+<tr class="sec"><td colspan="3">Dividend Details</td></tr>
+<tr class="empty"><td></td><td colspan="2">Fields TBD — what dividend fields do we have?</td></tr>
+</tbody></table>
+<div class="ebar"><div style="color:var(--muted);font-size:.75rem">Drag to reorder → Export</div><button class="ebtn" onclick="exp()">Export</button></div>
+<script>
+var dragRow=null;
+function ds(e){dragRow=e.target.closest('tr');if(dragRow.classList.contains('sec')||dragRow.classList.contains('empty')){e.preventDefault();return;}e.dataTransfer.effectAllowed='move';dragRow.classList.add('dragging');}
+function dv(e){e.preventDefault();var t=e.target.closest('tr');if(t&&t!==dragRow&&!t.classList.contains('sec')){document.querySelectorAll('tr').forEach(function(r){r.classList.remove('drag-over')});t.classList.add('drag-over');}}
+function dl(e){e.target.closest('tr')?.classList.remove('drag-over');}
+function dp(e){e.preventDefault();var t=e.target.closest('tr');document.querySelectorAll('tr').forEach(function(r){r.classList.remove('drag-over','dragging')});if(t&&t!==dragRow&&!t.classList.contains('sec')){t.parentNode.insertBefore(dragRow,t);}}
+function exp(){var order=[];document.querySelectorAll('#tbody tr:not(.sec):not(.empty)').forEach(function(r){order.push(r.cells[1].textContent.trim())});var blob=new Blob([JSON.stringify({life_field_order:order},null,2)],{type:'application/json'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='life-field-order.json';a.click();}
+</script>
+</body></html>

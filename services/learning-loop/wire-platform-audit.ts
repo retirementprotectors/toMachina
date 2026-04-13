@@ -9,6 +9,7 @@
 
 import * as fs from 'fs'
 import * as path from 'path'
+import { trackRun } from './wire-run-tracker.js'
 
 const HOME = process.env.HOME || '/home/jdm'
 const CLAUDE_DIR = path.join(HOME, '.claude')
@@ -199,6 +200,7 @@ async function run(): Promise<void> {
   console.log('[platform-audit] Complete')
 }
 
-run()
+// LL-07: wire-run-tracker wraps main() for dashboard visibility.
+trackRun('wire-platform-audit', run)
   .then(() => process.exit(0))
   .catch((err) => { console.error('[platform-audit] Fatal:', err); process.exit(1) })

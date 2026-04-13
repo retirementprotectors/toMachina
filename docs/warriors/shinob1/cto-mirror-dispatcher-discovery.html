@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZRD-DISP-MIRROR — CTO Mirror Dispatcher Discovery Doc</title>
+<style>
+:root{--bg:#0a0b10;--card:#12141d;--card2:#181b27;--border:#1e2133;--text:#e8e8ec;--muted:#7a7f96;--accent:#2dd4bf;--blue:#4a7ab5;--green:#40bc58;--yellow:#f5a623;--red:#e74c3c;--purple:#a78bfa;--teal:#2dd4bf;--gold:#d4a44c;--shinob1:#a78bfa}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+.container{max-width:1000px;margin:0 auto;padding:2rem}
+h1{font-size:2rem;text-align:center;margin-bottom:0.3rem}
+.subtitle{text-align:center;color:var(--muted);font-size:1rem;margin-bottom:0.3rem}
+.origin{text-align:center;color:var(--shinob1);font-size:0.85rem;font-style:italic;margin-bottom:1.5rem}
+.tab-bar{display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:2rem;position:sticky;top:0;background:var(--bg);z-index:10;padding-top:0.5rem;flex-wrap:wrap}
+.tab-btn{padding:0.7rem 1.2rem;background:none;border:none;color:var(--muted);font-size:0.88rem;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all 0.2s;font-family:inherit}
+.tab-btn:hover{color:var(--text)}
+.tab-btn.active{color:var(--shinob1);border-bottom-color:var(--shinob1)}
+.tab-content{display:none}.tab-content.active{display:block}
+h2{font-size:1.4rem;margin:1.5rem 0 1rem;padding-bottom:0.5rem;border-bottom:1px solid var(--border);color:var(--shinob1)}
+h2:first-child{margin-top:0}
+h3{font-size:1.1rem;margin:1.2rem 0 0.5rem;color:var(--text)}
+p{color:var(--muted);margin-bottom:0.8rem;font-size:0.92rem}
+ul,ol{color:var(--muted);margin-bottom:1rem;padding-left:1.5rem;font-size:0.92rem}
+li{margin-bottom:0.4rem}
+strong{color:var(--text)}
+code{background:var(--card2);padding:0.15rem 0.4rem;border-radius:4px;font-size:0.85rem;color:var(--shinob1)}
+pre{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:1rem;margin:1rem 0;overflow-x:auto;font-size:0.82rem;line-height:1.5;color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.25rem;margin-bottom:1rem}
+.card h3{margin-top:0}
+.card-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media(max-width:700px){.card-grid{grid-template-columns:1fr}}
+table{width:100%;border-collapse:collapse;margin:1rem 0}
+th,td{padding:0.6rem 0.75rem;text-align:left;border-bottom:1px solid var(--border);font-size:0.85rem}
+th{color:var(--shinob1);font-size:0.75rem;text-transform:uppercase;letter-spacing:0.05em;font-weight:600}
+td{color:var(--muted)}
+.tag{display:inline-block;padding:0.15rem 0.5rem;border-radius:8px;font-size:0.72rem;font-weight:600}
+.tag-purple{background:rgba(167,139,250,0.12);color:var(--purple)}
+.tag-green{background:rgba(64,188,88,0.12);color:var(--green)}
+.tag-yellow{background:rgba(245,166,35,0.12);color:var(--yellow)}
+.tag-red{background:rgba(231,76,60,0.12);color:var(--red)}
+.tag-blue{background:rgba(74,122,181,0.12);color:var(--blue)}
+.tag-teal{background:rgba(45,212,191,0.12);color:var(--teal)}
+.callout{background:rgba(167,139,250,0.05);border:1px solid rgba(167,139,250,0.2);border-radius:12px;padding:1.25rem;margin:1.5rem 0}
+.callout p{margin:0}
+.callout-red{background:rgba(231,76,60,0.05);border:1px solid rgba(231,76,60,0.2)}
+.callout-red p{margin:0;color:var(--red)}
+.callout-yellow{background:rgba(245,166,35,0.05);border:1px solid rgba(245,166,35,0.2)}
+.callout-yellow p{margin:0;color:var(--yellow)}
+.callout-green{background:rgba(64,188,88,0.05);border:1px solid rgba(64,188,88,0.2)}
+.callout-green p{margin:0;color:var(--green)}
+.flow{display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;margin:1rem 0;font-size:0.85rem}
+.flow-step{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:0.5rem 0.8rem;color:var(--text);font-weight:600;font-size:0.8rem}
+.flow-arrow{color:var(--shinob1);font-size:1.2rem}
+.boundary{background:var(--card);border-left:3px solid var(--shinob1);border-radius:0 8px 8px 0;padding:1rem 1.25rem;margin:0.75rem 0}
+.ft{text-align:center;padding:2rem 0 1rem;color:var(--muted);font-size:0.8rem;border-top:1px solid var(--border);margin-top:2rem}
+.ticket{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.25rem;margin-bottom:1rem}
+.ticket-id{font-size:0.75rem;font-weight:700;letter-spacing:0.08em;color:var(--shinob1);margin-bottom:0.3rem}
+.ticket-title{font-size:1rem;font-weight:600;color:var(--text);margin-bottom:0.5rem}
+.ticket-meta{display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.75rem}
+.ticket-body{color:var(--muted);font-size:0.88rem}
+.ticket-body ul{margin-top:0.4rem}
+.jdm-action{background:rgba(245,166,35,0.06);border:1px solid rgba(245,166,35,0.25);border-radius:10px;padding:1rem 1.25rem;margin:1rem 0}
+.jdm-action p{margin:0;color:var(--yellow);font-size:0.9rem}
+.arch-box{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1.25rem;margin:1rem 0;font-family:'SF Mono','Fira Code',Consolas,monospace;font-size:0.8rem;line-height:1.7;color:var(--muted);overflow-x:auto}
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>🥷 CTO Mirror Dispatcher</h1>
+<div class="subtitle">Discovery Doc &mdash; ZRD-DISP-MIRROR &mdash; Fix B + Fix C shipped together</div>
+<div class="origin">Real-time CTO visibility into all warrior activity. Belt (firehose mirror) + suspenders (priority escalation) from day one. &mdash; SHINOB1, CTO &mdash; April 12, 2026</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="showTab('why',this)">Why</button>
+  <button class="tab-btn" onclick="showTab('what',this)">What</button>
+  <button class="tab-btn" onclick="showTab('how',this)">How</button>
+  <button class="tab-btn" onclick="showTab('tickets',this)">Tickets</button>
+  <button class="tab-btn" onclick="showTab('files',this)">Files</button>
+  <button class="tab-btn" onclick="showTab('gates',this)">Gates</button>
+  <button class="tab-btn" onclick="showTab('timeline',this)">Timeline</button>
+  <button class="tab-btn" onclick="showTab('risks',this)">Risks</button>
+</div>
+
+<!-- ════ WHY ════ -->
+<div id="why" class="tab-content active">
+  <h2>Why This Exists</h2>
+
+  <h3>The blind CTO problem</h3>
+  <p>SHINOB1 is the CTO — the coordinator of the Executive.AI Team. The CTO's job is to know what every warrior is doing, spot blockers, route decisions, and intervene when needed. But today, SHINOB1 has <strong>zero real-time visibility</strong> into warrior-to-warrior and warrior-self activity in bilateral channels.</p>
+
+  <div class="callout">
+    <p><strong>Concrete example:</strong> RONIN posts a Phase 1 heartbeat in <code>#ronin</code>: "Sprint 007: Phase 1 complete. Tickets 1-4 merged. Blocked on ATLAS schema question." SHINOB1 has no idea. The only way to see it is to manually call <code>slack_get_channel_history</code> on <code>#ronin</code>. That's not coordination — that's polling. The CTO becomes a bystander in their own team's activity.</p>
+  </div>
+
+  <h3>What breaks today without a fix</h3>
+  <div class="card-grid">
+    <div class="card">
+      <h3 style="color:var(--red)">Blockers Sit Unresolved</h3>
+      <p>RONIN posts "Blocked on ATLAS schema question" in <code>#ronin</code>. SHINOB1 never sees it. RONIN waits. Sprint stalls. JDM eventually notices the sprint is behind and has to triage manually — exactly what SHINOB1 is supposed to prevent.</p>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--red)">CTO Coordination Is Reactive, Not Proactive</h3>
+      <p>Right now SHINOB1 can only react to what arrives in <code>#shinob1</code> directly. Warriors posting updates in their own channels — MEGAZORD in <code>#megazord</code>, RAIDEN in <code>#raiden</code> — are invisible unless they specifically address SHINOB1. Cross-warrior pattern recognition is impossible.</p>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--red)">Priority Signals Get Lost in Volume</h3>
+      <p>Warriors posting urgent escalations in their bilateral channels ("BLOCKER — can't proceed without CTO sign-off") have no way to guarantee SHINOB1 sees it fast. No priority signal. No direct route. Just hope the CTO happens to check.</p>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--red)">No Audit Trail of Cross-Warrior Coordination</h3>
+      <p>Today there's no single view of what all warriors said during a sprint. Post-mortem is impossible. "Who said what when" requires manually pulling 6+ channel histories. The coordination layer is invisible and ephemeral.</p>
+    </div>
+  </div>
+
+  <h3>The two-part fix (shipped together)</h3>
+  <p>JDM approved two complementary fixes as a single sprint. They are designed as belt + suspenders — each works independently, but together they create a complete solution:</p>
+
+  <div class="card-grid">
+    <div class="card">
+      <h3 style="color:var(--green)">Fix B — Firehose Mirror (Belt)</h3>
+      <p><strong>Every</strong> message in any bilateral channel gets automatically mirrored to a new private channel <code>#cto-mirror</code>. SHINOB1's dispatcher routes <code>#cto-mirror</code> traffic into SHINOB1's tmux session with a standard prefix. Zero warrior behavior change. Zero new obligations on any warrior. Deterministic and silent.</p>
+      <p>This is the baseline. SHINOB1 now sees everything — passively, with full context, in real time.</p>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--yellow)">Fix C — Priority Tag Escalation (Suspenders)</h3>
+      <p>When any bilateral message contains a priority tag (<code>[CTO-PRIORITY]</code>, <code>[BLOCKER]</code>, <code>[CTO-URGENT]</code>, or <code>@shinob1</code>), the dispatcher fires an <strong>additional</strong> high-priority injection into SHINOB1's tmux. Visually distinct prefix. No delay. No queue.</p>
+      <p>This is the signal layer. Warriors can now guarantee SHINOB1 attention when something genuinely can't wait.</p>
+    </div>
+  </div>
+
+  <h3>Why belt + suspenders from day one</h3>
+  <p>A firehose mirror alone (Fix B) gives SHINOB1 visibility, but it's passive — SHINOB1 has to be reading their tmux to catch a BLOCKER. A priority-only system (Fix C alone) fails if warriors forget to tag urgency or misjudge what needs CTO attention. Together: SHINOB1 gets everything (B) plus warriors have a guaranteed escalation path when they know something is urgent (C). The combination means coordination can't fail silently.</p>
+</div>
+
+<!-- ════ WHAT ════ -->
+<div id="what" class="tab-content">
+  <h2>What Gets Built</h2>
+
+  <h3>Architecture</h3>
+  <div class="arch-box">
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  SLACK BILATERAL CHANNELS                                                   │
+│  #shinob1 · #megazord · #musashi · #voltron · #raiden · #ronin             │
+│  #exec (multi-party)  ·  #the-dojo (RAIDEN's channel)                      │
+└───────────────────────────────────┬─────────────────────────────────────────┘
+                                    │ Slack Events API webhook
+                                    ▼
+                        ┌───────────────────────┐
+                        │  dojo.ts dispatcher   │
+                        │  (port 4210)          │
+                        └──────────┬────────────┘
+                                   │
+              ┌────────────────────┼────────────────────────┐
+              │                    │                         │
+              ▼                    ▼                         ▼
+  ┌─────────────────────┐  ┌──────────────┐    ┌──────────────────────────┐
+  │ EXISTING ROUTING    │  │ Fix B        │    │ Fix C                    │
+  │ Bilateral → warrior │  │ Mirror post  │    │ Priority tag detected?   │
+  │ tmux injection      │  │ to           │    │ [CTO-PRIORITY]           │
+  │ (unchanged)         │  │ #cto-mirror  │    │ [BLOCKER]                │
+  └─────────────────────┘  │ + SHINOB1    │    │ [CTO-URGENT]             │
+                           │ tmux inject  │    │ @shinob1                 │
+                           │ "# Mirror    │    │                          │
+                           │  from X: …" │    │ → SHINOB1 tmux inject    │
+                           └──────────────┘    │   "🚨 PRIORITY from X: …"│
+                                               │ (in addition to mirror)  │
+                                               └──────────────────────────┘
+              │
+              ▼
+  ┌─────────────────────────────────────────┐
+  │ Firestore: cto_mirror_events collection │
+  │ Audit log — every mirror event written  │
+  └─────────────────────────────────────────┘
+  </div>
+
+  <h3>#cto-mirror channel specification</h3>
+
+  <div class="jdm-action">
+    <p><strong>JDM prerequisite action:</strong> Create this channel manually before RONIN can wire the dispatcher. See Tab 7 (Timeline) for exact timing. Settings below are precise — do not deviate.</p>
+  </div>
+
+  <table>
+    <thead><tr><th>Setting</th><th>Value</th><th>Reason</th></tr></thead>
+    <tbody>
+      <tr><td>Channel name</td><td><code>cto-mirror</code></td><td>Matches constant <code>CHANNEL_CTO_MIRROR</code> in code</td></tr>
+      <tr><td>Visibility</td><td><strong>Private</strong></td><td>Contains cross-warrior ops potentially including sensitive sprint decisions</td></tr>
+      <tr><td>Members at creation</td><td>JDM + bot (<code>@MDJ</code>) + MEGAZORD as observer</td><td>CIO has legitimate need to see coordination layer; MEGAZORD manages warrior tmux sessions</td></tr>
+      <tr><td>Topic</td><td><em>Auto-mirror of warrior bilateral activity. SHINOB1 subscribes via dispatcher. Do not post here directly.</em></td><td>Sets expectations — this is a read-only audit channel, not a discussion channel</td></tr>
+      <tr><td>After creation</td><td>Copy the channel ID (starts with <code>C0</code>) and give to RONIN</td><td>RONIN needs the ID to add to <code>shared.ts</code> as <code>CHANNEL_CTO_MIRROR</code></td></tr>
+    </tbody>
+  </table>
+
+  <h3>Message formats</h3>
+  <p>Two distinct formats are used, one for each fix. Both are designed to be immediately parseable in SHINOB1's tmux session and distinguishable from existing dispatcher formats.</p>
+
+  <div class="card-grid">
+    <div class="card">
+      <h3>Fix B — Mirror format</h3>
+      <pre># Mirror from RONIN: Sprint 007 Phase 1 complete. Tickets 1-4 merged. Moving to Phase 2.</pre>
+      <p><strong>Pattern:</strong> <code># Mirror from &lt;WARRIOR&gt;: &lt;full message text&gt;</code></p>
+      <p>The <code>#</code> prefix is a comment marker — distinguishable from <code># Incoming from &lt;user&gt;: [DIRECTIVE]</code> (existing format uses <code># Incoming from &lt;user_id&gt;</code>) and from priority messages (which use <code>🚨</code>).</p>
+    </div>
+    <div class="card">
+      <h3>Fix C — Priority format</h3>
+      <pre>🚨 PRIORITY from RONIN: [BLOCKER] Can't proceed — ATLAS schema ambiguous for wire_executions v2. Need CTO call.</pre>
+      <p><strong>Pattern:</strong> <code>🚨 PRIORITY from &lt;WARRIOR&gt;: &lt;full message text&gt;</code></p>
+      <p>The <code>🚨</code> emoji prefix is visually unmistakable in SHINOB1's tmux. This fires <strong>in addition to</strong> the mirror — priority messages get both formats injected.</p>
+    </div>
+  </div>
+
+  <h3>Priority tag vocabulary</h3>
+  <p>Four tags, all case-insensitive. Warriors opt in by including any tag in their message body. No special syntax beyond the tag itself.</p>
+  <table>
+    <thead><tr><th>Tag</th><th>Intent</th><th>Regex match</th></tr></thead>
+    <tbody>
+      <tr><td><code>[CTO-PRIORITY]</code></td><td>General CTO attention needed — not necessarily a blocker, but SHINOB1 should read this before the next heartbeat cycle</td><td><code>/\[cto-priority\]/i</code></td></tr>
+      <tr><td><code>[BLOCKER]</code></td><td>Sprint is blocked and cannot proceed without CTO input. Highest urgency.</td><td><code>/\[blocker\]/i</code></td></tr>
+      <tr><td><code>[CTO-URGENT]</code></td><td>Time-sensitive decision needed — not a full sprint blocker but will become one if not addressed in the next hour</td><td><code>/\[cto-urgent\]/i</code></td></tr>
+      <tr><td><code>@shinob1</code></td><td>Direct address — warrior is explicitly calling SHINOB1 out in a bilateral channel post. Treated as priority.</td><td><code>/@shinob1/i</code></td></tr>
+    </tbody>
+  </table>
+
+  <h3>Bot-loop firewall — the exact guard</h3>
+  <p>The existing <code>dojo.ts</code> bot-loop firewall already handles self-loops (warrior posting in their own bilateral channel). The mirror extension adds one additional guard: <strong>messages originating from <code>#cto-mirror</code> are never mirrored back</strong>. This prevents the infinite loop scenario where a mirror post to <code>#cto-mirror</code> triggers another Slack event, which triggers another mirror, ad infinitum.</p>
+
+  <div class="boundary">
+    <strong>Guard logic (pseudocode):</strong>
+    <pre>// In the mirror logic block — run BEFORE posting to #cto-mirror
+if (event.channel === CHANNEL_CTO_MIRROR) return; // Never mirror from the mirror channel
+
+// Also: DAVID partner channels already route direct to SHINOB1 — skip mirror (would duplicate)
+if (channel === CHANNEL_DAVID_001) return; // DAVID channels: direct route only, no mirror
+
+// War room: too noisy for mirror — skip
+if (channel === WAR_ROOM) return; // War room: heartbeat sink, not coordination
+
+// #warriors: explicitly excluded — heartbeat/noise channel, no dispatch already
+// (already filtered by ALLOWED_DISPATCH_CHANNELS — redundant but documented here)</pre>
+  </div>
+
+  <h3>Channel-specific mirror rules</h3>
+  <table>
+    <thead><tr><th>Channel</th><th>Mirror to #cto-mirror?</th><th>Reason</th></tr></thead>
+    <tbody>
+      <tr><td><code>#shinob1</code></td><td><span class="tag tag-green">YES</span></td><td>SHINOB1's own channel — JDM directives to CTO should be in the mirror for context</td></tr>
+      <tr><td><code>#megazord</code></td><td><span class="tag tag-green">YES</span></td><td>CIO bilateral — CTO needs CIO activity visibility</td></tr>
+      <tr><td><code>#musashi</code></td><td><span class="tag tag-green">YES</span></td><td>CMO bilateral — Discovery Docs, creative direction decisions flow through here</td></tr>
+      <tr><td><code>#voltron</code></td><td><span class="tag tag-green">YES</span></td><td>CSO bilateral — client operations updates, wire execution issues</td></tr>
+      <tr><td><code>#raiden</code></td><td><span class="tag tag-green">YES</span></td><td>RAIDEN bilateral — live bugs being triaged; CTO wants visibility on unresolved issues</td></tr>
+      <tr><td><code>#ronin</code></td><td><span class="tag tag-green">YES</span></td><td>RONIN bilateral — sprint heartbeats, phase completions, blockers. This is the primary driver of this feature.</td></tr>
+      <tr><td><code>#exec</code></td><td><span class="tag tag-green">YES</span></td><td>Multi-party executive channel — CTO awareness of all exec-level decisions</td></tr>
+      <tr><td><code>#the-dojo</code></td><td><span class="tag tag-green">YES</span></td><td>RAIDEN's reactive channel — team bug reports, feature requests. CTO wants signal on systemic issues</td></tr>
+      <tr><td><code>#david-001-midwest-medigap</code></td><td><span class="tag tag-red">NO</span></td><td>DAVID partner channels already route direct to SHINOB1 tmux. Mirroring would inject twice.</td></tr>
+      <tr><td><code>WAR_ROOM</code></td><td><span class="tag tag-red">NO</span></td><td>Cross-warrior heartbeat sink. Volume too high; signal-to-noise collapses #cto-mirror. CTO reads war room directly.</td></tr>
+      <tr><td><code>#cto-mirror</code></td><td><span class="tag tag-red">NEVER</span></td><td>Infinite loop prevention. Absolute guard.</td></tr>
+      <tr><td><code>#warriors</code></td><td><span class="tag tag-red">NO</span></td><td>Already excluded from ALLOWED_DISPATCH_CHANNELS. Heartbeat/noise channel.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Dedup strategy</h3>
+  <p>The existing <code>isDuplicateEvent(ts)</code> in <code>dojo.ts</code> already deduplicates Slack's at-least-once delivery. The mirror action runs after the dedup check — so duplicate events are dropped before mirroring occurs. No additional dedup is needed for the mirror path.</p>
+  <p>The bot-loop firewall provides the second dedup layer for the #cto-mirror → #cto-mirror scenario (covered by the absolute channel guard above).</p>
+</div>
+
+<!-- ════ HOW ════ -->
+<div id="how" class="tab-content">
+  <h2>Technical Implementation</h2>
+
+  <h3>Overview: two files, one new collection, one new channel</h3>
+  <p>This sprint is a targeted extension of the existing dispatcher mesh. No new services. No new processes. Two source files change (<code>shared.ts</code> and <code>dojo.ts</code>), one new Firestore collection is created (<code>cto_mirror_events</code>), and one new Slack channel (<code>#cto-mirror</code>) is created by JDM as a prerequisite.</p>
+
+  <h3>Step 1 — shared.ts: add CHANNEL_CTO_MIRROR constant</h3>
+  <p>Add one constant and one helper function. The constant holds the <code>#cto-mirror</code> Slack channel ID (provided by JDM after channel creation). The helper determines whether a channel should be mirrored.</p>
+  <pre>// In shared.ts — add after CHANNEL_DAVID_001
+
+export const CHANNEL_CTO_MIRROR = "C0XXXXXXXXX"; // JDM provides after channel creation
+
+/** Channels that should be mirrored to #cto-mirror. Explicitly excludes war room,
+ * #warriors, #cto-mirror itself, and DAVID partner channels (already route direct). */
+export const MIRROR_ELIGIBLE_CHANNELS = new Set&lt;string&gt;([
+  CHANNEL_SHINOB1,
+  CHANNEL_MEGAZORD,
+  CHANNEL_MUSASHI,
+  CHANNEL_VOLTRON,
+  CHANNEL_RAIDEN,
+  CHANNEL_RONIN,
+  CHANNEL_EXEC,
+  THE_DOJO,
+  // WAR_ROOM: excluded — too noisy
+  // CHANNEL_DAVID_001: excluded — already routes direct to SHINOB1
+  // CHANNEL_CTO_MIRROR: excluded — infinite loop prevention
+]);</pre>
+
+  <h3>Step 2 — shared.ts: add isPriorityMessage() helper</h3>
+  <p>A pure function. No side effects. Easily unit-tested. Case-insensitive regex. Any one of the four tags is sufficient to trigger priority escalation.</p>
+  <pre>/** Returns true if the message body contains a CTO priority tag.
+ * Case-insensitive. Presence of ANY tag triggers priority escalation.
+ * Tags: [CTO-PRIORITY], [BLOCKER], [CTO-URGENT], @shinob1 */
+export function isPriorityMessage(text: string): boolean {
+  return /\[cto-priority\]|\[blocker\]|\[cto-urgent\]|@shinob1/i.test(text);
+}</pre>
+
+  <h3>Step 3 — shared.ts: add logMirrorEvent() helper</h3>
+  <p>Writes an audit record to Firestore <code>cto_mirror_events</code>. Async, fire-and-forget (errors logged but do not block mirror delivery). Every mirror event — both standard and priority — gets a record.</p>
+  <pre>/** Writes an audit record to cto_mirror_events collection. Fire-and-forget. */
+export async function logMirrorEvent(params: {
+  source_channel: string;
+  source_warrior: string;
+  message_ts: string;
+  message_text: string;
+  is_priority: boolean;
+  mirror_ok: boolean;
+}): Promise&lt;void&gt; {
+  try {
+    const firestore = getDb();
+    await firestore.collection("cto_mirror_events").add({
+      ...params,
+      created_at: new Date().toISOString(),
+      created_by: "dispatch-dojo",
+    });
+  } catch (err) {
+    console.error(`[mirror] Firestore audit log failed: ${err}`);
+    // Non-fatal — mirror delivery already happened (or didn't); log failure doesn't block anything
+  }
+}</pre>
+
+  <h3>Step 4 — dojo.ts: add mirrorToCTO() function</h3>
+  <p>New function added to <code>dojo.ts</code>. Called from <code>dispatch()</code> after the existing routing logic. Handles both the standard mirror (Fix B) and the priority escalation path (Fix C). DAVID partner channels skip the mirror (they already routed direct). #cto-mirror itself is an absolute no-op.</p>
+  <pre>import {
+  // ... existing imports ...
+  CHANNEL_CTO_MIRROR, MIRROR_ELIGIBLE_CHANNELS, isPriorityMessage, logMirrorEvent,
+} from "./shared.js";
+
+async function mirrorToCTO(
+  event: SlackEvent,
+  sourceWarrior: string | undefined
+): Promise&lt;void&gt; {
+  const { channel, text, ts } = event;
+
+  // Absolute guard: never mirror from #cto-mirror itself
+  if (channel === CHANNEL_CTO_MIRROR) return;
+
+  // Only mirror channels in the eligible set
+  if (!MIRROR_ELIGIBLE_CHANNELS.has(channel)) return;
+
+  // Determine warrior label for the mirror prefix
+  const warriorLabel = sourceWarrior
+    ?? (BILATERAL_CHANNELS[channel] || "UNKNOWN");
+
+  const standardText = `# Mirror from ${warriorLabel}: ${text}`;
+  const isPriority = isPriorityMessage(text);
+
+  // Fix B: post to #cto-mirror
+  const mirrorOk = await postSlack(CHANNEL_CTO_MIRROR, standardText);
+
+  // Fix B: inject into SHINOB1's tmux (same delivery mechanism as existing warrior routing)
+  try {
+    const sessions = execSync("tmux list-sessions -F '#{session_name}'", { encoding: "utf-8" }).trim();
+    if (sessions.includes("SHINOB1")) {
+      const tmpFile = `/tmp/dispatcher-mirror-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.txt`;
+      fs.writeFileSync(tmpFile, standardText, "utf8");
+      try {
+        execSync(`tmux load-buffer "${tmpFile}"`, { timeout: 5000 });
+        execSync(`tmux paste-buffer -t SHINOB1`, { timeout: 5000 });
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        execSync(`tmux send-keys -t SHINOB1 Enter`, { timeout: 5000 });
+      } finally {
+        try { fs.unlinkSync(tmpFile); } catch { /* ignore */ }
+      }
+    }
+  } catch (err) {
+    log.error(`[mirror] SHINOB1 tmux inject failed: ${err}`);
+  }
+
+  // Fix C: priority escalation — additional high-priority inject if tag matches
+  if (isPriority) {
+    const priorityText = `🚨 PRIORITY from ${warriorLabel}: ${text}`;
+    try {
+      const sessions = execSync("tmux list-sessions -F '#{session_name}'", { encoding: "utf-8" }).trim();
+      if (sessions.includes("SHINOB1")) {
+        const tmpFile = `/tmp/dispatcher-priority-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.txt`;
+        fs.writeFileSync(tmpFile, priorityText, "utf8");
+        try {
+          execSync(`tmux load-buffer "${tmpFile}"`, { timeout: 5000 });
+          execSync(`tmux paste-buffer -t SHINOB1`, { timeout: 5000 });
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+          execSync(`tmux send-keys -t SHINOB1 Enter`, { timeout: 5000 });
+        } finally {
+          try { fs.unlinkSync(tmpFile); } catch { /* ignore */ }
+        }
+      }
+    } catch (err) {
+      log.error(`[mirror] Priority tmux inject failed: ${err}`);
+    }
+  }
+
+  // Audit log
+  logMirrorEvent({
+    source_channel: channel,
+    source_warrior: warriorLabel,
+    message_ts: ts,
+    message_text: text.slice(0, 1000),
+    is_priority: isPriority,
+    mirror_ok: mirrorOk,
+  });
+}</pre>
+
+  <h3>Step 5 — dojo.ts: call mirrorToCTO() from dispatch()</h3>
+  <p>Mirror runs in parallel with the existing warrior delivery. It does not block existing routing, does not share its result, and errors do not propagate. Add after the existing <code>deliverToWarrior</code> call:</p>
+  <pre>async function dispatch(event: SlackEvent): Promise&lt;void&gt; {
+  const { channel, user, text, ts } = event;
+  log.info(`Message from ${user} in ${channel}: ${text.slice(0, 80)}`);
+
+  // Phase 1: Immediate Ack (unchanged)
+  if (channel === THE_DOJO) {
+    await postSlack(channel, "Received. Routing...", ts);
+  }
+
+  // Classify (unchanged)
+  const classification = await classifyMessage(text, user, channel);
+  const warrior = classification.target || ROUTE_MAP[classification.category] || "RAIDEN";
+
+  // Phase 2: Update with classification (unchanged)
+  if (channel === THE_DOJO) {
+    await postSlack(channel, `Routed to *${warrior}* | Category: ${classification.category}\n${classification.summary}`, ts);
+  }
+
+  // Tracker ticket (unchanged)
+  if (["BUG", "FEATURE_REQUEST", "DATA_SPEC"].includes(classification.category)) {
+    await createTrackerTicket(classification, text, user, ts);
+  }
+
+  // Deliver to warrior (unchanged)
+  await deliverToWarrior(warrior, text, user, classification);
+
+  // ── NEW: Mirror to CTO (Fix B + Fix C) ──
+  // Parse sender warrior from bot signoff (same logic as bot-loop firewall)
+  // For human messages, sourceWarrior is undefined — warriorLabel falls back to channel name
+  const tail = text.slice(-300);
+  const matches = [...tail.matchAll(/\u2014\s*(SHINOB1|MEGAZORD|MUSASHI|VOLTRON|RAIDEN|RONIN)\s*,/gi)];
+  const sourceWarrior = matches.length > 0 ? matches[matches.length - 1][1].toUpperCase() : undefined;
+
+  mirrorToCTO(event, sourceWarrior).catch((err) => log.error(`Mirror error: ${err}`));
+}</pre>
+
+  <h3>Step 6 — Bot-loop firewall extension</h3>
+  <p>The existing bot-loop firewall in <code>dojo.ts</code> handles same-warrior self-loops. The mirror extension adds one explicit channel guard in <code>mirrorToCTO()</code> (shown above) so that any message arriving from <code>#cto-mirror</code> is returned immediately before any mirror logic runs. The bot-loop firewall in the top-level event handler does not need modification — <code>#cto-mirror</code> is simply not a channel the dispatcher was subscribed to before this sprint.</p>
+
+  <div class="callout-yellow">
+    <p><strong>Critical:</strong> RONIN must add <code>#cto-mirror</code> to the Slack App's event subscriptions after the channel is created. Without this, Slack won't send events from that channel to the dispatcher. But: the <code>MIRROR_ELIGIBLE_CHANNELS</code> set does NOT include <code>CHANNEL_CTO_MIRROR</code>, so even if a Slack event from #cto-mirror arrives, the dispatcher returns immediately. Belt + suspenders on the loop prevention.</p>
+  </div>
+
+  <h3>Step 7 — SHINOB1 tmux subscription to #cto-mirror</h3>
+  <p>No additional configuration is needed for SHINOB1's tmux to receive mirror messages. The <code>mirrorToCTO()</code> function injects directly into the <code>SHINOB1</code> tmux session using the exact same <code>tmux load-buffer / paste-buffer / send-keys</code> pattern used for all other warrior deliveries in <code>deliverToWarrior()</code>. The SHINOB1 tmux session must be running — same requirement that exists today for SHINOB1 to receive any dispatcher messages.</p>
+
+  <h3>Step 8 — Firestore rules</h3>
+  <p>The <code>cto_mirror_events</code> collection is written by the dispatcher service account (which bypasses Firestore rules). No Firestore rules update is required for write access. If portal queries against this collection are needed in future, rules should be added then. Out of scope for this sprint.</p>
+</div>
+
+<!-- ════ TICKETS ════ -->
+<div id="tickets" class="tab-content">
+  <h2>Tickets</h2>
+  <p>12 tickets. RONIN-speed estimates based on observed data: single-file edits average 15–20 min, multi-file with tests average 30–45 min.</p>
+
+  <div class="callout-yellow">
+    <p><strong>Blocker before RONIN starts:</strong> MIRROR-001 is a JDM action (channel creation). RONIN cannot fill in <code>CHANNEL_CTO_MIRROR</code> in shared.ts until JDM creates the channel and provides the ID. Everything else can be built in parallel with MIRROR-001 pending — RONIN stubs the constant and fills it in last.</p>
+  </div>
+
+  <!-- 001 -->
+  <div class="ticket">
+    <div class="ticket-id">MIRROR-001</div>
+    <div class="ticket-title">#cto-mirror channel creation &mdash; JDM action</div>
+    <div class="ticket-meta">
+      <span class="tag tag-yellow">JDM ACTION</span>
+      <span class="tag tag-blue">PREREQ</span>
+      <span class="tag tag-teal">5 min</span>
+    </div>
+    <div class="ticket-body">
+      <p>JDM creates the <code>#cto-mirror</code> Slack channel per the spec in Tab 2 and provides the channel ID to RONIN.</p>
+      <ul>
+        <li>Channel name: <code>cto-mirror</code></li>
+        <li>Set to <strong>Private</strong></li>
+        <li>Invite: JDM + <code>@MDJ</code> bot + MEGAZORD</li>
+        <li>Set topic: <em>Auto-mirror of warrior bilateral activity. SHINOB1 subscribes via dispatcher. Do not post here directly.</em></li>
+        <li>Copy the channel ID from the URL (e.g., <code>C0XXXXXXXXX</code>) and provide to RONIN via <code>#ronin</code></li>
+        <li>Also: add <code>#cto-mirror</code> to the Slack App event subscriptions in the Slack API dashboard so the dispatcher receives events from this channel (needed for bot-loop firewall — dispatcher must be able to detect and drop events from this channel)</li>
+      </ul>
+      <p><strong>Files touched:</strong> None (Slack admin action).</p>
+      <p><strong>Depends on:</strong> Nothing.</p>
+      <p><strong>Blocks:</strong> MIRROR-009 (can't fill in the constant until we have the ID).</p>
+    </div>
+  </div>
+
+  <!-- 002 -->
+  <div class="ticket">
+    <div class="ticket-id">MIRROR-002</div>
+    <div class="ticket-title">Add CHANNEL_CTO_MIRROR constant + MIRROR_ELIGIBLE_CHANNELS set to shared.ts</div>
+    <div class="ticket-meta">
+      <span class="tag tag-purple">RONIN</span>
+      <span class="tag tag-teal">15 min</span>
+    </div>
+    <div class="ticket-body">
+      <p>Add the two new exports to <code>shared.ts</code>. Use a stub channel ID (<code>C0PLACEHOLDER</code>) until MIRROR-001 completes, then fill in the real ID.</p>
+      <ul>
+        <li>Add <code>export const CHANNEL_CTO_MIRROR = "C0PLACEHOLDER";</code> after <code>CHANNEL_DAVID_001</code></li>
+        <li>Add <code>export const MIRROR_ELIGIBLE_CHANNELS = new Set&lt;string&gt;([...])</code> with all 8 eligible channels (see Tab 2 table — YES rows)</li>
+        <li>Note the explicit exclusions in comments: WAR_ROOM, CHANNEL_DAVID_001, CHANNEL_CTO_MIRROR</li>
+      </ul>
+      <p><strong>Files touched:</strong> <code>/home/jdm/Projects/dojo-warriors/mdj-agent/src/dispatchers/shared.ts</code></p>
+      <p><strong>Depends on:</strong> Nothing (can stub channel ID).</p>
+      <p><strong>Blocks:</strong> MIRROR-003, MIRROR-005, MIRROR-006.</p>
+    </div>
+  </div>
+
+  <!-- 003 -->
+  <div class="ticket">
+    <div class="ticket-id">MIRROR-003</div>
+    <div class="ticket-title">Add isPriorityMessage() helper to shared.ts</div>
+    <div class="ticket-meta">
+      <span class="tag tag-purple">RONIN</span>
+      <span class="tag tag-teal">15 min</span>
+    </div>
+    <div class="ticket-body">
+      <p>Pure function. No side effects. Regex matches 4 priority tags case-insensitively.</p>
+      <ul>
+        <li>Implement <code>isPriorityMessage(text: string): boolean</code> in <code>shared.ts</code></li>
+        <li>Tags: <code>[CTO-PRIORITY]</code>, <code>[BLOCKER]</code>, <code>[CTO-URGENT]</code>, <code>@shinob1</code></li>
+        <li>Single regex: <code>/\[cto-priority\]|\[blocker\]|\[cto-urgent\]|@shinob1/i</code></li>
+        <li>Export the function</li>
+        <li>Write inline unit test cases as JSDoc examples (not a separate test file — that's MIRROR-011)</li>
+      </ul>
+      <p><strong>Files touched:</strong> <code>shared.ts</code></p>
+      <p><strong>Depends on:</strong> Nothing.</p>
+      <p><strong>Blocks:</strong> MIRROR-005 (priority escalation path).</p>
+    </div>
+  </div>
+
+  <!-- 004 -->
+  <div class="ticket">
+    <div class="ticket-id">MIRROR-004</div>
+    <div class="ticket-title">Add logMirrorEvent() Firestore audit helper to shared.ts</div>
+    <div class="ticket-meta">
+      <span class="tag tag-purple">RONIN</span>
+      <span class="tag tag-teal">20 min</span>
+    </div>
+    <div class="ticket-body">
+      <p>Fire-and-forget Firestore write to <code>cto_mirror_events</code>. Errors caught and logged but do not propagate.</p>
+      <ul>
+        <li>Implement <code>logMirrorEvent(params: {...}): Promise&lt;void&gt;</code> in <code>shared.ts</code></li>
+        <li>Fields: <code>source_channel</code>, <code>source_warrior</code>, <code>message_ts</code>, <code>message_text</code> (truncated to 1000 chars), <code>is_priority</code>, <code>mirror_ok</code>, <code>created_at</code>, <code>created_by</code></li>
+        <li>Wrap Firestore add() in try/catch — log error, do not throw</li>
+        <li>Export the function</li>
+      </ul>
+      <p><strong>Files touched:</strong> <code>shared.ts</code></p>
+      <p><strong>Depends on:</strong> MIRROR-002 (needs <code>getDb()</code> already in shared.ts — it is).</p>
+      <p><strong>Blocks:</strong> MIRROR-005.</p>
+    </div>
+  </div>
+
+  <!-- 005 -->
+  <div class="ticket">
+    <div class="ticket-id">MIRROR-005</div>
+    <div class="ticket-title">Implement mirrorToCTO() function in dojo.ts (Fix B + Fix C)</div>
+    <div class="ticket-meta">
+      <span class="tag tag-purple">RONIN</span>
+      <span class="tag tag-yellow">45 min</span>
+    </div>
+    <div class="ticket-body">
+      <p>The core implementation. Adds the <code>mirrorToCTO()</code> function to <code>dojo.ts</code>. This is the highest-complexity ticket in the sprint — it combines channel guard, Slack post, tmux delivery (two paths), and audit log.</p>
+      <ul>
+        <li>Import new shared.ts exports: <code>CHANNEL_CTO_MIRROR</code>, <code>MIRROR_ELIGIBLE_CHANNELS</code>, <code>isPriorityMessage</code>, <code>logMirrorEvent</code></li>
+        <li>Implement <code>mirrorToCTO(event: SlackEvent, sourceWarrior: string | undefined): Promise&lt;void&gt;</code></li>
+        <li><strong>Guard 1:</strong> <code>if (channel === CHANNEL_CTO_MIRROR) return;</code></li>
+        <li><strong>Guard 2:</strong> <code>if (!MIRROR_ELIGIBLE_CHANNELS.has(channel)) return;</code></li>
+        <li>Determine <code>warriorLabel</code>: sourceWarrior if provided, else BILATERAL_CHANNELS[channel] fallback, else "UNKNOWN"</li>
+        <li><strong>Fix B:</strong> Build <code>standardText</code> → post to <code>#cto-mirror</code> → inject into SHINOB1 tmux using load-buffer/paste-buffer/sleep/send-keys pattern (copy exact pattern from <code>deliverToWarrior()</code> — same tmp file approach)</li>
+        <li><strong>Fix C:</strong> If <code>isPriorityMessage(text)</code> → build <code>priorityText</code> with 🚨 prefix → inject second time into SHINOB1 tmux with priority prefix</li>
+        <li>Call <code>logMirrorEvent()</code> — fire-and-forget</li>
+        <li>All tmux errors caught and logged — non-fatal</li>
+      </ul>
+      <p><strong>Files touched:</strong> <code>dojo.ts</code></p>
+      <p><strong>Depends on:</strong> MIRROR-002, MIRROR-003, MIRROR-004.</p>
+      <p><strong>Blocks:</strong> MIRROR-006 (needs to exist before wiring into dispatch()).</p>
+    </div>
+  </div>
+
+  <!-- 006 -->
+  <div class="ticket">
+    <div class="ticket-id">MIRROR-006</div>
+    <div class="ticket-title">Wire mirrorToCTO() into dispatch() in dojo.ts</div>
+    <div class="ticket-meta">
+      <span class="tag tag-purple">RONIN</span>
+      <span class="tag tag-teal">20 min</span>
+    </div>
+    <div class="ticket-body">
+      <p>Single call site addition. Runs after <code>deliverToWarrior()</code>. Fire-and-forget. Does not block existing routing.</p>
+      <ul>
+        <li>In <code>dispatch()</code>, after the <code>await deliverToWarrior(...)</code> call:</li>
+        <li>Parse <code>sourceWarrior</code> from bot signoff using the same tail/matchAll/em-dash logic already present in the bot-loop firewall</li>
+        <li>Call <code>mirrorToCTO(event, sourceWarrior).catch(err => log.error(...))</code></li>
+        <li>Do NOT await — fire-and-forget so existing routing latency is unaffected</li>
+      </ul>
+      <p><strong>Files touched:</strong> <code>dojo.ts</code></p>
+      <p><strong>Depends on:</strong> MIRROR-005.</p>
+      <p><strong>Blocks:</strong> MIRROR-011 (tests need the wiring to be live).</p>
+    </div>
+  </div>
+
+  <!-- 007 -->
+  <div class="ticket">
+    <div class="ticket-id">MIRROR-007</div>
+    <div class="ticket-title">Bot-loop firewall: document and verify #cto-mirror absolute guard</div>
+    <div class="ticket-meta">
+      <span class="tag tag-purple">RONIN</span>
+      <span class="tag tag-teal">15 min</span>
+    </div>
+    <div class="ticket-body">
+      <p>The absolute guard is implemented inside <code>mirrorToCTO()</code> (MIRROR-005). This ticket is the explicit documentation + verification that the guard is in place and correct. Also adds the channel to the Slack App event subscriptions so the dispatcher can receive (and immediately drop) events from #cto-mirror.</p>
+      <ul>
+        <li>Add inline comment block above the guard in <code>mirrorToCTO()</code> explaining the loop scenario and why the guard is absolute</li>
+        <li>Verify that <code>CHANNEL_CTO_MIRROR</code> is NOT in <code>MIRROR_ELIGIBLE_CHANNELS</code> (it must not be)</li>
+        <li>Verify that <code>CHANNEL_CTO_MIRROR</code> is NOT in <code>ALLOWED_DISPATCH_CHANNELS</code> in <code>shared.ts</code> (it must not be — the mirror channel is subscribe-only, not dispatch-eligible)</li>
+        <li>In the Slack App dashboard: add <code>#cto-mirror</code> to event subscriptions (so the app receives events from it — needed for the guard to fire if somehow a message arrives)</li>
+      </ul>
+      <p><strong>Files touched:</strong> <code>shared.ts</code> (verify ALLOWED_DISPATCH_CHANNELS), <code>dojo.ts</code> (comment block)</p>
+      <p><strong>Depends on:</strong> MIRROR-001 (needs the real channel ID), MIRROR-005.</p>
+      <p><strong>Blocks:</strong> MIRROR-011 (loop test).</p>
+    </div>
+  </div>
+
+  <!-- 008 -->
+  <div class="ticket">
+    <div class="ticket-id">MIRROR-008</div>
+    <div class="ticket-title">Channel-specific rule enforcement: DAVID skip + war room skip</div>
+    <div class="ticket-meta">
+      <span class="tag tag-purple">RONIN</span>
+      <span class="tag tag-teal">15 min</span>
+    </div>
+    <div class="ticket-body">
+      <p>Verify and document that DAVID partner channels and war room are excluded from mirroring. No code change needed beyond the <code>MIRROR_ELIGIBLE_CHANNELS</code> set definition (which already excludes them) — this ticket is verification + comment documentation.</p>
+      <ul>
+        <li>Verify <code>CHANNEL_DAVID_001</code> is NOT in <code>MIRROR_ELIGIBLE_CHANNELS</code> and add comment explaining why (already routes direct to SHINOB1)</li>
+        <li>Verify <code>WAR_ROOM</code> is NOT in <code>MIRROR_ELIGIBLE_CHANNELS</code> and add comment explaining why (volume/noise)</li>
+        <li>Add a comment noting future DAVID partner channels (e.g., <code>CHANNEL_DAVID_002</code>) must be explicitly excluded when added</li>
+        <li>If war room exclusion should be revisited later, note it as a future decision in the comment (not a TBD — the decision for this sprint is NO)</li>
+      </ul>
+      <p><strong>Files touched:</strong> <code>shared.ts</code></p>
+      <p><strong>Depends on:</strong> MIRROR-002.</p>
+      <p><strong>Blocks:</strong> Nothing (documentation only).</p>
+    </div>
+  </div>
+
+  <!-- 009 -->
+  <div class="ticket">
+    <div class="ticket-id">MIRROR-009</div>
+    <div class="ticket-title">Fill in real CHANNEL_CTO_MIRROR value after JDM creates channel</div>
+    <div class="ticket-meta">
+      <span class="tag tag-purple">RONIN</span>
+      <span class="tag tag-teal">5 min</span>
+    </div>
+    <div class="ticket-body">
+      <p>One-line change. Cannot be done until MIRROR-001 is complete. RONIN stubs <code>C0PLACEHOLDER</code> in MIRROR-002 and comes back to fill in the real ID when JDM provides it via <code>#ronin</code>.</p>
+      <ul>
+        <li>Replace <code>C0PLACEHOLDER</code> with the real channel ID in <code>shared.ts</code></li>
+        <li>Confirm the ID format is correct (starts with <code>C0</code>, 11 characters total)</li>
+        <li>This is the commit that makes the mirror live — tag it clearly in the PR</li>
+      </ul>
+      <p><strong>Files touched:</strong> <code>shared.ts</code></p>
+      <p><strong>Depends on:</strong> MIRROR-001 (JDM action), MIRROR-002.</p>
+      <p><strong>Blocks:</strong> MIRROR-011 (end-to-end test requires real channel ID).</p>
+    </div>
+  </div>
+
+  <!-- 010 -->
+  <div class="ticket">
+    <div class="ticket-id">MIRROR-010</div>
+    <div class="ticket-title">Build: compile + type-check dispatcher package</div>
+    <div class="ticket-meta">
+      <span class="tag tag-purple">RONIN</span>
+      <span class="tag tag-teal">10 min</span>
+    </div>
+    <div class="ticket-body">
+      <p>The dispatcher lives in the <code>mdj-agent</code> project (outside toMachina monorepo). Verify TypeScript compiles clean after all code changes.</p>
+      <ul>
+        <li>Run <code>npm run build</code> (or <code>tsc</code>) in <code>/home/jdm/Projects/dojo-warriors/mdj-agent/</code></li>
+        <li>Zero TypeScript errors required</li>
+        <li>If build tooling is not yet set up in mdj-agent, use <code>npx tsc --noEmit</code> as a type-check pass</li>
+        <li>All new exports from <code>shared.ts</code> must resolve cleanly in <code>dojo.ts</code></li>
+      </ul>
+      <p><strong>Files touched:</strong> None (build verification only)</p>
+      <p><strong>Depends on:</strong> MIRROR-002, MIRROR-003, MIRROR-004, MIRROR-005, MIRROR-006.</p>
+      <p><strong>Blocks:</strong> MIRROR-011.</p>
+    </div>
+  </div>
+
+  <!-- 011 -->
+  <div class="ticket">
+    <div class="ticket-id">MIRROR-011</div>
+    <div class="ticket-title">Tests: mirror fires, no loop, priority escalates, channel rules respected</div>
+    <div class="ticket-meta">
+      <span class="tag tag-purple">RONIN</span>
+      <span class="tag tag-yellow">45 min</span>
+    </div>
+    <div class="ticket-body">
+      <p>Four test cases. Unit test <code>isPriorityMessage()</code>. Integration test the mirror and loop guard with mocked Slack post and tmux exec calls.</p>
+      <ul>
+        <li><strong>Test 1 — isPriorityMessage() unit tests:</strong> Verify each of the 4 tags triggers (case-insensitive). Verify non-tagged message returns false. Verify partial match ("blocked" without brackets) returns false. File: new test file in <code>src/dispatchers/__tests__/shared.test.ts</code></li>
+        <li><strong>Test 2 — Mirror fires on bilateral channel post:</strong> Mock Slack event from <code>#ronin</code> (non-bot, non-priority). Verify <code>postSlack(CHANNEL_CTO_MIRROR, ...)</code> called once. Verify tmux inject attempted once with "# Mirror from RONIN:" prefix. Verify <code>logMirrorEvent()</code> called with <code>is_priority: false</code>.</li>
+        <li><strong>Test 3 — No loop on #cto-mirror event:</strong> Mock Slack event where <code>event.channel === CHANNEL_CTO_MIRROR</code>. Verify <code>postSlack</code> NOT called. Verify tmux inject NOT attempted. Verify <code>logMirrorEvent</code> NOT called. This is the critical loop guard test — must pass before ship.</li>
+        <li><strong>Test 4 — Priority escalation fires on tagged message:</strong> Mock Slack event from <code>#ronin</code> with text containing <code>[BLOCKER]</code>. Verify <code>postSlack(CHANNEL_CTO_MIRROR, ...)</code> called once (standard mirror). Verify tmux inject attempted TWICE — once with "# Mirror" prefix, once with "🚨 PRIORITY" prefix. Verify <code>logMirrorEvent()</code> called with <code>is_priority: true</code>.</li>
+        <li><strong>Test 5 — DAVID channel skipped:</strong> Mock Slack event from <code>CHANNEL_DAVID_001</code>. Verify <code>postSlack(CHANNEL_CTO_MIRROR, ...)</code> NOT called.</li>
+        <li><strong>Test 6 — WAR_ROOM skipped:</strong> Mock Slack event from <code>WAR_ROOM</code>. Verify mirror NOT called.</li>
+      </ul>
+      <p><strong>Files touched:</strong> New file: <code>src/dispatchers/__tests__/shared.test.ts</code>, <code>src/dispatchers/__tests__/mirror.test.ts</code></p>
+      <p><strong>Depends on:</strong> MIRROR-003, MIRROR-005, MIRROR-006, MIRROR-007, MIRROR-009, MIRROR-010.</p>
+      <p><strong>Blocks:</strong> MIRROR-012 (tests must pass before deploy).</p>
+    </div>
+  </div>
+
+  <!-- 012 -->
+  <div class="ticket">
+    <div class="ticket-id">MIRROR-012</div>
+    <div class="ticket-title">Rollout runbook + revert procedure</div>
+    <div class="ticket-meta">
+      <span class="tag tag-purple">RONIN</span>
+      <span class="tag tag-teal">20 min</span>
+    </div>
+    <div class="ticket-body">
+      <p>Written runbook — not documentation for its own sake. SHINOB1 or JDM needs to be able to revert in under 2 minutes if the mirror creates noise problems or unexpected behavior.</p>
+      <ul>
+        <li>Write deploy steps: restart <code>mdj-dispatch-dojo</code> service after code change, verify heartbeat in <code>dispatcher_health</code> collection</li>
+        <li>Write smoke test: post a test message in <code>#ronin</code>, verify it appears in <code>#cto-mirror</code> within 10 seconds</li>
+        <li>Write revert: set <code>CHANNEL_CTO_MIRROR = ""</code> (empty string) — the <code>mirrorToCTO()</code> guard <code>if (!MIRROR_ELIGIBLE_CHANNELS.has(channel)) return</code> will pass but <code>postSlack("", ...)</code> will fail gracefully; OR remove <code>THE_DOJO</code> and all bilateral channels from <code>MIRROR_ELIGIBLE_CHANNELS</code> to silence mirror while keeping code in place</li>
+        <li>Add revert note: the <code>cto_mirror_events</code> Firestore collection persists after revert — no cleanup needed, events are audit log not operational data</li>
+        <li>Store runbook in <code>docs/warriors/shinob1/</code> as a plain text or markdown file alongside this discovery doc</li>
+      </ul>
+      <p><strong>Files touched:</strong> New file: <code>docs/warriors/shinob1/cto-mirror-runbook.md</code></p>
+      <p><strong>Depends on:</strong> MIRROR-011.</p>
+      <p><strong>Blocks:</strong> Nothing. Sprint complete after this ticket ships.</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- ════ FILES ════ -->
+<div id="files" class="tab-content">
+  <h2>Files Created or Modified</h2>
+
+  <h3>Modified files</h3>
+  <table>
+    <thead><tr><th>File</th><th>Change</th><th>Tickets</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><code>/home/jdm/Projects/dojo-warriors/mdj-agent/src/dispatchers/shared.ts</code></td>
+        <td>Add: <code>CHANNEL_CTO_MIRROR</code> constant, <code>MIRROR_ELIGIBLE_CHANNELS</code> set, <code>isPriorityMessage()</code> function, <code>logMirrorEvent()</code> function. Comment additions for excluded channels.</td>
+        <td>MIRROR-002, MIRROR-003, MIRROR-004, MIRROR-008, MIRROR-009</td>
+      </tr>
+      <tr>
+        <td><code>/home/jdm/Projects/dojo-warriors/mdj-agent/src/dispatchers/dojo.ts</code></td>
+        <td>Add: <code>mirrorToCTO()</code> function. Update <code>dispatch()</code> to call mirror after <code>deliverToWarrior()</code>. Update imports. Add bot-loop comment block.</td>
+        <td>MIRROR-005, MIRROR-006, MIRROR-007</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>New files</h3>
+  <table>
+    <thead><tr><th>File</th><th>Purpose</th><th>Tickets</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><code>/home/jdm/Projects/dojo-warriors/mdj-agent/src/dispatchers/__tests__/shared.test.ts</code></td>
+        <td>Unit tests for <code>isPriorityMessage()</code> — all 4 tags, case-insensitive, false cases</td>
+        <td>MIRROR-011</td>
+      </tr>
+      <tr>
+        <td><code>/home/jdm/Projects/dojo-warriors/mdj-agent/src/dispatchers/__tests__/mirror.test.ts</code></td>
+        <td>Integration tests for <code>mirrorToCTO()</code> — 6 test cases covering mirror fires, loop guard, priority escalation, channel exclusions</td>
+        <td>MIRROR-011</td>
+      </tr>
+      <tr>
+        <td><code>/home/jdm/Projects/toMachina/docs/warriors/shinob1/cto-mirror-runbook.md</code></td>
+        <td>Deploy steps, smoke test procedure, revert steps. Stored adjacent to this discovery doc.</td>
+        <td>MIRROR-012</td>
+      </tr>
+      <tr>
+        <td><code>/home/jdm/Projects/toMachina/docs/warriors/shinob1/cto-mirror-dispatcher-discovery.html</code></td>
+        <td>This document.</td>
+        <td>&mdash;</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Not modified (but read carefully before coding)</h3>
+  <table>
+    <thead><tr><th>File</th><th>Why it matters</th></tr></thead>
+    <tbody>
+      <tr><td><code>assess.ts</code></td><td>Not touched. Runs on its own cycle, no Slack event routing. Mirror does not affect it.</td></tr>
+      <tr><td><code>digest.ts</code></td><td>Not touched. Health monitor only. Add "dojo" to <code>WATCHED_DISPATCHERS</code> already done in Sprint 0 — no change needed.</td></tr>
+      <tr><td><code>git.ts</code></td><td>Not touched. CI/CD event handler. No Slack bilateral routing.</td></tr>
+      <tr><td><code>intake.ts</code></td><td>Not touched. Intake queue watcher. No bilateral Slack events.</td></tr>
+      <tr><td><code>firestore.rules</code></td><td>Not touched. <code>cto_mirror_events</code> is written by the SA key which bypasses rules. Portal read access (if ever needed) is a future ticket.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>New Firestore collection</h3>
+  <table>
+    <thead><tr><th>Collection</th><th>Schema</th><th>Written by</th><th>Read by</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><code>cto_mirror_events</code></td>
+        <td><code>source_channel</code> (string), <code>source_warrior</code> (string), <code>message_ts</code> (string), <code>message_text</code> (string, max 1000 chars), <code>is_priority</code> (boolean), <code>mirror_ok</code> (boolean), <code>created_at</code> (ISO string), <code>created_by</code> (string, always "dispatch-dojo")</td>
+        <td>dispatch-dojo service (SA key auth — bypasses Firestore rules)</td>
+        <td>Manual queries for debugging/audit. No portal route in this sprint.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ════ GATES ════ -->
+<div id="gates" class="tab-content">
+  <h2>Phase Gates &amp; Audit Checkpoints</h2>
+
+  <h3>Phase 1 Gate — Infrastructure ready</h3>
+  <p><em>No deployment yet. Code written, tests passing locally. Blocked on JDM action.</em></p>
+  <ul>
+    <li><input type="checkbox" disabled> MIRROR-001: JDM has created <code>#cto-mirror</code> (private, correct members, correct topic)</li>
+    <li><input type="checkbox" disabled> MIRROR-001: JDM has provided the real channel ID (starts with <code>C0</code>) via <code>#ronin</code></li>
+    <li><input type="checkbox" disabled> MIRROR-001: <code>#cto-mirror</code> is added to Slack App event subscriptions</li>
+    <li><input type="checkbox" disabled> MIRROR-002: <code>CHANNEL_CTO_MIRROR</code> filled in with real ID (no longer <code>C0PLACEHOLDER</code>)</li>
+    <li><input type="checkbox" disabled> MIRROR-002: <code>MIRROR_ELIGIBLE_CHANNELS</code> contains exactly the 8 YES-channels from the Tab 2 table and nothing else</li>
+    <li><input type="checkbox" disabled> MIRROR-003: <code>isPriorityMessage()</code> exported from <code>shared.ts</code>, readable without errors</li>
+    <li><input type="checkbox" disabled> MIRROR-004: <code>logMirrorEvent()</code> exported from <code>shared.ts</code></li>
+    <li><input type="checkbox" disabled> MIRROR-010: TypeScript compiles with zero errors</li>
+  </ul>
+
+  <h3>Phase 2 Gate — Tests pass (non-negotiable quality bar)</h3>
+  <p><em>No deploy until ALL of these pass. The loop test is an absolute gate.</em></p>
+  <ul>
+    <li><input type="checkbox" disabled> <code>isPriorityMessage()</code> unit tests: all 4 tags trigger, case-insensitive variants trigger, non-tagged messages return false</li>
+    <li><input type="checkbox" disabled> <strong>Loop guard test MUST PASS:</strong> event from <code>#cto-mirror</code> → zero Slack posts, zero tmux injects, zero Firestore writes. This is non-negotiable. If this test fails, do not ship.</li>
+    <li><input type="checkbox" disabled> Mirror-fires test: bilateral event → exactly one post to <code>#cto-mirror</code> with correct prefix</li>
+    <li><input type="checkbox" disabled> Priority-escalation test: tagged event → two tmux injects (mirror prefix + 🚨 prefix), <code>is_priority: true</code> in audit log</li>
+    <li><input type="checkbox" disabled> DAVID-skip test: <code>CHANNEL_DAVID_001</code> event → zero posts to <code>#cto-mirror</code></li>
+    <li><input type="checkbox" disabled> WAR_ROOM-skip test: WAR_ROOM event → zero posts to <code>#cto-mirror</code></li>
+  </ul>
+
+  <h3>Phase 3 Gate — Deploy + smoke test</h3>
+  <p><em>After service restart, verify live behavior before declaring shipped.</em></p>
+  <ul>
+    <li><input type="checkbox" disabled> Restart <code>mdj-dispatch-dojo</code> service on MDJ_SERVER</li>
+    <li><input type="checkbox" disabled> Verify heartbeat in <code>dispatcher_health/dojo</code> Firestore doc updated within 60 seconds of restart</li>
+    <li><input type="checkbox" disabled> Smoke test B: Post a plain message in <code>#ronin</code>. Within 10 seconds: message appears in <code>#cto-mirror</code> with "# Mirror from RONIN:" prefix. Verify one <code>cto_mirror_events</code> doc written with <code>is_priority: false</code>.</li>
+    <li><input type="checkbox" disabled> Smoke test C: Post a message containing <code>[BLOCKER]</code> in <code>#ronin</code>. Verify mirror in <code>#cto-mirror</code>. Verify SHINOB1 tmux receives two injections (one "# Mirror from", one "🚨 PRIORITY from"). Verify <code>cto_mirror_events</code> doc with <code>is_priority: true</code>.</li>
+    <li><input type="checkbox" disabled> Smoke test — loop: Post a message directly in <code>#cto-mirror</code>. Verify it does NOT re-appear (no second message). Wait 30 seconds and verify no new messages in the channel.</li>
+    <li><input type="checkbox" disabled> Verify DAVID channel unchanged: Post in <code>#david-001-midwest-medigap</code>. Verify message still routes direct to SHINOB1 tmux as before. Verify it does NOT appear in <code>#cto-mirror</code>.</li>
+  </ul>
+
+  <h3>Go-live criteria</h3>
+  <p>All Phase 1, 2, and 3 gates pass. SHINOB1 reviews #cto-mirror in their tmux session and confirms the mirror message format is legible and distinguishable from direct messages. JDM is notified via <code>#ronin</code> (not #the-dojo — this is an internal infrastructure change, not a team-visible feature).</p>
+
+  <div class="callout-green">
+    <p><strong>The test:</strong> RONIN posts "Sprint 007 Phase 2 complete — all tickets merged. [BLOCKER] Need CTO sign-off on ATLAS schema before Phase 3." in <code>#ronin</code>. Within 10 seconds: the message appears in <code>#cto-mirror</code>. SHINOB1's tmux receives "# Mirror from RONIN: Sprint 007..." AND "🚨 PRIORITY from RONIN: Sprint 007...". One <code>cto_mirror_events</code> doc written. SHINOB1 responds in <code>#shinob1</code> (not #ronin — cross-warrior routing). That is #LandedIt.</p>
+  </div>
+</div>
+
+<!-- ════ TIMELINE ════ -->
+<div id="timeline" class="tab-content">
+  <h2>Timeline &amp; Sequencing</h2>
+
+  <h3>RONIN-speed baseline</h3>
+  <p>Reference data: MT-001 (multi-tenant architecture, basic schema) + MT-002 (route isolation) shipped in ~15 minutes each. The MIRROR sprint has more test coverage requirements but the code changes are targeted — two files, well-understood patterns (tmux inject already in dojo.ts).</p>
+
+  <h3>Total wall-clock estimate: 2.5–4 hours</h3>
+  <table>
+    <thead><tr><th>Ticket(s)</th><th>Description</th><th>Estimate</th><th>Can parallelize?</th></tr></thead>
+    <tbody>
+      <tr><td>MIRROR-001</td><td>JDM creates #cto-mirror channel</td><td>5 min (JDM action)</td><td>JDM does this; RONIN starts MIRROR-002 through 004 in parallel</td></tr>
+      <tr><td>MIRROR-002, 003, 004</td><td>shared.ts additions (constant, set, helpers)</td><td>50 min combined</td><td>YES — three independent additions to same file, serial writes but fast</td></tr>
+      <tr><td>MIRROR-005</td><td>mirrorToCTO() — core implementation</td><td>45 min</td><td>Can start as soon as 002/003/004 compile — no JDM gate needed</td></tr>
+      <tr><td>MIRROR-006</td><td>Wire into dispatch()</td><td>20 min</td><td>Depends on MIRROR-005</td></tr>
+      <tr><td>MIRROR-007, 008</td><td>Bot-loop verification + channel rules doc</td><td>30 min combined</td><td>Can parallelize with MIRROR-005/006</td></tr>
+      <tr><td>MIRROR-009</td><td>Fill in real channel ID</td><td>5 min</td><td>Depends on MIRROR-001 (JDM provides ID)</td></tr>
+      <tr><td>MIRROR-010</td><td>Build verification</td><td>10 min</td><td>After all code changes</td></tr>
+      <tr><td>MIRROR-011</td><td>Tests — 6 cases</td><td>45 min</td><td>After MIRROR-010; the loop test is a hard gate</td></tr>
+      <tr><td>MIRROR-012</td><td>Runbook</td><td>20 min</td><td>Can write in parallel with tests, finalize after</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Critical path</h3>
+  <div class="flow">
+    <div class="flow-step">MIRROR-001 (JDM)</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">MIRROR-009 (real ID)</div>
+    <div class="flow-arrow">+</div>
+    <div class="flow-step">002–004 (shared.ts)</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">MIRROR-005 (mirrorToCTO)</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">MIRROR-006 (wire)</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">MIRROR-010 (build)</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">MIRROR-011 (tests)</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">Deploy + smoke</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">#LandedIt</div>
+  </div>
+
+  <h3>JDM prerequisite — the only hard blocker</h3>
+
+  <div class="jdm-action">
+    <p><strong>JDM must:</strong> Create <code>#cto-mirror</code> (private, members: JDM + @MDJ bot + MEGAZORD) and post the channel ID in <code>#ronin</code>. RONIN can write all code except MIRROR-009 (fill-in of the real ID) before JDM does this. MIRROR-011 end-to-end tests also require the real channel ID to be set. Best sequencing: JDM creates channel at sprint start → RONIN receives ID mid-sprint and fills MIRROR-009 before MIRROR-011 runs.</p>
+  </div>
+
+  <h3>What RONIN can do before MIRROR-001 completes</h3>
+  <ul>
+    <li>MIRROR-002 (stub <code>C0PLACEHOLDER</code>)</li>
+    <li>MIRROR-003 (<code>isPriorityMessage()</code>)</li>
+    <li>MIRROR-004 (<code>logMirrorEvent()</code>)</li>
+    <li>MIRROR-005 (<code>mirrorToCTO()</code> — uses the constant, will work with stub)</li>
+    <li>MIRROR-006 (wire into dispatch)</li>
+    <li>MIRROR-007 (comment/verify)</li>
+    <li>MIRROR-008 (channel rules doc)</li>
+    <li>MIRROR-010 (build check)</li>
+    <li>MIRROR-012 (runbook — no real channel ID needed)</li>
+  </ul>
+  <p>Only MIRROR-009 and MIRROR-011 (end-to-end) are hard-blocked on the real channel ID.</p>
+</div>
+
+<!-- ════ RISKS ════ -->
+<div id="risks" class="tab-content">
+  <h2>Risks &amp; Open Questions</h2>
+
+  <h3>Risk 1 — #cto-mirror channel goes unavailable</h3>
+  <div class="card">
+    <h3>Scenario</h3>
+    <p>The <code>#cto-mirror</code> Slack channel is archived, deleted, or the bot loses access to it. The <code>postSlack(CHANNEL_CTO_MIRROR, ...)</code> call fails.</p>
+    <p><strong>Impact:</strong> Mirror post to the channel fails silently. SHINOB1 tmux inject still fires (the two operations are independent — tmux inject does not depend on the Slack post succeeding). So SHINOB1 still receives warrior messages in their tmux session. The channel audit trail breaks, but coordination does not.</p>
+    <p><strong>Mitigation:</strong> <code>postSlack()</code> already returns <code>false</code> on error and logs it. <code>logMirrorEvent()</code> records <code>mirror_ok: false</code>. The digest dispatcher monitors <code>dispatcher_health</code> — if channel failures are high, SHINOB1 will see it in the hourly digest.</p>
+    <p><strong>Decision:</strong> Accept this risk. No silent drops — SHINOB1 still gets tmux delivery. Fallback is automatic.</p>
+  </div>
+
+  <h3>Risk 2 — High-volume days flood #cto-mirror</h3>
+  <div class="card">
+    <h3>Scenario</h3>
+    <p>A high-activity sprint day: RONIN posts hourly heartbeats, RAIDEN handles 20 bug reports, MEGAZORD writes multiple ACK messages. #cto-mirror fills fast.</p>
+    <p><strong>Impact:</strong> #cto-mirror becomes noisy. SHINOB1's tmux also receives all of these, making it harder to find priority signals in the stream.</p>
+    <p><strong>Mitigation:</strong> Fix C (priority tags) exists precisely for this — urgent items rise above the noise with the 🚨 prefix. Standard mirror messages in tmux are prefixed with <code>#</code> which can be filtered. War room is already excluded. Hourly heartbeats will be the largest volume contributor.</p>
+    <p><strong>Decision:</strong> Accept. If volume becomes unmanageable, the next iteration (not this sprint) would add per-warrior throttling (e.g., mirror max 1 message per warrior per 5 minutes for non-priority messages). For now, full firehose is the right starting point — SHINOB1 needs to calibrate on real volume before adding filters.</p>
+  </div>
+
+  <h3>Risk 3 — Priority tag false positives</h3>
+  <div class="card">
+    <h3>Scenario</h3>
+    <p>A warrior casually types "this is a [BLOCKER] situation" in a message that isn't actually urgent. Or a warrior copy-pastes code that contains the tag. SHINOB1 gets a 🚨 PRIORITY inject for a non-urgent message.</p>
+    <p><strong>Impact:</strong> SHINOB1 context-switches unnecessarily. Over time, if false positives are frequent, the priority signal loses meaning.</p>
+    <p><strong>Mitigation:</strong> Tags are opt-in. A warrior must explicitly type one of four specific bracketed tags. The tags are not common English phrases. False positive rate should be very low. The remedy is warrior education — not code change.</p>
+    <p><strong>Decision:</strong> Accept. If a warrior uses <code>[BLOCKER]</code>, assume they meant it. The cost of missing a real blocker (sprint stalled, CTO not notified) is far higher than the cost of a false positive (SHINOB1 checks and finds it minor).</p>
+  </div>
+
+  <h3>Risk 4 — Infinite mirror loop — are we certain the guard holds?</h3>
+  <div class="card">
+    <h3>Scenario analysis</h3>
+    <p>The loop scenario: dispatcher posts to <code>#cto-mirror</code> → Slack fires an event for that post → event arrives at the dispatcher → dispatcher routes it back to <code>#cto-mirror</code> → repeat.</p>
+    <p><strong>Three-layer defense (belt + suspenders + a backup):</strong></p>
+    <ul>
+      <li><strong>Layer 1 (primary guard):</strong> <code>if (channel === CHANNEL_CTO_MIRROR) return;</code> — first line of <code>mirrorToCTO()</code>. The event's channel ID is checked before any post or inject.</li>
+      <li><strong>Layer 2 (MIRROR_ELIGIBLE_CHANNELS):</strong> <code>#cto-mirror</code> is NOT in the eligible set. Even if Layer 1 were removed by accident, Layer 2 would catch it.</li>
+      <li><strong>Layer 3 (ALLOWED_DISPATCH_CHANNELS):</strong> <code>#cto-mirror</code> is NOT in <code>ALLOWED_DISPATCH_CHANNELS</code> in <code>shared.ts</code>. The top-level event handler's allowlist check (<code>if (!ALLOWED_DISPATCH_CHANNELS.has(event.channel)) return;</code>) fires before <code>dispatch()</code> is even called. This means events from <code>#cto-mirror</code> are dropped before they reach any of the mirror logic.</li>
+    </ul>
+    <p><strong>Conclusion:</strong> Even if a developer accidentally removes Layer 1 or Layer 2, Layer 3 catches it. The loop cannot complete. MIRROR-007 verifies all three layers exist and documents this reasoning inline in code.</p>
+  </div>
+
+  <h3>Risk 5 — PHI in bilateral channels</h3>
+  <div class="card">
+    <h3>Scenario</h3>
+    <p>A message in a bilateral channel contains PHI (client name + Medicare ID, for example). Mirroring it to <code>#cto-mirror</code> creates a second copy of PHI in a different Slack channel.</p>
+    <p><strong>Reality check:</strong> Hookify's <code>block-phi-in-logs</code> rule and CLAUDE.md rules already prohibit PHI from appearing in Slack messages. PHI should never be in a bilateral channel post in the first place. If it is, the problem is the original post, not the mirror.</p>
+    <p><strong>Decision:</strong> No PHI stripping in the mirror (that would require parsing and classification). Instead: the existing PHI-in-Slack prohibition is the control. <code>#cto-mirror</code> is private (same access tier as the bilateral channels themselves). Mirror does not expand exposure — JDM and MEGAZORD already have access to bilateral channels. Accept this risk; note it for future audits.</p>
+  </div>
+
+  <h3>Risk 6 — Future DAVID partner channels not automatically excluded</h3>
+  <div class="card">
+    <h3>Scenario</h3>
+    <p>A new DAVID partner is onboarded: <code>CHANNEL_DAVID_002</code> is added to <code>shared.ts</code>. A developer adds it to <code>BILATERAL_CHANNELS</code> but forgets to check <code>MIRROR_ELIGIBLE_CHANNELS</code>. The new DAVID channel gets mirrored (double-delivery to SHINOB1).</p>
+    <p><strong>Mitigation:</strong> MIRROR-008 adds an explicit comment in <code>MIRROR_ELIGIBLE_CHANNELS</code> noting that new DAVID channels must NOT be added here. The comment is the instruction to future RONIN — "DAVID channels: direct route only, do not mirror." Not code-enforced but clearly documented at the definition site.</p>
+    <p><strong>Decision:</strong> Accept with documentation. A code-level enforcement (e.g., intersecting with BILATERAL_CHANNELS minus DAVID channels) would add complexity without much gain at current team size.</p>
+  </div>
+
+  <h3>Open questions — resolved</h3>
+  <table>
+    <thead><tr><th>Question</th><th>Decision</th></tr></thead>
+    <tbody>
+      <tr><td>Mirror #the-dojo (RAIDEN's reactive channel)?</td><td><strong>YES.</strong> CTO wants visibility into systemic issues surfaced by the team. RAIDEN is the triage layer for these. Mirror gives SHINOB1 passive awareness without interrupting RAIDEN's workflow.</td></tr>
+      <tr><td>Mirror #exec?</td><td><strong>YES.</strong> Executive channel — all CXO-level decisions. CTO must have full context on anything discussed there.</td></tr>
+      <tr><td>Mirror #warriors?</td><td><strong>NO.</strong> Already excluded from ALLOWED_DISPATCH_CHANNELS. Heartbeat/noise channel. No actionable content.</td></tr>
+      <tr><td>Mirror war room?</td><td><strong>NO.</strong> Cross-warrior heartbeat sink. Volume is too high and signal-to-noise collapses. SHINOB1 reads war room directly as needed.</td></tr>
+      <tr><td>Should #cto-mirror be public?</td><td><strong>NO — private.</strong> Cross-warrior operational content may include architectural decisions, sprint blockers, partner discussions. Private keeps the blast radius equivalent to the bilateral channels themselves.</td></tr>
+      <tr><td>Should MEGAZORD be in #cto-mirror?</td><td><strong>YES — observer only.</strong> CIO manages warrior tmux sessions. Having CIO visibility into the coordination layer is operationally useful. MEGAZORD does not post in #cto-mirror (topic makes this explicit).</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="ft">
+  <p><strong>CTO Mirror Dispatcher &mdash; ZRD-DISP-MIRROR</strong> &mdash; Discovery Doc</p>
+  <p>Drafted by SHINOB1, CTO &mdash; Executive.AI Team &mdash; April 12, 2026</p>
+  <p style="color:var(--shinob1);margin-top:0.5rem">"The CTO sees everything." &mdash; 🥷 SHINOB1, CTO</p>
+</div>
+
+</div>
+<script>
+function showTab(id,btn){document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));document.getElementById(id).classList.add('active');btn.classList.add('active');}
+</script>
+</body>
+</html>

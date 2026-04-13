@@ -61,7 +61,7 @@ export function requireLevel(minLevel: UserLevelName) {
       next(); return
     }
 
-    if (profile.status && profile.status !== 'active') { res.status(403).json(errorResponse('Account is not active')); return }
+    if (profile.status && profile.status.toLowerCase() !== 'active') { res.status(403).json(errorResponse('Account is not active')); return }
 
     const userLevel = typeof profile.level === 'number' ? profile.level : 3
     if (userLevel > minNumeric) { res.status(403).json(errorResponse(`Insufficient permissions -- ${minLevel} or higher required`)); return }
@@ -77,7 +77,7 @@ export function requireModuleAccess(moduleKey: string, action?: ModuleAction) {
     if (!email) { res.status(401).json(errorResponse('Authentication required')); return }
 
     const profile = await getUserProfile(email)
-    if (profile?.status && profile.status !== 'active') { res.status(403).json(errorResponse('Account is not active')); return }
+    if (profile?.status && profile.status.toLowerCase() !== 'active') { res.status(403).json(errorResponse('Account is not active')); return }
 
     const userLevel = profile?.level ?? 3
     if (userLevel === 0) { ;(req as unknown as Record<string, unknown>).userProfile = profile; next(); return }
