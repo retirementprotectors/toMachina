@@ -47,6 +47,43 @@ Registered assets used in three places: (1) Client Roadmap Tab, (2) Print handou
 | RPI Engage Wealth™ | Safety | Liquidity | Growth |
 | RPI Engage Legacy™ | Children | Care | Charity |
 
+## Trademark Status Register
+
+> **Single source of truth for the legal status of every trademark across the RPI Engage Ecosystem.** When any mark flips from common-law to filed-pending to registered (®), update here first — downstream assets pick up the change via this register rather than chasing individual files.
+>
+> **Owner:** MUSASHI (CMO) — will migrate to a TypeScript CMO Registry layer at `packages/core/src/cmo/` during v2 elevation so this becomes queryable from ProDashX.
+
+| Mark | Status | First Use | Filing Date | Registration # | Notes |
+|---|---|---|---|---|---|
+| We're Your People™ | common-law | TBD | — | — | Hero tagline on retireprotected.com. Status confirmed by Sensei 2026-04-10 (years of public use, not filed). |
+| RPI Engage Wealth™ | common-law | TBD | — | — | Product story under the RPI Engage Ecosystem (marketing + comms platform umbrella). Confirmed common-law by Sensei 2026-04-10. |
+| RPI Engage Legacy™ | common-law | TBD | — | — | Product story under the RPI Engage Ecosystem. Confirmed common-law by Sensei 2026-04-10. |
+| Proactive Service Model™ | common-law | TBD | — | — | Step 4 of RPI 4-step methodology. On retireprotected.com. Confirmed common-law by Sensei 2026-04-10. |
+
+### RPI Engage Ecosystem (context)
+
+Per Sensei's 2026-04-10 directive: **"RPI Engage Ecosystem is the idea about all the Marketing + Communication Platform."** Engage is the umbrella brand family covering both **product stories** and **client-comms tiers**:
+
+**Product Story tier:**
+- RPI Engage Wealth™ (Safety · Liquidity · Growth)
+- RPI Engage Legacy™ (Children · Care · Charity)
+
+**Client Communications tier** (from retireprotected.com):
+- Engage Live™
+- Engage Direct™
+- Engage Insights™
+- Engage Alerts™
+
+MUSASHI is building an "Engage Ecosystem lineage map" (single-page family tree) and adding it to the CMO Registry + AiBot Brand Guide. The 4 Engage Comms marks will be added to this register when that work lands.
+
+### Status Workflow
+
+1. **common-law** — publicly used but not USPTO filed. Treat with ™ glyph. Common-law claim supported by documented first use + continuous use.
+2. **filed-pending** — USPTO application submitted, awaiting review. Still ™ glyph until approval.
+3. **registered** — USPTO registration granted. Flip to ® glyph across all assets. Update Registration # column.
+
+When a mark transitions, update this register first. Downstream assets (Story 1-Pagers, print materials, website CTAs, Client Roadmap tabs) pick up the change in their next build rather than requiring individual updates.
+
 ## Ownership Split
 
 **Content framework (CSO):** Data structure, content headings, data grids, view definitions, technical accuracy, fact-check against ProDashX data model.
