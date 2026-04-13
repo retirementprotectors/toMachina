@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Legacy Planning — Retirement Protectors, Inc.</title>
+<meta name="description" content="Estate, trust, and beneficiary planning — the documents and decisions that protect everything you've built. From the people who walk beside you.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;600&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --rpi-289: #0a2240;
+    --rpi-283: #92c0e9;
+    --rpi-medium: #12416b;
+    --rpi-pale: #abd2ef;
+    --rpi-royal: #23558c;
+    --rpi-mist: #cae7f9;
+    --ink: #1a1a1a;
+    --ink-soft: #3a4456;
+    --paper: #f4f4f5;
+    --paper-warm: #fafbfc;
+    --rule: #d0dae6;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: var(--paper); color: var(--ink); font-family: 'Mulish', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; line-height: 1.55; }
+  h1, h2, h3, h4, h5 { font-family: 'Poppins', sans-serif; color: var(--rpi-289); line-height: 1.2; letter-spacing: -0.01em; }
+  .page { width: 8.5in; min-height: 11in; background: white; margin: 0.5in auto; padding: 0.6in 0.65in; box-shadow: 0 1px 24px rgba(10,34,64,0.08); position: relative; }
+  .page + .page { margin-top: 1rem; }
+
+  /* Page header */
+  .hero { border-bottom: 3px solid var(--rpi-289); padding-bottom: 22px; margin-bottom: 28px; }
+  .eyebrow { font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--rpi-medium); margin-bottom: 12px; }
+  .hero h1 { font-size: 54px; font-weight: 800; color: var(--rpi-289); margin-bottom: 10px; letter-spacing: -0.025em; line-height: 1.02; }
+  .hero-tagline { font-family: 'Poppins', sans-serif; font-weight: 500; font-size: 18px; color: var(--ink-soft); max-width: 75%; }
+  .shield { width: 42px; height: auto; vertical-align: middle; }
+  .shield-sm { width: 28px; height: auto; vertical-align: middle; }
+
+  .intro { font-family: 'Poppins', sans-serif; font-weight: 400; font-size: 14.5px; line-height: 1.65; color: var(--ink-soft); margin-bottom: 28px; max-width: 88%; }
+  .intro strong { color: var(--rpi-289); font-weight: 600; }
+
+  /* Steps */
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 28px; }
+  .step { background: var(--paper-warm); border: 1px solid var(--rule); border-left: 4px solid var(--rpi-royal); padding: 16px 16px 14px; border-radius: 4px; }
+  .step-num { font-family: 'Poppins', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--rpi-royal); margin-bottom: 6px; }
+  .step h3 { font-size: 15px; font-weight: 700; color: var(--rpi-289); margin-bottom: 6px; }
+  .step p { font-size: 12.5px; color: var(--ink-soft); line-height: 1.5; }
+
+  /* Parts table */
+  h2 { font-size: 22px; font-weight: 700; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--rule); }
+  .parts-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-bottom: 24px; }
+  .part { padding: 14px 16px; border-radius: 4px; background: var(--paper-warm); border: 1px solid var(--rule); }
+  .part-label { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--rpi-medium); margin-bottom: 4px; }
+  .part h4 { font-size: 16px; font-weight: 700; color: var(--rpi-289); margin-bottom: 8px; }
+  .part p { font-size: 12.5px; color: var(--ink-soft); line-height: 1.55; }
+  .part.accent { background: linear-gradient(180deg, rgba(146,192,233,0.2), rgba(146,192,233,0.05)); border-color: var(--rpi-283); }
+
+  /* Key numbers */
+  .numbers { background: var(--rpi-289); color: white; padding: 22px 24px; border-radius: 6px; margin-bottom: 20px; position: relative; overflow: hidden; }
+  .numbers::before { content: ''; position: absolute; top: -20px; right: -20px; width: 140px; height: 140px; background-image: url('../assets/rpi/rpi-shield-mark.png'); background-size: contain; background-repeat: no-repeat; background-position: right top; opacity: 0.12; pointer-events: none; }
+  .numbers h2 { color: white; border-bottom-color: rgba(255,255,255,0.2); position: relative; z-index: 1; }
+  .numbers .num-grid { position: relative; z-index: 1; }
+  .num-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-top: 12px; }
+  .num { text-align: center; }
+  .num .value { font-family: 'Poppins', sans-serif; font-size: 22px; font-weight: 700; color: white; line-height: 1.1; }
+  .num .label { font-size: 10px; color: var(--rpi-pale); line-height: 1.4; margin-top: 4px; letter-spacing: 0.02em; }
+
+  /* Page 2 — Audit Matrix */
+  .medigap-grid { width: 100%; border-collapse: collapse; font-size: 11.5px; margin-bottom: 20px; }
+  .medigap-grid th, .medigap-grid td { padding: 7px 5px; text-align: center; border: 1px solid var(--rule); }
+  .medigap-grid thead th { background: var(--rpi-289); color: white; font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 11px; letter-spacing: 0.04em; }
+  .medigap-grid tbody td:first-child { text-align: left; padding-left: 10px; font-weight: 500; color: var(--rpi-medium); font-size: 11px; }
+  .medigap-grid .dot { color: var(--rpi-royal); font-weight: 700; }
+  .medigap-grid .partial { color: var(--ink-soft); font-size: 10px; }
+
+  /* AEP callout */
+  .aep { background: linear-gradient(135deg, var(--rpi-medium), var(--rpi-289)); color: white; padding: 18px 22px; border-radius: 6px; margin-bottom: 20px; display: flex; gap: 18px; align-items: center; }
+  .aep .shield { width: 52px; filter: brightness(1.1); flex-shrink: 0; }
+  .aep-text h3 { color: white; font-size: 16px; margin-bottom: 4px; }
+  .aep-text p { font-size: 12px; color: var(--rpi-pale); line-height: 1.5; }
+
+  /* SEP list */
+  .sep { background: var(--paper-warm); border: 1px solid var(--rule); padding: 16px 20px; border-radius: 4px; margin-bottom: 20px; }
+  .sep h3 { font-size: 15px; margin-bottom: 10px; }
+  .sep ul { column-count: 2; column-gap: 24px; list-style: none; font-size: 12.5px; color: var(--ink-soft); }
+  .sep ul li { padding-left: 18px; position: relative; margin-bottom: 5px; break-inside: avoid; }
+  .sep ul li::before { content: '▪'; color: var(--rpi-royal); position: absolute; left: 0; top: 0; }
+
+  /* Footer */
+  .footer { margin-top: 28px; padding-top: 18px; border-top: 2px solid var(--rpi-289); display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+  .footer-logo-zone { flex: 1; }
+  .footer-logo { width: 220px; height: auto; display: block; }
+  .footer-contact { text-align: right; font-size: 11px; color: var(--ink-soft); line-height: 1.7; font-family: 'Poppins', sans-serif; }
+  .footer-contact strong { color: var(--rpi-289); font-size: 11.5px; display: block; margin-bottom: 2px; font-weight: 700; }
+  .footer-meta { font-family: 'Poppins', sans-serif; font-size: 10.5px; color: var(--ink-soft); letter-spacing: 0.08em; text-transform: uppercase; }
+  .footer-meta .pg { color: var(--rpi-medium); font-weight: 700; }
+
+  .compliance { background: #f7f9fc; border: 1px solid var(--rule); padding: 10px 13px; border-radius: 4px; font-size: 9.5px; color: var(--ink-soft); line-height: 1.5; margin-top: 14px; }
+  .compliance strong { color: var(--rpi-medium); }
+
+  /* Preview navigation */
+  .preview-nav { position: fixed; top: 10px; right: 10px; background: var(--rpi-289); color: white; padding: 10px 14px; border-radius: 6px; font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 600; box-shadow: 0 2px 12px rgba(0,0,0,0.25); z-index: 1000; }
+  .preview-nav a { color: var(--rpi-pale); text-decoration: none; margin-left: 10px; }
+  .preview-nav a:hover { color: white; }
+
+  /* Print */
+  @media print {
+    body { background: white; }
+    .page { margin: 0; box-shadow: none; width: 100%; min-height: 100vh; page-break-after: always; padding: 0.5in 0.55in; }
+    .page:last-child { page-break-after: auto; }
+    .preview-nav { display: none; }
+    @page { size: letter; margin: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="preview-nav">
+  DRAFT · Legacy v1 · <a href="#p1">P1</a> <a href="#p2">P2</a> <a onclick="window.print()" style="cursor:pointer">Print</a>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- PAGE 1 -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<div class="page" id="p1">
+
+  <div class="hero">
+    <div class="eyebrow">Legacy · Estate + Trust + Beneficiary</div>
+    <h1>Passing It On,<br>On Purpose.</h1>
+    <div class="hero-tagline">Wills, trusts, beneficiary audits &mdash; the documents and decisions that protect everything you&rsquo;ve built.</div>
+  </div>
+
+  <p class="intro">
+    Your legacy is more than the accounts you own &mdash; it&rsquo;s the life you want your family to continue living. A good legacy plan makes the hard decisions ahead of time, so your family isn&rsquo;t making them in grief. <strong>This guide walks you through the four documents every adult needs, the difference between a will and a trust, and the beneficiary audit that matters more than either.</strong>
+  </p>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">Conversation 1</div>
+      <h3>The document conversation</h3>
+      <p>Will, Living Trust, Durable Power of Attorney, Healthcare Directive. Every adult needs all four. Having one or two isn&rsquo;t enough.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">Conversation 2</div>
+      <h3>The beneficiary conversation</h3>
+      <p>Named beneficiaries on IRAs, 401(k)s, life insurance, and annuities <em>override your will</em>. Audit them every year &mdash; life changes fast.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">Conversation 3</div>
+      <h3>The tax conversation</h3>
+      <p>Estate tax (federal + state), income tax on inherited retirement accounts, and step-up in basis for taxable accounts. The rules matter.</p>
+    </div>
+  </div>
+
+  <h2>The Four Essential Documents</h2>
+  <div class="parts-grid">
+    <div class="part">
+      <div class="part-label">Document 1</div>
+      <h4>Last Will and Testament</h4>
+      <p>Directs assets NOT governed by beneficiary designation. Appoints guardians for minor children. Goes through probate &mdash; a public court process that takes time and costs money.</p>
+    </div>
+    <div class="part accent">
+      <div class="part-label">Document 2</div>
+      <h4>Living Trust</h4>
+      <p>Holds assets during life and transfers them at death <em>without</em> probate. Revocable vs. Irrevocable. Offers privacy, speed, and more control over how and when heirs receive assets.</p>
+    </div>
+    <div class="part">
+      <div class="part-label">Document 3</div>
+      <h4>Durable Power of Attorney</h4>
+      <p>Names someone to manage your finances if you become incapacitated. &ldquo;Durable&rdquo; means it survives incapacity &mdash; a standard POA may not. Critical before you need it.</p>
+    </div>
+    <div class="part">
+      <div class="part-label">Document 4</div>
+      <h4>Healthcare Directive + HCPOA</h4>
+      <p>Documents your end-of-life wishes and names a healthcare agent to speak for you. Critical for ICU scenarios where you cannot speak for yourself. Do not leave this to chance.</p>
+    </div>
+  </div>
+
+  <div class="numbers">
+    <h2>Legacy Landscape &mdash; 2026</h2>
+    <div class="num-grid">
+      <div class="num"><div class="value">$13.99M</div><div class="label">Federal Estate Tax<br>Exemption / Person</div></div>
+      <div class="num"><div class="value">$27.98M</div><div class="label">Federal Exemption<br>Per Couple</div></div>
+      <div class="num"><div class="value">$19,000</div><div class="label">Annual Gift<br>Exclusion / Recipient</div></div>
+      <div class="num"><div class="value">3&ndash;7%</div><div class="label">Avg. Probate Cost<br>of Estate</div></div>
+      <div class="num"><div class="value">67%</div><div class="label">Americans Without<br>a Will</div></div>
+    </div>
+    <p style="font-size:10px; color:var(--rpi-pale); margin-top:12px; position:relative; z-index:1;">Source: IRS 2026 / AARP Estate Planning Survey. Step-up in basis is preserved for inherited taxable assets under current law.</p>
+  </div>
+
+  <div class="footer">
+    <div class="footer-logo-zone">
+      <img src="../assets/rpi/rpi-logo-v2-color.png" alt="Retirement Protectors, Inc. — We're Your People" class="footer-logo" />
+    </div>
+    <div class="footer-contact">
+      <strong>RetireProtected.com</strong>
+      515-992-5000 &middot; 877-650-7015<br>
+      Service@RetireProtected.com
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- PAGE 2 -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<div class="page" id="p2">
+
+  <div class="hero">
+    <div class="eyebrow">Legacy · The Beneficiary Audit</div>
+    <h1>Your Beneficiaries<br>Override Your Will.</h1>
+    <div class="hero-tagline">The one hour that prevents most estate disasters &mdash; reviewing who&rsquo;s on every account.</div>
+  </div>
+
+  <h2>Beneficiary Audit Matrix</h2>
+  <p class="intro" style="margin-bottom:16px;">
+    Named beneficiaries on retirement accounts and insurance policies pass <em>outside</em> your will &mdash; directly to the person named on the form, regardless of what your will says. <strong>The form you filled out years ago at the bank or HR controls this, not your estate attorney.</strong> Review every account, every year.
+  </p>
+
+  <table class="medigap-grid">
+    <thead>
+      <tr>
+        <th style="text-align:left; padding-left:10px;">Account Type</th>
+        <th>Primary</th>
+        <th>Contingent</th>
+        <th>Per Stirpes or Per Capita</th>
+        <th>Last Reviewed</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>IRA (Traditional + Roth)</td>
+        <td class="dot">✓</td>
+        <td class="dot">✓</td>
+        <td style="font-size:10px; color:var(--ink-soft);">Per Stirpes recommended</td>
+        <td style="font-size:10px; color:var(--ink-soft);">________</td>
+      </tr>
+      <tr>
+        <td>401(k) / 403(b) / TSP</td>
+        <td class="dot">✓</td>
+        <td class="dot">✓</td>
+        <td style="font-size:10px; color:var(--ink-soft);">Spouse presumed unless signed waiver</td>
+        <td style="font-size:10px; color:var(--ink-soft);">________</td>
+      </tr>
+      <tr>
+        <td>Life Insurance</td>
+        <td class="dot">✓</td>
+        <td class="dot">✓</td>
+        <td style="font-size:10px; color:var(--ink-soft);">Per Stirpes</td>
+        <td style="font-size:10px; color:var(--ink-soft);">________</td>
+      </tr>
+      <tr>
+        <td>Annuities (qualified + non-qualified)</td>
+        <td class="dot">✓</td>
+        <td class="dot">✓</td>
+        <td style="font-size:10px; color:var(--ink-soft);">Per Stirpes</td>
+        <td style="font-size:10px; color:var(--ink-soft);">________</td>
+      </tr>
+      <tr>
+        <td>Bank / Brokerage (TOD / POD)</td>
+        <td class="dot">✓</td>
+        <td class="dot">✓</td>
+        <td style="font-size:10px; color:var(--ink-soft);">Transfer on Death overrides will</td>
+        <td style="font-size:10px; color:var(--ink-soft);">________</td>
+      </tr>
+      <tr>
+        <td>Real Estate</td>
+        <td style="font-size:10px; color:var(--ink-soft);">Via deed or Lady Bird deed</td>
+        <td style="font-size:10px; color:var(--ink-soft);">N/A</td>
+        <td style="font-size:10px; color:var(--ink-soft);">State-specific</td>
+        <td style="font-size:10px; color:var(--ink-soft);">________</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Trust Types Explained</h2>
+  <table class="medigap-grid" style="margin-bottom:14px;">
+    <thead>
+      <tr>
+        <th style="text-align:left; padding-left:10px;">Trust Type</th>
+        <th style="text-align:left; padding-left:6px;" colspan="4">What It Does &amp; When to Use It</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Revocable Living Trust</td>
+        <td colspan="4" style="text-align:left; padding-left:8px; font-size:11px; color:var(--ink-soft);">Grantor keeps control. Avoids probate. Does <em>not</em> protect from estate tax or creditors. Most common starting point.</td>
+      </tr>
+      <tr>
+        <td>Irrevocable Trust</td>
+        <td colspan="4" style="text-align:left; padding-left:8px; font-size:11px; color:var(--ink-soft);">Assets removed from taxable estate. Estate tax + asset protection. Difficult to change once executed. Requires planning.</td>
+      </tr>
+      <tr>
+        <td>Special Needs Trust</td>
+        <td colspan="4" style="text-align:left; padding-left:8px; font-size:11px; color:var(--ink-soft);">For beneficiaries receiving means-tested government benefits (Medicaid, SSI). Preserves eligibility. Essential if a dependent has a disability.</td>
+      </tr>
+      <tr>
+        <td>Charitable Remainder Trust</td>
+        <td colspan="4" style="text-align:left; padding-left:8px; font-size:11px; color:var(--ink-soft);">Income to grantor for life; remainder passes to charity at death. Provides income + estate and income tax benefits.</td>
+      </tr>
+      <tr>
+        <td>ILIT (Irrev. Life Insurance Trust)</td>
+        <td colspan="4" style="text-align:left; padding-left:8px; font-size:11px; color:var(--ink-soft);">Removes life insurance death benefit from your taxable estate. Classic high-net-worth tool for liquidity at death without estate tax.</td>
+      </tr>
+      <tr>
+        <td>Testamentary Trust</td>
+        <td colspan="4" style="text-align:left; padding-left:8px; font-size:11px; color:var(--ink-soft);">Created by your will, funded at death. Goes through probate. Useful for controlling distributions to minor children or young adults.</td>
+      </tr>
+    </tbody>
+  </table>
+  <p style="font-size:10px; color:var(--ink-soft); margin-bottom:22px;">Trust selection depends on your estate size, family structure, and state of residence. We coordinate with estate planning attorneys in our network or yours.</p>
+
+  <div class="aep">
+    <img src="../assets/rpi/rpi-shield-mark.png" alt="" class="shield" />
+    <div class="aep-text">
+      <h3>The Annual Review</h3>
+      <p>Every year &mdash; around your birthday or tax time &mdash; review beneficiaries, update documents if life changed, and ask about new tools (SECURE Act updates, state law changes). <strong>One hour. One calendar reminder. Done.</strong></p>
+    </div>
+  </div>
+
+  <div class="sep">
+    <h3>Life Events That Require Updates</h3>
+    <ul>
+      <li>Marriage</li>
+      <li>Divorce</li>
+      <li>Birth or adoption</li>
+      <li>Death of spouse or beneficiary</li>
+      <li>Significant asset changes</li>
+      <li>Move to a new state</li>
+      <li>Business sale or formation</li>
+      <li>Adult child&rsquo;s divorce</li>
+      <li>Health diagnosis</li>
+      <li>Inheritance</li>
+    </ul>
+  </div>
+
+  <div class="compliance">
+    <strong>Disclosure.</strong> Retirement Protectors, Inc. does not provide legal advice. Legacy planning documents must be drafted and executed by a licensed attorney in your state. We coordinate with estate planning attorneys in our network or yours. This material is for informational purposes only and should not be construed as legal, tax, or investment advice. Please consult qualified professionals for your specific situation. &copy; 2026 Retirement Protectors, Inc. All rights reserved.
+  </div>
+
+  <div class="footer">
+    <div class="footer-logo-zone">
+      <img src="../assets/rpi/rpi-logo-v2-color.png" alt="Retirement Protectors, Inc. — We're Your People" class="footer-logo" />
+    </div>
+    <div class="footer-contact">
+      <strong>RetireProtected.com</strong>
+      515-992-5000 &middot; 877-650-7015<br>
+      Service@RetireProtected.com
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
