@@ -104,12 +104,15 @@
   .preview-nav a { color: var(--rpi-pale); text-decoration: none; margin-left: 10px; }
   .preview-nav a:hover { color: white; }
 
-  /* Print */
+  /* Print — pixel-perfect PDF (set Chrome "Margins: None" + enable "Background graphics") */
   @media print {
-    body { background: white; }
-    .page { margin: 0; box-shadow: none; width: 100%; min-height: 100vh; page-break-after: always; padding: 0.5in 0.55in; }
+    body { background: white; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .page { margin: 0; padding: 0; box-shadow: none; width: 8.5in; min-height: auto; height: 11in; page-break-after: always; overflow: hidden; }
     .page:last-child { page-break-after: auto; }
-    .preview-nav { display: none; }
+    .page > * { padding-left: 0.45in; padding-right: 0.45in; }
+    .page > .hero { padding-top: 0.45in; }
+    .page > .compliance:last-of-type, .page > .footer:last-of-type { padding-bottom: 0.35in; }
+    .preview-nav { display: none !important; }
     @page { size: letter; margin: 0; }
   }
 </style>
