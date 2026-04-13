@@ -135,6 +135,17 @@ app.use('/webhook/ci', express.raw({ type: '*/*' }), (req, _res, next) => {
   next()
 }, ciWebhookRoutes)
 
+// SendGrid webhook routes — raw body captured BEFORE express.json() for ECDSA signature verification (TKO-COMMS-005a)
+// Covers: POST /api/webhooks/sendgrid, POST /api/webhooks/sendgrid-inbound,
+//         POST /api/campaign-analytics/webhook/sendgrid
+app.use(['/api/webhooks/sendgrid', '/api/webhooks/sendgrid-inbound', '/api/campaign-analytics/webhook/sendgrid'],
+  express.raw({ type: '*/*' }),
+  (req, _res, next) => {
+    ;(req as typeof req & { rawBody: Buffer }).rawBody = req.body as Buffer
+    next()
+  }
+)
+
 app.use(express.json({ limit: '10mb' }))
 
 // Health check — no auth, no rate limit, no logging
