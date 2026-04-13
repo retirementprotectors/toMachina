@@ -1,20 +1,35 @@
 'use client'
 
-/* ─── OmniEmailTab — Placeholder ─────────────────────────────────────────────
- * TKO-UX-006 will replace this with the full conversation-first 2-pane Email view.
- * Layout mirrors Text tab: left rail (threads by subject) + right pane + reply compose.
- * ─────────────────────────────────────────────────────────────────────────── */
+/* ─── OmniEmailTab — TKO-UX-006 ───────────────────────────────────────────
+ * Conversation-first email view. Groups /api/communications?channel=email by
+ * recipient address. List + thread + compose (with subject). V1 — no edit/
+ * delete/threading/attachments.
+ * ────────────────────────────────────────────────────────────────────── */
 
-export function OmniEmailTab() {
+import { OmniConversationShell } from './OmniConversationShell'
+
+interface OmniEmailTabProps {
+  /** Pre-select this email's conversation if present */
+  initialEmail?: string | null
+}
+
+export function OmniEmailTab({ initialEmail = null }: OmniEmailTabProps) {
   return (
-    <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 py-12 text-center">
-      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--bg-surface)]">
-        <span className="material-icons-outlined" style={{ fontSize: '24px', color: 'var(--text-muted)' }}>email</span>
-      </div>
-      <p className="text-sm font-semibold text-[var(--text-primary)]">Email Threads</p>
-      <p className="max-w-[220px] text-xs text-[var(--text-muted)] leading-relaxed">
-        Conversation-first email threads are coming in TKO-UX-006.
-      </p>
-    </div>
+    <OmniConversationShell
+      channel="email"
+      iconName="email"
+      emptyTitle="No email threads yet"
+      emptyHint="Sent and received emails will appear here, grouped by address."
+      composePlaceholder="Write your message…"
+      composeSubjectVisible
+      sendEndpoint="/api/comms/send-email"
+      buildSendBody={(handle, body, subject) => ({
+        to: handle,
+        subject: subject || '(no subject)',
+        body,
+      })}
+      formatHandle={(h) => h}
+      initialHandle={initialEmail}
+    />
   )
 }
