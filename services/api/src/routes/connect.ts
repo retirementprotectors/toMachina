@@ -1,13 +1,52 @@
 /**
- * Connect routes — Channels, Calendar, Presence for RPI Connect module.
- * Seeds default channels (#general, #sales, #service) on first GET if empty.
+ * Connect routes — Channels, Calendar, Presence, Google Chat Spaces + DMs + Meet.
+ *
+ * Seeds default Firestore channels (#general, #sales, #service) on first GET if empty.
+ *
+ * Google Chat routes (TKO-CONN-002 through TKO-CONN-007):
+ *   GET  /api/connect/spaces                        — list Chat Spaces
+ *   GET  /api/connect/spaces/:spaceId/messages      — list messages (+ polling support)
+ *   POST /api/connect/spaces/:spaceId/messages      — send a message
+ *   GET  /api/connect/spaces/:spaceId/members       — list Space members
+ *   GET  /api/connect/spaces/:spaceId/read-state    — read state (TKO-CONN-006)
+ *   GET  /api/connect/dms                           — list DM spaces
+ *   GET  /api/connect/meet/:meetSpaceName/transcripts — Meet transcripts (TKO-CONN-005)
+ *   GET  /api/connect/meet/:meetSpaceName/recordings  — Meet recordings (TKO-CONN-005)
+ *
+ * Prerequisites (TKO-CONN-001 admin action):
+ *   - GCP OAuth client flipped to Internal
+ *   - Domain-wide delegation authorized for all CHAT_SCOPES
+ *   - chat.googleapis.com enabled in project claude-mcp-484718
  */
 
 import { Router, type Request, type Response } from 'express'
 import { getFirestore, FieldValue } from 'firebase-admin/firestore'
 import { successResponse, errorResponse, param } from '../lib/helpers.js'
-import type { ConnectCalendarData, ConnectMeetResult, ConnectChannelDTO, ConnectChannelListDTO, ConnectChannelUpdateResult, ConnectPresenceResult } from '@tomachina/core'
+import type {
+  ConnectCalendarData,
+  ConnectMeetResult,
+  ConnectChannelDTO,
+  ConnectChannelListDTO,
+  ConnectChannelUpdateResult,
+  ConnectPresenceResult,
+  ConnectSpaceListDTO,
+  ConnectMessageListDTO,
+  ConnectSendMessageResult,
+  ConnectMemberListDTO,
+  ConnectDMListDTO,
+  ConnectReadStateResult,
+  ConnectMeetTranscriptsDTO,
+  ConnectMeetRecordingsDTO,
+} from '@tomachina/core'
 import { getUserCalendarEvents, createQuickMeet } from '../lib/calendar-client.js'
+import {
+  listChatSpaces,
+  listChatMessages,
+  sendChatMessage,
+  listChatMembers,
+  getSpaceReadState,
+  listDMSpaces,
+} from '../lib/google-chat-client.js'
 
 export const connectRoutes = Router()
 
@@ -218,5 +257,271 @@ connectRoutes.post('/presence', async (req: Request, res: Response) => {
   } catch (err) {
     console.error('POST /api/connect/presence error:', err)
     res.status(500).json(errorResponse(String(err)))
+  }
+})
+
+// ============================================================================
+// TKO-CONN-002: GET /api/connect/spaces
+// List all Google Chat Spaces the authenticated user is a member of.
+// Requires TKO-CONN-001 admin action (GCP OAuth → Internal + DWD authorized).
+// ============================================================================
+
+connectRoutes.get('/spaces', async (req: Request, res: Response) => {
+  try {
+    const user = (req as unknown as { user?: { email?: string } }).user
+    const email = user?.email
+    if (!email) {
+      res.status(401).json(errorResponse('No authenticated user'))
+      return
+    }
+    const spaces = await listChatSpaces(email)
+    res.json(successResponse<ConnectSpaceListDTO>(spaces))
+  } catch (err: unknown) {
+    const errMsg = err instanceof Error ? err.message : String(err)
+    if (errMsg.includes('invalid_grant') || errMsg.includes('Token has been expired')) {
+      res.status(401).json(errorResponse('Google session expired. Please sign out and sign back in.'))
+      return
+    }
+    console.error('GET /api/connect/spaces error:', err)
+    res.status(500).json(errorResponse(errMsg))
+  }
+})
+
+// ============================================================================
+// TKO-CONN-002: GET /api/connect/spaces/:spaceId/messages
+// List messages in a Chat Space. Supports ?pageToken= for pagination.
+// TKO-CONN-007 (5-sec polling) calls this endpoint with pageToken to get delta.
+// ============================================================================
+
+connectRoutes.get('/spaces/:spaceId/messages', async (req: Request, res: Response) => {
+  try {
+    const user = (req as unknown as { user?: { email?: string } }).user
+    const email = user?.email
+    if (!email) {
+      res.status(401).json(errorResponse('No authenticated user'))
+      return
+    }
+
+    const spaceId = param(req.params.spaceId)
+    if (!spaceId) {
+      res.status(400).json(errorResponse('spaceId is required'))
+      return
+    }
+
+    const spaceName = spaceId.startsWith('spaces/') ? spaceId : `spaces/${spaceId}`
+    const pageToken = req.query.pageToken ? String(req.query.pageToken) : undefined
+    const pageSize = req.query.pageSize ? Math.min(Number(req.query.pageSize), 100) : 50
+
+    const result = await listChatMessages(email, spaceName, { pageToken, pageSize })
+    res.json(successResponse<ConnectMessageListDTO>(result))
+  } catch (err: unknown) {
+    const errMsg = err instanceof Error ? err.message : String(err)
+    if (errMsg.includes('invalid_grant') || errMsg.includes('Token has been expired')) {
+      res.status(401).json(errorResponse('Google session expired. Please sign out and sign back in.'))
+      return
+    }
+    console.error('GET /api/connect/spaces/:spaceId/messages error:', err)
+    res.status(500).json(errorResponse(errMsg))
+  }
+})
+
+// ============================================================================
+// TKO-CONN-002 (write) + TKO-CONN-004 (DM write):
+// POST /api/connect/spaces/:spaceId/messages
+// Send a message to a Chat Space or DM.
+// Body: { text: string, threadName?: string }
+// ============================================================================
+
+connectRoutes.post('/spaces/:spaceId/messages', async (req: Request, res: Response) => {
+  try {
+    const user = (req as unknown as { user?: { email?: string } }).user
+    const email = user?.email
+    if (!email) {
+      res.status(401).json(errorResponse('No authenticated user'))
+      return
+    }
+
+    const spaceId = param(req.params.spaceId)
+    if (!spaceId) {
+      res.status(400).json(errorResponse('spaceId is required'))
+      return
+    }
+
+    const body = req.body as Record<string, unknown>
+    const text = body.text ? String(body.text).trim() : ''
+    if (!text) {
+      res.status(400).json(errorResponse('text is required'))
+      return
+    }
+    const threadName = body.threadName ? String(body.threadName) : undefined
+
+    const spaceName = spaceId.startsWith('spaces/') ? spaceId : `spaces/${spaceId}`
+    const message = await sendChatMessage(email, spaceName, text, threadName)
+    res.status(201).json(successResponse<ConnectSendMessageResult>(message))
+  } catch (err: unknown) {
+    const errMsg = err instanceof Error ? err.message : String(err)
+    if (errMsg.includes('invalid_grant') || errMsg.includes('Token has been expired')) {
+      res.status(401).json(errorResponse('Google session expired. Please sign out and sign back in.'))
+      return
+    }
+    console.error('POST /api/connect/spaces/:spaceId/messages error:', err)
+    res.status(500).json(errorResponse(errMsg))
+  }
+})
+
+// ============================================================================
+// TKO-CONN-002: GET /api/connect/spaces/:spaceId/members
+// List members of a Chat Space.
+// ============================================================================
+
+connectRoutes.get('/spaces/:spaceId/members', async (req: Request, res: Response) => {
+  try {
+    const user = (req as unknown as { user?: { email?: string } }).user
+    const email = user?.email
+    if (!email) {
+      res.status(401).json(errorResponse('No authenticated user'))
+      return
+    }
+
+    const spaceId = param(req.params.spaceId)
+    if (!spaceId) {
+      res.status(400).json(errorResponse('spaceId is required'))
+      return
+    }
+
+    const spaceName = spaceId.startsWith('spaces/') ? spaceId : `spaces/${spaceId}`
+    const members = await listChatMembers(email, spaceName)
+    res.json(successResponse<ConnectMemberListDTO>(members))
+  } catch (err: unknown) {
+    const errMsg = err instanceof Error ? err.message : String(err)
+    console.error('GET /api/connect/spaces/:spaceId/members error:', err)
+    res.status(500).json(errorResponse(errMsg))
+  }
+})
+
+// ============================================================================
+// TKO-CONN-004: GET /api/connect/dms
+// List DM spaces for the authenticated user.
+// ============================================================================
+
+connectRoutes.get('/dms', async (req: Request, res: Response) => {
+  try {
+    const user = (req as unknown as { user?: { email?: string } }).user
+    const email = user?.email
+    if (!email) {
+      res.status(401).json(errorResponse('No authenticated user'))
+      return
+    }
+    const dms = await listDMSpaces(email)
+    res.json(successResponse<ConnectDMListDTO>(dms))
+  } catch (err: unknown) {
+    const errMsg = err instanceof Error ? err.message : String(err)
+    if (errMsg.includes('invalid_grant') || errMsg.includes('Token has been expired')) {
+      res.status(401).json(errorResponse('Google session expired. Please sign out and sign back in.'))
+      return
+    }
+    console.error('GET /api/connect/dms error:', err)
+    res.status(500).json(errorResponse(errMsg))
+  }
+})
+
+// ============================================================================
+// TKO-CONN-006: GET /api/connect/spaces/:spaceId/read-state
+// Get the read state (last read position) for the current user in a space.
+// Requires chat.users.readstate scope (granted via TKO-CONN-001 + Internal OAuth).
+// Returns null gracefully if scope not yet authorized.
+// ============================================================================
+
+connectRoutes.get('/spaces/:spaceId/read-state', async (req: Request, res: Response) => {
+  try {
+    const user = (req as unknown as { user?: { email?: string } }).user
+    const email = user?.email
+    if (!email) {
+      res.status(401).json(errorResponse('No authenticated user'))
+      return
+    }
+
+    const spaceId = param(req.params.spaceId)
+    if (!spaceId) {
+      res.status(400).json(errorResponse('spaceId is required'))
+      return
+    }
+
+    const spaceName = spaceId.startsWith('spaces/') ? spaceId : `spaces/${spaceId}`
+    const readState = await getSpaceReadState(email, spaceName)
+    res.json(successResponse<ConnectReadStateResult>(readState))
+  } catch (err: unknown) {
+    const errMsg = err instanceof Error ? err.message : String(err)
+    console.error('GET /api/connect/spaces/:spaceId/read-state error:', err)
+    res.status(500).json(errorResponse(errMsg))
+  }
+})
+
+// ============================================================================
+// TKO-CONN-005: GET /api/connect/meet/:meetSpaceName/transcripts
+// Fetch Meet transcript stubs for a conference space.
+// meetSpaceName is URL-encoded (e.g. "xxxxxx-yyy-zzz" from a meet.google.com link).
+// Uses Meet REST API v2. Returns empty array gracefully if no transcripts exist.
+// ============================================================================
+
+connectRoutes.get('/meet/:meetSpaceName/transcripts', async (req: Request, res: Response) => {
+  try {
+    const user = (req as unknown as { user?: { email?: string } }).user
+    const email = user?.email
+    if (!email) {
+      res.status(401).json(errorResponse('No authenticated user'))
+      return
+    }
+
+    const meetSpaceName = param(req.params.meetSpaceName)
+    if (!meetSpaceName) {
+      res.status(400).json(errorResponse('meetSpaceName is required'))
+      return
+    }
+
+    // Meet REST API v2: GET /v2/conferenceRecords/{conferenceRecord}/transcripts
+    // The conferenceRecord ID comes from a previous meet_create_meeting or
+    // from the Meet Activity API. For now we return an empty list as the
+    // conferenceRecord is not surfaced in connect/meet POST response yet.
+    // TODO (TKO-CONN-005 follow-up): store conferenceRecord ID from Meet
+    // activity feed and join it to the calendar event for full transcript fetch.
+    const result: ConnectMeetTranscriptsDTO = { transcripts: [] }
+    res.json(successResponse<ConnectMeetTranscriptsDTO>(result))
+  } catch (err: unknown) {
+    const errMsg = err instanceof Error ? err.message : String(err)
+    console.error('GET /api/connect/meet/:meetSpaceName/transcripts error:', err)
+    res.status(500).json(errorResponse(errMsg))
+  }
+})
+
+// ============================================================================
+// TKO-CONN-005: GET /api/connect/meet/:meetSpaceName/recordings
+// Fetch Meet recording stubs. Same deferred note as /transcripts above.
+// ============================================================================
+
+connectRoutes.get('/meet/:meetSpaceName/recordings', async (req: Request, res: Response) => {
+  try {
+    const user = (req as unknown as { user?: { email?: string } }).user
+    const email = user?.email
+    if (!email) {
+      res.status(401).json(errorResponse('No authenticated user'))
+      return
+    }
+
+    const meetSpaceName = param(req.params.meetSpaceName)
+    if (!meetSpaceName) {
+      res.status(400).json(errorResponse('meetSpaceName is required'))
+      return
+    }
+
+    // Deferred: same as /transcripts — conferenceRecord linkage needed.
+    // TODO (TKO-CONN-005 follow-up): wire Meet Activity API to store
+    // conferenceRecord per calendar event, then fetch recordings here.
+    const result: ConnectMeetRecordingsDTO = { recordings: [] }
+    res.json(successResponse<ConnectMeetRecordingsDTO>(result))
+  } catch (err: unknown) {
+    const errMsg = err instanceof Error ? err.message : String(err)
+    console.error('GET /api/connect/meet/:meetSpaceName/recordings error:', err)
+    res.status(500).json(errorResponse(errMsg))
   }
 })
