@@ -7,7 +7,21 @@
  * Config: vitest.pure.config.ts (tests/e2e/{que,types}/**\/*.test.ts)
  */
 
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
+
+// Mock the securities disclosure gate for tests — the gate throws in prod
+// when no active BD affiliation is set (intentional — see disclosures.ts).
+// Tests need to exercise the generators, so we stub the disclosure getters
+// with fixture strings. The gate is tested by its own unit (not here).
+vi.mock('../../../packages/core/src/que/generators/disclosures', () => ({
+  ACTIVE_BD_AFFILIATION: null,
+  getSecuritiesDisclosure: () =>
+    'TEST DISCLOSURE — fixture string used in Cluster 1 tests only.',
+  getTaxHarvestingDisclosure: () =>
+    'TEST DISCLOSURE — fixture string used in Cluster 1 tests only.',
+  getPortfolioAdvisoryDisclosure: () =>
+    'TEST DISCLOSURE — fixture string used in Cluster 1 tests only.',
+}))
 
 // Super tools
 import { analyzeIncomeNow } from '../../../packages/core/src/que/super-tools/analyze-income-now'
