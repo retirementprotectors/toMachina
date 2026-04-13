@@ -1,0 +1,1295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TAIKO — RPI CONNECT + OMNI Scope Preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&family=Mulish:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ─── TOKENS ─────────────────────────────────────────────────── */
+:root {
+  --navy:         #0a2240;
+  --navy-mid:     #0d2d54;
+  --navy-lt:      #1a3d6b;
+  --bronze:       #b45309;
+  --bronze-lt:    #d97706;
+  --bronze-bg:    rgba(180,83,9,0.08);
+  --bronze-border:rgba(180,83,9,0.28);
+  --white:        #ffffff;
+  --off-white:    #f8f7f4;
+  --text:         #1c2b3a;
+  --text-muted:   #5a6b7a;
+  --text-light:   #8fa0b0;
+  --text-on-dark: rgba(255,255,255,0.75);
+  --text-on-dark-lt: rgba(255,255,255,0.45);
+  --border:       #dde5ee;
+  --border-dk:    #c4d0de;
+  --card-bg:      #ffffff;
+  --card-alt:     #f0f4f9;
+  --green:        #16a34a;
+  --green-bg:     rgba(22,163,74,0.08);
+  --green-vivid:  #4ade80;
+  --red:          #dc2626;
+  --red-bg:       rgba(220,38,38,0.08);
+  --yellow:       #d97706;
+  --yellow-bg:    rgba(217,119,6,0.08);
+  --blue:         #2563eb;
+  --blue-bg:      rgba(37,99,235,0.08);
+  --portal:       #4a7ab5;
+  --portal-bg:    rgba(74,122,181,0.10);
+  --portal-on-dark: rgba(255,255,255,0.08);
+  --avatar-vv:    #7c3aed;
+  --avatar-ng:    #0891b2;
+  --avatar-jdm:   var(--bronze);
+  --avatar-mm:    #16a34a;
+}
+
+/* ─── RESET + BASE ───────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Mulish', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--off-white);
+  color: var(--text);
+  line-height: 1.65;
+  font-size: 15px;
+}
+h1,h2,h3,h4,h5 { font-family: 'Poppins', sans-serif; line-height: 1.25; }
+a { color: var(--bronze); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ─── NAV ────────────────────────────────────────────────────── */
+.top-nav {
+  position: sticky; top: 0; z-index: 200;
+  background: var(--navy);
+  border-bottom: 2px solid var(--bronze);
+  padding: 0 2rem;
+  display: flex; align-items: center; gap: 0;
+  height: 52px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.top-nav .brand {
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.82rem; font-weight: 700;
+  color: var(--bronze-lt);
+  white-space: nowrap;
+  padding-right: 1.5rem;
+  border-right: 1px solid rgba(255,255,255,0.12);
+  margin-right: 0.5rem;
+  letter-spacing: 0.04em;
+}
+.top-nav a {
+  color: var(--text-on-dark);
+  font-size: 0.78rem; font-weight: 600;
+  padding: 0 0.9rem;
+  height: 52px; display: flex; align-items: center;
+  white-space: nowrap;
+  transition: color 0.15s, background 0.15s;
+  border-bottom: 2px solid transparent;
+}
+.top-nav a:hover {
+  color: var(--white);
+  background: var(--portal-on-dark);
+  text-decoration: none;
+  border-bottom-color: var(--bronze);
+}
+
+/* ─── HERO ───────────────────────────────────────────────────── */
+.hero {
+  background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 55%, #0f3460 100%);
+  padding: 5rem 2rem 4rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse at 30% 60%, rgba(180,83,9,0.15) 0%, transparent 55%),
+    radial-gradient(ellipse at 70% 30%, rgba(74,122,181,0.10) 0%, transparent 55%);
+  pointer-events: none;
+}
+.hero-drum {
+  font-size: 4rem; line-height: 1; margin-bottom: 1rem;
+  position: relative;
+  filter: drop-shadow(0 0 24px rgba(180,83,9,0.5));
+}
+.hero h1 {
+  font-size: 3.4rem; font-weight: 900;
+  color: var(--white);
+  letter-spacing: -0.03em;
+  position: relative;
+}
+.hero h1 .accent { color: var(--bronze-lt); }
+.hero-subtitle {
+  font-size: 1.25rem;
+  color: var(--text-on-dark);
+  margin: 0.6rem 0 2rem;
+  font-style: italic;
+  position: relative;
+}
+.hero-meta {
+  display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap;
+  position: relative; margin-bottom: 2rem;
+}
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  padding: 0.3rem 0.9rem; border-radius: 999px;
+  font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+}
+.badge-bronze { background: var(--bronze-bg); color: var(--bronze-lt); border: 1px solid var(--bronze-border); }
+.badge-white  { background: var(--portal-on-dark); color: var(--text-on-dark); border: 1px solid rgba(255,255,255,0.15); }
+.badge-green  { background: rgba(74,222,128,0.12); color: var(--green-vivid); border: 1px solid rgba(74,222,128,0.3); }
+
+.hero-tldr {
+  max-width: 700px; margin: 0 auto;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 14px;
+  padding: 1.25rem 1.75rem;
+  position: relative;
+}
+.hero-tldr .tldr-label {
+  font-size: 0.68rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--bronze-lt); margin-bottom: 0.6rem;
+}
+.hero-tldr p { color: var(--text-on-dark); font-size: 0.95rem; line-height: 1.55; margin: 0; }
+.hero-tldr p + p { margin-top: 0.5rem; }
+.hero-tldr strong { color: var(--white); }
+
+/* ─── LAYOUT ─────────────────────────────────────────────────── */
+.content { max-width: 1100px; margin: 0 auto; padding: 3rem 1.5rem 4rem; }
+.section { margin-bottom: 4rem; }
+.section-header {
+  display: flex; align-items: baseline; gap: 0.75rem;
+  margin-bottom: 1.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid var(--border);
+}
+.section-num {
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.72rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--bronze); background: var(--bronze-bg); border-radius: 4px;
+  padding: 0.2rem 0.55rem; white-space: nowrap;
+}
+.section-header h2 { font-size: 1.65rem; font-weight: 700; color: var(--navy); }
+
+/* ─── CARDS ──────────────────────────────────────────────────── */
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 4px rgba(10,34,64,0.06);
+}
+.card-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+@media (max-width: 700px) { .card-grid-2 { grid-template-columns: 1fr; } }
+.card h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--navy); }
+.card-accent-bronze { border-top: 3px solid var(--bronze); }
+.card-accent-portal  { border-top: 3px solid var(--portal); }
+.card-intro { font-size: 0.84rem; color: var(--text-muted); margin-bottom: 1rem; }
+
+.split-label {
+  display: inline-block;
+  font-size: 0.68rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 0.2rem 0.6rem; border-radius: 4px; margin-bottom: 0.6rem;
+}
+.split-internal { background: var(--portal-bg); color: var(--portal); }
+.split-external { background: var(--bronze-bg); color: var(--bronze); }
+
+.split-row {
+  display: flex; gap: 0.5rem; align-items: flex-start;
+  padding: 0.45rem 0; border-bottom: 1px solid var(--border);
+  font-size: 0.88rem;
+}
+.split-row:last-child { border-bottom: none; }
+.split-key { font-weight: 700; color: var(--text); min-width: 110px; flex-shrink: 0; }
+.split-val { color: var(--text-muted); }
+.split-val-green { color: var(--green); font-weight: 700; }
+
+/* ─── TABLES ─────────────────────────────────────────────────── */
+.table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 1px 4px rgba(10,34,64,0.05); }
+table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
+thead th {
+  background: var(--navy); color: rgba(255,255,255,0.88);
+  font-family: 'Poppins', sans-serif; font-size: 0.72rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  padding: 0.75rem 1rem; text-align: left;
+  border-bottom: 2px solid var(--bronze); white-space: nowrap;
+}
+thead th:first-child { border-radius: 12px 0 0 0; }
+thead th:last-child  { border-radius: 0 12px 0 0; }
+tbody tr:nth-child(even) td { background: var(--card-alt); }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: var(--bronze-bg); }
+td { padding: 0.65rem 1rem; border-bottom: 1px solid var(--border); color: var(--text-muted); vertical-align: top; }
+td strong { color: var(--text); }
+td em { font-style: italic; }
+code { font-family: monospace; font-size: 0.82rem; background: var(--card-alt); padding: 0.1rem 0.35rem; border-radius: 3px; }
+
+/* ─── PILLS ──────────────────────────────────────────────────── */
+.pill {
+  display: inline-flex; align-items: center; gap: 0.3rem;
+  padding: 0.18rem 0.55rem; border-radius: 999px;
+  font-size: 0.72rem; font-weight: 700; white-space: nowrap;
+}
+.pill-green  { background: var(--green-bg);  color: var(--green);  }
+.pill-red    { background: var(--red-bg);    color: var(--red);    }
+.pill-yellow { background: var(--yellow-bg); color: var(--yellow); }
+.pill-bronze { background: var(--bronze-bg); color: var(--bronze); }
+.pill-blue   { background: var(--blue-bg);   color: var(--blue);   }
+.pill-grey   { background: var(--card-alt);  color: var(--text-light); }
+
+/* ─── CALLOUTS ───────────────────────────────────────────────── */
+.callout {
+  padding: 1.25rem 1.5rem; border-radius: 12px;
+  margin: 1.5rem 0; border-left: 4px solid;
+}
+.callout-bronze { background: var(--bronze-bg); border-color: var(--bronze); }
+.callout-red    { background: var(--red-bg);    border-color: var(--red); }
+.callout-label  {
+  font-size: 0.7rem; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 0.1em; margin-bottom: 0.4rem;
+}
+.callout-bronze .callout-label { color: var(--bronze); }
+.callout-red    .callout-label { color: var(--red); }
+.callout p { margin: 0; color: var(--text-muted); font-size: 0.9rem; }
+.callout p + p { margin-top: 0.5rem; }
+.callout strong { color: var(--text); }
+
+/* ─── FORCE-MULTIPLIER BOX ───────────────────────────────────── */
+.force-box {
+  border: 2px solid var(--bronze);
+  border-radius: 14px;
+  padding: 1.5rem;
+  background: var(--bronze-bg);
+  margin: 1.5rem 0;
+}
+.force-box-label {
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.68rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--bronze); margin-bottom: 0.6rem;
+}
+.force-box h4 { color: var(--navy); font-size: 1rem; margin-bottom: 0.5rem; }
+.force-box p  { color: var(--text-muted); font-size: 0.88rem; margin: 0; }
+.force-box strong { color: var(--text); }
+
+/* ─── MOCK SCAFFOLD ──────────────────────────────────────────── */
+.mock-row { display: flex; gap: 1.5rem; flex-wrap: wrap; margin: 2rem 0; align-items: flex-start; }
+.mock-wrap { flex: 1; min-width: 290px; }
+.mock-label {
+  font-family: 'Poppins', sans-serif; font-size: 0.72rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.08em; color: var(--bronze);
+  margin-bottom: 0.6rem;
+}
+.portal-chrome {
+  border-radius: 14px; overflow: hidden;
+  border: 1px solid var(--border-dk);
+  box-shadow: 0 8px 32px rgba(10,34,64,0.14);
+  font-family: 'Mulish', sans-serif;
+}
+.portal-header {
+  background: var(--portal);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.6rem 1rem;
+}
+.portal-header-brand { font-family: 'Poppins', sans-serif; font-size: 0.8rem; font-weight: 700; color: var(--white); }
+.portal-header-actions { display: flex; gap: 0.5rem; align-items: center; }
+.portal-avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: rgba(255,255,255,0.22);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.62rem; font-weight: 800; color: var(--white);
+  border: 1px solid rgba(255,255,255,0.3);
+}
+.portal-avatar-omni { background: var(--bronze); }
+
+.slide-panel { background: var(--white); display: flex; flex-direction: column; min-height: 460px; }
+.slide-panel-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.8rem 1rem; border-bottom: 1px solid var(--border);
+  background: var(--off-white);
+}
+.slide-panel-title {
+  font-family: 'Poppins', sans-serif; font-size: 0.85rem; font-weight: 800;
+  color: var(--navy); letter-spacing: 0.04em;
+  display: flex; align-items: center; gap: 0.4rem;
+}
+.slide-panel-title-omni { color: var(--bronze); }
+.panel-close { color: var(--text-light); font-size: 1.1rem; cursor: pointer; line-height: 1; }
+
+.panel-tabs { display: flex; border-bottom: 1px solid var(--border); background: var(--off-white); }
+.panel-tab {
+  padding: 0.5rem 0.9rem; font-size: 0.74rem; font-weight: 700; color: var(--text-muted);
+  border-bottom: 2px solid transparent; cursor: pointer; transition: all 0.15s;
+}
+.panel-tab-active      { color: var(--portal); border-bottom-color: var(--portal); background: var(--white); }
+.panel-tab-active-omni { color: var(--bronze); border-bottom-color: var(--bronze); background: var(--white); }
+
+.panel-body { display: flex; flex: 1; overflow: hidden; }
+.panel-body-block { display: block; }
+.panel-list {
+  width: 140px; flex-shrink: 0; border-right: 1px solid var(--border);
+  overflow-y: auto; background: var(--card-alt);
+}
+.panel-list-item {
+  padding: 0.6rem 0.75rem; font-size: 0.76rem;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid var(--border); cursor: pointer; color: var(--text-muted);
+  transition: background 0.1s;
+}
+.panel-list-item:hover { background: var(--border); }
+.panel-list-item-active { background: var(--portal-bg); color: var(--portal); font-weight: 700; }
+.channel-name { font-size: 0.73rem; font-weight: 600; }
+.unread-badge {
+  background: var(--bronze); color: var(--white);
+  font-size: 0.58rem; font-weight: 800;
+  padding: 0.08rem 0.35rem; border-radius: 999px; min-width: 16px; text-align: center;
+}
+
+.panel-convo { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.panel-convo-head {
+  padding: 0.5rem 0.75rem; font-size: 0.73rem; font-weight: 700;
+  color: var(--navy); border-bottom: 1px solid var(--border); background: var(--white);
+}
+.messages { flex: 1; overflow-y: auto; padding: 0.75rem; display: flex; flex-direction: column; gap: 0.6rem; }
+.msg { display: flex; gap: 0.45rem; align-items: flex-start; }
+.msg-avatar {
+  width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.55rem; font-weight: 800; color: var(--white);
+}
+.avatar-vv  { background: var(--avatar-vv); }
+.avatar-ng  { background: var(--avatar-ng); }
+.avatar-jdm { background: var(--bronze); }
+.avatar-mm  { background: var(--avatar-mm); }
+.msg-body { flex: 1; min-width: 0; }
+.msg-meta { display: flex; gap: 0.4rem; align-items: baseline; margin-bottom: 0.1rem; }
+.msg-name { font-size: 0.7rem; font-weight: 700; color: var(--text); }
+.msg-time { font-size: 0.6rem; color: var(--text-light); }
+.msg-text { font-size: 0.74rem; color: var(--text-muted); line-height: 1.4; }
+.msg-text strong { color: var(--text); }
+
+.compose-bar {
+  display: flex; gap: 0.4rem; padding: 0.6rem 0.75rem;
+  border-top: 1px solid var(--border); background: var(--white);
+}
+.compose-input {
+  flex: 1; border: 1px solid var(--border); border-radius: 8px;
+  padding: 0.4rem 0.65rem; font-size: 0.76rem; color: var(--text-muted);
+  background: var(--card-alt); outline: none; font-family: 'Mulish', sans-serif;
+}
+.compose-btn       { background: var(--portal); color: var(--white); border: none; border-radius: 8px; padding: 0.4rem 0.75rem; font-size: 0.72rem; font-weight: 700; cursor: pointer; font-family: 'Poppins', sans-serif; }
+.compose-btn-omni  { background: var(--bronze); color: var(--white); border: none; border-radius: 8px; padding: 0.4rem 0.75rem; font-size: 0.72rem; font-weight: 700; cursor: pointer; font-family: 'Poppins', sans-serif; }
+
+.panel-footer {
+  padding: 0.35rem 0.75rem; background: var(--card-alt);
+  border-top: 1px solid var(--border);
+  font-size: 0.6rem; color: var(--text-light); text-align: center;
+}
+
+/* ─── MEET TAB ───────────────────────────────────────────────── */
+.meet-tab-body { padding: 0.75rem; }
+.meet-start-btn {
+  width: 100%; background: var(--portal); color: var(--white);
+  border: none; border-radius: 10px; padding: 0.75rem 1rem;
+  font-family: 'Poppins', sans-serif; font-size: 0.82rem; font-weight: 700;
+  cursor: pointer; margin-bottom: 1rem;
+  display: flex; align-items: center; justify-content: center; gap: 0.4rem;
+}
+.upcoming-label {
+  font-size: 0.62rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--text-light); margin-bottom: 0.4rem; padding-left: 0.1rem;
+}
+.meet-event {
+  display: flex; align-items: flex-start; gap: 0.6rem;
+  padding: 0.5rem 0.6rem; border-radius: 8px;
+  background: var(--card-alt); border: 1px solid var(--border); margin-bottom: 0.4rem;
+}
+.meet-event-time {
+  font-size: 0.65rem; font-weight: 700; color: var(--portal);
+  min-width: 40px; text-align: center; line-height: 1.2; padding-top: 0.1rem;
+}
+.meet-event-info { flex: 1; }
+.meet-event-title { font-size: 0.74rem; font-weight: 700; color: var(--text); }
+.meet-event-meta  { font-size: 0.62rem; color: var(--text-light); }
+.meet-join-btn {
+  font-size: 0.62rem; font-weight: 700; color: var(--portal);
+  background: var(--portal-bg); border: 1px solid rgba(74,122,181,0.25);
+  border-radius: 6px; padding: 0.2rem 0.4rem; cursor: pointer;
+  white-space: nowrap; align-self: center; font-family: 'Poppins', sans-serif;
+}
+
+/* ─── OMNI CALL TAB ──────────────────────────────────────────── */
+.omni-call-body { padding: 0.6rem; }
+.dialer-label { text-align: center; padding: 0.5rem 0 0.4rem; font-size: 0.72rem; font-weight: 700; color: var(--text-muted); }
+.dialer-number { text-align: center; font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 0.4rem; }
+.dialpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; max-width: 140px; margin: 0 auto; }
+.dial-key {
+  background: var(--card-alt); border: 1px solid var(--border); border-radius: 8px;
+  padding: 0.5rem; text-align: center;
+  font-family: 'Poppins', sans-serif; font-size: 0.9rem; font-weight: 700; color: var(--text); cursor: pointer;
+}
+.dial-key sub { display: block; font-size: 0.48rem; color: var(--text-light); font-weight: 400; letter-spacing: 0.05em; }
+.dial-call { background: var(--green); color: var(--white); }
+.dial-end  { background: var(--red);   color: var(--white); }
+.recent-calls-label {
+  font-size: 0.62rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--text-light); margin: 0.75rem 0 0.35rem; padding-left: 0.1rem;
+}
+.call-item {
+  display: flex; align-items: center; gap: 0.5rem;
+  padding: 0.45rem 0.6rem; border-radius: 8px;
+  background: var(--card-alt); border: 1px solid var(--border); margin-bottom: 0.3rem;
+}
+.call-icon { font-size: 0.8rem; }
+.call-name { font-size: 0.72rem; font-weight: 700; color: var(--text); flex: 1; }
+.call-meta { font-size: 0.62rem; color: var(--text-light); }
+.call-duration { font-size: 0.62rem; color: var(--green); font-weight: 700; }
+.call-voicemail{ font-size: 0.62rem; color: var(--yellow); font-weight: 700; }
+
+/* ─── OMNI SMS TAB ───────────────────────────────────────────── */
+.sms-thread { display: flex; flex-direction: column; gap: 0.4rem; padding: 0.5rem 0.6rem; overflow-y: auto; flex: 1; }
+.sms-bubble { max-width: 80%; padding: 0.45rem 0.65rem; border-radius: 10px; font-size: 0.74rem; line-height: 1.35; }
+.sms-inbound  { background: var(--card-alt); border: 1px solid var(--border); color: var(--text); align-self: flex-start; border-bottom-left-radius: 3px; }
+.sms-outbound { background: var(--bronze); color: var(--white); align-self: flex-end; border-bottom-right-radius: 3px; }
+.sms-time { font-size: 0.58rem; color: var(--text-light); text-align: center; margin: 0.2rem 0; }
+.mms-attach {
+  background: var(--card-alt); border: 1px solid var(--border);
+  border-radius: 8px; padding: 0.5rem;
+  display: flex; align-items: center; gap: 0.4rem;
+  max-width: 70%; align-self: flex-start; margin-top: 0.2rem;
+}
+.mms-icon { font-size: 1.1rem; }
+.mms-meta { font-size: 0.68rem; color: var(--text-muted); }
+.mms-name { color: var(--text); display: block; font-weight: 700; }
+
+/* ─── OMNI LOG TAB ───────────────────────────────────────────── */
+.omni-log-filters {
+  display: flex; gap: 0.35rem; padding: 0.5rem 0.6rem;
+  border-bottom: 1px solid var(--border); flex-wrap: wrap;
+}
+.filter-chip {
+  font-size: 0.62rem; font-weight: 700; padding: 0.15rem 0.45rem; border-radius: 999px;
+  border: 1px solid var(--border); color: var(--text-muted); cursor: pointer;
+}
+.filter-chip-active { background: var(--bronze-bg); color: var(--bronze); border-color: var(--bronze-border); }
+.log-scroll { overflow-y: auto; max-height: 290px; }
+.log-item {
+  display: flex; align-items: flex-start; gap: 0.55rem;
+  padding: 0.55rem 0.65rem; border-bottom: 1px solid var(--border);
+}
+.log-item:last-child { border-bottom: none; }
+.log-icon-wrap {
+  width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 0.75rem;
+}
+.log-call  { background: var(--green-bg); }
+.log-sms   { background: var(--blue-bg); }
+.log-email { background: var(--yellow-bg); }
+.log-info { flex: 1; min-width: 0; }
+.log-title { font-size: 0.73rem; font-weight: 700; color: var(--text); }
+.log-meta  { font-size: 0.62rem; color: var(--text-light); }
+.log-outcome {
+  font-size: 0.62rem; font-weight: 700;
+  padding: 0.1rem 0.4rem; border-radius: 999px;
+  align-self: center; white-space: nowrap;
+}
+.outcome-answered  { background: var(--green-bg); color: var(--green); }
+.outcome-voicemail { background: var(--yellow-bg); color: var(--yellow); }
+.outcome-delivered { background: var(--blue-bg);  color: var(--blue); }
+
+/* ─── QUOTE BLOCK ────────────────────────────────────────────── */
+.quote-block {
+  background: var(--navy); color: var(--text-on-dark);
+  border-radius: 12px; padding: 1.25rem 1.5rem;
+  border-left: 4px solid var(--bronze-lt);
+  font-style: italic; font-size: 0.9rem; line-height: 1.6; margin: 1.25rem 0;
+}
+.quote-attr {
+  margin-top: 0.6rem; font-style: normal;
+  font-size: 0.72rem; color: var(--text-on-dark-lt);
+  font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+}
+
+/* ─── SPRINT GRID ────────────────────────────────────────────── */
+.sprint-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+@media (max-width: 700px) { .sprint-grid { grid-template-columns: 1fr; } }
+.sprint-col { background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; }
+.sprint-col-header {
+  font-family: 'Poppins', sans-serif; font-size: 0.72rem; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.1em;
+  padding-bottom: 0.6rem; border-bottom: 2px solid; margin-bottom: 1rem;
+}
+.col-omni    { color: var(--bronze); border-color: var(--bronze); }
+.col-connect { color: var(--portal); border-color: var(--portal); }
+.ticket-card {
+  background: var(--card-alt); border: 1px solid var(--border);
+  border-radius: 10px; padding: 0.85rem 1rem; margin-bottom: 0.6rem;
+}
+.ticket-id { font-family: monospace; font-size: 0.72rem; font-weight: 700; margin-bottom: 0.2rem; }
+.ticket-id-omni    { color: var(--bronze); }
+.ticket-id-connect { color: var(--portal); }
+.ticket-title { font-size: 0.86rem; font-weight: 700; color: var(--text); margin-bottom: 0.3rem; }
+.ticket-card p { font-size: 0.8rem; color: var(--text-muted); margin: 0; }
+.ticket-v2 { opacity: 0.65; }
+
+/* ─── FOOTER ─────────────────────────────────────────────────── */
+footer {
+  background: var(--navy); text-align: center;
+  padding: 2.5rem 1.5rem; color: var(--text-on-dark-lt); font-size: 0.78rem;
+}
+.ft-drum { font-size: 2.2rem; margin-bottom: 0.5rem; }
+.ft-sig  { font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 700; color: var(--bronze-lt); margin-bottom: 0.5rem; }
+.ft-detail { font-size: 0.72rem; color: var(--text-on-dark-lt); margin-top: 0.4rem; }
+
+/* ─── PRINT ──────────────────────────────────────────────────── */
+@media print {
+  .top-nav { display: none; }
+  body { background: var(--white); font-size: 13px; }
+  .hero { padding: 2rem 1rem; background: var(--navy) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .section { page-break-inside: avoid; }
+  .card, .portal-chrome { box-shadow: none; }
+  thead th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+
+/* ─── RESPONSIVE ─────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .hero h1    { font-size: 2.1rem; }
+  .hero-drum  { font-size: 2.8rem; }
+  .content    { padding: 2rem 1rem 3rem; }
+  .section-header h2 { font-size: 1.3rem; }
+  .mock-wrap  { min-width: 260px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ════ NAV ════ -->
+<nav class="top-nav" aria-label="Page sections">
+  <span class="brand">🥁 TAIKO</span>
+  <a href="#arch">The Split</a>
+  <a href="#slack-pile">What Fell Off</a>
+  <a href="#api-caps">Chat API</a>
+  <a href="#connect-mock">CONNECT UI</a>
+  <a href="#omni-mock">OMNI UI</a>
+  <a href="#slack-plan">Slack Side</a>
+  <a href="#risks">Risks</a>
+  <a href="#sprint">Sprint Plan</a>
+</nav>
+
+<!-- ════ HERO ════ -->
+<section class="hero" id="top">
+  <div class="hero-drum">🥁</div>
+  <h1>RPI CONNECT <span class="accent">&amp;</span> OMNI</h1>
+  <p class="hero-subtitle">"The message is yours. The channel is mine."</p>
+
+  <div class="hero-meta">
+    <span class="hero-badge badge-bronze">🥁 TAIKO, The Drum</span>
+    <span class="hero-badge badge-white">Born: 2026-04-13</span>
+    <span class="hero-badge badge-white">Scope Lock</span>
+    <span class="hero-badge badge-green">Discovery / Preview</span>
+  </div>
+
+  <div class="hero-tldr">
+    <div class="tldr-label">TL;DR — Two Sentences</div>
+    <p><strong>CONNECT (internal team comms)</strong> runs on Google Workspace — Chat Spaces + DMs + Meet, no new subscription required.</p>
+    <p><strong>OMNI (external client comms)</strong> runs on Twilio + SendGrid, and the backbone is already ~90% built.</p>
+  </div>
+</section>
+
+<!-- ════ CONTENT ════ -->
+<main class="content">
+
+  <!-- ── §1 ARCHITECTURAL SPLIT ── -->
+  <section class="section" id="arch">
+    <div class="section-header">
+      <span class="section-num">§ 01</span>
+      <h2>The Architectural Split</h2>
+    </div>
+    <div class="card-grid-2">
+
+      <div class="card card-accent-portal">
+        <span class="split-label split-internal">🏠 RPI CONNECT — Internal</span>
+        <h3>Team ↔ Team</h3>
+        <p class="card-intro">Google Workspace is already paid for. CONNECT is a native client on top of APIs we already own.</p>
+        <div class="split-row"><span class="split-key">Channels</span><span class="split-val">Google Chat Spaces</span></div>
+        <div class="split-row"><span class="split-key">DMs</span><span class="split-val">Google Chat DMs</span></div>
+        <div class="split-row"><span class="split-key">Huddles</span><span class="split-val">Google Meet (1-click link)</span></div>
+        <div class="split-row"><span class="split-key">Auth</span><span class="split-val">Google Workspace (existing)</span></div>
+        <div class="split-row"><span class="split-key">New sub cost</span><span class="split-val split-val-green">$0 — already paying</span></div>
+        <div class="split-row"><span class="split-key">Offboarding</span><span class="split-val">Suspend Workspace → access dies automatically</span></div>
+      </div>
+
+      <div class="card card-accent-bronze">
+        <span class="split-label split-external">📡 RPI OMNI — External</span>
+        <h3>Team ↔ Client / Prospect</h3>
+        <p class="card-intro">Twilio + SendGrid handle the regulated channels. Backbone ~90% built already.</p>
+        <div class="split-row"><span class="split-key">Voice</span><span class="split-val">Twilio Browser SDK + toll-free</span></div>
+        <div class="split-row"><span class="split-key">SMS</span><span class="split-val">Twilio A2P — blocked, TKO-COMMS-001 unblocks</span></div>
+        <div class="split-row"><span class="split-key">Email</span><span class="split-val">SendGrid (noreply@retireprotected.com)</span></div>
+        <div class="split-row"><span class="split-key">MMS</span><span class="split-val">Twilio media attachments</span></div>
+        <div class="split-row"><span class="split-key">Future</span><span class="split-val">WhatsApp, Push notifications</span></div>
+        <div class="split-row"><span class="split-key">Compliance</span><span class="split-val">A2P 10DLC, TCPA/CTIA/CAN-SPAM, opt-in consent (MUSASHI copy)</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── §2 WHAT FELL OFF ── -->
+  <section class="section" id="slack-pile">
+    <div class="section-header">
+      <span class="section-num">§ 02</span>
+      <h2>"What Fell Off" — The Amended-Into-Mush Pile</h2>
+    </div>
+    <p style="color:var(--text-muted);margin-bottom:1.25rem">Every Slack feature mapped to its migration fate. Nothing deprecated without a clear replacement or explicit sign-off.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Slack Feature</th><th>Used By RPI?</th><th>Plan</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Channels</strong></td><td>YES (core)</td><td><span class="pill pill-green">✅ Migrate to Google Chat Spaces</span></td></tr>
+          <tr><td><strong>DMs</strong></td><td>YES</td><td><span class="pill pill-green">✅ Migrate to Google Chat DMs</span></td></tr>
+          <tr><td><strong>Huddles</strong></td><td>YES (#sales-support AI notes)</td><td><span class="pill pill-green">✅ Google Meet (1-click embedded)</span></td></tr>
+          <tr><td><strong>Threads</strong></td><td>Used lightly</td><td><span class="pill pill-green">✅ Native Chat threads</span></td></tr>
+          <tr><td><strong>Reactions</strong></td><td>Used lightly</td><td><span class="pill pill-green">✅ Native Chat reactions</span></td></tr>
+          <tr><td><strong>Canvas</strong></td><td>In 20+ channels — JDM: <em>"DGAF, not canonical"</em></td><td><span class="pill pill-red">❌ Deprecate on migration</span></td></tr>
+          <tr><td><strong>Lists</strong></td><td>2 channels — JDM: <em>"DGAF"</em></td><td><span class="pill pill-red">❌ Deprecate</span></td></tr>
+          <tr><td><strong>Slack AI PDF summaries</strong></td><td>Running in #retirement-sales — JDM: <em>"DGAF"</em></td><td><span class="pill pill-red">❌ Deprecate (Gemini is better)</span></td></tr>
+          <tr><td><strong>Slack AI Huddle notes</strong></td><td>#sales-support — JDM: <em>"Gemini is better"</em></td><td><span class="pill pill-red">❌ Deprecate (Meet AI notes win)</span></td></tr>
+          <tr><td><strong>Slack Connect</strong></td><td>#prodash-hl-* — <em>"Those vendors got fired"</em></td><td><span class="pill pill-red">❌ Drop when migrated</span></td></tr>
+          <tr><td><strong>Pinned messages</strong></td><td>Not heavy use</td><td><span class="pill pill-yellow">⚠️ No Chat API equivalent — use Google Docs instead</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ── §3 GOOGLE CHAT + MEET API ── -->
+  <section class="section" id="api-caps">
+    <div class="section-header">
+      <span class="section-num">§ 03</span>
+      <h2>Google Chat + Meet API — Capability Table</h2>
+    </div>
+
+    <div class="force-box">
+      <div class="force-box-label">🔑 Internal OAuth Unlock — The Single Biggest Force-Multiplier On This Plan</div>
+      <h4>One GCP setting change. Eliminates every consent screen. Unlocks 8 Chat scopes instantly.</h4>
+      <p>Our GCP OAuth client is currently set to <strong>External</strong> — meaning every @retireprotected.com user gets a consent screen and requires explicit scope grants. Flipping it to <strong>Internal</strong> (one checkbox in GCP Console, ~30 seconds, only valid if no external consumers exist) eliminates the consent screen entirely. All 8 Chat scopes below become silently granted at Firebase Auth login. Every CONNECT feature listed as "Needs OAuth unlock" ships the same sprint this flips.</p>
+    </div>
+
+    <div class="table-wrap" style="margin-top:1.25rem">
+      <table>
+        <thead>
+          <tr><th>Capability</th><th>Slack Equivalent</th><th>Google API / Scope</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Spaces CRUD</strong></td><td>Channels create/archive</td><td><code>chat.spaces.create</code></td><td><span class="pill pill-green">✅ Built — polling MVP</span></td></tr>
+          <tr><td><strong>Messages — Create</strong></td><td>Post message</td><td><code>chat.spaces.messages.create</code></td><td><span class="pill pill-green">✅ Built</span></td></tr>
+          <tr><td><strong>Messages — List / Read</strong></td><td>History fetch</td><td><code>chat.spaces.messages.readonly</code></td><td><span class="pill pill-yellow">⚠️ Needs OAuth unlock (TKO-CONN-001)</span></td></tr>
+          <tr><td><strong>Reactions</strong></td><td>Emoji reactions</td><td><code>chat.spaces.messages.reactions</code></td><td><span class="pill pill-yellow">⚠️ Needs OAuth unlock</span></td></tr>
+          <tr><td><strong>Threads</strong></td><td>Message threads</td><td>threadKey param on messages API</td><td><span class="pill pill-yellow">⚠️ Needs OAuth unlock</span></td></tr>
+          <tr><td><strong>Read State / Unread</strong></td><td>Unread badges</td><td><code>chat.users.readstate</code></td><td><span class="pill pill-bronze">🔒 TKO-CONN-006</span></td></tr>
+          <tr><td><strong>Memberships</strong></td><td>Channel members list</td><td><code>chat.memberships</code></td><td><span class="pill pill-yellow">⚠️ Needs OAuth unlock</span></td></tr>
+          <tr><td><strong>Real-time (polling)</strong></td><td>Live feed (approx)</td><td>5-sec GET poll on messages.list</td><td><span class="pill pill-bronze">🔒 TKO-CONN-007</span></td></tr>
+          <tr><td><strong>Real-time (Pub/Sub)</strong></td><td>WebSocket push</td><td>Cloud Pub/Sub + Chat webhook</td><td><span class="pill pill-grey">📋 v2 — TKO-CONN-008</span></td></tr>
+          <tr><td><strong>Meet — Create meeting</strong></td><td>Huddle</td><td>Meet REST API v2 <code>spaces.create</code></td><td><span class="pill pill-green">✅ Built (meet_create_meeting)</span></td></tr>
+          <tr><td><strong>Meet — Transcripts</strong></td><td>Huddle AI notes</td><td><code>spaces.transcripts.list</code></td><td><span class="pill pill-bronze">🔒 TKO-CONN-005</span></td></tr>
+          <tr><td><strong>Meet — Recordings</strong></td><td>Huddle clips</td><td><code>spaces.recordings.list</code></td><td><span class="pill pill-bronze">🔒 TKO-CONN-005</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ── §4 CONNECT MOCK ── -->
+  <section class="section" id="connect-mock">
+    <div class="section-header">
+      <span class="section-num">§ 04</span>
+      <h2>UI/UX Preview — CONNECT Panel</h2>
+    </div>
+    <p style="color:var(--text-muted);margin-bottom:1.5rem">Pixel-accurate mocks drawn in pure HTML + CSS. ProDashX portal theme applied. Each tab is a distinct view.</p>
+
+    <div class="mock-row">
+
+      <!-- MOCK 1: Channels tab -->
+      <div class="mock-wrap">
+        <div class="mock-label">View 1 — Channels (active)</div>
+        <div class="portal-chrome">
+          <div class="portal-header">
+            <div class="portal-header-brand">ProDashX</div>
+            <div class="portal-header-actions">
+              <div class="portal-avatar">VV</div>
+              <div class="portal-avatar">NG</div>
+            </div>
+          </div>
+          <div class="slide-panel">
+            <div class="slide-panel-header">
+              <div class="slide-panel-title">💬 RPI CONNECT</div>
+              <span class="panel-close">✕</span>
+            </div>
+            <div class="panel-tabs">
+              <div class="panel-tab panel-tab-active">Channels</div>
+              <div class="panel-tab">DMs</div>
+              <div class="panel-tab">Meet</div>
+            </div>
+            <div class="panel-body">
+              <div class="panel-list">
+                <div class="panel-list-item panel-list-item-active"><span class="channel-name"># team-rpi</span></div>
+                <div class="panel-list-item"><span class="channel-name"># retirement-sales</span><span class="unread-badge">4</span></div>
+                <div class="panel-list-item"><span class="channel-name"># rpiservice</span><span class="unread-badge">1</span></div>
+                <div class="panel-list-item"><span class="channel-name"># the-dojo</span><span class="unread-badge">12</span></div>
+              </div>
+              <div class="panel-convo">
+                <div class="panel-convo-head"># team-rpi &nbsp;·&nbsp; 14 members</div>
+                <div class="messages">
+                  <div class="msg">
+                    <div class="msg-avatar avatar-vv">VV</div>
+                    <div class="msg-body">
+                      <div class="msg-meta"><span class="msg-name">Vince V.</span><span class="msg-time">9:14am</span></div>
+                      <div class="msg-text">New AEP lead batch is in ProDash — <strong>42 T65s</strong> this week. Getting started.</div>
+                    </div>
+                  </div>
+                  <div class="msg">
+                    <div class="msg-avatar avatar-ng">NG</div>
+                    <div class="msg-body">
+                      <div class="msg-meta"><span class="msg-name">Nikki G.</span><span class="msg-time">9:21am</span></div>
+                      <div class="msg-text">Service queue is clear. Grabbing two of those leads if Vince is cool with it.</div>
+                    </div>
+                  </div>
+                  <div class="msg">
+                    <div class="msg-avatar avatar-jdm">JDM</div>
+                    <div class="msg-body">
+                      <div class="msg-meta"><span class="msg-name">Josh M.</span><span class="msg-time">9:28am</span></div>
+                      <div class="msg-text">LFG. OMNI SMS is back online — TAIKO unblocked A2P. Text those leads today.</div>
+                    </div>
+                  </div>
+                  <div class="msg">
+                    <div class="msg-avatar avatar-vv">VV</div>
+                    <div class="msg-body">
+                      <div class="msg-meta"><span class="msg-name">Vince V.</span><span class="msg-time">9:30am</span></div>
+                      <div class="msg-text">🔥 On it.</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="compose-bar">
+                  <input class="compose-input" type="text" placeholder="Message #team-rpi…" readonly>
+                  <button class="compose-btn">Send</button>
+                </div>
+              </div>
+            </div>
+            <div class="panel-footer">Powered by Google Chat · OAuth: @retireprotected.com</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MOCK 2: DMs tab -->
+      <div class="mock-wrap">
+        <div class="mock-label">View 2 — DMs tab</div>
+        <div class="portal-chrome">
+          <div class="portal-header">
+            <div class="portal-header-brand">ProDashX</div>
+            <div class="portal-header-actions"><div class="portal-avatar">VV</div></div>
+          </div>
+          <div class="slide-panel">
+            <div class="slide-panel-header">
+              <div class="slide-panel-title">💬 RPI CONNECT</div>
+              <span class="panel-close">✕</span>
+            </div>
+            <div class="panel-tabs">
+              <div class="panel-tab">Channels</div>
+              <div class="panel-tab panel-tab-active">DMs</div>
+              <div class="panel-tab">Meet</div>
+            </div>
+            <div class="panel-body">
+              <div class="panel-list">
+                <div class="panel-list-item panel-list-item-active"><span class="channel-name">Josh M.</span><span class="unread-badge">2</span></div>
+                <div class="panel-list-item"><span class="channel-name">Nikki G.</span></div>
+                <div class="panel-list-item"><span class="channel-name">Matt M.</span><span class="unread-badge">1</span></div>
+              </div>
+              <div class="panel-convo">
+                <div class="panel-convo-head">Josh Millang · Direct Message</div>
+                <div class="messages">
+                  <div class="msg">
+                    <div class="msg-avatar avatar-jdm">JDM</div>
+                    <div class="msg-body">
+                      <div class="msg-meta"><span class="msg-name">Josh M.</span><span class="msg-time">8:45am</span></div>
+                      <div class="msg-text">Vince — Matt Mitchell meeting is Wednesday at 2pm. Prep the SENTINEL deck.</div>
+                    </div>
+                  </div>
+                  <div class="msg">
+                    <div class="msg-avatar avatar-vv">VV</div>
+                    <div class="msg-body">
+                      <div class="msg-meta"><span class="msg-name">Vince V.</span><span class="msg-time">8:52am</span></div>
+                      <div class="msg-text">On it. Should I include the Midwest Medigap comp data?</div>
+                    </div>
+                  </div>
+                  <div class="msg">
+                    <div class="msg-avatar avatar-jdm">JDM</div>
+                    <div class="msg-body">
+                      <div class="msg-meta"><span class="msg-name">Josh M.</span><span class="msg-time">8:54am</span></div>
+                      <div class="msg-text">Yes. MEGAZORD has the numbers. Ask him.</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="compose-bar">
+                  <input class="compose-input" type="text" placeholder="Message Josh M.…" readonly>
+                  <button class="compose-btn">Send</button>
+                </div>
+              </div>
+            </div>
+            <div class="panel-footer">Powered by Google Chat · OAuth: @retireprotected.com</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MOCK 3: Meet tab -->
+      <div class="mock-wrap">
+        <div class="mock-label">View 3 — Meet tab</div>
+        <div class="portal-chrome">
+          <div class="portal-header">
+            <div class="portal-header-brand">ProDashX</div>
+            <div class="portal-header-actions"><div class="portal-avatar">VV</div></div>
+          </div>
+          <div class="slide-panel">
+            <div class="slide-panel-header">
+              <div class="slide-panel-title">💬 RPI CONNECT</div>
+              <span class="panel-close">✕</span>
+            </div>
+            <div class="panel-tabs">
+              <div class="panel-tab">Channels</div>
+              <div class="panel-tab">DMs</div>
+              <div class="panel-tab panel-tab-active">Meet</div>
+            </div>
+            <div class="panel-body panel-body-block">
+              <div class="meet-tab-body">
+                <button class="meet-start-btn">📹 Start Instant Meeting</button>
+                <div class="upcoming-label">Upcoming Today</div>
+                <div class="meet-event">
+                  <div class="meet-event-time">10:00<br>AM</div>
+                  <div class="meet-event-info">
+                    <div class="meet-event-title">Sales Standup</div>
+                    <div class="meet-event-meta">Vince, Nikki, Josh · 30 min</div>
+                  </div>
+                  <button class="meet-join-btn">Join</button>
+                </div>
+                <div class="meet-event">
+                  <div class="meet-event-time">2:00<br>PM</div>
+                  <div class="meet-event-info">
+                    <div class="meet-event-title">Matt Mitchell — DAVID Intro</div>
+                    <div class="meet-event-meta">Josh, Vince, Matt M. · 60 min</div>
+                  </div>
+                  <button class="meet-join-btn">Join</button>
+                </div>
+                <div class="meet-event">
+                  <div class="meet-event-time">4:30<br>PM</div>
+                  <div class="meet-event-info">
+                    <div class="meet-event-title">1:1 — Nikki + Josh</div>
+                    <div class="meet-event-meta">Nikki, Josh · 30 min</div>
+                  </div>
+                  <button class="meet-join-btn">Join</button>
+                </div>
+              </div>
+            </div>
+            <div class="panel-footer">Powered by Google Meet · Calendar sync: @retireprotected.com</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── §5 OMNI MOCK ── -->
+  <section class="section" id="omni-mock">
+    <div class="section-header">
+      <span class="section-num">§ 05</span>
+      <h2>UI/UX Preview — OMNI Panel</h2>
+    </div>
+    <p style="color:var(--text-muted);margin-bottom:1.5rem">RPI OMNI shares the slide-out rail. Header accent shifts to bronze. Same portal chrome, different mission: client-facing communications only.</p>
+
+    <div class="mock-row">
+
+      <!-- OMNI MOCK 1: Call tab -->
+      <div class="mock-wrap">
+        <div class="mock-label">View 1 — Call tab (dialer)</div>
+        <div class="portal-chrome">
+          <div class="portal-header">
+            <div class="portal-header-brand">ProDashX</div>
+            <div class="portal-header-actions"><div class="portal-avatar portal-avatar-omni">VV</div></div>
+          </div>
+          <div class="slide-panel">
+            <div class="slide-panel-header">
+              <div class="slide-panel-title slide-panel-title-omni">📡 RPI OMNI</div>
+              <span class="panel-close">✕</span>
+            </div>
+            <div class="panel-tabs">
+              <div class="panel-tab panel-tab-active-omni">Call</div>
+              <div class="panel-tab">Text</div>
+              <div class="panel-tab">Email</div>
+              <div class="panel-tab">Log</div>
+            </div>
+            <div class="panel-body panel-body-block">
+              <div class="omni-call-body">
+                <div class="dialer-label">DIALER</div>
+                <div class="dialer-number">(515) 555-0142</div>
+                <div class="dialpad">
+                  <div class="dial-key">1<sub>&nbsp;</sub></div>
+                  <div class="dial-key">2<sub>ABC</sub></div>
+                  <div class="dial-key">3<sub>DEF</sub></div>
+                  <div class="dial-key">4<sub>GHI</sub></div>
+                  <div class="dial-key">5<sub>JKL</sub></div>
+                  <div class="dial-key">6<sub>MNO</sub></div>
+                  <div class="dial-key">7<sub>PQRS</sub></div>
+                  <div class="dial-key">8<sub>TUV</sub></div>
+                  <div class="dial-key">9<sub>WXYZ</sub></div>
+                  <div class="dial-key">*<sub>&nbsp;</sub></div>
+                  <div class="dial-key">0<sub>+</sub></div>
+                  <div class="dial-key">#<sub>&nbsp;</sub></div>
+                  <div class="dial-key dial-end">📵</div>
+                  <div class="dial-key dial-call" style="grid-column:2/4">📞 Call</div>
+                </div>
+                <div class="recent-calls-label">Recent Calls</div>
+                <div class="call-item">
+                  <span class="call-icon">📞</span>
+                  <span class="call-name">Robert Jenkins</span>
+                  <span class="call-meta">9:05am</span>
+                  <span class="call-duration">4m 12s</span>
+                </div>
+                <div class="call-item">
+                  <span class="call-icon">📵</span>
+                  <span class="call-name">Donna Schulz</span>
+                  <span class="call-meta">Yesterday</span>
+                  <span class="call-voicemail">Voicemail</span>
+                </div>
+                <div class="call-item">
+                  <span class="call-icon">📞</span>
+                  <span class="call-name">Gerald Platt</span>
+                  <span class="call-meta">Yesterday</span>
+                  <span class="call-duration">7m 38s</span>
+                </div>
+              </div>
+            </div>
+            <div class="panel-footer">Powered by Twilio Browser SDK · +1 888 620 8587</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- OMNI MOCK 2: Text tab -->
+      <div class="mock-wrap">
+        <div class="mock-label">View 2 — Text tab (SMS + MMS)</div>
+        <div class="portal-chrome">
+          <div class="portal-header">
+            <div class="portal-header-brand">ProDashX</div>
+            <div class="portal-header-actions"><div class="portal-avatar portal-avatar-omni">NG</div></div>
+          </div>
+          <div class="slide-panel">
+            <div class="slide-panel-header">
+              <div class="slide-panel-title slide-panel-title-omni">📡 RPI OMNI</div>
+              <span class="panel-close">✕</span>
+            </div>
+            <div class="panel-tabs">
+              <div class="panel-tab">Call</div>
+              <div class="panel-tab panel-tab-active-omni">Text</div>
+              <div class="panel-tab">Email</div>
+              <div class="panel-tab">Log</div>
+            </div>
+            <div class="panel-body" style="flex-direction:column">
+              <div class="panel-convo-head">Robert Jenkins · (515) 555-0142</div>
+              <div class="sms-thread">
+                <div class="sms-time">Yesterday, 3:12 PM</div>
+                <div class="sms-bubble sms-inbound">Hi, I got a letter about my Medicare plan. Is it changing?</div>
+                <div class="sms-bubble sms-outbound">Hi Robert! Nikki with RPI. Nothing is changing on your end — we'll talk at your review in May. Can I send you a summary?</div>
+                <div class="sms-bubble sms-inbound">Yes please!</div>
+                <div class="sms-time">Today, 9:08 AM</div>
+                <div class="mms-attach">
+                  <span class="mms-icon">📄</span>
+                  <div class="mms-meta"><span class="mms-name">Jenkins_Plan_Summary.pdf</span>Humana MAPD · 142 KB</div>
+                </div>
+                <div class="sms-bubble sms-outbound">There you go! Let me know if you have any questions 😊</div>
+              </div>
+              <div class="compose-bar">
+                <input class="compose-input" type="text" placeholder="Send SMS…" readonly>
+                <button class="compose-btn-omni">Send SMS</button>
+              </div>
+            </div>
+            <div class="panel-footer">Powered by Twilio A2P 10DLC · TCPA compliant</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- OMNI MOCK 3: Log tab -->
+      <div class="mock-wrap">
+        <div class="mock-label">View 3 — Log tab (comms timeline)</div>
+        <div class="portal-chrome">
+          <div class="portal-header">
+            <div class="portal-header-brand">ProDashX</div>
+            <div class="portal-header-actions"><div class="portal-avatar portal-avatar-omni">VV</div></div>
+          </div>
+          <div class="slide-panel">
+            <div class="slide-panel-header">
+              <div class="slide-panel-title slide-panel-title-omni">📡 RPI OMNI</div>
+              <span class="panel-close">✕</span>
+            </div>
+            <div class="panel-tabs">
+              <div class="panel-tab">Call</div>
+              <div class="panel-tab">Text</div>
+              <div class="panel-tab">Email</div>
+              <div class="panel-tab panel-tab-active-omni">Log</div>
+            </div>
+            <div class="panel-body panel-body-block">
+              <div class="omni-log-filters">
+                <span class="filter-chip filter-chip-active">All</span>
+                <span class="filter-chip">Calls</span>
+                <span class="filter-chip">SMS</span>
+                <span class="filter-chip">Email</span>
+              </div>
+              <div class="log-scroll">
+                <div class="log-item">
+                  <div class="log-icon-wrap log-call">📞</div>
+                  <div class="log-info">
+                    <div class="log-title">Robert Jenkins</div>
+                    <div class="log-meta">Outbound call · 9:05am · Vince V. · 4m 12s</div>
+                  </div>
+                  <span class="log-outcome outcome-answered">Answered</span>
+                </div>
+                <div class="log-item">
+                  <div class="log-icon-wrap log-sms">💬</div>
+                  <div class="log-info">
+                    <div class="log-title">Robert Jenkins</div>
+                    <div class="log-meta">MMS outbound · 9:08am · Nikki G.</div>
+                  </div>
+                  <span class="log-outcome outcome-delivered">Delivered</span>
+                </div>
+                <div class="log-item">
+                  <div class="log-icon-wrap log-email">✉️</div>
+                  <div class="log-info">
+                    <div class="log-title">Donna Schulz</div>
+                    <div class="log-meta">AEP follow-up email · 8:50am · Auto-send</div>
+                  </div>
+                  <span class="log-outcome outcome-delivered">Delivered</span>
+                </div>
+                <div class="log-item">
+                  <div class="log-icon-wrap log-call">📞</div>
+                  <div class="log-info">
+                    <div class="log-title">Gerald Platt</div>
+                    <div class="log-meta">Outbound call · Yesterday · Vince V. · 7m 38s</div>
+                  </div>
+                  <span class="log-outcome outcome-answered">Answered</span>
+                </div>
+                <div class="log-item">
+                  <div class="log-icon-wrap log-call">📵</div>
+                  <div class="log-info">
+                    <div class="log-title">Sandra Torres</div>
+                    <div class="log-meta">Outbound call · Yesterday · Nikki G.</div>
+                  </div>
+                  <span class="log-outcome outcome-voicemail">Voicemail</span>
+                </div>
+              </div>
+            </div>
+            <div class="panel-footer">All channels logged · Firestore → BigQuery</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── §6 SLACK SIDE PLAN ── -->
+  <section class="section" id="slack-plan">
+    <div class="section-header">
+      <span class="section-num">§ 06</span>
+      <h2>The Slack-Side Plan</h2>
+    </div>
+    <p style="color:var(--text-muted);margin-bottom:1.25rem">Slack does not go dark on Day 1. These channels stay pointed at Slack until CONNECT earns the greenlight — then flip the webhooks.</p>
+
+    <div class="quote-block">
+      "All the Notifications and shit from toMachina / MDJ_SERVER are aimed there. Again, which should continue until we greenlight the new Native Solution."
+      <div class="quote-attr">— JDM · April 13, 2026</div>
+    </div>
+
+    <div class="card-grid-2" style="margin-top:1.25rem">
+      <div class="card">
+        <h3 style="color:var(--portal)">Stays on Slack (For Now)</h3>
+        <div class="split-row"><span class="split-key">toMachina alerts</span><span class="split-val">Webhooks stay pointed to Slack — flip to Chat post-cutover</span></div>
+        <div class="split-row"><span class="split-key">MDJ_SERVER heartbeats</span><span class="split-val">RONIN / RAIDEN / MEGAZORD war room posts</span></div>
+        <div class="split-row"><span class="split-key">Bilateral warrior channels</span><span class="split-val">#megazord, #voltron-cases, #raiden-reactive — become Chat Spaces post-cutover</span></div>
+        <div class="split-row"><span class="split-key">#the-dojo</span><span class="split-val">War room stays on Slack until CONNECT is live and stable</span></div>
+      </div>
+      <div class="card">
+        <h3 style="color:var(--bronze)">Migration Sequence</h3>
+        <div class="split-row"><span class="split-key">Step 1</span><span class="split-val">CONNECT ships — team uses it for 30 days</span></div>
+        <div class="split-row"><span class="split-key">Step 2</span><span class="split-val">JDM greenlight: "Ship it"</span></div>
+        <div class="split-row"><span class="split-key">Step 3</span><span class="split-val">TAIKO flips webhooks (env var change, 5 min)</span></div>
+        <div class="split-row"><span class="split-key">Step 4</span><span class="split-val">Slack workspace archived, not deleted</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── §7 RISKS ── -->
+  <section class="section" id="risks">
+    <div class="section-header">
+      <span class="section-num">§ 07</span>
+      <h2>Risks &amp; Mitigations</h2>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Risk</th><th>Level</th><th>Mitigation</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>A2P campaign still blocked (OMNI)</strong> — Twilio local SMS blocked until TKO-COMMS-001 ships</td>
+            <td><span class="pill pill-red">High</span></td>
+            <td>TKO-COMMS-001 is ticket #1. Opt-in landing page (MUSASHI copy + TAIKO wire) is the unblock. Toll-free +1 888 620 8587 carries inbound/outbound in the interim.</td>
+          </tr>
+          <tr>
+            <td><strong>GCP OAuth set to External</strong> — consent screen blocks users on first scope grant</td>
+            <td><span class="pill pill-yellow">Medium</span></td>
+            <td>Flip to Internal (one GCP Console checkbox, ~30 seconds). Only valid if no external OAuth consumers exist — verify first. Unlocks 6 Chat scopes instantly.</td>
+          </tr>
+          <tr>
+            <td><strong>Pub/Sub infra complexity</strong> — real-time messaging via Pub/Sub is non-trivial</td>
+            <td><span class="pill pill-yellow">Medium</span></td>
+            <td>Polling MVP ships first (5-sec GET on messages.list). Pub/Sub is v2 (TKO-CONN-008) — users get real-time feel without Pub/Sub complexity at launch.</td>
+          </tr>
+          <tr>
+            <td><strong>No native Huddle equivalent</strong> — Slack Huddles are 1-click, Meet requires a meeting object</td>
+            <td><span class="pill pill-blue">Low</span></td>
+            <td>Meet 1-click button embedded in every Space header and DM thread. Meet API v2 creates the space in under 500ms — effectively 1-click from the UX perspective.</td>
+          </tr>
+          <tr>
+            <td><strong>OAuth scope consent (one-time)</strong> — even Internal OAuth shows a consent screen at first login</td>
+            <td><span class="pill pill-blue">Low</span></td>
+            <td>One-time only at Firebase Auth login. Transparent to users after first session. Documented in onboarding flow (MUSASHI handles copy).</td>
+          </tr>
+          <tr>
+            <td><strong>Historical message migration</strong> — Slack history cannot cleanly import to Google Chat</td>
+            <td><span class="pill pill-blue">Low</span></td>
+            <td>Not migrating. Slack workspace stays accessible (read-only after cutover). Fresh start in CONNECT. JDM confirmed: "DGAF about history."</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ── §8 SPRINT PLAN ── -->
+  <section class="section" id="sprint">
+    <div class="section-header">
+      <span class="section-num">§ 08</span>
+      <h2>Sprint Plan — Two Parallel Tracks</h2>
+    </div>
+    <p style="color:var(--text-muted);margin-bottom:1.5rem">OMNI unblocks the broken pipe first (A2P). CONNECT builds the new one. Both run simultaneously — no dependency between them.</p>
+
+    <div class="sprint-grid">
+
+      <div class="sprint-col">
+        <div class="sprint-col-header col-omni">📡 OMNI Track — TKO-COMMS-*</div>
+
+        <div class="ticket-card">
+          <div class="ticket-id ticket-id-omni">TKO-COMMS-001</div>
+          <div class="ticket-title">A2P Opt-In Landing Page + Twilio Campaign Unblock</div>
+          <p>Build TCPA-compliant opt-in page (MUSASHI writes copy). Submit Twilio A2P campaign. Reopen ticket 25630009. Highest-priority ticket on the entire platform.</p>
+        </div>
+
+        <div class="ticket-card">
+          <div class="ticket-id ticket-id-omni">TKO-COMMS-002</div>
+          <div class="ticket-title">Push-Padding Wiring — Notification Routing</div>
+          <p>Wire the notifications collection to actual channels. Add channel selection logic (SMS vs email vs in-portal toast) based on event type and user preference.</p>
+        </div>
+
+        <div class="ticket-card">
+          <div class="ticket-id ticket-id-omni">TKO-COMMS-003</div>
+          <div class="ticket-title">InboundCallCard Fix — Broken Inbound UX</div>
+          <p>Diagnose and fix the inbound call UI card. Call arrives, card should appear with client context loaded. Currently broken — agent picks up in the dark.</p>
+        </div>
+
+        <div class="ticket-card">
+          <div class="ticket-id ticket-id-omni">TKO-COMMS-004</div>
+          <div class="ticket-title">Inbound Email Webhook — SendGrid → Firestore</div>
+          <p>Wire SendGrid inbound parse webhook to the communications collection. Replies from clients land in OMNI Log automatically.</p>
+        </div>
+
+        <div class="ticket-card">
+          <div class="ticket-id ticket-id-omni">TKO-COMMS-005</div>
+          <div class="ticket-title">SendGrid Delivery Audit</div>
+          <p>Pull 90-day delivery stats. Identify bounce rate, open rate, failed sends. First time this has ever been audited. Establish monitoring baseline.</p>
+        </div>
+
+        <div class="ticket-card">
+          <div class="ticket-id ticket-id-omni">TKO-COMMS-006</div>
+          <div class="ticket-title">Vendor Labels Cleanup — communications collection</div>
+          <p>Audit and normalize vendor_label field across all communications records. Remove orphaned labels from deprecated integrations (GHL, old RAPID_COMMS).</p>
+        </div>
+      </div>
+
+      <div class="sprint-col">
+        <div class="sprint-col-header col-connect">🏠 CONNECT Track — TKO-CONN-*</div>
+
+        <div class="ticket-card">
+          <div class="ticket-id ticket-id-connect">TKO-CONN-001</div>
+          <div class="ticket-title">OAuth Scope Extension — Flip to Internal</div>
+          <p>Extend Firebase Auth consent to include 8 Google Chat scopes + 2 Meet scopes. Flip GCP OAuth to Internal. Gate: all team members auth without consent screen.</p>
+        </div>
+
+        <div class="ticket-card">
+          <div class="ticket-id ticket-id-connect">TKO-CONN-002</div>
+          <div class="ticket-title">Chat Spaces List + Read — API Route</div>
+          <p>Build GET /api/connect/spaces and GET /api/connect/spaces/:id/messages. Returns Space list + message thread. Depends on TKO-CONN-001.</p>
+        </div>
+
+        <div class="ticket-card">
+          <div class="ticket-id ticket-id-connect">TKO-CONN-003</div>
+          <div class="ticket-title">ConnectPanel — Kill Mocks, Wire to API</div>
+          <p>Remove all seeded/mock data from ConnectPanel. Wire Channels tab to /api/connect/spaces. First live messages appear inside ProDashX.</p>
+        </div>
+
+        <div class="ticket-card">
+          <div class="ticket-id ticket-id-connect">TKO-CONN-004</div>
+          <div class="ticket-title">DM List + Read + Write</div>
+          <p>Build DM Space list API. Wire DMs tab. Implement compose and send. Gate: team members can DM each other from inside ProDashX.</p>
+        </div>
+
+        <div class="ticket-card">
+          <div class="ticket-id ticket-id-connect">TKO-CONN-005</div>
+          <div class="ticket-title">Meet API v2 — Transcripts + Recordings</div>
+          <p>Extend meet_create_meeting to fetch transcript and recording URLs post-call. Surface in Meet tab history. Gemini AI notes if transcript is available.</p>
+        </div>
+
+        <div class="ticket-card">
+          <div class="ticket-id ticket-id-connect">TKO-CONN-006</div>
+          <div class="ticket-title">Read State + Unread Badges</div>
+          <p>Implement chat.users.readstate scope. Track read position per Space per user. Render unread badge counts in sidebar. Feels like a real chat application.</p>
+        </div>
+
+        <div class="ticket-card">
+          <div class="ticket-id ticket-id-connect">TKO-CONN-007</div>
+          <div class="ticket-title">Polling Real-Time — 5-sec Refresh MVP</div>
+          <p>Wire 5-second polling on the active conversation. New messages appear without page refresh. Not Pub/Sub — fast enough for MVP, no infra complexity.</p>
+        </div>
+
+        <div class="ticket-card ticket-v2">
+          <div class="ticket-id ticket-id-connect">TKO-CONN-008</div>
+          <div class="ticket-title">Pub/Sub Real-Time — v2 Follow-Up</div>
+          <p><em>v2 — not in first sprint.</em> Replace polling with Google Cloud Pub/Sub push webhook → SSE stream to portal. True real-time. Runs after polling MVP is battle-tested in production.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ════ FOOTER ════ -->
+<footer>
+  <div class="ft-drum">🥁</div>
+  <div class="ft-sig">— TAIKO, The Drum</div>
+  <div>RPI CONNECT + OMNI — Scope Preview</div>
+  <div class="ft-detail">
+    Discovery Doc · April 13, 2026<br>
+    docs/warriors/taiko/connect-omni-scope-preview.html<br>
+    "The pipes everyone depends on. Blow it apart and rebuild it right."
+  </div>
+</footer>
+
+</body>
+</html>
