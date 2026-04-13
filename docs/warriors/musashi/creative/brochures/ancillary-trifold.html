@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ancillary Benefits — Tri-fold — Retirement Protectors, Inc.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;600&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --rpi-289: #0a2240;
+    --rpi-283: #92c0e9;
+    --rpi-medium: #12416b;
+    --rpi-pale: #abd2ef;
+    --rpi-royal: #23558c;
+    --rpi-mist: #cae7f9;
+    --rpi-alert: #b91c1c;
+    --ink: #1a1a1a;
+    --ink-soft: #3a4456;
+    --paper: #f4f4f5;
+    --paper-warm: #fafbfc;
+    --rule: #d0dae6;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: var(--paper); color: var(--ink); font-family: 'Mulish', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; line-height: 1.45; }
+  h1, h2, h3, h4 { font-family: 'Poppins', sans-serif; color: var(--rpi-289); line-height: 1.2; letter-spacing: -0.01em; }
+
+  /* Tri-fold sheet: 11" wide x 8.5" tall landscape, 3 panels per side */
+  .sheet { width: 11in; height: 8.5in; background: white; margin: 0.5in auto; box-shadow: 0 1px 24px rgba(10,34,64,0.08); display: grid; grid-template-columns: repeat(3, 1fr); position: relative; overflow: hidden; }
+  .sheet + .sheet { margin-top: 0.6rem; }
+  .panel { padding: 0.3in 0.28in; border-right: 1px dashed var(--rule); position: relative; overflow: hidden; display: flex; flex-direction: column; }
+  .panel:last-child { border-right: none; }
+  .panel-label { position: absolute; top: 6px; left: 6px; font-family: 'Poppins', sans-serif; font-size: 8px; font-weight: 600; color: var(--rule); letter-spacing: 0.08em; text-transform: uppercase; pointer-events: none; }
+
+  /* Typography scales for tri-fold — sized to FILL panels (per JDM ask) */
+  h1 { font-size: 38px; font-weight: 800; margin-bottom: 10px; }
+  h2 { font-size: 20px; font-weight: 700; margin-bottom: 12px; padding-bottom: 7px; border-bottom: 1px solid var(--rule); color: var(--rpi-medium); }
+  h3 { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
+  p, li { font-size: 14px; color: var(--ink-soft); line-height: 1.55; }
+  .eyebrow { font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--rpi-medium); margin-bottom: 12px; }
+
+  /* MYST team strip */
+  .myst { background: var(--paper-warm); border: 1px solid var(--rule); border-radius: 6px; padding: 14px 14px 12px; margin: 14px 0 12px; }
+  .myst-eyebrow { font-family: 'Poppins', sans-serif; font-size: 9.5px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--rpi-royal); margin-bottom: 8px; text-align: center; }
+  .myst-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .myst-card { text-align: center; }
+  .myst-photo { width: 84px; height: 84px; border-radius: 50%; object-fit: cover; border: 3px solid var(--rpi-289); margin: 0 auto 6px; display: block; }
+  .myst-name { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 12px; color: var(--rpi-289); line-height: 1.15; margin-bottom: 2px; }
+  .myst-title { font-size: 10.5px; color: var(--ink-soft); line-height: 1.3; }
+
+  /* COVER PANEL — V3 TWO-TONE LOCKED 2026-04-13 */
+  /* Override outer .panel padding so the two zones can fill edge-to-edge */
+  .cover { background: white; color: var(--ink); padding: 0 !important; display: flex; flex-direction: column; }
+  .cover-top { position: relative; z-index: 1; background: white; padding: 0.4in 0.34in 0.34in; }
+  .cover-top .cover-eyebrow { font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--rpi-medium); margin-bottom: 14px; }
+  .cover-top h1 { color: var(--rpi-289); font-size: 52px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 18px; line-height: 1.02; }
+  .cover-top .cover-sub { font-family: 'Poppins', sans-serif; font-size: 16px; color: var(--ink-soft); font-weight: 500; line-height: 1.5; }
+  .cover-top .cover-sub strong { color: var(--rpi-289); }
+  .cover-bottom { flex: 1; background: linear-gradient(160deg, var(--rpi-289) 0%, var(--rpi-medium) 60%, var(--rpi-royal) 100%); position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; padding: 0 0.3in; }
+  .cover-shield { width: 92%; aspect-ratio: 318 / 284; background-image: url('../assets/rpi/rpi-shield-mark.png'); background-size: contain; background-position: center; background-repeat: no-repeat; opacity: 0.26; flex-shrink: 0; }
+  .cover-wyp { font-family: 'Poppins', sans-serif; font-weight: 900; font-size: 40px; letter-spacing: 0.03em; color: white; text-align: center; line-height: 1.02; text-shadow: 0 1px 2px rgba(0,0,0,0.25); flex-shrink: 0; }
+  .cover-wyp .tm { font-size: 0.55em; vertical-align: super; font-weight: 700; letter-spacing: 0.05em; margin-left: 2px; }
+  /* JDM 2026-04-13 FINAL BALANCE: justify-content:space-evenly creates 3 equal vertical gaps — above shield, between shield and WYP, below WYP. Same sizes, perfect rhythm. */
+
+  /* BACK PANEL (Panel 1 of outside = back when folded) */
+  .back { background: var(--paper-warm); justify-content: space-between; }
+  .back-top { }
+  .back-top .back-logo { width: 220px; margin-bottom: 16px; display: block; }
+  .back h2 { border-bottom-color: var(--rpi-283); color: var(--rpi-289); font-size: 14px; }
+  .back-contact { background: white; border: 1px solid var(--rule); border-left: 4px solid var(--rpi-royal); padding: 10px 12px; border-radius: 4px; font-size: 10.5px; line-height: 1.7; color: var(--ink-soft); margin-top: 10px; }
+  .back-contact strong { color: var(--rpi-289); display: block; font-size: 11px; margin-bottom: 3px; font-family: 'Poppins', sans-serif; }
+  .back-disclaimer { font-size: 8.5px; color: var(--ink-soft); line-height: 1.5; border-top: 1px solid var(--rule); padding-top: 8px; margin-top: auto; }
+
+  /* INSIDE PANEL (flap) */
+  .flap { background: white; }
+  .flap .eyebrow { margin-bottom: 4px; }
+  .flap .intro { font-family: 'Poppins', sans-serif; font-size: 11px; color: var(--ink-soft); line-height: 1.55; margin-bottom: 12px; }
+
+  /* Steps block */
+  .step { background: var(--paper-warm); border-left: 4px solid var(--rpi-royal); padding: 11px 13px; border-radius: 3px; margin-bottom: 11px; }
+  .step-num { font-family: 'Poppins', sans-serif; font-size: 9.5px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--rpi-royal); margin-bottom: 3px; }
+  .step h3 { font-size: 14px; margin-bottom: 4px; color: var(--rpi-289); }
+  .step p { font-size: 12px; line-height: 1.5; }
+
+  /* Parts (2x2 grid — used here as 2x3 for 6 categories) */
+  .parts-mini { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+  .part-mini { background: var(--paper-warm); border: 1px solid var(--rule); border-radius: 4px; padding: 10px 12px; }
+  .part-mini .label { font-family: 'Poppins', sans-serif; font-size: 9.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--rpi-medium); margin-bottom: 3px; }
+  .part-mini h4 { font-size: 13px; margin-bottom: 4px; color: var(--rpi-289); }
+  .part-mini p { font-size: 11px; line-height: 1.5; }
+  .part-mini.accent { background: linear-gradient(180deg, rgba(146,192,233,0.22), rgba(146,192,233,0.04)); border-color: var(--rpi-283); }
+
+  /* Numbers card */
+  .numbers-mini { background: var(--rpi-289); color: white; border-radius: 5px; padding: 13px 15px; position: relative; overflow: hidden; }
+  .numbers-mini::before { content: ''; position: absolute; top: 20px; right: 14px; width: 150px; height: 150px; background-image: url('../assets/rpi/rpi-shield-mark.png'); background-size: contain; background-position: right top; background-repeat: no-repeat; opacity: 0.18; pointer-events: none; }
+  .numbers-mini h3 { color: white; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; font-weight: 600; position: relative; z-index: 1; }
+  .numbers-mini table { width: 100%; font-size: 11.5px; position: relative; z-index: 1; }
+  .numbers-mini td { padding: 4px 0; color: var(--rpi-pale); }
+  .numbers-mini td:last-child { text-align: right; font-family: 'Poppins', sans-serif; font-weight: 700; color: white; }
+
+  /* Coverage matrix mini */
+  .medigap-mini { width: 100%; border-collapse: collapse; font-size: 10px; margin-bottom: 10px; }
+  .medigap-mini th, .medigap-mini td { padding: 4px 3px; text-align: center; border: 1px solid var(--rule); }
+  .medigap-mini thead th { background: var(--rpi-289); color: white; font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 9px; }
+  .medigap-mini tbody td:first-child { text-align: left; padding-left: 6px; font-weight: 500; color: var(--rpi-medium); font-size: 9.5px; }
+  .medigap-mini .dot { color: var(--rpi-royal); font-weight: 700; }
+  .medigap-mini .partial { color: var(--ink-soft); font-size: 9px; }
+
+  /* AEP mini */
+  .aep-mini { background: linear-gradient(135deg, var(--rpi-medium), var(--rpi-289)); color: white; padding: 12px 14px; border-radius: 5px; display: flex; gap: 12px; align-items: center; margin: 14px 0 12px; }
+  .aep-mini img { width: 36px; height: auto; filter: brightness(1.15); flex-shrink: 0; }
+  .aep-mini h3 { color: white; font-size: 13px; margin-bottom: 3px; }
+  .aep-mini p { color: var(--rpi-pale); font-size: 11.5px; line-height: 1.45; }
+
+  /* SEP list */
+  .sep-mini { background: var(--paper-warm); border: 1px solid var(--rule); border-radius: 4px; padding: 11px 13px; margin-bottom: 10px; }
+  .sep-mini h3 { font-size: 13px; margin-bottom: 8px; color: var(--rpi-289); }
+  .sep-mini ul { list-style: none; }
+  .sep-mini li { font-size: 11.5px; padding-left: 14px; position: relative; margin-bottom: 4px; line-height: 1.45; }
+  .sep-mini li::before { content: '&#9642;'; color: var(--rpi-royal); position: absolute; left: 0; font-size: 12px; top: -1px; }
+
+  /* LTC coverage table inside back panel */
+  .ltc-table { width: 100%; border-collapse: collapse; font-size: 11.5px; margin-top: 6px; }
+  .ltc-table tr td { padding: 4px 0; color: var(--ink-soft); }
+  .ltc-table tr td:last-child { text-align: right; font-family: 'Poppins', sans-serif; font-weight: 700; }
+  .ltc-table .ltc-full { color: var(--rpi-289); }
+  .ltc-table .ltc-partial { color: var(--rpi-medium); }
+  .ltc-table .ltc-zero { color: var(--rpi-alert); }
+
+  /* Back CTA block */
+  .back-cta { background: var(--rpi-289); color: white; padding: 14px 16px; border-radius: 6px; }
+  .back-cta-title { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 13px; margin-bottom: 6px; color: white; }
+  .back-cta-body { font-size: 12px; color: var(--rpi-pale); line-height: 1.6; }
+
+  /* Flap CTA block */
+  .flap-cta { background: var(--rpi-289); color: white; padding: 18px 20px; border-radius: 6px; margin-top: 18px; }
+  .flap-cta-title { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 15px; margin-bottom: 6px; color: white; }
+  .flap-cta-body { font-size: 13px; color: var(--rpi-pale); line-height: 1.7; }
+  .flap-cta-body strong { color: white; }
+
+  /* Back LTC card */
+  .ltc-card { background: white; border: 1px solid var(--rule); border-left: 4px solid var(--rpi-royal); padding: 12px 14px; border-radius: 4px; margin-top: 10px; }
+  .ltc-card-label { font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 700; color: var(--rpi-289); margin-bottom: 6px; }
+
+  .preview-nav { position: fixed; top: 10px; right: 10px; background: var(--rpi-289); color: white; padding: 10px 14px; border-radius: 6px; font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 600; box-shadow: 0 2px 12px rgba(0,0,0,0.25); z-index: 1000; }
+  .preview-nav a { color: var(--rpi-pale); text-decoration: none; margin-left: 10px; cursor: pointer; }
+  .preview-nav a:hover { color: white; }
+  .fold-note { max-width: 11in; margin: 0 auto 0.3rem; padding: 0.5rem 1rem; background: var(--paper-warm); border-left: 4px solid var(--rpi-royal); font-size: 12px; color: var(--ink-soft); font-family: 'Poppins', sans-serif; }
+  .fold-note strong { color: var(--rpi-289); }
+
+  @media print {
+    body { background: white; }
+    .sheet { margin: 0; box-shadow: none; page-break-after: always; }
+    .sheet:last-child { page-break-after: auto; }
+    .preview-nav, .fold-note { display: none; }
+    .panel { border-right: none; }
+    @page { size: 11in 8.5in; margin: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="preview-nav">
+  Tri-fold &middot; Ancillary Benefits &middot; <a onclick="window.print()">Print (landscape)</a>
+</div>
+
+<div class="fold-note"><strong>Tri-fold format.</strong> Print both sheets double-sided on 11"&times;8.5" landscape letter. Fold into thirds: outside panels (Back / [blank strip] / Cover) on one side, inside panels (Gaps / Categories &amp; Costs / Stack Matrix &amp; Enrollment) on the other. Panel order matches standard brochure fold.</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- OUTSIDE (Back Panel | Inside-back | Front Cover) -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<div class="sheet">
+
+  <!-- PANEL 1 — BACK OF BROCHURE (when folded) — The 70% Rule -->
+  <div class="panel back">
+    <span class="panel-label">Outside &middot; Panel 1 (Back)</span>
+    <div class="back-top">
+      <div class="eyebrow">Ancillary &middot; Long-Term Care</div>
+      <h1 style="font-size:36px; margin-bottom:10px;">The 70% Rule.</h1>
+      <p style="font-size:14.5px; line-height:1.6; margin-bottom:14px;">Seven out of ten Americans over 65 will need some form of long-term care. Medicare covers the first 20 days of skilled nursing &mdash; 100%. Days 21&ndash;100 &mdash; partial. Day 101 &mdash; zero.</p>
+      <p style="font-size:14.5px; line-height:1.6; margin-bottom:14px;">Long-Term Care insurance isn't about hoping you need it. It's about not relying on Medicaid to cover the bill when you do.</p>
+      <div class="ltc-card">
+        <div class="ltc-card-label">What Medicare covers for skilled nursing:</div>
+        <table class="ltc-table">
+          <tr><td>Days 1&ndash;20</td><td class="ltc-full">100%</td></tr>
+          <tr><td>Days 21&ndash;100</td><td class="ltc-partial">Partial ($217/day coinsurance)</td></tr>
+          <tr><td>Day 101+</td><td class="ltc-zero">$0</td></tr>
+        </table>
+      </div>
+      <div class="back-cta" style="margin-top:18px;">
+        <div class="back-cta-title">Run your LTC scenario.</div>
+        <div class="back-cta-body">No pitch. No pressure. Just the numbers you need to make a real decision.</div>
+      </div>
+    </div>
+    <div class="back-disclaimer">
+      Source: AARP Public Policy Institute / CMS 2026. This agency is not affiliated with Medicare or any other government agency. Ancillary insurance products issued by various carriers. Availability and rates vary by state. For informational use only. See www.medicare.gov or 1-800-MEDICARE. &copy; 2026 Retirement Protectors, Inc.
+    </div>
+  </div>
+
+  <!-- PANEL 2 — INSIDE FLAP (tucks under cover when folded) — Ancillary Team + No-Cost Review -->
+  <div class="panel flap">
+    <span class="panel-label">Outside &middot; Panel 2 (Tuck flap)</span>
+    <div class="eyebrow">We're Your People&trade;</div>
+    <h1 style="font-size:30px; margin-bottom:8px;">Your Ancillary Team.</h1>
+    <p class="intro" style="font-size:14px;">Three faces, one goal: fill the gaps Medicare leaves behind. Call any of us direct, or schedule together &mdash; we'll build the complete plan with you.</p>
+
+    <div class="myst" style="margin-top:18px;">
+      <div class="myst-grid">
+        <div class="myst-card">
+          <img src="../assets/team/robert-lacy.jpg" alt="Robert Lacy" class="myst-photo" />
+          <div class="myst-name">Robert Lacy</div>
+          <div class="myst-title">Medicare Coordinator</div>
+        </div>
+        <div class="myst-card">
+          <img src="../assets/team/lucas-dexter.jpg" alt="Lucas Dexter" class="myst-photo" />
+          <div class="myst-name">Lucas Dexter</div>
+          <div class="myst-title">Medicare Specialist</div>
+        </div>
+        <div class="myst-card">
+          <img src="../assets/team/susan-kaelin.jpg" alt="Susan Kaelin" class="myst-photo" />
+          <div class="myst-name">Susan Kaelin</div>
+          <div class="myst-title">Medicare</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flap-cta">
+      <div class="flap-cta-title">Schedule your no-cost gap review.</div>
+      <div class="flap-cta-body">
+        <strong>RetireProtected.com</strong><br>
+        515-992-5000 &middot; 877-650-7015<br>
+        Service@RetireProtected.com
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL 3 — FRONT COVER — V3 TWO-TONE (JDM 2026-04-13) -->
+  <div class="panel cover">
+    <span class="panel-label">Outside &middot; Panel 3 (Front Cover)</span>
+    <div class="cover-top">
+      <div class="cover-eyebrow">Ancillary &middot; Filling the Real Gaps</div>
+      <h1>What Medicare<br>Won't Cover.</h1>
+      <div class="cover-sub">Dental, vision, hearing, hospital indemnity, final expense, long-term care &mdash; the coverage that completes the plan.</div>
+    </div>
+    <div class="cover-bottom">
+      <div class="cover-shield"></div>
+      <div class="cover-wyp">We're Your People<span class="tm">&trade;</span></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- INSIDE (Three Gaps | Six Categories + Real Costs | Stack Matrix + Enrollment) -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<div class="sheet">
+
+  <!-- INSIDE PANEL 1 — THREE GAPS FRAMEWORK -->
+  <div class="panel flap">
+    <span class="panel-label">Inside &middot; Panel 1</span>
+    <div class="eyebrow">Ancillary &middot; The Gaps</div>
+    <h2>Three Gaps People Miss</h2>
+    <p class="intro">Every Medicare plan has the same three blind spots. Here's what's missing &mdash; and what fills each gap.</p>
+
+    <div class="step">
+      <div class="step-num">Gap 1</div>
+      <h3>The daily gap</h3>
+      <p>Dental, vision, hearing &mdash; Medicare doesn't cover routine care. Dental/Vision/Hearing plans exist as standalone policies or as extras inside Medicare Advantage. Most have no waiting period for preventive care.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">Gap 2</div>
+      <h3>The catastrophic gap</h3>
+      <p>Long-term care costs $90K+/year nationally. Medicare covers skilled nursing only &mdash; and only the first 100 days. After day 100, the bill is 100% yours. LTC insurance and Hospital Indemnity both address this exposure.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">Gap 3</div>
+      <h3>The final gap</h3>
+      <p>Medicare stops at death. Burial, cremation, and remaining medical bills fall to your family. Final Expense Life policies ($5K&ndash;$25K) are designed specifically for this &mdash; simplified underwriting, guaranteed benefit, premiums fixed for life.</p>
+    </div>
+
+    <h2 style="margin-top:10px;">You're Not Alone</h2>
+    <p>Every RPI client gets a dedicated team. Call, text, or book a kitchen-table visit &mdash; we'll sit with you until every gap is covered.</p>
+  </div>
+
+  <!-- INSIDE PANEL 2 — SIX CATEGORIES + REAL COSTS -->
+  <div class="panel flap">
+    <span class="panel-label">Inside &middot; Panel 2</span>
+    <div class="eyebrow">Six Ancillary Categories</div>
+    <h2>What Each Product Covers</h2>
+    <div class="parts-mini">
+      <div class="part-mini accent">
+        <div class="label">Dental / Vision / Hearing</div>
+        <h4>Routine Care</h4>
+        <p>Cleanings, exams, hearing aids. Preventive often day-1. Major care has waiting periods.</p>
+      </div>
+      <div class="part-mini">
+        <div class="label">Hospital Indemnity</div>
+        <h4>Fixed Daily Benefit</h4>
+        <p>Pays directly to you. Stackable on MA or Medigap. Use the cash any way you need.</p>
+      </div>
+      <div class="part-mini">
+        <div class="label">Final Expense</div>
+        <h4>Small Whole Life</h4>
+        <p>$5K&ndash;$25K face. Burial &amp; medical debt. Simplified underwriting. Premiums locked.</p>
+      </div>
+      <div class="part-mini">
+        <div class="label">Long-Term Care</div>
+        <h4>Custodial Care</h4>
+        <p>Assisted living, nursing home, in-home aide. Triggers at 2 of 6 ADLs.</p>
+      </div>
+      <div class="part-mini">
+        <div class="label">Home Health Care</div>
+        <h4>In-Home Provider</h4>
+        <p>Physical, speech, respiratory therapy at home. Benefits paid to provider directly.</p>
+      </div>
+      <div class="part-mini">
+        <div class="label">Recovery Care</div>
+        <h4>Post-Hospital Nursing</h4>
+        <p>Skilled or custodial nursing after a hospital stay. Bridges discharge to recovery.</p>
+      </div>
+    </div>
+
+    <div class="numbers-mini">
+      <h3>The Real Cost of Care &mdash; 2026</h3>
+      <table>
+        <tr><td>Avg. Funeral Cost</td><td>$8&ndash;12K</td></tr>
+        <tr><td>Nursing Home (Private, Annual)</td><td>$116K+</td></tr>
+        <tr><td>Home Health Aide (Annual)</td><td>$75K+</td></tr>
+        <tr><td>Americans 65+ Needing LTC</td><td>70%</td></tr>
+        <tr><td>Hosp. Indemnity Avg. Daily Benefit</td><td>$300</td></tr>
+      </table>
+    </div>
+    <p style="font-size:10px; margin-top:8px; line-height:1.5;">Source: Genworth Cost of Care 2026 / NAIC. National averages; costs vary by state.</p>
+  </div>
+
+  <!-- INSIDE PANEL 3 — STACK MATRIX + ENROLLMENT -->
+  <div class="panel flap">
+    <span class="panel-label">Inside &middot; Panel 3</span>
+    <div class="eyebrow">Coverage Stack + Enrollment</div>
+    <h2>What Covers What</h2>
+    <table class="medigap-mini">
+      <thead>
+        <tr>
+          <th style="text-align:left; padding-left:4px;">Scenario</th>
+          <th>Medicare</th>
+          <th>DVH</th>
+          <th>Hosp.<br>Ind.</th>
+          <th>LTC</th>
+          <th>Final<br>Exp.</th>
+          <th>Home<br>Hlth</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Dentist / hearing aid</td><td>&mdash;</td><td class="dot">&#9679;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
+        <tr><td>Hospital stay</td><td class="dot">&#9679;</td><td>&mdash;</td><td class="dot">&#9679;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
+        <tr><td>Skilled nursing 1&ndash;20 days</td><td class="dot">&#9679;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
+        <tr><td>Skilled nursing day 101+</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td class="dot">&#9679;</td><td>&mdash;</td><td>&mdash;</td></tr>
+        <tr><td>In-home custodial care</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td class="dot">&#9679;</td><td>&mdash;</td><td class="dot">&#9679;</td></tr>
+        <tr><td>Burial / final expenses</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td class="dot">&#9679;</td><td>&mdash;</td></tr>
+      </tbody>
+    </table>
+    <p style="font-size:8px; margin-bottom:8px;">DVH = Dental/Vision/Hearing. &#9679; = product covers this scenario. Coverage varies by carrier and state.</p>
+
+    <div class="aep-mini">
+      <img src="../assets/rpi/rpi-shield-mark.png" alt="" />
+      <div>
+        <h3>Enroll Anytime</h3>
+        <p>Most ancillary products are open year-round. MA bundled dental/vision follows AEP (Oct 15 &mdash; Dec 7).</p>
+      </div>
+    </div>
+
+    <div class="sep-mini">
+      <h3>Triggers That Prompt a Review</h3>
+      <ul>
+        <li>Turning 65 (Medicare enrollment)</li>
+        <li>Retirement or job change</li>
+        <li>New mortgage or family event</li>
+        <li>Hospital stay over 3 days</li>
+        <li>New chronic illness diagnosis</li>
+        <li>Spouse passes away</li>
+        <li>Move to assisted living</li>
+        <li>Decline in ADL function</li>
+        <li>Estate or financial plan review</li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
