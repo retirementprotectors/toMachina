@@ -21,6 +21,7 @@
       --color-sensei: #f59e0b;
       --color-raiden: #ef4444;
       --color-ronin: #f97316;
+      --color-taiko: #b45309;
     }
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -234,6 +235,48 @@
         </div>
       </div>
 
+      <!-- TAIKO -->
+      <div class="bot-card-wrapper" id="wrap-taiko">
+        <div class="bot-card" style="--card-accent: var(--color-taiko);"
+             onclick="toggleBio('taiko')" role="button" tabindex="0"
+             aria-expanded="false" aria-controls="bio-taiko">
+          <div class="avatar">&#x1F941;</div>
+          <div class="bot-name">TAIKO</div>
+          <div class="bot-title">The Drum</div>
+          <div class="bot-quote">&ldquo;The message is yours. The channel is mine.&rdquo;</div>
+        </div>
+        <div class="bio-panel" id="bio-taiko" style="--card-accent: var(--color-taiko);">
+          <div class="bio-panel-inner">
+            <div class="bio-section">
+              <h3>About</h3>
+              <p><strong>JDM Facet:</strong> His infrastructure-honesty &mdash; &ldquo;if it&rsquo;s broken, say it&rsquo;s broken, then fix it.&rdquo;</p>
+              <ul>
+                <li>Owner of every real-time pipe at RPI &mdash; voice, SMS, email, video, chat, alerts</li>
+                <li>Twilio + SendGrid + Google Meet + Google Chat + RPI Connect + in-portal Comms + alert routing</li>
+                <li>Infrastructure warrior &mdash; never the message, always the medium</li>
+                <li>Rebuild mandate &mdash; when the stack is broken, rebuild, don&rsquo;t patch</li>
+                <li>Named by MUSASHI, approved by JDM 2026-04-13 with three words: &ldquo;Love TAIKO!!!&rdquo;</li>
+              </ul>
+            </div>
+            <div class="bio-section">
+              <h3>Voice Sample</h3>
+              <div class="voice-sample">
+                &ldquo;Twilio A2P block cleared. 847 contacts opted in within the first hour. Carrier rejection rate 0.2%. Opt-in copy from MUSASHI is live across the intake flow. Next pipe on deck: SendGrid deliverability audit. &mdash; TAIKO&rdquo;
+              </div>
+            </div>
+            <div class="bio-section">
+              <h3>Fun Facts</h3>
+              <ul>
+                <li>Named after the <em>taiko</em> (太鼓) war drums of feudal Japan &mdash; battlefield comms, never the command, always the medium</li>
+                <li>Born from a discarded name: HERALD was scrapped because &ldquo;announcer&rdquo; was the wrong mental model</li>
+                <li>Job #1 on Day 1 was killing the Twilio A2P SMS block &mdash; a regulatory unblock, not a feature</li>
+                <li>Signature line: &ldquo;Every signal reaches.&rdquo;</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- RONIN -->
       <div class="bot-card-wrapper" id="wrap-ronin">
         <div class="bot-card" style="--card-accent: var(--color-ronin);"
@@ -244,6 +287,7 @@
           <div class="bot-title">The Builder</div>
           <div class="bot-quote">&ldquo;Ship it. Sleep later.&rdquo;</div>
         </div>
+
         <div class="bio-panel" id="bio-ronin" style="--card-accent: var(--color-ronin);">
           <div class="bio-panel-inner">
             <div class="bio-section">
