@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TAIKO — Comms Infrastructure Warrior — Discovery Doc — ZRD-COMMS</title>
+<style>
+:root{--bg:#0a0b10;--card:#12141d;--card2:#181b27;--border:#1e2133;--text:#e8e8ec;--muted:#7a7f96;--accent:#2dd4bf;--blue:#4a7ab5;--green:#40bc58;--yellow:#f5a623;--red:#e74c3c;--purple:#a78bfa;--teal:#2dd4bf;--gold:#d4a44c;--warrior:#f97316}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+.container{max-width:1000px;margin:0 auto;padding:2rem}
+h1{font-size:2rem;text-align:center;margin-bottom:0.3rem}
+.subtitle{text-align:center;color:var(--muted);font-size:1rem;margin-bottom:0.3rem}
+.origin{text-align:center;color:var(--warrior);font-size:0.85rem;font-style:italic;margin-bottom:1.5rem}
+.tab-bar{display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:2rem;position:sticky;top:0;background:var(--bg);z-index:10;padding-top:0.5rem;flex-wrap:wrap}
+.tab-btn{padding:0.7rem 1.2rem;background:none;border:none;color:var(--muted);font-size:0.88rem;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all 0.2s;font-family:inherit}
+.tab-btn:hover{color:var(--text)}
+.tab-btn.active{color:var(--warrior);border-bottom-color:var(--warrior)}
+.tab-content{display:none}.tab-content.active{display:block}
+h2{font-size:1.4rem;margin:1.5rem 0 1rem;padding-bottom:0.5rem;border-bottom:1px solid var(--border);color:var(--warrior)}
+h2:first-child{margin-top:0}
+h3{font-size:1.1rem;margin:1.2rem 0 0.5rem;color:var(--text)}
+p{color:var(--muted);margin-bottom:0.8rem;font-size:0.92rem}
+ul,ol{color:var(--muted);margin-bottom:1rem;padding-left:1.5rem;font-size:0.92rem}
+li{margin-bottom:0.4rem}
+strong{color:var(--text)}
+code{background:var(--card2);padding:0.15rem 0.4rem;border-radius:4px;font-size:0.85rem;color:var(--warrior)}
+pre{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:1rem;margin:1rem 0;overflow-x:auto;font-size:0.82rem;line-height:1.5;color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.25rem;margin-bottom:1rem}
+.card h3{margin-top:0}
+.card-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media(max-width:700px){.card-grid{grid-template-columns:1fr}}
+table{width:100%;border-collapse:collapse;margin:1rem 0}
+th,td{padding:0.6rem 0.75rem;text-align:left;border-bottom:1px solid var(--border);font-size:0.85rem}
+th{color:var(--warrior);font-size:0.75rem;text-transform:uppercase;letter-spacing:0.05em;font-weight:600}
+td{color:var(--muted)}
+.tag{display:inline-block;padding:0.15rem 0.5rem;border-radius:8px;font-size:0.72rem;font-weight:600}
+.tag-orange{background:rgba(249,115,22,0.12);color:var(--warrior)}
+.tag-green{background:rgba(64,188,88,0.12);color:var(--green)}
+.tag-yellow{background:rgba(245,166,35,0.12);color:var(--yellow)}
+.tag-red{background:rgba(231,76,60,0.12);color:var(--red)}
+.tag-purple{background:rgba(167,139,250,0.12);color:var(--purple)}
+.tag-blue{background:rgba(74,122,181,0.12);color:var(--blue)}
+.tag-teal{background:rgba(45,212,191,0.12);color:var(--teal)}
+.callout{background:rgba(249,115,22,0.05);border:1px solid rgba(249,115,22,0.2);border-radius:12px;padding:1.25rem;margin:1.5rem 0}
+.callout p{margin:0}
+.callout-red{background:rgba(231,76,60,0.05);border:1px solid rgba(231,76,60,0.3);border-radius:12px;padding:1.25rem;margin:1.5rem 0}
+.callout-red p{margin:0;color:var(--muted)}
+.callout-yellow{background:rgba(245,166,35,0.05);border:1px solid rgba(245,166,35,0.3);border-radius:12px;padding:1.25rem;margin:1.5rem 0}
+.callout-yellow p{margin:0;color:var(--muted)}
+.callout-green{background:rgba(64,188,88,0.05);border:1px solid rgba(64,188,88,0.3);border-radius:12px;padding:1.25rem;margin:1.5rem 0}
+.callout-green p{margin:0;color:var(--muted)}
+.flow{display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;margin:1rem 0;font-size:0.85rem}
+.flow-step{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:0.5rem 0.8rem;color:var(--text);font-weight:600;font-size:0.8rem}
+.flow-arrow{color:var(--warrior);font-size:1.2rem}
+.ticket{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1.1rem;margin-bottom:0.75rem}
+.ticket-header{display:flex;align-items:center;gap:0.75rem;margin-bottom:0.5rem;flex-wrap:wrap}
+.ticket-id{font-family:monospace;font-size:0.8rem;color:var(--warrior);font-weight:700;white-space:nowrap}
+.ticket-title{font-size:0.95rem;font-weight:600;color:var(--text)}
+.ticket-meta{display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;margin-bottom:0.5rem}
+.ticket p{color:var(--muted);font-size:0.88rem;margin-bottom:0.4rem}
+.ticket p:last-child{margin-bottom:0}
+.phase-header{font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--warrior);margin:1.5rem 0 0.75rem;padding:0.4rem 0;border-bottom:1px solid var(--border)}
+.arch-diagram{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:1.25rem;margin:1rem 0;font-family:monospace;font-size:0.8rem;line-height:1.7;color:var(--muted);overflow-x:auto}
+.arch-diagram .hl{color:var(--warrior)}
+.arch-diagram .hl-green{color:var(--green)}
+.arch-diagram .hl-red{color:var(--red)}
+.arch-diagram .hl-yellow{color:var(--yellow)}
+.arch-diagram .hl-blue{color:var(--blue)}
+.arch-diagram .hl-teal{color:var(--teal)}
+.risk-block{background:var(--card);border-left:4px solid var(--red);border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin:0.75rem 0}
+.risk-block.medium{border-left-color:var(--yellow)}
+.risk-block.low{border-left-color:var(--teal)}
+.gate-step{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:0.9rem 1.1rem;margin:0.5rem 0;display:flex;gap:1rem;align-items:flex-start}
+.gate-num{font-size:1.3rem;font-weight:800;color:var(--warrior);min-width:2rem;line-height:1}
+.gate-content{flex:1}
+.gate-content strong{color:var(--text);display:block;margin-bottom:0.2rem}
+.gate-content p{margin:0;font-size:0.88rem}
+.status-broken{color:var(--red);font-weight:700}
+.status-partial{color:var(--yellow);font-weight:700}
+.status-working{color:var(--green);font-weight:700}
+.ft{text-align:center;padding:2rem 0 1rem;color:var(--muted);font-size:0.8rem;border-top:1px solid var(--border);margin-top:2rem}
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>TAIKO</h1>
+<div class="subtitle">Comms Infrastructure Warrior &mdash; Discovery Doc &mdash; ZRD-COMMS</div>
+<div class="origin">JDM + SHINOB1 &mdash; April 13, 2026 &mdash; "The pipes everyone depends on. Blow it apart and rebuild it right."</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="showTab('why',this)">Why</button>
+  <button class="tab-btn" onclick="showTab('what',this)">What</button>
+  <button class="tab-btn" onclick="showTab('how',this)">How</button>
+  <button class="tab-btn" onclick="showTab('tickets',this)">Tickets</button>
+  <button class="tab-btn" onclick="showTab('files',this)">Files</button>
+  <button class="tab-btn" onclick="showTab('gates',this)">Gates</button>
+  <button class="tab-btn" onclick="showTab('timeline',this)">Timeline</button>
+  <button class="tab-btn" onclick="showTab('risks',this)">Risks &amp; Open Qs</button>
+</div>
+
+<!-- ════ WHY ════ -->
+<div id="why" class="tab-content active">
+  <h2>Why This Warrior Exists</h2>
+
+  <h3>The one-sentence case</h3>
+  <p>Every channel that the team uses to reach clients and each other is either broken, abandoned, or owned by nobody — and because it's owned by nobody, nobody fixes it.</p>
+
+  <div class="callout-red">
+    <p><strong>JDM's words, verbatim (April 13, 2026):</strong> &ldquo;Our external communications through our comms app between text and calling and email and internal text and calling and email is complete fucking joke as well. No one even uses them because they're so fucking bad and it's constantly broken. We need to totally migrate away from Slack and have everything through Google Meet [and Google Chat] but our internal communications modules [are] such a piece of shit right now we can't do that.&rdquo;</p>
+  </div>
+
+  <h3>The blast radius today</h3>
+
+  <div class="card-grid">
+    <div class="card">
+      <h3 style="color:var(--red)">Outbound SMS: Dead</h3>
+      <p>Twilio local number A2P 10DLC campaign is blocked. Ticket 25630009 was auto-closed without resolution. CTA Verification failed because there is no compliant opt-in landing page. Zero outbound texts go out to clients from local numbers. Only the 888 toll-free bypasses this — and it was never configured to carry the load.</p>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--yellow)">Inbound/Outbound Voice: Shitty at Best</h3>
+      <p>The 888 toll-free number works and routes correctly. The local Twilio number is A2P-blocked which affects call delivery on some carriers. Call recording exists in code (<code>comms.ts</code>) but transcription is configured per voicemail only. Click-to-call routes to the correct agent, but the experience is inconsistent enough that reps avoid it.</p>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--red)">Comms App: Team Won't Use It</h3>
+      <p>The in-portal module for sending texts, emails, and making calls to clients is so broken and so slow that the team routes around it. They use their personal phones. They use personal email. The Machine has no record of those communications. Client data is leaking out of the system in every conversation that happens outside the portal.</p>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--red)">Internal Comms: Two Broken Systems</h3>
+      <p>Slack is the de facto tool but JDM wants to migrate to Google Chat + Meet. RPI Connect (the in-portal team comms module) exists as code but is effectively a mockup — channels seed on first GET, calendar pulls from Google API, but the actual messaging layer is hollow. No one migrates to a migration destination that doesn't work yet.</p>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--red)">Alerts: Wired to Nothing</h3>
+      <p>The <code>notifications</code> collection exists. The <code>createNotification()</code> helper is called by comms routes. But there is no routing logic, no channel selection (SMS vs email vs in-portal toast), no user targeting beyond a <code>target_user</code> field. System events — wire failures, deploy errors, security flags — post nowhere.</p>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--yellow)">SendGrid: Unknown State</h3>
+      <p>Transactional email goes through SendGrid (<code>noreply@retireprotected.com</code>). The webhook handler exists. But delivery rates, bounce rates, and template inventory have never been formally audited. We don't actually know how much email is getting through and what's silently failing.</p>
+    </div>
+  </div>
+
+  <h3>Why "no owner" is the root cause</h3>
+  <p>Every one of these failure modes has the same root cause: <strong>no single warrior owns the pipes.</strong> VOLTRON uses the channels. RAIDEN reacts when they break. RONIN patches individual routes. MUSASHI cares about the content in those channels. But nobody wakes up every morning thinking "are the pipes working?" Nobody owns the A2P campaign. Nobody set up the opt-in page. Nobody monitors bounce rates. This warrior exists to end that.</p>
+
+  <div class="callout">
+    <p><strong>The framing:</strong> These are the pipes that every team member and every client depends on. If the pipes don't work, the business doesn't run. This warrior owns the pipes — not the water that flows through them, not the creative that goes on envelopes, just the pipes. They have to work. Always. Every one of them.</p>
+  </div>
+
+  <h3>What's explicitly NOT this warrior's problem</h3>
+  <ul>
+    <li><strong>Campaign content, press releases, brand voice</strong> &rarr; MUSASHI (CMO)</li>
+    <li><strong>Campaign engine (C3, 60 campaigns, 661 templates)</strong> &rarr; already lives in <code>services/api/src/routes/campaign-send.ts</code>, not this sprint</li>
+    <li><strong>Creative strategy, Discovery Docs, narrative</strong> &rarr; MUSASHI</li>
+    <li><strong>Warrior dispatcher routing (Slack&rarr;tmux)</strong> &rarr; SHINOB1 + DISP-MIRROR sprint</li>
+    <li><strong>VOLTRON's client-facing conversation logic</strong> &rarr; VOLTRON/CSO domain</li>
+  </ul>
+
+  <p>The boundary is simple: <strong>TAIKO owns the wire. What travels over the wire belongs to someone else.</strong></p>
+</div>
+
+<!-- ════ WHAT ════ -->
+<div id="what" class="tab-content">
+  <h2>What TAIKO Owns</h2>
+
+  <h3>Channel inventory — current state vs. target</h3>
+
+  <table>
+    <tr>
+      <th>Channel</th>
+      <th>Provider</th>
+      <th>Current State</th>
+      <th>Target State</th>
+    </tr>
+    <tr>
+      <td><strong>Outbound SMS</strong></td>
+      <td>Twilio</td>
+      <td><span class="status-broken">BLOCKED — A2P 10DLC campaign unverified</span></td>
+      <td>Verified campaign, compliant opt-in page, outbound SMS live</td>
+    </tr>
+    <tr>
+      <td><strong>Inbound SMS</strong></td>
+      <td>Twilio</td>
+      <td><span class="status-partial">Partial — routes exist, no structured logging</span></td>
+      <td>Inbound SMS matched to client, logged, surfaced in Comms App</td>
+    </tr>
+    <tr>
+      <td><strong>Outbound Voice (888)</strong></td>
+      <td>Twilio</td>
+      <td><span class="status-working">WORKING — toll-free, smart routing</span></td>
+      <td>Working + call recording + transcript sync to client record</td>
+    </tr>
+    <tr>
+      <td><strong>Inbound Voice (local #)</strong></td>
+      <td>Twilio</td>
+      <td><span class="status-partial">Degraded — A2P block affects some carriers</span></td>
+      <td>Unblocked + consistent routing to assigned agent</td>
+    </tr>
+    <tr>
+      <td><strong>Click-to-Call</strong></td>
+      <td>Twilio</td>
+      <td><span class="status-partial">Exists in code, rarely used, unreliable UX</span></td>
+      <td>Fast, reliable 1-click from client record, logged automatically</td>
+    </tr>
+    <tr>
+      <td><strong>Transactional Email</strong></td>
+      <td>SendGrid</td>
+      <td><span class="status-partial">Sending — delivery/bounce unknown</span></td>
+      <td>Audited, bounce-handled, deliverability verified &gt;98%</td>
+    </tr>
+    <tr>
+      <td><strong>Comms App (in-portal)</strong></td>
+      <td>Internal</td>
+      <td><span class="status-broken">Team won't use it — too broken</span></td>
+      <td>Full rebuild: fast, reliable text/call/email from portal</td>
+    </tr>
+    <tr>
+      <td><strong>System Alerts</strong></td>
+      <td>Internal</td>
+      <td><span class="status-broken">Notifications collection exists, routes nowhere</span></td>
+      <td>Central alert service, user routing, channel selection logic</td>
+    </tr>
+    <tr>
+      <td><strong>Google Meet</strong></td>
+      <td>Google Workspace</td>
+      <td><span class="status-partial">Calendar API connected, Meet link creation works</span></td>
+      <td>Recording retrieval, transcript sync, meeting history on client record</td>
+    </tr>
+    <tr>
+      <td><strong>Google Chat</strong></td>
+      <td>Google Workspace</td>
+      <td><span class="status-broken">Unused — no platform integration</span></td>
+      <td>Platform events can post to shared Chat spaces; team bridge from Slack</td>
+    </tr>
+    <tr>
+      <td><strong>RPI Connect</strong></td>
+      <td>Internal</td>
+      <td><span class="status-broken">Channel CRUD exists, messaging layer hollow</span></td>
+      <td>Full rebuild: team messaging, presence, Meet launch — Slack replacement</td>
+    </tr>
+    <tr>
+      <td><strong>Slack</strong></td>
+      <td>Slack</td>
+      <td><span class="status-working">In use — primary team comms today</span></td>
+      <td>Migration target (Google Chat + RPI Connect). Sunset date TBD by JDM.</td>
+    </tr>
+  </table>
+
+  <h3>Responsibility boundaries</h3>
+
+  <div class="card">
+    <h3>What TAIKO owns end-to-end</h3>
+    <ul>
+      <li>Twilio account configuration, phone numbers, A2P campaign status</li>
+      <li>SendGrid account, API keys, template inventory, delivery monitoring</li>
+      <li>Google Meet API integration (recording, transcripts, scheduling)</li>
+      <li>Google Chat API integration (platform event bridge)</li>
+      <li>Comms App UI rebuild (the portal module for text/call/email)</li>
+      <li>RPI Connect rebuild (the portal module for internal team comms)</li>
+      <li>Alerts infrastructure (central alert service + routing rules)</li>
+      <li>TCPA compliance records (opt-in timestamps, consent docs, call recording consent)</li>
+      <li>Observability: call volume, SMS delivery, email bounce rates, Meet/Chat usage</li>
+      <li>Slack-to-Google migration runbook and execution</li>
+    </ul>
+  </div>
+
+  <div class="card-grid">
+    <div class="card">
+      <h3>MUSASHI owns (NOT TAIKO)</h3>
+      <ul>
+        <li>Campaign content and creative in those emails/texts</li>
+        <li>Brand voice in all comms templates</li>
+        <li>The C3 campaign engine and its 661 templates</li>
+        <li>Notification center UX design (the warrior owns the infra; MUSASHI owns the look)</li>
+        <li>The opt-in page copy and layout design (warrior owns the technical compliance requirements)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Other warriors (NOT TAIKO)</h3>
+      <ul>
+        <li><strong>VOLTRON:</strong> decides which channel to use for a client interaction; calls comms infra as a tool</li>
+        <li><strong>RAIDEN:</strong> reacts when comms channels break; files issues; routes to TAIKO sprint queue</li>
+        <li><strong>RONIN:</strong> builds the code from TAIKO's specs; TAIKO reviews and approves</li>
+        <li><strong>SHINOB1:</strong> signs off on architecture decisions before RONIN builds</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Architecture: where the comms infrastructure lives</h3>
+
+  <div class="arch-diagram">
+<span class="hl">Portal UI (ProDash / RIIMO / SENTINEL)</span>
+    &darr; fetch /api/comms/* &nbsp;&nbsp;&nbsp; &darr; fetch /api/connect/* &nbsp;&nbsp;&nbsp; &darr; fetch /api/notifications/*
+<span class="hl-teal">services/api/src/routes/</span>
+  ├── <span class="hl">comms.ts</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;← Twilio + SendGrid (exists, needs rebuild)
+  ├── comms-routing.ts &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;← Call routing logic (exists)
+  ├── communications.ts &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;← Communication log CRUD (exists)
+  ├── connect.ts &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;← RPI Connect channels + Meet (exists, hollow)
+  ├── notifications.ts &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;← Notification CRUD (exists, not routed)
+  └── <span class="hl">webhooks.ts</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;← SendGrid + Twilio callbacks (exists)
+
+<span class="hl-blue">New: services/api/src/routes/alerts.ts</span> &nbsp;&nbsp;← central alert dispatcher (ZRD-COMMS-009)
+<span class="hl-blue">New: apps/*/app/(portal)/sms-consent/</span> &nbsp;← public A2P opt-in page (ZRD-COMMS-001)
+
+<span class="hl-green">External providers</span>
+  ├── Twilio (voice + SMS) &nbsp;&nbsp;← TWILIO_ACCOUNT_SID / TWILIO_AUTH_TOKEN / TWILIO_PHONE_NUMBER
+  ├── SendGrid (email) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;← SENDGRID_API_KEY / SENDGRID_FROM_EMAIL
+  └── Google Workspace &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;← Meet API + Chat API (domain-wide delegation)
+
+<span class="hl-yellow">Firestore collections</span>
+  ├── communications &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;← all inbound + outbound comm logs
+  ├── notifications &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;← per-user notification feed
+  ├── connect_channels &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;← RPI Connect channel registry
+  └── tcpa_consents &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;← new: opt-in records (ZRD-COMMS-014)
+  </div>
+</div>
+
+<!-- ════ HOW ════ -->
+<div id="how" class="tab-content">
+  <h2>How We Rebuild It</h2>
+
+  <div class="callout-red">
+    <p><strong>Rebuild mandate, not incremental fix.</strong> The current comms infrastructure is not in bad shape because of one bug or one missing feature. It is in bad shape because it was assembled incrementally, never owned, and never tested end-to-end as a system. Patching individual pieces will produce the same result in six months. The only real fix is: tear out the broken parts, understand the contracts between them, and rebuild correctly from the ground up. While honoring the one hard constraint: <strong>inbound client calls to the 888 number must never go dark.</strong></p>
+  </div>
+
+  <h3>The hard constraint during rebuild</h3>
+  <p>Clients call <code>+18886208587</code>. That must work at all times, no exceptions, throughout the entire rebuild. Everything else can have a brief maintenance window if needed. The 888 cannot.</p>
+
+  <h3>Rebuild sequence — priority order</h3>
+
+  <div class="gate-step">
+    <div class="gate-num">1</div>
+    <div class="gate-content">
+      <strong>A2P Unblock (COMMS-001, 002) — Days 1–2</strong>
+      <p>Build the compliant opt-in landing page with exact carrier-approved language. Reopen Twilio ticket 25630009. Submit to Twilio for CTA Verification. This is the single highest-value unlock: the moment it clears, outbound SMS goes live across the platform. Everything downstream of SMS (VOLTRON client texts, campaign SMS sends, appointment confirmations) is unblocked by this one action.</p>
+    </div>
+  </div>
+
+  <div class="gate-step">
+    <div class="gate-num">2</div>
+    <div class="gate-content">
+      <strong>Twilio core refactor (COMMS-003 through 006) — Days 2–5</strong>
+      <p>While A2P verification is in Twilio's queue (48–72 hours typical), rebuild the underlying SMS and voice routes. Inbound SMS webhook needs to match caller to client, log to <code>communications</code>, and surface in the portal. Outbound SMS needs rate limiting, A2P gate, and template engine. Voice inbound and outbound need to be solid, consistent, and logged. This is the plumbing under everything else.</p>
+    </div>
+  </div>
+
+  <div class="gate-step">
+    <div class="gate-num">3</div>
+    <div class="gate-content">
+      <strong>Comms App UI rebuild (COMMS-008) — Days 3–6</strong>
+      <p>The in-portal module that gives reps a single place to text, call, and email clients. Rebuilt from scratch: fast load, real-time message thread view, click-to-call, inline email compose. If the underlying Twilio + SendGrid infra is solid (steps 1 and 2), the UI is just the surface. This is the thing that makes the team actually use it.</p>
+    </div>
+  </div>
+
+  <div class="gate-step">
+    <div class="gate-num">4</div>
+    <div class="gate-content">
+      <strong>Alerts infrastructure (COMMS-009) — Days 4–6 parallel</strong>
+      <p>Central alert dispatcher: a new <code>alerts.ts</code> route and service that receives structured events and routes them to the right channel (SMS to rep's phone, email, in-portal notification toast, or Google Chat post) based on routing rules. Wire failures, deploy failures, security events, case assignment — all plugged in here. Stops the silent-failure problem.</p>
+    </div>
+  </div>
+
+  <div class="gate-step">
+    <div class="gate-num">5</div>
+    <div class="gate-content">
+      <strong>Google Meet + Chat integration (COMMS-010, 011) — Days 5–7</strong>
+      <p>Google Meet API is partially wired (<code>connect.ts</code> creates meetings). Extend to retrieve recordings, sync transcripts to client records. Google Chat bridge: the platform can post structured events to Chat spaces from any wire or alert. These two together are the foundation for the Slack migration.</p>
+    </div>
+  </div>
+
+  <div class="gate-step">
+    <div class="gate-num">6</div>
+    <div class="gate-content">
+      <strong>RPI Connect rebuild (COMMS-012) — Days 6–9</strong>
+      <p>The in-portal internal team comms module. Current state: channels exist in Firestore, calendar API works, messaging layer is hollow. Rebuild with real-time messaging (WebSocket or SSE), presence indicators, Google Meet launch button. This is the replacement for Slack within the portal. Must be solid before anyone migrates.</p>
+    </div>
+  </div>
+
+  <div class="gate-step">
+    <div class="gate-num">7</div>
+    <div class="gate-content">
+      <strong>SendGrid audit + compliance + migration runbook (COMMS-007, 013, 014, 015) — Days 7–12</strong>
+      <p>Audit SendGrid delivery rates and bounce handling. Build TCPA consent record collection. Produce the Slack-to-Google migration runbook — which channels move first, timeline, team communication plan, data export. Observability dashboard: call volume, SMS delivery, email bounce, Meet usage — all in one place. These are the long-tail items that make the system trustworthy, not just functional.</p>
+    </div>
+  </div>
+
+  <h3>Integration contracts with other warriors</h3>
+
+  <div class="card-grid">
+    <div class="card">
+      <h3>VOLTRON</h3>
+      <p>VOLTRON calls comms infra via CCSDK tools (<code>comms_send_sms</code>, <code>comms_initiate_call</code>, <code>comms_send_email</code>). The rpi-comms MCP wraps these API routes. TAIKO owns the routes. VOLTRON decides when to call them. If channel-of-choice logic changes (e.g., "prefer SMS over email for this client"), that logic lives in VOLTRON — TAIKO just needs the pipes to accept any channel call and execute correctly.</p>
+    </div>
+    <div class="card">
+      <h3>RAIDEN</h3>
+      <p>RAIDEN watches for comms channel failures in <code>#raiden-reactive</code>. When a rep reports "texts not sending," RAIDEN triages, attempts a quick fix (&lt;30 min), or routes to TAIKO's sprint queue with full context. TAIKO does not watch Slack — RAIDEN feeds the queue. RAIDEN also needs the alerts infrastructure to be fully wired so that Twilio delivery failures and SendGrid bounce spikes surface automatically rather than via team complaint.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ════ TICKETS ════ -->
+<div id="tickets" class="tab-content">
+  <h2>Tickets — ZRD-COMMS Sprint</h2>
+  <p>16 tickets. Prefix <code>ZRD-COMMS-NNN</code> (renameable when MUSASHI names the warrior). Hours are RONIN-speed on this codebase — not waterfall estimates.</p>
+
+  <div class="phase-header">Phase 1 — A2P Unblock (Blocker for everything SMS)</div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">ZRD-COMMS-001</span>
+      <span class="ticket-title">Twilio A2P CTA Verification — SMS opt-in consent page</span>
+    </div>
+    <div class="ticket-meta">
+      <span class="tag tag-red">Blocker</span>
+      <span class="tag tag-orange">Phase 1</span>
+      <span class="tag tag-yellow">2 hrs</span>
+    </div>
+    <p><strong>What:</strong> Build a public (no auth required) route <code>/sms-consent</code> on ProDash with carrier-compliant opt-in language. Must include: program description, message frequency disclosure, STOP/HELP instructions, standard rate disclosure, link to Privacy Policy and Terms of Service. No pre-checked boxes. No deceptive patterns. This is the landing page URL submitted to Twilio for CTA Verification.</p>
+    <p><strong>Files:</strong> <code>apps/prodash/app/sms-consent/page.tsx</code> — public route (outside <code>(portal)</code> group, no auth middleware). MUSASHI to provide copy before RONIN builds.</p>
+    <p><strong>Depends on:</strong> MUSASHI sign-off on consent copy before build.</p>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">ZRD-COMMS-002</span>
+      <span class="ticket-title">Twilio A2P resubmit — reopen ticket 25630009 with new landing page</span>
+    </div>
+    <div class="ticket-meta">
+      <span class="tag tag-red">Blocker</span>
+      <span class="tag tag-orange">Phase 1</span>
+      <span class="tag tag-yellow">1 hr</span>
+    </div>
+    <p><strong>What:</strong> Reopen Twilio support ticket 25630009 (auto-closed without resolution). Submit the new <code>/sms-consent</code> page URL as the CTA Verification URL. Update the A2P campaign description to accurately describe RPI's use case: appointment reminders, policy service alerts, and follow-up communications with existing clients who have provided consent. Monitor for Twilio approval (typically 48–72 hrs).</p>
+    <p><strong>Files:</strong> No code files. Twilio console + support ticket action. Document outcome in <code>docs/warriors/TAIKO/a2p-campaign-log.md</code>.</p>
+    <p><strong>Depends on:</strong> ZRD-COMMS-001 deployed and publicly accessible.</p>
+  </div>
+
+  <div class="phase-header">Phase 2 — Twilio Core Refactor (Build while A2P is in Twilio's queue)</div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">ZRD-COMMS-003</span>
+      <span class="ticket-title">Twilio inbound SMS webhook refactor — client matching + structured logging</span>
+    </div>
+    <div class="ticket-meta">
+      <span class="tag tag-orange">Phase 2</span>
+      <span class="tag tag-yellow">2–3 hrs</span>
+    </div>
+    <p><strong>What:</strong> Refactor the Twilio SMS webhook handler (<code>POST /api/webhooks/twilio/sms</code>) to: (1) match the incoming phone number to a Firestore client record, (2) log the inbound message to the <code>communications</code> collection with <code>direction: 'inbound'</code>, <code>channel: 'sms'</code>, <code>client_id</code>, and the full message body, (3) create a notification for the assigned agent via <code>createNotification()</code>, (4) return Twilio-valid TwiML response.</p>
+    <p><strong>Files:</strong> <code>services/api/src/routes/webhooks.ts</code> (Twilio SMS section), <code>services/api/src/routes/communications.ts</code></p>
+    <p><strong>Depends on:</strong> None (can build before A2P is approved).</p>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">ZRD-COMMS-004</span>
+      <span class="ticket-title">Twilio outbound SMS — A2P gate, rate limiting, template engine</span>
+    </div>
+    <div class="ticket-meta">
+      <span class="tag tag-orange">Phase 2</span>
+      <span class="tag tag-yellow">2–3 hrs</span>
+    </div>
+    <p><strong>What:</strong> Refactor outbound SMS (<code>POST /api/comms/sms</code>) to: (1) gate on A2P campaign status — if campaign is not verified, block send and return a structured error with the reason, (2) enforce rate limits (max sends per number per day, configurable via <code>config/sms</code> Firestore doc), (3) support simple mustache-style template variables in message body (<code>{{first_name}}</code>, <code>{{agent_name}}</code>), (4) log to <code>communications</code> collection with <code>twilio_sid</code> for status callback correlation.</p>
+    <p><strong>Files:</strong> <code>services/api/src/routes/comms.ts</code> (outbound SMS section), <code>packages/core/src/types/comms.ts</code></p>
+    <p><strong>Depends on:</strong> ZRD-COMMS-003 (for consistent logging schema).</p>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">ZRD-COMMS-005</span>
+      <span class="ticket-title">Twilio voice — inbound routing hardening, call recording, transcript sync</span>
+    </div>
+    <div class="ticket-meta">
+      <span class="tag tag-orange">Phase 2</span>
+      <span class="tag tag-yellow">3–4 hrs</span>
+    </div>
+    <p><strong>What:</strong> Harden inbound voice: (1) verify 888 and local number both route correctly through <code>comms-routing.ts</code>, (2) ensure call recording is on for all inbound calls (not just voicemail), (3) fetch Twilio transcription on call completion via status callback, (4) write transcript to client record (<code>clients/{clientId}/call_transcripts</code> subcollection) and log to <code>communications</code>. Keep voicemail config in Firestore (<code>config/voicemail</code>) — already implemented, verify it works.</p>
+    <p><strong>Files:</strong> <code>services/api/src/routes/comms.ts</code> (voice TwiML section), <code>services/api/src/routes/comms-routing.ts</code>, <code>services/api/src/routes/webhooks.ts</code> (Twilio voice callback section)</p>
+    <p><strong>Depends on:</strong> ZRD-COMMS-003 (consistent logging schema).</p>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">ZRD-COMMS-006</span>
+      <span class="ticket-title">Twilio outbound voice — click-to-call from portal, call logging</span>
+    </div>
+    <div class="ticket-meta">
+      <span class="tag tag-orange">Phase 2</span>
+      <span class="tag tag-yellow">2 hrs</span>
+    </div>
+    <p><strong>What:</strong> Ensure outbound click-to-call (<code>POST /api/comms/voice</code>) reliably: (1) initiates the call from the 888 number (not the local number while A2P is in review), (2) passes the client's <code>client_id</code> as a call parameter so the completion webhook can log it, (3) returns the Twilio Call SID immediately so the portal UI can track status, (4) logs the initiated call to <code>communications</code> with <code>direction: 'outbound'</code>.</p>
+    <p><strong>Files:</strong> <code>services/api/src/routes/comms.ts</code> (outbound voice section), <code>apps/prodash/app/(portal)/contacts/[id]/components/QuickCommsBar.tsx</code></p>
+    <p><strong>Depends on:</strong> ZRD-COMMS-005.</p>
+  </div>
+
+  <div class="phase-header">Phase 3 — SendGrid Audit + Email</div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">ZRD-COMMS-007</span>
+      <span class="ticket-title">SendGrid audit — delivery rates, bounce handling, template inventory</span>
+    </div>
+    <div class="ticket-meta">
+      <span class="tag tag-orange">Phase 3</span>
+      <span class="tag tag-yellow">2 hrs</span>
+    </div>
+    <p><strong>What:</strong> Pull SendGrid activity report via API. Document: (1) total sends last 30 days, (2) delivery rate, (3) bounce rate and bounce categories (hard vs. soft), (4) spam complaint rate, (5) list of all transactional templates in use. Fix any bounce-handling gaps in the webhook handler (<code>POST /api/webhooks/sendgrid</code>) — bounced addresses should be flagged in the client record so reps know not to send to them again. Produce a one-page audit report stored in Firestore <code>config/sendgrid_audit</code> with timestamp.</p>
+    <p><strong>Files:</strong> <code>services/api/src/routes/webhooks.ts</code> (SendGrid section), <code>services/api/src/routes/comms.ts</code> (email section), new audit script <code>services/api/src/scripts/sendgrid-audit.ts</code></p>
+    <p><strong>Depends on:</strong> None.</p>
+  </div>
+
+  <div class="phase-header">Phase 4 — Comms App UI Rebuild</div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">ZRD-COMMS-008</span>
+      <span class="ticket-title">Comms App UI rewrite — portal module for text / call / email</span>
+    </div>
+    <div class="ticket-meta">
+      <span class="tag tag-red">High Impact</span>
+      <span class="tag tag-orange">Phase 4</span>
+      <span class="tag tag-yellow">6–8 hrs</span>
+    </div>
+    <p><strong>What:</strong> Rebuild the in-portal communications module from scratch. Requirements: (1) unified thread view — SMS, email, and call logs in one chronological feed per client, (2) compose bar — type a message, hit send; it routes to SMS or email based on client preference or rep choice, (3) click-to-call button — one click, call initiates, logs automatically, (4) real-time status updates — SMS delivery status, call status, via polling or webhook-fed Firestore, (5) fast load — the current module is slow enough that reps abandon it. This is the UI that makes the team actually use the platform instead of their personal phones.</p>
+    <p><strong>Files:</strong> <code>apps/prodash/app/(portal)/modules/comms/page.tsx</code> (full rewrite), <code>apps/sentinel/app/(portal)/modules/comms/page.tsx</code>, <code>packages/ui/src/modules/Comms/</code> (shared components)</p>
+    <p><strong>Depends on:</strong> ZRD-COMMS-003, 004, 005, 006, 007 (infra must be solid before UI rebuild).</p>
+  </div>
+
+  <div class="phase-header">Phase 5 — Alerts Infrastructure</div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">ZRD-COMMS-009</span>
+      <span class="ticket-title">Alerts infrastructure — central dispatcher, routing rules, channel selection</span>
+    </div>
+    <div class="ticket-meta">
+      <span class="tag tag-orange">Phase 5</span>
+      <span class="tag tag-yellow">3–4 hrs</span>
+    </div>
+    <p><strong>What:</strong> Build a central alert dispatcher as a new route and service: (1) <code>POST /api/alerts/dispatch</code> accepts a structured alert payload (type, severity, target_user or broadcast, message, source), (2) routing rules determine channel: P0 alerts go SMS + in-portal, info alerts go in-portal only, system events go Google Chat, (3) routing rules stored in Firestore <code>config/alert_routing</code> (editable without deploy), (4) in-portal delivery writes to <code>notifications</code> collection (existing schema), (5) SMS delivery calls the outbound SMS route (with A2P gate), (6) Google Chat delivery posts to the configured shared space. All wire runners, deploy pipelines, and RAIDEN's bug triage use this dispatcher.</p>
+    <p><strong>Files:</strong> <code>services/api/src/routes/alerts.ts</code> (new), <code>services/api/src/index.ts</code> (register new route), <code>packages/core/src/types/alerts.ts</code> (new types)</p>
+    <p><strong>Depends on:</strong> ZRD-COMMS-004 (outbound SMS), ZRD-COMMS-010 (Google Chat bridge).</p>
+  </div>
+
+  <div class="phase-header">Phase 6 — Google Workspace Integration</div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">ZRD-COMMS-010</span>
+      <span class="ticket-title">Google Chat bridge — platform event posting to shared spaces</span>
+    </div>
+    <div class="ticket-meta">
+      <span class="tag tag-orange">Phase 6</span>
+      <span class="tag tag-yellow">2–3 hrs</span>
+    </div>
+    <p><strong>What:</strong> Enable the platform to post structured messages to Google Chat spaces: (1) helper function <code>postToGoogleChat(spaceId, message)</code> using the Chat REST API with domain-wide delegation (same credential model as Calendar), (2) exposed as <code>POST /api/connect/chat/post</code>, (3) used by the alerts dispatcher for system events, (4) Google Chat space IDs stored in Firestore <code>config/chat_spaces</code>. This is the technical foundation for Slack migration — platform events need to reach Chat before people can live in Chat.</p>
+    <p><strong>Files:</strong> <code>services/api/src/lib/chat-client.ts</code> (new), <code>services/api/src/routes/connect.ts</code> (add POST /chat/post)</p>
+    <p><strong>Depends on:</strong> None (Google Workspace domain delegation already configured for Calendar).</p>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">ZRD-COMMS-011</span>
+      <span class="ticket-title">Google Meet integration — recording retrieval + transcript sync to client record</span>
+    </div>
+    <div class="ticket-meta">
+      <span class="tag tag-orange">Phase 6</span>
+      <span class="tag tag-yellow">3 hrs</span>
+    </div>
+    <p><strong>What:</strong> Extend the existing Google Meet integration (<code>connect.ts</code>): (1) <code>GET /api/connect/meet/recordings</code> retrieves recordings for the authenticated user via Meet API, (2) for meetings linked to a client (by attendee email match), write the recording URL and transcript (if available) to the client record's communication log, (3) <code>GET /api/connect/meet/transcript/:meetingId</code> fetches transcript for a specific meeting. Meeting history should surface in the client record alongside SMS and call logs.</p>
+    <p><strong>Files:</strong> <code>services/api/src/routes/connect.ts</code>, <code>services/api/src/lib/calendar-client.ts</code> (extend with Meet recording methods)</p>
+    <p><strong>Depends on:</strong> ZRD-COMMS-010 (Google Workspace credential pattern established).</p>
+  </div>
+
+  <div class="phase-header">Phase 7 — RPI Connect Rebuild + Slack Migration</div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">ZRD-COMMS-012</span>
+      <span class="ticket-title">RPI Connect rebuild — internal team messaging, presence, Meet launch</span>
+    </div>
+    <div class="ticket-meta">
+      <span class="tag tag-red">Large Ticket</span>
+      <span class="tag tag-orange">Phase 7</span>
+      <span class="tag tag-yellow">8–10 hrs</span>
+    </div>
+    <p><strong>What:</strong> Rebuild the RPI Connect module from its hollow current state into a real internal comms tool: (1) real-time message feed per channel using SSE (Server-Sent Events from the API) backed by Firestore <code>connect_channels</code> and a new <code>connect_messages</code> subcollection, (2) presence — who's online now (simple heartbeat ping to <code>users/{uid}/presence</code>), (3) Google Meet launch button — one click creates a Meet and posts the link to the channel, (4) direct message support (new <code>connect_dms</code> collection), (5) file/image sharing via Google Drive link paste. This is the Slack replacement within the portal. Must be stable before any migration conversation with the team.</p>
+    <p><strong>Files:</strong> <code>services/api/src/routes/connect.ts</code> (major extension), <code>apps/prodash/app/(portal)/connect/page.tsx</code>, <code>apps/riimo/app/(portal)/connect/</code>, <code>apps/sentinel/app/(portal)/connect/</code>, <code>packages/ui/src/modules/Connect/</code> (shared components)</p>
+    <p><strong>Depends on:</strong> ZRD-COMMS-010, 011 (Google Workspace integration).</p>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">ZRD-COMMS-013</span>
+      <span class="ticket-title">Slack-to-Google migration runbook — channel map, timeline, team comms plan</span>
+    </div>
+    <div class="ticket-meta">
+      <span class="tag tag-orange">Phase 7</span>
+      <span class="tag tag-yellow">4 hrs</span>
+    </div>
+    <p><strong>What:</strong> Produce the migration runbook: (1) inventory all active Slack channels and map each to either a Google Chat space, an RPI Connect channel, or "archive only," (2) sequence the migration — low-traffic channels first, then high-traffic, never touch #warriors or bilateral warrior channels until RPI Connect can handle the load, (3) data export plan (Slack export before deletion), (4) team communication plan — how JDM announces the switch, what the timeline looks like, how reps get trained on RPI Connect. The runbook is a document, not code. Stored in <code>docs/warriors/TAIKO/slack-migration-runbook.md</code>. JDM reviews and approves the runbook before any migration action is taken.</p>
+    <p><strong>Files:</strong> <code>docs/warriors/TAIKO/slack-migration-runbook.md</code></p>
+    <p><strong>Depends on:</strong> ZRD-COMMS-012 stable in production. JDM approval gate.</p>
+  </div>
+
+  <div class="phase-header">Phase 8 — Compliance, Observability, Identity</div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">ZRD-COMMS-014</span>
+      <span class="ticket-title">Compliance layer — TCPA consent records, call recording retention, email archive</span>
+    </div>
+    <div class="ticket-meta">
+      <span class="tag tag-red">Compliance</span>
+      <span class="tag tag-orange">Phase 8</span>
+      <span class="tag tag-yellow">3 hrs</span>
+    </div>
+    <p><strong>What:</strong> Build the compliance foundation: (1) new Firestore collection <code>tcpa_consents</code> — every opt-in event writes a record: client_id, phone number, consent timestamp, source (web form URL, verbal confirmation logged by rep, etc.), consent text version, (2) opt-in timestamp written at the moment a client submits the <code>/sms-consent</code> form (ZRD-COMMS-001), (3) call recording retention: Twilio recordings expire; implement a job that pulls recordings via API before expiry and stores to Google Cloud Storage under <code>recordings/{client_id}/{call_sid}.mp3</code>, (4) email archive: document current state (post-Global-Relay-removal, confirm whether transactional email is being archived via SendGrid Activity Feed or Google Vault). No PHI in logs — consent records store IDs and timestamps only, not message content.</p>
+    <p><strong>Files:</strong> <code>services/api/src/routes/comms.ts</code> (add consent write on opt-in), <code>services/api/src/scripts/recording-retention.ts</code> (new Cloud Run job), <code>firestore.rules</code> (add <code>tcpa_consents</code> collection rules)</p>
+    <p><strong>Depends on:</strong> ZRD-COMMS-001.</p>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">ZRD-COMMS-015</span>
+      <span class="ticket-title">Observability — call volume, SMS delivery, email bounce, Meet usage dashboard</span>
+    </div>
+    <div class="ticket-meta">
+      <span class="tag tag-orange">Phase 8</span>
+      <span class="tag tag-yellow">3–4 hrs</span>
+    </div>
+    <p><strong>What:</strong> Build a lightweight comms health dashboard accessible to TAIKO and JDM: (1) <code>GET /api/comms/health</code> returns aggregated metrics from the last 24h and 7d — total SMS sends, delivery rate, failed sends, total calls, total emails, bounce rate, (2) data sourced from <code>communications</code> collection aggregation (not live Twilio/SendGrid API to avoid rate limits), (3) UI surface: a simple card in the RIIMO dashboard or a new <code>/admin/comms-health</code> page, (4) alert threshold: if delivery rate drops below 95% or bounce rate rises above 3%, the alerts dispatcher fires a P1 alert. This is the earliest-warning system for channel degradation.</p>
+    <p><strong>Files:</strong> <code>services/api/src/routes/comms.ts</code> (add /health endpoint), <code>apps/riimo/app/(portal)/admin/comms-health/page.tsx</code> (new page)</p>
+    <p><strong>Depends on:</strong> ZRD-COMMS-009 (alerts dispatcher).</p>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">ZRD-COMMS-016</span>
+      <span class="ticket-title">TAIKO soul.md + spirit.md — identity and operating principles</span>
+    </div>
+    <div class="ticket-meta">
+      <span class="tag tag-orange">Phase 8</span>
+      <span class="tag tag-yellow">1 hr (post-naming)</span>
+    </div>
+    <p><strong>What:</strong> After MUSASHI names the warrior and defines personality: write <code>soul.md</code> (identity, voice, operating principles — who this warrior is) and <code>spirit.md</code> (operational checklist — how this warrior starts a session, what they check first, what their bilateral channel is). Stored in <code>docs/warriors/TAIKO/</code>. This is gated on MUSASHI's naming decision.</p>
+    <p><strong>Files:</strong> <code>docs/warriors/TAIKO/soul.md</code>, <code>docs/warriors/TAIKO/spirit.md</code></p>
+    <p><strong>Depends on:</strong> MUSASHI naming + JDM approval of warrior identity. All other tickets can be built before this one exists.</p>
+  </div>
+</div>
+
+<!-- ════ FILES ════ -->
+<div id="files" class="tab-content">
+  <h2>Files Created or Modified</h2>
+
+  <h3>New files</h3>
+  <table>
+    <tr><th>File</th><th>Ticket</th><th>Purpose</th></tr>
+    <tr><td><code>apps/prodash/app/sms-consent/page.tsx</code></td><td>COMMS-001</td><td>Public A2P opt-in landing page</td></tr>
+    <tr><td><code>services/api/src/routes/alerts.ts</code></td><td>COMMS-009</td><td>Central alert dispatcher</td></tr>
+    <tr><td><code>services/api/src/lib/chat-client.ts</code></td><td>COMMS-010</td><td>Google Chat API helper</td></tr>
+    <tr><td><code>packages/core/src/types/alerts.ts</code></td><td>COMMS-009</td><td>Alert payload type definitions</td></tr>
+    <tr><td><code>services/api/src/scripts/sendgrid-audit.ts</code></td><td>COMMS-007</td><td>One-time SendGrid delivery audit script</td></tr>
+    <tr><td><code>services/api/src/scripts/recording-retention.ts</code></td><td>COMMS-014</td><td>Twilio recording archival job</td></tr>
+    <tr><td><code>apps/riimo/app/(portal)/admin/comms-health/page.tsx</code></td><td>COMMS-015</td><td>Comms health dashboard UI</td></tr>
+    <tr><td><code>packages/ui/src/modules/Comms/</code> (directory)</td><td>COMMS-008</td><td>Shared Comms App components</td></tr>
+    <tr><td><code>packages/ui/src/modules/Connect/</code> (directory)</td><td>COMMS-012</td><td>Shared RPI Connect components</td></tr>
+    <tr><td><code>docs/warriors/TAIKO/a2p-campaign-log.md</code></td><td>COMMS-002</td><td>A2P campaign status tracking</td></tr>
+    <tr><td><code>docs/warriors/TAIKO/slack-migration-runbook.md</code></td><td>COMMS-013</td><td>Slack-to-Google migration plan</td></tr>
+    <tr><td><code>docs/warriors/TAIKO/soul.md</code></td><td>COMMS-016</td><td>Warrior identity (post-naming)</td></tr>
+    <tr><td><code>docs/warriors/TAIKO/spirit.md</code></td><td>COMMS-016</td><td>Warrior operating checklist (post-naming)</td></tr>
+  </table>
+
+  <h3>Modified files</h3>
+  <table>
+    <tr><th>File</th><th>Tickets</th><th>Change</th></tr>
+    <tr><td><code>services/api/src/routes/comms.ts</code></td><td>COMMS-003,004,005,006,007,014,015</td><td>Refactor SMS/voice/email routes; add A2P gate, rate limiting, logging, consent write, /health endpoint</td></tr>
+    <tr><td><code>services/api/src/routes/comms-routing.ts</code></td><td>COMMS-005</td><td>Harden call routing; ensure 888 and local number both route correctly</td></tr>
+    <tr><td><code>services/api/src/routes/webhooks.ts</code></td><td>COMMS-003,005,007</td><td>Inbound SMS client matching; voice transcript callback; SendGrid bounce flagging</td></tr>
+    <tr><td><code>services/api/src/routes/connect.ts</code></td><td>COMMS-010,011,012</td><td>Add Google Chat bridge; Meet recording retrieval; RPI Connect messaging and presence</td></tr>
+    <tr><td><code>services/api/src/routes/notifications.ts</code></td><td>COMMS-009</td><td>Add target routing field; alerts dispatcher calls this</td></tr>
+    <tr><td><code>services/api/src/index.ts</code></td><td>COMMS-009</td><td>Register <code>alertsRoutes</code></td></tr>
+    <tr><td><code>services/api/src/lib/calendar-client.ts</code></td><td>COMMS-011</td><td>Add Meet recording and transcript retrieval methods</td></tr>
+    <tr><td><code>apps/prodash/app/(portal)/modules/comms/page.tsx</code></td><td>COMMS-008</td><td>Full Comms App UI rewrite</td></tr>
+    <tr><td><code>apps/sentinel/app/(portal)/modules/comms/page.tsx</code></td><td>COMMS-008</td><td>Full Comms App UI rewrite</td></tr>
+    <tr><td><code>apps/prodash/app/(portal)/contacts/[id]/components/QuickCommsBar.tsx</code></td><td>COMMS-006</td><td>Wire click-to-call to outbound voice route</td></tr>
+    <tr><td><code>apps/prodash/app/(portal)/connect/page.tsx</code></td><td>COMMS-012</td><td>RPI Connect rebuild</td></tr>
+    <tr><td><code>apps/riimo/app/(portal)/connect/</code></td><td>COMMS-012</td><td>RPI Connect rebuild (RIIMO)</td></tr>
+    <tr><td><code>apps/sentinel/app/(portal)/connect/</code></td><td>COMMS-012</td><td>RPI Connect rebuild (SENTINEL)</td></tr>
+    <tr><td><code>firestore.rules</code></td><td>COMMS-014</td><td>Add <code>tcpa_consents</code> collection rule (RPI users read/write)</td></tr>
+    <tr><td><code>packages/core/src/types/comms.ts</code></td><td>COMMS-004</td><td>Add template variable types, A2P gate types</td></tr>
+  </table>
+
+  <h3>Firestore collections</h3>
+  <table>
+    <tr><th>Collection</th><th>Status</th><th>Notes</th></tr>
+    <tr><td><code>communications</code></td><td>Exists</td><td>Extended with consistent <code>client_id</code>, <code>direction</code>, <code>channel</code>, <code>twilio_sid</code> fields across all writes</td></tr>
+    <tr><td><code>notifications</code></td><td>Exists</td><td>Extended with routing logic via alerts dispatcher</td></tr>
+    <tr><td><code>connect_channels</code></td><td>Exists</td><td>Extended with real-time messaging subcollection <code>connect_messages</code></td></tr>
+    <tr><td><code>tcpa_consents</code></td><td>New</td><td>Created in COMMS-014 — opt-in records, no PHI</td></tr>
+    <tr><td><code>config/sms</code></td><td>New doc</td><td>SMS rate limiting config (max sends per number per day)</td></tr>
+    <tr><td><code>config/alert_routing</code></td><td>New doc</td><td>Alert dispatcher routing rules (editable without deploy)</td></tr>
+    <tr><td><code>config/chat_spaces</code></td><td>New doc</td><td>Google Chat space IDs for platform event posting</td></tr>
+    <tr><td><code>config/sendgrid_audit</code></td><td>New doc</td><td>SendGrid audit results with timestamp</td></tr>
+  </table>
+</div>
+
+<!-- ════ GATES ════ -->
+<div id="gates" class="tab-content">
+  <h2>Phase Gates — JDM Approval Required</h2>
+
+  <p>Four gates. No gate can be opened by the warrior alone. JDM reviews evidence and gives TCO at each.</p>
+
+  <div class="gate-step">
+    <div class="gate-num">G1</div>
+    <div class="gate-content">
+      <strong>A2P Unblock Gate — after COMMS-001 + 002</strong>
+      <p><strong>Evidence required:</strong> (1) <code>/sms-consent</code> page live and publicly accessible at <code>prodash.tomachina.com/sms-consent</code>, (2) Twilio ticket 25630009 reopened, (3) New CTA Verification URL submitted to Twilio. <strong>JDM decision:</strong> Review the consent page copy (MUSASHI should have signed off on it first). Approve the page before it goes to Twilio — this is the text that will represent RPI to carriers and regulators.</p>
+    </div>
+  </div>
+
+  <div class="gate-step">
+    <div class="gate-num">G2</div>
+    <div class="gate-content">
+      <strong>Comms App v2 Live Gate — after COMMS-003 through 008</strong>
+      <p><strong>Evidence required:</strong> (1) Outbound SMS sends and delivers (once A2P approved), (2) Inbound SMS matches to client and logs, (3) Click-to-call works and logs, (4) Comms App UI loads in under 2 seconds, (5) Thread view shows all SMS + call + email history for a test client. <strong>JDM decision:</strong> Live user test. JDM tries to send a text and make a call from the portal. If it works, gate passes.</p>
+    </div>
+  </div>
+
+  <div class="gate-step">
+    <div class="gate-num">G3</div>
+    <div class="gate-content">
+      <strong>Alerts Live Gate — after COMMS-009</strong>
+      <p><strong>Evidence required:</strong> (1) Test alert dispatched — verify it arrives via in-portal notification AND (if configured) SMS to the assigned rep, (2) Wire failure test: manually trigger a wire error, confirm alert fires within 60 seconds, (3) Alert routing config in Firestore is documented and editable without deploy. <strong>JDM decision:</strong> Confirm alert routing rules match what he wants. He decides who gets P0 SMS alerts.</p>
+    </div>
+  </div>
+
+  <div class="gate-step">
+    <div class="gate-num">G4</div>
+    <div class="gate-content">
+      <strong>Slack Migration Gate — after COMMS-012 + 013</strong>
+      <p><strong>Evidence required:</strong> (1) RPI Connect stable in production — at least 5 business days of team usage with no P0 incidents, (2) Slack migration runbook reviewed and approved by JDM and John Behn (COO), (3) Google Chat spaces created and accessible to all team members, (4) At least 2 low-traffic Slack channels migrated successfully as pilot. <strong>JDM decision:</strong> The migration schedule and communication plan. This is a culture change — JDM owns the announcement and the timeline.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ════ TIMELINE ════ -->
+<div id="timeline" class="tab-content">
+  <h2>Timeline — RONIN-Speed Estimates</h2>
+
+  <p>RONIN on this codebase: 15 min for a single-endpoint change, 1–2 hrs for a refactored route with logging and types, 4–8 hrs for a full UI module rebuild. These are realistic, not padded.</p>
+
+  <table>
+    <tr>
+      <th>Phase</th>
+      <th>Tickets</th>
+      <th>Parallel Hours</th>
+      <th>Calendar Days (approx)</th>
+    </tr>
+    <tr>
+      <td><strong>Phase 1 — A2P Unblock</strong></td>
+      <td>COMMS-001, 002</td>
+      <td>3 hrs</td>
+      <td>Day 1 (COMMS-001 builds; COMMS-002 is a Twilio action after deploy)</td>
+    </tr>
+    <tr>
+      <td><strong>Phase 2 — Twilio Core Refactor</strong></td>
+      <td>COMMS-003, 004, 005, 006</td>
+      <td>9–12 hrs (parallel: 003+004 together, 005+006 together)</td>
+      <td>Days 2–4 (while A2P verification is in Twilio's 48–72 hr queue)</td>
+    </tr>
+    <tr>
+      <td><strong>Phase 3 — SendGrid Audit</strong></td>
+      <td>COMMS-007</td>
+      <td>2 hrs</td>
+      <td>Day 2 (can run parallel to Phase 2)</td>
+    </tr>
+    <tr>
+      <td><strong>Phase 4 — Comms App UI Rebuild</strong></td>
+      <td>COMMS-008</td>
+      <td>6–8 hrs</td>
+      <td>Days 3–5</td>
+    </tr>
+    <tr>
+      <td><strong>Phase 5 — Alerts Infrastructure</strong></td>
+      <td>COMMS-009</td>
+      <td>3–4 hrs</td>
+      <td>Days 4–5 (depends on Phase 2 SMS routes)</td>
+    </tr>
+    <tr>
+      <td><strong>Phase 6 — Google Workspace</strong></td>
+      <td>COMMS-010, 011</td>
+      <td>5–6 hrs</td>
+      <td>Days 4–6</td>
+    </tr>
+    <tr>
+      <td><strong>Phase 7 — RPI Connect + Migration Plan</strong></td>
+      <td>COMMS-012, 013</td>
+      <td>12–14 hrs</td>
+      <td>Days 6–10</td>
+    </tr>
+    <tr>
+      <td><strong>Phase 8 — Compliance + Observability + Identity</strong></td>
+      <td>COMMS-014, 015, 016</td>
+      <td>7–8 hrs</td>
+      <td>Days 7–12 (parallel to Phase 7)</td>
+    </tr>
+  </table>
+
+  <div class="callout">
+    <p><strong>Total parallel hours: ~47–57 hrs across all phases.</strong> With parallel execution (RONIN running multiple tracks simultaneously), wall-clock calendar time is approximately 10–14 business days from sprint start to Slack Migration Gate. The single biggest timeline variable is Twilio A2P approval — typically 48–72 hours, sometimes up to 2 weeks if there are back-and-forth questions. Build everything else while that clock runs.</p>
+  </div>
+
+  <h3>Priority order if RONIN runs into capacity constraints</h3>
+  <ol>
+    <li>COMMS-001 + 002 (A2P) — builds alone are fast; Twilio's review is the bottleneck</li>
+    <li>COMMS-003 + 004 (SMS infra) — unblocks outbound SMS the moment A2P clears</li>
+    <li>COMMS-008 (Comms App UI) — highest team-visible impact</li>
+    <li>COMMS-009 (Alerts) — eliminates silent failures</li>
+    <li>COMMS-012 (RPI Connect) — only blocks Slack migration, which is last</li>
+    <li>Everything else in Phase 6, 7, 8 — important but not time-critical in week 1</li>
+  </ol>
+</div>
+
+<!-- ════ RISKS ════ -->
+<div id="risks" class="tab-content">
+  <h2>Risks &amp; Open Questions</h2>
+
+  <h3>Risks — ranked by severity</h3>
+
+  <div class="risk-block">
+    <strong>CRITICAL: TCPA exposure if A2P rebuild has gaps in consent records</strong>
+    <p>TCPA violations run $500–$1,500 per message for negligent violations, $500–$1,500 per message trebled for willful violations. If RPI texts a client without a valid consent record, and the client disputes it, the absence of a timestamped opt-in record is indefensible. The <code>tcpa_consents</code> collection (COMMS-014) and the <code>/sms-consent</code> page (COMMS-001) are not optional polish — they are the legal foundation that must exist before outbound SMS goes live at scale. MUSASHI must review the consent copy before RONIN builds the page.</p>
+  </div>
+
+  <div class="risk-block">
+    <strong>HIGH: Twilio A2P approval delay — could be days or weeks</strong>
+    <p>Twilio's CTA Verification process is typically 48–72 hours for compliant campaigns, but can take longer if Twilio has questions about the use case or if the campaign application triggers manual review. Ticket 25630009 was auto-closed, which may mean it's flagged in Twilio's system. Plan: build all other Twilio routes during the approval window. Do not block the sprint on Twilio's timeline. If approval takes more than 5 business days, escalate to Twilio account management.</p>
+  </div>
+
+  <div class="risk-block medium">
+    <strong>MEDIUM: 888 inbound call disruption during Twilio route refactor</strong>
+    <p>The 888 number is the one working piece of the voice stack. Any changes to <code>comms.ts</code> TwiML generation or the voicemail config carry risk of breaking inbound call routing. Mitigation: test all voice TwiML changes in Twilio's sandbox with a test number before touching production. Deploy voice changes during off-hours (after 6pm CST). Keep rollback ready.</p>
+  </div>
+
+  <div class="risk-block medium">
+    <strong>MEDIUM: Email deliverability disruption during SendGrid changes</strong>
+    <p>If the SendGrid audit reveals the sending domain or authentication (SPF/DKIM) has issues, fixing them may cause a temporary deliverability drop during DNS propagation. Mitigation: run the audit first (read-only), document the current state, then make any authentication changes with a 48-hour propagation window built in. Never make SendGrid auth changes on a Monday.</p>
+  </div>
+
+  <div class="risk-block medium">
+    <strong>MEDIUM: Slack-to-Google migration is a multi-week culture change</strong>
+    <p>The migration runbook can be technically perfect and the team will still resist if: (1) RPI Connect is not fast and reliable, (2) Google Chat doesn't have feature parity with the Slack channels they use, or (3) JDM doesn't personally champion the transition. This warrior can build the infrastructure. The adoption is a human decision that belongs to JDM and the division leads. Gate G4 requires JDM approval of the runbook before any migration action — this is intentional.</p>
+  </div>
+
+  <div class="risk-block medium">
+    <strong>MEDIUM: Twilio billing during the rebuild (test traffic)</strong>
+    <p>Integration testing for Twilio voice and SMS generates real API calls and real billing. Twilio's test credentials can be used for unit tests but not for end-to-end portal testing. Set a billing alert in the Twilio console at $50/month during the rebuild. Estimate: ~100–200 test SMS messages + 20–30 test calls = approximately $10–15 in test charges. Acceptable but should be monitored.</p>
+  </div>
+
+  <div class="risk-block low">
+    <strong>LOW: VOLTRON CCSDK channel-of-choice logic may need updating</strong>
+    <p>VOLTRON currently calls comms tools via the rpi-comms MCP. If this sprint changes the API contract for any of those routes (field names, response shape, error codes), the MCP tool definitions will need corresponding updates. Mitigation: maintain strict backward compatibility on existing route signatures; only add fields, never remove them. If a breaking change is unavoidable, coordinate with VOLTRON maintainers before deploy.</p>
+  </div>
+
+  <h3>Open Questions — require decisions before or during the sprint</h3>
+
+  <div class="card">
+    <h3>Q1: Warrior name + personality — deferred to MUSASHI</h3>
+    <p>JDM's direction: "I don't really care what the name is, MUSASHI can name, he's the creative one." This warrior's name, personality, soul.md, and spirit.md are all pending MUSASHI. Everything in this doc uses <code>TAIKO</code> as a placeholder. COMMS-016 is gated on MUSASHI's decision. All other 15 tickets can be built before the name is decided.</p>
+  </div>
+
+  <div class="card">
+    <h3>Q2: Ticket prefix — will it change when the warrior is named?</h3>
+    <p>Current prefix is <code>ZRD-COMMS-NNN</code>. When MUSASHI names the warrior, the sprint tracker ticket prefix will likely change. The ZRD-COMMS prefix in code comments and doc references can stay — it's the discovery doc identifier, not the warrior's identifier. No code change needed when the warrior is named.</p>
+  </div>
+
+  <div class="card">
+    <h3>Q3: Which Slack channels move first in the migration?</h3>
+    <p>The runbook (COMMS-013) will produce a recommended sequence. But JDM needs to make the call on which channels are low-risk enough to migrate as a pilot. Recommendation: start with internal tool channels (#the-dojo, etc.) and keep the main team channels on Slack until RPI Connect has been used for at least 30 days. But this is JDM's decision.</p>
+  </div>
+
+  <div class="card">
+    <h3>Q4: Do warrior bilateral channels (the Dojo comms system) move to Google Chat?</h3>
+    <p>The warrior bilateral channels (#shinob1, #megazord, etc.) and the dispatcher system are currently on Slack and tied to the Dojo watchdog infrastructure. Moving them to Google Chat is a significant architecture change to the Dojo comms layer — that decision belongs to SHINOB1, not this warrior. This sprint's migration runbook will explicitly exclude warrior infrastructure channels from scope.</p>
+  </div>
+
+  <div class="card">
+    <h3>Q5: MUSASHI's opt-in copy must be ready before RONIN builds COMMS-001</h3>
+    <p>The <code>/sms-consent</code> page requires carrier-compliant consent language. That copy must be drafted by MUSASHI and reviewed by JDM before RONIN builds the page. If MUSASHI hasn't provided copy when RONIN hits COMMS-001, RONIN should build the page with placeholder language and gate deployment on MUSASHI's copy delivery. Do not deploy a consent page with generic placeholder text to production.</p>
+  </div>
+
+  <div class="card">
+    <h3>Q6: Email archive post-Global-Relay — what's the current state?</h3>
+    <p>COMMS-014 includes documenting the email archive status. It is currently unknown whether transactional email (via SendGrid) is being archived via Google Vault or any other mechanism after the Global Relay removal. If it is not, that is a compliance gap that needs to be surfaced to JDM before the sprint closes. The scout ticket (COMMS-007) will surface this during the SendGrid audit.</p>
+  </div>
+</div>
+
+<div class="ft">
+  Discovery Doc &mdash; ZRD-COMMS &mdash; TAIKO, Comms Infrastructure Warrior &mdash; April 13, 2026 &mdash; toMachina Platform
+</div>
+
+</div>
+
+<script>
+function showTab(id, btn) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>
