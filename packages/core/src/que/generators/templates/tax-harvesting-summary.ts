@@ -5,7 +5,7 @@
  */
 
 import type { GeneratorInput } from '../types'
-import { TAX_HARVESTING_DISCLOSURE } from '../types'
+import { getTaxHarvestingDisclosure } from '../disclosures'
 import { getBaseStyles, formatCurrency, formatPercent, renderHeader, renderFooter, escapeHtml } from '../shared-styles'
 
 export function renderTaxHarvestingSummary(input: GeneratorInput): string {
@@ -59,7 +59,7 @@ ${analysis.warnings.length > 0 ? `
   <ul>${analysis.warnings.map((w) => `<li>${escapeHtml(w)}</li>`).join('')}</ul>
 </div>` : ''}
 
-<div class="disclosure">${escapeHtml(TAX_HARVESTING_DISCLOSURE)}</div>
+<div class="disclosure">${escapeHtml(getTaxHarvestingDisclosure())}</div>
 
 ${renderFooter(household.clientNames, preparedDate)}
 </body></html>`
