@@ -1189,13 +1189,16 @@ code {
         <tr><td>Logo</td><td>Use <code>packages/ui/src/logos/prodashx-logo.svg</code> &mdash; no generated SVGs ever</td></tr>
       </tbody>
     </table>
-    <div class="flag-box">
-      <div class="flag-icon">&#9873;</div>
+    <div class="flag-box" style="border-color:var(--doc-green);background:rgba(34,139,34,0.08)">
+      <div class="flag-icon">&#10003;</div>
       <div>
-        <strong>SHINOB1 confirm:</strong> Public route or auth-gated?
-        This mockup assumes public (client may not have a login yet when they receive the opt-in link via SMS/email).
-        SHINOB1 should confirm whether <code>/sms-consent</code> sits outside the auth middleware
-        or uses a magic-link token flow.
+        <strong>SHINOB1 ruling (2026-04-13): Public route. Not token-gated.</strong>
+        Rationale: (1) Funnel is cold-lead capture (print QR, IVR drops, cold marketing) &mdash;
+        token-gating breaks the use case since cold traffic has no prior token.
+        (2) TCPA audit strength comes from the <em>consent record</em>, not the URL &mdash;
+        5-field log (timestamp/phone/IP/UA/copy-version + device fingerprint) is stronger than a magic link.
+        (3) Warm-lead UX layered on top via optional <code>?lead=&lt;id&gt;</code> query param that pre-fills phone
+        and links to existing prospect record. Same public route, smarter UX when context exists.
       </div>
     </div>
   </div>
@@ -1352,13 +1355,13 @@ code {
         <div class="warrior-icon">&#127912;</div>
         <div class="warrior-name">MUSASHI</div>
         <div class="warrior-role">Copy owner (ARTxBLADE)</div>
-        <div class="warrior-note">Copy locked 2026-04-13. PR #371 pending merge.</div>
+        <div class="warrior-note">Copy locked 2026-04-13. PR #371 MERGED &#10003; (feccd4d).</div>
       </div>
       <div class="warrior-card">
         <div class="warrior-icon">&#129399;</div>
         <div class="warrior-name">SHINOB1</div>
-        <div class="warrior-role">CTO &mdash; confirm auth model</div>
-        <div class="warrior-note">Public route vs token-gated? Flag before RONIN builds.</div>
+        <div class="warrior-role">CTO &mdash; auth model ruling</div>
+        <div class="warrior-note">PUBLIC route &#10003; (2026-04-13). Warm-lead support via <code>?lead=&lt;id&gt;</code> query param.</div>
       </div>
       <div class="warrior-card">
         <div class="warrior-icon">&#9998;</div>

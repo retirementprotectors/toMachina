@@ -73,6 +73,7 @@ const WARRIOR_META: Record<string, { emoji: string; role: string }> = {
   VOLTRON:  { emoji: '🦁', role: 'Bot' },
   RAIDEN:   { emoji: '⚡', role: 'Guardian' },
   RONIN:    { emoji: '🗡️', role: 'Builder' },
+  TAIKO:    { emoji: '🥁', role: 'Comms' },
 }
 
 // ── Event type colors ──────��────────────────────────────────────────────────
