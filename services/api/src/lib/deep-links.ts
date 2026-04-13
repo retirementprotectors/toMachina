@@ -43,7 +43,7 @@ export async function resolveDeepLinks(
   const col = db['collection'].bind(db)
 
   if (clientId) {
-    out.clientUrl = `${prodashUrl}/acf/${clientId}`
+    out.clientUrl = `${prodashUrl}/contacts/${clientId}`
     out.lines.push(`<${out.clientUrl}|Client Page>`)
 
     try {
