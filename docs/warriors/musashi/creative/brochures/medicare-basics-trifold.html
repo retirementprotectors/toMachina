@@ -126,10 +126,10 @@
   .fold-note strong { color: var(--rpi-289); }
 
   @media print {
-    body { background: white; }
+    body { background: white; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     .sheet { margin: 0; box-shadow: none; page-break-after: always; }
     .sheet:last-child { page-break-after: auto; }
-    .preview-nav, .fold-note { display: none; }
+    .preview-nav, .fold-note, .panel-label { display: none !important; }
     .panel { border-right: none; }
     @page { size: 11in 8.5in; margin: 0; }
   }
