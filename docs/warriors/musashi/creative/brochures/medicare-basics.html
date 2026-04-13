@@ -34,8 +34,12 @@
   .eyebrow { font-family: 'Poppins', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--rpi-medium); margin-bottom: 10px; }
   .hero h1 { font-size: 44px; font-weight: 800; color: var(--rpi-289); margin-bottom: 6px; letter-spacing: -0.02em; }
   .hero-tagline { font-family: 'Poppins', sans-serif; font-weight: 500; font-size: 16px; color: var(--ink-soft); }
-  .hero-right { text-align: right; font-size: 10px; color: var(--ink-soft); line-height: 1.6; }
-  .hero-right .wordmark { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 13px; color: var(--rpi-289); margin-bottom: 3px; letter-spacing: 0.02em; }
+  .hero-right { text-align: right; font-size: 10px; color: var(--ink-soft); line-height: 1.6; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+  .rpi-logo { width: 180px; height: auto; display: block; }
+  .hero-tagline-right { font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 11px; color: var(--rpi-medium); letter-spacing: 0.02em; margin-top: 4px; }
+  .hero-url { font-size: 10px; color: var(--ink-soft); }
+  .shield { width: 42px; height: auto; vertical-align: middle; }
+  .shield-sm { width: 28px; height: auto; vertical-align: middle; }
 
   .intro { font-family: 'Poppins', sans-serif; font-weight: 400; font-size: 14.5px; line-height: 1.65; color: var(--ink-soft); margin-bottom: 28px; max-width: 88%; }
   .intro strong { color: var(--rpi-289); font-weight: 600; }
@@ -57,8 +61,10 @@
   .part.accent { background: linear-gradient(180deg, rgba(146,192,233,0.2), rgba(146,192,233,0.05)); border-color: var(--rpi-283); }
 
   /* Key numbers */
-  .numbers { background: var(--rpi-289); color: white; padding: 22px 24px; border-radius: 6px; margin-bottom: 20px; }
-  .numbers h2 { color: white; border-bottom-color: rgba(255,255,255,0.2); }
+  .numbers { background: var(--rpi-289); color: white; padding: 22px 24px; border-radius: 6px; margin-bottom: 20px; position: relative; overflow: hidden; }
+  .numbers::before { content: ''; position: absolute; top: -20px; right: -20px; width: 140px; height: 140px; background-image: url('../assets/rpi/rpi-shield-mark.png'); background-size: contain; background-repeat: no-repeat; background-position: right top; opacity: 0.12; pointer-events: none; }
+  .numbers h2 { color: white; border-bottom-color: rgba(255,255,255,0.2); position: relative; z-index: 1; }
+  .numbers .num-grid { position: relative; z-index: 1; }
   .num-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-top: 12px; }
   .num { text-align: center; }
   .num .value { font-family: 'Poppins', sans-serif; font-size: 22px; font-weight: 700; color: white; line-height: 1.1; }
@@ -74,7 +80,7 @@
 
   /* AEP callout */
   .aep { background: linear-gradient(135deg, var(--rpi-medium), var(--rpi-289)); color: white; padding: 18px 22px; border-radius: 6px; margin-bottom: 20px; display: flex; gap: 18px; align-items: center; }
-  .aep .icon { font-size: 28px; line-height: 1; }
+  .aep .shield { width: 52px; filter: brightness(1.1); flex-shrink: 0; }
   .aep-text h3 { color: white; font-size: 16px; margin-bottom: 4px; }
   .aep-text p { font-size: 12px; color: var(--rpi-pale); line-height: 1.5; }
 
@@ -129,9 +135,9 @@
       <div class="hero-tagline">Your personal guide to Medicare — from the people who walk beside you.</div>
     </div>
     <div class="hero-right">
-      <div class="wordmark">Retirement Protectors, Inc.</div>
-      <div>We're Your People&trade;</div>
-      <div style="margin-top:4px;">RetireProtected.com</div>
+      <img src="../assets/rpi/rpi-logo-full-color.png" alt="Retirement Protectors, Inc." class="rpi-logo" />
+      <div class="hero-tagline-right">We're Your People&trade;</div>
+      <div class="hero-url">RetireProtected.com</div>
     </div>
   </div>
 
@@ -220,8 +226,8 @@
       <div class="hero-tagline">Medigap policies + enrollment windows that protect what Original Medicare doesn't.</div>
     </div>
     <div class="hero-right">
-      <div class="wordmark">Retirement Protectors, Inc.</div>
-      <div>We're Your People&trade;</div>
+      <img src="../assets/rpi/rpi-logo-full-color.png" alt="Retirement Protectors, Inc." class="rpi-logo" />
+      <div class="hero-tagline-right">We're Your People&trade;</div>
     </div>
   </div>
 
@@ -252,7 +258,7 @@
   <p style="font-size:10px; color:var(--ink-soft); margin-bottom:22px;"><sup>*</sup> Plans C and F are only available to those who became eligible for Medicare before 1/1/2020. <sup>†</sup> Plan N pays 100% of Part B coinsurance except up to $20 copay for office visits and $50 for ER visits that don't result in inpatient admission.</p>
 
   <div class="aep">
-    <div class="icon">&#x1F4C5;</div>
+    <img src="../assets/rpi/rpi-shield-mark.png" alt="" class="shield" />
     <div class="aep-text">
       <h3>Annual Enrollment Period (AEP)</h3>
       <p><strong>Oct 15 &mdash; Dec 7 every year.</strong> The window to join, switch, or drop a Medicare Advantage or Part D plan. Changes take effect January 1. Miss it and you're locked in.</p>
