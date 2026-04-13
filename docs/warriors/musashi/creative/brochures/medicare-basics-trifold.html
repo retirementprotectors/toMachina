@@ -32,25 +32,34 @@
   .panel:last-child { border-right: none; }
   .panel-label { position: absolute; top: 6px; left: 6px; font-family: 'Poppins', sans-serif; font-size: 8px; font-weight: 600; color: var(--rule); letter-spacing: 0.08em; text-transform: uppercase; pointer-events: none; }
 
-  /* Typography scales for tri-fold — sized to fill panels */
-  h1 { font-size: 30px; font-weight: 800; margin-bottom: 8px; }
-  h2 { font-size: 17px; font-weight: 700; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid var(--rule); color: var(--rpi-medium); }
-  h3 { font-size: 14.5px; font-weight: 700; margin-bottom: 5px; }
-  p, li { font-size: 12.5px; color: var(--ink-soft); line-height: 1.55; }
-  .eyebrow { font-family: 'Poppins', sans-serif; font-size: 9.5px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--rpi-medium); margin-bottom: 10px; }
+  /* Typography scales for tri-fold — sized to FILL panels (per JDM ask) */
+  h1 { font-size: 38px; font-weight: 800; margin-bottom: 10px; }
+  h2 { font-size: 20px; font-weight: 700; margin-bottom: 12px; padding-bottom: 7px; border-bottom: 1px solid var(--rule); color: var(--rpi-medium); }
+  h3 { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
+  p, li { font-size: 14px; color: var(--ink-soft); line-height: 1.55; }
+  .eyebrow { font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--rpi-medium); margin-bottom: 12px; }
+
+  /* MYST team strip */
+  .myst { background: var(--paper-warm); border: 1px solid var(--rule); border-radius: 6px; padding: 14px 14px 12px; margin: 14px 0 12px; }
+  .myst-eyebrow { font-family: 'Poppins', sans-serif; font-size: 9.5px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--rpi-royal); margin-bottom: 8px; text-align: center; }
+  .myst-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .myst-card { text-align: center; }
+  .myst-photo { width: 84px; height: 84px; border-radius: 50%; object-fit: cover; border: 3px solid var(--rpi-289); margin: 0 auto 6px; display: block; }
+  .myst-name { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 12px; color: var(--rpi-289); line-height: 1.15; margin-bottom: 2px; }
+  .myst-title { font-size: 10.5px; color: var(--ink-soft); line-height: 1.3; }
 
   /* COVER PANEL (Panel 3 of outside = front when folded) */
   .cover { background: linear-gradient(160deg, var(--rpi-289) 0%, var(--rpi-medium) 60%, var(--rpi-royal) 100%); color: white; justify-content: space-between; position: relative; }
   .cover::before { content: ''; position: absolute; inset: 0; background-image: url('../assets/rpi/rpi-shield-mark.png'); background-size: 70%; background-position: center 55%; background-repeat: no-repeat; opacity: 0.08; pointer-events: none; }
   .cover-top { position: relative; z-index: 1; }
   .cover-top .cover-logo { width: 240px; margin-bottom: 18px; display: block; }
-  .cover-top .cover-eyebrow { font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--rpi-pale); margin-bottom: 12px; }
-  .cover-top h1 { color: white; font-size: 38px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 14px; line-height: 1.05; }
-  .cover-top .cover-sub { font-family: 'Poppins', sans-serif; font-size: 14px; color: var(--rpi-pale); font-weight: 500; line-height: 1.45; }
+  .cover-top .cover-eyebrow { font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--rpi-pale); margin-bottom: 14px; }
+  .cover-top h1 { color: white; font-size: 48px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 18px; line-height: 1.04; }
+  .cover-top .cover-sub { font-family: 'Poppins', sans-serif; font-size: 17px; color: var(--rpi-pale); font-weight: 500; line-height: 1.5; }
   .cover-bottom { position: relative; z-index: 1; }
   .cover-bottom .tagline { display: none; } /* tagline is now baked into the logo */
-  .cover-bottom .contact { font-size: 11.5px; color: var(--rpi-pale); line-height: 1.7; }
-  .cover-bottom .contact strong { color: white; font-size: 12.5px; }
+  .cover-bottom .contact { font-size: 13.5px; color: var(--rpi-pale); line-height: 1.75; }
+  .cover-bottom .contact strong { color: white; font-size: 15px; }
 
   /* BACK PANEL (Panel 1 of outside = back when folded) */
   .back { background: var(--paper-warm); justify-content: space-between; }
@@ -163,7 +172,28 @@
           <tr><td style="padding:3px 4px;">&ge;&nbsp;$500K</td><td style="padding:3px 4px;">&ge;&nbsp;$750K</td><td style="padding:3px 4px; text-align:center;">$689.90</td><td style="padding:3px 4px; text-align:center;">+$91.00</td></tr>
         </tbody>
       </table>
-      <p style="font-size:9.5px; color:var(--ink-soft); margin-top:8px; line-height:1.5;">Life events &mdash; retirement, loss of income, death of spouse &mdash; can qualify you for an IRMAA appeal. <strong style="color:var(--rpi-medium);">Ask us how.</strong></p>
+      <p style="font-size:11px; color:var(--ink-soft); margin-top:8px; line-height:1.5;">Life events &mdash; retirement, loss of income, death of spouse &mdash; can qualify you for an IRMAA appeal. <strong style="color:var(--rpi-medium);">Ask us how.</strong></p>
+
+      <div class="myst">
+        <div class="myst-eyebrow">Your Medicare Service Team</div>
+        <div class="myst-grid">
+          <div class="myst-card">
+            <img src="../assets/team/robert-lacy.jpg" alt="Robert Lacy" class="myst-photo" />
+            <div class="myst-name">Robert Lacy</div>
+            <div class="myst-title">Medicare Coordinator</div>
+          </div>
+          <div class="myst-card">
+            <img src="../assets/team/lucas-dexter.jpg" alt="Lucas Dexter" class="myst-photo" />
+            <div class="myst-name">Lucas Dexter</div>
+            <div class="myst-title">Medicare Specialist</div>
+          </div>
+          <div class="myst-card">
+            <img src="../assets/team/susan-kaelin.jpg" alt="Susan Kaelin" class="myst-photo" />
+            <div class="myst-name">Susan Kaelin</div>
+            <div class="myst-title">Medicare Service</div>
+          </div>
+        </div>
+      </div>
 
       <div class="back-contact">
         <strong>Schedule your no-cost review.</strong>
