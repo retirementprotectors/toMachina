@@ -1,20 +1,41 @@
 'use client'
 
-/* ─── OmniTextTab — Placeholder ──────────────────────────────────────────────
- * TKO-UX-006 will replace this with the full conversation-first 2-pane SMS view.
- * Layout: left rail (conversations grouped by phone) + right thread + compose.
- * ─────────────────────────────────────────────────────────────────────────── */
+/* ─── OmniTextTab — TKO-UX-006 ────────────────────────────────────────────
+ * Conversation-first SMS view. Groups /api/communications?channel=sms by
+ * phone E.164. List + thread + compose. V1 — no edit/delete/threading/attach.
+ * ────────────────────────────────────────────────────────────────────── */
 
-export function OmniTextTab() {
+import { OmniConversationShell } from './OmniConversationShell'
+
+function formatPhone(e164: string): string {
+  // E.164 +1XXXYYYZZZZ → (XXX) YYY-ZZZZ
+  const digits = e164.replace(/\D/g, '')
+  if (digits.length === 11 && digits.startsWith('1')) {
+    return `(${digits.slice(1, 4)}) ${digits.slice(4, 7)}-${digits.slice(7)}`
+  }
+  if (digits.length === 10) {
+    return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`
+  }
+  return e164
+}
+
+interface OmniTextTabProps {
+  /** Pre-select this phone number's conversation if present */
+  initialPhone?: string | null
+}
+
+export function OmniTextTab({ initialPhone = null }: OmniTextTabProps) {
   return (
-    <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 py-12 text-center">
-      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--bg-surface)]">
-        <span className="material-icons-outlined" style={{ fontSize: '24px', color: 'var(--text-muted)' }}>sms</span>
-      </div>
-      <p className="text-sm font-semibold text-[var(--text-primary)]">SMS Conversations</p>
-      <p className="max-w-[220px] text-xs text-[var(--text-muted)] leading-relaxed">
-        Conversation-first SMS threads are coming in TKO-UX-006.
-      </p>
-    </div>
+    <OmniConversationShell
+      channel="sms"
+      iconName="sms"
+      emptyTitle="No SMS conversations yet"
+      emptyHint="Inbound and outbound texts will appear here, grouped by phone number."
+      composePlaceholder="Type a message…"
+      sendEndpoint="/api/comms/send-sms"
+      buildSendBody={(handle, body) => ({ to: handle, body })}
+      formatHandle={formatPhone}
+      initialHandle={initialPhone}
+    />
   )
 }
