@@ -4,6 +4,7 @@
  */
 
 import type { GeneratorInput } from '../types'
+import { getSecuritiesDisclosure } from '../disclosures'
 import { getBaseStyles, formatCurrency, renderHeader, renderFooter, escapeHtml } from '../shared-styles'
 
 export function renderLifePresentationDetail(input: GeneratorInput): string {
@@ -152,7 +153,7 @@ ${renderHeader('Life Insurance Presentation — Full Detail', household.clientNa
 </div>
 
 <div class="disclosure">
-  This presentation is for educational and planning purposes only. Life insurance illustrations are not projections or guarantees. Premium quotes are estimates pending underwriting. Products may not be available in all states. Retirement Protectors, Inc. and its agents are licensed life insurance producers. Securities offered through Gradient Securities, LLC, member FINRA/SIPC. This is not a solicitation where prohibited by law.
+  ${getSecuritiesDisclosure()}
 </div>
 
 ${renderFooter(household.clientNames, preparedDate)}

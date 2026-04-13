@@ -5,7 +5,7 @@
  */
 
 import type { GeneratorInput } from '../types'
-import { TAX_HARVESTING_DISCLOSURE } from '../types'
+import { getTaxHarvestingDisclosure } from '../disclosures'
 import { getBaseStyles, formatCurrency, formatPercent, renderHeader, renderFooter, escapeHtml } from '../shared-styles'
 
 export function renderTaxHarvestingDetail(input: GeneratorInput): string {
@@ -75,7 +75,7 @@ ${lossPositions.length > 0 ? `
   <ul>${analysis.findings.map((f) => `<li style="font-size:8.5pt">${escapeHtml(f)}</li>`).join('')}</ul>
 </div>
 
-<div class="disclosure">${escapeHtml(TAX_HARVESTING_DISCLOSURE)}</div>
+<div class="disclosure">${escapeHtml(getTaxHarvestingDisclosure())}</div>
 
 ${renderFooter(household.clientNames, preparedDate)}
 </body></html>`
