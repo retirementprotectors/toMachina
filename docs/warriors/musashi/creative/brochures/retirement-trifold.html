@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Retirement — Tri-fold — Retirement Protectors, Inc.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;600&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --rpi-289: #0a2240;
+    --rpi-283: #92c0e9;
+    --rpi-medium: #12416b;
+    --rpi-pale: #abd2ef;
+    --rpi-royal: #23558c;
+    --rpi-mist: #cae7f9;
+    --ink: #1a1a1a;
+    --ink-soft: #3a4456;
+    --paper: #f4f4f5;
+    --paper-warm: #fafbfc;
+    --rule: #d0dae6;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: var(--paper); color: var(--ink); font-family: 'Mulish', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; line-height: 1.45; }
+  h1, h2, h3, h4 { font-family: 'Poppins', sans-serif; color: var(--rpi-289); line-height: 1.2; letter-spacing: -0.01em; }
+
+  /* Tri-fold sheet: 11" wide x 8.5" tall landscape, 3 panels per side */
+  .sheet { width: 11in; height: 8.5in; background: white; margin: 0.5in auto; box-shadow: 0 1px 24px rgba(10,34,64,0.08); display: grid; grid-template-columns: repeat(3, 1fr); position: relative; overflow: hidden; }
+  .sheet + .sheet { margin-top: 0.6rem; }
+  .panel { padding: 0.3in 0.28in; border-right: 1px dashed var(--rule); position: relative; overflow: hidden; display: flex; flex-direction: column; }
+  .panel:last-child { border-right: none; }
+  .panel-label { position: absolute; top: 6px; left: 6px; font-family: 'Poppins', sans-serif; font-size: 8px; font-weight: 600; color: var(--rule); letter-spacing: 0.08em; text-transform: uppercase; pointer-events: none; }
+
+  /* Typography scales for tri-fold — sized to FILL panels (per JDM ask) */
+  h1 { font-size: 38px; font-weight: 800; margin-bottom: 10px; }
+  h2 { font-size: 20px; font-weight: 700; margin-bottom: 12px; padding-bottom: 7px; border-bottom: 1px solid var(--rule); color: var(--rpi-medium); }
+  h3 { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
+  p, li { font-size: 14px; color: var(--ink-soft); line-height: 1.55; }
+  .eyebrow { font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--rpi-medium); margin-bottom: 12px; }
+
+  /* MYST team strip */
+  .myst { background: var(--paper-warm); border: 1px solid var(--rule); border-radius: 6px; padding: 14px 14px 12px; margin: 14px 0 12px; }
+  .myst-eyebrow { font-family: 'Poppins', sans-serif; font-size: 9.5px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--rpi-royal); margin-bottom: 8px; text-align: center; }
+  .myst-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .myst-card { text-align: center; }
+  .myst-photo { width: 84px; height: 84px; border-radius: 50%; object-fit: cover; border: 3px solid var(--rpi-289); margin: 0 auto 6px; display: block; }
+  .myst-name { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 12px; color: var(--rpi-289); line-height: 1.15; margin-bottom: 2px; }
+  .myst-title { font-size: 10.5px; color: var(--ink-soft); line-height: 1.3; }
+
+  /* COVER PANEL — V3 TWO-TONE LOCKED 2026-04-13 */
+  /* Override outer .panel padding so the two zones can fill edge-to-edge */
+  .cover { background: white; color: var(--ink); padding: 0 !important; display: flex; flex-direction: column; }
+  .cover-top { position: relative; z-index: 1; background: white; padding: 0.4in 0.34in 0.34in; }
+  .cover-top .cover-eyebrow { font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--rpi-medium); margin-bottom: 14px; }
+  .cover-top h1 { color: var(--rpi-289); font-size: 52px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 18px; line-height: 1.02; }
+  .cover-top .cover-sub { font-family: 'Poppins', sans-serif; font-size: 16px; color: var(--ink-soft); font-weight: 500; line-height: 1.5; }
+  .cover-top .cover-sub strong { color: var(--rpi-289); }
+  .cover-bottom { flex: 1; background: linear-gradient(160deg, var(--rpi-289) 0%, var(--rpi-medium) 60%, var(--rpi-royal) 100%); position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; padding: 0 0.3in; }
+  .cover-shield { width: 92%; aspect-ratio: 318 / 284; background-image: url('../assets/rpi/rpi-shield-mark.png'); background-size: contain; background-position: center; background-repeat: no-repeat; opacity: 0.26; flex-shrink: 0; }
+  .cover-wyp { font-family: 'Poppins', sans-serif; font-weight: 900; font-size: 40px; letter-spacing: 0.03em; color: white; text-align: center; line-height: 1.02; text-shadow: 0 1px 2px rgba(0,0,0,0.25); flex-shrink: 0; }
+  .cover-wyp .tm { font-size: 0.55em; vertical-align: super; font-weight: 700; letter-spacing: 0.05em; margin-left: 2px; }
+  /* JDM 2026-04-13 FINAL BALANCE: justify-content:space-evenly creates 3 equal vertical gaps — above shield, between shield and WYP, below WYP. Same sizes, perfect rhythm. */
+
+  /* BACK PANEL (Panel 1 of outside = back when folded) */
+  .back { background: var(--paper-warm); justify-content: space-between; }
+  .back-top { }
+  .back-top .back-logo { width: 220px; margin-bottom: 16px; display: block; }
+  .back h2 { border-bottom-color: var(--rpi-283); color: var(--rpi-289); font-size: 14px; }
+  .back-contact { background: white; border: 1px solid var(--rule); border-left: 4px solid var(--rpi-royal); padding: 10px 12px; border-radius: 4px; font-size: 10.5px; line-height: 1.7; color: var(--ink-soft); margin-top: 10px; }
+  .back-contact strong { color: var(--rpi-289); display: block; font-size: 11px; margin-bottom: 3px; font-family: 'Poppins', sans-serif; }
+  .back-disclaimer { font-size: 8.5px; color: var(--ink-soft); line-height: 1.5; border-top: 1px solid var(--rule); padding-top: 8px; margin-top: auto; }
+
+  /* INSIDE PANEL (flap) */
+  .flap { background: white; }
+  .flap .eyebrow { margin-bottom: 4px; }
+  .flap .intro { font-family: 'Poppins', sans-serif; font-size: 11px; color: var(--ink-soft); line-height: 1.55; margin-bottom: 12px; }
+
+  /* Steps block */
+  .step { background: var(--paper-warm); border-left: 4px solid var(--rpi-royal); padding: 11px 13px; border-radius: 3px; margin-bottom: 11px; }
+  .step-num { font-family: 'Poppins', sans-serif; font-size: 9.5px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--rpi-royal); margin-bottom: 3px; }
+  .step h3 { font-size: 14px; margin-bottom: 4px; color: var(--rpi-289); }
+  .step p { font-size: 12px; line-height: 1.5; }
+
+  /* Parts (2x2 grid) */
+  .parts-mini { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+  .part-mini { background: var(--paper-warm); border: 1px solid var(--rule); border-radius: 4px; padding: 10px 12px; }
+  .part-mini .label { font-family: 'Poppins', sans-serif; font-size: 9.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--rpi-medium); margin-bottom: 3px; }
+  .part-mini h4 { font-size: 13px; margin-bottom: 4px; color: var(--rpi-289); }
+  .part-mini p { font-size: 11px; line-height: 1.5; }
+  .part-mini.accent { background: linear-gradient(180deg, rgba(146,192,233,0.22), rgba(146,192,233,0.04)); border-color: var(--rpi-283); }
+
+  /* Numbers card */
+  .numbers-mini { background: var(--rpi-289); color: white; border-radius: 5px; padding: 13px 15px; position: relative; overflow: hidden; }
+  .numbers-mini::before { content: ''; position: absolute; top: 20px; right: 14px; width: 150px; height: 150px; background-image: url('../assets/rpi/rpi-shield-mark.png'); background-size: contain; background-position: right top; background-repeat: no-repeat; opacity: 0.18; pointer-events: none; }
+  .numbers-mini h3 { color: white; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; font-weight: 600; position: relative; z-index: 1; }
+  .numbers-mini table { width: 100%; font-size: 11.5px; position: relative; z-index: 1; }
+  .numbers-mini td { padding: 4px 0; color: var(--rpi-pale); }
+  .numbers-mini td:last-child { text-align: right; font-family: 'Poppins', sans-serif; font-weight: 700; color: white; }
+
+  /* RMD mini table — reuses medigap-mini styling */
+  .medigap-mini { width: 100%; border-collapse: collapse; font-size: 10px; margin-bottom: 10px; }
+  .medigap-mini th, .medigap-mini td { padding: 4px 3px; text-align: center; border: 1px solid var(--rule); }
+  .medigap-mini thead th { background: var(--rpi-289); color: white; font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 10px; }
+  .medigap-mini tbody td:first-child { text-align: left; padding-left: 6px; font-weight: 500; color: var(--rpi-medium); font-size: 9.5px; }
+  .medigap-mini .dot { color: var(--rpi-royal); font-weight: 700; }
+  .medigap-mini .partial { color: var(--ink-soft); font-size: 9px; }
+
+  /* Roth conversion callout (replaces AEP mini) */
+  .aep-mini { background: linear-gradient(135deg, var(--rpi-medium), var(--rpi-289)); color: white; padding: 12px 14px; border-radius: 5px; display: flex; gap: 12px; align-items: center; margin: 14px 0 12px; }
+  .aep-mini img { width: 36px; height: auto; filter: brightness(1.15); flex-shrink: 0; }
+  .aep-mini h3 { color: white; font-size: 13px; margin-bottom: 3px; }
+  .aep-mini p { color: var(--rpi-pale); font-size: 11.5px; line-height: 1.45; }
+
+  /* Beneficiary / event list (replaces SEP list) */
+  .sep-mini { background: var(--paper-warm); border: 1px solid var(--rule); border-radius: 4px; padding: 11px 13px; margin-bottom: 10px; }
+  .sep-mini h3 { font-size: 13px; margin-bottom: 8px; color: var(--rpi-289); }
+  .sep-mini ul { list-style: none; }
+  .sep-mini li { font-size: 11.5px; padding-left: 14px; position: relative; margin-bottom: 4px; line-height: 1.45; }
+  .sep-mini li::before { content: '▪'; color: var(--rpi-royal); position: absolute; left: 0; font-size: 12px; top: -1px; }
+
+  .preview-nav { position: fixed; top: 10px; right: 10px; background: var(--rpi-289); color: white; padding: 10px 14px; border-radius: 6px; font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 600; box-shadow: 0 2px 12px rgba(0,0,0,0.25); z-index: 1000; }
+  .preview-nav a { color: var(--rpi-pale); text-decoration: none; margin-left: 10px; cursor: pointer; }
+  .preview-nav a:hover { color: white; }
+  .fold-note { max-width: 11in; margin: 0 auto 0.3rem; padding: 0.5rem 1rem; background: var(--paper-warm); border-left: 4px solid var(--rpi-royal); font-size: 12px; color: var(--ink-soft); font-family: 'Poppins', sans-serif; }
+  .fold-note strong { color: var(--rpi-289); }
+
+  @media print {
+    body { background: white; }
+    .sheet { margin: 0; box-shadow: none; page-break-after: always; }
+    .sheet:last-child { page-break-after: auto; }
+    .preview-nav, .fold-note { display: none; }
+    .panel { border-right: none; }
+    @page { size: 11in 8.5in; margin: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="preview-nav">
+  Tri-fold · Retirement · <a onclick="window.print()">Print (landscape)</a>
+</div>
+
+<div class="fold-note"><strong>Tri-fold format.</strong> Print both sheets double-sided on 11"×8.5" landscape letter. Fold into thirds: outside panels (Back / [blank strip] / Cover) on one side, inside panels (Steps / Parts &amp; Numbers / RMD &amp; Rules) on the other. Panel order matches standard brochure fold.</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- OUTSIDE (Back Panel | Inside-back | Front Cover) -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<div class="sheet">
+
+  <!-- PANEL 1 — BACK OF BROCHURE (when folded) — Roth Conversion Window -->
+  <div class="panel back">
+    <span class="panel-label">Outside · Panel 1 (Back)</span>
+    <div class="back-top">
+      <div class="eyebrow">Retirement &middot; Tax Strategy</div>
+      <h1 style="font-size:32px; margin-bottom:10px;">The Roth<br>Conversion Window.</h1>
+      <p style="font-size:14.5px; color:var(--ink-soft); line-height:1.55; margin-bottom:14px;"><strong style="color:var(--rpi-289);">Why conversions matter:</strong> A Roth conversion moves money from a pre-tax account to a Roth, paying income tax now in exchange for tax-free growth and distributions forever after. Done right, it permanently removes assets from RMD exposure.</p>
+      <p style="font-size:13.5px; color:var(--ink-soft); line-height:1.55; margin-bottom:12px;"><strong style="color:var(--rpi-medium);">When to convert:</strong> The best window is the gap between retirement and age 73 &mdash; after your paycheck stops but before RMDs begin. Income often drops, pushing you into a lower bracket. Fill the bracket each year without jumping to the next rate. Social Security timing matters too: converting before benefits start means less ordinary income stacking.</p>
+      <p style="font-size:13.5px; color:var(--ink-soft); line-height:1.55; margin-bottom:14px;"><strong style="color:var(--rpi-medium);">How much:</strong> Convert enough each year to fill your current bracket without crossing into the next one. Run the number against your projected RMDs &mdash; converting now can reduce future mandatory withdrawals that would be taxed at higher rates. Watch the IRMAA thresholds: a conversion that pushes MAGI too high triggers Medicare premium surcharges two years later. The 5-year rule applies separately to each conversion for earnings access before 59&frac12;.</p>
+      <div style="background: var(--rpi-289); color: white; padding: 12px 16px; border-radius: 5px; margin-top: 4px;">
+        <div style="font-family:'Poppins',sans-serif; font-weight: 700; font-size: 13px; margin-bottom: 5px;">Run your Roth conversion scenario with us &mdash; no cost, no pitch.</div>
+        <div style="font-size: 12px; color: var(--rpi-pale); line-height: 1.6;"><strong style="color:white;">RetireProtected.com</strong><br>515-992-5000 &middot; 877-650-7015</div>
+      </div>
+    </div>
+    <div class="back-disclaimer">
+      Securities and investment advisory services offered through Gradient Securities, LLC, Member FINRA/SIPC. Retirement Protectors, Inc. is a separate entity from Gradient Securities. This material is for informational use only and does not constitute tax or legal advice. Consult a qualified tax professional. &copy; 2026 Retirement Protectors, Inc.
+    </div>
+  </div>
+
+  <!-- PANEL 2 — INSIDE FLAP (tucks under cover when folded) — Retirement Team + Schedule -->
+  <div class="panel flap">
+    <span class="panel-label">Outside · Panel 2 (Tuck flap)</span>
+    <div class="eyebrow">We're Your People&trade;</div>
+    <h1 style="font-size:30px; margin-bottom:8px;">Your Retirement Team.</h1>
+    <p class="intro" style="font-size:14px;">Three specialists. One mission: build a retirement income plan that lasts as long as you do. Call direct, or schedule together &mdash; we'll sit with you until every question is answered.</p>
+
+    <div class="myst" style="margin-top:18px;">
+      <div class="myst-grid">
+        <div class="myst-card">
+          <img src="../assets/team/shane-parmenter.jpg" alt="Shane Parmenter" class="myst-photo" />
+          <div class="myst-name">Shane Parmenter</div>
+          <div class="myst-title">Retirement Specialist</div>
+        </div>
+        <div class="myst-card">
+          <img src="../assets/team/matt-mccormick.jpg" alt="Matt McCormick" class="myst-photo" />
+          <div class="myst-name">Matt McCormick</div>
+          <div class="myst-title">Retirement Specialist</div>
+        </div>
+        <div class="myst-card">
+          <img src="../assets/team/josh-archer.jpg" alt="Josh Archer" class="myst-photo" />
+          <div class="myst-name">Josh Archer</div>
+          <div class="myst-title">Retirement Specialist</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:var(--rpi-289); color:white; padding:18px 20px; border-radius:6px; margin-top:18px;">
+      <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:15px; margin-bottom:6px;">Schedule your no-cost retirement review.</div>
+      <div style="font-size:13px; color:var(--rpi-pale); line-height:1.7;">
+        <strong style="color:white;">RetireProtected.com</strong><br>
+        515-992-5000 &middot; 877-650-7015<br>
+        Service@RetireProtected.com
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL 3 — FRONT COVER — V3 TWO-TONE (JDM 2026-04-13) -->
+  <div class="panel cover">
+    <span class="panel-label">Outside · Panel 3 (Front Cover)</span>
+    <div class="cover-top">
+      <div class="cover-eyebrow">Retirement &middot; Income + Tax Planning</div>
+      <h1>Retirement,<br>Planned.</h1>
+      <div class="cover-sub">Your income blueprint &mdash; from the people who walk beside you.</div>
+    </div>
+    <div class="cover-bottom">
+      <div class="cover-shield"></div>
+      <div class="cover-wyp">We're Your People<span class="tm">&trade;</span></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- INSIDE (Framework | Parts + Numbers | RMD + Beneficiary Rules) -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<div class="sheet">
+
+  <!-- INSIDE PANEL 1 — 3-STEP FRAMEWORK -->
+  <div class="panel flap">
+    <span class="panel-label">Inside · Panel 1</span>
+    <div class="eyebrow">Retirement &middot; Step by Step</div>
+    <h2>Three Decisions</h2>
+    <p class="intro">Every pre-retiree and retiree walks through the same three layers. Here's how each one works &mdash; and why the order matters.</p>
+
+    <div class="step">
+      <div class="step-num">Step 1</div>
+      <h3>Know your accounts</h3>
+      <p><strong>Pre-tax</strong> (Traditional IRA, 401(k), 403(b), 457, TSP, SEP, SIMPLE) vs. <strong>Roth</strong> (after-tax contributions, tax-free growth) vs. <strong>Taxable brokerage</strong> (capital gains treatment). Each bucket has different withdrawal rules and tax treatment.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">Step 2</div>
+      <h3>Know your income</h3>
+      <p>Systematic withdrawals, <strong>annuities</strong> (FIA, MYGA, variable), Social Security coordination, and RMDs. The sequence of withdrawals determines your lifetime tax bill &mdash; we model it before you retire.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">Step 3</div>
+      <h3>Know your taxes</h3>
+      <p><strong>1035 exchanges</strong> (tax-free between annuities/life), <strong>Roth conversion windows</strong>, RMD timing, 72(t) SEPP &mdash; the levers that determine what you actually keep. See back panel for the Roth conversion playbook.</p>
+    </div>
+
+    <h2 style="margin-top:10px;">You're Not Alone</h2>
+    <p>Every RPI client gets a dedicated retirement specialist. Call, text, or book a kitchen-table visit &mdash; we'll sit with you until every question is answered.</p>
+  </div>
+
+  <!-- INSIDE PANEL 2 — 4 ACCOUNT TYPES + 2026 NUMBERS -->
+  <div class="panel flap">
+    <span class="panel-label">Inside · Panel 2</span>
+    <div class="eyebrow">4 Account Types</div>
+    <h2>What Each Account Does</h2>
+    <div class="parts-mini">
+      <div class="part-mini">
+        <div class="label">Traditional IRA</div>
+        <h4>Pre-Tax</h4>
+        <p>Tax-deferred growth. Ordinary income on distributions. RMDs at 73.</p>
+      </div>
+      <div class="part-mini">
+        <div class="label">Roth IRA</div>
+        <h4>After-Tax</h4>
+        <p>Tax-free growth and distributions. No RMDs during owner's life. 5-year rule on earnings.</p>
+      </div>
+      <div class="part-mini accent">
+        <div class="label">Employer Plans</div>
+        <h4>401(k) / 403(b)</h4>
+        <p>Pre-tax or Roth. Employer match. Can roll to IRA at separation.</p>
+      </div>
+      <div class="part-mini">
+        <div class="label">Non-Qualified Annuity</div>
+        <h4>After-Tax</h4>
+        <p>Tax-deferred growth. Ordinary income on earnings only. 1035 exchange preserves basis.</p>
+      </div>
+    </div>
+
+    <div class="numbers-mini">
+      <h3>Key Numbers &mdash; 2026</h3>
+      <table>
+        <tr><td>IRA Contribution Limit</td><td>$7,000</td></tr>
+        <tr><td>IRA Catch-up (50+)</td><td>$1,000</td></tr>
+        <tr><td>401(k) Limit</td><td>$23,500</td></tr>
+        <tr><td>401(k) Catch-up (50+)</td><td>$7,500</td></tr>
+        <tr><td>RMD Age</td><td>73</td></tr>
+      </table>
+    </div>
+
+    <p style="font-size:10.5px; color:var(--ink-soft); margin-top:10px; line-height:1.5;"><strong style="color:var(--rpi-medium);">Source: IRS 2026.</strong> Roth conversions have no income limit. Backdoor Roth strategies remain available for high-income earners. Ask us to run the math.</p>
+  </div>
+
+  <!-- INSIDE PANEL 3 — RMD TABLE + 72(t) + BENEFICIARY RULES -->
+  <div class="panel flap">
+    <span class="panel-label">Inside · Panel 3</span>
+    <div class="eyebrow">RMDs + Distribution Rules</div>
+    <h2>Uniform Lifetime Table &mdash; 2026</h2>
+    <table class="medigap-mini">
+      <thead>
+        <tr><th style="text-align:left; padding-left:4px;">Age</th><th>Divisor</th><th>% Req'd</th><th style="text-align:left; padding-left:4px;">Age</th><th>Divisor</th><th>% Req'd</th></tr>
+      </thead>
+      <tbody>
+        <tr><td style="text-align:left; padding-left:4px;">73</td><td>26.5</td><td>3.77%</td><td style="text-align:left; padding-left:4px;">80</td><td>20.2</td><td>4.95%</td></tr>
+        <tr><td style="text-align:left; padding-left:4px;">74</td><td>25.5</td><td>3.92%</td><td style="text-align:left; padding-left:4px;">82</td><td>18.5</td><td>5.41%</td></tr>
+        <tr><td style="text-align:left; padding-left:4px;">75</td><td>24.6</td><td>4.07%</td><td style="text-align:left; padding-left:4px;">85</td><td>16.0</td><td>6.25%</td></tr>
+        <tr><td style="text-align:left; padding-left:4px;">76</td><td>23.7</td><td>4.22%</td><td style="text-align:left; padding-left:4px;">90</td><td>12.2</td><td>8.20%</td></tr>
+        <tr><td style="text-align:left; padding-left:4px;">77</td><td>22.9</td><td>4.37%</td><td style="text-align:left; padding-left:4px;">95</td><td>8.3</td><td>12.05%</td></tr>
+      </tbody>
+    </table>
+    <p style="font-size:8px; color:var(--ink-soft); margin-bottom:8px;">Multiply your 12/31 prior-year balance by the % to get this year's RMD. Source: IRS Pub. 590-B.</p>
+
+    <div class="aep-mini">
+      <img src="../assets/rpi/rpi-shield-mark.png" alt="" />
+      <div>
+        <h3>72(t) SEPP &mdash; Before 59&frac12;</h3>
+        <p>Withdraw without the 10% penalty using Amortization, Annuitization, or RMD-based payments. Minimum 5 years or until 59&frac12;. Any deviation = retroactive penalty.</p>
+      </div>
+    </div>
+
+    <div class="sep-mini">
+      <h3>Beneficiary Rules (Post-SECURE Act)</h3>
+      <ul>
+        <li><strong>Spouse:</strong> Roll to own IRA, delay RMDs to age 73</li>
+        <li><strong>Non-spouse:</strong> 10-year payout rule (SECURE Act)</li>
+        <li><strong>Eligible Designated Beneficiary:</strong> Lifetime stretch (minor children, disabled, &lt;10 yrs younger)</li>
+        <li><strong>Estate or Trust:</strong> 5-year rule</li>
+        <li><strong>No beneficiary:</strong> 5-year rule via probate</li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
