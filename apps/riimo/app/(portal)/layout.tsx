@@ -7,6 +7,7 @@ import { TopBar } from './components/TopBar'
 import { SignInScreen } from './components/SignInScreen'
 import { LoadingScreen } from './components/LoadingScreen'
 import { CommsModule } from '@tomachina/ui/src/modules/CommsModule'
+import { TwilioDeviceProvider } from '@tomachina/ui/src/modules/CommsModule/TwilioDeviceProvider'
 import { ConnectPanel } from '@tomachina/ui/src/modules/ConnectPanel'
 import { NotificationsModule } from '@tomachina/ui/src/modules/Notifications'
 import { MDJPanel } from '@tomachina/ui/src/modules/MDJPanel'
@@ -73,7 +74,7 @@ export default function PortalLayout({
   if (!user) return <SignInScreen onSignIn={signIn} />
 
   return (
-    <>
+    <TwilioDeviceProvider authenticated={!!user}>
     {/* TRK-13677: Push-not-overlay — set panel push width via CSS custom property */}
     <style>{`
       :root { --panel-push-width: 0px; }
@@ -121,6 +122,6 @@ export default function PortalLayout({
       {/* FORGE Report — screenshot + auto-fill issue tracker */}
       <ReportButton portal="riimo" />
     </div>
-    </>
+    </TwilioDeviceProvider>
   )
 }
