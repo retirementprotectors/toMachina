@@ -57,8 +57,8 @@
   .cover-top .cover-sub { font-family: 'Poppins', sans-serif; font-size: 16px; color: var(--ink-soft); font-weight: 500; line-height: 1.5; }
   .cover-top .cover-sub strong { color: var(--rpi-289); }
   .cover-bottom { flex: 1; background: linear-gradient(160deg, var(--rpi-289) 0%, var(--rpi-medium) 60%, var(--rpi-royal) 100%); position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; padding: 0.3in; }
-  .cover-bottom::before { content: ''; position: absolute; inset: 0; background-image: url('../assets/rpi/rpi-logo-v2-white.png'); background-size: 85%; background-position: center center; background-repeat: no-repeat; opacity: 0.14; pointer-events: none; }
-  /* JDM: "full logo as watermark in lieu of the shield" — using white logo variant at 14% opacity on navy */
+  .cover-bottom::before { content: ''; position: absolute; inset: 0; background-image: url('../assets/rpi/rpi-shield-mark.png'); background-size: 72%; background-position: center center; background-repeat: no-repeat; opacity: 0.22; pointer-events: none; }
+  /* JDM 2026-04-13 refinement: back to SHIELD watermark, opacity bumped 0.08 -> 0.22 so laurel leaves read properly */
 
   /* BACK PANEL (Panel 1 of outside = back when folded) */
   .back { background: var(--paper-warm); justify-content: space-between; }
@@ -90,7 +90,7 @@
 
   /* Numbers card */
   .numbers-mini { background: var(--rpi-289); color: white; border-radius: 5px; padding: 13px 15px; position: relative; overflow: hidden; }
-  .numbers-mini::before { content: ''; position: absolute; bottom: 6px; right: 8px; width: 90px; height: 90px; background-image: url('../assets/rpi/rpi-shield-mark.png'); background-size: contain; background-repeat: no-repeat; opacity: 0.16; pointer-events: none; }
+  .numbers-mini::before { content: ''; position: absolute; top: 20px; right: 14px; width: 150px; height: 150px; background-image: url('../assets/rpi/rpi-shield-mark.png'); background-size: contain; background-position: right top; background-repeat: no-repeat; opacity: 0.18; pointer-events: none; }
   .numbers-mini h3 { color: white; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; font-weight: 600; position: relative; z-index: 1; }
   .numbers-mini table { width: 100%; font-size: 11.5px; position: relative; z-index: 1; }
   .numbers-mini td { padding: 4px 0; color: var(--rpi-pale); }
