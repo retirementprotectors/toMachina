@@ -327,6 +327,7 @@ flowRoutes.post('/instances', async (req: Request, res: Response) => {
       stage_status: 'in_progress',
       workflow_progress: '{}',
       custom_fields: body.custom_fields ? JSON.stringify(body.custom_fields) : '{}',
+      opportunity_id: body.opportunity_id ? String(body.opportunity_id) : null,
       _created_by: String(userEmail),
       created_at: now,
       updated_at: now,

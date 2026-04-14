@@ -137,6 +137,13 @@ export interface FlowInstanceData {
   stage_status: InstanceStatus
   workflow_progress: string | Record<string, StepProgress>
   custom_fields?: string | Record<string, unknown>
+  /**
+   * Optional 1:1 linkage to an `opportunities` doc. When set, the business
+   * record (custom_fields, assignee vs agent, close states) lives on the
+   * opportunity; flow_instance owns workflow state (stages/tasks/gates).
+   * Added for TRK-RAIDEN-OPP-FIELDS / RON-OPP-FIELDS-001 (Option B parallel records).
+   */
+  opportunity_id?: string | null
   created_by: string
   created_at: string
   updated_at: string
