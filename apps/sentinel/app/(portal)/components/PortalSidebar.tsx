@@ -88,7 +88,6 @@ const APP_ITEMS: AppItem[] = [
   { key: 'dex', href: '/modules/dex', moduleKey: 'DEX' },
   { key: 'megazord', href: '/modules/megazord', moduleKey: 'MEGAZORD' },
   { key: 'command-center', href: '/modules/command-center', moduleKey: 'RPI_COMMAND_CENTER' },
-  { key: 'voltron', href: '/command-center', moduleKey: 'VOLTRON' },
   { key: 'musashi', href: '/modules/musashi', moduleKey: 'MUSASHI' },
   { key: 'forge', href: '/modules/forge', moduleKey: 'FORGE' },
   { key: 'prozone', href: '/modules/prozone', moduleKey: 'PROZONE' },
