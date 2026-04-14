@@ -104,23 +104,36 @@
   .preview-nav a { color: var(--rpi-pale); text-decoration: none; margin-left: 10px; }
   .preview-nav a:hover { color: white; }
 
-  /* Print — pixel-perfect PDF (set Chrome "Margins: None" + enable "Background graphics") */
+  /* Print — resilient to Chrome default margins (no config required) */
   @media print {
+    html, body { margin: 0; padding: 0; }
     body { background: white; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    .page { margin: 0; padding: 0; box-shadow: none; width: 8.5in; min-height: 11in; height: auto; page-break-after: always; overflow: visible; }
-    .page:last-child { page-break-after: auto; }
-    .page > * { padding-left: 0.45in; padding-right: 0.45in; }
-    .page > .hero { padding-top: 0.4in; margin-bottom: 18px; padding-bottom: 14px; }
-    .page > .intro { margin-bottom: 18px; }
-    .page > .steps { margin-bottom: 18px; gap: 11px; }
-    .page > .parts-grid { margin-bottom: 14px; gap: 11px; }
-    .page > .numbers { padding: 16px 20px; margin-bottom: 14px; }
-    .page > .compliance:last-of-type, .page > .footer:last-of-type { padding-bottom: 0.35in; }
+    /* Force each .page div to fit on ONE physical sheet, regardless of Chrome margin setting.
+       max-height 10.3in + overflow hidden prevents the "blank overflow page" bug. */
+    .page {
+      margin: 0; padding: 0; box-shadow: none;
+      width: 8.5in;
+      min-height: 10.3in;
+      max-height: 10.3in;
+      height: 10.3in;
+      overflow: hidden;
+      page-break-after: always;
+      break-after: page;
+      box-sizing: border-box;
+    }
+    .page:last-child { page-break-after: auto; break-after: auto; }
+    .page > * { padding-left: 0.4in; padding-right: 0.4in; }
+    .page > .hero { padding-top: 0.3in; margin-bottom: 14px; padding-bottom: 12px; }
+    .page > .intro { margin-bottom: 14px; }
+    .page > .steps { margin-bottom: 14px; gap: 10px; }
+    .page > .parts-grid { margin-bottom: 12px; gap: 10px; }
+    .page > .numbers { padding: 14px 18px; margin-bottom: 12px; }
+    .page > .compliance:last-of-type, .page > .footer:last-of-type { padding-bottom: 0.25in; }
     .preview-nav { display: none !important; }
-    /* Only keep SMALL cards together — big cards like .numbers / .medigap-grid can split if they must */
     .step, .part, .num, .aep, .sep li { page-break-inside: avoid; break-inside: avoid; }
     h2 { page-break-after: avoid; break-after: avoid; }
-    @page { size: letter; margin: 0; }
+    /* @page margin left AT DEFAULT (Chrome applies its own) — our .page is sized to fit inside it */
+    @page { size: letter; }
   }
 </style>
 </head>
