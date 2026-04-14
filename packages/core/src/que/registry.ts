@@ -132,6 +132,26 @@ export const QUE_REGISTRY: QueRegistryEntry[] = [
   { id: 'WIRE_LIFE_OPTIONS', type: 'WIRE', domain: 'que', name: 'Life Options Wire', description: 'Underwriting path plus three-option product comparison', composedOf: ['ANALYZE_UNDERWRITING_PATH', 'ANALYZE_LIFE_OPTIONS'] },
   { id: 'WIRE_LIFE_PRESENTATION', type: 'WIRE', domain: 'que', name: 'Life Presentation Wire', description: 'Complete multi-tab life insurance presentation', composedOf: ['ANALYZE_GROUP_GAP', 'ANALYZE_LIFE_NEED', 'ANALYZE_UNDERWRITING_PATH', 'ANALYZE_LIFE_OPTIONS'] },
 
+  // =============================================
+  // CSG ACTUARIAL — TOOLS (TRK-EPIC-07)
+  // 3 active (MedSupp), 2 BLOCKED-403 (HI + Dental — pending CSG entitlement)
+  // =============================================
+  { id: 'csg-medsupp-quote', type: 'TOOL', domain: 'que', name: 'CSG MedSupp Quote', description: 'POST /api/medicare-quote/quotes — live Medicare Supplement quotes from CSG Actuarial across 50+ carriers. Inputs: zip, dob, gender, tobacco, plan_letter (A/B/C/D/F/G/K/L/M/N), effective_date.' },
+  { id: 'csg-medsupp-companies', type: 'TOOL', domain: 'que', name: 'CSG MedSupp Companies', description: 'GET /api/medicare-quote/companies — full carrier list with NAIC + AM Best ratings (24h cache).' },
+  { id: 'csg-medsupp-plan-letters', type: 'TOOL', domain: 'que', name: 'CSG MedSupp Plan Letters', description: 'GET /api/medicare-quote/plan-letters — Plan A/B/C/D/F/G/K/L/M/N with descriptions.' },
+  { id: 'csg-hospital-indemnity-quote', type: 'TOOL', domain: 'que', name: 'CSG Hospital Indemnity Quote', description: 'BLOCKED-403 (TRK-EPIC-07): josh@retireprotected.com lacks API entitlement for /v1/hospital_indemnity/quotes.json. Stub registered; activate after CSG entitlement update.' },
+  { id: 'csg-dental-quote', type: 'TOOL', domain: 'que', name: 'CSG Dental Quote', description: 'BLOCKED-403 (TRK-EPIC-07): josh@retireprotected.com lacks API entitlement for /v1/dental/quotes.json. Stub registered; activate after CSG entitlement update.' },
+
+  // =============================================
+  // CSG ACTUARIAL — SUPER TOOL (1) — TRK-EPIC-07
+  // =============================================
+  { id: 'QUOTE_MEDSUPP', type: 'SUPER_TOOL', domain: 'que', name: 'Quote Medicare Supplement', description: 'Validates inputs (age >= 64, valid plan letter), normalizes raw CSG MedSupp quote response into ranked per-carrier list with NAIC, AM Best, monthly/annual rate, rate_type, EFT discount detection. Sorts ascending by monthly premium. AEP blackout enforced upstream at wire layer.', composedOf: ['csg-medsupp-quote', 'csg-medsupp-companies'] },
+
+  // =============================================
+  // CSG ACTUARIAL — WIRE (1) — TRK-EPIC-07
+  // =============================================
+  { id: 'WIRE_MEDSUPP_QUOTE', type: 'WIRE', domain: 'que', name: 'MedSupp Quote Wire', description: 'AEP blackout check (Oct 1 - Dec 7) -> QUOTE_MEDSUPP normalization -> ranked quote list. Wire executor fetches raw CSG quotes via API layer and passes them in.', composedOf: ['QUOTE_MEDSUPP'] },
+
 ]
 
 /** Look up a QUE registry entry by ID */

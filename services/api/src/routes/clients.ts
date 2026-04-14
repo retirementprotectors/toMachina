@@ -204,6 +204,154 @@ clientRoutes.get('/:id/activities', async (req: Request, res: Response) => {
 })
 
 /**
+ * GET /api/clients/:id/timeline
+ *
+ * Unified chronological feed for the Contact Activity tab. Merges
+ * communications (voice/sms/email), activities (subcollection), and
+ * opportunities for a given client, ordered desc by created_at.
+ *
+ * Query params:
+ *   - limit  (default 100, max 500)
+ *   - type   (optional: calls | sms | emails | activities | opportunities)
+ *
+ * Response shape matches the ActivityTab TimelineResponse contract:
+ *   { entries: TimelineEntry[], counts: Record<string, number> }
+ */
+interface TimelineEntry {
+  id: string
+  source: string
+  type: string
+  title: string
+  description?: string
+  performed_by?: string
+  created_at: string
+  meta?: Record<string, unknown>
+}
+
+clientRoutes.get('/:id/timeline', async (req: Request, res: Response) => {
+  try {
+    const db = getDb(req.partnerId)
+    const id = param(req.params.id)
+    const limit = Math.min(parseInt(req.query.limit as string) || 100, 500)
+    const typeFilter = req.query.type as string | undefined
+
+    const entries: TimelineEntry[] = []
+    const counts: Record<string, number> = { calls: 0, sms: 0, emails: 0, activities: 0, opportunities: 0 }
+
+    // communications — channel {voice|sms|email}
+    const commsSnap = await db
+      .collection('communications')
+      .where('client_id', '==', id)
+      .orderBy('created_at', 'desc')
+      .limit(limit)
+      .get()
+
+    for (const d of commsSnap.docs) {
+      const x = d.data() as Record<string, unknown>
+      const channel = String(x.channel || '')
+      const direction = String(x.direction || '')
+      const bucket = channel === 'voice' ? 'calls' : channel === 'sms' ? 'sms' : channel === 'email' ? 'emails' : null
+      if (!bucket) continue
+      counts[bucket]++
+      const title = channel === 'voice'
+        ? (direction === 'inbound' ? 'Incoming call' : 'Outbound call')
+        : channel === 'sms'
+        ? (direction === 'inbound' ? 'SMS received' : 'SMS sent')
+        : (direction === 'inbound' ? 'Email received' : 'Email sent')
+      entries.push({
+        id: d.id,
+        source: 'communications',
+        type: channel,
+        title,
+        description: x.body ? String(x.body).slice(0, 240) : x.subject ? String(x.subject) : undefined,
+        performed_by: x.sent_by ? String(x.sent_by) : undefined,
+        created_at: String(x.created_at || ''),
+        meta: {
+          direction,
+          status: x.status,
+          recipient: x.recipient,
+          recording_url: x.recording_url,
+          media_urls: x.media_urls,
+          message_sid: x.message_sid,
+          call_sid: x.call_sid,
+          duration: x.duration,
+        },
+      })
+    }
+
+    // activities subcollection (fan-out + manual activity logs)
+    const actSnap = await db
+      .collection(COLLECTION)
+      .doc(id)
+      .collection('activities')
+      .orderBy('created_at', 'desc')
+      .limit(limit)
+      .get()
+
+    for (const d of actSnap.docs) {
+      const x = d.data() as Record<string, unknown>
+      // Skip activities that are just fan-out shadows of communications (deduped above by comm doc id)
+      if (x.related_collection === 'communications' && x.related_id) continue
+      counts.activities++
+      entries.push({
+        id: d.id,
+        source: 'activities',
+        type: 'activity',
+        title: String(x.activity_type || 'Activity'),
+        description: x.description ? String(x.description) : undefined,
+        performed_by: x.performed_by ? String(x.performed_by) : undefined,
+        created_at: String(x.created_at || ''),
+        meta: { entity_type: x.entity_type },
+      })
+    }
+
+    // opportunities
+    const oppSnap = await db
+      .collection('opportunities')
+      .where('client_id', '==', id)
+      .orderBy('created_at', 'desc')
+      .limit(limit)
+      .get()
+
+    for (const d of oppSnap.docs) {
+      const x = d.data() as Record<string, unknown>
+      counts.opportunities++
+      entries.push({
+        id: d.id,
+        source: 'opportunities',
+        type: 'opportunity',
+        title: String(x.name || x.title || 'Opportunity'),
+        description: x.stage ? `Stage: ${x.stage}` : undefined,
+        performed_by: x.owner ? String(x.owner) : undefined,
+        created_at: String(x.created_at || ''),
+        meta: { stage: x.stage, amount: x.amount, status: x.status },
+      })
+    }
+
+    // merge-sort desc by created_at, trim to limit
+    entries.sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''))
+    const trimmed = entries.slice(0, limit)
+
+    // optional type filter (applied after counts so UI filter pills reflect totals)
+    const filtered = typeFilter && typeFilter !== 'all'
+      ? trimmed.filter(e => {
+          if (typeFilter === 'calls') return e.type === 'voice'
+          if (typeFilter === 'sms') return e.type === 'sms'
+          if (typeFilter === 'emails') return e.type === 'email'
+          if (typeFilter === 'activities') return e.source === 'activities'
+          if (typeFilter === 'opportunities') return e.source === 'opportunities'
+          return true
+        })
+      : trimmed
+
+    res.json(successResponse({ entries: filtered, counts } as unknown as Record<string, unknown>))
+  } catch (err) {
+    console.error('GET /api/clients/:id/timeline error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+
+/**
  * GET /api/clients/:id/relationships
  */
 clientRoutes.get('/:id/relationships', async (req: Request, res: Response) => {
