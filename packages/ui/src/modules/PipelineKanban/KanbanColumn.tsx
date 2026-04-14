@@ -16,6 +16,10 @@ export interface KanbanColumnProps {
   count: number
   onDrop: (instanceId: string, stageId: string) => void
   onInstanceClick: (instanceId: string) => void
+  /** RDN-005: identifies which pipeline for policy_number vs plan_id choice. */
+  pipelineKey?: string
+  /** RDN-005: opportunity_id → custom_fields map for carrier/policy/plan lookup. */
+  opportunityMap?: Map<string, Record<string, unknown>>
 }
 
 /* ─── Component ─── */
@@ -29,6 +33,8 @@ export function KanbanColumn({
   count,
   onDrop,
   onInstanceClick,
+  pipelineKey,
+  opportunityMap,
 }: KanbanColumnProps) {
   const [dragOver, setDragOver] = useState(false)
 
@@ -104,6 +110,12 @@ export function KanbanColumn({
               key={inst.instance_id}
               instance={inst}
               onClick={() => onInstanceClick(inst.instance_id)}
+              pipelineKey={pipelineKey}
+              opportunityFields={
+                inst.opportunity_id && opportunityMap
+                  ? opportunityMap.get(String(inst.opportunity_id))
+                  : undefined
+              }
             />
           ))
         )}

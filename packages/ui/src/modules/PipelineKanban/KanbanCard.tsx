@@ -8,7 +8,21 @@ import type { FlowInstanceData } from '@tomachina/core'
 export interface KanbanCardProps {
   instance: FlowInstanceData
   onClick: () => void
+  /** RDN-005: current pipeline key — drives policy_number vs plan_id label. */
+  pipelineKey?: string
+  /**
+   * RDN-005: custom_fields from the linked opportunity (if any). Supplies
+   * carrier + policy_number / plan_id for the card identity row.
+   */
+  opportunityFields?: Record<string, unknown>
 }
+
+/** Pipelines whose canonical case identifier is `plan_id`, not `policy_number`. */
+const MEDICARE_PIPELINE_KEYS = new Set([
+  'NBX_MEDICARE_MAPD',    // MAPD + PDP share this schema
+  'NBX_MEDICARE_MEDSUP',  // Medicare Supplement / Ancillary
+  'REACTIVE_MEDICARE',    // Reactive Service — Medicare
+])
 
 /* ─── Priority Config ─── */
 
@@ -28,10 +42,23 @@ function parseEntityData(raw: string | Record<string, unknown> | undefined): Rec
 
 /* ─── Component ─── */
 
-export function KanbanCard({ instance, onClick }: KanbanCardProps) {
+export function KanbanCard({ instance, onClick, pipelineKey, opportunityFields }: KanbanCardProps) {
   const priority = (instance.priority || 'MEDIUM').toUpperCase()
   const priorityStyle = PRIORITY_STYLES[priority] || PRIORITY_STYLES.MEDIUM
   const isHousehold = (instance.entity_type || '').toUpperCase() === 'HOUSEHOLD'
+
+  // RDN-005: carrier + case identifier row. Medicare pipelines show plan_id,
+  // everything else shows policy_number. Carrier is universal.
+  const carrier = opportunityFields
+    ? (typeof opportunityFields.carrier === 'string' ? opportunityFields.carrier : '')
+    : ''
+  const usePlanId = pipelineKey ? MEDICARE_PIPELINE_KEYS.has(pipelineKey) : false
+  const caseIdKey = usePlanId ? 'plan_id' : 'policy_number'
+  const caseIdLabel = usePlanId ? 'Plan ID' : 'Policy'
+  const caseIdValue = opportunityFields && typeof opportunityFields[caseIdKey] === 'string'
+    ? (opportunityFields[caseIdKey] as string)
+    : ''
+  const showIdentityRow = Boolean(carrier || caseIdValue)
 
   // Parse entity_data for household member info
   const entityData = useMemo(() => parseEntityData(instance.entity_data as string | Record<string, unknown>), [instance.entity_data])
@@ -69,6 +96,23 @@ export function KanbanCard({ instance, onClick }: KanbanCardProps) {
         <p className="mt-0.5 text-[10px] text-[var(--text-muted)] truncate">
           {memberNames.join(', ')}
         </p>
+      )}
+
+      {/* RDN-005: Carrier + policy_number / plan_id */}
+      {showIdentityRow && (
+        <div className="mt-1 flex items-center gap-1.5 text-[11px] text-[var(--text-secondary)] truncate">
+          {carrier && (
+            <span className="truncate font-medium">{carrier}</span>
+          )}
+          {carrier && caseIdValue && (
+            <span className="text-[var(--text-muted)]">·</span>
+          )}
+          {caseIdValue && (
+            <span className="truncate font-mono text-[10px]" title={`${caseIdLabel}: ${caseIdValue}`}>
+              {caseIdValue}
+            </span>
+          )}
+        </div>
       )}
 
       {/* Assigned advisor */}
