@@ -18,6 +18,8 @@ export interface LionConfig {
   enabled: boolean
   /** QUE wire IDs this Lion owns */
   wire_ids: string[]
+  /** Tool IDs this Lion is permitted to call (VOL-H06 — baseline + domain extras) */
+  available_tools: string[]
   /** System prompt additions (appended to soul.md + spirit.md base) */
   system_prompt_additions: string
   /** Domain-specific knowledge doc path on MDJ_SERVER */
