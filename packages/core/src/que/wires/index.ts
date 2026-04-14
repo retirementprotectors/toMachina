@@ -43,3 +43,10 @@ export { wireLifeDiscovery } from './wire-life-discovery'
 export { wireLifeNeeds } from './wire-life-needs'
 export { wireLifeOptions } from './wire-life-options'
 export { wireLifePresentation } from './wire-life-presentation'
+
+// CSG MedSupp quote wire (TRK-EPIC-07)
+export { wireMedsuppQuote, isAepBlackout } from './wire-medsupp-quote'
+export type {
+  MedsuppQuoteWireInput,
+  MedsuppQuoteWireResult,
+} from './wire-medsupp-quote'
