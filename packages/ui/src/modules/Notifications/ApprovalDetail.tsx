@@ -46,9 +46,9 @@ interface ApprovalDetailProps {
 function ConfidenceBadge({ value }: { value: number }) {
   const pct = Math.round(value * 100)
   let color = 'var(--text-muted)'
-  if (pct >= 90) color = '#22c55e'
-  else if (pct >= 70) color = '#f59e0b'
-  else color = '#ef4444'
+  if (pct >= 90) color = 'var(--green)'
+  else if (pct >= 70) color = 'var(--orange)'
+  else color = 'var(--red)'
 
   return (
     <span className="text-[10px] font-semibold" style={{ color }}>
