@@ -66,12 +66,26 @@ export interface FlowInstanceCreateResult {
   pipeline_key: string
   current_stage: string
   tasks_generated: number
+  /**
+   * Non-fatal warning surfaced when the instance was created successfully
+   * but the stage's task template generation failed (missing templates,
+   * Firestore query/index error, etc.). The instance still lands — this is
+   * only a display hint. Added for RDN-DOJO-GAP-05 defensive fix.
+   */
+  warning?: string
 }
 
 /** PATCH /api/flow/instances/:id (action=advance) */
 export interface FlowInstanceAdvanceResult {
   new_stage: string
   tasks_generated: number
+  /**
+   * Non-fatal warning surfaced when the stage advanced but new-stage task
+   * generation failed (missing templates, Firestore error, etc.). The
+   * stage transition is committed — this is only a display hint. Added for
+   * RDN-DOJO-GAP-05 defensive fix.
+   */
+  warning?: string
 }
 
 /** PATCH /api/flow/instances/:id (action=complete) */
@@ -114,6 +128,8 @@ export type FlowInstancePatchResult =
 export interface FlowTasksGenerateResult {
   instance_id: string
   tasks_generated: number
+  /** Non-fatal warning surfaced when generation failed. See RDN-DOJO-GAP-05. */
+  warning?: string
 }
 
 /** PATCH /api/flow/tasks/:id (action=complete) */
