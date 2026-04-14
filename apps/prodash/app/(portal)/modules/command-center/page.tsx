@@ -1,10 +1,10 @@
 import type { Metadata } from 'next'
-import { CommandCenter, AppWrapper } from '@tomachina/ui'
+import { CommandCenterPage, AppWrapper } from '@tomachina/ui'
 export const metadata: Metadata = { title: 'Command Center' }
-export default function CommandCenterPage() {
+export default function CommandCenterRoute() {
   return (
-    <AppWrapper appKey="command-center">
-      <CommandCenter portal="prodashx" />
+    <AppWrapper appKey="voltron">
+      <CommandCenterPage portal="prodashx" />
     </AppWrapper>
   )
 }
