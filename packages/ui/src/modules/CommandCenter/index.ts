@@ -5,7 +5,7 @@
  * Built by RONIN — VOLTRON CONSUME Track (VOL-C02/C04/C15)
  */
 
-// VOLTRON Command Center (new)
+// VOLTRON Command Center (canonical — promoted to /modules/command-center in VOL-N05)
 export { CommandCenterPage } from './CommandCenterPage'
 export type { CommandCenterPageProps } from './CommandCenterPage'
 
@@ -14,5 +14,5 @@ export { RunWirePanel } from './RunWirePanel'
 export { CaseReviewWidget } from './CaseReviewWidget'
 export { GapRequestForm } from './GapRequestForm'
 
-// Legacy business metrics dashboard (original CommandCenter.tsx, moved here)
-export { CommandCenter } from './CommandCenterLegacy'
+// Legacy business metrics dashboard (CommandCenterLegacy) retired in VOL-N05 —
+// JDM Option B: VOLTRON OPS CC absorbs the /modules/command-center route.
