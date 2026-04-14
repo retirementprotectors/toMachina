@@ -8,6 +8,156 @@
 
 import type { LionConfig } from './lion-types'
 
+// ─── VOL-H06: Cross-cutting baseline — every Lion gets these ~22 tools ──────
+// Source: MUSASHI Discovery Doc 2026-04-14 Section 3
+// Per-Lion arrays append domain extras on top of this baseline.
+
+export const BASELINE_LION_TOOLS: readonly string[] = [
+  // Client / Account / Household reads
+  'tm_clients_search',
+  'tm_clients_get',
+  'tm_clients_get_accounts',
+  'tm_clients_get_activities',
+  'tm_accounts_list',
+  'tm_accounts_get',
+  'tm_households_list',
+  'tm_households_get',
+  'tm_households_meeting_prep',
+  'tm_search_global',
+  // Communications reads
+  'tm_communications_list',
+  'tm_communications_get',
+  'tm_comms_status',
+  // Notifications
+  'tm_notifications_list',
+  'tm_notifications_mark_read',
+  'tm_notifications_read_all',
+  // Atlas health
+  'tm_atlas_health',
+  // Workspace MCP (doc context)
+  'mcp_gdrive_search',
+  'mcp_gdrive_list_folder',
+  'mcp_gdrive_get_sheet_content',
+  // Business MCP (directory + transcript)
+  'mcp_business_get_person',
+  'mcp_business_analyze_transcript',
+  // Calendar reads
+  'mcp_calendar_list_events',
+  'mcp_calendar_search_events',
+] as const
+
+/** Medicare Lion domain extras (VOL-H06 Section 4). */
+const MEDICARE_EXTRAS: readonly string[] = [
+  'mcp_healthcare_lookup_npi',
+  'mcp_healthcare_search_codes',
+  'mcp_healthcare_search_plans',
+  'tm_que_sessions_list',
+  'tm_que_session_get',
+  'tm_que_session_create',
+  'tm_que_session_update',
+  'tm_que_quote_add',
+  'tm_pipelines_list',
+  'tm_pipelines_get',
+  'tm_flow_pipelines_list',
+  'tm_flow_pipeline_get',
+  'tm_flow_pipeline_stages',
+  'tm_flow_instances_list',
+  'tm_flow_instance_get',
+  'tm_revenue_list',
+  'tm_revenue_get',
+  'tm_revenue_summary_by_agent',
+  'tm_atlas_sources_list',
+] as const
+
+/** Annuity Lion domain extras. */
+const ANNUITY_EXTRAS: readonly string[] = [
+  'mcp_business_calculate_commission',
+  'tm_que_sessions_list',
+  'tm_que_session_get',
+  'tm_que_session_create',
+  'tm_que_session_update',
+  'tm_que_quote_add',
+  'tm_pipelines_list',
+  'tm_pipelines_get',
+  'tm_flow_pipelines_list',
+  'tm_flow_pipeline_get',
+  'tm_flow_pipeline_stages',
+  'tm_flow_instances_list',
+  'tm_flow_instance_get',
+  'tm_revenue_list',
+  'tm_revenue_get',
+  'tm_revenue_summary_by_agent',
+  'tm_atlas_wires_list',
+  'tm_atlas_sources_list',
+] as const
+
+/** Investment Lion domain extras. */
+const INVESTMENT_EXTRAS: readonly string[] = [
+  'mcp_business_calculate_commission',
+  'tm_que_sessions_list',
+  'tm_que_session_get',
+  'tm_que_session_create',
+  'tm_que_session_update',
+  'tm_que_quote_add',
+  'tm_pipelines_list',
+  'tm_pipelines_get',
+  'tm_flow_pipelines_list',
+  'tm_flow_pipeline_get',
+  'tm_flow_pipeline_stages',
+  'tm_flow_instances_list',
+  'tm_flow_instance_get',
+  'tm_revenue_list',
+  'tm_revenue_get',
+  'tm_revenue_summary_by_agent',
+  'tm_atlas_sources_list',
+  'tm_atlas_wires_list',
+] as const
+
+/** Life & Estate Lion domain extras. */
+const LIFE_ESTATE_EXTRAS: readonly string[] = [
+  'tm_que_sessions_list',
+  'tm_que_session_get',
+  'tm_que_session_create',
+  'tm_que_session_update',
+  'tm_que_quote_add',
+  'tm_pipelines_list',
+  'tm_pipelines_get',
+  'tm_flow_pipelines_list',
+  'tm_flow_pipeline_get',
+  'tm_flow_pipeline_stages',
+  'tm_flow_instances_list',
+  'tm_flow_instance_get',
+  'tm_revenue_list',
+  'tm_revenue_get',
+  'tm_atlas_sources_list',
+  'mcp_gdrive_create_doc',
+] as const
+
+/** Legacy/LTC Lion domain extras. */
+const LEGACY_LTC_EXTRAS: readonly string[] = [
+  'tm_que_sessions_list',
+  'tm_que_session_get',
+  'tm_que_session_create',
+  'tm_que_session_update',
+  'tm_que_quote_add',
+  'tm_pipelines_list',
+  'tm_pipelines_get',
+  'tm_flow_pipelines_list',
+  'tm_flow_pipeline_get',
+  'tm_flow_pipeline_stages',
+  'tm_flow_instances_list',
+  'tm_flow_instance_get',
+  'tm_revenue_list',
+  'tm_revenue_get',
+  'tm_atlas_sources_list',
+] as const
+
+function uniq(xs: readonly string[]): string[] {
+  return Array.from(new Set(xs))
+}
+
+
+
 // ─── VOL-O02: Medicare Lion ────────────────────────────────────────────────
 
 export const MEDICARE_LION_CONFIG: LionConfig = {
@@ -35,6 +185,7 @@ CRITICAL RULES:
 CARRIERS: Humana, Aetna, UnitedHealthcare, Cigna, Anthem, Mutual of Omaha (supplements)
 KEY TOOLS: humana_get_medicare_plans, aetna_search_insurance_plans, CALC_IRMAA`,
   knowledge_doc: 'medicare-knowledge.md',
+  available_tools: uniq([...BASELINE_LION_TOOLS, ...MEDICARE_EXTRAS]),
   created_at: '',
   updated_at: '',
 }
@@ -66,6 +217,7 @@ CORE CAPABILITIES:
 KEY CARRIERS: Allianz, Athene, Global Atlantic, Nationwide, Pacific Life, Sammons
 NEVER fabricate rates or illustrations. Use QUE calc tools for all projections.`,
   knowledge_doc: 'annuity-knowledge.md',
+  available_tools: uniq([...BASELINE_LION_TOOLS, ...ANNUITY_EXTRAS]),
   created_at: '',
   updated_at: '',
 }
@@ -95,6 +247,7 @@ CUSTODIANS: Schwab (RIA side via Gradient), RBC (BD side via Gradient)
 DST Vision provides mutual fund / variable annuity account data.
 NEVER fabricate performance numbers or portfolio values. Read actual data.`,
   knowledge_doc: 'investment-knowledge.md',
+  available_tools: uniq([...BASELINE_LION_TOOLS, ...INVESTMENT_EXTRAS]),
   created_at: '',
   updated_at: '',
 }
@@ -130,6 +283,7 @@ KNOWN GAPS (honest about these):
 KEY CARRIERS: Lincoln Financial, Nationwide, Pacific Life, Protective, Transamerica
 NEVER fabricate illustration values. If illustration data unavailable, state the limitation.`,
   knowledge_doc: 'life-estate-knowledge.md',
+  available_tools: uniq([...BASELINE_LION_TOOLS, ...LIFE_ESTATE_EXTRAS]),
   created_at: '',
   updated_at: '',
 }
@@ -160,6 +314,7 @@ CRITICAL HONESTY RULES:
 KEY CARRIERS: Genworth, Mutual of Omaha, OneAmerica, Lincoln Financial (hybrid), Pacific Life (hybrid)
 Dr. Aprille Trupiano leads this domain at RPI.`,
   knowledge_doc: 'legacy-ltc-knowledge.md',
+  available_tools: uniq([...BASELINE_LION_TOOLS, ...LEGACY_LTC_EXTRAS]),
   created_at: '',
   updated_at: '',
 }
