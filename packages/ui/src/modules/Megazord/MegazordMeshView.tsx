@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useCallback } from 'react'
-import { fetchValidated } from './fetchValidated'
+import { fetchValidated } from '../fetchValidated'
 
 // ---------------------------------------------------------------------------
 // Types (mirrors services/api/src/rangers/types.ts)
