@@ -15,6 +15,7 @@ import { revenueRoutes } from './routes/revenue.js'
 import { userRoutes } from './routes/users.js'
 import { healthRoutes } from './routes/health.js'
 import { opportunityRoutes } from './routes/opportunities.js'
+import { valuationRoutes } from './routes/valuation.js'
 import { pipelineRoutes } from './routes/pipelines.js'
 import { carrierRoutes } from './routes/carriers.js'
 import { productRoutes } from './routes/products.js'
@@ -198,6 +199,7 @@ app.use('/api/producers', normalizeBody, producerRoutes)
 app.use('/api/revenue', normalizeBody, revenueRoutes)
 app.use('/api/users', userRoutes)
 app.use('/api/opportunities', normalizeBody, opportunityRoutes)
+app.use('/api/valuation', valuationRoutes) // FV-006 / SPR-FARMLAND-VALUATION-001
 app.use('/api/pipelines', pipelineRoutes)
 app.use('/api/carriers', carrierRoutes)
 app.use('/api/products', productRoutes)
