@@ -43,6 +43,18 @@ export type { DocumentCleanupInput, DocumentCleanupOutput } from './acf-document
 export { definition as auditReviewDefinition, execute as executeAuditReview } from './acf-audit-review'
 export type { AuditReviewInput, AuditReviewOutput } from './acf-audit-review'
 
+// SUPER_FARMLAND_VALUATION — ensemble farmland valuation (FV-004 / SPR-FARMLAND-VALUATION-001).
+// Pure function over an injected `loadRow` callback; no server-only deps.
+// Safe to export both definition + execute from the barrel.
+export {
+  definition as farmlandValuationDefinition,
+  execute as executeFarmlandValuation,
+} from './farmland-valuation'
+export type {
+  FarmlandValuationInput,
+  FarmlandRowLoader,
+} from './farmland-valuation'
+
 // SUPER_CLASSIFY — NOT exported from barrel (imports server-only tools: fs, child_process).
 // Backend services import directly:
 //   import { execute as executeClassify } from '@tomachina/core/src/atlas/super-tools/classify'
