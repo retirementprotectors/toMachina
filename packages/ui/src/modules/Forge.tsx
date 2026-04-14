@@ -102,6 +102,7 @@ const STATUS_CONFIG: Record<string, { color: string; bg: string; label: string }
   // Legacy (kept for old items not yet migrated)
   done:            { color: 'rgb(34,197,94)', bg: 'rgba(34,197,94,0.15)', label: 'Done' },
   escalated:       { color: 'rgb(239,68,68)', bg: 'rgba(239,68,68,0.15)', label: 'Escalated' },
+  ready:           { color: 'rgb(16,185,129)', bg: 'rgba(16,185,129,0.15)', label: 'Ready' },
   // Terminal statuses
   deferred:        { color: 'rgb(156,163,175)', bg: 'rgba(156,163,175,0.15)', label: 'Deferred' },
   wont_fix:        { color: 'rgb(100,116,139)', bg: 'rgba(100,116,139,0.15)', label: "Won't Fix" },
@@ -324,10 +325,15 @@ function ForgeInner({ portal }: ForgeProps) {
 
   // ─── TRK-14233/14235/14234: Dojo tab state (localStorage persisted) ───
   const DOJO_TAB_KEY = 'dojo-active-tab'
-  type DojoTab = 'intake' | 'raiden' | 'ronin' | 'voltron' | 'musashi' | 'megazord' | 'tbd1' | 'tbd2' | 'status' | 'roadmap'
+  type DojoTab = 'intake' | 'raiden' | 'ronin' | 'voltron' | 'musashi' | 'megazord' | 'taiko' | 'tbd2' | 'status' | 'roadmap'
   const [dojoTab, setDojoTab] = useState<DojoTab>(() => {
     if (typeof window === 'undefined') return 'intake'
-    try { return (localStorage.getItem(DOJO_TAB_KEY) as DojoTab) || 'intake' } catch { return 'intake' }
+    try {
+      const raw = localStorage.getItem(DOJO_TAB_KEY)
+      // Legacy 'tbd1' slot was reclaimed by TAIKO (RON-DOJO-TAIKO-TAB) — migrate silently.
+      if (raw === 'tbd1') return 'taiko'
+      return (raw as DojoTab) || 'intake'
+    } catch { return 'intake' }
   })
   const switchDojoTab = (tab: DojoTab) => {
     setDojoTab(tab)
@@ -1464,7 +1470,7 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
             marginBottom: -1, transition: 'all 0.15s',
           }}
         >
-          <span style={{ fontSize: 14 }}>{'\u{1F4A9}'}</span>
+          <span style={{ fontSize: 14 }}>{'⚡'}</span>
           RAIDEN
         </button>
         {/* Tab: RONIN */}
@@ -1479,7 +1485,7 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
             marginBottom: -1, transition: 'all 0.15s',
           }}
         >
-          <span style={{ fontSize: 14 }}>{'\u{1F4A9}'}</span>
+          <span style={{ fontSize: 14 }}>{'🗡️'}</span>
           RONIN
         </button>
         {/* Tab: VOLTRON */}
@@ -1494,7 +1500,7 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
             marginBottom: -1, transition: 'all 0.15s',
           }}
         >
-          <span style={{ fontSize: 14 }}>{'\u{1F4A9}'}</span>
+          <span style={{ fontSize: 14 }}>{'🦁'}</span>
           VOLTRON
         </button>
         {/* Tab: MUSASHI */}
@@ -1509,7 +1515,7 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
             marginBottom: -1, transition: 'all 0.15s',
           }}
         >
-          <span style={{ fontSize: 14 }}>{'\u{1F4A9}'}</span>
+          <span style={{ fontSize: 14 }}>{'⚔️'}</span>
           MUSASHI
         </button>
         {/* Tab: MEGAZORD */}
@@ -1527,20 +1533,20 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
           <span style={{ fontSize: 20 }}>{'\u{1F3EF}'}</span>
           MEGAZORD
         </button>
-        {/* Tab: TBD 1 */}
+        {/* Tab: TAIKO (Comms Infrastructure — replaces former TBD 1 slot) */}
         <button
-          onClick={() => switchDojoTab('tbd1')}
+          onClick={() => switchDojoTab('taiko')}
           style={{
             display: 'flex', alignItems: 'center', gap: 6,
             padding: '10px 18px', border: 'none', cursor: 'pointer',
-            background: 'transparent', color: dojoTab === 'tbd1' ? s.text : s.textMuted,
-            fontSize: 13, fontWeight: dojoTab === 'tbd1' ? 600 : 400,
-            borderBottom: dojoTab === 'tbd1' ? `2px solid ${s.textMuted}` : '2px solid transparent',
-            marginBottom: -1, transition: 'all 0.15s', opacity: 0.6,
+            background: 'transparent', color: dojoTab === 'taiko' ? s.text : s.textMuted,
+            fontSize: 13, fontWeight: dojoTab === 'taiko' ? 600 : 400,
+            borderBottom: dojoTab === 'taiko' ? `2px solid ${s.portal}` : '2px solid transparent',
+            marginBottom: -1, transition: 'all 0.15s',
           }}
         >
-          <span className="material-icons-outlined" style={{ fontSize: 16, color: s.textMuted }}>help_outline</span>
-          TBD
+          <span style={{ fontSize: 14 }}>{'\u{1F941}'}</span>
+          TAIKO
         </button>
         {/* Tab: TBD 2 */}
         <button
@@ -2831,8 +2837,39 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
         </div>
       )}
 
+      {/* ─── TAIKO tab — Comms Infrastructure warrior (RON-DOJO-TAIKO-TAB) ─── */}
+      {dojoTab === 'taiko' && (
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, overflow: 'auto' }}>
+          <div style={{ background: `${s.portal}0f`, border: `1px solid ${s.portal}33`, borderRadius: 12, padding: 20, marginBottom: 16 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+              <div style={{ width: 40, height: 40, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', background: `${s.portal}26`, border: `1px solid ${s.portal}4d` }}>
+                <span style={{ fontSize: 20 }}>{'\u{1F941}'}</span>
+              </div>
+              <div>
+                <div style={{ fontSize: 16, fontWeight: 700, color: s.text }}>TAIKO</div>
+                <div style={{ fontSize: 11, color: s.portal, fontWeight: 600 }}>Comms Infrastructure — The Drum</div>
+              </div>
+              <div style={{ marginLeft: 'auto', display: 'flex', gap: 8 }}>
+                <span style={{ fontSize: 10, fontWeight: 700, padding: '3px 10px', borderRadius: 8, background: `${s.portal}1f`, color: s.portal, letterSpacing: 1 }}>PIPES</span>
+                <span style={{ fontSize: 10, fontWeight: 700, padding: '3px 10px', borderRadius: 8, background: `${s.portal}1f`, color: s.portal, letterSpacing: 1 }}>TKO-</span>
+              </div>
+            </div>
+            <div style={{ fontSize: 12, color: s.textMuted, lineHeight: 1.6 }}>
+              TAIKO owns the comms infrastructure layer — Twilio voice+SMS, SendGrid, Google Meet/Chat, RPI Connect, and alerts. If the message routes, TAIKO owns the route. Message authorship stays with MUSASHI.
+            </div>
+          </div>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 200 }}>
+            <span style={{ fontSize: 48, opacity: 0.2, marginBottom: 12 }}>{'\u{1F941}'}</span>
+            <div style={{ fontSize: 14, fontWeight: 700, color: s.text, marginBottom: 6 }}>TAIKO Comms Board</div>
+            <div style={{ fontSize: 12, color: s.textMuted, textAlign: 'center', maxWidth: 420 }}>
+              TKO- pipeline items will surface here once TAIKO&apos;s queue wiring lands. For now, the tab anchors the warrior&apos;s presence in the Dojo.
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ─── TBD tabs — placeholder warriors ─── */}
-      {(dojoTab === 'tbd1' || dojoTab === 'tbd2') && (
+      {dojoTab === 'tbd2' && (
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 300 }}>
           <span className="material-icons-outlined" style={{ fontSize: 48, color: s.textMuted, opacity: 0.2, marginBottom: 12 }}>construction</span>
           <div style={{ fontSize: 16, fontWeight: 700, color: s.text, marginBottom: 6 }}>New Warrior Incoming</div>
@@ -2872,6 +2909,7 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
               { warrior: 'VOLTRON', color: '#22c55e', desc: 'Team + client-facing AI', icon: 'smart_toy', prefix: 'VOL-' },
               { warrior: 'MUSASHI', color: '#d4a44c', desc: 'Creative + brand pipeline', icon: 'brush', prefix: 'MUS-' },
               { warrior: 'MEGAZORD', color: '#10b981', desc: 'CIO — data operations + ATLAS registry', icon: 'hub', prefix: 'ZRD-' },
+              { warrior: 'TAIKO', color: '#4a7ab5', desc: 'Comms infrastructure — Twilio / SendGrid / Meet / Connect / alerts', icon: 'music_note', prefix: 'TKO-' },
             ].map(w => {
               const count = w.prefix === 'RON-' ? roninItems.length : w.prefix === 'RDN-' ? raidenItems.length : 0
               return (

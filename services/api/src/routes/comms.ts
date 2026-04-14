@@ -171,6 +171,22 @@ async function fanOutActivity(data: Record<string, unknown>, commDocId: string) 
   }
 }
 
+async function resolveClientIdByPhone(phone: string): Promise<string | null> {
+  const digits = String(phone).replace(/\D/g, '').replace(/^1/, '')
+  if (digits.length < 10) return null
+  try {
+    const store = getFirestore()
+    const cellSnap = await store.collection('clients').where('cell_phone', '==', digits).limit(1).get()
+    if (cellSnap.docs[0]) return cellSnap.docs[0].id
+    const phoneSnap = await store.collection('clients').where('phone', '==', digits).limit(1).get()
+    if (phoneSnap.docs[0]) return phoneSnap.docs[0].id
+    return null
+  } catch (lookupErr: unknown) {
+    console.error('resolveClientIdByPhone error:', lookupErr)
+    return null
+  }
+}
+
 async function logCommunication(data: Record<string, unknown>) {
   const db = getFirestore()
   const id = crypto.randomUUID()
@@ -309,12 +325,16 @@ commsRoutes.post('/send-sms', async (req: Request, res: Response) => {
 
     const result = await twilioRequest('POST', 'Messages.json', payload)
     const mediaUrls = body.mediaUrl ? [String(body.mediaUrl)] : undefined
+    // RDN-DOJO-GAP-09 safety net: when the caller didn't supply client_id, try
+    // to resolve it from the recipient phone so the comm still appears in the
+    // contact's Activity tab (root cause of "SMS to Myron not in log").
+    const resolvedClientId = body.client_id ? String(body.client_id) : await resolveClientIdByPhone(to)
     const commId = await logCommunication({
       channel: 'sms', direction: 'outbound', recipient: to,
       body: messageBody, status: String(result.status || 'queued'),
       message_sid: String(result.sid || ''),
       sent_by: (req as unknown as { user?: { email?: string } }).user?.email || 'api',
-        client_id: body.client_id || null,
+        client_id: resolvedClientId,
         ...(mediaUrls && { media_urls: mediaUrls }),
     })
     res.status(201).json(successResponse<CommsSendSmsResult>({

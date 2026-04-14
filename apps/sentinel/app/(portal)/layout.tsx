@@ -8,7 +8,11 @@ import { SignInScreen } from './components/SignInScreen'
 import { LoadingScreen } from './components/LoadingScreen'
 import { CommsModule } from '@tomachina/ui/src/modules/CommsModule'
 import { TwilioDeviceProvider } from '@tomachina/ui/src/modules/CommsModule/TwilioDeviceProvider'
+import { OmniPanel } from '@tomachina/ui/src/modules/OmniPanel'
 import { ConnectPanel } from '@tomachina/ui/src/modules/ConnectPanel'
+
+// TRK-EPIC-08 Phase 0: OmniPanel v2 behind NEXT_PUBLIC_OMNIPANEL_V2_ENABLED flag.
+const OMNIPANEL_V2 = process.env.NEXT_PUBLIC_OMNIPANEL_V2_ENABLED === 'true'
 import { NotificationsModule } from '@tomachina/ui/src/modules/Notifications'
 import { MDJPanel } from '@tomachina/ui/src/modules/MDJPanel'
 import { ReportButton } from '@tomachina/ui'
@@ -103,8 +107,12 @@ export default function PortalLayout({
         </main>
       </div>
 
-      {/* Communications Module — slide-out panel */}
-      <CommsModule open={commsOpen} onClose={closeComms} />
+      {/* Communications — OmniPanel v2 (PRs #409-414 rebuild) behind flag, else legacy CommsModule */}
+      {OMNIPANEL_V2 ? (
+        <OmniPanel open={commsOpen} onClose={closeComms} />
+      ) : (
+        <CommsModule open={commsOpen} onClose={closeComms} />
+      )}
 
       {/* RPI Connect — slide-out panel */}
       <ConnectPanel portal="sentinel" open={connectOpen} onClose={closeConnect} />
