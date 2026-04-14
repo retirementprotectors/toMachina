@@ -921,6 +921,42 @@ code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px;
     <div class="desc"><strong>Monday IRL transcript pipeline</strong> &mdash; Automate: recording &rarr; transcript &rarr; analysis &rarr; delegation. Build the flow.</div>
   </div>
 
+  <!-- ═══ P40 / Local Inference Roadmap (added 2026-04-14) ═══ -->
+  <div style="margin-top: 24px; padding: 12px 16px; background: rgba(34,197,94,0.06); border-left: 3px solid var(--green); border-radius: 6px;">
+    <div style="font-weight: 600; color: var(--green); font-size: 0.9rem; margin-bottom: 6px;">P40 / Local Inference Track — Post DISP-P40-CLASSIFY sprint</div>
+    <p style="color: var(--muted); font-size: 0.82rem; margin: 0;">Tesla P40 (24GB Pascal) went LIVE on MDJ_SERVER 2026-04-13. First production workload <code>DISP-P40-CLASSIFY</code> swaps 4 Anthropic classifier call sites to local Ollama with fallback. Follow-ups below expand P40 into higher-value domains.</p>
+  </div>
+
+  <div class="hit-item">
+    <div class="status"><span class="pill hot">HOT</span></div>
+    <div class="desc"><strong>DISP-P40-CLASSIFY</strong> &mdash; Swap 4 classifier call sites (<code>dojo.ts</code>, <code>intent-classifier.ts</code>, <code>specialist-router.ts</code>, <code>memory-extractor.ts</code>) to <code>localhost:11434</code> with Anthropic fallback. Build <code>ollama-classify.ts</code> helper with Zod validation + Firestore metrics. ~3h, SHINOB1 owns.</div>
+  </div>
+
+  <div class="hit-item">
+    <div class="status"><span class="pill next">NEXT</span></div>
+    <div class="desc"><strong>Document classification on P40</strong> &mdash; ACF scanner + Correspondence Ranger currently classify inbound PDFs via Anthropic Sonnet. Swap to local <code>llama3.1:8b</code> (or Qwen 2.5 14B Q5 for harder docs). Keeps PHI-adjacent classification fully on-prem. Sprint-scope.</div>
+  </div>
+
+  <div class="hit-item">
+    <div class="status"><span class="pill next">NEXT</span></div>
+    <div class="desc"><strong>Embeddings for MATRIX vector search</strong> &mdash; Run <code>nomic-embed-text</code> (274MB) on P40 to embed all clients + notes + Drive docs + conversation history. Unlocks semantic search (&ldquo;find clients with X pattern in notes&rdquo;) + RAG for MDJ specialists. Requires product decision on UX before building. Discovery doc needed.</div>
+  </div>
+
+  <div class="hit-item">
+    <div class="status"><span class="pill plan">PLAN</span></div>
+    <div class="desc"><strong>DeepSeek Coder 33B for code-gen</strong> &mdash; Fits in 22GB VRAM at Q4. Could offload boilerplate/scaffold generation from Sonnet to local. Worth it only if code-gen volume justifies (measure first). Wait-and-see after DISP-P40-CLASSIFY proves pattern.</div>
+  </div>
+
+  <div class="hit-item">
+    <div class="status"><span class="pill plan">PLAN</span></div>
+    <div class="desc"><strong>Model upgrades (V100 32GB &rarr; A100 40/80GB)</strong> &mdash; Only when demand proves it. V100 ~$1.5-2.5K (3&times; P40 speed, FP16, vLLM unlocked). A100 ~$8-15K (Llama 3.3 70B native, fine-tuning, batched multi-user). Trigger: DAVID compliance workload, RPI-specific fine-tuning, or demonstrated $2K+/mo workload that P40 can't serve.</div>
+  </div>
+
+  <div class="hit-item">
+    <div class="status"><span class="pill plan">PLAN</span></div>
+    <div class="desc"><strong>RAM Phase 3 (+64GB = 126GB total)</strong> &mdash; ~$120-180. Doesn't accelerate LLM inference (VRAM-bound) but unlocks multiple models hot in Ollama keep-alive cache + bigger Postgres/vector caches + everything-else headroom on the box. Cheap, useful, not urgent.</div>
+  </div>
+
   <p style="color: var(--muted); font-size: 0.8rem; margin-top: 16px; font-style: italic;">JDM: Add items here as they come up. SHINOB1 will route and prioritize.</p>
 </div>
 
