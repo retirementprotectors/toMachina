@@ -5,6 +5,7 @@ import { DashboardView } from './DashboardView'
 import { SessionBrowserView } from './SessionBrowserView'
 import { KnowledgePipelineView } from './KnowledgePipelineView'
 import { CleanupControlsView } from './CleanupControlsView'
+import { GuardianView } from './guardian/GuardianView'
 
 // ── Types ──────────────────────────────────────────────────────────────
 
@@ -12,7 +13,7 @@ export interface SystemSynergyProps {
   portal?: string
 }
 
-type TabKey = 'dashboard' | 'sessions' | 'knowledge' | 'cleanup'
+type TabKey = 'dashboard' | 'sessions' | 'knowledge' | 'cleanup' | 'guardian'
 
 interface Tab {
   key: TabKey
@@ -29,6 +30,7 @@ const TABS: Tab[] = [
   { key: 'sessions',   label: 'Session Browser',   icon: 'terminal' },
   { key: 'knowledge',  label: 'Knowledge Pipeline', icon: 'psychology' },
   { key: 'cleanup',    label: 'Cleanup Controls',  icon: 'cleaning_services' },
+  { key: 'guardian',   label: 'Guardian',           icon: 'shield' },
 ]
 
 // ── Styles (inline — dark theme, no portal CSS vars) ───────────────────
@@ -56,6 +58,8 @@ function TabContent({ tabKey }: { tabKey: TabKey }) {
       return <KnowledgePipelineView />
     case 'cleanup':
       return <CleanupControlsView />
+    case 'guardian':
+      return <GuardianView />
   }
 }
 

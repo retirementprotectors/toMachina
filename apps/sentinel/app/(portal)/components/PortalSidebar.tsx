@@ -91,7 +91,6 @@ const APP_ITEMS: AppItem[] = [
   { key: 'voltron', href: '/command-center', moduleKey: 'VOLTRON' },
   { key: 'musashi', href: '/modules/musashi', moduleKey: 'MUSASHI' },
   { key: 'forge', href: '/modules/forge', moduleKey: 'FORGE' },
-  { key: 'guardian', href: '/admin/guardian', moduleKey: 'GUARDIAN' },
   { key: 'prozone', href: '/modules/prozone', moduleKey: 'PROZONE' },
   { key: 'system-synergy', href: '/modules/system-synergy', moduleKey: 'SYSTEM_SYNERGY' },
 ]
