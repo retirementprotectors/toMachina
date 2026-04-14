@@ -100,7 +100,6 @@ const TRAY_DEFS: TrayDef[] = [
     items: [
       { key: 'system-synergy', href: '/modules/system-synergy', moduleKey: 'SYSTEM_SYNERGY' },
       { key: 'command-center', href: '/modules/command-center', moduleKey: 'RPI_COMMAND_CENTER' },
-      { key: 'guardian', href: '/admin/guardian', moduleKey: 'GUARDIAN' },
     ],
   },
   {
