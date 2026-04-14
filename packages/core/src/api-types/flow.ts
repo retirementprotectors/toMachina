@@ -279,8 +279,21 @@ export interface ApprovalBatchListItem {
   item_count: number
 }
 
-/** GET /api/approval/batches/:id — full batch detail */
-export type ApprovalBatchDetailDTO = ApprovalBatch
+/** Deep-links resolved for a batch — client/ACF/account jump targets */
+export interface ApprovalDeepLink {
+  label: string
+  url: string
+}
+export interface ApprovalDeepLinks {
+  clientUrl: string | null
+  acfFolderUrl: string | null
+  accounts: ApprovalDeepLink[]
+}
+
+/** GET /api/approval/batches/:id — full batch detail + resolved deep-links */
+export type ApprovalBatchDetailDTO = ApprovalBatch & {
+  deep_links?: ApprovalDeepLinks
+}
 
 /** GET /api/approval/stats — dashboard statistics */
 export interface ApprovalStatsData {
