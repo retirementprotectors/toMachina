@@ -1,8 +1,8 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { fetchValidated } from '../fetchValidated'
-import { useToast } from '../../components/Toast'
+import { fetchValidated } from '../../fetchValidated'
+import { useToast } from '../../../components/Toast'
 
 /* ─── Types ─── */
 interface AuditFinding {

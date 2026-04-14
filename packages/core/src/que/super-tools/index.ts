@@ -39,3 +39,12 @@ export { analyzeLifeNeed } from './analyze-life-need'
 export { analyzeUnderwritingPath } from './analyze-underwriting-path'
 export { analyzeLifeOptions } from './analyze-life-options'
 export { generateLifeCasework } from './generate-life-casework'
+
+// CSG MedSupp quote (TRK-EPIC-07)
+export { quoteMedsupp } from './quote-medsupp'
+export type {
+  QuoteMedsuppInput,
+  RawCsgQuote,
+  NormalizedQuote,
+  QuoteMedsuppResult,
+} from './quote-medsupp'
