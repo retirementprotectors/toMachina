@@ -31,7 +31,8 @@ export { ProZone, TerritoryBuilder, SpecialistConfigEditor } from './ProZone'
 
 export { QueRegistry } from './QueRegistry'
 export { QueWorkbench } from './QueWorkbench'
-export { Guardian } from './Guardian'
+export { PipelineFieldsForm } from './PipelineFieldsForm'
+export type { PipelineFieldsFormProps } from './PipelineFieldsForm'
 export { IntakeQueue } from './IntakeQueue'
 export { ActionQueue } from './ActionQueue'
 
