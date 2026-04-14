@@ -462,7 +462,7 @@ export function PortalSidebar({ onCommsToggle, commsOpen, onConnectToggle, conne
               className="material-icons-outlined"
               style={{ fontSize: '20px', color: commsOpen ? 'var(--portal)' : 'var(--text-muted)' }}
             >
-              forum
+              chat_bubble
             </span>
             {!collapsed && (
               <span className="text-[9px] mt-0.5" style={{ color: commsOpen ? 'var(--portal)' : 'var(--text-muted)' }}>
