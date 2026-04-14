@@ -141,10 +141,10 @@
       height: 7.9in;
       max-height: 7.9in;
       overflow: hidden;
-      page-break-after: always;
-      break-after: page;
       box-sizing: border-box;
     }
+    /* Only non-last sheets force a page break — last sheet ends without a trailing blank page */
+    .sheet:not(:last-child) { page-break-after: always; break-after: page; }
     .sheet:last-child { page-break-after: auto; break-after: auto; }
     .preview-nav, .fold-note, .panel-label { display: none !important; }
     /* Panels: content-hugging, no forced height. space-between distributes vertically —
