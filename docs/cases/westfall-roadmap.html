@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chris + Colleen Westfall — Pre-Retirement Income Roadmap</title>
+<style>
+:root{--bg:#0a0e17;--card:#111827;--card2:#1a2236;--border:#1e293b;--text:#e2e8f0;--muted:#94a3b8;--green:#22c55e;--blue:#3b82f6;--red:#ef4444;--orange:#f59e0b;--gold:#d4a44c;--cyan:#06b6d4}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.65;padding:40px 24px}
+.wrap{max-width:920px;margin:0 auto}
+h1{font-size:1.9rem;font-weight:800;background:linear-gradient(135deg,var(--green),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px;line-height:1.25}
+h2{font-size:1.25rem;margin:32px 0 12px;color:var(--text);padding-bottom:6px;border-bottom:1px solid var(--border)}
+h3{font-size:1.02rem;margin:20px 0 8px;color:var(--green)}
+p,li{color:var(--muted);margin-bottom:8px}
+strong{color:var(--text)}
+code{background:var(--card2);padding:2px 7px;border-radius:4px;font-size:0.82rem;color:var(--cyan);font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+blockquote{background:rgba(6,182,212,0.06);border-left:3px solid var(--cyan);padding:12px 18px;margin:14px 0;border-radius:0 8px 8px 0}
+blockquote p{color:var(--muted);margin:0;font-size:0.88rem}
+.warn{background:rgba(245,158,11,0.08);border-left:3px solid var(--orange);padding:12px 18px;margin:14px 0;border-radius:0 8px 8px 0}
+.warn p{color:var(--muted);margin:0;font-size:0.88rem}
+ul,ol{margin:10px 0 12px 24px}
+li{margin-bottom:6px}
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:0.88rem;background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+th{text-align:left;padding:10px 12px;background:var(--card2);color:var(--green);font-weight:700;font-size:0.75rem;text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid var(--border)}
+td{padding:10px 12px;border-bottom:1px solid var(--border);color:var(--muted);vertical-align:top}
+tr:last-child td{border-bottom:none}
+a{color:var(--blue);text-decoration:none}
+a:hover{text-decoration:underline}
+.footer{text-align:center;padding:32px 0 0;color:var(--muted);font-size:0.72rem;border-top:1px solid var(--border);margin-top:44px}
+input[type="checkbox"]{accent-color:var(--green);margin-right:6px}
+.checklist li{list-style:none;margin-left:-20px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Chris + Colleen Westfall — Pre-Retirement Income Roadmap</h1>
+
+<blockquote><p><strong>Draft — 2026-04-14</strong> · VOLTRON CSO · Source: Josh Archer case notes + existing Firestore client record + Farm Bureau policy PDF (scanned, CamScanner — full extraction pending platform intake fix). Data gaps flagged inline.</p></blockquote>
+
+<h2>Household</h2>
+<table>
+<tr><th>Field</th><th>Value</th></tr>
+<tr><td><strong>Chris E Westfall</strong></td><td><code>client_id: dc40f681-7ac4-47d4-bd6e-6ebdaec6488b</code> · Iowa City IA 52240 · phone 319-351-4584 · ACF <code>11zME7DVhM9Rc0hS8llf3TSkF8GFg-jQD</code> · Active Client (imported from <code>cof_members_q126</code> via sheets_migration)</td></tr>
+<tr><td><strong>Colleen Westfall</strong></td><td>New record pending ingest — household spouse of Chris, existing Firestore record not yet located</td></tr>
+</table>
+
+<div class="warn"><p><strong>⚠️ DOB discrepancy (Chris):</strong> Firestore: <code>1959-12-21</code> (would be age 66) · Archer's notes: <code>12/29/66</code> (age 59) — 7-year gap. Archer's planning narrative (deferring SSI to FRA kicks in Sept/Oct, 3-4 year GMIB cook) fits age 59 cleanly; Firestore DOB likely mangled by the sheets migration. <strong>JDM-blocked:</strong> which DOB is correct? Roadmap uses Archer's number (age 59) for planning math; Firestore record stays as-is until JDM rules.</p></div>
+
+<h2>Case Framing — Pre-Retirement Income Structure</h2>
+<p>Chris is the active planning subject: pre-FRA, farm-income-heavy, structuring pre-retirement annuity strategy with a 3-4 year deferral window. Colleen is already past FRA and drawing SSI + IPERS. Goals: bridge Chris to SSI activation (Sept/Oct this year per Archer), structure his lump-sum assets to cook through FRA, then fire income for remaining retirement.</p>
+
+<h2>Income Profile</h2>
+
+<h3>Chris (pre-FRA, age ~59 per Archer)</h3>
+<table>
+<tr><th>Source</th><th>Amount</th><th>Timing</th></tr>
+<tr><td>Farm rent</td><td><strong>~$3,000/mo</strong> (~$36K/yr)</td><td>Ongoing</td></tr>
+<tr><td>Machinery lease</td><td><strong>~$20,000/yr</strong></td><td>Until ~age 70</td></tr>
+<tr><td><strong>SSI (deferred to FRA)</strong></td><td><strong>$2,400/mo</strong></td><td>Kicks in <strong>Sept/Oct</strong> (current year)</td></tr>
+<tr><td>Total annual income (post-SSI-activation)</td><td>~$85K/yr</td><td></td></tr>
+</table>
+
+<h3>Colleen (past FRA, age ~68)</h3>
+<table>
+<tr><th>Source</th><th>Amount</th><th>Notes</th></tr>
+<tr><td>SSI</td><td><strong>$1,200/mo</strong> ($14.4K/yr)</td><td>Drawing now</td></tr>
+<tr><td>IPERS</td><td><strong>$1,006/mo</strong> ($12K/yr)</td><td>Iowa Public Employees Retirement System — confirm earnings test status</td></tr>
+<tr><td>Total</td><td>~$26K/yr</td><td></td></tr>
+</table>
+
+<h3>Household combined</h3>
+<p><strong>~$111K/yr</strong> once Chris SSI activates. Before activation: ~$83K (farm rent + lease + Colleen).</p>
+
+<h2>Asset Inventory (partial — pending full extraction)</h2>
+<div class="warn"><p><strong>⚠️ Note:</strong> The <code>Westfall Farm Bureau (1).pdf</code> in the inbox is a CamScanner scan with no text layer. Can't parse programmatically without OCR. Content below is from Archer's notes + household context. Full extraction runs when <code>services/intake</code> Cloud Function is fixed (<code>ZRD-INTAKE-WIRE-TRIGGER-PROD-BROKEN</code>).</p></div>
+
+<h3>Bank CDs</h3>
+<ul>
+<li><strong>4 CDs · combined $160,000 @ 3.00%</strong></li>
+<li>Carrier/maturity TBD on extraction</li>
+</ul>
+
+<h3>Chris's IRA</h3>
+<ul>
+<li>Chris has an IRA. Value + custodian TBD on extraction.</li>
+<li><strong>Planning lever: cook 3-4 years</strong> before activating GMIB rider (per Archer)</li>
+<li>Candidate strategy: roll into FIA with GMIB, let rollup compound to 2029-2030, then activate lifetime income stream that stacks on top of his SSI</li>
+</ul>
+
+<h3>Colleen's Roth IRA</h3>
+<ul>
+<li>Scan mix-up per Archer: Chris's IRA statement + Colleen's Roth IRA statement + stray Minearts sig page ended up in the same scan. Ownership attribution needed on extraction.</li>
+<li><strong>Planning lever:</strong> let Colleen's IRA cook <strong>until age 73</strong> (per Archer) — max Roth tax-free growth window before RMDs aren't an issue (Roth has no RMD for original owner, so "cook til 73" probably refers to Trad IRA if she has one, not the Roth).</li>
+</ul>
+
+<h3>COF Policies</h3>
+<ul>
+<li><strong>Chris's COF policy</strong> — currently assigned to RPI</li>
+<li><strong>Colleen's COF policy</strong> — <strong>NOT assigned to RPI</strong> (assignment ask on the table with Archer)</li>
+<li>Details + values TBD on extraction</li>
+</ul>
+
+<h3>Farm Business</h3>
+<ul>
+<li>Farm rent to a tenant (~$36K/yr revenue to Chris)</li>
+<li>Machinery leased out (~$20K/yr revenue, ends ~age 70)</li>
+<li>Legal structure (sole prop / LLC / trust) TBD — likely sole prop given Iowa farm pattern</li>
+</ul>
+
+<h2>Action Items</h2>
+
+<h3>Pre-meeting</h3>
+<ul class="checklist">
+<li><input type="checkbox"> Resolve Chris's DOB (12/29/66 vs 1959-12-21) — Archer should have a copy of his driver's license or birth certificate</li>
+<li><input type="checkbox"> Verify SSI activation timing with Chris (Sept or Oct 2026?)</li>
+<li><input type="checkbox"> Confirm 4 CDs: carrier(s), maturity dates, account numbers</li>
+<li><input type="checkbox"> Chris IRA: custodian, value, product type (is it already an annuity or a brokerage IRA?)</li>
+<li><input type="checkbox"> Colleen IRA: Traditional or Roth (the "cook til 73" reasoning only applies to Trad for RMD purposes)</li>
+<li><input type="checkbox"> Get Colleen's COF policy details + discuss assignment-to-RPI</li>
+<li><input type="checkbox"> Stray Minearts sig page (in the Westfall scan bundle) — classify + route to Minearts casework separately</li>
+</ul>
+
+<h3>Product recommendations (draft — pending numbers)</h3>
+<ul class="checklist">
+<li><input type="checkbox"> <strong>Chris: FIA with GMIB rider · 3-4 year deferral.</strong> Target: activate 2029-2030, stacks on SSI ($2,400/mo) + farm rent + machinery lease. Candidate carriers: Nationwide, Athene, Global Atlantic, Allianz, Pacific Life.</li>
+<li><input type="checkbox"> <strong>Colleen: preserve Roth, let Trad cook to 73.</strong> If Trad IRA value is meaningful, consider Roth conversion strategy during Chris's low-income years (pre-SSI-activation window is shrinking — Sept is close).</li>
+<li><input type="checkbox"> <strong>CDs: reposition to MYGA or FIA.</strong> $160K @ 3% is underperforming current MYGA rates (4.0-5.25%). Non-qualified so 1035 exchange not applicable; simple rollover at maturity.</li>
+<li><input type="checkbox"> <strong>Legacy structure:</strong> if Chris + Colleen have specific children/grandchildren for farm succession, mirror the Thurman "DB-to-grandson" pattern consideration.</li>
+</ul>
+
+<h3>Platform blockers</h3>
+<ul>
+<li><code>ZRD-INTAKE-WIRE-TRIGGER-PROD-BROKEN</code> (P0) — blocks the Farm Bureau PDF extraction</li>
+<li>DOB reconciliation on Firestore record — JDM ruling needed</li>
+</ul>
+
+<div class="footer">Chris + Colleen Westfall · Pre-Retirement Income Roadmap · 2026-04-14 · VOLTRON CSO · Retirement Protectors, Inc.</div>
+</div>
+</body>
+</html>

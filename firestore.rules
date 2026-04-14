@@ -142,12 +142,32 @@ service cloud.firestore {
 
     // ----------------------------------------------------------------
     // Clients + subcollections (daily work)
+    // The `farm_holdings` array on /clients/{clientId} inherits this
+    // document-level rule — no separate rule block required for the field
+    // (SPR-FARMLAND-VALUATION-001 / FV-007).
     // ----------------------------------------------------------------
     match /clients/{clientId} {
       allow read, write: if isRPIUser();
       match /{subcollection}/{docId} {
         allow read, write: if isRPIUser();
       }
+    }
+
+    // ----------------------------------------------------------------
+    // farmland_values — ISU Extension + USDA NASS value-per-acre cache.
+    // One document per (source × state × county × year × tier).
+    // Read: any @retireprotected.com user (UI provenance drawer + super tool
+    //       cache lookups).
+    // Write: executive-or-above ONLY — the canonical writers are the annual
+    //        WIRE_FARMLAND_VALUE_SEED cron (running as a Cloud Run service
+    //        account, which bypasses these rules) and the casework
+    //        force-refresh path (executive-gated). Regular staff never
+    //        write to this collection from the client.
+    // Sprint: SPR-FARMLAND-VALUATION-001 / FV-007
+    // ----------------------------------------------------------------
+    match /farmland_values/{valueId} {
+      allow read: if isRPIUser();
+      allow write: if isExecutiveOrAbove();
     }
 
     // ----------------------------------------------------------------
