@@ -143,25 +143,20 @@
     }
     .sheet:last-child { page-break-after: auto; break-after: auto; }
     .preview-nav, .fold-note, .panel-label { display: none !important; }
-    /* Panels flex-column + space-between so content fills top and bottom-anchors the tail.
-       Any remaining blank redistributes between elements instead of piling at the bottom edge. */
+    /* Panels: content-hugging, no forced height. space-between distributes vertically —
+       first element pinned to top, last pinned to bottom, middle gets the slack.
+       This eliminates tail whitespace regardless of content length. */
     .panel {
       border-right: none;
-      padding: 0.25in 0.26in;
+      padding: 0.22in 0.24in;
       height: 7.9in;
       overflow: hidden;
-      display: flex;
-      flex-direction: column;
+      display: flex !important;
+      flex-direction: column !important;
+      justify-content: space-between !important;
     }
-    /* Last-child of each panel (contact block, disclaimer, WYP line) anchors to bottom. */
-    .panel > *:last-child {
-      margin-top: auto !important;
-    }
-    /* Specific bottom-anchor targets per panel archetype */
-    .back-contact, .back-disclaimer, .cover-bottom,
-    .panel .contact, .panel .disclaimer, .panel footer {
-      margin-top: auto !important;
-    }
+    /* Panel-label is hidden already; make sure it doesn't take layout space */
+    .panel-label { display: none !important; height: 0 !important; }
     @page { size: 11in 8.5in; }
   }
 </style>
