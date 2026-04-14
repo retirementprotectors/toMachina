@@ -10,7 +10,20 @@ import { LoadingScreen } from './components/LoadingScreen'
 import { CommsModule } from '@tomachina/ui/src/modules/CommsModule'
 import type { ClientResult } from '@tomachina/ui/src/modules/CommsModule'
 import { TwilioDeviceProvider } from '@tomachina/ui/src/modules/CommsModule/TwilioDeviceProvider'
+import { OmniPanel } from '@tomachina/ui/src/modules/OmniPanel'
 import { ConnectPanel } from '@tomachina/ui/src/modules/ConnectPanel'
+
+// TRK-EPIC-08 Phase 0: OmniPanel v2 behind feature flag. When enabled, the
+// rebuilt OmniPanel (PRs #409-414) replaces the legacy CommsModule slide-out.
+// Flip via NEXT_PUBLIC_OMNIPANEL_V2_ENABLED=true. Off by default in prod, on
+// in dev. 'sms' maps to 'text' because OmniPanel's tab keys differ from the
+// legacy CommsModule tab keys.
+const OMNIPANEL_V2 = process.env.NEXT_PUBLIC_OMNIPANEL_V2_ENABLED === 'true'
+function mapInitialTab(t: 'sms' | 'email' | 'call' | null | undefined): 'call' | 'text' | 'email' | 'log' | null {
+  if (!t) return null
+  if (t === 'sms') return 'text'
+  return t
+}
 import { NotificationsModule } from '@tomachina/ui/src/modules/Notifications'
 import { MDJPanel } from '@tomachina/ui/src/modules/MDJPanel'
 import { ReportButton } from '@tomachina/ui'
@@ -139,8 +152,12 @@ export default function PortalLayout({
         </main>
       </div>
 
-      {/* Communications Module — slide-out panel (auto-fills To from active client) */}
-      <CommsModule open={commsOpen} onClose={closeComms} activeContact={activeContact} initialTab={commsInitialTab} />
+      {/* Communications — OmniPanel v2 (PRs #409-414 rebuild) behind flag, else legacy CommsModule */}
+      {OMNIPANEL_V2 ? (
+        <OmniPanel open={commsOpen} onClose={closeComms} activeContact={activeContact} initialTab={mapInitialTab(commsInitialTab)} />
+      ) : (
+        <CommsModule open={commsOpen} onClose={closeComms} activeContact={activeContact} initialTab={commsInitialTab} />
+      )}
 
       {/* RPI Connect — slide-out panel */}
       <ConnectPanel portal="prodash" open={connectOpen} onClose={closeConnect} />
