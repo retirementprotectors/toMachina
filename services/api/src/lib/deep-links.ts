@@ -44,6 +44,7 @@ export async function resolveDeepLinks(
 
   if (clientId) {
     out.clientUrl = `${prodashUrl}/contacts/${clientId}`
+    out.clientUrl = `${prodashUrl}/acf/${clientId}`
     out.lines.push(`<${out.clientUrl}|Client Page>`)
 
     try {

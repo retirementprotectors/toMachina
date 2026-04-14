@@ -19,15 +19,31 @@ interface CsgCompany {
   am_best_rating?: string
 }
 
+interface CsgCompanyBase {
+  naic?: string
+  name?: string
+  name_full?: string
+  ambest_rating?: string
+}
+
+interface CsgDiscount {
+  name?: string
+  type?: string
+  value?: number
+}
+
 interface CsgQuoteResult {
-  company_id: number
-  company_name: string
-  plan_letter: string
-  monthly_rate: number // in pennies
-  annual_rate: number  // in pennies
+  key?: string
+  company?: string
+  company_base?: CsgCompanyBase
+  plan: string
+  rate: { month: number; annual: number; quarter?: number; semi_annual?: number }
   rate_type: string
   effective_date: string
-  eft_discount_applied: boolean
+  discounts?: CsgDiscount[]
+  tobacco?: boolean
+  age?: number
+  gender?: string
 }
 
 interface QuoteInput {
@@ -130,12 +146,12 @@ medicareQuoteRoutes.post('/quotes', async (req: Request, res: Response) => {
         'x-api-token': token,
       },
       body: JSON.stringify({
-        zip_code: zip,
-        date_of_birth: dob,
-        gender: gender,
-        tobacco_user: tobacco,
-        plan_letter: plan_letter.toUpperCase(),
-        effective_date: effective_date,
+        zips: [zip],
+        age,
+        gender,
+        tobacco: tobacco ? '1' : '0',
+        plan: plan_letter.toUpperCase(),
+        effective_date,
       }),
     })
 
@@ -146,24 +162,35 @@ medicareQuoteRoutes.post('/quotes', async (req: Request, res: Response) => {
       return
     }
 
-    const quoteData = await quoteRes.json() as { quotes: CsgQuoteResult[] }
-    const companies = await getCompanies()
-    const companyMap = new Map(companies.map(c => [c.id, c]))
+    // CSG v1 returns a top-level array (not {quotes: [...]}).
+    // Older envelope shape is handled defensively.
+    const raw = await quoteRes.json() as CsgQuoteResult[] | { quotes: CsgQuoteResult[] }
+    const quotes: CsgQuoteResult[] = Array.isArray(raw) ? raw : (raw.quotes ?? [])
 
-    // Normalize: convert pennies to dollars, enrich with company data
-    const normalized = (quoteData.quotes || []).map(q => {
-      const company = companyMap.get(q.company_id)
+    const normalized = quotes.map(q => {
+      const cb = q.company_base ?? {}
+      const naicStr = cb.naic ?? null
+      const naicNum = naicStr ? parseInt(naicStr, 10) : NaN
+      const ambest = cb.ambest_rating && cb.ambest_rating !== 'n/a' ? cb.ambest_rating : null
+      const hasEft = (q.discounts ?? []).some(d =>
+        typeof d.name === 'string' && d.name.toLowerCase().includes('eft')
+      )
+      // CSG effective_date is ISO with time; strip to YYYY-MM-DD.
+      const effDate = typeof q.effective_date === 'string'
+        ? q.effective_date.slice(0, 10)
+        : q.effective_date
+
       return {
-        company_id: q.company_id,
-        carrier: q.company_name || company?.name || 'Unknown',
-        am_best_rating: company?.am_best_rating || null,
-        naic_code: company?.naic_code || null,
-        plan_letter: q.plan_letter,
-        monthly_premium: q.monthly_rate / 100,
-        annual_premium: q.annual_rate / 100,
+        company_id: Number.isFinite(naicNum) ? naicNum : 0,
+        carrier: cb.name_full || cb.name || 'Unknown',
+        am_best_rating: ambest,
+        naic_code: naicStr,
+        plan_letter: q.plan,
+        monthly_premium: q.rate.month / 100,
+        annual_premium: q.rate.annual / 100,
         rate_type: q.rate_type,
-        effective_date: q.effective_date,
-        eft_discount: q.eft_discount_applied,
+        effective_date: effDate,
+        eft_discount: hasEft,
       }
     }).sort((a, b) => a.monthly_premium - b.monthly_premium)
 
