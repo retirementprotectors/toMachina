@@ -8,8 +8,8 @@ import {
   WIRE_DEFINITIONS, getWireStats, computeAutomationHealth, getAutomationSummary,
   type WireDefinition, type AutomationEntry, type AutomationHealth, type AtlasSource, type AtlasTool,
 } from '@tomachina/core'
-import { WireDiagram } from '../components/WireDiagram'
-import { fetchValidated } from './fetchValidated'
+import { WireDiagram } from '../../components/WireDiagram'
+import { fetchValidated } from '../fetchValidated'
 import { MegazordMeshView } from './MegazordMeshView'
 
 // ---------------------------------------------------------------------------
