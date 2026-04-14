@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { fetchValidated } from '../fetchValidated'
 
 /* ─── Types ─── */
@@ -15,6 +15,11 @@ interface ApprovalItem {
   status: string
 }
 
+interface DeepLink {
+  label: string
+  url: string
+}
+
 interface ApprovalBatchDoc {
   _id: string
   batch_id: string
@@ -23,6 +28,11 @@ interface ApprovalBatchDoc {
   status: string
   items: ApprovalItem[]
   created_at: string
+  deep_links?: {
+    clientUrl: string | null
+    acfFolderUrl: string | null
+    accounts: DeepLink[]
+  }
 }
 
 interface ApprovalDetailProps {
@@ -53,8 +63,24 @@ export function ApprovalDetail({ batch, onBack, onExecuted }: ApprovalDetailProp
   const [edits, setEdits] = useState<Record<string, string>>({})
   const [executing, setExecuting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [deepLinks, setDeepLinks] = useState<ApprovalBatchDoc['deep_links']>(batch.deep_links)
 
   const items = batch.items || []
+
+  // Fetch resolved deep-links when panel opens (Firestore listener doc lacks them)
+  useEffect(() => {
+    if (deepLinks) return
+    const id = batch._id || batch.batch_id
+    if (!id) return
+    let cancelled = false
+    void (async () => {
+      const res = await fetchValidated<ApprovalBatchDoc>(`/api/approval/batches/${id}`)
+      if (!cancelled && res.success && res.data?.deep_links) {
+        setDeepLinks(res.data.deep_links)
+      }
+    })()
+    return () => { cancelled = true }
+  }, [batch._id, batch.batch_id, deepLinks])
 
   const updateField = (approvalId: string, value: string) => {
     setEdits((prev) => ({ ...prev, [approvalId]: value }))
@@ -98,6 +124,46 @@ export function ApprovalDetail({ batch, onBack, onExecuted }: ApprovalDetailProp
           </p>
         </div>
       </div>
+
+      {/* Deep-link jump buttons — Client / ACF / Account */}
+      {deepLinks && (deepLinks.clientUrl || deepLinks.acfFolderUrl || deepLinks.accounts.length > 0) && (
+        <div className="flex flex-wrap gap-1.5 border-b border-[var(--border-subtle)] px-4 py-2">
+          {deepLinks.clientUrl && (
+            <a
+              href={deepLinks.clientUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2 py-1 text-[10px] font-medium text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
+            >
+              <span className="material-icons-outlined" style={{ fontSize: '12px' }}>person</span>
+              Client Page
+            </a>
+          )}
+          {deepLinks.acfFolderUrl && (
+            <a
+              href={deepLinks.acfFolderUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2 py-1 text-[10px] font-medium text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
+            >
+              <span className="material-icons-outlined" style={{ fontSize: '12px' }}>folder</span>
+              ACF Folder
+            </a>
+          )}
+          {deepLinks.accounts.map((acct) => (
+            <a
+              key={acct.url}
+              href={acct.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2 py-1 text-[10px] font-medium text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
+            >
+              <span className="material-icons-outlined" style={{ fontSize: '12px' }}>work</span>
+              {acct.label}
+            </a>
+          ))}
+        </div>
+      )}
 
       {/* Fields */}
       <div className="flex-1 overflow-y-auto px-4 py-3 space-y-2">

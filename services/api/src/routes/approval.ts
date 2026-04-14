@@ -672,7 +672,18 @@ approvalRoutes.get('/batches/:id', async (req: Request, res: Response) => {
     const { ...rest } = data
     delete (rest as Record<string, unknown>)._original_values
 
-    res.json(successResponse<ApprovalBatchDetailDTO>(rest as unknown as ApprovalBatchDetailDTO))
+    // Resolve deep-links so the in-portal panel can render Client/ACF/Account jump buttons
+    const deepLinks = await resolveDeepLinks(db, data)
+    const detail = {
+      ...(rest as unknown as ApprovalBatchDetailDTO),
+      deep_links: {
+        clientUrl: deepLinks.clientUrl,
+        acfFolderUrl: deepLinks.acfFolderUrl,
+        accounts: deepLinks.accounts.map((a) => ({ label: a.label, url: a.url })),
+      },
+    }
+
+    res.json(successResponse<ApprovalBatchDetailDTO>(detail))
   } catch (err) {
     console.error('GET /api/approval/batches/:id error:', err)
     res.status(500).json(errorResponse('Failed to get batch'))
