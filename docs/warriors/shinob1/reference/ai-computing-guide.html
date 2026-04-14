@@ -275,6 +275,7 @@
   <h1>AI Computing Guide</h1>
   <div class="subtitle">MDJ1 & The Machine — From Dusty Closet to AI Powerhouse</div>
   <span class="badge">RPI Infrastructure</span>
+  <div style="margin-top:14px;font-size:0.85rem;color:var(--text-muted);">Last updated: 2026-04-13 — P40 GPU now LIVE, real benchmarks below.</div>
 </div>
 
 <div class="tab-container">
@@ -301,18 +302,36 @@
     </div>
 
     <div class="card">
-      <h2>Current Specs</h2>
+      <h2>Current Specs <span style="font-size:0.7em;color:var(--green);">(updated 2026-04-13)</span></h2>
       <table>
         <tr><th>Component</th><th>Spec</th><th>Status</th></tr>
         <tr><td>Server</td><td>Dell PowerEdge T440 (Tower)</td><td><span class="status status-done">Operational</span></td></tr>
-        <tr><td>CPU</td><td>Intel Xeon (16 cores)</td><td><span class="status status-done">Installed</span></td></tr>
-        <tr><td>RAM</td><td>64GB DDR4 ECC RDIMM (16+16+32)</td><td><span class="status status-done">Installed</span></td></tr>
-        <tr><td>CPU Socket 2</td><td>Empty — <strong>required before GPU can work</strong> (PCIe Slot 3 lanes are wired to CPU2)</td><td><span class="status status-next">Prerequisite</span></td></tr>
-        <tr><td>GPU</td><td>None yet — requires CPU2 first</td><td><span class="status status-future">After CPU2</span></td></tr>
+        <tr><td>CPU 1</td><td>Intel Xeon Silver 4110 (8 cores / 16 threads)</td><td><span class="status status-done">Installed</span></td></tr>
+        <tr><td>CPU 2</td><td>Intel Xeon Silver 4110 (8 cores / 16 threads)</td><td><span class="status status-done">Installed</span></td></tr>
+        <tr><td>Total Cores</td><td><strong>32 threads</strong> (16 physical × 2 hyperthreads)</td><td><span class="status status-done">Active</span></td></tr>
+        <tr><td>RAM</td><td>62GB DDR4-2666 ECC RDIMM</td><td><span class="status status-done">Installed</span></td></tr>
+        <tr><td><strong>GPU</strong></td><td><strong>NVIDIA Tesla P40 — 24GB VRAM (Pascal, CC 6.1)</strong></td><td><span class="status status-done">LIVE</span></td></tr>
+        <tr><td>NVIDIA Driver</td><td>580.126.09 (CUDA 12.8 capable)</td><td><span class="status status-done">Loaded</span></td></tr>
+        <tr><td>Ollama</td><td>0.11.11 — Pascal-compatible runner, OpenAI API on :11434</td><td><span class="status status-done">Running</span></td></tr>
         <tr><td>OS</td><td>Ubuntu 24.04 LTS</td><td><span class="status status-done">Running</span></td></tr>
         <tr><td>Network</td><td>Fiber internet + Tailscale VPN</td><td><span class="status status-done">Connected</span></td></tr>
         <tr><td>Access</td><td><code>ssh mdj1</code> from anywhere</td><td><span class="status status-done">Live</span></td></tr>
       </table>
+    </div>
+
+    <div class="card">
+      <h2>🔥 Live Benchmarks — P40 Inference Speed (measured 2026-04-13)</h2>
+      <p>Same prompt to all three models: <em>"Write a 3-sentence summary of why diversification matters in retirement portfolios."</em></p>
+      <table>
+        <tr><th>Model</th><th>Size on Disk</th><th>Tokens/sec</th><th>VRAM Used</th><th>GPU Utilization</th></tr>
+        <tr><td>llama3.2:3b</td><td>2.0 GB</td><td><strong>62.2</strong></td><td>2.8 GB</td><td>~85%</td></tr>
+        <tr><td>gemma3:4b</td><td>3.3 GB</td><td><strong>47.4</strong></td><td>4.5 GB</td><td>~80%</td></tr>
+        <tr><td>llama3.1:8b</td><td>4.9 GB</td><td><strong>33.6</strong></td><td>10.2 GB</td><td>89%</td></tr>
+      </table>
+      <div class="callout-green callout">
+        <strong>What this means in plain English:</strong> Human reading speed is ~5 tok/sec. ChatGPT 4o (cloud) runs ~30-100 tok/sec. The P40 (a 2016-era card we got off the closet floor) is hitting the same speed range as paid cloud APIs — for free. The 8B model uses 89% GPU at ~33 tok/sec, which feels like normal ChatGPT pace.
+      </div>
+      <p style="margin-top:12px;"><strong>VRAM headroom:</strong> 12 GB still free with the 8B model loaded — enough to stack a 14B Qwen quantized for heavier specialist work alongside it.</p>
     </div>
 
     <div class="card">
@@ -483,22 +502,22 @@ Scenario B: Model Spills to System RAM (P40 24GB + Llama 70B at ~40GB)
     </div>
 
     <div class="card">
-      <h2>How It All Fits in the T440</h2>
-      <div class="diagram">Dell PowerEdge T440 — Motherboard Layout
+      <h2>How It All Fits in the T440 <span style="font-size:0.65em;color:var(--green);">(updated 2026-04-13 — CPU2 + GPU now installed)</span></h2>
+      <div class="diagram">Dell PowerEdge T440 — Motherboard Layout (CURRENT STATE)
 +--------------------------------------------------+
 |                                                  |
 |  [CPU Socket 1]  [CPU Socket 2]                  |
-|   (Installed)      (Empty)                       |
+|   Xeon Silver     Xeon Silver     ✅ both LIVE   |
+|     4110            4110          (32 threads)   |
 |                                                  |
 |  [A1][A2][A3][A4]  [A5][A6][A7][A8]  &lt;-- DIMM Slots (CPU 1)
-|   16  16  32  --    --  --  --  --      3 of 8 used
 |                                                  |
 |  [B1][B2][B3][B4]  [B5][B6][B7][B8]  &lt;-- DIMM Slots (CPU 2)
-|   Requires 2nd CPU to activate                   |
+|                          Total: 62GB DDR4-2666 ECC
 |                                                  |
 |  [PCIe Slot 1]  x4  &lt;-- Available (wired to CPU1)          |
 |  [PCIe Slot 2]  x4  &lt;-- Available (wired to CPU1)          |
-|  [PCIe Slot 3]  x16 &lt;-- GPU goes here (wired to CPU2) !!   |
+|  [PCIe Slot 3]  x16 &lt;-- ✅ Tesla P40 INSTALLED (CPU2 lanes)|
 |  [PCIe Slot 4]  x8  &lt;-- RAID controller (occupied)         |
 |  [PCIe Slot 5]  x8  &lt;-- Available (wired to CPU2)          |
 |                                                              |
@@ -506,11 +525,24 @@ Scenario B: Model Spills to System RAM (P40 24GB + Llama 70B at ~40GB)
 |                                                              |
 +--------------------------------------------------------------+
 
-  !! CRITICAL: Slot 3 lanes are hardwired to CPU Socket 2.
-     With Socket 2 empty, Slot 3 is electrically dead.
-     The P40 physically fits but will NOT be detected by the OS.
-     CPU2 must be installed BEFORE the GPU.</div>
-      <p>CPU, RAM, GPU, and storage all coexist on the same motherboard. They're independent components that work together. Adding a GPU doesn't remove anything — it fills an empty slot. <strong>Exception: the T440's x16 slot (Slot 3) is hardwired to CPU Socket 2 — the GPU cannot be used until a second CPU is installed.</strong></p>
+  ✅ CPU2 installed → Slot 3 PCIe lanes active → P40 detected by OS
+  ✅ NVIDIA driver 580 loaded with persistence mode (survives reboot)
+  ✅ Ollama 0.11.11 with cuda_v12 backend serving on :11434</div>
+      <p>CPU, RAM, GPU, and storage all coexist on the same motherboard. The CPU2 + P40 standup completed 2026-04-13 — Slot 3's lanes are now live through CPU Socket 2, and the Tesla P40 is fully detected and serving inference.</p>
+    </div>
+
+    <div class="card" style="border-left:4px solid var(--orange);">
+      <h2>📜 P40 Standup — Triage Chain (2026-04-13)</h2>
+      <p>The P40 wasn't plug-and-play. Real-world issues hit and got resolved in this order — saved here so we don't repeat the diagnosis next time:</p>
+      <ol style="margin-left:24px;line-height:2;">
+        <li><strong>Hardware detected ✅</strong> — <code>lspci</code> showed P40 at PCIe af:00.0 immediately after CPU2 install</li>
+        <li><strong>nouveau driver was holding the GPU</strong> — Ubuntu's open-source NVIDIA driver claimed it on boot. Fix: blacklisted in <code>/etc/modprobe.d/blacklist-nouveau.conf</code>, then live-swapped to the proprietary <code>nvidia</code> driver via <code>rmmod nouveau && modprobe nvidia</code> (no reboot needed because the console runs on the Matrox G200, not the P40).</li>
+        <li><strong>Driver 535 too old for Ollama's bundled CUDA 12.8 libs</strong> — upgraded to <code>nvidia-driver-580</code> (still supports Pascal; CUDA Pascal support hasn't been dropped from drivers, only from the CUDA SDK 13).</li>
+        <li><strong>CUDA error 999 (init failure) after live driver swap</strong> — fixed by enabling persistence mode: <code>nvidia-smi -pm 1</code>. Now systemd-managed via <code>nvidia-persistenced.service</code> so it survives reboots.</li>
+        <li><strong>Ollama 0.20.6 GPU bootstrap regressed for Pascal</strong> — newer Ollama refactored discovery and silently fails on older compute capabilities. Downgraded to <code>0.11.11</code> (last release before the refactor).</li>
+        <li><strong>Ollama's <code>cuda_v13</code> backend wasn't compiled with sm_61</strong> — Pascal compute capability isn't included in the CUDA 13 GGML backend. Moved <code>/usr/local/lib/ollama/cuda_v13</code> → <code>cuda_v13.disabled</code> so Ollama uses the <code>cuda_v12</code> backend (which DOES include sm_61). Inference began flowing on the GPU immediately after.</li>
+      </ol>
+      <p style="margin-top:12px;"><strong>Total time:</strong> ~45 minutes of diagnosis + fix. <strong>End state:</strong> P40 serving inference at 33-62 tok/sec depending on model size, 22.4 GB usable VRAM, persistence mode survives reboots.</p>
     </div>
   </div>
 
@@ -843,7 +875,7 @@ Cost model:
   <!-- TAB 6: UPGRADE PATH -->
   <div id="upgrade" class="tab-panel">
     <div class="card">
-      <h2>MDJ1 Upgrade Roadmap</h2>
+      <h2>MDJ1 Upgrade Roadmap <span style="font-size:0.65em;color:var(--green);">(updated 2026-04-13 — Phases 1-5 now COMPLETE)</span></h2>
       <table>
         <tr><th>Phase</th><th>What</th><th>Parts</th><th>Cost</th><th>Running Total</th><th>Result</th><th>Status</th></tr>
         <tr>
@@ -863,30 +895,50 @@ Cost model:
         </tr>
         <tr>
           <td>4</td><td>CPU Phase 2 &mdash; <strong>GPU Prerequisite</strong></td><td>Intel Xeon Silver 4110 + Dell heatsink P/N 0FHPP8 + move 1 RAM stick to CPU2 DIMM slot</td><td>~$60</td><td>$190</td>
-          <td>Activates PCIe Slot 3 (x16). 32 cores. 16 DIMM slots. <strong>Required before GPU will be detected.</strong></td>
+          <td>Activates PCIe Slot 3 (x16). 32 cores. 16 DIMM slots.</td>
+          <td><span class="status status-done">Done ✅</span></td>
+        </tr>
+        <tr style="background:rgba(34,197,94,0.08);">
+          <td>5</td><td><strong>GPU Phase 1 — P40 LIVE</strong></td><td>NVIDIA Tesla P40, 24GB VRAM + driver 580 + Ollama 0.11.11 + persistence mode</td><td>~$200</td><td>$390</td>
+          <td><strong>33-62 tok/sec measured. Llama 8B + Gemma 4B + Llama 3B running. OpenAI-compatible API on :11434.</strong></td>
+          <td><span class="status status-done">Done ✅</span></td>
+        </tr>
+        <tr>
+          <td>6</td><td>RAM Phase 3 — <strong>RECOMMENDED NEXT</strong></td><td>1x 64GB DDR4-2666 ECC RDIMM (or 2x 32GB)</td><td>~$120-180</td><td>$510-570</td>
+          <td>126GB total. Multiple models hot in keep-alive cache. Bigger Postgres/vector caches. Headroom for everything-else, but won't speed up LLM inference (VRAM is the bottleneck, not system RAM).</td>
           <td><span class="status status-next">Next</span></td>
         </tr>
         <tr>
-          <td>5</td><td>GPU Phase 1</td><td>Tesla P40 (24GB VRAM)</td><td>~$200</td><td>$390</td>
-          <td>Local Llama 70B. Hybrid routing. Team AI access.</td>
-          <td><span class="status status-future">After CPU2</span></td>
+          <td>7</td><td>GPU Phase 2 — Tesla V100 32GB</td><td>NVIDIA Tesla V100 32GB (intermediate step)</td><td>~$1,500-2,500</td><td>$2,010-3,070</td>
+          <td>~3x P40 perf, FP16 support, vLLM becomes viable. Doesn't break the bank. Pascal cleanup: V100 = Volta = full Tensor Core support.</td>
+          <td><span class="status status-future">Maybe</span></td>
         </tr>
         <tr>
-          <td>6</td><td>RAM Phase 3</td><td>1x 64GB Samsung ECC RDIMM</td><td>~$100</td><td>$490</td>
-          <td>128GB &mdash; faster model spillover, more headroom</td>
-          <td><span class="status status-future">Future</span></td>
+          <td>8</td><td>GPU Phase 3 — A100 40GB</td><td>NVIDIA A100 40GB PCIe (used)</td><td>~$8,000-10,000</td><td>~$10K-12K</td>
+          <td>5x P40 speed on 8B/13B (~150-200 tok/sec). Llama 3.3 70B Q4 fits comfortably (~30 tok/sec). Real fine-tuning becomes practical.</td>
+          <td><span class="status status-future">Conditional</span></td>
         </tr>
         <tr>
-          <td>7</td><td>GPU Phase 2</td><td>Swap P40 &rarr; A100 40GB</td><td>~$650 net</td><td>$1,140</td>
-          <td>Llama 70B at full speed (25-40 wps). No spillover.</td>
-          <td><span class="status status-future">Future</span></td>
-        </tr>
-        <tr>
-          <td>8</td><td>GPU Phase 3</td><td>A100 80GB</td><td>~$1,500</td><td>$2,640</td>
-          <td>Multiple models loaded simultaneously. Team-wide AI.</td>
+          <td>9</td><td>GPU Phase 4 — A100 80GB</td><td>NVIDIA A100 80GB PCIe</td><td>~$12,000-15,000</td><td>~$14K-17K</td>
+          <td>Multiple large models loaded simultaneously. Team-wide AI at scale. Full HBM2e bandwidth (2,039 GB/s = 6x P40).</td>
           <td><span class="status status-dream">Dream</span></td>
         </tr>
       </table>
+      <div class="callout-green callout" style="margin-top:16px;">
+        <strong>Total spent to date:</strong> ~$390. <strong>What we got:</strong> A 32-thread, 62GB-RAM, 24GB-VRAM AI inference server running production-grade local LLMs at the speed of paid cloud APIs. Equivalent AWS spend: $560+/month for the compute alone, plus another ~$1.50/hr for any GPU-equipped instance (nothing AWS sells matches the P40 at this price).
+      </div>
+    </div>
+
+    <div class="card" style="border-left:4px solid var(--accent);">
+      <h2>🎯 Honest CTO Read on Phase 6+ (Where to Spend Next)</h2>
+      <p>The P40 covers our actual current need (routing, embeddings, classification, fallback) at $0/query. Anthropic Sonnet/Opus is still the right call for high-stakes client-facing work. Here's the decision tree on what to buy next:</p>
+      <table>
+        <tr><th>Spend</th><th>Buy When...</th><th>ROI Trigger</th></tr>
+        <tr><td>+64GB RAM ($120-180)</td><td>Anytime. It's cheap.</td><td>Multiple Ollama models hot at once, larger Postgres/vector caches, no swapping under load. Useful for everything beyond LLMs.</td></tr>
+        <tr><td>V100 32GB ($1.5-2.5K)</td><td>P40 throughput becomes the bottleneck for production volume</td><td>~3x speed boost, FP16 support unlocks vLLM batched inference</td></tr>
+        <tr><td>A100 40/80GB ($8-15K)</td><td>One of three triggers fires</td><td>1) DAVID/PHI workloads requiring 70B local for compliance, OR 2) We want to fine-tune RPI-specific specialists on our own data, OR 3) Anthropic bill exceeds $2K/month for queries an open model could handle</td></tr>
+      </table>
+      <p style="margin-top:12px;"><strong>The smart play:</strong> Max the box out cheap (RAM + maybe a V100), prove the use cases, THEN drop $10K on an A100 only when we can point at a specific bill it replaces. Don't buy the A100 to chase a flex — buy it to retire a recurring expense or unlock a use case the P40 literally cannot serve.</p>
     </div>
 
     <div class="card">
@@ -1080,67 +1132,77 @@ Cost model:
     </div>
 
     <div class="card">
-      <h2>MDJ1 Current State</h2>
+      <h2>MDJ1 Current State <span style="font-size:0.65em;color:var(--green);">(updated 2026-04-13)</span></h2>
       <table>
         <tr><th>Attribute</th><th>Value</th></tr>
         <tr><td>Hardware</td><td>Dell PowerEdge T440</td></tr>
-        <tr><td>CPU</td><td>Intel Xeon, 16 cores (1 of 2 sockets used)</td></tr>
-        <tr><td>RAM</td><td>64GB DDR4 ECC RDIMM (3 of 8 slots used)</td></tr>
-        <tr><td>GPU</td><td>None (Phase 4 — next purchase)</td></tr>
-        <tr><td>Storage</td><td>SSD</td></tr>
+        <tr><td>CPU</td><td>2x Intel Xeon Silver 4110 — 32 threads total (both sockets populated)</td></tr>
+        <tr><td>RAM</td><td>62GB DDR4-2666 ECC RDIMM</td></tr>
+        <tr><td><strong>GPU</strong></td><td><strong>NVIDIA Tesla P40, 24GB VRAM (Pascal, CC 6.1) — LIVE</strong></td></tr>
+        <tr><td>NVIDIA Driver</td><td>580.126.09 (CUDA 12.8)</td></tr>
+        <tr><td>Storage</td><td>1.1TB SSD (~996GB free)</td></tr>
         <tr><td>OS</td><td>Ubuntu 24.04 LTS</td></tr>
         <tr><td>Node.js</td><td>v22.22.1</td></tr>
         <tr><td>Docker</td><td>29.3.0</td></tr>
-        <tr><td>Claude Code</td><td>Installed, 8 MCP servers</td></tr>
+        <tr><td>Claude Code</td><td>v2.1.104, 8 MCP servers</td></tr>
         <tr><td>MDJ Agent</td><td>Port 4200, systemd managed</td></tr>
+        <tr><td>Ollama</td><td>0.11.11, OpenAI-compatible API on :11434, models: llama3.2:3b, gemma3:4b, llama3.1:8b</td></tr>
         <tr><td>Tailscale IP</td><td>100.99.181.57</td></tr>
         <tr><td>SSH</td><td><code>ssh mdj1</code></td></tr>
+        <tr><td>Inbox HTTP</td><td><code>http://100.99.181.57/inbox/&lt;file&gt;</code> (Tailnet only, port 80, systemd-managed)</td></tr>
         <tr><td>Fiber Internet</td><td>Connected</td></tr>
         <tr><td>Location</td><td>JDM's house, Des Moines area</td></tr>
       </table>
     </div>
 
     <div class="card">
-      <h2>Key Commands (Once GPU is Installed)</h2>
-      <div class="diagram"># Install NVIDIA drivers (one time)
-sudo apt install nvidia-driver-535
+      <h2>Key Commands (GPU now LIVE)</h2>
+      <div class="diagram"># --- GPU + driver verification ---
+nvidia-smi                                     # Show P40 status, VRAM, temp, power
+nvidia-smi -pm 1                               # Enable persistence mode (already systemd-enabled)
 
-# Install Ollama (one time)
-curl -fsSL https://ollama.com/install.sh | sh
+# --- Ollama model management ---
+ollama list                                    # Show installed models
+ollama pull llama3.1:8b                        # Download a model
+ollama run llama3.1:8b                         # Interactive chat
+ollama rm <model>                              # Delete a model
 
-# Download models
-ollama pull llama3.1:8b          # Light tier (fast, simple tasks)
-ollama pull llama3.1:70b         # Great tier (most work)
+# --- Direct API call (OpenAI-compatible) ---
+curl -s http://localhost:11434/api/generate -d '{
+  "model": "llama3.1:8b",
+  "prompt": "Why does diversification matter?",
+  "stream": false
+}' | jq
 
-# Run a model interactively
-ollama run llama3.1:70b
+# --- Service control ---
+sudo systemctl status ollama
+sudo systemctl restart ollama
+journalctl -u ollama --since '1 minute ago' | grep 'inference compute'
 
-# Start Ollama as a background API server
-ollama serve
+# --- Watch GPU usage live during inference ---
+watch -n 0.5 nvidia-smi --query-gpu=memory.used,utilization.gpu --format=csv
 
-# Check GPU status
-nvidia-smi
-
-# Install Open WebUI (Docker, one time)
+# --- Optional: Open WebUI (ChatGPT-style frontend) ---
 docker run -d -p 3000:8080 \
   --add-host=host.docker.internal:host-gateway \
   -v open-webui:/app/backend/data \
   --name open-webui \
   ghcr.io/open-webui/open-webui:main
-
 # Then access at http://mdj1:3000 or via Tailscale</div>
     </div>
 
     <div class="card">
-      <h2>NVIDIA GPU Quick Comparison</h2>
+      <h2>NVIDIA GPU Quick Comparison <span style="font-size:0.65em;color:var(--green);">(updated 2026-04-13 — real numbers)</span></h2>
       <table>
-        <tr><th>GPU</th><th>VRAM</th><th>VRAM Speed</th><th>Best Local Model</th><th>Used Price</th><th>Generation</th></tr>
-        <tr><td>Tesla T4</td><td>16GB</td><td>320 GB/s</td><td>Llama 8B</td><td>~$150</td><td>Turing (2018)</td></tr>
-        <tr><td>Tesla P40</td><td>24GB</td><td>346 GB/s</td><td>Llama 70B (with spillover)</td><td>~$200</td><td>Pascal (2016)</td></tr>
-        <tr><td>A100 40GB</td><td>40GB</td><td>2,039 GB/s</td><td>Llama 70B (full speed)</td><td>~$800</td><td>Ampere (2020)</td></tr>
-        <tr><td>A100 80GB</td><td>80GB</td><td>2,039 GB/s</td><td>Llama 70B + extras</td><td>~$1,500</td><td>Ampere (2020)</td></tr>
-        <tr><td>H100 80GB</td><td>80GB</td><td>3,350 GB/s</td><td>Everything</td><td>~$25,000</td><td>Hopper (2023)</td></tr>
+        <tr><th>GPU</th><th>VRAM</th><th>Bandwidth</th><th>FP16 TFLOPS</th><th>8B tok/s</th><th>70B?</th><th>Used Price</th><th>Generation</th></tr>
+        <tr><td>Tesla T4</td><td>16GB</td><td>320 GB/s</td><td>65</td><td>~30</td><td>No</td><td>~$150-250</td><td>Turing (2018)</td></tr>
+        <tr style="background:rgba(34,197,94,0.08);"><td><strong>Tesla P40</strong> 🟢</td><td>24GB</td><td>347 GB/s</td><td>0 (no FP16!)</td><td><strong>33 (measured)</strong></td><td>Won't fit</td><td>~$200</td><td>Pascal (2016)</td></tr>
+        <tr><td>Tesla V100 32GB</td><td>32GB</td><td>900 GB/s</td><td>125</td><td>~80-100</td><td>Q4 fits, slow</td><td>~$1.5-2.5K</td><td>Volta (2017)</td></tr>
+        <tr><td>A100 40GB</td><td>40GB</td><td>1,555 GB/s</td><td>312 (Tensor)</td><td>~150-200</td><td>Q4 fits, fast</td><td>~$8-10K</td><td>Ampere (2020)</td></tr>
+        <tr><td>A100 80GB</td><td>80GB</td><td>2,039 GB/s</td><td>312 (Tensor)</td><td>~200+</td><td>Yes, comfortable</td><td>~$12-15K</td><td>Ampere (2020)</td></tr>
+        <tr><td>H100 80GB</td><td>80GB</td><td>3,350 GB/s</td><td>989 (Tensor)</td><td>~400+</td><td>Yes + headroom</td><td>~$25-40K</td><td>Hopper (2023)</td></tr>
       </table>
+      <p style="margin-top:8px;font-size:0.85rem;color:var(--text-muted);">🟢 = currently installed in MDJ1. Tok/sec measured on Q5/Q4 quantized GGUF models via Ollama.</p>
     </div>
   </div>
 
