@@ -76,7 +76,20 @@
 
   @media print {
     body { background: white; }
-    .page { margin: 0; box-shadow: none; width: 100%; min-height: 100vh; padding: 0.5in 0.55in; }
+    .page {
+      margin: 0; padding: 0; box-shadow: none;
+      width: 8.5in;
+      min-height: 0 !important;
+      max-height: 10.3in;
+      height: 10.3in;
+      overflow: hidden;
+      page-break-after: always;
+      break-after: page;
+      box-sizing: border-box;
+    }
+    .page:not(:last-child) { page-break-after: always; break-after: page; }
+    .page:last-child { page-break-after: auto; break-after: auto; }
+    .page > * { padding-left: 0.4in; padding-right: 0.4in; }
     .preview-nav { display: none; }
     @page { size: letter; margin: 0; }
   }
