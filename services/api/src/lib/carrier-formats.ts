@@ -122,7 +122,7 @@ const JOHN_HANCOCK: CarrierFormatDefinition = {
     'Premium Mode': 'premium_mode',
     'Owner State': 'state',
     'State': 'state',
-    'Paid To Date': 'paid_to_date',
+    // 'Paid To Date' removed — killed in Life Schema v1 (LOCKED 2026-04-09, ZRD-WIRE-SCHEMA-DEPLOY-DUAL-READ)
   },
   dedup_keys: ['policy_number', 'carrier_id'],
   header_signatures: [
@@ -511,7 +511,9 @@ const KANSAS_CITY_LIFE: CarrierFormatDefinition = {
     'Surrender Value': 'surrender_value',
     'Death Benefit': 'death_benefit',
     'Loan Balance': 'loan_balance',
-    'Net Loan Amount': 'net_loan_amount',
+    // 'Net Loan Amount' → 'loan_balance' per Life Schema v1 MAX rule (ZRD-WIRE-SCHEMA-DEPLOY-DUAL-READ).
+    // Importer must apply: loan_balance = MAX(existing loan_balance, this value) instead of straight overwrite.
+    'Net Loan Amount': 'loan_balance',
     'Loan Proceeds': 'loan_proceeds',
     'Loan Payoff Amount': 'loan_payoff',
     'Interest Rate': 'loan_interest_rate',
