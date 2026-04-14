@@ -22,6 +22,7 @@ interface Advisor {
   email: string
   first_name: string
   last_name: string
+  is_agent?: boolean
   is_licensed?: boolean
   is_rr?: boolean
   is_iar?: boolean
@@ -107,8 +108,11 @@ export default function PipelineKanbanPage() {
         if (cancelled) return
         const json = await res.json() as { success: boolean; data?: Advisor[] }
         if (!cancelled && json.success && json.data) {
+          // RDN-DOJO-GAP-04: include `is_agent` — canonical writing-agent flag.
+          // Some writing agents (e.g. Vince) have is_agent=true + a valid NPN
+          // but no separate is_licensed flag, so the previous filter hid them.
           const qualified = json.data.filter(
-            (u) => u.is_licensed || u.is_rr || u.is_iar
+            (u) => u.is_agent || u.is_licensed || u.is_rr || u.is_iar
           ).sort((a, b) => a.first_name.localeCompare(b.first_name))
           setAdvisors(qualified)
         }
