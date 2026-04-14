@@ -42,6 +42,17 @@ export type { SplitPdfInput, SplitPdfOutput, SplitFile } from './split-pdf'
 export type { LabelDocumentInput, LabelDocumentOutput } from './label-document'
 export type { SlackCaseInput, SlackSplitInput, SlackAlertInput } from './notify-slack'
 
+// ISU Extension Iowa Land Value Survey parser (FV-003 / SPR-FARMLAND-VALUATION-001).
+// Uses Node-runtime APIs (crypto, fetch) — backend services import execute directly:
+//   import { execute as parseIsuLandValues } from '@tomachina/core/src/atlas/tools/isu-land-value-parse'
+// Types + definition are safe to export from the barrel.
+export type {
+  IsuParseInput,
+  IsuParseOutput,
+  IsuFetchFailureDetail,
+} from './isu-land-value-parse'
+export { definition as isuLandValueParseDefinition } from './isu-land-value-parse'
+
 // ACF tools — definitions are browser-safe; execute functions are stubs.
 // For full ACF tool implementations, see services/api/src/scripts/acf-*.ts
 export {
