@@ -26,9 +26,13 @@
   h1, h2, h3, h4 { font-family: 'Poppins', sans-serif; color: var(--rpi-289); line-height: 1.2; letter-spacing: -0.01em; }
 
   /* Tri-fold sheet: 11" wide x 8.5" tall landscape, 3 panels per side */
-  .sheet { width: 11in; height: 8.5in; background: white; margin: 0.5in auto; box-shadow: 0 1px 24px rgba(10,34,64,0.08); display: grid; grid-template-columns: repeat(3, 1fr); position: relative; overflow: hidden; }
+  .sheet { width: 11in; min-height: 8.5in; background: white; margin: 0.5in auto; box-shadow: 0 1px 24px rgba(10,34,64,0.08); display: grid; grid-template-columns: repeat(3, 1fr); position: relative; overflow: hidden; }
   .sheet + .sheet { margin-top: 0.6rem; }
-  .panel { padding: 0.3in 0.28in; border-right: 1px dashed var(--rule); position: relative; overflow: hidden; display: flex; flex-direction: column; }
+  .panel { padding: 0.3in 0.28in 0.12in; border-right: 1px dashed var(--rule); position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; }
+  /* IRMAA panel: dense content. Flex-start keeps title/intro/table/callout tight;
+     disclaimer anchored to bottom edge with tightened bottom padding. */
+  .panel.back { justify-content: flex-start; padding-bottom: 0.1in; }
+  .panel.back > .back-disclaimer { margin-top: auto; padding-top: 8px; }
   .panel:last-child { border-right: none; }
   .panel-label { position: absolute; top: 6px; left: 6px; font-family: 'Poppins', sans-serif; font-size: 8px; font-weight: 600; color: var(--rule); letter-spacing: 0.08em; text-transform: uppercase; pointer-events: none; }
 
@@ -135,33 +139,29 @@
       margin: 0; box-shadow: none;
       width: 11in;
       height: 7.9in;
+      min-height: 0 !important;
       max-height: 7.9in;
       overflow: hidden;
-      page-break-after: always;
-      break-after: page;
       box-sizing: border-box;
     }
+    /* Only non-last sheets force a page break — last sheet ends without a trailing blank page */
+    .sheet:not(:last-child) { page-break-after: always; break-after: page; }
     .sheet:last-child { page-break-after: auto; break-after: auto; }
     .preview-nav, .fold-note, .panel-label { display: none !important; }
-    /* Panels flex-column + space-between so content fills top and bottom-anchors the tail.
-       Any remaining blank redistributes between elements instead of piling at the bottom edge. */
+    /* Panels: content-hugging, no forced height. space-between distributes vertically —
+       first element pinned to top, last pinned to bottom, middle gets the slack.
+       This eliminates tail whitespace regardless of content length. */
     .panel {
       border-right: none;
-      padding: 0.25in 0.26in;
+      padding: 0.22in 0.24in;
       height: 7.9in;
       overflow: hidden;
-      display: flex;
-      flex-direction: column;
+      display: flex !important;
+      flex-direction: column !important;
+      justify-content: space-between !important;
     }
-    /* Last-child of each panel (contact block, disclaimer, WYP line) anchors to bottom. */
-    .panel > *:last-child {
-      margin-top: auto !important;
-    }
-    /* Specific bottom-anchor targets per panel archetype */
-    .back-contact, .back-disclaimer, .cover-bottom,
-    .panel .contact, .panel .disclaimer, .panel footer {
-      margin-top: auto !important;
-    }
+    /* Panel-label is hidden already; make sure it doesn't take layout space */
+    .panel-label { display: none !important; height: 0 !important; }
     @page { size: 11in 8.5in; }
   }
 </style>

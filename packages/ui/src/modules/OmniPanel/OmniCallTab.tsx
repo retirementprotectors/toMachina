@@ -137,7 +137,9 @@ export function OmniCallTab({ activeContact }: OmniCallTabProps) {
 
   /* Load recent calls from Firestore via API */
   useEffect(() => {
-    fetch('/api/comms/log?channel=voice&limit=5')
+    // E1 fix (TRK-EPIC-08): /api/comms/log does not exist — the log list route
+    // is /api/communications (mounted at services/api/src/server.ts:206).
+    fetch('/api/communications?channel=voice&limit=5')
       .then((r) => r.ok ? r.json() : { success: false, data: [] })
       .then((res) => {
         if (res.success && Array.isArray(res.data)) {
@@ -152,16 +154,23 @@ export function OmniCallTab({ activeContact }: OmniCallTabProps) {
     if (!dialNumber) return
     setCalling(true)
 
-    fetch('/api/comms/make-call', {
+    // E2 fix (TRK-EPIC-08): /api/comms/make-call does not exist — the outbound
+    // voice route is /api/comms/send-voice (services/api/src/routes/comms.ts:335).
+    fetch('/api/comms/send-voice', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ to: dialNumber }),
+      body: JSON.stringify({
+        to: dialNumber,
+        client_id: activeContact?.id,
+      }),
     })
       .then((r) => r.json())
       .then((res) => {
         if (res.success) {
           setActiveCall({
-            callId: res.data?.callId ?? dialNumber,
+            // send-voice returns data.callSid (Twilio SID) — keep as callId prop
+            // for compatibility with ActiveCallScreen; handleEndCall logs it as call_sid.
+            callId: res.data?.callSid ?? res.data?.callId ?? dialNumber,
             callerName: activeContact?.name ?? dialNumber,
             callerPhone: dialNumber,
             callerLabel: activeContact?.book ? `Book: ${activeContact.book}` : undefined,
@@ -190,11 +199,16 @@ export function OmniCallTab({ activeContact }: OmniCallTabProps) {
     if (call?.disconnect) call.disconnect()
 
     if (callId && liveCallNotes.trim()) {
+      // E3 fix (TRK-EPIC-08): callId from setActiveCall is the Twilio Call SID
+      // (CA...), not a Firestore client_id. Send it as call_sid + resolve the
+      // real client_id from activeContact when available so the log entry lands
+      // on the right contact's Activity tab.
       fetch('/api/comms/log-call', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          client_id: callId,
+          call_sid: callId,
+          client_id: activeContact?.id ?? null,
           direction: 'inbound',
           outcome: 'connected',
           notes: liveCallNotes.trim(),
@@ -206,7 +220,7 @@ export function OmniCallTab({ activeContact }: OmniCallTabProps) {
     setLiveCallNotes('')
     setIsMuted(false)
     window.__activeTwilioCall = undefined
-  }, [liveCallNotes])
+  }, [liveCallNotes, activeContact?.id])
 
   /* ── Toggle mute ── */
   const handleToggleMute = useCallback(() => {
