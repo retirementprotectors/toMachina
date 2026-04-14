@@ -29,7 +29,7 @@
   /* Tri-fold sheet: 11" wide x 8.5" tall landscape, 3 panels per side */
   .sheet { width: 11in; height: 8.5in; background: white; margin: 0.5in auto; box-shadow: 0 1px 24px rgba(10,34,64,0.08); display: grid; grid-template-columns: repeat(3, 1fr); position: relative; overflow: hidden; }
   .sheet + .sheet { margin-top: 0.6rem; }
-  .panel { padding: 0.3in 0.28in; border-right: 1px dashed var(--rule); position: relative; overflow: hidden; display: flex; flex-direction: column; }
+  .panel { padding: 0.3in 0.28in; border-right: 1px dashed var(--rule); position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; }
   .panel:last-child { border-right: none; }
   .panel-label { position: absolute; top: 6px; left: 6px; font-family: 'Poppins', sans-serif; font-size: 8px; font-weight: 600; color: var(--rule); letter-spacing: 0.08em; text-transform: uppercase; pointer-events: none; }
 
@@ -150,12 +150,31 @@
   .fold-note strong { color: var(--rpi-289); }
 
   @media print {
-    body { background: white; }
-    .sheet { margin: 0; box-shadow: none; page-break-after: always; }
-    .sheet:last-child { page-break-after: auto; }
-    .preview-nav, .fold-note { display: none; }
-    .panel { border-right: none; }
-    @page { size: 11in 8.5in; margin: 0; }
+    html, body { margin: 0; padding: 0; }
+    body { background: white; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .sheet {
+      margin: 0; box-shadow: none;
+      width: 11in;
+      height: 7.9in;
+      min-height: 0 !important;
+      max-height: 7.9in;
+      overflow: hidden;
+      box-sizing: border-box;
+    }
+    .sheet:not(:last-child) { page-break-after: always; break-after: page; }
+    .sheet:last-child { page-break-after: auto; break-after: auto; }
+    .preview-nav, .fold-note, .panel-label { display: none !important; }
+    .panel {
+      border-right: none;
+      padding: 0.22in 0.24in 0.12in;
+      height: 7.9in;
+      overflow: hidden;
+      display: flex !important;
+      flex-direction: column !important;
+      justify-content: space-between !important;
+    }
+    .panel-label { display: none !important; height: 0 !important; }
+    @page { size: 11in 8.5in; }
   }
 </style>
 </head>
