@@ -13,6 +13,7 @@ import { StageProgressBar } from './StageProgressBar'
 import { TaskChecklist } from './TaskChecklist'
 import { ActivityTimeline } from './ActivityTimeline'
 import { GateStatus } from './GateStatus'
+import { PipelineFieldsForm } from '../PipelineFieldsForm'
 
 // ============================================================================
 // InstanceDetail — main container for viewing a single pipeline instance
@@ -44,6 +45,22 @@ interface InstanceDetailResponse {
 interface ActionResponse {
   success: boolean
   data?: unknown
+  error?: string
+}
+
+/* ─── Opportunity (business record linked via instance.opportunity_id) ─── */
+
+interface OpportunityData {
+  id: string
+  pipeline: string
+  stage: string
+  custom_fields?: Record<string, unknown>
+  [key: string]: unknown
+}
+
+interface OpportunityResponse {
+  success: boolean
+  data?: OpportunityData
   error?: string
 }
 
@@ -82,6 +99,13 @@ export default function InstanceDetail({
   const [reassignTo, setReassignTo] = useState('')
   const [showPriority, setShowPriority] = useState(false)
 
+  /* ─── Linked opportunity (RON-OPP-FIELDS-001 PR C) ─── */
+  const [opportunity, setOpportunity] = useState<OpportunityData | null>(null)
+  const [oppFields, setOppFields] = useState<Record<string, unknown>>({})
+  const [oppFieldsDirty, setOppFieldsDirty] = useState(false)
+  const [oppFieldsValid, setOppFieldsValid] = useState(true)
+  const [oppSaving, setOppSaving] = useState(false)
+
   /* ─── Fetch instance detail ─── */
 
   const fetchInstance = useCallback(async () => {
@@ -101,12 +125,55 @@ export default function InstanceDetail({
       setStages(result.data.stages || [])
       setGateResult(result.data.gateResult ?? null)
       setIsAtFinalStage(result.data.isAtFinalStage ?? false)
+
+      // Parallel-fetch the linked opportunity when the instance carries an
+      // opportunity_id. Legacy instances (pre-linkage) degrade gracefully —
+      // the section below simply doesn't render.
+      const oppId = result.data.instance?.opportunity_id
+      if (oppId && typeof oppId === 'string') {
+        try {
+          const oppResult: OpportunityResponse = await fetchValidated(`${apiBase}/opportunities/${encodeURIComponent(oppId)}`)
+          if (oppResult.success && oppResult.data) {
+            setOpportunity(oppResult.data)
+            setOppFields(oppResult.data.custom_fields ?? {})
+            setOppFieldsDirty(false)
+          }
+        } catch { /* non-fatal; the section just won't show */ }
+      } else {
+        setOpportunity(null)
+        setOppFields({})
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Network error')
     } finally {
       setLoading(false)
     }
   }, [apiBase, instanceId])
+
+  /* ─── Save custom_fields edits → PATCH /api/opportunities/:id ─── */
+  const handleSaveOppFields = useCallback(async () => {
+    if (!opportunity) return
+    try {
+      setOppSaving(true)
+      setError(null)
+      const result: OpportunityResponse = await fetchValidated(`${apiBase}/opportunities/${encodeURIComponent(opportunity.id)}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ custom_fields: oppFields }),
+      })
+      if (!result.success || !result.data) {
+        setError(result.error || 'Failed to save pipeline fields')
+        return
+      }
+      setOpportunity(result.data)
+      setOppFields(result.data.custom_fields ?? {})
+      setOppFieldsDirty(false)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Network error')
+    } finally {
+      setOppSaving(false)
+    }
+  }, [apiBase, opportunity, oppFields])
 
   useEffect(() => {
     fetchInstance()
@@ -371,6 +438,49 @@ export default function InstanceDetail({
       {/* Gate Status */}
       {currentStageDef?.gate_enforced && (
         <GateStatus gateResult={gateResult} stageName={currentStageName} />
+      )}
+
+      {/* Pipeline Details — custom_fields on the linked opportunity (RON-OPP-FIELDS-001 PR C) */}
+      {opportunity && (
+        <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-5">
+          <div className="mb-3 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="material-icons-outlined text-[var(--portal)]" style={{ fontSize: '18px' }}>
+                tune
+              </span>
+              <h3 className="text-sm font-semibold text-[var(--text-primary)]">
+                Pipeline Details
+              </h3>
+            </div>
+            {oppFieldsDirty && (
+              <button
+                onClick={handleSaveOppFields}
+                disabled={oppSaving || !oppFieldsValid}
+                className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-white transition-colors disabled:opacity-50"
+                style={{ backgroundColor: 'var(--portal)' }}
+              >
+                {oppSaving ? (
+                  <div className="h-3 w-3 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                ) : (
+                  <span className="material-icons-outlined" style={{ fontSize: '14px' }}>save</span>
+                )}
+                Save
+              </button>
+            )}
+          </div>
+          <PipelineFieldsForm
+            pipelineKey={instance.pipeline_key}
+            mode="edit"
+            apiBase={apiBase}
+            values={oppFields}
+            onChange={(next) => {
+              setOppFields(next)
+              setOppFieldsDirty(true)
+            }}
+            onValidityChange={setOppFieldsValid}
+            disabled={oppSaving}
+          />
+        </div>
       )}
 
       {/* Task Checklist */}
