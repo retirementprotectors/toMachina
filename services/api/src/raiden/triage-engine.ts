@@ -34,7 +34,10 @@ function jaccardSimilarity(a: Set<string>, b: Set<string>): number {
 
 export async function detectDuplicate(text: string): Promise<DuplicateMatch | null> {
   try {
-    const snap = await getDb().collection('forge_tracker')
+    // ZRD-RAIDEN-TRACKER-FIX (2026-04-14): collection was 'forge_tracker' (zombie, 0 docs).
+    // Live store is 'tracker_items' (1,815 docs across many statuses). RAIDEN's triage was
+    // reading an empty collection forever — every "find a duplicate" call returned null.
+    const snap = await getDb().collection('tracker_items')
       .where('status', 'in', ['RDN-new', 'RDN-triaging', 'RDN-fixing', 'RDN-verifying'])
       .orderBy('created_at', 'desc')
       .limit(50)
