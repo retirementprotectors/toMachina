@@ -207,7 +207,7 @@ export default function PipelineKanbanPage() {
           carrier: form.carrier,
           account_type_category: form.account_type_category,
           custom_fields: pipelineCustomFields,
-          notes: form.notes || '',
+          notes: (typeof pipelineCustomFields.notes === 'string' ? pipelineCustomFields.notes : '') || '',
           value: 0,
           source: 'Manual — ProDashX',
         }),
@@ -234,7 +234,7 @@ export default function PipelineKanbanPage() {
             account_type_category: form.account_type_category,
             carrier_id: form.carrier_id,
             carrier: form.carrier,
-            notes: form.notes || '',
+            notes: (typeof pipelineCustomFields.notes === 'string' ? pipelineCustomFields.notes : '') || '',
             source: 'Manual — ProDashX',
           },
         }),
@@ -470,17 +470,11 @@ export default function PipelineKanbanPage() {
                 </div>
               </div>
 
-              {/* Notes */}
-              <div>
-                <label className="mb-1 block text-xs font-medium text-[var(--text-secondary)]">Notes</label>
-                <textarea
-                  value={form.notes}
-                  onChange={(e) => updateField('notes', e.target.value)}
-                  placeholder="Account details, special instructions, etc."
-                  rows={3}
-                  className="w-full resize-none rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-primary)] px-3 py-2.5 text-sm text-[var(--text-primary)] outline-none transition-colors focus:border-[var(--portal)]"
-                />
-              </div>
+              {/* Notes is now rendered schema-driven by PipelineFieldsForm above (RDN-004).
+                  Every pipeline schema in @tomachina/core includes a `notes` textarea field,
+                  so the legacy hardcoded textarea here was a duplicate input that stacked
+                  below PipelineFieldsForm — removed. Notes value sourced from
+                  pipelineCustomFields.notes in handleCreate below. */}
             </div>
 
             {/* Footer */}
