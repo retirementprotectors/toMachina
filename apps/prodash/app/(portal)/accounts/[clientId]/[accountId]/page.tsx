@@ -422,6 +422,12 @@ function buildAnnuitySections(a: Account): SectionDef[] {
 }
 
 function buildLifeSections(a: Account): SectionDef[] {
+  // RDN-DOJO-GAP-17: policy_number and account_number are often the same value
+  // for life policies — only show both when they actually differ. Matches the
+  // Annuity section's Policy/Contract dedupe pattern (line 332-344).
+  const showAccountNumber = a.account_number && a.account_number !== a.policy_number
+  const policyLabel = showAccountNumber ? 'Policy Number' : 'Policy / Account Number'
+
   return [
     {
       title: 'Policy Details', icon: 'favorite',
@@ -430,8 +436,8 @@ function buildLifeSections(a: Account): SectionDef[] {
         f('Parent Carrier', 'parent_carrier', a.parent_carrier),
         f('Product', 'product_name', a.product_name),
         f('Policy Type', 'policy_type', a.policy_type || a.product_type),
-        f('Policy Number', 'policy_number', a.policy_number, { mono: true }),
-        f('Account Number', 'account_number', a.account_number, { mono: true }),
+        f(policyLabel, 'policy_number', a.policy_number, { mono: true }),
+        ...(showAccountNumber ? [f('Account Number', 'account_number', a.account_number, { mono: true })] : []),
         f('Status', 'status', a.status),
         f('Plan Name', 'plan_name', a.plan_name),
         f('Plan Code', 'plan_code', a.plan_code, { mono: true }),
