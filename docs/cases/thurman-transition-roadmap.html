@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Robert + Eileen Thurman — Survivor Transition Roadmap</title>
+<style>
+:root{--bg:#0a0e17;--card:#111827;--card2:#1a2236;--border:#1e293b;--text:#e2e8f0;--muted:#94a3b8;--green:#22c55e;--blue:#3b82f6;--red:#ef4444;--orange:#f59e0b;--gold:#d4a44c;--cyan:#06b6d4}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.65;padding:40px 24px}
+.wrap{max-width:920px;margin:0 auto}
+h1{font-size:1.9rem;font-weight:800;background:linear-gradient(135deg,var(--green),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px;line-height:1.25}
+h2{font-size:1.25rem;margin:32px 0 12px;color:var(--text);padding-bottom:6px;border-bottom:1px solid var(--border)}
+h3{font-size:1.02rem;margin:20px 0 8px;color:var(--green)}
+p,li{color:var(--muted);margin-bottom:8px}
+strong{color:var(--text)}
+code{background:var(--card2);padding:2px 7px;border-radius:4px;font-size:0.82rem;color:var(--cyan);font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+pre{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:12px 0}
+pre code{background:transparent;padding:0;color:var(--muted);font-size:0.8rem;white-space:pre}
+blockquote{background:rgba(6,182,212,0.06);border-left:3px solid var(--cyan);padding:12px 18px;margin:14px 0;border-radius:0 8px 8px 0}
+blockquote p{color:var(--muted);margin:0;font-size:0.88rem}
+ul,ol{margin:10px 0 12px 24px}
+li{margin-bottom:6px}
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:0.88rem;background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+th{text-align:left;padding:10px 12px;background:var(--card2);color:var(--green);font-weight:700;font-size:0.75rem;text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid var(--border)}
+td{padding:10px 12px;border-bottom:1px solid var(--border);color:var(--muted);vertical-align:top}
+tr:last-child td{border-bottom:none}
+a{color:var(--blue);text-decoration:none}
+a:hover{text-decoration:underline}
+.footer{text-align:center;padding:32px 0 0;color:var(--muted);font-size:0.72rem;border-top:1px solid var(--border);margin-top:44px}
+hr{border:none;border-top:1px solid var(--border);margin:28px 0}
+input[type="checkbox"]{accent-color:var(--green);margin-right:6px}
+.checklist li{list-style:none;margin-left:-20px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Robert + Eileen Thurman — Survivor Transition Roadmap</h1>
+
+<blockquote><p><strong>Draft — 2026-04-14</strong> · VOLTRON CSO · Source: Josh Archer case notes + Thurman Fact Finder (9.28.23) + KCL Annual Report (6/5/2023). Firestore records are carrier-of-record for client identity; account-level extractions pending platform intake fix (see <code>ZRD-INTAKE-WIRE-TRIGGER-PROD-BROKEN</code>).</p></blockquote>
+
+<h2>Household</h2>
+<table>
+<tr><th>Field</th><th>Value</th></tr>
+<tr><td><strong>Address</strong></td><td>1603 Cedar Muscatine Rd, Wilton IA 52778-9280</td></tr>
+<tr><td><strong>Robert Thurman</strong></td><td><code>client_id: f6a5da6d-0c76-445d-9aab-7c9729d9d289</code> · DOB 1947-09-24 (age 78) · phone 563-506-0466 · ACF <code>1gfAtmRpZnHg_NRHgCN_hQvrsswQ9IsNV</code></td></tr>
+<tr><td><strong>Eileen Thurman</strong></td><td><code>client_id: 66b14a29-b6bd-443f-a4c1-69637be4777f</code> · DOB 1947-11-22 (age 78) · phone 563-732-3215 · ACF (none yet)</td></tr>
+<tr><td><strong>Agent of record</strong></td><td>Robert G King, Retirement Protectors Inc</td></tr>
+</table>
+
+<h2>Case Framing — Survivor Transition, Not Accumulation</h2>
+<p>Archer's notes say the SS Admin was notified and Eileen "will start receiving his SSI soon" + Robert has "2 small life policies yet to pay out." That pattern is a <strong>widow's benefit transition + death-claim pipeline</strong>, not active retirement-income accumulation for Robert. Firestore record for Robert shows <code>status: Active</code> but that's stale — Robert is deceased or claim-in-progress. Platform doesn't yet support decedent mode (see <code>ZRD-SUPER-WRITE-DECEDENT-MODE</code>); treating Eileen as the active planning subject.</p>
+
+<h2>Health / Capacity</h2>
+<ul>
+<li><strong>Eileen had a stroke recently.</strong> Per Archer: she won't qualify for additional insurance. Her existing KCL IUL policy is therefore higher-value than at issue — can't be replaced.</li>
+<li>No long-term-care coverage noted for either.</li>
+</ul>
+
+<h2>Legacy Goals</h2>
+<p>Robert/Eileen want to leave <strong>grandson</strong> (works in the big garage out back, intended to take over the farm) a share separate from the 3 kids. Hopeful path: a product where the <strong>DB growth</strong> goes to the grandson while <strong>original principal</strong> splits among the kids. Structural options:</p>
+<ul>
+<li>Multi-beneficiary IUL with fixed-amount designation to grandson</li>
+<li>Inherited-IRA stretch for grandson (limited post-SECURE Act 2.0 to 10-yr drain unless eligible designated beneficiary — grandson isn't EDB)</li>
+<li>Dedicated wealth-transfer annuity with enhanced DB + segregated beneficiary allocation</li>
+</ul>
+
+<h2>Asset Inventory (pending full extraction)</h2>
+<p style="font-size:0.85rem;color:var(--muted)">Below is from Archer's notes + parsed PDFs. Full per-carrier extraction runs when the <code>services/intake</code> Cloud Function is fixed.</p>
+
+<h3>Robert's Modern Woodman IRAs (all out of surrender 12/8/27)</h3>
+<table>
+<tr><th>Policy #</th><th>Type per Archer</th><th>Value</th><th>Surrender out</th></tr>
+<tr><td>9115879</td><td>IRA (5yr)</td><td>$10,578</td><td>12/8/27</td></tr>
+<tr><td>8258565</td><td>IRA</td><td>unknown</td><td>12/8/27</td></tr>
+<tr><td>8258566</td><td>IRA</td><td>$13,049</td><td>12/8/27</td></tr>
+<tr><td>8529928</td><td>IRA</td><td>$5,643</td><td>12/08/27</td></tr>
+</table>
+<p><strong>⚠️ Flag from Archer:</strong> 2 of these may actually be NQ despite the "IRA" label — verify on carrier statement when extraction runs. Identical issue dates + surrender dates suggest these were issued as a block, probably from a consolidated rollover.</p>
+
+<h3>Robert's Nationwide FIA</h3>
+<ul>
+<li>Per Archer: in January 2026 we moved his GrowthTrack KCL policy to Nationwide to replace the income from Eileen's SPIAs in 2028. GMIB rider.</li>
+<li><strong>Planning lever:</strong> fire GMIB on the <strong>4/10/27 anniversary</strong> (not 4 months later — Archer's read is right unless there's an anniversary-bonus waiting-game we find)</li>
+<li>Eileen will need this income after her 2 SPIAs exhaust (see below)</li>
+</ul>
+
+<h3>Robert's 2 Small Life Policies (claim pipeline)</h3>
+<ul>
+<li>Not yet paid out. Pending death-benefit processing.</li>
+<li>Archer estimates $12-22K incremental incoming; combines with an "already existing balance of $118K" to reach <strong>$130-140K liquid</strong>.</li>
+<li>Beneficiary presumably Eileen (confirm on extraction — claim docs will state).</li>
+</ul>
+
+<h3>Eileen's KCL Indexed Universal Life #2844833 (COMPASS ELITE IUL)</h3>
+<ul>
+<li>Issue: 6/5/2017 · Age at issue 70 · Std Non-Tobacco · A-Level Death Benefit</li>
+<li>Face / Current DB: <strong>$52,279</strong></li>
+<li>Accumulated Value (6/5/2023): $21,912.58 · Cash Surrender Value: $20,540.25 · Surrender charge $1,372.33</li>
+<li>Current allocation: 50% Indexed Account A (cap 8.50%) · 50% Indexed Account C (cap 11.50%) · 0% Fixed</li>
+<li><strong>Planned Premium: $0</strong> — minimum-premium structure, coverage consuming value at ~$99/mo</li>
+<li>Total premiums paid to date: $21,904.59 (≈ equal to accumulated value — policy hasn't credited meaningful index gains in available history)</li>
+<li>Coverage lapse risk: per Archer, <strong>coverage lapses at age 90 without additional funding.</strong> Eileen is 78 → 12-year runway. Small premium increase could extend materially.</li>
+<li><strong>Stroke + uninsurable = preserve this policy.</strong> Analysis priority.</li>
+</ul>
+
+<h3>Eileen's 2 SPIAs</h3>
+<ul>
+<li>Exhausting <strong>8/27</strong> and <strong>9/27</strong> (August + September 2027)</li>
+<li>Monthly amount TBD on extraction</li>
+<li><strong>Income-gap concern:</strong> after exhaustion, Eileen loses 2 income streams. Nationwide FIA GMIB fire on 4/10/27 bridges the gap.</li>
+</ul>
+
+<h3>Eileen's Brokerage Account</h3>
+<ul>
+<li>Single holding: <strong>Berkshire Hathaway Class B (BRK-B)</strong></li>
+<li>Solo-name account (not joint)</li>
+<li>Share count + current value TBD on extraction</li>
+</ul>
+
+<h2>Income Transition Plan</h2>
+<pre><code>Before Robert's passing          After Robert's passing
+─────────────────────            ─────────────────────
+Robert SSI                       Eileen switches to widow SSI (Robert's benefit, likely higher)
+Eileen 2 SPIAs                   Continue through 8/27 + 9/27, then exhaust
+                                 ┌─────── gap ───────┐
+Eileen KCL IUL (asset)           Preserve — uninsurable post-stroke
+Robert's 2 life policies         Pay out to Eileen (~$12-22K) → add to her $118K balance → $130-140K liquid
+Robert's 4 MW IRAs (~$29K+)      Inherited-IRA rollover to Eileen (spouse eligible); out of surrender 12/8/27
+Robert's Nationwide FIA/GMIB     On 4/10/27 → fire GMIB → lifetime income
+</code></pre>
+
+<h2>Action Items</h2>
+
+<h3>Pre-meeting with Archer</h3>
+<ul class="checklist">
+<li><input type="checkbox"> Confirm Robert's date of death (or expected) — Firestore record still shows Active</li>
+<li><input type="checkbox"> Get current KCL statement (2025 Annual Report) — latest we have is 6/5/2023 (2 years stale)</li>
+<li><input type="checkbox"> Get current Modern Woodman IRA statements — latest is 9/28/23, pre-surrender-window</li>
+<li><input type="checkbox"> Verify 2 MW IRAs Archer flagged as possibly NQ (policy #s 8258565, 8529928)</li>
+<li><input type="checkbox"> Confirm Eileen's 2 SPIA carriers + monthly amounts + exact exhaustion dates</li>
+<li><input type="checkbox"> Confirm Nationwide FIA details (policy #, cash value, GMIB income calc at 4/10/27 fire)</li>
+<li><input type="checkbox"> Confirm beneficiary on Robert's 2 small life policies (pending payout)</li>
+<li><input type="checkbox"> Pull BRK-B brokerage statement — custodian + share count + current value</li>
+</ul>
+
+<h3>Casework deliverables</h3>
+<ul class="checklist">
+<li><input type="checkbox"> Inherited-IRA rollover paperwork for Eileen (4 MW IRAs)</li>
+<li><input type="checkbox"> Life-insurance claim processing for Robert's 2 policies</li>
+<li><input type="checkbox"> Widow SSI benefit switch (confirm date + new monthly amount)</li>
+<li><input type="checkbox"> Grandson legacy structure: recommend product + beneficiary-split mechanism</li>
+<li><input type="checkbox"> KCL IUL sustaining-premium analysis (extend past age 90)</li>
+</ul>
+
+<h3>Platform blockers</h3>
+<ul>
+<li><code>ZRD-INTAKE-WIRE-TRIGGER-PROD-BROKEN</code> (P0) — blocks automated document ingestion</li>
+<li><code>ZRD-SUPER-WRITE-DECEDENT-MODE</code> (follow-up) — platform capability for decedent client records</li>
+</ul>
+
+<div class="footer">Robert + Eileen Thurman · Survivor Transition Roadmap · 2026-04-14 · VOLTRON CSO · Retirement Protectors, Inc.</div>
+</div>
+</body>
+</html>
