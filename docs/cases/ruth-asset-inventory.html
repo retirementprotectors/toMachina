@@ -93,6 +93,7 @@ tr.totals td{font-weight:700;color:var(--text);border-top:2px solid var(--border
 <div class="tab" onclick="showPanel('tax',this)">TAX BREAKDOWN</div>
 <div class="tab" onclick="showPanel('flags',this)">FLAGS</div>
 <div class="tab" onclick="showPanel('income',this)">INCOME</div>
+<div class="tab" onclick="showPanel('realestate',this)">REAL ESTATE</div>
 </div>
 
 <div class="content">
@@ -133,7 +134,7 @@ tr.totals td{font-weight:700;color:var(--text);border-top:2px solid var(--border
 <h4 style="color:var(--blue);font-size:0.85rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Wealth</h4>
 <ul>
 <li><strong>Beneficiary Center:</strong> Walk through the 13 accounts with no beni. Get sign-off on Karla as primary across the board. Quickest win of the meeting.</li>
-<li><strong>Long-term care policy values:</strong> $100/day base from 2002 with compound inflation = significant current daily benefit. Need current values from Davies (LTC administrator, 877-702-7770).</li>
+<li><strong>Long-term care policy values:</strong> <strong>$307.15/day current</strong> daily benefit · Lifetime cap <strong>$3,071,520.68</strong> · Return of Premium rider 100% active. Schedule confirmed 2026-04-14 (no Davies call needed). LTC risk effectively fully insured. Move from To-Do to Strategic Lever.</li>
 <li><strong>Income picture:</strong> SSI + farm + Prosperity paid-up monthly benefit ($1,007/mo available, not yet drawn). Charitable giving to church may change the income strategy.</li>
 </ul>
 </div>
@@ -153,7 +154,7 @@ tr.totals td{font-weight:700;color:var(--text);border-top:2px solid var(--border
 <h3>3 &mdash; Analysis Meeting To-Do (Info Needed)</h3>
 <p>Items to gather <strong>during this meeting</strong> so we can complete the follow-up analysis.</p>
 <ul>
-<li><strong>LTC current values:</strong> Have Kim call <strong>Davies at (877) 702-7770</strong> for current daily benefit, lifetime balance, claim status. We can do this together at the meeting if helpful.</li>
+<li><strong>LTC current values:</strong> <span style="color:var(--green)">&#10003; RESOLVED 2026-04-14</span> &mdash; policy schedule received. $307.15/day · $3.07M lifetime cap · ROP rider 100% active · 90-day elimination. No Davies call needed unless we want claim-procedure walkthrough.</li>
 <li><strong>POA friend &mdash; identity and details:</strong>
   <ul>
     <li>Name, contact info, relationship to Kim, length of friendship</li>
@@ -222,10 +223,18 @@ tr.totals td{font-weight:700;color:var(--text);border-top:2px solid var(--border
 <div class="stat"><div class="num">$872,927</div><div class="lbl">Annuities (6)</div></div>
 <div class="stat"><div class="num">$1,012,727</div><div class="lbl">CDs (10)</div></div>
 <div class="stat"><div class="num">$270,519</div><div class="lbl">Life Death Benefit</div></div>
-<div class="stat"><div class="num">$100/day</div><div class="lbl">LTC + Compound Inflation</div></div>
+<div class="stat"><div class="num">$307/day</div><div class="lbl">LTC Daily (Lifetime · $3.07M cap)</div></div>
+</div>
+<div class="stat-row">
+<div class="stat"><div class="num">~294 ac</div><div class="lbl">Iowa Farmland (9 parcels)</div></div>
+<div class="stat"><div class="num">~$900K</div><div class="lbl">Real Estate (est. market)</div></div>
+<div class="stat"><div class="num">$148.8K</div><div class="lbl">Homestead Dwelling</div></div>
+<div class="stat"><div class="num">~$2.93M</div><div class="lbl">Total Net Worth (est.)</div></div>
 </div>
 
 <div class="note"><strong>2026-04-09 Update:</strong> 6 life policies confirmed via Archer&rsquo;s scans + ProDash sync. <strong>2 NEW</strong> (COF #1206927 from 1989, Farm Bureau #04000678365 from 1985). <strong>2 UPDATED</strong> with current statement values (COF #1305586, COF #1299513 &mdash; the latter reclassified from Term to Whole Life). 8 Hills Bank CD values refreshed from 2025/26 renewal statements (Hills #10402477 IRA corrected from $73K to $96K). Hills account number typo fixed: 10142469 &rarr; 10242469.</div>
+
+<div class="note" style="background:rgba(34,197,94,0.06);border-color:rgba(34,197,94,0.25)"><strong style="color:var(--green)">2026-04-14 Update &mdash; Real Estate + LTC Schedule Received</strong> (JDM scan, 11 pages). <strong>~294 acres of Iowa farmland across 9 parcels</strong> in 2 counties (Johnson + Washington) — see new REAL ESTATE tab. Net Worth jumps from $2.03M (financial) to ~$2.93M including farmland (assessed ~$600K, est. market $800K-$900K) + $148.8K homestead dwelling. Joint-with-Karla on 12.69 acres (estate transfer pre-arranged on those parcels). <strong>COF LTC #1299491 schedule confirmed:</strong> $100/day base + Compound Inflation + Return of Premium + 90-day elim + Lifetime max → <strong>$307.15/day current daily benefit · $3,071,520.68 lifetime cap</strong>. ROP rider 100% active. LTC risk effectively fully insured.</div>
 
 <div class="note" style="background:rgba(34,197,94,0.06);border-color:rgba(34,197,94,0.25)"><strong style="color:var(--green)">2026-04-13 Update &mdash; 2025 Federal Tax Return Received</strong> (Bontrager Tax, Kalona IA, prepared 2026-02-24). Farm structure <strong>confirmed as Schedule F sole proprietor</strong>. 2025 figures: <strong>Gross farm $164,089 &middot; Net farm $18,765 &middot; AGI $107,400 &middot; Taxable income $64,067 &middot; Total tax $11,548 &middot; Effective rate 18% &middot; Marginal 22%.</strong> Roadmap&rsquo;s earlier 32&ndash;35% bracket assumption was too high &mdash; Roth conversion math re-run below. Also: Kim took his first $25K IRA distribution in 2025 (NQ source not yet identified &mdash; review Brighthouse/Hills IRA activity). PDF in ACF/Client/ as <code>Ruth_Kimberly_2025_Federal_Tax_Return_Bontrager_2026-02-24.pdf</code>.</div>
 
@@ -577,7 +586,7 @@ tr.totals td{font-weight:700;color:var(--text);border-top:2px solid var(--border
 <li><strong>MassMutual #3456086</strong> &mdash; Limited Premium Whole Life, $65,866 DB / $46,869 CV (2023 statement). 1977 issue (age 23) &mdash; 49 years in force.</li>
 <li><strong>MassMutual #5022977</strong> &mdash; Whole Life, $9,900 face, $613/yr ($53.36/mo), 2018 (age 63). Premiums payable to 2055.</li>
 </ul>
-<p>Plus: <strong>COF LTC #1299491</strong> &mdash; $100/day lifetime benefit since 2002 with compound inflation rider. Current daily benefit is likely $200&ndash;250/day after 24 years of compounding.</p>
+<p>Plus: <strong>COF LTC #1299491</strong> &mdash; <strong>$307.15/day current</strong> (compound from $100/day 2002 base over 24 years) · <strong>Lifetime cap $3,071,520.68</strong> · 90-day elimination · Return of Premium rider 100% active · Premium $823.28/yr ACP. Per the policy schedule received 2026-04-14. <strong>LTC risk fully insured.</strong></p>
 <div class="action">
 <strong>Action Items:</strong>
 <ul>
@@ -622,7 +631,7 @@ tr.totals td{font-weight:700;color:var(--text);border-top:2px solid var(--border
 <div style="overflow-x:auto">
 <table>
 <tr><th>Carrier</th><th>Policy #</th><th>Plan</th><th>Daily Benefit</th><th>Lifetime Max</th><th>Elimination</th><th>Inflation Rider</th><th>Issue Date</th><th>Issue Age</th><th>Premium</th></tr>
-<tr><td>Catholic Order of Foresters</td><td>1299491</td><td>LTC</td><td>$100/day base (24yr compound = est $200&ndash;250/day)</td><td>Lifetime</td><td>90 days</td><td>Compound (since 2002)</td><td>11/01/2002</td><td>48</td><td>$823.28/yr (ACP)</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>1299491</td><td>LTC + ROP rider 100% active</td><td><strong>$307.15/day current</strong> ($100 base × 24yr compound) · Lifetime cap <strong>$3,071,520.68</strong> · Home &amp; Community 50% = $153.58/day</td><td>Lifetime</td><td>90 days</td><td>Compound (since 2002)</td><td>11/01/2002</td><td>48</td><td>$823.28/yr (ACP) · Base $394.70 + Compound Inf $367.60 + ROP $60.98</td></tr>
 </table>
 </div>
 <p style="margin-top:10px"><em>Includes: Bed Reservation (21 days/yr), Caregiver Training ($500 lifetime), Respite Care (21 days/yr), Hospice Care, Return of Premium rider.</em></p>
@@ -875,6 +884,92 @@ tr.totals td{font-weight:700;color:var(--text);border-top:2px solid var(--border
 <li><strong>QCD to church</strong> still attractive as RMD-rate insurance, but immediate pre-RMD value is lower than at 32%.</li>
 <li><strong>Activating the Prosperity $1,007/mo</strong> would add $12K/yr at ~22% marginal = $2.6K additional tax &mdash; decision hinges on need, not tax drag.</li>
 </ul>
+</div>
+</div>
+
+<!-- REAL ESTATE -->
+<div id="realestate" class="panel">
+
+<div class="card">
+<h2>Iowa Farmland + Homestead &mdash; 9 Parcels Across 2 Counties</h2>
+<p style="font-size:0.85rem">Source: Property tax statements scanned + parsed 2026-04-14. All parcels in Kim&rsquo;s name (3 jointly with sister Karla S Ruth). Assessed values are for tax purposes; market value typically 1.3-1.5x in Iowa for farmland.</p>
+
+<div class="stat-row" style="margin-top:14px">
+<div class="stat"><div class="num">~294 ac</div><div class="lbl">Total Acreage</div></div>
+<div class="stat"><div class="num">9</div><div class="lbl">Parcels</div></div>
+<div class="stat"><div class="num">$579K</div><div class="lbl">Total Assessed</div></div>
+<div class="stat"><div class="num">~$900K</div><div class="lbl">Est. Market Value</div></div>
+</div>
+
+<h3>Johnson County, IA &mdash; SHARON-MID PRAIRIE School District (5 parcels, 146.28 acres, all STR 35-78-7)</h3>
+<div style="overflow-x:auto">
+<table>
+<tr><th>Parcel #</th><th>Receipt</th><th>Acres</th><th>Legal</th><th>Assessed</th><th>Net Taxable</th><th>Annual Tax</th><th>Sept 2025</th><th>March 2026</th></tr>
+<tr><td>1435476001</td><td>122350</td><td>40.00</td><td>NE SE</td><td>$69,400</td><td>$51,257</td><td>$1,276</td><td>$638</td><td>$638</td></tr>
+<tr><td>1435401001</td><td>140003</td><td>40.00</td><td>NE SE</td><td>$83,500</td><td>$61,671</td><td>$1,534</td><td>$767</td><td>$767</td></tr>
+<tr><td>1435176001</td><td>128313</td><td>26.28</td><td>SE NE Auditor&rsquo;s Parcel B in Survey Bk 32 Pg 263</td><td>partial</td><td>partial</td><td>$964</td><td>$482</td><td>$482</td></tr>
+<tr><td>1435451001</td><td>132540</td><td>22.00</td><td>N 22A SW SE</td><td>$24,500</td><td>$18,095</td><td>$450</td><td>$225</td><td>$225</td></tr>
+<tr><td>1435451002</td><td>090704</td><td>18.00</td><td>S 18A SW SE</td><td>$26,500</td><td>$19,572</td><td>$488</td><td>$244</td><td>$244</td></tr>
+<tr class="totals"><td colspan="2">Johnson County subtotal</td><td>146.28</td><td>5 parcels</td><td>~$204K</td><td>~$150K</td><td>$4,712</td><td>$2,356</td><td>$2,356</td></tr>
+</table>
+</div>
+<p style="margin-top:8px;font-size:0.78rem;color:var(--muted)"><em>Treasurer: Scott Finlayson, Johnson County Treasurer · PO Box 2420 Iowa City IA 52244 · (319) 356-6087 · iowataxandtags.org</em></p>
+
+<h3>Washington County, IA &mdash; IWTHG (Iowa Twp/Highland) + LCTMP (Lime Creek Twp/Mid Prairie) (4 parcels, 148.25 acres incl. homestead)</h3>
+<div style="overflow-x:auto">
+<table>
+<tr><th>Parcel #</th><th>Receipt</th><th>District</th><th>Address</th><th>Acres</th><th>Assessed</th><th>Net Taxable</th><th>Annual Tax</th><th>Owner</th></tr>
+<tr><td>0302200002</td><td>601560</td><td>IWTHG</td><td>Redwood Av</td><td>98.42</td><td>$153,300</td><td>$113,223</td><td>$3,108</td><td>RUTH, KIMBERLY</td></tr>
+<tr><td>0218400015</td><td>606560</td><td>LCTMP</td><td>(land)</td><td>12.18</td><td>$18,300</td><td>$13,516</td><td>$372</td><td><strong>RUTH, KIMBERLY K. &amp; KARLA S.</strong></td></tr>
+<tr><td>0218400017</td><td>618224</td><td>LCTMP</td><td>Gum Ave</td><td>0.51</td><td>$2,800</td><td>$2,068</td><td>$58</td><td><strong>RUTH, KIMBERLY K. &amp; KARLA S.</strong></td></tr>
+<tr><td>0301300001</td><td>418528</td><td>IWTHG</td><td><strong>1054 Redwood Ave (HOMESTEAD)</strong></td><td>37.14</td><td>$179,200 (incl. dwelling $148,800)</td><td>$109,178</td><td>$2,864 (older bill)</td><td>RUTH, KIMBERLY</td></tr>
+<tr class="totals"><td colspan="3">Washington County subtotal</td><td></td><td>148.25</td><td>$353,600</td><td>$237,985</td><td>~$6,402</td><td></td></tr>
+</table>
+</div>
+<p style="margin-top:8px;font-size:0.78rem;color:var(--muted)"><em>Treasurer: Jeffrey A. Garrett, Washington County Treasurer · PO Box 889 Washington IA 52353 · (319) 653-7721 · iowatreasurers.org</em></p>
+
+<div class="note" style="margin-top:14px"><strong>Combined annual property tax burden: ~$11,114/yr.</strong> Aligns with Schedule F line 29 &ldquo;Taxes&rdquo; expense $8,498 (which excludes the homestead portion since it&rsquo;s personal-use, not farm-business). Kim claims AG Land credits on most parcels (small but real: $32-$59 per parcel).</div>
+</div>
+
+<div class="card">
+<h3>Estate-Planning Levers (NEW &mdash; was completely off prior roadmap)</h3>
+<ul>
+<li><strong>Joint-with-Karla parcels:</strong> 0218400015 (12.18 ac) + 0218400017 (0.51 ac) = <strong>12.69 acres in joint tenancy with sister Karla.</strong> These transfer outside probate to Karla automatically on Kim&rsquo;s death (joint-tenancy-with-right-of-survivorship is the Iowa default for "K. &amp; K." titling unless stated otherwise &mdash; verify on the deeds).</li>
+<li><strong>Beneficiary deed (transfer-on-death deed):</strong> Iowa allows TOD deeds as of 2018. Kim can record a TOD deed on the other 7 parcels naming Karla as beneficiary &mdash; bypasses probate, no transfer tax, revocable, doesn&rsquo;t affect his ability to sell during lifetime. <strong>This is the cleanest legacy move available given his stated wishes (Karla = sole beneficiary).</strong></li>
+<li><strong>Homestead exemption:</strong> 0301300001 has the dwelling but the bill we have shows Homestead Exemption = $0 / Military Exemption = $0. <strong>Iowa offers a Homestead Tax Credit ($4,850 of taxable value) + Homestead Exemption.</strong> If Kim isn&rsquo;t claiming, applying could save ~$120/yr. Check with County Assessor.</li>
+<li><strong>Senior Property Tax Credit:</strong> Kim is 71, eligible for Iowa&rsquo;s Senior Property Tax Credit (age 65+, income limits apply). Worth checking.</li>
+<li><strong>Family Farm credits:</strong> Most parcels show Family Farm Credit = $0. Could save modestly if Kim qualifies (must be actively farmed by family member, which Kim does).</li>
+<li><strong>Farm-business titling:</strong> Some farmers move farmland into an LLC for liability + estate efficiency. Kim is sole-prop Schedule F today; LLC conversion is a separate planning conversation.</li>
+</ul>
+</div>
+
+<div class="card">
+<h3>Action Items &mdash; Real Estate</h3>
+<ul>
+<li>Pull deeds for all 9 parcels (county recorder online portals; Kim or Archer can request)</li>
+<li>Verify joint-tenancy structure on the 2 Karla-titled parcels (could be JTWROS or tenancy-in-common &mdash; matters for probate)</li>
+<li>Discuss TOD beneficiary deed with Kim (cheap, revocable, probate-bypass for Karla on the 7 solo parcels)</li>
+<li>Check homestead exemption + senior tax credit + family farm credit status with Washington County Assessor (potential ~$300-500/yr savings combined)</li>
+<li>Get current farm rental agreement on the rented parcels (income side already on tax return; document side for the file)</li>
+<li>If Kim has a will, confirm real-estate disposition aligns with Karla-as-sole-beneficiary intent</li>
+</ul>
+</div>
+
+<div class="card">
+<h3>Total Net Worth &mdash; Reframed</h3>
+<table>
+<tr><th>Category</th><th>Value</th><th>Source</th></tr>
+<tr><td>Annuities (5 active + 1 SPIA)</td><td>$872,927</td><td>Carrier statements</td></tr>
+<tr><td>CDs (10)</td><td>$1,012,727</td><td>Hills Bank + WSB renewal statements</td></tr>
+<tr><td>Life Insurance Cash Value (6 policies)</td><td>$148,479</td><td>COF + Farm Bureau + MassMutual statements</td></tr>
+<tr><td><strong>Financial subtotal</strong></td><td><strong>$2,034,133</strong></td><td>(was previously the &ldquo;Total&rdquo;)</td></tr>
+<tr><td>Iowa Farmland (assessed)</td><td>$579,800</td><td>9 parcel tax statements</td></tr>
+<tr><td>Farmland market premium (~1.5x adj)</td><td>~$300K</td><td>Iowa farmland market typical</td></tr>
+<tr class="totals"><td><strong>Total Net Worth (estimated)</strong></td><td><strong>~$2.93M</strong></td><td></td></tr>
+<tr><td>Plus: COF LTC lifetime coverage cap</td><td><em>$3,071,520 (insured, not asset)</em></td><td>Policy schedule</td></tr>
+<tr><td>Plus: COF total death benefit on life insurance</td><td>$270,519</td><td>(separate from CV)</td></tr>
+</table>
+<p style="margin-top:10px"><strong>Bottom line: Kim is a $3M+ household when farmland is included.</strong> Estate planning moves from &ldquo;moderate&rdquo; to &ldquo;substantive.&rdquo; Federal estate tax threshold ($13.61M) is still untouched, but the real-estate component meaningfully changes the legacy conversation with Karla.</p>
 </div>
 </div>
 
