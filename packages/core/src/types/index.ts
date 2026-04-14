@@ -1,5 +1,8 @@
 // Core types for toMachina — derived from TAB_SCHEMAS in CORE_Database.gs
 
+// Domain extensions (modular types grouped in sibling files)
+export * from './farm-holdings'
+
 // ============================================================================
 // ENTITY TYPES
 // ============================================================================
@@ -25,6 +28,14 @@ export interface Client {
   agent_id?: string
   /** FK to households collection — links this client to their household group. */
   household_id?: string
+  /**
+   * Farm + ag real-estate holdings per client. Added for SPR-FARMLAND-
+   * VALUATION-001 (ZRD-PLATFORM-FARMLAND-VALUATION-API). Each entry is a
+   * single parcel; values are maintained by SUPER_FARMLAND_VALUATION
+   * against the `farmland_values` cache collection. See
+   * `./farm-holdings.ts` for the element shape.
+   */
+  farm_holdings?: import('./farm-holdings').FarmHolding[]
   created_at: string
   updated_at: string
   [key: string]: unknown // 107 total fields
