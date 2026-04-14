@@ -116,8 +116,8 @@
       break-inside: auto;
       box-sizing: border-box;
     }
-    .page:not(:last-child) { page-break-after: always; break-after: page; }
-    .page:last-child { page-break-after: auto; break-after: auto; }
+    /* Let content flow naturally across physical pages — no forced break per logical .page */
+    .page { page-break-after: auto; break-after: auto; }
     /* Let child elements avoid splitting across physical pages when possible */
     .step, .part, .num, .aep, .sep li, .numbers { page-break-inside: avoid; break-inside: avoid; }
     h1, h2, h3 { page-break-after: avoid; break-after: avoid; }
