@@ -153,6 +153,35 @@ clientRoutes.get('/:id', async (req: Request, res: Response) => {
 })
 
 /**
+ * GET /api/clients/:id/farm-holdings-valued
+ *
+ * Batch endpoint for RealEstateFarmHoldings UI + roadmap generator.
+ * Reads the client's `farm_holdings` array and values each parcel via
+ * SUPER_FARMLAND_VALUATION. Scope absorbed from FV-009 per MEGAZORD's
+ * 2026-04-14 ruling (FV-006 + FV-009 → one endpoint).
+ *
+ * Never fails per-holding — failed lookups emit insufficient_data
+ * payloads on the row so one bad parcel can't abort a whole roadmap.
+ */
+clientRoutes.get('/:id/farm-holdings-valued', async (req: Request, res: Response) => {
+  try {
+    const id = param(req.params.id)
+    const yearParam = req.query.year ? Number(req.query.year) : undefined
+    const { valueClientHoldings } = await import('./valuation.js')
+    const result = await valueClientHoldings(req.partnerId ?? undefined, id, yearParam)
+    res.json(successResponse(result))
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    if (msg.includes('not found')) {
+      res.status(404).json(errorResponse(msg))
+      return
+    }
+    console.error(`GET /api/clients/:id/farm-holdings-valued error:`, err)
+    res.status(500).json(errorResponse(msg))
+  }
+})
+
+/**
  * GET /api/clients/:id/accounts
  */
 clientRoutes.get('/:id/accounts', async (req: Request, res: Response) => {
