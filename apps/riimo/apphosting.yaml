@@ -20,3 +20,6 @@ env:
     value: "1:365181509090:web:08aea23422c813d23b6dbb"
   - variable: API_PROXY_URL
     value: https://tm-api-365181509090.us-central1.run.app
+  # TRK-EPIC-08 Phase 1: flip OmniPanel v2 (PRs #409-414 rebuild) to default
+  - variable: NEXT_PUBLIC_OMNIPANEL_V2_ENABLED
+    value: "true"

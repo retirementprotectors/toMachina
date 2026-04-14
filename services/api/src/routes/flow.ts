@@ -333,10 +333,18 @@ flowRoutes.post('/instances', async (req: Request, res: Response) => {
       updated_at: now,
     }
 
-    // Generate tasks FIRST so a failure doesn't leave orphaned instances
+    // Generate tasks for first stage. RDN-DOJO-GAP-05 defensive fix:
+    // never 500 on template/query failure — the instance still lands with
+    // tasks_generated=0 and a warning for the UI to surface.
     let tasksGenerated = 0
+    let taskWarning: string | undefined
     if (firstStage.has_workflow) {
-      tasksGenerated = await generateStageTasks(db, instanceId, pipelineKey, String(firstStage.stage_id), String(body.assigned_to))
+      try {
+        tasksGenerated = await generateStageTasks(db, instanceId, pipelineKey, String(firstStage.stage_id), String(body.assigned_to))
+      } catch (err) {
+        console.warn(`[flow.POST /instances] generateStageTasks failed for pipeline=${pipelineKey} stage=${firstStage.stage_id} — ${err instanceof Error ? err.message : String(err)}`)
+        taskWarning = `Instance created but task template generation failed for stage "${firstStage.stage_id}". Tasks can be generated later via POST /api/flow/instances/:id/tasks once the template config is fixed.`
+      }
     }
 
     // Write instance only after tasks succeed (or none needed)
@@ -365,6 +373,7 @@ flowRoutes.post('/instances', async (req: Request, res: Response) => {
       pipeline_key: pipelineKey,
       current_stage: firstStage.stage_id,
       tasks_generated: tasksGenerated,
+      ...(taskWarning ? { warning: taskWarning } : {}),
     } as unknown as FlowInstanceCreateResult))
   } catch (err) {
     console.error('POST /api/flow/instances error:', err)
@@ -448,13 +457,26 @@ flowRoutes.patch('/instances/:id', async (req: Request, res: Response) => {
           performed_by: userEmail, performed_at: now, notes: '',
         })
 
-        // Generate tasks for new stage if it has workflow
+        // Generate tasks for new stage. RDN-DOJO-GAP-05 defensive fix:
+        // the stage advance has already committed above — never 500 here.
+        // On template/query failure, return 200 with tasks_generated=0 and
+        // a warning string the UI can surface as a hint.
         let tasksGenerated = 0
+        let advanceWarning: string | undefined
         if (nextStage.has_workflow) {
-          tasksGenerated = await generateStageTasks(db, id, String(instance.pipeline_key), String(nextStage.stage_id), String(instance.assigned_to))
+          try {
+            tasksGenerated = await generateStageTasks(db, id, String(instance.pipeline_key), String(nextStage.stage_id), String(instance.assigned_to))
+          } catch (err) {
+            console.warn(`[flow.PATCH advance] generateStageTasks failed for instance=${id} pipeline=${instance.pipeline_key} stage=${nextStage.stage_id} — ${err instanceof Error ? err.message : String(err)}`)
+            advanceWarning = `Stage advanced (no task template yet for "${nextStage.stage_id}"). Tasks can be generated later via POST /api/flow/instances/:id/tasks.`
+          }
         }
 
-        res.json(successResponse<FlowInstanceAdvanceResult>({ new_stage: nextStage.stage_id, tasks_generated: tasksGenerated } as unknown as FlowInstanceAdvanceResult))
+        res.json(successResponse<FlowInstanceAdvanceResult>({
+          new_stage: nextStage.stage_id,
+          tasks_generated: tasksGenerated,
+          ...(advanceWarning ? { warning: advanceWarning } : {}),
+        } as unknown as FlowInstanceAdvanceResult))
         return
       }
 
@@ -562,12 +584,27 @@ flowRoutes.post('/instances/:id/tasks', async (req: Request, res: Response) => {
     if (!doc.exists) { res.status(404).json(errorResponse('Instance not found')); return }
     const instance = doc.data() as Record<string, unknown>
 
-    const count = await generateStageTasks(
-      db, instanceId, String(instance.pipeline_key),
-      String(instance.current_stage), String(instance.assigned_to)
-    )
+    // RDN-DOJO-GAP-05 defensive fix: return a graceful warning instead of
+    // 500 when templates are missing or the query fails. The caller is
+    // explicitly asking to generate tasks — returning 200 with
+    // tasks_generated=0 and a warning is more honest than a 500.
+    let count = 0
+    let genWarning: string | undefined
+    try {
+      count = await generateStageTasks(
+        db, instanceId, String(instance.pipeline_key),
+        String(instance.current_stage), String(instance.assigned_to)
+      )
+    } catch (err) {
+      console.warn(`[flow.POST /instances/:id/tasks] generateStageTasks failed for instance=${instanceId} pipeline=${instance.pipeline_key} stage=${instance.current_stage} — ${err instanceof Error ? err.message : String(err)}`)
+      genWarning = `Task generation failed for stage "${instance.current_stage}". Most likely cause: no flow_task_templates registered for this pipeline/stage combination yet.`
+    }
 
-    res.status(201).json(successResponse<FlowTasksGenerateResult>({ instance_id: instanceId, tasks_generated: count } as unknown as FlowTasksGenerateResult))
+    res.status(201).json(successResponse<FlowTasksGenerateResult>({
+      instance_id: instanceId,
+      tasks_generated: count,
+      ...(genWarning ? { warning: genWarning } : {}),
+    } as unknown as FlowTasksGenerateResult))
   } catch (err) {
     console.error('POST /api/flow/instances/:id/tasks error:', err)
     res.status(500).json(errorResponse(String(err)))
