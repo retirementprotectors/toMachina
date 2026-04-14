@@ -39,7 +39,7 @@ function Icon({ name, size = 18, color }: { name: string; size?: number; color?:
 }
 
 /* ─── Component ─── */
-export function Guardian({ portal = 'PRODASHX' }: { portal?: string }) {
+export function GuardianView({ portal = 'PRODASHX' }: { portal?: string }) {
   const [activeTab, setActiveTab] = useState<TabKey>('health')
 
   return (
