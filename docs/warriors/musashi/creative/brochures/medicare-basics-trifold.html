@@ -126,12 +126,32 @@
   .fold-note strong { color: var(--rpi-289); }
 
   @media print {
+    html, body { margin: 0; padding: 0; }
     body { background: white; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    .sheet { margin: 0; box-shadow: none; page-break-after: always; }
-    .sheet:last-child { page-break-after: auto; }
+    /* Sheet sized to 7.9in (0.3in below Chrome's default print margins on landscape letter)
+       so there's no mystery blank strip at the bottom of panels. overflow: hidden stops any
+       stray half-pixel from creating phantom pages. */
+    .sheet {
+      margin: 0; box-shadow: none;
+      width: 11in;
+      height: 7.9in;
+      max-height: 7.9in;
+      overflow: hidden;
+      page-break-after: always;
+      break-after: page;
+      box-sizing: border-box;
+    }
+    .sheet:last-child { page-break-after: auto; break-after: auto; }
     .preview-nav, .fold-note, .panel-label { display: none !important; }
-    .panel { border-right: none; }
-    @page { size: 11in 8.5in; margin: 0; }
+    /* Panels bottom-justified so tail content (footer/contact/MYST) anchors to panel bottom —
+       any remaining blank redistributes evenly instead of all collecting at the end. */
+    .panel {
+      border-right: none;
+      padding: 0.25in 0.26in;
+      height: 7.9in;
+      overflow: hidden;
+    }
+    @page { size: 11in 8.5in; }
   }
 </style>
 </head>
