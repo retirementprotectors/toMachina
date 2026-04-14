@@ -121,8 +121,27 @@ export const db = getFirestore()
 
 const app = express()
 
-// Global middleware
-app.use(cors({ origin: true }))
+// CORS allowlist (RON-CORS-001). Explicit per TKO-CONSENT-CORS-001 — was `origin: true`
+// which reflected any origin; tightening to a documented list keeps the public
+// /public/sms-consent funnel working from the marketing brand sites while rejecting
+// arbitrary origins. Server-to-server and same-origin callers (no Origin header) pass.
+const CORS_ALLOWLIST: RegExp[] = [
+  /^https:\/\/(www\.)?retireprotected\.com$/,
+  /^https:\/\/(www\.)?retirementprotectors\.com$/,
+  /^https:\/\/[a-z0-9-]+\.tomachina\.com$/,
+  /^https:\/\/[a-z0-9-]+--claude-mcp-484718\.[a-z0-9-]+\.hosted\.app$/,
+  /^https?:\/\/localhost(:\d+)?$/,
+  /^https?:\/\/127\.0\.0\.1(:\d+)?$/,
+]
+app.use(cors({
+  origin: (origin, cb) => {
+    if (!origin) return cb(null, true)
+    if (CORS_ALLOWLIST.some((re) => re.test(origin))) return cb(null, true)
+    return cb(new Error(`CORS: origin ${origin} not allowed`))
+  },
+  credentials: true,
+  maxAge: 86400,
+}))
 
 // GitHub webhook deploy — raw body needed for HMAC-SHA256 validation (TRK-13862)
 // Mounted BEFORE express.json() to capture raw buffer for HMAC validation
