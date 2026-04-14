@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { PipelineKanban, AppWrapper } from '@tomachina/ui'
+import { PipelineKanban, AppWrapper, PipelineFieldsForm } from '@tomachina/ui'
 import { useAuth } from '@tomachina/auth'
 import { ACCOUNT_TYPE_CATEGORIES } from '@tomachina/core'
 import type { AccountTypeCategory } from '@tomachina/core'
@@ -68,6 +68,10 @@ export default function PipelineKanbanPage() {
   const [creating, setCreating] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [refreshKey, setRefreshKey] = useState(0)
+
+  // Pipeline-specific custom_fields — driven by PipelineFieldsForm (RON-OPP-FIELDS-001 PR B)
+  const [pipelineCustomFields, setPipelineCustomFields] = useState<Record<string, unknown>>({})
+  const [pipelineFieldsValid, setPipelineFieldsValid] = useState(true)
 
   // Carrier + advisor data fetched once on mount
   const [carriers, setCarriers] = useState<Carrier[]>([])
@@ -169,11 +173,50 @@ export default function PipelineKanbanPage() {
       return
     }
 
+    if (!pipelineFieldsValid) {
+      setError('Complete all required pipeline fields before creating the case.')
+      return
+    }
+
     setCreating(true)
     setError(null)
 
+    // Two-step create (RON-OPP-FIELDS-001 PR B, Option B parallel records):
+    //   1. POST /api/opportunities → returns the business record id
+    //   2. POST /api/flow/instances with opportunity_id linkage
+    //   3. If step 2 fails, soft-close the orphan opportunity (DELETE /:id sets stage=closed_lost)
+    let createdOpportunityId: string | null = null
+
     try {
-      const res = await fetchWithAuth(`${API_BASE}/flow/instances`, {
+      // ── Step 1: Create the opportunity (business record) ──────────────────
+      const oppRes = await fetchWithAuth(`${API_BASE}/opportunities`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          pipeline: pipelineKey,
+          stage: 'open',
+          client_id: form.entity_id,
+          client_name: form.entity_name.trim(),
+          agent_id: form.assigned_to.trim(),
+          assignee_id: form.assigned_to.trim(),
+          carrier_id: form.carrier_id,
+          carrier: form.carrier,
+          account_type_category: form.account_type_category,
+          custom_fields: pipelineCustomFields,
+          notes: form.notes || '',
+          value: 0,
+          source: 'Manual — ProDashX',
+        }),
+      })
+      const oppJson = (await oppRes.json()) as { success: boolean; data?: { id: string }; error?: string }
+      if (!oppJson.success || !oppJson.data?.id) {
+        setError(oppJson.error || 'Failed to create opportunity.')
+        return
+      }
+      createdOpportunityId = oppJson.data.id
+
+      // ── Step 2: Create the flow_instance, linked via opportunity_id ───────
+      const instRes = await fetchWithAuth(`${API_BASE}/flow/instances`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -182,6 +225,7 @@ export default function PipelineKanbanPage() {
           entity_name: form.entity_name.trim(),
           entity_type: 'CLIENT',
           assigned_to: form.assigned_to.trim(),
+          opportunity_id: createdOpportunityId,
           entity_data: {
             account_type_category: form.account_type_category,
             carrier_id: form.carrier_id,
@@ -189,32 +233,38 @@ export default function PipelineKanbanPage() {
             notes: form.notes || '',
             source: 'Manual — ProDashX',
           },
-          custom_fields: {
-            carrier: form.carrier,
-            account_type_category: form.account_type_category,
-          },
         }),
       })
-
-      const json = await res.json() as { success: boolean; data?: { instance_id: string; tasks_generated: number }; error?: string }
-
-      if (!json.success) {
-        setError(json.error || 'Failed to create case.')
+      const instJson = (await instRes.json()) as { success: boolean; data?: { instance_id: string; tasks_generated: number }; error?: string }
+      if (!instJson.success) {
+        // Orphan cleanup: soft-close the opportunity we just created so it
+        // doesn't linger in the pipeline as a stageless business record.
+        try {
+          await fetchWithAuth(`${API_BASE}/opportunities/${encodeURIComponent(createdOpportunityId)}`, { method: 'DELETE' })
+        } catch { /* best-effort cleanup; user error message below is the actionable signal */ }
+        setError(instJson.error || 'Failed to create case workflow. Opportunity rolled back.')
         return
       }
 
       // Success — close modal, reset state, refresh board
       setShowModal(false)
       setForm({ ...EMPTY_FORM })
+      setPipelineCustomFields({})
       setClientQuery('')
       setClientResults([])
       setRefreshKey((k) => k + 1)
     } catch (err) {
+      // Network error or exception — best-effort orphan cleanup if opp landed
+      if (createdOpportunityId) {
+        try {
+          await fetchWithAuth(`${API_BASE}/opportunities/${encodeURIComponent(createdOpportunityId)}`, { method: 'DELETE' })
+        } catch { /* swallow — user already sees the network error */ }
+      }
       setError(err instanceof Error ? err.message : 'Network error')
     } finally {
       setCreating(false)
     }
-  }, [form, pipelineKey])
+  }, [form, pipelineKey, pipelineCustomFields, pipelineFieldsValid])
 
   const updateField = (field: keyof NewCaseForm, value: string) =>
     setForm((prev) => ({ ...prev, [field]: value }))
@@ -401,6 +451,21 @@ export default function PipelineKanbanPage() {
                 </select>
               </div>
 
+              {/* Pipeline-specific custom fields (RON-OPP-FIELDS-001 PR B) */}
+              <div>
+                <label className="mb-1 block text-xs font-medium text-[var(--text-secondary)]">Pipeline Details</label>
+                <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-primary)]/40 p-3">
+                  <PipelineFieldsForm
+                    pipelineKey={pipelineKey}
+                    mode="create"
+                    values={pipelineCustomFields}
+                    onChange={setPipelineCustomFields}
+                    onValidityChange={setPipelineFieldsValid}
+                    disabled={creating}
+                  />
+                </div>
+              </div>
+
               {/* Notes */}
               <div>
                 <label className="mb-1 block text-xs font-medium text-[var(--text-secondary)]">Notes</label>
@@ -424,7 +489,7 @@ export default function PipelineKanbanPage() {
               </button>
               <button
                 onClick={handleCreate}
-                disabled={creating}
+                disabled={creating || !pipelineFieldsValid}
                 className="flex items-center gap-1.5 rounded-lg px-5 py-2 text-sm font-semibold text-white transition-all hover:brightness-110 disabled:opacity-50"
                 style={{ background: 'var(--portal)' }}
               >
