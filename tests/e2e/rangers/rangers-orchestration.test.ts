@@ -10,8 +10,8 @@ import { resolve } from 'path'
 const repoRoot = resolve(__dirname, '..', '..', '..')
 const routePath = resolve(repoRoot, 'services/api/src/routes/rangers.ts')
 const serverPath = resolve(repoRoot, 'services/api/src/server.ts')
-const meshViewPath = resolve(repoRoot, 'packages/ui/src/modules/MegazordMeshView.tsx')
-const commandCenterPath = resolve(repoRoot, 'packages/ui/src/modules/MegazordCommandCenter.tsx')
+const meshViewPath = resolve(repoRoot, 'packages/ui/src/modules/Megazord/MegazordMeshView.tsx')
+const commandCenterPath = resolve(repoRoot, 'packages/ui/src/modules/Megazord/MegazordCommandCenter.tsx')
 const basePath = resolve(repoRoot, 'services/api/src/rangers/ranger-base.ts')
 const indexPath = resolve(repoRoot, 'services/api/src/rangers/index.ts')
 

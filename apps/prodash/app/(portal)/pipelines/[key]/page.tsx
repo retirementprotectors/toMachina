@@ -312,9 +312,9 @@ export default function PipelineKanbanPage() {
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
           onClick={(e) => { if (e.target === e.currentTarget) setShowModal(false) }}
         >
-          <div className="w-full max-w-lg rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)] shadow-2xl">
+          <div className="flex max-h-[90vh] w-full max-w-lg flex-col rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)] shadow-2xl">
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-[var(--border-subtle)] px-6 py-4">
+            <div className="flex shrink-0 items-center justify-between border-b border-[var(--border-subtle)] px-6 py-4">
               <div className="flex items-center gap-3">
                 <div
                   className="flex h-9 w-9 items-center justify-center rounded-lg"
@@ -333,7 +333,7 @@ export default function PipelineKanbanPage() {
             </div>
 
             {/* Body */}
-            <div className="space-y-4 px-6 py-5">
+            <div className="flex-1 space-y-4 overflow-y-auto px-6 py-5">
               {error && (
                 <div className="flex items-center gap-2 rounded-lg bg-[rgba(239,68,68,0.1)] px-3 py-2 text-sm text-[var(--error)]">
                   <span className="material-icons-outlined" style={{ fontSize: '16px' }}>warning</span>
@@ -484,7 +484,7 @@ export default function PipelineKanbanPage() {
             </div>
 
             {/* Footer */}
-            <div className="flex items-center justify-end gap-3 border-t border-[var(--border-subtle)] px-6 py-4">
+            <div className="flex shrink-0 items-center justify-end gap-3 border-t border-[var(--border-subtle)] px-6 py-4">
               <button
                 onClick={() => setShowModal(false)}
                 className="rounded-lg border border-[var(--border-subtle)] px-4 py-2 text-sm font-medium text-[var(--text-secondary)] transition-colors hover:text-[var(--text-primary)]"
