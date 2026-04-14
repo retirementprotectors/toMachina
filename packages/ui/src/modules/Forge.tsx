@@ -102,6 +102,7 @@ const STATUS_CONFIG: Record<string, { color: string; bg: string; label: string }
   // Legacy (kept for old items not yet migrated)
   done:            { color: 'rgb(34,197,94)', bg: 'rgba(34,197,94,0.15)', label: 'Done' },
   escalated:       { color: 'rgb(239,68,68)', bg: 'rgba(239,68,68,0.15)', label: 'Escalated' },
+  ready:           { color: 'rgb(16,185,129)', bg: 'rgba(16,185,129,0.15)', label: 'Ready' },
   // Terminal statuses
   deferred:        { color: 'rgb(156,163,175)', bg: 'rgba(156,163,175,0.15)', label: 'Deferred' },
   wont_fix:        { color: 'rgb(100,116,139)', bg: 'rgba(100,116,139,0.15)', label: "Won't Fix" },
@@ -1464,7 +1465,7 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
             marginBottom: -1, transition: 'all 0.15s',
           }}
         >
-          <span style={{ fontSize: 14 }}>{'\u{1F4A9}'}</span>
+          <span style={{ fontSize: 14 }}>{'⚡'}</span>
           RAIDEN
         </button>
         {/* Tab: RONIN */}
@@ -1479,7 +1480,7 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
             marginBottom: -1, transition: 'all 0.15s',
           }}
         >
-          <span style={{ fontSize: 14 }}>{'\u{1F4A9}'}</span>
+          <span style={{ fontSize: 14 }}>{'🗡️'}</span>
           RONIN
         </button>
         {/* Tab: VOLTRON */}
@@ -1494,7 +1495,7 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
             marginBottom: -1, transition: 'all 0.15s',
           }}
         >
-          <span style={{ fontSize: 14 }}>{'\u{1F4A9}'}</span>
+          <span style={{ fontSize: 14 }}>{'🦁'}</span>
           VOLTRON
         </button>
         {/* Tab: MUSASHI */}
@@ -1509,7 +1510,7 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
             marginBottom: -1, transition: 'all 0.15s',
           }}
         >
-          <span style={{ fontSize: 14 }}>{'\u{1F4A9}'}</span>
+          <span style={{ fontSize: 14 }}>{'⚔️'}</span>
           MUSASHI
         </button>
         {/* Tab: MEGAZORD */}
