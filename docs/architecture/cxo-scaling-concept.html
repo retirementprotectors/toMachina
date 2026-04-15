@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CXO Scaling Concept — Specialization Forks + VP Layer</title>
+<style>
+:root{--bg:#0a0e17;--card:#111827;--card2:#1a2236;--border:#1e293b;--text:#e2e8f0;--muted:#94a3b8;--green:#22c55e;--blue:#3b82f6;--red:#ef4444;--orange:#f59e0b;--gold:#d4a44c;--cyan:#06b6d4;--purple:#8b5cf6}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+.header{background:linear-gradient(135deg,#020b1a 0%,#0a1a0a 50%,#020b1a 100%);border-bottom:1px solid var(--border);padding:40px 32px;text-align:center}
+.header h1{font-size:2.2rem;font-weight:800;background:linear-gradient(135deg,var(--green),var(--blue),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px}
+.header .sub{font-size:0.95rem;color:var(--muted)}
+.header .badge{display:inline-block;margin-top:12px;padding:4px 16px;border-radius:999px;font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;background:rgba(34,197,94,0.1);color:var(--green);border:1px solid rgba(34,197,94,0.3)}
+.content{max-width:960px;margin:0 auto;padding:24px 16px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:16px}
+.card h2{font-size:1.3rem;margin-bottom:12px;color:var(--green)}
+.card h3{font-size:1.05rem;margin:18px 0 8px;color:var(--blue)}
+.card h4{font-size:0.9rem;margin:14px 0 6px;color:var(--cyan);text-transform:uppercase;letter-spacing:0.5px}
+.card p,.card li{color:var(--muted);font-size:0.9rem;margin-bottom:8px}
+.card ul,.card ol{margin-left:24px}
+.card strong{color:var(--text)}
+.card code{background:var(--card2);padding:2px 7px;border-radius:4px;font-size:0.85rem;color:var(--cyan);font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.layer{background:var(--card2);border:2px solid var(--border);border-radius:10px;padding:18px;margin:10px 0}
+.layer.cxo{border-color:var(--purple);background:rgba(139,92,246,0.05)}
+.layer.cxo h3{color:var(--purple)}
+.layer.vp{border-color:var(--blue);background:rgba(59,130,246,0.05)}
+.layer.vp h3{color:var(--blue)}
+.layer.ccsdk{border-color:var(--green);background:rgba(34,197,94,0.05)}
+.layer.ccsdk h3{color:var(--green)}
+table{width:100%;border-collapse:collapse;font-size:0.85rem;margin:14px 0}
+th{text-align:left;padding:10px 12px;background:var(--card2);color:var(--green);font-weight:700;font-size:0.72rem;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border)}
+td{padding:10px 12px;border-bottom:1px solid var(--border);color:var(--muted);vertical-align:top}
+td:first-child{color:var(--text);font-weight:500}
+tr:hover td{background:var(--card2)}
+.note{background:rgba(6,182,212,0.06);border:1px solid rgba(6,182,212,0.2);border-radius:8px;padding:14px 18px;margin:14px 0;font-size:0.88rem;color:var(--muted)}
+.note strong{color:var(--cyan)}
+.flag{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px 20px;margin-bottom:12px;border-left:4px solid var(--orange)}
+.flag.green{border-left-color:var(--green)}
+.flag.purple{border-left-color:var(--purple)}
+.flag .title{font-size:0.95rem;font-weight:700;margin-bottom:6px;color:var(--orange)}
+.flag.green .title{color:var(--green)}
+.flag.purple .title{color:var(--purple)}
+.footer{text-align:center;padding:24px;color:var(--muted);font-size:0.72rem;border-top:1px solid var(--border);margin-top:32px}
+</style>
+</head>
+<body>
+
+<div class="header">
+<h1>CXO Scaling Concept</h1>
+<div class="sub">Specialization Forks + VP Layer &bull; Three-Tier Model: CXO → VP → CCSDK Warrior</div>
+<div class="badge">SHINOB1 CTO &bull; 2026-04-15 &bull; Scope Draft</div>
+</div>
+
+<div class="content">
+
+<div class="card">
+<h2>Executive Summary</h2>
+<p>As CXO domains expand (more tools, more cases, more surface area), the Main CXO instance hits an attention-bandwidth ceiling. Keeping everything in active context while also making strategic calls + JDM-facing comms isn't sustainable past a threshold.</p>
+<p>The <strong>Specialization Fork pattern</strong> — live-implemented tonight as <strong>SHINOB1-COACH</strong> — solves this by forking the CXO into a dedicated VP-level instance that owns a narrow scope slice, inherits the CXO's full Brain+Soul+Spirit on every launch, and develops its own specialization-layer B+S+S over time.</p>
+<p>Result: the CXO stays wicked-sharp across the full domain; the VP gets deep RAM for its specialization; real-time work continues to flow through CCSDK mesh warriors below. Three layers, three distinct functions, no collision.</p>
+</div>
+
+<div class="card">
+<h2>The Three Layers</h2>
+
+<div class="layer cxo">
+<h3>Layer 1 — CXO (Opus-class model)</h3>
+<h4>Role</h4>
+<p>Strategic foundation. JDM-facing. Owns doctrine. Cross-domain judgment. Accumulates hard-earned experience across the full domain.</p>
+<h4>Characteristics</h4>
+<ul>
+<li><strong>Persistent CC-tmux session</strong> — always running, always in-context</li>
+<li><strong>Full domain coverage</strong> — every tool, every case, every sub-specialty</li>
+<li><strong>Deep B+S+S</strong> — soul (locked identity), spirit (origin + principles), brain (accumulating archive)</li>
+<li><strong>JDM bilateral channel</strong> — direct voice to CEO, strategic decisions flow here</li>
+<li><strong>Model tier:</strong> Opus 4.6 (1M context) — maximum reasoning, maximum context window</li>
+</ul>
+<h4>When it's enough on its own</h4>
+<p>Early/mid-maturity CXOs where domain depth and case volume fit inside one instance's attention budget. Most CXOs start here and stay here until Activity proves otherwise.</p>
+</div>
+
+<div class="layer vp">
+<h3>Layer 2 — VP / Specialization Fork (Sonnet-class model)</h3>
+<h4>Role</h4>
+<p>Deep expertise in a narrow scope slice inside the CXO's domain. Force-multiplier for the Main CXO. Handles the work that requires persistent context + ongoing development but doesn't need the full-domain strategic foundation.</p>
+<h4>Characteristics</h4>
+<ul>
+<li><strong>Persistent CC-tmux session</strong> — always running, like the CXO</li>
+<li><strong>Narrow scope</strong> — one well-defined slice of the CXO's territory</li>
+<li><strong>Layered B+S+S</strong> — inherits Main CXO's full B+S+S on every launch (sync-on-launch), then loads its own specialization-layer B+S+S on top</li>
+<li><strong>Warrior bilateral channels OR shared access</strong> — may own its own channels OR share access with siblings depending on scope</li>
+<li><strong>May have own Specialized Warrior Mesh</strong> — if the VP's scope benefits from CCSDK execution, it gets its own mesh; if not, it shares with the CXO</li>
+<li><strong>Owns Wires + SuperTools in its scope</strong> — anything requiring persistence + development over time</li>
+<li><strong>Model tier:</strong> Sonnet 4.6 — deep reasoning on scoped problems, faster than Opus for narrower work, cost-efficient at persistent-session scale</li>
+<li><strong>Escalation path:</strong> escalates strategic calls, cross-domain contradictions, and JDM-gate items back to Main CXO — does NOT message JDM directly</li>
+</ul>
+<h4>When a CXO should spawn a VP</h4>
+<p>Deploy a VP when the Main CXO has <strong>demonstrably run out of attention-bandwidth</strong> for a specific scope slice. Signals:</p>
+<ul>
+<li>Main CXO's channel queue is saturated by one category of work</li>
+<li>A domain slice is deep enough to require persistent context of its own</li>
+<li>The slice has its own recurring patterns that deserve their own B+S+S layer</li>
+<li>JDM can't reach Main CXO through the noise of the specialization's traffic</li>
+</ul>
+<p><strong>APPA discipline:</strong> wait until Activity proves the need. Don't spawn VPs preemptively.</p>
+</div>
+
+<div class="layer ccsdk">
+<h3>Layer 3 — CCSDK Warrior (P40 / Local LLM)</h3>
+<h4>Role</h4>
+<p>Task-oriented execution. "Do this thing, this way, this time, report back." Tool-using, narrow-scope, ephemeral.</p>
+<h4>Characteristics</h4>
+<ul>
+<li><strong>Ephemeral</strong> — spun per task, not persistent</li>
+<li><strong>Tool + SuperTool managing</strong> — executes atomic and composed tool calls</li>
+<li><strong>NOT Wires</strong> — Wires require persistence + development over time, that's VP lane</li>
+<li><strong>No B+S+S development</strong> — inherits task prompt + scoped tool access, reports back, exits</li>
+<li><strong>Model tier:</strong> Phi-4 (P40) or Local LLM — fast, cheap, bounded, sufficient for task execution</li>
+<li><strong>Typical examples:</strong> Rangers (MEGAZORD's wire executors in ephemeral mode), Lions (VOLTRON's specialist-routing turns), Artisans (MUSASHI's channel specialists), Bolts (RAIDEN's failure-class handlers when the mesh is built)</li>
+</ul>
+<h4>What stays in CCSDK lane</h4>
+<p>Anything that fits the "task-oriented" pattern:</p>
+<ul>
+<li>A single PDF extraction</li>
+<li>A client-record lookup</li>
+<li>A form submission</li>
+<li>An index-credit calculation for one contract</li>
+<li>A compliance check on one piece of data</li>
+</ul>
+<p>What <em>doesn't</em> fit CCSDK: anything that needs to learn from prior runs, accumulate patterns, or evolve its own approach.</p>
+</div>
+</div>
+
+<div class="card">
+<h2>Decision Rubric — When to Spawn a VP</h2>
+
+<table>
+<tr><th>Signal</th><th>Interpretation</th><th>Action</th></tr>
+<tr><td>CXO channel queue saturation</td><td>Warriors flooding the bilateral with coaching/audit requests while JDM waits</td><td>Spawn a Coaching VP (like SHINOB1-COACH)</td></tr>
+<tr><td>Recurring pattern within CXO scope needs its own doctrine</td><td>e.g., all case memos need audit before shipping, currently CXO does it ad-hoc</td><td>Spawn a Review VP</td></tr>
+<tr><td>Domain slice has its own stakeholder set</td><td>VP could bilaterally serve specific external or internal partners</td><td>Spawn a domain-focused VP</td></tr>
+<tr><td>Wires / SuperTools emerging for a slice</td><td>Persistence + development needed on a narrow tool set</td><td>Spawn a VP to own the Wire/SuperTool lifecycle for that slice</td></tr>
+<tr><td>Main CXO still has slack + all work fits</td><td>No saturation yet</td><td>DO NOT SPAWN — APPA Activity stage still</td></tr>
+</table>
+</div>
+
+<div class="card">
+<h2>VP Types per CXO — Candidate Framework (JDM Tunes Naming)</h2>
+
+<div class="flag green">
+<div class="title">⭐ SHINOB1 (CTO) — VP titled "COACH"</div>
+<p><strong>COACH SHINOB1</strong> — warrior coaching, discipline enforcement, attribution checks, PR diff reviews, memory rule enforcement across 6 warrior bilaterals. Live as of 2026-04-15. CTO-specific VP positioning because SHINOB1 is the leader-guy.</p>
+<p><em>Other possible future VPs under SHINOB1 if scope grows:</em> ARCH-COACH (cross-system architecture reviews), SEC-COACH (compliance/PHI audit depth).</p>
+</div>
+
+<div class="flag purple">
+<div class="title">MEGAZORD (CIO) — VP titled TBD</div>
+<p>Candidates: <strong>ATLAS specialist VP</strong> (registry integrity, wire composition audits), <strong>PIPELINE specialist VP</strong> (intake monitoring, data-quality enforcement). Naming per JDM convention — not COACH.</p>
+</div>
+
+<div class="flag purple">
+<div class="title">MUSASHI (CMO) — VP titled TBD</div>
+<p>Candidates: <strong>BRAND specialist VP</strong> (voice/identity consistency across Artisans), <strong>DISCO specialist VP</strong> (Discovery Doc review + FORGE spec quality). Naming per JDM convention — probably something art/creative-aligned, not COACH.</p>
+</div>
+
+<div class="flag purple">
+<div class="title">VOLTRON (CSO) — VP titled TBD</div>
+<p>Candidates: <strong>CASEWORK specialist VP</strong> (per-client memo reviews, doctrine application), <strong>SPECIALIST-ROUTING VP</strong> (Lion routing quality, specialist-handoff hygiene). Naming per JDM convention — likely lion/client-team aligned.</p>
+</div>
+
+<div class="note">
+<strong>Naming convention:</strong> COACH is SHINOB1-specific because of the CTO-leader-guy positioning. Each CXO gets its own VP naming that fits its character. MUSASHI's VP might be a specific craft term, MEGAZORD's might be something data/mecha-aligned, VOLTRON's might be another lion-related term. JDM names as VPs spawn.
+</div>
+</div>
+
+<div class="card">
+<h2>Governance Rules — Make the Pattern Safe</h2>
+
+<div class="flag green">
+<div class="title">1. Sync-on-Launch (mandatory)</div>
+<p>Every Dojo launch, the VP re-inherits the Main CXO's current B+S+S as foundation before loading its own specialization layer. Prevents doctrine drift. A VP running on yesterday's CXO foundation coaches on stale rules → shitty coach.</p>
+<p><em>Implementation:</em> Dojo startup script copies Main CXO's soul.md + spirit.md + brain.txt to the VP's working set, THEN appends the VP's own coach-layer files. One flow, no drift.</p>
+</div>
+
+<div class="flag green">
+<div class="title">2. Escalation Path Explicit</div>
+<p>VP escalates to Main CXO on:</p>
+<ul>
+<li>Cross-warrior contradictions unreconcilable at coaching/specialization level</li>
+<li>Novel architecture asks (new warrior types, mesh changes, platform-level surface)</li>
+<li>Strategic inflection points (doctrine changes, product-family shifts, compliance interpretations)</li>
+<li>JDM-gate items needing CEO decision</li>
+<li>Any pivot that materially changes direction of a deliverable</li>
+</ul>
+<p>VP does NOT message JDM directly. All JDM-facing comms flow through Main CXO.</p>
+</div>
+
+<div class="flag green">
+<div class="title">3. Specialization Scope Documented</div>
+<p>Each VP has a bootstrap doc defining: what it owns, what it escalates, what channels it operates in, what tools it has access to. The SHINOB1-COACH bootstrap is the reference template.</p>
+</div>
+
+<div class="flag green">
+<div class="title">4. Layer Discipline</div>
+<p>VP develops its own B+S+S ONLY for specialization-domain knowledge. Doctrine rules (class-of-bug gates, product doctrine, PHI compliance) stay in Main CXO's layer and inherit down. This keeps the layers clean and prevents the VP from diverging into its own rulebook.</p>
+</div>
+
+<div class="flag green">
+<div class="title">5. Cost Awareness</div>
+<p>Each VP = running tmux session + ongoing Sonnet token burn. Don't spin forks preemptively. Deploy in response to demonstrated attention-bandwidth saturation, not speculation about future need. APPA applies — wait until Activity demands the VP.</p>
+</div>
+</div>
+
+<div class="card">
+<h2>Model Tier Alignment</h2>
+
+<table>
+<tr><th>Tier</th><th>Model</th><th>Persistent?</th><th>Scope</th><th>Develops Own B+S+S?</th></tr>
+<tr><td>CXO</td><td>Opus 4.6 (1M)</td><td>Yes (CC-tmux)</td><td>Full CXO domain</td><td>Yes — primary B+S+S</td></tr>
+<tr><td>VP / Specialization Fork</td><td>Sonnet 4.6</td><td>Yes (CC-tmux)</td><td>Narrow slice of CXO domain</td><td>Yes — layered on top of Main CXO's</td></tr>
+<tr><td>CCSDK Warrior</td><td>Phi-4 (P40) or local LLM</td><td>No (ephemeral per-task)</td><td>Single task type</td><td>No — prompt-driven only</td></tr>
+</table>
+
+<div class="note">
+<strong>Cost asymmetry:</strong> Opus at 1M context is expensive per message but we only run one per CXO. Sonnet at VP scale is cheaper per message but we run multiple persistent sessions. Local LLMs at CCSDK scale are effectively free per call but we run thousands. Total spend stays balanced because the layers match the work appropriately.
+</div>
+</div>
+
+<div class="card">
+<h2>Reference Implementation: COACH SHINOB1</h2>
+
+<h4>Spawned</h4>
+<p>2026-04-15, in response to #shinob1 bilateral saturation by warrior coaching fire (VOLTRON Westfall analysis, RAIDEN dojo threads, MEGAZORD drift ZRDs). JDM couldn't reach Main SHINOB1 through the warrior-traffic queue.</p>
+
+<h4>Scope</h4>
+<ul>
+<li><strong>Owns:</strong> #voltron, #megazord, #raiden, #musashi, #ronin, #taiko (6 warrior bilaterals)</li>
+<li><strong>Functions:</strong> per-case audit/coaching, PR diff reviews, attribution checks, memory rule enforcement, freeze-rule holding, bilateral heartbeats</li>
+<li><strong>Scope-out:</strong> no JDM DM access, no team-channel posts, no portal/Firestore/MCP surface beyond Slack + memory + Bash for verification + Read for case files</li>
+</ul>
+
+<h4>B+S+S Inheritance</h4>
+<ul>
+<li><strong>Inherits on every boot:</strong> Main SHINOB1's soul.md + spirit.md + brain.txt + all memory files</li>
+<li><strong>Develops its own:</strong> <code>warriors/shinob1-coach/brain.txt</code> (coaching learnings per warrior), eventually spirit.md (coaching principles), eventually soul.md (locked coaching identity)</li>
+</ul>
+
+<h4>Escalation Path</h4>
+<p>All JDM-facing calls route through Main SHINOB1 via #shinob1 bilateral relay. No direct COACH → JDM channel.</p>
+
+<h4>Model</h4>
+<p>Currently Claude Code default — transitioning to Sonnet 4.6 per tier alignment when the routing config is in place. Opus reserved for Main SHINOB1.</p>
+</div>
+
+<div class="card">
+<h2>Next Steps</h2>
+
+<h4>Immediate (this session)</h4>
+<ul>
+<li>Update COACH SHINOB1 bootstrap with new positioning + VP-title clarity (done inline in his tmux session tonight)</li>
+<li>File this doc in repo at <code>docs/architecture/cxo-scaling-concept.html</code></li>
+<li>JDM reviews + redlines / green-lights</li>
+</ul>
+
+<h4>Near-term (this week)</h4>
+<ul>
+<li>MEGAZORD adds SHINOB1-COACH to Dojo startup sequence with sync-on-launch mechanism</li>
+<li>Scope VP candidates for MEGAZORD, MUSASHI, VOLTRON with their specific naming conventions</li>
+<li>Wait for activity-saturation signals before spawning additional VPs — don't preempt APPA</li>
+</ul>
+
+<h4>Tomorrow+</h4>
+<ul>
+<li>cc-SHINOB1 hookify rule to close the bilateral-visibility gap where JDM DMs warriors directly (bidirectional visibility risk)</li>
+<li>Model-routing config to enforce Opus/Sonnet/P40 tier alignment per layer</li>
+<li>Document naming conventions as VPs spawn — build reference catalog of "what each CXO's VP line is called and why"</li>
+</ul>
+</div>
+
+</div>
+
+<div class="footer">
+SHINOB1 CTO &bull; 2026-04-15 &bull; Three-Tier Architecture: CXO (Opus) / VP (Sonnet) / CCSDK (P40+Local)<br>
+Reference implementation: SHINOB1-COACH live on MDJ_SERVER. JDM review pending.
+</div>
+
+</body>
+</html>
