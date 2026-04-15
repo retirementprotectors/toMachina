@@ -296,6 +296,11 @@ export function ReportButton({ portal }: ReportButtonProps) {
     setSubmitError('')
 
     try {
+      // DOJO-REPORTER-DIRECT-ROUTE (2026-04-15): defer the channel post
+      // until after attachments have uploaded — the `/:id/announce` call
+      // below fires once media is in place so the Slack message carries
+      // signed screenshot/recording links from the first post. Source is
+      // tagged so the backend can filter analytics on reporter-origin.
       const result = await fetchValidated<{ id?: string; item_id?: string }>('/api/tracker', {
         method: 'POST',
         body: JSON.stringify({
@@ -307,6 +312,8 @@ export function ReportButton({ portal }: ReportButtonProps) {
           component: autoFields.component || '',
           section: autoFields.section || '',
           status: 'INT-new',
+          source: 'dojo_reporter',
+          defer_channel_post: true,
           notes: `Reported by ${user?.email || 'unknown'}\nURL: ${autoFields.url}`,
         }),
       })
@@ -352,6 +359,27 @@ export function ReportButton({ portal }: ReportButtonProps) {
         if (!recResult.success) {
           setSubmitError(`Ticket created (${itemId}) but recording failed: ${recResult.error || 'Unknown error'}`)
           attachmentFailed = true
+        }
+      }
+
+      // DOJO-REPORTER-DIRECT-ROUTE (2026-04-15): announce to #the-dojo
+      // now that attachments have landed. Endpoint is idempotent — a
+      // repeat call returns announced:false / already_announced. We
+      // treat any failure here as non-fatal (ticket + attachments
+      // already exist; users still see submission confirmation) but
+      // surface in the error banner for visibility.
+      if (itemId) {
+        try {
+          const announceResult = await fetchValidated(`/api/tracker/${itemId}/announce`, {
+            method: 'POST',
+            body: JSON.stringify({}),
+          })
+          if (!announceResult.success && !attachmentFailed) {
+            // Non-fatal — ticket is live, just note the channel post didn't land.
+            console.warn(`[dojo-reporter] ${itemId} channel announce failed:`, announceResult.error)
+          }
+        } catch (announceErr) {
+          console.warn(`[dojo-reporter] ${itemId} channel announce threw:`, announceErr)
         }
       }
 
