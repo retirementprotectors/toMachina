@@ -168,7 +168,7 @@ clientRoutes.get('/:id/farm-holdings-valued', async (req: Request, res: Response
     const id = param(req.params.id)
     const yearParam = req.query.year ? Number(req.query.year) : undefined
     const { valueClientHoldings } = await import('./valuation.js')
-    const result = await valueClientHoldings(req.partnerId, id, yearParam)
+    const result = await valueClientHoldings(req.partnerId ?? undefined, id, yearParam)
     res.json(successResponse(result))
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)

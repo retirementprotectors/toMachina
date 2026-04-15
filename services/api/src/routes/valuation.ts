@@ -38,9 +38,9 @@ import { Router, type Request, type Response } from 'express'
 import { getDb } from '../lib/db.js'
 import { successResponse, errorResponse, validateRequired } from '../lib/helpers.js'
 import {
-  executeFarmlandValuation,
+  execute as executeFarmlandValuation,
   type FarmlandRowLoader,
-} from '@tomachina/core/src/atlas/super-tools/farmland-valuation'
+} from '@tomachina/core/atlas/super-tools/farmland-valuation'
 import type {
   FarmlandValuationResponse,
   FarmlandValueRow,
@@ -111,7 +111,7 @@ valuationRoutes.post('/farmland', async (req: Request, res: Response) => {
       typeof body.acres === 'number' && Number.isFinite(body.acres) ? body.acres : null
     const forceRefresh = body.force_refresh === true
 
-    const loadRow = buildFarmlandLoader(req.partnerId)
+    const loadRow = buildFarmlandLoader(req.partnerId ?? undefined)
     const result = await executeFarmlandValuation({
       county,
       state,
