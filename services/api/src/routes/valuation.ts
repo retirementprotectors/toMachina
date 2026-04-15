@@ -223,9 +223,15 @@ export async function valueClientHoldings(
 //
 // Annual cache-seeder execution handler for WIRE_FARMLAND_VALUE_SEED
 // (FV-005 definition in packages/core/src/atlas/wires/). Fetches the
-// current ISU Extension Iowa Land Value Survey PDF, parses 99 counties ×
-// 3 tiers = 297 rows, upserts them into the `farmland_values`
-// collection, and posts a completion summary to #megazord.
+// annual ISU Farmland Value xlsx from the CARD Farmland portal, parses
+// it into 99 county_avg + 9 district_weighted_avg + 27 district_tier =
+// 135 rows, upserts them into the `farmland_values` collection, and
+// posts a completion summary to #megazord.
+//
+// v2 notes (2026-04-15): CARD xlsx replaces the ISU Extension PDF as the
+// source (PDF was image-based; xlsx is ISU's canonical machine-readable
+// source). No caller-injected extractor needed — @tomachina/core bundles
+// `xlsx` directly.
 //
 // Trigger surface
 //   - Cloud Scheduler cron `farmland-value-seed-annual` (0 6 15 1 *)
@@ -272,21 +278,8 @@ valuationRoutes.post('/seed', async (req: Request, res: Response) => {
   const manual = body.manual_trigger === true
 
   try {
-    // ── Resolve PDF text extractor (caller-side dep) ──────────────────
-    const textExtractor = await resolvePdfTextExtractor()
-    if (!textExtractor) {
-      const result = buildSeedError(
-        started,
-        year,
-        'No PDF text extractor available in this runtime. Install pdf-parse on the Cloud Run image.',
-      )
-      await postSeedSummaryToSlack(result, { manual })
-      res.status(500).json(errorResponse(result.error!))
-      return
-    }
-
-    // ── Fetch + parse ISU PDF ─────────────────────────────────────────
-    const parseResult = await executeIsuLandValueParse({ year, textExtractor })
+    // ── Fetch + parse ISU xlsx (CARD Farmland portal) ─────────────────
+    const parseResult = await executeIsuLandValueParse({ year })
     if (!parseResult.success || !parseResult.data) {
       const result = buildSeedError(
         started,
@@ -364,29 +357,6 @@ function extractMissingCounties(warnings: string[]): string[] {
     if (m) return m[1].split(',').map((s) => s.trim()).filter(Boolean)
   }
   return []
-}
-
-/**
- * Dynamic import of `pdf-parse`. Kept behind a try/catch so a missing
- * runtime dep produces a graceful error rather than a 500 at module load.
- * When services/api ships with pdf-parse declared in package.json, this
- * resolves; otherwise the seed returns a structured error and Slack
- * notification fires regardless.
- */
-async function resolvePdfTextExtractor(): Promise<((bytes: ArrayBuffer) => Promise<string>) | null> {
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const mod: any = await import('pdf-parse').catch(() => null)
-    const pdfParse = mod?.default ?? mod
-    if (typeof pdfParse !== 'function') return null
-    return async (bytes: ArrayBuffer) => {
-      const buf = Buffer.from(bytes)
-      const parsed = await pdfParse(buf)
-      return String(parsed?.text ?? '')
-    }
-  } catch {
-    return null
-  }
 }
 
 /**
