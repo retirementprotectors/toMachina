@@ -3,140 +3,608 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Chris + Colleen Westfall — Pre-Retirement Income Roadmap</title>
+<title>Chris &amp; Colleen Westfall — Pre-Retirement Income Roadmap</title>
 <style>
-:root{--bg:#0a0e17;--card:#111827;--card2:#1a2236;--border:#1e293b;--text:#e2e8f0;--muted:#94a3b8;--green:#22c55e;--blue:#3b82f6;--red:#ef4444;--orange:#f59e0b;--gold:#d4a44c;--cyan:#06b6d4}
+:root{--bg:#0a0e17;--card:#111827;--card2:#1a2236;--border:#1e293b;--text:#e2e8f0;--muted:#94a3b8;--green:#22c55e;--blue:#3b82f6;--red:#ef4444;--orange:#f59e0b;--gold:#d4a44c;--cyan:#06b6d4;--purple:#8b5cf6}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.65;padding:40px 24px}
-.wrap{max-width:920px;margin:0 auto}
-h1{font-size:1.9rem;font-weight:800;background:linear-gradient(135deg,var(--green),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px;line-height:1.25}
-h2{font-size:1.25rem;margin:32px 0 12px;color:var(--text);padding-bottom:6px;border-bottom:1px solid var(--border)}
-h3{font-size:1.02rem;margin:20px 0 8px;color:var(--green)}
-p,li{color:var(--muted);margin-bottom:8px}
-strong{color:var(--text)}
-code{background:var(--card2);padding:2px 7px;border-radius:4px;font-size:0.82rem;color:var(--cyan);font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
-blockquote{background:rgba(6,182,212,0.06);border-left:3px solid var(--cyan);padding:12px 18px;margin:14px 0;border-radius:0 8px 8px 0}
-blockquote p{color:var(--muted);margin:0;font-size:0.88rem}
-.warn{background:rgba(245,158,11,0.08);border-left:3px solid var(--orange);padding:12px 18px;margin:14px 0;border-radius:0 8px 8px 0}
-.warn p{color:var(--muted);margin:0;font-size:0.88rem}
-ul,ol{margin:10px 0 12px 24px}
-li{margin-bottom:6px}
-table{width:100%;border-collapse:collapse;margin:14px 0;font-size:0.88rem;background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden}
-th{text-align:left;padding:10px 12px;background:var(--card2);color:var(--green);font-weight:700;font-size:0.75rem;text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid var(--border)}
-td{padding:10px 12px;border-bottom:1px solid var(--border);color:var(--muted);vertical-align:top}
-tr:last-child td{border-bottom:none}
-a{color:var(--blue);text-decoration:none}
-a:hover{text-decoration:underline}
-.footer{text-align:center;padding:32px 0 0;color:var(--muted);font-size:0.72rem;border-top:1px solid var(--border);margin-top:44px}
-input[type="checkbox"]{accent-color:var(--green);margin-right:6px}
-.checklist li{list-style:none;margin-left:-20px}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+.header{background:linear-gradient(135deg,#020b1a 0%,#0a1a0a 50%,#020b1a 100%);border-bottom:1px solid var(--border);padding:40px 32px;text-align:center;position:relative;overflow:hidden}
+.header::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(ellipse at 30% 50%,rgba(34,197,94,0.06) 0%,transparent 50%),radial-gradient(ellipse at 70% 50%,rgba(59,130,246,0.04) 0%,transparent 50%);pointer-events:none}
+.header h1{font-size:2.2rem;font-weight:800;background:linear-gradient(135deg,var(--green),var(--blue),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px;position:relative}
+.header .sub{font-size:0.95rem;color:var(--muted);position:relative}
+.header .badge{display:inline-block;margin-top:12px;padding:4px 16px;border-radius:999px;font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;background:rgba(34,197,94,0.1);color:var(--green);border:1px solid rgba(34,197,94,0.3);position:relative}
+.tab-bar{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px solid var(--border);overflow-x:auto;display:flex;max-width:1100px;margin:0 auto;padding:0 8px}
+.tab{padding:14px 18px;font-size:0.82rem;font-weight:600;color:var(--muted);cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;transition:all .2s}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--green);border-bottom-color:var(--green)}
+.content{max-width:1100px;margin:0 auto;padding:24px 16px}
+.panel{display:none}
+.panel.active{display:block}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:16px}
+.card h2{font-size:1.15rem;margin-bottom:12px}
+.card h3{font-size:0.95rem;margin:14px 0 8px;color:var(--green)}
+.card h4{font-size:0.88rem;margin:12px 0 6px;color:var(--blue)}
+.card p,.card li{color:var(--muted);font-size:0.88rem;margin-bottom:6px}
+.card ul,.card ol{margin-left:20px}
+.card strong{color:var(--text)}
+.stat-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:20px}
+.stat{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:18px;text-align:center}
+.stat .num{font-size:1.8rem;font-weight:800;color:var(--green);line-height:1}
+.stat .lbl{font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:4px}
+.stat.warn .num{color:var(--red)}
+.stat.orange .num{color:var(--orange)}
+.stat.blue .num{color:var(--blue)}
+table{width:100%;border-collapse:collapse;font-size:0.8rem;margin:10px 0}
+th{text-align:left;padding:8px 10px;background:var(--card2);color:var(--green);font-weight:700;font-size:0.7rem;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border)}
+td{padding:8px 10px;border-bottom:1px solid var(--border);color:var(--muted);vertical-align:top}
+td:first-child{color:var(--text);font-weight:500}
+tr:hover td{background:var(--card2)}
+tr.totals td{font-weight:700;color:var(--text);border-top:2px solid var(--border)}
+.flag{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin-bottom:12px;border-left:4px solid var(--muted)}
+.flag.red{border-left-color:var(--red)}
+.flag.orange{border-left-color:var(--orange)}
+.flag.blue{border-left-color:var(--blue)}
+.flag.green{border-left-color:var(--green)}
+.flag .title{font-size:0.9rem;font-weight:700;margin-bottom:4px}
+.flag.red .title{color:var(--red)}
+.flag.orange .title{color:var(--orange)}
+.flag.blue .title{color:var(--blue)}
+.flag.green .title{color:var(--green)}
+.flag p{font-size:0.85rem;color:var(--muted);margin:4px 0}
+.flag .action{margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
+.flag .action strong{color:var(--green);font-size:0.78rem;text-transform:uppercase;letter-spacing:1px}
+.note{background:rgba(6,182,212,0.06);border:1px solid rgba(6,182,212,0.2);border-radius:8px;padding:14px 18px;margin:14px 0;font-size:0.85rem;color:var(--muted)}
+.note strong{color:var(--cyan)}
+.am-action{background:rgba(239,68,68,0.06);border:2px solid rgba(239,68,68,0.4);border-radius:10px;padding:18px 22px;margin:14px 0}
+.am-action h3{color:var(--red);font-size:0.85rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.am-action ol{margin-left:24px}
+.am-action li{color:var(--text);font-size:0.9rem;margin-bottom:6px}
+.reco-section{background:rgba(34,197,94,0.04);border:1px solid rgba(34,197,94,0.25);border-radius:12px;padding:20px;margin-bottom:18px}
+.reco-section h3{color:var(--green);font-size:1rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}
+.reco-section.purple{background:rgba(139,92,246,0.04);border-color:rgba(139,92,246,0.25)}
+.reco-section.purple h3{color:var(--purple)}
+.reco-section.gold{background:rgba(212,164,76,0.04);border-color:rgba(212,164,76,0.3)}
+.reco-section.gold h3{color:var(--gold)}
+.reco-section.blue{background:rgba(59,130,246,0.04);border-color:rgba(59,130,246,0.25)}
+.reco-section.blue h3{color:var(--blue)}
+.footer{text-align:center;padding:24px;color:var(--muted);font-size:0.72rem;border-top:1px solid var(--border);margin-top:32px}
+@media print{body{background:#fff;color:#000}.header{background:#f8f8f8;border-bottom:2px solid #000}.header h1{-webkit-text-fill-color:#000;color:#000}.tab-bar{display:none}.panel{display:block!important;page-break-inside:avoid}.card,.stat,.flag{background:#fff;border-color:#ccc}th{background:#eee;color:#000}td,.card p,.card li,.flag p{color:#333}.stat .num{color:#000}.footer{color:#666}}
 </style>
 </head>
 <body>
-<div class="wrap">
 
-<h1>Chris + Colleen Westfall — Pre-Retirement Income Roadmap</h1>
+<div class="header">
+<h1>Chris &amp; Colleen Westfall &mdash; Pre-Retirement Income Roadmap</h1>
+<div class="sub">Chris ~Age 66 (FB issue age 58 in 2018) &bull; Colleen ~Age 68 (FB issue age 64 in 2022) &bull; Iowa City IA<br>Active Iowa Farmers &bull; SSI Deferral Bridge Strategy &bull; CD Repositioning Opportunity<br>Purpose: Pre-Retirement Income Architecture + CD Repositioning + Farm-Income Bridge</div>
+<div class="badge">SHINOB1 CTO &bull; 2026-04-15 &bull; PRE-MEETING ROADMAP</div>
+</div>
 
-<blockquote><p><strong>Draft — 2026-04-14</strong> · VOLTRON CSO · Source: Josh Archer case notes + existing Firestore client record + Farm Bureau policy PDF (scanned, CamScanner — full extraction pending platform intake fix). Data gaps flagged inline.</p></blockquote>
+<div class="tab-bar">
+<div class="tab active" onclick="showPanel('agenda',this)">AGENDA</div>
+<div class="tab" onclick="showPanel('summary',this)">SUMMARY</div>
+<div class="tab" onclick="showPanel('keydates',this)">KEY DATES</div>
+<div class="tab" onclick="showPanel('chris',this)">CHRIS</div>
+<div class="tab" onclick="showPanel('colleen',this)">COLLEEN</div>
+<div class="tab" onclick="showPanel('income',this)">INCOME PROFILE</div>
+<div class="tab" onclick="showPanel('cds',this)">CD STRATEGY</div>
+<div class="tab" onclick="showPanel('flags',this)">FLAGS</div>
+<div class="tab" onclick="showPanel('reco',this)" style="color:var(--green);font-weight:700">⭐ RECOMMENDATIONS</div>
+<div class="tab" onclick="showPanel('next',this)">NEXT STEPS</div>
+</div>
 
-<h2>Household</h2>
+<div class="content">
+
+<!-- AGENDA -->
+<div id="agenda" class="panel active">
+
+<div class="am-action">
+<h3>🚨 PRE-MEETING ACTION ITEMS — Run before walking in</h3>
+<ol>
+<li><strong>Resolve Chris's DOB discrepancy</strong> — Firestore says 1959, Archer notes "12/29/66", FB policy issue age 58 in 2018 (= ~1960). Get DL from Chris.</li>
+<li><strong>Confirm Chris SSI activation date</strong> — Sept or Oct 2026. Confirm projected $2,400/mo with SSA.</li>
+<li><strong>Pull current statements:</strong> Chris FB IRA FIA #006029566X (last $70,128 as of 4/10/2025), Colleen FB Roth #006149378F (last $28,224 as of 1/18/2025).</li>
+<li><strong>Get Chris CD maturity schedule</strong> — 4 CDs, $160K @ 3%. Need carriers + maturity dates.</li>
+<li><strong>Confirm Chris IRA outside FB</strong> — separate IRA or is the FB IRA FIA his only one?</li>
+<li><strong>Confirm Colleen Trad IRA existence</strong> — "cook to 73" only applies to Trad, not Roth.</li>
+<li><strong>Run NAC CP10 base illustration</strong> for Chris CD repositioning (NQ flex-premium).</li>
+<li><strong>Run Roth MYGA quote</strong> for Colleen Roth repositioning.</li>
+<li><strong>Run Chris GLWB activation comparison</strong> — activate now (5%) vs defer to age 70 (5.5%) vs defer to age 75 (6.5%).</li>
+<li><strong>COF assignment opportunity for Colleen</strong> — Chris assigned to RPI, Colleen not yet.</li>
+</ol>
+</div>
+
+<div class="card">
+<h2>Meeting Agenda — Westfall Pre-Retirement Income Architecture</h2>
+<p>Chris is in the final stretch before Social Security activation (Sept/Oct 2026). His farm-income picture is steady but the lump-sum-asset side (CDs + IRA) is sub-optimally deployed for the next decade. The driving question for this meeting: <strong>how do we restructure the CDs + IRA to generate optimal income post-FRA, while preserving Colleen's already-flowing SSI + IPERS + Roth treatment, AND solve the COF-assignment opportunity on Colleen's side?</strong></p>
+</div>
+
+<div class="card">
+<h3>1 — Snapshot</h3>
+<ul>
+<li><strong>Chris Westfall:</strong> ~Age 66 (FB issue age 58 in 2018 confirms ~1960 birth). Pre-FRA. SSI activation Sept/Oct 2026 per Archer. Active Iowa farmer.</li>
+<li><strong>Colleen Westfall:</strong> ~Age 68 (FB issue age 64 in 2022). Past FRA, drawing SSI + IPERS. Roth IRA holder.</li>
+<li><strong>Address:</strong> Iowa City, IA 52240</li>
+<li><strong>Investment Professional / Agent of Record:</strong> Reid Hockenson (Farm Bureau side, per Colleen's FB statement)</li>
+<li><strong>RPI relationship:</strong> Active client. Chris's COF policy assigned to RPI; Colleen's COF NOT yet assigned (open ask).</li>
+</ul>
+</div>
+
+<div class="card">
+<h3>2 — Health · Wealth · Legacy Frame</h3>
+
+<div style="background:rgba(34,197,94,0.04);border:1px solid rgba(34,197,94,0.2);border-radius:10px;padding:18px;margin:12px 0">
+<h4 style="color:var(--green);font-size:0.85rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Health</h4>
+<ul>
+<li><strong>No specific health concerns noted.</strong> Both spouses appear in good health for casework purposes.</li>
+<li><strong>Medicare:</strong> Both should be on Medicare (Chris approaching, Colleen on it). Confirm plans + supplemental coverage.</li>
+<li><strong>LTC:</strong> No LTC coverage noted. Both at age where LTC planning conversation is appropriate.</li>
+</ul>
+</div>
+
+<div style="background:rgba(59,130,246,0.04);border:1px solid rgba(59,130,246,0.2);border-radius:10px;padding:18px;margin:12px 0">
+<h4 style="color:var(--blue);font-size:0.85rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Wealth</h4>
+<ul>
+<li><strong>Chris CD repositioning:</strong> $160K across 4 CDs @ 3% is ~150-250bps below current MYGA market. Repositioning would add $2,400-$4,000/yr in interest income.</li>
+<li><strong>Chris FB IRA FIA cook strategy:</strong> Current $70,128 contract value with $90,040 GLWB benefit base + 7% rollup. Already inside an annuity with income rider. Decision: activate now, defer further, or post-surrender 1035 to NAC IPP10.</li>
+<li><strong>Colleen Roth IRA:</strong> $28,224 in FB New Money 4 @ 1.5% interest. Severely below market. Repositioning candidate (MYGA in Roth wrapper).</li>
+<li><strong>Income bridge to Chris SSI activation:</strong> Sept/Oct 2026 → +$2,400/mo to household.</li>
+</ul>
+</div>
+
+<div style="background:rgba(212,164,76,0.04);border:1px solid rgba(212,164,76,0.3);border-radius:10px;padding:18px;margin:12px 0">
+<h4 style="color:var(--gold);font-size:0.85rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Legacy</h4>
+<ul>
+<li><strong>COF policy assignment opportunity:</strong> Chris's COF is RPI-assigned; Colleen's is not. Conversation ask: assign Colleen's to RPI as well.</li>
+<li><strong>Beneficiary review:</strong> Confirm primary/contingent beneficiaries on every account.</li>
+<li><strong>Estate instruments:</strong> Trust/Will/POA/Healthcare Directive — discovery items.</li>
+<li><strong>Farm succession:</strong> Active farm. Plan for orderly wind-down or transfer when Chris steps back from machinery lease (~age 70)?</li>
+</ul>
+</div>
+</div>
+
+</div>
+
+<!-- SUMMARY -->
+<div id="summary" class="panel">
+<div class="card">
+<h2>Snapshot — Numbers at a Glance</h2>
+<div class="stat-row">
+<div class="stat blue"><div class="num">$160K</div><div class="lbl">Chris CDs @ 3% (4 accts)</div></div>
+<div class="stat"><div class="num">$70,128</div><div class="lbl">Chris FB IRA FIA</div></div>
+<div class="stat"><div class="num">$90,040</div><div class="lbl">Chris GLWB Base</div></div>
+<div class="stat blue"><div class="num">$28,224</div><div class="lbl">Colleen Roth</div></div>
+</div>
+<div class="stat-row">
+<div class="stat warn"><div class="num">Sept/Oct '26</div><div class="lbl">Chris SSI Activation</div></div>
+<div class="stat"><div class="num">$2,400/mo</div><div class="lbl">Chris SSI Projected</div></div>
+<div class="stat"><div class="num">$1,200/mo</div><div class="lbl">Colleen SSI</div></div>
+<div class="stat"><div class="num">$1,006/mo</div><div class="lbl">Colleen IPERS</div></div>
+</div>
+</div>
+
+<div class="card">
+<h3>Pre vs Post Chris SSI Activation</h3>
+<table>
+<tr><th>Source</th><th>Pre-Activation (NOW)</th><th>Post-Activation (Late 2026+)</th></tr>
+<tr><td>Chris farm rent</td><td>$36K/yr</td><td>$36K/yr</td></tr>
+<tr><td>Chris machinery lease</td><td>$20K/yr (until ~age 70)</td><td>$20K/yr (continues)</td></tr>
+<tr><td>Chris SSI</td><td>$0</td><td>$28.8K/yr ($2,400/mo)</td></tr>
+<tr><td>Colleen SSI</td><td>$14.4K/yr</td><td>$14.4K/yr</td></tr>
+<tr><td>Colleen IPERS</td><td>$12K/yr</td><td>$12K/yr</td></tr>
+<tr class="totals"><td>Household Total</td><td>~$83K/yr</td><td>~$111K/yr</td></tr>
+</table>
+</div>
+</div>
+
+<!-- KEY DATES -->
+<div id="keydates" class="panel">
+<div class="card">
+<h2>Key Dates &amp; Triggers</h2>
+<table>
+<tr><th>Date</th><th>Event</th><th>Impact</th><th>Action Needed</th></tr>
+<tr><td><strong>Sept/Oct 2026</strong></td><td>Chris SSI deferral activation</td><td>+$2,400/mo to household</td><td>Confirm exact filing date with SSA</td></tr>
+<tr><td><strong>4/2/2027</strong></td><td>Chris FB IRA FIA surrender ends (Year 10 = 0%)</td><td>Full liquidity unlocked</td><td>Decide: keep, restructure to NAC IPP10, OR pivot</td></tr>
+<tr><td><strong>~age 70 (~2030)</strong></td><td>Machinery lease ends per Archer</td><td>-$20K/yr income</td><td>Plan replacement income via GLWB or IPP10 activation</td></tr>
+<tr><td><strong>Various</strong></td><td>Chris CD maturities (4 accounts)</td><td>$160K liquid as each rolls</td><td>Reposition to MYGA or CP10 base at each maturity</td></tr>
+<tr><td><strong>Age 73 (~2033)</strong></td><td>Chris RMD start age</td><td>RMD-driven distributions on Trad IRAs</td><td>Plan IRA structure to support clean RMD execution</td></tr>
+<tr><td><strong>Already past</strong></td><td>Colleen RMD start age</td><td>Trad IRA RMDs already required if applicable</td><td>Verify Colleen Trad IRA position vs Roth-only</td></tr>
+</table>
+</div>
+
+<div class="note">
+<strong>Roth note:</strong> Roth IRAs have no RMD for the original owner. Colleen's $28K FB New Money 4 Roth has no RMD pressure. The "cook to 73" framing in earlier notes likely referred to a Trad IRA — confirm whether Colleen has a separate Trad IRA in addition to the Roth.
+</div>
+</div>
+
+<!-- CHRIS -->
+<div id="chris" class="panel">
+<div class="card">
+<h2>Chris Westfall — Asset &amp; Income Profile</h2>
+
+<h3>Farm Bureau Flexible Premium Deferred Indexed Annuity #006029566X</h3>
 <table>
 <tr><th>Field</th><th>Value</th></tr>
-<tr><td><strong>Chris E Westfall</strong></td><td><code>client_id: dc40f681-7ac4-47d4-bd6e-6ebdaec6488b</code> · Iowa City IA 52240 · phone 319-351-4584 · ACF <code>11zME7DVhM9Rc0hS8llf3TSkF8GFg-jQD</code> · Active Client (imported from <code>cof_members_q126</code> via sheets_migration)</td></tr>
-<tr><td><strong>Colleen Westfall</strong></td><td>New record pending ingest — household spouse of Chris, existing Firestore record not yet located</td></tr>
+<tr><td>Policy #</td><td>006029566X</td></tr>
+<tr><td>Carrier</td><td>Farm Bureau Life Insurance Company</td></tr>
+<tr><td>Issue Date</td><td>04/02/2018</td></tr>
+<tr><td>Issue Age</td><td>58 (= ~age 66 in 2026)</td></tr>
+<tr><td>Plan Type</td><td>IRA-Regular (Traditional IRA)</td></tr>
+<tr><td>Accumulated Value (4/10/2025)</td><td>$70,128.28</td></tr>
+<tr><td>Surrender Value (4/10/2025)</td><td>$68,858.79</td></tr>
+<tr><td>Death Benefit</td><td>$70,128.28</td></tr>
+<tr><td>Surrender Schedule</td><td>9/8/7/6/5/4/3/2/1/0% (Year 1-10+)</td></tr>
+<tr><td>Surrender End Date</td><td>~04/02/2027 (Year 10 hits 0%)</td></tr>
+<tr><td>Index Allocation</td><td>50% S&amp;P 500 Monthly Averaging + 50% S&amp;P 500 Annual Reset Point-to-Point</td></tr>
+<tr><td>Period Credits (last yr)</td><td>$3,589.36 (≈5.3% return)</td></tr>
+<tr><td>GLWB Rider Status</td><td>ACTIVE</td></tr>
+<tr><td>GLWB Benefit Base</td><td>$90,040.27</td></tr>
+<tr><td>GLWB Rollup Rate</td><td>7.00% annually</td></tr>
+<tr><td>GLWB Rider Charge</td><td>0.95% (current) / 1.45% guaranteed</td></tr>
+<tr><td>Income Withdrawal % (single life, age 65-69)</td><td>5.00%</td></tr>
+<tr><td>Income Withdrawal % (single life, age 70-74)</td><td>5.50%</td></tr>
+<tr><td>Income Withdrawal % (single life, age 75-79)</td><td>6.00%</td></tr>
 </table>
 
-<div class="warn"><p><strong>⚠️ DOB discrepancy (Chris):</strong> Firestore: <code>1959-12-21</code> (would be age 66) · Archer's notes: <code>12/29/66</code> (age 59) — 7-year gap. Archer's planning narrative (deferring SSI to FRA kicks in Sept/Oct, 3-4 year GMIB cook) fits age 59 cleanly; Firestore DOB likely mangled by the sheets migration. <strong>JDM-blocked:</strong> which DOB is correct? Roadmap uses Archer's number (age 59) for planning math; Firestore record stays as-is until JDM rules.</p></div>
+<div class="flag green">
+<div class="title">✓ THIS IS A SOLID EXISTING POSITION</div>
+<p>Chris's FB IRA FIA already has an active GLWB with 7% rollup and a benefit base of $90K (vs $70K contract value). The rollup is doing its job — every year the benefit base climbs while accumulated value tracks index performance.</p>
+<p>The decision point: <strong>activate the GLWB at age 66 for ~$4,500/yr single life, defer to age 70-71 for ~$7,200-$8,450/yr (higher % × growing benefit base), OR roll out post-surrender (4/2/2027) to a NAC IPP10 with potentially better terms.</strong></p>
+<div class="action"><strong>Action:</strong> Run side-by-side: (a) activate FB GLWB now at age 66 (5% × $90K = $4,500/yr), (b) defer to age 71 (estimated ~$7,200-$8,450/yr), (c) post-surrender 1035 to NAC IPP10. Compare income outputs at age 75/80/85.</div>
+</div>
+</div>
 
-<h2>Case Framing — Pre-Retirement Income Structure</h2>
-<p>Chris is the active planning subject: pre-FRA, farm-income-heavy, structuring pre-retirement annuity strategy with a 3-4 year deferral window. Colleen is already past FRA and drawing SSI + IPERS. Goals: bridge Chris to SSI activation (Sept/Oct this year per Archer), structure his lump-sum assets to cook through FRA, then fire income for remaining retirement.</p>
-
-<h2>Income Profile</h2>
-
-<h3>Chris (pre-FRA, age ~59 per Archer)</h3>
-<table>
-<tr><th>Source</th><th>Amount</th><th>Timing</th></tr>
-<tr><td>Farm rent</td><td><strong>~$3,000/mo</strong> (~$36K/yr)</td><td>Ongoing</td></tr>
-<tr><td>Machinery lease</td><td><strong>~$20,000/yr</strong></td><td>Until ~age 70</td></tr>
-<tr><td><strong>SSI (deferred to FRA)</strong></td><td><strong>$2,400/mo</strong></td><td>Kicks in <strong>Sept/Oct</strong> (current year)</td></tr>
-<tr><td>Total annual income (post-SSI-activation)</td><td>~$85K/yr</td><td></td></tr>
-</table>
-
-<h3>Colleen (past FRA, age ~68)</h3>
-<table>
-<tr><th>Source</th><th>Amount</th><th>Notes</th></tr>
-<tr><td>SSI</td><td><strong>$1,200/mo</strong> ($14.4K/yr)</td><td>Drawing now</td></tr>
-<tr><td>IPERS</td><td><strong>$1,006/mo</strong> ($12K/yr)</td><td>Iowa Public Employees Retirement System — confirm earnings test status</td></tr>
-<tr><td>Total</td><td>~$26K/yr</td><td></td></tr>
-</table>
-
-<h3>Household combined</h3>
-<p><strong>~$111K/yr</strong> once Chris SSI activates. Before activation: ~$83K (farm rent + lease + Colleen).</p>
-
-<h2>Asset Inventory (partial — pending full extraction)</h2>
-<div class="warn"><p><strong>⚠️ Note:</strong> The <code>Westfall Farm Bureau (1).pdf</code> in the inbox is a CamScanner scan with no text layer. Can't parse programmatically without OCR. Content below is from Archer's notes + household context. Full extraction runs when <code>services/intake</code> Cloud Function is fixed (<code>ZRD-INTAKE-WIRE-TRIGGER-PROD-BROKEN</code>).</p></div>
-
-<h3>Bank CDs</h3>
+<div class="card">
+<h3>Chris's 4 Bank CDs ($160K @ 3.00%)</h3>
 <ul>
-<li><strong>4 CDs · combined $160,000 @ 3.00%</strong></li>
-<li>Carrier/maturity TBD on extraction</li>
+<li><strong>Combined balance:</strong> $160,000</li>
+<li><strong>Current rate:</strong> 3.00%</li>
+<li><strong>Annual interest:</strong> ~$4,800/yr</li>
+<li><strong>Carrier(s) + maturity dates:</strong> TBD pre-meeting</li>
+<li><strong>Tax status:</strong> NQ (taxable interest)</li>
 </ul>
 
-<h3>Chris's IRA</h3>
-<ul>
-<li>Chris has an IRA. Value + custodian TBD on extraction.</li>
-<li><strong>Planning lever: cook 3-4 years</strong> before activating GMIB rider (per Archer)</li>
-<li>Candidate strategy: roll into FIA with GMIB, let rollup compound to 2029-2030, then activate lifetime income stream that stacks on top of his SSI</li>
-</ul>
+<div class="flag orange">
+<div class="title">⚠ CD REPOSITIONING — $2,400-$4,000/YR LEFT ON THE TABLE</div>
+<p>Current MYGA market is 4.5-5.5% on 5-7 year terms. Chris's CDs at 3% are ~150-250bps below market. On $160K, that's $2,400-$4,000/yr in lost interest annually.</p>
+<div class="action"><strong>Action:</strong> Pull CD maturity schedule. As each matures, reposition to MYGA OR NAC CP10 base (flex-premium structure captures all 4 maturities into one contract). Doctrine: liquid source = no bonus, fee-clean accumulation.</div>
+</div>
+</div>
 
-<h3>Colleen's Roth IRA</h3>
+<div class="card">
+<h3>Chris's Other IRA (Outside Farm Bureau)</h3>
 <ul>
-<li>Scan mix-up per Archer: Chris's IRA statement + Colleen's Roth IRA statement + stray Minearts sig page ended up in the same scan. Ownership attribution needed on extraction.</li>
-<li><strong>Planning lever:</strong> let Colleen's IRA cook <strong>until age 73</strong> (per Archer) — max Roth tax-free growth window before RMDs aren't an issue (Roth has no RMD for original owner, so "cook til 73" probably refers to Trad IRA if she has one, not the Roth).</li>
+<li>Per existing roadmap: "Chris has an IRA. Value + custodian TBD."</li>
+<li>Whether this is a separate Trad IRA in addition to the FB IRA FIA, OR whether the FB IRA FIA IS his "the IRA" — needs clarification at meeting.</li>
+<li>If separate, doctrine for IRA: NAC IPP10 with GMIB.</li>
 </ul>
+</div>
 
-<h3>COF Policies</h3>
+<div class="card">
+<h3>Chris's COF Policy</h3>
 <ul>
-<li><strong>Chris's COF policy</strong> — currently assigned to RPI</li>
-<li><strong>Colleen's COF policy</strong> — <strong>NOT assigned to RPI</strong> (assignment ask on the table with Archer)</li>
+<li>Currently <strong>assigned to RPI</strong></li>
 <li>Details + values TBD on extraction</li>
 </ul>
-
-<h3>Farm Business</h3>
-<ul>
-<li>Farm rent to a tenant (~$36K/yr revenue to Chris)</li>
-<li>Machinery leased out (~$20K/yr revenue, ends ~age 70)</li>
-<li>Legal structure (sole prop / LLC / trust) TBD — likely sole prop given Iowa farm pattern</li>
-</ul>
-
-<h2>Action Items</h2>
-
-<h3>Pre-meeting</h3>
-<ul class="checklist">
-<li><input type="checkbox"> Resolve Chris's DOB (12/29/66 vs 1959-12-21) — Archer should have a copy of his driver's license or birth certificate</li>
-<li><input type="checkbox"> Verify SSI activation timing with Chris (Sept or Oct 2026?)</li>
-<li><input type="checkbox"> Confirm 4 CDs: carrier(s), maturity dates, account numbers</li>
-<li><input type="checkbox"> Chris IRA: custodian, value, product type (is it already an annuity or a brokerage IRA?)</li>
-<li><input type="checkbox"> Colleen IRA: Traditional or Roth (the "cook til 73" reasoning only applies to Trad for RMD purposes)</li>
-<li><input type="checkbox"> Get Colleen's COF policy details + discuss assignment-to-RPI</li>
-<li><input type="checkbox"> Stray Minearts sig page (in the Westfall scan bundle) — classify + route to Minearts casework separately</li>
-</ul>
-
-<h3>Product recommendations (draft — pending numbers)</h3>
-<ul class="checklist">
-<li><input type="checkbox"> <strong>Chris: FIA with GMIB rider · 3-4 year deferral.</strong> Target: activate 2029-2030, stacks on SSI ($2,400/mo) + farm rent + machinery lease. Candidate carriers: Nationwide, Athene, Global Atlantic, Allianz, Pacific Life.</li>
-<li><input type="checkbox"> <strong>Colleen: preserve Roth, let Trad cook to 73.</strong> If Trad IRA value is meaningful, consider Roth conversion strategy during Chris's low-income years (pre-SSI-activation window is shrinking — Sept is close).</li>
-<li><input type="checkbox"> <strong>CDs: reposition to MYGA or FIA.</strong> $160K @ 3% is underperforming current MYGA rates (4.0-5.25%). Non-qualified so 1035 exchange not applicable; simple rollover at maturity.</li>
-<li><input type="checkbox"> <strong>Legacy structure:</strong> if Chris + Colleen have specific children/grandchildren for farm succession, mirror the Thurman "DB-to-grandson" pattern consideration.</li>
-</ul>
-
-<h3>Platform blockers</h3>
-<ul>
-<li><code>ZRD-INTAKE-WIRE-TRIGGER-PROD-BROKEN</code> (P0) — blocks the Farm Bureau PDF extraction</li>
-<li>DOB reconciliation on Firestore record — JDM ruling needed</li>
-</ul>
-
-<div class="footer">Chris + Colleen Westfall · Pre-Retirement Income Roadmap · 2026-04-14 · VOLTRON CSO · Retirement Protectors, Inc.</div>
 </div>
+
+<div class="card">
+<h3>Chris's Farm Income</h3>
+<ul>
+<li>Farm rent: ~$36K/yr (~$3,000/mo) ongoing</li>
+<li>Machinery lease: ~$20K/yr until age ~70 (~2030)</li>
+<li>Schedule F farm or pass-through entity — verify legal structure</li>
+</ul>
+</div>
+</div>
+
+<!-- COLLEEN -->
+<div id="colleen" class="panel">
+<div class="card">
+<h2>Colleen Westfall — Asset &amp; Income Profile</h2>
+
+<h3>Farm Bureau Roth IRA — Policy #006149378F (New Money 4)</h3>
+<table>
+<tr><th>Field</th><th>Value</th></tr>
+<tr><td>Policy #</td><td>006149378F</td></tr>
+<tr><td>Carrier</td><td>Farm Bureau Life Insurance Company</td></tr>
+<tr><td>Annuitant</td><td>Colleen Westfall</td></tr>
+<tr><td>Plan Type</td><td>Roth IRA</td></tr>
+<tr><td>Issue Date</td><td>01/18/2022</td></tr>
+<tr><td>Issue Age</td><td>64 (= ~age 68 in 2026)</td></tr>
+<tr><td>Beginning AV (1/18/2024)</td><td>$27,806.00</td></tr>
+<tr><td>Ending AV (1/18/2025)</td><td>$28,224.25</td></tr>
+<tr><td>Surrender Value (1/18/2025)</td><td>$27,716.21</td></tr>
+<tr><td>Interest Credited (last year)</td><td>$418.25 (= 1.50% effective)</td></tr>
+<tr><td>Current Interest Rate</td><td>1.50%</td></tr>
+<tr><td>RMD Required?</td><td>NO (Roth — no RMD for original owner)</td></tr>
+</table>
+
+<div class="flag orange">
+<div class="title">⚠ COLLEEN ROTH @ 1.5% — EASY REPOSITIONING WIN</div>
+<p>$28,224 in a fixed product earning 1.50% is severely below current market. Roth-eligible MYGAs run 4.5-5.5%. On $28K, that's ~$850-1,100/yr in lost interest.</p>
+<p>Roth status preserves tax-free growth — repositioning must stay in Roth wrapper (trustee-to-trustee transfer or rollover).</p>
+<div class="action"><strong>Action:</strong> Quote 5-yr Roth-eligible MYGA. NAC CP10 base in Roth wrapper is also doctrine-compatible if Colleen wants index-linked upside.</div>
+</div>
+</div>
+
+<div class="card">
+<h3>Colleen's Income (Currently Drawing)</h3>
+<table>
+<tr><th>Source</th><th>Monthly</th><th>Annual</th><th>Notes</th></tr>
+<tr><td>Social Security</td><td>$1,200</td><td>$14,400</td><td>Past FRA, drawing</td></tr>
+<tr><td>IPERS</td><td>$1,006</td><td>$12,072</td><td>Iowa Public Employees Retirement System</td></tr>
+<tr class="totals"><td>Total</td><td>$2,206</td><td>$26,472</td><td></td></tr>
+</table>
+</div>
+
+<div class="card">
+<h3>Colleen's COF Policy</h3>
+<ul>
+<li>Currently <strong>NOT assigned to RPI</strong></li>
+<li>Open ask on the table with Archer</li>
+<li>Details + values TBD</li>
+</ul>
+
+<div class="flag blue">
+<div class="title">📋 COF ASSIGNMENT OPPORTUNITY</div>
+<p>Chris's COF is RPI-assigned; Colleen's is not. Position the assignment ask at this meeting if comfort level is right.</p>
+<div class="action"><strong>Action:</strong> Surface the assignment opportunity gently. Frame as "consistency across both spouses' policies."</div>
+</div>
+</div>
+
+<div class="card">
+<h3>Possible Trad IRA (Clarify)</h3>
+<p>Earlier roadmap notes referenced "let Colleen's IRA cook until age 73" — but the Roth has no RMD trigger at 73, so this only applies to a Trad IRA. <strong>Confirm at meeting whether Colleen has a separate Traditional IRA in addition to her Roth.</strong> If yes, Trad IRA → NAC IPP10 doctrine path is open.</p>
+</div>
+</div>
+
+<!-- INCOME PROFILE -->
+<div id="income" class="panel">
+<div class="card">
+<h2>Household Income — Pre vs Post Chris SSI Activation</h2>
+
+<table>
+<tr><th>Phase</th><th>Income Sources</th><th>Annual Total</th></tr>
+<tr><td><strong>Today (Pre-SSI)</strong></td><td>Chris farm rent + machinery lease + Colleen SSI + IPERS</td><td>~$83K</td></tr>
+<tr><td><strong>Sept/Oct 2026 onward</strong></td><td>+ Chris SSI activation ($2,400/mo)</td><td>~$111K</td></tr>
+<tr><td><strong>~2030 (machinery lease ends)</strong></td><td>Replace lease income with FB GLWB activation OR new IPP10/MYGA</td><td>~$111K (maintained)</td></tr>
+<tr><td><strong>Age 73+</strong></td><td>Add RMD distributions from Chris IRA(s)</td><td>~$120K+</td></tr>
+</table>
+</div>
+
+<div class="card">
+<h3>The Strategic Picture</h3>
+<p>The Westfall household's income picture is fundamentally healthy. Two retirement-age earners, multiple income streams, no immediate income crisis. The work in this meeting is OPTIMIZATION, not rescue:</p>
+<ol>
+<li><strong>Stop leaving 150-250bps on the table</strong> on Chris's $160K CDs — reposition to MYGA at maturity</li>
+<li><strong>Stop earning 1.5%</strong> on Colleen's $28K Roth — reposition to better-yielding Roth-wrapper product</li>
+<li><strong>Activate Chris's GLWB at the right time</strong> — defer to maximize benefit base, fire when machinery lease ends (~2030) to maintain household income</li>
+<li><strong>Plan the IRA cook strategy</strong> — Chris's qualified money should be in IPP10 doctrine for income-rider treatment if it's not already</li>
+</ol>
+</div>
+</div>
+
+<!-- CD STRATEGY -->
+<div id="cds" class="panel">
+<div class="card">
+<h2>Chris's CD Repositioning Strategy</h2>
+
+<h3>Current Position</h3>
+<ul>
+<li><strong>4 CDs at ~3% combined balance ~$160K</strong></li>
+<li>Annual interest ~$4,800</li>
+<li>NQ (non-qualified, taxable interest)</li>
+<li>Maturity dates TBD pre-meeting</li>
+</ul>
+
+<h3>Repositioning Options (NQ Doctrine: CP10 Base, No EBR)</h3>
+<table>
+<tr><th>Option</th><th>Pros</th><th>Cons</th><th>Annual Yield</th></tr>
+<tr><td>5-yr MYGA @ 5.0%</td><td>Simple. Guaranteed rate. No fee.</td><td>No upside. No income rider. 5yr surrender.</td><td>$8,000 (~$3,200 more than CDs)</td></tr>
+<tr><td>7-yr MYGA @ 5.25%</td><td>Higher rate. Locked longer. Simple.</td><td>Longer commitment. Same downsides.</td><td>$8,400 (~$3,600 more)</td></tr>
+<tr><td>NAC CP10 Base (no EBR)</td><td>Index-linked upside. Fee-clean. Flex-premium future capture.</td><td>10-yr surrender. Cap-limited upside.</td><td>Variable (potential $0-12K range)</td></tr>
+</table>
+
+<div class="note">
+<strong>Doctrine match:</strong> NAC CP10 base on liquid NQ source. <strong>No EBR fee</strong> — Chris's CDs are liquid (post-maturity, no surrender to overcome), so no bonus product is justified. Fee-clean accumulation. Flex-premium structure means CDs can be added as each matures without starting separate contracts.
+</div>
+
+<div class="flag green">
+<div class="title">✓ CP10 BASE FLEX-PREMIUM = SAME PATTERN AS RUTH CASE</div>
+<p>Doctrine application: CDs maturing on different dates → flex-premium structure captures each maturity into the same CP10 base contract. Total $160K accumulates inside one contract, fee-clean, with index-linked upside.</p>
+<div class="action"><strong>Action:</strong> Quote NAC CP10 base for first CD maturity. Then add subsequent CD maturities as flex-premium deposits into the same contract.</div>
+</div>
+</div>
+</div>
+
+<!-- FLAGS -->
+<div id="flags" class="panel">
+
+<div class="flag red">
+<div class="title">🔴 CHRIS DOB DISCREPANCY — RESOLVE BEFORE PRODUCT SELECTION</div>
+<p>Firestore shows Chris born 1959 (age 66). Archer notes "12/29/66" (could mean 1966, age 59). Farm Bureau policy issue age 58 in 2018 confirms ~1960 birth → age 66.</p>
+<p>This affects: SSI activation date, FRA timing, IPP10/Ameritas issue-age windows, GLWB activation withdrawal-percentage table.</p>
+<p><strong>Roadmap baseline assumption:</strong> Chris is age 66 (FB issue-age data is most defensible).</p>
+<div class="action"><strong>Action:</strong> Get DL or birth certificate from Chris. Update Firestore + plan accordingly.</div>
+</div>
+
+<div class="flag orange">
+<div class="title">⚠ COLLEEN ROTH UNDERPERFORMING (1.5%)</div>
+<p>$28K Roth in FB New Money 4 at 1.5% interest. Market is 4.5-5.5% on Roth-eligible MYGAs. Easy fix.</p>
+<div class="action"><strong>Action:</strong> Roth-eligible MYGA quote, trustee-to-trustee transfer.</div>
+</div>
+
+<div class="flag orange">
+<div class="title">⚠ CHRIS CDs UNDERPERFORMING (3%)</div>
+<p>$160K @ 3% leaving $2,400-$4,000/yr on the table vs current MYGA rates.</p>
+<div class="action"><strong>Action:</strong> Pull maturity schedule. Reposition each maturity to MYGA OR CP10 base flex-premium.</div>
+</div>
+
+<div class="flag blue">
+<div class="title">📋 COF ASSIGNMENT — COLLEEN NOT YET RPI-ASSIGNED</div>
+<p>Open ask: get Colleen's COF policy assigned to RPI to match Chris's.</p>
+<div class="action"><strong>Action:</strong> Position the consistency angle at meeting.</div>
+</div>
+
+<div class="flag blue">
+<div class="title">📋 CHRIS GLWB ACTIVATION TIMING</div>
+<p>FB IRA FIA has $90K benefit base + 7% rollup. Activation timing decision:
+<br>• Now (age 66, 5% withdrawal) = $4,500/yr
+<br>• Wait to age 70-71 (5.5%-6% × ~$120-130K base) = $7,200-$8,450/yr
+<br>• Wait to age 75-79 (6-7% × even larger base) = much higher</p>
+<div class="action"><strong>Action:</strong> Run the actual deferred-vs-now comparison. Coordinate with machinery lease end (~2030).</div>
+</div>
+
+<div class="flag blue">
+<div class="title">📋 CLARIFY CHRIS IRA OUTSIDE FB</div>
+<p>Earlier notes referenced Chris having "an IRA" separately. Is the FB IRA FIA his only IRA or is there another?</p>
+<div class="action"><strong>Action:</strong> Confirm at meeting. If separate Trad IRA exists, doctrine path: NAC IPP10 with GMIB.</div>
+</div>
+
+<div class="flag blue">
+<div class="title">📋 CLARIFY COLLEEN TRAD IRA EXISTENCE</div>
+<p>"Cook until age 73" framing only applies to Trad IRAs (Roth has no RMD). Does Colleen have a Trad IRA in addition to her Roth?</p>
+<div class="action"><strong>Action:</strong> Confirm at meeting.</div>
+</div>
+
+</div>
+
+<!-- RECOMMENDATIONS -->
+<div id="reco" class="panel">
+
+<div class="reco-section blue">
+<h3>Wealth Reco #1 — CD Repositioning (Chris $160K NQ → CP10 Base Flex-Premium)</h3>
+<p><strong>Action:</strong> As each of Chris's 4 CDs matures, roll into a NAC CP10 base contract via flex-premium structure. Single contract captures all 4 CD balances over time.</p>
+<p><strong>Doctrine basis:</strong>
+<br>• NQ source → CP10 base
+<br>• Liquid (post-maturity) → no EBR fee, no bonus needed
+<br>• Flex-premium → captures multiple CD maturity dates into one contract</p>
+<p><strong>Income impact:</strong> Index-linked upside vs current 3% fixed. Potential range: $0-$12K/yr depending on S&amp;P performance, vs current $4,800/yr fixed.</p>
+<p>📄 <em>Illustration attachment slot:</em> NAC CP10 base illustration with $40K initial premium (first CD), modeling subsequent flex-premium additions.</p>
+</div>
+
+<div class="reco-section blue">
+<h3>Wealth Reco #2 — Colleen Roth Repositioning ($28K → Roth MYGA or CP10 Base)</h3>
+<p><strong>Action:</strong> Trustee-to-trustee transfer of Colleen's $28K from FB New Money 4 (1.5%) to a Roth-eligible MYGA at 4.5-5.5%, OR NAC CP10 base in Roth wrapper if Colleen wants index-linked upside.</p>
+<p><strong>Doctrine basis:</strong>
+<br>• Roth wrapper preserves tax-free growth
+<br>• Underperforming fixed product → reposition to market-rate
+<br>• If indexed: CP10 base (no EBR — surrender ends 2027 anyway, treat as liquid)</p>
+<p><strong>Income impact:</strong> $850-$1,100/yr more in interest @ MYGA rates, OR variable upside potential @ CP10.</p>
+<p>📄 <em>Illustration attachment slot:</em> Roth MYGA quote + NAC CP10 Roth-wrapper illustration.</p>
+</div>
+
+<div class="reco-section">
+<h3>Wealth Reco #3 — Chris GLWB Activation Strategy (Defer to Machinery-Lease-End)</h3>
+<p><strong>Action:</strong> Defer activation of Chris's FB GLWB until machinery lease income ends (~2030). At that point, GLWB activation provides replacement income for the lost $20K/yr lease.</p>
+<p><strong>Doctrine basis:</strong>
+<br>• Existing GLWB rider has 7% rollup + base rolling up to ~$130K by 2030
+<br>• Withdrawal % at age 70-74 = 5.50% single life
+<br>• Activation in 2030 → ~$7,150-$8,000/yr lifetime income
+<br>• Replaces ~40% of lost machinery lease income</p>
+<p><strong>Alternative if FB GLWB terms underwhelm:</strong> Post 4/2/2027 surrender end, 1035 the FB IRA FIA into NAC IPP10 with GMIB. Compare LPA outputs.</p>
+<p>📄 <em>Illustration attachment slots:</em>
+<br>(a) FB GLWB activation projection at age 70 + age 73 + age 75
+<br>(b) NAC IPP10 illustration assuming 1035 from FB at 4/2/2027</p>
+</div>
+
+<div class="reco-section gold">
+<h3>Wealth Reco #4 — Chris SSI Filing (Confirm Sept/Oct 2026)</h3>
+<p><strong>Action:</strong> Verify with SSA the exact SSI filing date Chris is targeting. Confirm projected monthly amount ($2,400 estimate). File on the correct month for clean tax-year planning.</p>
+<p><strong>Tax planning:</strong> Combined income of ~$111K post-activation puts household in 22-24% federal bracket. Up to 85% of SSI may be taxable. Plan estimated tax adjustments.</p>
+</div>
+
+<div class="reco-section purple">
+<h3>Legacy Reco #1 — COF Assignment + Beneficiary Cleanup</h3>
+<p><strong>Action:</strong>
+<br>(a) Position assignment of Colleen's COF policy to RPI (consistency with Chris's)
+<br>(b) Walk through every Westfall account and confirm beneficiary designations
+<br>(c) Standard pattern: spousal-first, then children/heirs as contingents</p>
+</div>
+
+<div class="reco-section gold">
+<h3>Legacy Reco #2 — Estate Instruments &amp; LTC Discussion</h3>
+<p><strong>Action:</strong> Discover trust/will/POA/healthcare-directive status for both Chris and Colleen. Surface LTC planning conversation — both at age where LTC is appropriate to discuss.</p>
+<p><strong>Farm succession:</strong> If Chris + Colleen have intended successor for the farm or want orderly wind-down (~age 70 when machinery lease ends), surface that conversation.</p>
+</div>
+
+</div>
+
+<!-- NEXT STEPS -->
+<div id="next" class="panel">
+<div class="card">
+<h2>Sequenced Action Plan</h2>
+
+<h3>Pre-Meeting</h3>
+<ul>
+<li>Resolve Chris DOB (Firestore vs Archer vs FB issue-age)</li>
+<li>Pull current Chris FB IRA FIA + Colleen FB Roth statements</li>
+<li>Get Chris's 4 CD maturity schedule + carrier list</li>
+<li>Confirm Chris IRA outside FB (custodian, value)</li>
+<li>Confirm Colleen Trad IRA existence (or Roth-only)</li>
+<li>Run NAC CP10 base illustration (Chris CDs)</li>
+<li>Run Roth MYGA quote (Colleen Roth)</li>
+<li>Run NAC IPP10 illustration (Chris IRA path post-2027)</li>
+<li>Confirm SSI filing date with Chris</li>
+</ul>
+
+<h3>At Meeting</h3>
+<ul>
+<li>Walk through CD repositioning plan (CP10 base or MYGA)</li>
+<li>Walk through Colleen Roth repositioning</li>
+<li>Walk through Chris GLWB activation timing decision</li>
+<li>Position COF assignment ask for Colleen</li>
+<li>Beneficiary review across all accounts</li>
+<li>Surface LTC + estate instrument discussions</li>
+</ul>
+
+<h3>2026 (Current Year — Post-Meeting)</h3>
+<ul>
+<li>File Chris SSI in Sept/Oct (confirm exact date)</li>
+<li>Begin CD repositioning as first maturity hits</li>
+<li>Trustee-to-trustee transfer Colleen Roth</li>
+<li>Process COF assignment paperwork (if Colleen approves)</li>
+<li>Beneficiary update paperwork</li>
+</ul>
+
+<h3>2027 (Surrender-End Year)</h3>
+<ul>
+<li>April 2027: Chris FB IRA FIA surrender ends (Year 10)</li>
+<li>Decision: keep FB FIA + GLWB OR 1035 to NAC IPP10</li>
+<li>Continue CD repositioning as additional maturities hit</li>
+</ul>
+
+<h3>2028-2030 (Pre-Activation Optimization)</h3>
+<ul>
+<li>Allow Chris GLWB to continue 7% rollup growth</li>
+<li>Position to fire GLWB ~2030 when machinery lease ends</li>
+<li>Annual review of CD repositioning progress</li>
+</ul>
+
+<h3>~2030 (Machinery Lease Ends, GLWB Activation)</h3>
+<ul>
+<li>Activate Chris GLWB at optimal age (70-71 likely)</li>
+<li>Replacement income for lost machinery lease ~$8K/yr</li>
+<li>Rebalance overall income picture</li>
+</ul>
+</div>
+</div>
+
+</div>
+
+<div class="footer">
+SHINOB1 CTO &bull; Drafted 2026-04-15 03:30 CT &bull; Sources: existing westfall-roadmap.html (VOLTRON 2026-04-14) + Westfall Farm Bureau policy PDF (Chris IRA FIA #006029566X + Colleen Roth #006149378F)<br>
+Pre-meeting roadmap. Westfall is accumulation/income-bridge case. Run illustrations + verify DOB before walking in. All recos apply locked JDM doctrine.
+</div>
+
+<script>
+function showPanel(id,el){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  el.classList.add('active');
+}
+</script>
+
 </body>
 </html>
