@@ -1,5 +1,6 @@
 import { getFirestore } from 'firebase-admin/firestore'
 import type { SlackItem, ForgeItem, TriageResult, TriageOutcome, DuplicateMatch } from './types.js'
+import { preprocessForClassification } from './emoji-preprocess.js'
 
 function getDb() { return getFirestore() }
 const MDJ_URL = process.env.MDJ_AGENT_URL || 'http://localhost:4200'
@@ -109,6 +110,17 @@ export async function triageItem(item: SlackItem | ForgeItem): Promise<TriageRes
   if (kbEmpty && TRAIN_SIGNALS.some(rx => rx.test(text)))
     return { outcome: 'TRAIN', reasoning: 'Matched training signal, CLAUDE.md fallback', p0 }
 
-  const classification = await classifyViaMDJ(text)
-  return { outcome: parseOutcome(classification), reasoning: classification.trim(), p0 }
+  // RDN-EMOJI-CLASSIFIER (2026-04-15): strip decoration before the
+  // classifier sees the text. Prevents "FEATURE_REQUEST: Add support
+  // for custom emojis" mis-routing when users include emoji in their
+  // reports. The extracted emoji list is preserved on the reasoning so
+  // nothing is lost — downstream surfaces can still show what the user
+  // actually typed.
+  const preprocessed = preprocessForClassification(text)
+  const classifierInput = preprocessed.cleanText || text
+  const classification = await classifyViaMDJ(classifierInput)
+  const emojiNote = preprocessed.emojis.length > 0
+    ? ` [emoji stripped: ${preprocessed.emojis.slice(0, 5).join(' ')}${preprocessed.emojis.length > 5 ? ` +${preprocessed.emojis.length - 5}` : ''}]`
+    : ''
+  return { outcome: parseOutcome(classification), reasoning: classification.trim() + emojiNote, p0 }
 }
