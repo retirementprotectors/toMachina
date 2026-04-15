@@ -351,22 +351,29 @@ trackerRoutes.post('/', async (req: Request, res: Response) => {
     const err = validateRequired(req.body, ['title'])
     if (err) { res.status(400).json(errorResponse(err)); return }
 
-    // TRK-14240: Duplicate detection — fires BEFORE creating a second ticket
-    const dupResult = await checkForDuplicate(req.body.title as string)
-    if (dupResult.isDuplicate && dupResult.match) {
-      res.status(409).json({
-        success: false,
-        error: 'Duplicate detected',
-        existing: {
-          item_id: dupResult.match.item_id,
-          title: dupResult.match.title,
-          status: dupResult.match.status,
-          reason: dupResult.match.reason,
-          score: dupResult.match.score,
-        },
-        channel_posted: dupResult.channelPosted,
-      })
-      return
+    // TRK-14240: Duplicate detection — fires BEFORE creating a second ticket.
+    // RDN-011 (2026-04-15): honor `force: true` from the frontend dedup
+    // dialog's "not a duplicate — submit anyway" action. Bypass fires only
+    // on explicit user confirmation; cron + dispatcher-driven submits
+    // continue to hit the guard.
+    const force = req.body.force === true
+    if (!force) {
+      const dupResult = await checkForDuplicate(req.body.title as string)
+      if (dupResult.isDuplicate && dupResult.match) {
+        res.status(409).json({
+          success: false,
+          error: 'Duplicate detected',
+          existing: {
+            item_id: dupResult.match.item_id,
+            title: dupResult.match.title,
+            status: dupResult.match.status,
+            reason: dupResult.match.reason,
+            score: dupResult.match.score,
+          },
+          channel_posted: dupResult.channelPosted,
+        })
+        return
+      }
     }
 
     const db = getFirestore()
