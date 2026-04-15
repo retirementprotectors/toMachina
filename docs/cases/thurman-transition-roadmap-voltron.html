@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eileen Thurman + Family — Survivor Transition Meeting Roadmap</title>
+<style>
+:root{--bg:#0a0e17;--card:#111827;--card2:#1a2236;--border:#1e293b;--text:#e2e8f0;--muted:#94a3b8;--green:#22c55e;--blue:#3b82f6;--red:#ef4444;--orange:#f59e0b;--gold:#d4a44c;--cyan:#06b6d4;--purple:#8b5cf6}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+.header{background:linear-gradient(135deg,#020b1a 0%,#0a1a0a 50%,#020b1a 100%);border-bottom:1px solid var(--border);padding:40px 32px;text-align:center;position:relative;overflow:hidden}
+.header::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(ellipse at 30% 50%,rgba(34,197,94,0.06) 0%,transparent 50%),radial-gradient(ellipse at 70% 50%,rgba(59,130,246,0.04) 0%,transparent 50%);pointer-events:none}
+.header h1{font-size:2.2rem;font-weight:800;background:linear-gradient(135deg,var(--green),var(--blue),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px;position:relative}
+.header .sub{font-size:0.95rem;color:var(--muted);position:relative}
+.header .badge{display:inline-block;margin-top:12px;padding:4px 16px;border-radius:999px;font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;background:rgba(34,197,94,0.1);color:var(--green);border:1px solid rgba(34,197,94,0.3);position:relative}
+.tab-bar{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px solid var(--border);overflow-x:auto;display:flex;max-width:1100px;margin:0 auto;padding:0 8px}
+.tab{padding:14px 18px;font-size:0.82rem;font-weight:600;color:var(--muted);cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;transition:all .2s}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--green);border-bottom-color:var(--green)}
+.content{max-width:1100px;margin:0 auto;padding:24px 16px}
+.panel{display:none}
+.panel.active{display:block}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:16px}
+.card h2{font-size:1.15rem;margin-bottom:12px}
+.card h3{font-size:0.95rem;margin:14px 0 8px;color:var(--green)}
+.card h4{font-size:0.88rem;margin:12px 0 6px;color:var(--blue)}
+.card p,.card li{color:var(--muted);font-size:0.88rem;margin-bottom:6px}
+.card ul,.card ol{margin-left:20px}
+.card strong{color:var(--text)}
+.stat-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:20px}
+.stat{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:18px;text-align:center}
+.stat .num{font-size:1.8rem;font-weight:800;color:var(--green);line-height:1}
+.stat .lbl{font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:4px}
+.stat.warn .num{color:var(--red)}
+.stat.orange .num{color:var(--orange)}
+.stat.blue .num{color:var(--blue)}
+table{width:100%;border-collapse:collapse;font-size:0.8rem;margin:10px 0}
+th{text-align:left;padding:8px 10px;background:var(--card2);color:var(--green);font-weight:700;font-size:0.7rem;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border)}
+td{padding:8px 10px;border-bottom:1px solid var(--border);color:var(--muted);vertical-align:top}
+td:first-child{color:var(--text);font-weight:500}
+tr:hover td{background:var(--card2)}
+tr.totals td{font-weight:700;color:var(--text);border-top:2px solid var(--border)}
+.none{color:var(--red);font-weight:700}
+.flag{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin-bottom:12px;border-left:4px solid var(--muted)}
+.flag.red{border-left-color:var(--red)}
+.flag.orange{border-left-color:var(--orange)}
+.flag.blue{border-left-color:var(--blue)}
+.flag.green{border-left-color:var(--green)}
+.flag .title{font-size:0.9rem;font-weight:700;margin-bottom:4px}
+.flag.red .title{color:var(--red)}
+.flag.orange .title{color:var(--orange)}
+.flag.blue .title{color:var(--blue)}
+.flag.green .title{color:var(--green)}
+.flag p{font-size:0.85rem;color:var(--muted);margin:4px 0}
+.flag .action{margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
+.flag .action strong{color:var(--green);font-size:0.78rem;text-transform:uppercase;letter-spacing:1px}
+.note{background:rgba(6,182,212,0.06);border:1px solid rgba(6,182,212,0.2);border-radius:8px;padding:14px 18px;margin:14px 0;font-size:0.85rem;color:var(--muted)}
+.note strong{color:var(--cyan)}
+.am-action{background:rgba(239,68,68,0.06);border:2px solid rgba(239,68,68,0.4);border-radius:10px;padding:18px 22px;margin:14px 0}
+.am-action h3{color:var(--red);font-size:0.85rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.am-action ol{margin-left:24px}
+.am-action li{color:var(--text);font-size:0.9rem;margin-bottom:6px}
+.reco-section{background:rgba(34,197,94,0.04);border:1px solid rgba(34,197,94,0.25);border-radius:12px;padding:20px;margin-bottom:18px}
+.reco-section h3{color:var(--green);font-size:1rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}
+.reco-section.purple{background:rgba(139,92,246,0.04);border-color:rgba(139,92,246,0.25)}
+.reco-section.purple h3{color:var(--purple)}
+.reco-section.gold{background:rgba(212,164,76,0.04);border-color:rgba(212,164,76,0.3)}
+.reco-section.gold h3{color:var(--gold)}
+.reco-section.blue{background:rgba(59,130,246,0.04);border-color:rgba(59,130,246,0.25)}
+.reco-section.blue h3{color:var(--blue)}
+.footer{text-align:center;padding:24px;color:var(--muted);font-size:0.72rem;border-top:1px solid var(--border);margin-top:32px}
+@media print{body{background:#fff;color:#000}.header{background:#f8f8f8;border-bottom:2px solid #000}.header h1{-webkit-text-fill-color:#000;color:#000}.tab-bar{display:none}.panel{display:block!important;page-break-inside:avoid}.card,.stat,.flag{background:#fff;border-color:#ccc}th{background:#eee;color:#000}td,.card p,.card li,.flag p{color:#333}.stat .num{color:#000}.none{color:#c00}.footer{color:#666}}
+</style>
+</head>
+<body>
+
+<div class="header">
+<h1>Eileen Thurman + Family &mdash; Survivor Transition Roadmap</h1>
+<div class="sub">Eileen 78 (DOB 11/22/1947) &bull; Robert (DOB 9/24/1947) — DECEASED &bull; 1603 Cedar Muscatine Rd, Wilton IA<br>3 Kids + 1 Grandson (farm successor) &bull; Agent of Record: Robert G King<br>Purpose: Death-Claim Pipeline + Widow SSI Transition + Income Bridge + Beneficiary Distribution + Grandson Legacy</div>
+<div class="badge">VOLTRON CSO &bull; 2026-04-15 &bull; DOCTRINAL ENHANCEMENTS LAYERED ON SHINOB1 BASELINE</div>
+</div>
+
+<div class="tab-bar">
+<div class="tab active" onclick="showPanel('agenda',this)">AGENDA</div>
+<div class="tab" onclick="showPanel('summary',this)">SUMMARY</div>
+<div class="tab" onclick="showPanel('keydates',this)">KEY DATES</div>
+<div class="tab" onclick="showPanel('roberts',this)">ROBERT'S ASSETS</div>
+<div class="tab" onclick="showPanel('eileens',this)">EILEEN'S ASSETS</div>
+<div class="tab" onclick="showPanel('income',this)">INCOME TRANSITION</div>
+<div class="tab" onclick="showPanel('grandson',this)">GRANDSON LEGACY</div>
+<div class="tab" onclick="showPanel('flags',this)">FLAGS</div>
+<div class="tab" onclick="showPanel('reco',this)" style="color:var(--green);font-weight:700">⭐ RECOMMENDATIONS</div>
+<div class="tab" onclick="showPanel('next',this)">NEXT STEPS</div>
+</div>
+
+<div class="content">
+
+<!-- AGENDA -->
+<div id="agenda" class="panel active">
+
+<div class="am-action">
+<h3>🚨 PRE-MEETING ACTION ITEMS — Run before walking in</h3>
+<ol>
+<li><strong>Confirm Robert's date of death</strong> — Firestore still shows Active. Get exact DOD from family or claim docs for inherited-IRA rollover, life-claim, and SSI switch dating.</li>
+<li><strong>Status of Robert's 2 small life policy claims</strong> — carriers, claim status, pending payout amounts. Eileen presumed primary beneficiary; verify on each.</li>
+<li><strong>Widow SSI switch</strong> — confirm SSA notified, new monthly amount Eileen will receive (likely Robert's higher benefit).</li>
+<li><strong>Eileen's 2 SPIA carrier + amount detail</strong> — exact monthly, exact exhaustion dates (8/27 and 9/27 known), spousal continuation provisions.</li>
+<li><strong>Nationwide FIA GMIB activation projection at 4/10/2027</strong> — bridges Eileen's SPIA exhaustion. Joint-life or single-life now that Robert is gone (depends on rider design).</li>
+<li><strong>Eileen KCL IUL #2844833 sustaining-premium quote</strong> — current cash value $21,912 (per 6/5/2023 report — refresh for 2025), $0 planned premium, lapses A90. Get cost to fund-to-100.</li>
+<li><strong>Pull current MW IRA statements (4 accounts)</strong> — verify tax status (Archer flagged 2 may be NQ vs IRA).</li>
+<li><strong>Confirm grandson's full legal name + DOB</strong> for any new beneficiary designations.</li>
+</ol>
+</div>
+
+<div class="card">
+<h2>Meeting Agenda — Eileen + 3 Kids: Survivor Transition + Beneficiary Distribution</h2>
+<p>This is a survivor transition meeting. Robert has passed. The session covers (1) inventory of all Robert's assets and what happens to each, (2) Eileen's continuing income picture and the 2027 income bridge, (3) the grandson legacy intent the family discussed before Robert's death, and (4) beneficiary distribution decisions for the kids.</p>
+</div>
+
+<div class="card">
+<h3>1 — Snapshot</h3>
+<ul>
+<li><strong>Robert Thurman:</strong> DOB 9/24/1947, age 78 at passing. Deceased. Death-claim pipeline active for 2 small life policies.</li>
+<li><strong>Eileen Thurman (surviving spouse):</strong> DOB 11/22/1947, age 78. Post-stroke, uninsurable for new life coverage. KCL IUL Policy 2844833 in force. Address 1603 Cedar Muscatine Rd, Wilton IA 52778-9280.</li>
+<li><strong>Family:</strong> 3 children + 1 grandson (works the big garage out back, intended farm successor).</li>
+<li><strong>Agent of Record:</strong> Robert G King, Retirement Protectors Inc.</li>
+<li><strong>Investment Professional (Nationwide):</strong> Josh Millang.</li>
+</ul>
+</div>
+
+<div class="card">
+<h3>2 — Health · Wealth · Legacy Frame</h3>
+
+<div style="background:rgba(34,197,94,0.04);border:1px solid rgba(34,197,94,0.2);border-radius:10px;padding:18px;margin:12px 0">
+<h4 style="color:var(--green);font-size:0.85rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Health</h4>
+<ul>
+<li><strong>Eileen recently had a stroke</strong> — she will not qualify for new life insurance. The KCL IUL she has is therefore irreplaceable.</li>
+<li><strong>No long-term care coverage noted</strong> for Eileen. Post-stroke, this is a real risk to discuss with the family — do they want to plan for in-home care or facility care funding?</li>
+<li><strong>Medicare:</strong> Eileen continues her own Medicare coverage. Confirm plan and any supplemental coverage at meeting.</li>
+</ul>
+</div>
+
+<div style="background:rgba(59,130,246,0.04);border:1px solid rgba(59,130,246,0.2);border-radius:10px;padding:18px;margin:12px 0">
+<h4 style="color:var(--blue);font-size:0.85rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Wealth</h4>
+<ul>
+<li><strong>Death-claim pipeline:</strong> Robert's 2 small life policies pay out (~$12-22K incremental) → combines with existing $118K balance → ~$130-140K liquid for Eileen.</li>
+<li><strong>Widow SSI switch:</strong> Eileen receives Robert's higher SSI benefit going forward.</li>
+<li><strong>Inherited-IRA rollover (Eileen as spouse):</strong> Robert's 4 MW IRAs (~$29K+ aggregate) come out of surrender 12/8/2027. Eileen inherits as spouse, eligible for full rollover treatment. Verify which are actually IRA vs NQ (Archer flag).</li>
+<li><strong>Robert's Nationwide FIA + GMIB:</strong> fire on 4/10/2027 anniversary to bridge Eileen's SPIA exhaustion (8/27 + 9/27). LPA structure was designed for this exact transition.</li>
+<li><strong>Eileen's 2 SPIAs:</strong> exhaust August + September 2027. Income gap bridged by NWHP GMIB activation.</li>
+<li><strong>Eileen's BRK-B brokerage:</strong> single-holding Berkshire Hathaway Class B, solo-name. Confirm value and discuss long-term plan.</li>
+</ul>
+</div>
+
+<div style="background:rgba(212,164,76,0.04);border:1px solid rgba(212,164,76,0.3);border-radius:10px;padding:18px;margin:12px 0">
+<h4 style="color:var(--gold);font-size:0.85rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Legacy</h4>
+<ul>
+<li><strong>Grandson succession (the family's stated wish):</strong> Robert + Eileen wanted to leave grandson a portion separate from the 3 kids. Stated structural intent: <em>"product where the DB grows, growth of DB to grandson, original principal split by 3 kids."</em> JDM consultation required for product structuring.</li>
+<li><strong>Eileen KCL IUL preservation:</strong> Lapses at A90 on $0 planned premium. Eileen uninsurable — irreplaceable. Funding to extend beyond A90 = high-priority decision for family.</li>
+<li><strong>Beneficiary cleanup across Eileen's accounts:</strong> Now that Robert is gone, primary beneficiaries on Eileen's accounts need to flow to kids/grandson per family intent.</li>
+<li><strong>Estate instruments:</strong> Trust/Will/POA/Healthcare Directive — status unknown for Eileen. Critical to update or establish post-Robert's death.</li>
+<li><strong>Farm succession:</strong> Grandson is farm successor. Real-property conveyance via deed/operating agreement, separate from financial-account beneficiary structure.</li>
+</ul>
+</div>
+</div>
+
+</div>
+
+<!-- SUMMARY -->
+<div id="summary" class="panel">
+<div class="card">
+<h2>Snapshot — Numbers at a Glance</h2>
+<div class="stat-row">
+<div class="stat orange"><div class="num">~$130-140K</div><div class="lbl">Eileen Liquid Post-Claim</div></div>
+<div class="stat"><div class="num">$159,782</div><div class="lbl">Robert Nationwide IBB</div></div>
+<div class="stat blue"><div class="num">~$29K+</div><div class="lbl">Robert MW IRAs (12/8/27)</div></div>
+<div class="stat"><div class="num">$52,279</div><div class="lbl">Eileen KCL IUL Face DB</div></div>
+</div>
+<div class="stat-row">
+<div class="stat warn"><div class="num">8&amp;9/2027</div><div class="lbl">Eileen SPIAs Exhaust</div></div>
+<div class="stat"><div class="num">4/10/2027</div><div class="lbl">NWHP GMIB Fire Date</div></div>
+<div class="stat warn"><div class="num">A90</div><div class="lbl">Eileen IUL Lapse Age</div></div>
+<div class="stat"><div class="num">3+1</div><div class="lbl">Kids + Grandson</div></div>
+</div>
+</div>
+
+<div class="card">
+<h3>Eileen's Continuing Income Picture (Post-Transition)</h3>
+<table>
+<tr><th>Source</th><th>Status</th><th>Notes</th></tr>
+<tr><td>Eileen own SSI</td><td>Continues</td><td>Confirm amount</td></tr>
+<tr><td>Robert's SSI (widow benefit)</td><td>Switches to Eileen</td><td>Higher of the two — Eileen takes Robert's</td></tr>
+<tr><td>Eileen 2 SPIAs</td><td>Continue through 8/27 + 9/27, then exhaust</td><td>Income gap begins Oct 2027</td></tr>
+<tr><td>Robert Nationwide FIA GMIB</td><td>Fire 4/10/27 anniversary</td><td>LPA replaces SPIA income</td></tr>
+<tr><td>Robert MW IRA rollover</td><td>Inherited-IRA, 12/8/27 release</td><td>RMD-driven once rolled to Eileen's IRA</td></tr>
+<tr><td>Eileen BRK-B brokerage</td><td>Held; non-income-producing</td><td>Could be reallocated</td></tr>
+</table>
+</div>
+</div>
+
+<!-- KEY DATES -->
+<div id="keydates" class="panel">
+<div class="card">
+<h2>Key Dates &amp; Triggers</h2>
+<table>
+<tr><th>Date</th><th>Event</th><th>Impact</th><th>Action Needed</th></tr>
+<tr><td><strong>Robert's DOD</strong></td><td>Triggers life-claim + IRA-inheritance + SSI switch</td><td>Anchors all downstream timing</td><td>Confirm exact date</td></tr>
+<tr><td><strong>NOW</strong></td><td>2 small life policy claims pending</td><td>~$12-22K incremental incoming</td><td>Process claims, payee Eileen</td></tr>
+<tr><td><strong>NOW</strong></td><td>Widow SSI switch in process</td><td>Eileen takes Robert's higher benefit</td><td>Confirm new monthly amount</td></tr>
+<tr><td><strong>4/10/2027</strong></td><td>Nationwide NWHP 365 rider anniversary</td><td>Optimal GMIB fire date</td><td>Activate GMIB on this anniversary</td></tr>
+<tr><td><strong>8/2/2027</strong></td><td>Eileen SPIA #1 last payment</td><td>~$1,106/mo income stops</td><td>NWHP LPA replaces (already firing)</td></tr>
+<tr><td><strong>9/6/2027</strong></td><td>Eileen SPIA #2 last payment</td><td>~$314/mo income stops</td><td>NWHP LPA replaces (already firing)</td></tr>
+<tr><td><strong>11/22/2027</strong></td><td>Eileen turns 80</td><td>NAC IPP10 issue-age may exclude</td><td>Verify with Justin Brock pre-12/8/27</td></tr>
+<tr><td><strong>12/8/2027</strong></td><td>Robert MW IRAs out of surrender (4 accts)</td><td>~$29K+ available for inherited-IRA rollover</td><td>Roll to NAC IPP10 OR Ameritas 81+ OR continue at MW</td></tr>
+<tr><td><strong>~2037 (A90)</strong></td><td>Eileen KCL IUL lapses on current premium</td><td>Loses tax-free DB protection</td><td>Decide fund-to-extend OR accept lapse</td></tr>
+</table>
+</div>
+
+<div class="note">
+<strong>Sequencing note on MW rollover + Eileen's age:</strong> Eileen turns 80 on 11/22/2027. MW surrender ends 12/8/2027 — 16 days after. NAC IPP10 typical max issue age is 80; if she's 80 + 16 days at issue, she may be blocked. <strong>Verify with Justin Brock</strong>. If NAC blocks, Ameritas 81+ is the doctrine fallback. For any NQ-portion in MW rollover, NAC CP10 base (no EBR fee — liquid source).
+</div>
+</div>
+
+<!-- ROBERT'S ASSETS -->
+<div id="roberts" class="panel">
+<div class="card">
+<h2>Robert's Modern Woodman IRAs (4 accounts, surrender out 12/8/2027)</h2>
+<table>
+<tr><th>Policy #</th><th>Type per Archer</th><th>Value</th><th>Surrender Out</th><th>Notes</th></tr>
+<tr><td>9115879</td><td>IRA (5yr term)</td><td>$10,578</td><td>12/8/27</td><td>Verify IRA vs NQ on statement</td></tr>
+<tr><td>8258565</td><td>IRA (per Archer)</td><td>unknown</td><td>12/8/27</td><td>⚠ May be NQ (Archer flag)</td></tr>
+<tr><td>8258566</td><td>IRA (per Archer)</td><td>$13,049</td><td>12/8/27</td><td>Verify on statement</td></tr>
+<tr><td>8529928</td><td>IRA (per Archer)</td><td>$5,643</td><td>12/8/27</td><td>⚠ May be NQ (Archer flag)</td></tr>
+<tr class="totals"><td>Total (verified portion)</td><td></td><td>~$29,270+</td><td></td><td>Plus #8258565 unknown</td></tr>
+</table>
+
+<div class="flag orange">
+<div class="title">⚠ TAX-STATUS VERIFICATION REQUIRED</div>
+<p>Identical issue dates + identical surrender dates suggest these were issued as a block from a consolidated rollover. Archer flagged 2 of 4 may actually be NQ despite "IRA" labeling.</p>
+<p>Inherited-IRA rollover treatment for Eileen is only available on TRUE IRA portions. NQ portions follow different inheritance rules (basis carryover, no rollover).</p>
+<div class="action"><strong>Action:</strong> Pull current MW statements. Verify each account's tax status from carrier docs. Segregate per doctrine: IRA → IPP10/Ameritas, NQ → CP10 base.</div>
+</div>
+</div>
+
+<div class="card">
+<h2>Robert's Nationwide New Heights Select 9 (FIA with GMIB)</h2>
+<table>
+<tr><th>Field</th><th>Value</th></tr>
+<tr><td>Contract #</td><td>070902050</td></tr>
+<tr><td>Original Owner / Annuitant</td><td>Robert Thurman (deceased)</td></tr>
+<tr><td>Account Type</td><td>Non-qualified (NQ)</td></tr>
+<tr><td>Issue Date</td><td>04/10/2023</td></tr>
+<tr><td>Premium Paid</td><td>$133,123.77 (originally moved from Robert's KCL GrowthTrack)</td></tr>
+<tr><td>Income Benefit Base</td><td>$159,782.21 (as of 4/11/2023; rolling up since)</td></tr>
+<tr><td>Living Benefit</td><td>Nationwide High Point 365 SM Select Lifetime Income w/ Bonus + Joint Option</td></tr>
+<tr><td>Rider Anniversary</td><td>04/10 each year</td></tr>
+<tr><td>Income Phase Eligibility Started</td><td>04/10/2024</td></tr>
+<tr><td>Rider Fee</td><td>1.10% annually</td></tr>
+<tr><td>Investment Professional</td><td>Josh Millang</td></tr>
+</table>
+
+<div class="note">
+<strong>Critical to confirm with Nationwide pre-meeting:</strong> spousal-continuation provisions on the Joint Life rider. Robert was the annuitant and primary owner. Eileen as joint or beneficiary should be able to (a) continue the contract as her own with the GMIB intact, OR (b) elect a different distribution. Spousal continuation typically preserves the IBB and LPA. <strong>This is the centerpiece income-bridge weapon for Eileen — do not let it lapse or take a non-spousal distribution.</strong>
+</div>
+
+<div class="flag green">
+<div class="title">✓ DESIGNED FOR THIS TRANSITION</div>
+<p>Per Archer's notes, this contract was funded in January 2026 specifically to replace the income from Eileen's SPIAs in 2028. The plan was working as designed before Robert's death. Spousal continuation lets Eileen still execute that plan.</p>
+<div class="action"><strong>Action:</strong> Run NWHP 365 GMIB activation projection assuming Eileen as continuing owner, fire on 4/10/2027.</div>
+</div>
+
+<div class="flag orange">
+<div class="title">⚠ PROJECTED IBB → LPA MATH (VOLTRON doctrinal — VERIFY AGAINST ACTUAL RIDER TERMS)</div>
+<p><strong>Starting IBB:</strong> $159,782.21 as of 4/11/2023. Nationwide NWHP 365 SM Select typically carries a simple-interest rollup in the 7–8% range; joint-life LPA factors run lower than single-life. Exact terms must be pulled from the contract face sheet before this math is quoted to Eileen.</p>
+<p><strong>If 7% simple rollup, activate 4/10/2027 (4 rider years elapsed):</strong></p>
+<ul>
+<li>IBB at activation ≈ $159,782 × (1 + 0.07 × 4) = ~$204,521</li>
+<li>Joint-life LPA factor at age 80 (Eileen) typically 4.5–5.0% of IBB</li>
+<li>Projected annual LPA ≈ $9,203–$10,226 → <strong>~$767–$852/mo</strong></li>
+</ul>
+<p><strong>Eileen's SPIA gap to close:</strong> ~$1,106 + ~$314 = ~$1,420/mo beginning Oct 2027.</p>
+<p><strong>Bridge coverage ratio:</strong> NWHP LPA covers only ~54–60% of the SPIA gap. The remainder (~$570–$650/mo) must come from (a) widow SSI bump, (b) MW IRA inherited-rollover income post-12/8/2027, or (c) draw from the ~$130-140K liquid pool. The "plan was working as designed" framing is directionally correct; dollar-for-dollar replacement requires a supplementary source.</p>
+<div class="action"><strong>Action:</strong> Pull NWHP 365 rider face sheet. Confirm exact rollup %, LPA factor table (single vs joint life), and whether spousal continuation switches Eileen to single-life calculation.</div>
+</div>
+
+<div class="flag blue">
+<div class="title">📋 SPOUSAL CONTINUATION — SINGLE-LIFE PAYOUT UPGRADE OPPORTUNITY</div>
+<p>Joint Life riders pay a lower LPA factor than single-life (typically 0.5–1.0 percentage point reduction) because the carrier prices for two lives. When one joint annuitant dies, some contracts allow the survivor to elect single-life LPA going forward — if the rider permits.</p>
+<p><strong>If conversion is allowed, Eileen's LPA at age 80 could move from ~4.5–5.0% (joint) to ~5.2–5.8% (single-life) on the same IBB</strong> — a meaningful $1,400–$1,800/yr lift. Contract-specific election, not guaranteed in every rider.</p>
+<div class="action"><strong>Action:</strong> Ask Nationwide specifically: "Under spousal continuation on a deceased annuitant's Joint Life GMIB, can the surviving spouse elect single-life LPA calculation going forward?" If yes, run both projections side-by-side.</div>
+</div>
+</div>
+
+<div class="card">
+<h2>Robert's 2 Small Life Policies (Claim Pipeline)</h2>
+<ul>
+<li>Per Archer: 2 small life policies, currently in death-claim processing.</li>
+<li>Estimated incremental payout: $12-22K combined.</li>
+<li>Combined with existing $118K balance → ~$130-140K liquid for Eileen.</li>
+<li>Beneficiary presumed Eileen (verify on each policy).</li>
+</ul>
+
+<div class="action" style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
+<strong style="color:var(--green);font-size:0.78rem;text-transform:uppercase;letter-spacing:1px">Action:</strong>
+<p style="color:var(--muted);font-size:0.85rem">Pull policy details on each life policy. Confirm carrier, face amount, beneficiary designation, claim status. Process claims if not already submitted.</p>
+</div>
+</div>
+</div>
+
+<!-- EILEEN'S ASSETS -->
+<div id="eileens" class="panel">
+<div class="card">
+<h2>Eileen's KCL Compass Elite IUL — Policy #2844833</h2>
+<table>
+<tr><th>Field</th><th>Value</th></tr>
+<tr><td>Policy #</td><td>2844833</td></tr>
+<tr><td>Carrier</td><td>Kansas City Life Insurance Company</td></tr>
+<tr><td>Insured</td><td>Eileen Thurman</td></tr>
+<tr><td>Type</td><td>Compass Elite Indexed Universal Life</td></tr>
+<tr><td>Issue Date</td><td>6/5/2017 (Eileen age 70 at issue)</td></tr>
+<tr><td>Underwriting</td><td>Std Non-Tobacco</td></tr>
+<tr><td>Death Benefit Option</td><td>A-Level</td></tr>
+<tr><td>Face / Current DB</td><td>$52,279</td></tr>
+<tr><td>Accumulated Value (6/5/2023)</td><td>$21,912.58</td></tr>
+<tr><td>Cash Surrender Value (6/5/2023)</td><td>$20,540.25</td></tr>
+<tr><td>Surrender Charge</td><td>$1,372.33</td></tr>
+<tr><td>Allocation</td><td>50% Indexed Acct A (cap 8.50%) / 50% Indexed Acct C (cap 11.50%) / 0% Fixed</td></tr>
+<tr><td>Planned Premium</td><td>$0 (minimum-premium structure)</td></tr>
+<tr><td>Cost of Insurance Drag</td><td>~$99/mo consuming value</td></tr>
+<tr><td>Total Premiums Paid</td><td>$21,904.59 (≈ accumulated value — minimal credited gains)</td></tr>
+<tr><td>Coverage Lapse Without Funding</td><td>Age 90 (12-year runway)</td></tr>
+</table>
+
+<div class="flag red">
+<div class="title">🔴 IRREPLACEABLE COVERAGE — PRIORITY PRESERVATION DECISION</div>
+<p>Eileen had a stroke. She is uninsurable for new life coverage. If this IUL lapses at A90, she loses the only life insurance she can have on her life — the family loses any chance of replacement coverage forever.</p>
+<p>Currently the policy is consuming its own cash value at ~$99/mo. With $0 planned premium, the policy will burn through the ~$21K cash value and lapse at age 90.</p>
+<p><strong>Small premium increase could extend coverage materially.</strong> Need 2025 annual report (current we have is 6/5/2023, 2 years stale) and a sustaining-premium quote to extend to 100.</p>
+<div class="action"><strong>Action:</strong> Request fresh in-force illustration from KCL: (a) current state, (b) cost to extend to age 100, (c) cost to extend to age 105. Family decides funding level at meeting.</div>
+</div>
+</div>
+
+<div class="card">
+<h2>Eileen's 2 SPIAs (Exhaust Late 2027)</h2>
+<ul>
+<li>Two SPIAs in Eileen's name, monthly payments through August + September 2027.</li>
+<li>Total monthly amount and exact carriers TBD on statement extraction (Archer notes lack exact amounts; previous Fact Finder showed ~$1,106 + ~$314 SPIA payments to Robert — verify which spouse owns each).</li>
+<li>After 9/27 exhaustion, Eileen loses these income streams entirely.</li>
+<li>Bridge: Robert's Nationwide NWHP 365 GMIB fire on 4/10/2027 (assuming spousal continuation works).</li>
+</ul>
+</div>
+
+<div class="card">
+<h2>Eileen's Brokerage Account — BRK-B</h2>
+<ul>
+<li>Single holding: Berkshire Hathaway Class B (BRK-B)</li>
+<li>Solo-name account (not joint with Robert)</li>
+<li>Share count + current value TBD on statement extraction</li>
+<li>Non-income-producing (Berkshire pays no dividend)</li>
+<li>Could potentially be source for grandson-legacy product premium if family decides to liquidate (taxable event — confirm cost basis)</li>
+</ul>
+</div>
+
+<div class="card">
+<h2>Eileen's Existing Liquid Balance</h2>
+<ul>
+<li>Per Archer: existing balance of $118K already in some form (CD, savings, money market — clarify at meeting)</li>
+<li>Combined with Robert's life-policy payouts ($12-22K) → $130-140K liquid for Eileen post-claim</li>
+<li>This is the cash pool Robert + Eileen had earmarked for the grandson legacy structure</li>
+</ul>
+</div>
+</div>
+
+<!-- INCOME TRANSITION -->
+<div id="income" class="panel">
+<div class="card">
+<h2>Eileen's Income Picture — Pre-Robert's Death vs Post-Transition</h2>
+
+<table>
+<tr><th>Income Source</th><th>Pre-Death</th><th>Post-Death (NOW)</th><th>Post-Bridge (2028+)</th></tr>
+<tr><td>Eileen's own SSI</td><td>Yes</td><td>Yes (continues)</td><td>Yes</td></tr>
+<tr><td>Robert's SSI</td><td>Yes</td><td>Eileen takes (widow benefit, higher)</td><td>Continues</td></tr>
+<tr><td>Eileen SPIA #1</td><td>~$1,106/mo</td><td>~$1,106/mo</td><td>$0 (ceased 8/27)</td></tr>
+<tr><td>Eileen SPIA #2</td><td>~$314/mo</td><td>~$314/mo</td><td>$0 (ceased 9/27)</td></tr>
+<tr><td>Robert KCL GrowthTrack</td><td>$480/mo (RMD)</td><td>Becomes part of Eileen's inherited IRA</td><td>Eileen RMD continues</td></tr>
+<tr><td>Robert Nationwide NWHP 365 GMIB</td><td>Deferring</td><td>Eileen continues as spousal owner</td><td>LPA fires 4/10/27 — bridges SPIA gap</td></tr>
+<tr><td>Robert MW IRA distributions</td><td>None (in surrender)</td><td>None (in surrender until 12/8/27)</td><td>Inherited-IRA RMD-driven post-rollover</td></tr>
+</table>
+
+<div class="note">
+<strong>Income bridge plan:</strong> Eileen's 2 SPIAs cease 8/27 + 9/27 (~$1,420/mo combined). Robert's NWHP 365 GMIB fires 4/10/2027, producing LPA that replaces this income. The plan was designed before Robert's death; spousal continuation on the Nationwide contract should let Eileen execute it as written.
+</div>
+</div>
+</div>
+
+<!-- GRANDSON LEGACY -->
+<div id="grandson" class="panel">
+<div class="card">
+<h2>The Grandson Legacy Strategy — Family's Stated Intent</h2>
+
+<div class="flag green">
+<div class="title">⭐ THE FAMILY'S WISH (PER FACT FINDER VERBATIM)</div>
+<p><em>"They're hopeful to find a way to move some of their cash into a product that will grow the DB and the growth of the DB would be left to the grandson and the original principal would get split by the kids still."</em></p>
+</div>
+
+<div class="card" style="background:var(--card2);margin:14px 0">
+<h3>Family Context</h3>
+<ul>
+<li><strong>3 kids</strong> — base inheritance recipients (split principal)</li>
+<li><strong>1 grandson</strong> — works the big garage out back, intended to take over the farm</li>
+<li><strong>The fairness problem:</strong> Robert + Eileen wanted grandson to receive something meaningful (he's the farm successor) but not at the expense of equally splitting the rest among the 3 kids</li>
+<li><strong>The structural answer:</strong> separate the "grown DB" from the "original principal." Grandson gets the growth, kids get principal.</li>
+</ul>
+</div>
+
+<div class="card" style="background:var(--card2);margin:14px 0">
+<h3>Structural Options (JDM Decides Product)</h3>
+<p>This structuring decision requires JDM consultation. Three structural avenues exist:</p>
+<ol style="margin-left:24px;color:var(--muted)">
+<li><strong>Multi-beneficiary IUL with fixed-amount designation</strong> — IUL on Eileen's life is OUT (uninsurable). IUL on grandson's life (with Eileen funding) — possible but unusual. Better: <em>this option may not fit given Eileen is uninsurable and Robert is gone.</em></li>
+<li><strong>Wealth-transfer annuity with enhanced DB rider</strong> — annuity on Eileen with stepped-up DB feature. Grandson named beneficiary on full DB; principal returned to estate (and 3 kids) in a separate account. This works for an uninsurable owner.</li>
+<li><strong>Two-product split structure</strong> — separate vehicles entirely: one to-grandson product (DB-focused), one to-kids product, premiums split at issue.</li>
+</ol>
+<p style="margin-top:10px"><strong>Constraints to discuss with JDM:</strong>
+<br>• Eileen is the only living owner-candidate
+<br>• Eileen is uninsurable (rules out IUL on her life)
+<br>• Available cash is ~$130-140K (depending on final claim payouts)
+<br>• Grandson is presumed not an Eligible Designated Beneficiary under SECURE Act 2.0 (10-yr drain rule applies for inherited IRAs; less restrictive for non-IRA products)</p>
+</div>
+
+<div class="note">
+<strong>What this roadmap does NOT recommend:</strong> a specific product. Doctrine: surface the structural requirement and option space. Product selection at this complexity is JDM territory.
+</div>
+
+<div class="card" style="background:var(--card2);margin:14px 0">
+<h3>VOLTRON Doctrinal Layer — SECURE Act 2.0 Implications for Grandson Inheritance</h3>
+<p><strong>Why the IRA-vs-annuity distinction matters for the grandson:</strong> SECURE Act 2.0 (and 2024 final Treasury regs) treats grandson as a <em>Designated Beneficiary but NOT an Eligible Designated Beneficiary</em>. The inheritance rules differ sharply between product types:</p>
+<table>
+<tr><th>Inheritance Vehicle</th><th>Grandson's Distribution Rule</th><th>Implication</th></tr>
+<tr><td>Inherited Traditional IRA (from any MW IRA portion)</td><td>10-year drain + annual RMDs (2024 final rule)</td><td>Forces fast income recognition at grandson's bracket; may spike his taxes. Compressed timeline limits compounding.</td></tr>
+<tr><td>Inherited Roth IRA</td><td>10-year drain, no annual RMD</td><td>Can defer full 10 years then lump; tax-free growth preserved.</td></tr>
+<tr><td>Inherited Non-Qualified Annuity (NQ)</td><td>5-year drain OR stretch-over-life-expectancy (carrier-dependent "non-qualified stretch")</td><td>Stretch option preserves long-duration compounding AND tax-deferred growth of untaxed gain portion. Best legacy wrapper for grandson if structured right.</td></tr>
+<tr><td>Inherited Life Insurance DB</td><td>Income-tax-free lump sum to beneficiary</td><td>Cleanest — no tax event, no RMD timing, no drain rule. But requires an insurable life.</td></tr>
+</table>
+<p><strong>Planning implication:</strong> The family's stated wish ("DB growth to grandson, principal to 3 kids") maps most cleanly onto a <em>life-insurance structure</em> (cleanest tax) OR a <em>non-qualified annuity with stretch provision</em> (if life is off the table for Eileen's uninsurability). Using Robert's inherited IRAs to fund the grandson portion is the worst of the four — grandson gets 10-year drain with RMDs, compressing the very compounding that makes this structure attractive.</p>
+<p><strong>Structural recommendation to surface with JDM:</strong> Segregate the funding source. The $118K existing liquid balance + $12-22K life-claim proceeds are NQ money — that's the right pool for the grandson vehicle (NQ annuity with stretch). The MW inherited-IRA portion should stay in Eileen's IRA chassis for her lifetime income, then flow to the 3 kids (who each get 10-year drain but are splitting it 3 ways, reducing bracket impact per heir).</p>
+</div>
+
+<div class="card" style="background:var(--card2);margin:14px 0">
+<h3>VOLTRON Doctrinal Layer — BRK-B Cost-Basis Tax Trap</h3>
+<p><strong>Berkshire Hathaway Class B (BRK-B) is a long-hold cost-basis trap.</strong> Berkshire pays no dividend by design — holders rarely trigger taxable events inside the position. Most multi-decade BRK-B holders have cost basis well below current market (BRK-B traded under $100/share in 2014; over $400/share by 2024).</p>
+<p><strong>If Eileen liquidates BRK-B to fund the grandson product:</strong></p>
+<ul>
+<li>Entire unrealized gain hits as LTCG in the liquidation year</li>
+<li>At Iowa + federal, LTCG for a single filer in Eileen's likely bracket runs 15% fed + ~3-6% Iowa (Iowa capital gains can get deducted if the asset is a qualifying Iowa business — Berkshire isn't, so it's full bracket)</li>
+<li>Net-of-tax proceeds may be meaningfully less than gross BRK-B value</li>
+</ul>
+<p><strong>Better path:</strong> <em>Keep BRK-B until Eileen's death, let the heirs receive it with stepped-up basis</em> (IRC §1014). At her death, BRK-B basis resets to FMV. Heirs can liquidate immediately with zero built-in gain. This is a far cleaner transfer than liquidating during life.</p>
+<p><strong>Planning implication:</strong> Fund the grandson product from the $118K liquid balance + life-claim proceeds, NOT from BRK-B liquidation. Flag BRK-B as "hold-to-step-up" legacy asset — could go to any mix of grandson/kids at death with no embedded tax drag.</p>
+<div class="action"><strong>Action at meeting:</strong> Get cost basis on BRK-B from Eileen's brokerage statements. If basis is low (likely), reframe BRK-B as a stepped-up-basis legacy vehicle and leave it alone.</div>
+</div>
+
+<div class="card" style="background:var(--card2);margin:14px 0">
+<h3>VOLTRON Doctrinal Layer — Iowa Step-Up Basis on Farm (Not Community Property)</h3>
+<p><strong>Iowa is a separate-property state.</strong> Community-property states grant a full step-up on both spouses' halves at first death; Iowa does not. The treatment depends on how title was held:</p>
+<ul>
+<li><strong>JTWROS (joint tenants with right of survivorship):</strong> Eileen gets 50% step-up on Robert's decedent half. Her own half retains original basis. On later sale, Eileen pays LTCG on her half's gain only.</li>
+<li><strong>Tenants in common:</strong> Same result — Eileen gets step-up on Robert's undivided share.</li>
+<li><strong>Solely Robert's name:</strong> Farm passes via will/trust; 100% step-up at Robert's death.</li>
+<li><strong>Solely Eileen's name:</strong> No step-up event (she's still alive).</li>
+</ul>
+<p><strong>Planning implication for grandson farm succession:</strong> If farm was jointly held, the "conveyance to grandson" has two tax zones — the stepped-up Robert half transfers cleanly, Eileen's original-basis half carries embedded gain. Consider waiting until Eileen's death (second step-up) vs conveying during life. For a young grandson on the farm now (operating the garage, running equipment), a <em>lease-to-purchase arrangement</em> or <em>qualified personal residence trust for the homestead</em> can be viable halfway measures.</p>
+<div class="action"><strong>Action at meeting:</strong> Pull deed(s) on the farm. Confirm titling — JTWROS vs TIC vs sole. Coordinate with estate attorney on best conveyance mechanism given Iowa rules + grandson's age + family dynamics.</div>
+</div>
+
+<div class="card" style="background:var(--card2);margin:14px 0">
+<h3>VOLTRON Doctrinal Layer — Widow SSI Election Procedure</h3>
+<p>The widow/widower benefit is NOT automatic. SSA requires Eileen to formally elect — and the election choices have permanent consequences:</p>
+<ul>
+<li><strong>Survivor benefit filing window:</strong> Typically contact SSA within the month of death; benefits can be retroactive up to 6 months (survivor) but not further.</li>
+<li><strong>Eileen's two benefits:</strong> (a) her own earned SSI and (b) Robert's survivor benefit. She receives the <em>higher of the two</em>, not the sum.</li>
+<li><strong>Election option:</strong> If Eileen took her own earned SSI before Robert's FRA, she may be permanently locked into a reduced amount. Survivor benefit calculation is separate — she can switch to the higher one, and it is recomputed based on Robert's PIA at his death, not at when he filed.</li>
+<li><strong>Medicare Part B premium:</strong> Usually withheld from the SSI payment. Confirm premium auto-adjusts when payment source changes.</li>
+</ul>
+<p><strong>Planning implication:</strong> Don't assume SSA auto-switched Eileen to Robert's benefit. Call SSA (800-772-1213) or visit an office with Robert's death certificate to formally file for survivor benefit. The exact monthly amount Eileen receives going forward is foundational to every income projection in this roadmap.</p>
+<div class="action"><strong>Action pre-meeting:</strong> Verify with SSA that Eileen's survivor election is active and monthly amount is documented. If not filed yet, this is the single most urgent administrative item — every day delayed is a missed payment.</div>
+</div>
+</div>
+</div>
+
+<!-- FLAGS -->
+<div id="flags" class="panel">
+
+<div class="flag red">
+<div class="title">🔴 FIRESTORE STILL SHOWS ROBERT AS ACTIVE</div>
+<p>Robert is deceased; Firestore record shows status: Active. Platform doesn't yet support decedent mode (ZRD-SUPER-WRITE-DECEDENT-MODE pending).</p>
+<div class="action"><strong>Action:</strong> Manually update Robert's record post-meeting. Get exact DOD documented for downstream paperwork.</div>
+</div>
+
+<div class="flag red">
+<div class="title">🔴 EILEEN UNINSURABLE — KCL IUL IRREPLACEABLE</div>
+<p>Eileen had a stroke. Cannot qualify for new life insurance. KCL IUL Policy 2844833 is the only life coverage on her life. Lapses A90 on $0 planned premium.</p>
+<div class="action"><strong>Action:</strong> Get sustaining-premium quote from KCL. Family decides funding level at meeting.</div>
+</div>
+
+<div class="flag orange">
+<div class="title">⚠ MW IRA TAX STATUS UNVERIFIED</div>
+<p>Archer flagged that 2 of Robert's 4 MW accounts may be NQ rather than IRA. Inherited-IRA rollover for Eileen only works on true IRA portions.</p>
+<div class="action"><strong>Action:</strong> Pull MW statements pre-meeting. Confirm tax status of each account before product selection.</div>
+</div>
+
+<div class="flag orange">
+<div class="title">⚠ EILEEN'S 80TH BIRTHDAY VS NAC IPP10 ISSUE AGE</div>
+<p>Eileen turns 80 on 11/22/2027. MW surrender ends 12/8/2027 — 16 days AFTER her 80th. NAC IPP10 max issue age may exclude her.</p>
+<div class="action"><strong>Action:</strong> Verify NAC IPP10 max issue age with Justin Brock. If 80, plan must accommodate Ameritas 81+ pivot for the IRA portion.</div>
+</div>
+
+<div class="flag orange">
+<div class="title">⚠ NATIONWIDE NWHP 365 SPOUSAL CONTINUATION DETAILS</div>
+<p>Robert was annuitant + owner. Eileen's ability to continue the contract intact (preserving IBB + future LPA) depends on Joint Life rider provisions.</p>
+<div class="action"><strong>Action:</strong> Call Nationwide to confirm spousal continuation mechanics. This is the centerpiece income bridge — DO NOT let it lapse.</div>
+</div>
+
+<div class="flag blue">
+<div class="title">📋 BENEFICIARY UPDATE NEEDED ACROSS EILEEN'S ACCOUNTS</div>
+<p>With Robert gone, every account where Robert was primary or contingent beneficiary needs updating. Default flow: kids as new contingents (with grandson handled via separate structured product).</p>
+<div class="action"><strong>Action:</strong> Walk through every account at meeting. Get updated beneficiary intent in writing.</div>
+</div>
+
+<div class="flag blue">
+<div class="title">📋 ESTATE INSTRUMENTS POST-DEATH UPDATE</div>
+<p>Trust, will, POA, healthcare directive — Eileen's instruments may have referenced Robert and need update. Critical post-Robert's death.</p>
+<div class="action"><strong>Action:</strong> Discovery items at meeting. Coordinate with estate attorney for updates.</div>
+</div>
+
+<div class="flag blue">
+<div class="title">📋 LTC RISK DISCUSSION FOR EILEEN POST-STROKE</div>
+<p>No LTC coverage noted. Post-stroke, this is a real planning concern. Family may want to plan for in-home or facility care funding from existing liquid balance.</p>
+<div class="action"><strong>Action:</strong> Surface at meeting. Decide whether to set aside dedicated LTC fund from $130-140K liquid pool.</div>
+</div>
+
+</div>
+
+<!-- RECOMMENDATIONS -->
+<div id="reco" class="panel">
+
+<div class="reco-section">
+<h3>Health Reco #1 — Preserve Eileen's KCL IUL (Fund-to-Extend)</h3>
+<p><strong>Action:</strong> Obtain sustaining premium quote to keep KCL IUL Policy 2844833 in force past A90 (target: A100 or A105). Compare per-year sustaining premium cost vs the irreplaceable nature of coverage.</p>
+<p><strong>Doctrine basis:</strong> Eileen is uninsurable. Replacement is impossible. Preservation cost is justified at almost any reasonable price under the irreplaceable-coverage rule.</p>
+<p><strong>Premium funding source:</strong> small annual additions can come from Eileen's monthly income or one-time lump from $130-140K liquid pool.</p>
+<p>📄 <em>Illustration attachment slot:</em> KCL Policy 2844833 in-force illustration showing current state + sustaining-premium scenario to A100.</p>
+</div>
+
+<div class="reco-section blue">
+<h3>Wealth Reco #1 — Spousal Continuation of Robert's Nationwide NWHP 365</h3>
+<p><strong>Action:</strong> Eileen elects spousal continuation on Robert's Nationwide NWHP 365 contract. Preserves the $159K+ Income Benefit Base. Activate GMIB on 4/10/2027 anniversary to bridge Eileen's SPIA exhaustion.</p>
+<p><strong>Why now (then):</strong> The contract was designed in 2023 specifically to replace the SPIA income exhausting in 2027. Spousal continuation lets Eileen execute that plan as written. Activating on the rider anniversary maximizes the rollup-to-LPA conversion.</p>
+<p><strong>Doctrine basis:</strong> Existing-contract execution, not new placement. Don't overthink it — the plan was right, the trigger event happened, execute.</p>
+<p>📄 <em>Illustration attachment slot:</em> Nationwide NWHP 365 GMIB activation projection assuming Eileen as continuing owner, fire date 4/10/2027.</p>
+</div>
+
+<div class="reco-section blue">
+<h3>Wealth Reco #2 — Inherited-IRA Rollover of Robert's MW IRAs (12/8/2027)</h3>
+<p><strong>Action:</strong> When Robert's 4 MW IRAs come out of surrender 12/8/2027, execute spousal inherited-IRA rollover for Eileen on the verified-IRA portions. Roll into NAC IPP10 (if Eileen's age qualifies for issue) OR Ameritas 81+ (if NAC blocks at 80+). For any NQ-portion (pending Archer-flag verification), CP10 base — no EBR fee since liquid post-surrender.</p>
+<p><strong>Doctrine basis:</strong>
+<br>• IRAs → IPP10 with GMIB (income-product doctrine for qualified money)
+<br>• NQ → CP10 base, no EBR (liquid source = no bonus required; accumulation = fee-clean)
+<br>• Bonus only to overcome surrender — MW is liquid post-surrender, so no bonus required</p>
+<p><strong>Issue-age verification first:</strong> Justin Brock confirms NAC IPP10 issue mechanics for Eileen at 80 + 16 days. If blocked, pivot to Ameritas 81+.</p>
+<p>📄 <em>Illustration attachment slots:</em>
+<br>(a) NAC IPP10 (or Ameritas 81+) for IRA portion
+<br>(b) NAC CP10 base for NQ portion (if MW NQ verified)</p>
+</div>
+
+<div class="reco-section purple">
+<h3>Legacy Reco #1 — Grandson Succession Structure (JDM Consultation Required)</h3>
+<p><strong>Action:</strong> Decide structural avenue (JDM call):
+<br>(a) Wealth-transfer annuity on Eileen with enhanced DB rider — grandson on DB, kids on principal
+<br>(b) Two-product split — one to-grandson, one to-kids, premiums split at issue
+<br>(c) Other JDM-recommended structure that fits Eileen's uninsurable status</p>
+<p><strong>Source funding:</strong> Eileen's $130-140K liquid pool (existing $118K + life-policy payouts). Premium amount = JDM + family decision.</p>
+<p><strong>Beneficiary structure:</strong> Original principal → 3 kids equal split; Death-benefit growth → grandson.</p>
+<p><strong>Note on IUL pathway:</strong> the original family wish referenced "DB growth to grandson." Standard IUL implementation requires the insured to be insurable. Eileen is not. JDM may need to construct this with an annuity-DB instead of life-DB, or use grandson's own life as the IUL insured (with Eileen funding).</p>
+<p><strong>Why this is JDM territory:</strong> multi-beneficiary product structuring with DB-vs-principal segregation under uninsurable-owner constraint is at the complexity ceiling of warrior/CTO scope. JDM picks the avenue, advisor executes paperwork.</p>
+<p>📄 <em>Illustration attachment slot:</em> TBD post-JDM-decision on structural avenue.</p>
+</div>
+
+<div class="reco-section gold">
+<h3>Legacy Reco #2 — Beneficiary Cleanup Across Eileen's Accounts</h3>
+<p><strong>Action:</strong> Walk Eileen + 3 kids through every account's named beneficiary. Update where Robert was named primary or contingent. Confirm 3-kids-split intent for non-grandson assets; reserve grandson product for the structured-DB allocation.</p>
+<p><strong>Accounts to verify:</strong> NWHP 365 (continuing, name kids as contingent post-Eileen), KCL IUL (Eileen's), KCL SPIAs (until exhaustion), MW IRAs (post-rollover), BRK-B brokerage.</p>
+<p><strong>Standard pattern post-Robert:</strong> Eileen's primary lifetime claim, 3 kids equally split as contingent. Grandson handled separately via Legacy Reco #1.</p>
+</div>
+
+<div class="reco-section gold">
+<h3>Legacy Reco #3 — Estate Instruments &amp; Farm Succession</h3>
+<p><strong>Action:</strong> Discover Eileen's trust/will/POA/healthcare-directive status. Update where Robert was named (spouse default fiduciary now needs update — likely a kid or trusted family member).</p>
+<p><strong>Farm succession to grandson:</strong> Real-property conveyance via deed or operating agreement, NOT via beneficiary form. Coordinate with estate attorney for proper instrument.</p>
+<p><strong>Why farm succession is separate from grandson DB:</strong> the farm is real property. The DB-to-grandson product is liquidity for grandson (taxes, operating capital, equipment). The farm itself is conveyed via property law. Two different mechanisms.</p>
+</div>
+
+</div>
+
+<!-- NEXT STEPS -->
+<div id="next" class="panel">
+<div class="card">
+<h2>Sequenced Action Plan</h2>
+
+<h3>Immediate (Pre-Meeting + Post-Meeting Same Week)</h3>
+<ul>
+<li>Confirm Robert's exact date of death (anchors all paperwork)</li>
+<li>Process 2 small life-policy claims (Eileen as beneficiary)</li>
+<li>Confirm widow SSI switch + new monthly amount Eileen will receive</li>
+<li>Pull current 2025 statements: Nationwide NWHP 365, KCL IUL #2844833, all 4 MW IRAs, Eileen's 2 SPIAs, Eileen's BRK-B brokerage</li>
+<li>Verify MW IRA tax status (Archer flag — 2 of 4 may be NQ)</li>
+<li>Call Nationwide: confirm spousal continuation mechanics on NWHP 365</li>
+<li>Justin Brock: NAC IPP10 max issue age verification for Eileen 12/8/2027</li>
+<li>Manually update Firestore: Robert → deceased status</li>
+</ul>
+
+<h3>Near-Term (Within 30 Days of Meeting)</h3>
+<ul>
+<li>Eileen elects spousal continuation on Nationwide NWHP 365</li>
+<li>Beneficiary cleanup paperwork on every Eileen account</li>
+<li>KCL IUL fund-to-extend decision (if approved): increase premium per quote</li>
+<li>JDM grandson-legacy product structuring discussion → product decision</li>
+<li>Estate attorney engagement for instruments update + farm-deed structure</li>
+</ul>
+
+<h3>2027 (Transition Year)</h3>
+<ul>
+<li>April 10, 2027: Activate Nationwide NWHP 365 GMIB (rider anniversary)</li>
+<li>August 2027: Eileen SPIA #1 ceases — NWHP LPA covers</li>
+<li>September 2027: Eileen SPIA #2 ceases — NWHP LPA covers</li>
+<li>November 22, 2027: Eileen turns 80 — confirm IPP10/Ameritas plan</li>
+<li>December 8, 2027: MW IRAs out of surrender — execute inherited-IRA rollover into IPP10/Ameritas/CP10 per tax-status outcome</li>
+</ul>
+
+<h3>2028+ (Post-Transition Steady State)</h3>
+<ul>
+<li>NWHP GMIB providing primary income for Eileen</li>
+<li>New IPP10/Ameritas chassis providing secondary income from MW rollover</li>
+<li>KCL IUL on Eileen continuing (if funded) — irreplaceable family DB</li>
+<li>Grandson legacy product accumulating DB for transfer at Eileen's eventual death</li>
+<li>Annual review: confirm income coverage, update beneficiaries on life events</li>
+</ul>
+</div>
+</div>
+
+</div>
+
+<div class="footer">
+SHINOB1 CTO &bull; Drafted 2026-04-15 03:00 CT &bull; Sources: existing thurman-transition-roadmap.html (VOLTRON 2026-04-14) + Thurman Fact Finder 9.28.23 + Nationwide NWHP 365 Summary (4/2023) + KCL IUL Annual Report (6/5/2023)<br>
+Pre-meeting roadmap. Robert deceased — meeting is with Eileen + 3 kids. Run illustrations + pull current statements before walking in. All recos apply locked JDM product doctrine.
+</div>
+
+<script>
+function showPanel(id,el){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  el.classList.add('active');
+}
+</script>
+
+</body>
+</html>
