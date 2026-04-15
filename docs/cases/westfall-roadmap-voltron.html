@@ -88,6 +88,7 @@ tr.totals td{font-weight:700;color:var(--text);border-top:2px solid var(--border
 <div class="tab" onclick="showPanel('income',this)">INCOME PROFILE</div>
 <div class="tab" onclick="showPanel('cds',this)">CD STRATEGY</div>
 <div class="tab" onclick="showPanel('flags',this)">FLAGS</div>
+<div class="tab" onclick="showPanel('farmland',this)" style="color:var(--green)">🌾 FARMLAND</div>
 <div class="tab" onclick="showPanel('reco',this)" style="color:var(--green);font-weight:700">⭐ RECOMMENDATIONS</div>
 <div class="tab" onclick="showPanel('next',this)">NEXT STEPS</div>
 </div>
@@ -611,6 +612,78 @@ tr.totals td{font-weight:700;color:var(--text);border-top:2px solid var(--border
 </div>
 
 <!-- NEXT STEPS -->
+
+<div id="farmland" class="panel">
+<div class="card">
+<h2>🌾 Farmland — Planning-Grade Valuation</h2>
+<p style="color:var(--muted);font-size:0.78rem">Johnson County, IA · ISU 2025 Land Value Survey (CARD xlsx) · MEGAZORD/FARMLAND-001 v1 · 2026-04-15</p>
+
+<div class="stat-row" style="margin-top:16px">
+  <div class="stat"><div class="num">$1,751,880</div><div class="lbl">Central Estimate</div></div>
+  <div class="stat blue"><div class="num">$1,055,880</div><div class="lbl">Low Range</div></div>
+  <div class="stat orange"><div class="num">$2,280,880</div><div class="lbl">High Range</div></div>
+  <div class="stat"><div class="num">$13,476</div><div class="lbl">Johnson Avg $/ac</div></div>
+</div>
+
+<h3>Central Anchor</h3>
+<p>At <strong>~130 acres × Johnson County 2025 average $13,476/acre</strong>, the Westfall farmland holding is estimated at <strong>~$1,751,880 total market value</strong>. Range $1,055,880–$2,280,880 covers acreage + land-quality uncertainty.</p>
+
+<h3>How Acres Were Estimated</h3>
+<p>Chris receives <strong>$36,000/yr cash rent</strong> as landowner (not operator). Iowa farmland cash rent 2025 ranges roughly $257-300/acre depending on land quality. Implied acreage:</p>
+<table>
+<thead><tr><th>Scenario</th><th>Rent assumption</th><th>$/ac (Johnson avg)</th><th>Total value</th></tr></thead>
+<tbody><tr><td>120 acres</td><td>$300/ac</td><td>$13,476/ac</td><td><strong>$1,617,120</strong></td></tr><tr><td>130 acres</td><td>$277/ac</td><td>$13,476/ac</td><td><strong>$1,751,880</strong></td></tr><tr><td>140 acres</td><td>$257/ac</td><td>$13,476/ac</td><td><strong>$1,886,640</strong></td></tr></tbody>
+</table>
+<p style="font-size:0.78rem;color:var(--muted);margin-top:6px">Actual acreage resolves when parcel PINs are collected at the meeting.</p>
+
+<h3>Tier-Weighted Scenarios (Synthesized)</h3>
+<p>Johnson County-specific tier values synthesized from East Central district ratio method: <code>county_tier = district_tier × (county_avg / district_wavg)</code>. Ratio = 1.0551. Outlier check: 5.5% (non-outlier, &lt;25% threshold).</p>
+<table>
+<thead><tr><th>Acres</th><th>LOW tier ($8,799/ac)</th><th>MEDIUM tier ($12,620/ac)</th><th>HIGH tier ($16,292/ac)</th></tr></thead>
+<tbody><tr><td><strong>120 acres</strong> <span style="color:var(--muted);font-size:0.75rem">(Low-acreage / premium-rent)</span></td><td>$1,055,880</td><td>$1,514,400</td><td><strong>$1,955,040</strong></td></tr><tr><td><strong>130 acres</strong> <span style="color:var(--muted);font-size:0.75rem">(Mid-band (central estimate))</span></td><td>$1,143,870</td><td>$1,640,600</td><td><strong>$2,117,960</strong></td></tr><tr><td><strong>140 acres</strong> <span style="color:var(--muted);font-size:0.75rem">(High-acreage / average-rent)</span></td><td>$1,231,860</td><td>$1,766,800</td><td><strong>$2,280,880</strong></td></tr></tbody>
+</table>
+
+<h3>Underlying Data Sources</h3>
+<table>
+<tbody>
+<tr><td>Johnson County 2025 avg</td><td><strong>$13,476/acre</strong></td></tr>
+<tr><td>East Central District 2025 HIGH</td><td>$15,442/acre</td></tr>
+<tr><td>East Central District 2025 MEDIUM</td><td>$11,961/acre</td></tr>
+<tr><td>East Central District 2025 LOW</td><td>$8,340/acre</td></tr>
+<tr><td>East Central Weighted Avg</td><td>$12,772/acre</td></tr>
+<tr><td>Source</td><td>ISU Center for Agricultural &amp; Rural Development (CARD) — Iowa Farmland Value Survey 1941-2025</td></tr>
+<tr><td>Johnson County trend</td><td>2020: $8,864 → 2025: $13,476 (+52% / 5yr)</td></tr>
+</tbody>
+</table>
+
+<h3 style="color:var(--orange)">⚠️ What This Is NOT</h3>
+<ul>
+<li><strong>Not parcel-verified.</strong> These numbers are planning-grade estimates. Actual market value requires parcel PINs + recent comps + on-site assessment.</li>
+<li><strong>No comp sales included.</strong> v3 Regrid integration (parked at JDM-GATE-PENDING-V2-ROI) provides county-level comp data; not available today.</li>
+<li><strong>No deed history / ownership verification.</strong> Requires parcel-level data feed (Regrid or county assessor).</li>
+<li><strong>No legal description.</strong> Same — parcel-level only.</li>
+<li><strong>Tier assumption is synthesized,</strong> not surveyed. ISU survey tiers only at district grain; Johnson County specifically is derived by ratio. LOW confidence per MEGAZORD GAP-2 ruling until NASS cross-check lands post-cascade.</li>
+</ul>
+
+<h3 style="color:var(--green)">✓ Data-Upgrade Path</h3>
+<ol>
+<li><strong>At the Archer meeting:</strong> collect parcel PINs from Chris. Likely 1-3 parcels based on $36K rent. Township/Range/Section also helpful.</li>
+<li><strong>Post-meeting:</strong> parcel-level acreage + quality-tier assignment replaces rent-derived acres estimate → confidence upgrades MEDIUM.</li>
+<li><strong>Post-v1 Gate A:</strong> cache-backed valuations via <code>POST /api/valuation/farmland</code>; confidence upgrades HIGH when NASS cross-checks agree within 10%.</li>
+<li><strong>Post-v3 Regrid (JDM-gate-pending):</strong> reverse-discovered parcels by owner name + recent comps + deed history surface automatically. Confidence HIGH with comp-backed sanity check.</li>
+</ol>
+
+<h3>For the Archer Meeting Conversation</h3>
+<ul>
+<li><strong>Client education:</strong> "Your farmland is worth roughly $1.6M-$2M based on Iowa State survey data for Johnson County. We'll tighten this number once we capture your specific parcel numbers."</li>
+<li><strong>Estate planning foundation:</strong> If farmland exceeds ~$1,751,880 and combined with other assets approaches $2.5M+, revocable trust / farmland succession structure conversation starts making sense.</li>
+<li><strong>Net-worth picture:</strong> Farmland is likely the largest single asset in Chris's portfolio. Goes above the CD + annuity + Medicare discussion, not below.</li>
+<li><strong>Succession real numbers:</strong> Iowa farmland has appreciated 52% in 5 years. Holding through estate vs selling vs intra-family transfer each have material tax consequences at this value level. Worth a dedicated conversation after the Archer meeting surfaces intent.</li>
+</ul>
+
+</div>
+</div>
+
 <div id="next" class="panel">
 <div class="card">
 <h2>Sequenced Action Plan</h2>
