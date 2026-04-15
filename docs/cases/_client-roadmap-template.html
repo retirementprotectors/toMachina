@@ -218,16 +218,16 @@ Include commentary on current allocation mix vs target.</div>
 <!-- Real Estate -->
 <div id="assets-real" class="l3-panel">
 <div class="l4-bar">
-<div class="l4-tab active" onclick="showL4('assets-real','real-ag',this)">Agriculture</div>
-<div class="l4-tab" onclick="showL4('assets-real','real-agres',this)">Ag Residential</div>
+<div class="l4-tab active" onclick="showL4('assets-real','real-residential',this)">Residential</div>
+<div class="l4-tab" onclick="showL4('assets-real','real-ag',this)">Agriculture</div>
 <div class="l4-tab" onclick="showL4('assets-real','real-comm',this)">Commercial</div>
 </div>
 
-<div id="real-ag" class="l4-panel active">
-<div class="stub"><strong>STUB:</strong> Agricultural real estate — farmland, tillable acres, pasture, timber. Parcel-level table with acreage, assessed value, estimated market value, county/township, tenant info if leased, legal description. Link to ISU parcel data if available.</div>
+<div id="real-residential" class="l4-panel active">
+<div class="stub"><strong>STUB:</strong> Residential real estate — client's primary residence, vacation home, any owner-occupied housing. Address, assessed value, estimated market value, mortgage status (if any), legal description. If residence is on farmland, include it here (the house itself, not the farmland).</div>
 </div>
-<div id="real-agres" class="l4-panel">
-<div class="stub"><strong>STUB:</strong> Ag-residential structures — homestead on farmland. Structure value separate from land.</div>
+<div id="real-ag" class="l4-panel">
+<div class="stub"><strong>STUB:</strong> Agricultural real estate — farmland, tillable acres, pasture, timber. Parcel-level table with acreage, assessed value, estimated market value, county/township, tenant info if leased, legal description. Link to ISU parcel data if available.</div>
 </div>
 <div id="real-comm" class="l4-panel">
 <div class="stub"><strong>STUB:</strong> Commercial real estate — business property, rental income-producing, non-residential.</div>
@@ -353,14 +353,10 @@ Include commentary on current allocation mix vs target.</div>
 <!-- Analysis > Assets -->
 <div id="ana-assets" class="l2-panel">
 <div class="l3-bar">
-<div class="l3-tab active" onclick="showL3('ana-assets','assets-slg',this)">Safety / Liquidity / Growth</div>
-<div class="l3-tab" onclick="showL3('ana-assets','assets-typestory',this)">Type Story</div>
+<div class="l3-tab active" onclick="showL3('ana-assets','assets-typestory',this)">Type Story</div>
 <div class="l3-tab" onclick="showL3('ana-assets','assets-taxstory',this)">Tax Story</div>
 </div>
-<div id="assets-slg" class="l3-panel active">
-<div class="stub"><strong>STUB — populate per case:</strong> S/L/G analysis. Current allocation percentages. What client HAS vs what client NEEDS. Post-Reco allocation shift. Commentary on whether current mix matches retirement-stage needs.</div>
-</div>
-<div id="assets-typestory" class="l3-panel">
+<div id="assets-typestory" class="l3-panel active">
 <div class="stub"><strong>STUB — populate per case:</strong> Type story. What kinds of accounts/products does the client concentrate in? What's missing? What does the mix tell us about risk tolerance + advisor history? What should we add/remove/rebalance?</div>
 </div>
 <div id="assets-taxstory" class="l3-panel">
@@ -426,41 +422,59 @@ Include commentary on current allocation mix vs target.</div>
 </div>
 </div>
 
-<!-- Sub-tab navigation (sub-tabs are dynamic per case — add/remove as recos grow) -->
-<div style="display:flex;gap:6px;margin:20px 0 0;border-bottom:2px solid var(--border);padding:0 4px">
-<div onclick="showSub('sub-reco-1',this)" class="sub-tab active" style="padding:12px 20px;font-size:0.85rem;font-weight:700;color:var(--purple);cursor:pointer;border-bottom:3px solid var(--purple);margin-bottom:-2px;background:rgba(139,92,246,0.08);border-radius:8px 8px 0 0">🎯 RECO #1 &mdash; [TITLE]</div>
-<div onclick="showSub('sub-reco-2',this)" class="sub-tab" style="padding:12px 20px;font-size:0.85rem;font-weight:700;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;border-radius:8px 8px 0 0">🟢 RECO #2 &mdash; [TITLE]</div>
-<div onclick="showSub('sub-reco-2-alt',this)" class="sub-tab" style="padding:12px 20px;font-size:0.85rem;font-weight:700;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;border-radius:8px 8px 0 0">🔵 RECO #2 ALT &mdash; [TITLE]</div>
+<!-- Recommendations organized into three buckets: Health · Wealth · Legacy -->
+<div class="l2-bar">
+<div class="l2-tab active" onclick="showL2('p-recommendations','reco-health',this)">Health</div>
+<div class="l2-tab" onclick="showL2('p-recommendations','reco-wealth',this)">Wealth</div>
+<div class="l2-tab" onclick="showL2('p-recommendations','reco-legacy',this)">Legacy</div>
 </div>
 
-<!-- Reco #1 sub-panel -->
-<div id="sub-reco-1" class="sub-panel" style="display:block;padding-top:20px">
-<div class="card" style="background:rgba(139,92,246,0.04);border-left:4px solid #a78bfa">
-<h2 style="color:#a78bfa">Recommendation #1 &mdash; [Title]</h2>
-<div class="stub"><strong>STUB:</strong> Primary recommendation statement. What we're recommending, why, what source money, what destination product, strategic rationale.</div>
-<p style="margin-top:10px"><a href="illustrations/[client-product-illustration].pdf" style="color:var(--cyan);text-decoration:none;font-weight:600">📄 View Carrier Illustration PDF &rarr;</a></p>
+<!-- RECOMMENDATIONS > Health -->
+<div id="reco-health" class="l2-panel active">
+<div class="card">
+<h3 style="color:var(--green)">Health Recommendations</h3>
+<div class="stub">
+<strong>STUB — populate per case:</strong> Recommendations tied to the client's Health bucket — Medicare plan selection/changes, ancillary coverage (LTC / disability / critical illness), prescription drug plan optimization, HSA strategy if pre-65.
+<div class="stub-populate">N sub-recos per case. Each sub-reco: source situation · destination recommendation · carrier/product · enrollment timing · supporting illustration link. Doctrine reference (Medicare Lion for 65+, no marketing positioning).</div>
 </div>
-<div class="stub"><strong>STUB per Reco #1:</strong> Source contracts table · Product summary (why this product per doctrine) · Illustration numbers (guaranteed + non-guaranteed back-test) · Any specialized analysis sections (RMD timing, LPA disposition options, QCD math, QCF multiplier, etc.) · Transfer mechanics · Pitch language for advisor.</div>
 </div>
-
-<!-- Reco #2 sub-panel -->
-<div id="sub-reco-2" class="sub-panel" style="display:none;padding-top:20px">
-<div class="card" style="background:rgba(34,197,94,0.04);border-left:4px solid var(--green)">
-<h2 style="color:var(--green)">Recommendation #2 &mdash; [Title]</h2>
-<div class="stub"><strong>STUB:</strong> Primary recommendation statement. Source money, destination product, strategic rationale (e.g., bonus-to-overcome-surrender, flex-premium-captures-future-SPDA, tax-deferral-on-NQ-interest).</div>
-<p style="margin-top:10px"><a href="illustrations/[client-product-illustration].pdf" style="color:var(--cyan);text-decoration:none;font-weight:600">📄 View Carrier Illustration PDF &rarr;</a></p>
-</div>
-<div class="stub"><strong>STUB per Reco #2:</strong> Source contracts table · Phased deposit schedule · Why this product (doctrine applied) · Illustration numbers · Accumulation projection · Pitch language.</div>
+<div class="stub"><strong>STUB per Health-Reco:</strong> Product-by-product recommendation cards. Advisor + underwriting requirements (see Next Steps).</div>
 </div>
 
-<!-- Reco #2 Alt sub-panel -->
-<div id="sub-reco-2-alt" class="sub-panel" style="display:none;padding-top:20px">
-<div class="card" style="background:rgba(59,130,246,0.04);border-left:4px solid var(--blue)">
-<h2 style="color:var(--blue)">Recommendation #2 ALTERNATE &mdash; [Title]</h2>
-<div class="stub"><strong>STUB:</strong> Alternative path for Reco #2. When to pick this alternate over the primary (e.g., if product isn't approved, if bonus schedule changes, if client pushback requires different framing).</div>
-<p style="margin-top:10px"><a href="illustrations/[client-product-illustration].pdf" style="color:var(--cyan);text-decoration:none;font-weight:600">📄 View Alternate Illustration PDF &rarr;</a></p>
+<!-- RECOMMENDATIONS > Wealth -->
+<div id="reco-wealth" class="l2-panel">
+<div class="card">
+<h3 style="color:var(--green)">Wealth Recommendations</h3>
+<div class="stub">
+<strong>STUB — populate per case:</strong> Recommendations tied to the client's Wealth bucket — accumulation, income, consolidation, repositioning. This is typically where the bulk of per-case product recommendations live.
+<div class="stub-populate">N sub-recos per case (e.g., IRA Consolidation → IPP10 with GMIB, NQ Consolidation → CP10 with flex-premium capture, etc.). Sub-tabs below this panel for each primary Wealth reco + any alternates. Follow doctrine: bonus only to overcome surrender, no rider fees on accumulation, preferred allocation = 50% S&amp;P-Cap + 50% S&amp;P-MARC-Part, existing-client positioning.</div>
 </div>
-<div class="stub"><strong>STUB per Alt:</strong> When to pick this alt · Product terms · Illustration numbers · Primary vs Alt head-to-head (side-by-side).</div>
+</div>
+<div class="stub">
+<strong>STUB per Wealth-Reco:</strong> Each Wealth recommendation gets:
+<ul>
+<li>Primary reco statement (source money, destination product, strategic rationale)</li>
+<li>Source contracts table with phased deposit schedule</li>
+<li>Illustration link to PDF in /docs/cases/illustrations/</li>
+<li>Actual illustration numbers (guaranteed + non-guaranteed back-test)</li>
+<li>Specialized analysis (RMD timing, LPA disposition, QCD math, QCF multiplier) if applicable</li>
+<li>Transfer mechanics</li>
+<li>Pitch language for advisor</li>
+<li>Alternate reco(s) where applicable with head-to-head comparison</li>
+</ul>
+</div>
+</div>
+
+<!-- RECOMMENDATIONS > Legacy -->
+<div id="reco-legacy" class="l2-panel">
+<div class="card">
+<h3 style="color:var(--green)">Legacy Recommendations</h3>
+<div class="stub">
+<strong>STUB — populate per case:</strong> Recommendations tied to the client's Legacy bucket — estate planning documents, beneficiary cleanup, charitable giving structures, succession mechanisms (farm/business), trust formation.
+<div class="stub-populate">Pulls directly from Analysis → Legacy → C3 (Charity/Children/Care) and Legal gap analysis. Each gap surfaced in C3/Legal becomes a Legacy reco here.</div>
+</div>
+</div>
+<div class="stub"><strong>STUB per Legacy-Reco:</strong> Beneficiary designation form submissions · Trust/Will coordination with attorney · QCD designation setup · Beneficiary Deed (TOD) for real property · Charitable giving vehicle setup (CRT/DAF/direct bequest) · Contingent beneficiary updates.</div>
 </div>
 
 </div> <!-- /p-recommendations -->
@@ -468,28 +482,28 @@ Include commentary on current allocation mix vs target.</div>
 <!-- ============== P-NEXT STEPS ============== -->
 <div id="p-nextsteps" class="panel">
 <div class="card">
-<h2>Next Steps &mdash; Post-Meeting Action Plan</h2>
-<p>Sequenced action items flowing from this meeting. Owner, deadline, and dependency noted where known.</p>
+<h2>Next Steps &mdash; Document &amp; Underwriting Requirements</h2>
+<p>Next Steps are <strong>fed directly by the recommendations</strong>. Each Health / Wealth / Legacy reco generates a specific set of document and underwriting requirements — this tab is the consolidated action plan.</p>
 </div>
 
 <div class="card">
-<h3>Immediate (Week of Meeting)</h3>
-<div class="stub"><strong>STUB — populate per case:</strong> 3-7 items that happen within 7 days. Typically: application submissions, beneficiary forms, 1035 initiations, trustee-to-trustee transfer forms.</div>
+<h3>How This Tab Gets Populated</h3>
+<div class="stub">
+<strong>STUB — this tab is derivative:</strong> populated automatically from the per-case recommendations. For each reco in Health / Wealth / Legacy:
+<ul>
+<li><strong>Application forms</strong> — carrier new-business application, any supplemental questionnaires</li>
+<li><strong>Source-of-funds documentation</strong> — 1035 exchange forms, trustee-to-trustee IRA transfer forms, beneficiary designation forms, POD forms for bank CDs</li>
+<li><strong>Underwriting requirements</strong> — illustrations signed by client, suitability questionnaire, financial information worksheet, medical underwriting (for life/LTC if applicable)</li>
+<li><strong>Compliance documentation</strong> — replacement forms (if applicable), disclosure acknowledgments, carrier state-specific forms</li>
+<li><strong>Client-side items</strong> — church name + address for QCD designation, beneficiary contact info, POA document copies, estate document status</li>
+</ul>
+Each item is timestamped with who owns it (advisor / agent / client / carrier) and target completion date. Reference back to the specific Reco that generated it.
+</div>
 </div>
 
 <div class="card">
-<h3>Near-Term (30–60 Days)</h3>
-<div class="stub"><strong>STUB — populate per case:</strong> Items that happen within 2 months. Typically: carrier processing windows, first maturity rollovers, verification calls to administrators.</div>
-</div>
-
-<div class="card">
-<h3>Within Current Year</h3>
-<div class="stub"><strong>STUB — populate per case:</strong> Items that happen within the current calendar year. Typically: remaining CD maturities, estate legal instrument discovery, annual review scheduling.</div>
-</div>
-
-<div class="card">
-<h3>Future Years (Scheduled Events)</h3>
-<div class="stub"><strong>STUB — populate per case:</strong> Scheduled future events. Examples: RMD activation year, GMIB LPA activation, surrender period ends on existing contracts, phase-N capture windows.</div>
+<h3>Scheduled Future Actions</h3>
+<div class="stub"><strong>STUB — populate per case:</strong> Beyond immediate application paperwork, scheduled future events flowing from recos. Examples: RMD activation year, GMIB LPA activation date, surrender period end dates on existing contracts to trigger Phase-N captures, annual review scheduling, carrier bonus-schedule check-ins.</div>
 </div>
 
 </div> <!-- /p-nextsteps -->
