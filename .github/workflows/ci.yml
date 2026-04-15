@@ -146,6 +146,10 @@ jobs:
           docker push ${{ env.REGISTRY }}/tm-webhooks:latest
 
       # Deploy API to Cloud Run (with liveness probe — auto-restarts on Firestore stale connections)
+      # --update-secrets mounts GSM-held keys as env vars. FV-002 NASS integration
+      # (2026-04-15) adds NASS_QUICK_STATS_KEY. --update-secrets preserves other
+      # secrets previously mounted on tm-api (e.g. CSG_API_KEY) — only the listed
+      # key is replaced on each deploy.
       - run: |
           gcloud run deploy tm-api \
             --image ${{ env.REGISTRY }}/tm-api:latest \
@@ -157,6 +161,7 @@ jobs:
             --max-instances 20 \
             --port 8080 \
             --no-allow-unauthenticated \
+            --update-secrets NASS_QUICK_STATS_KEY=NASS_QUICK_STATS_KEY:latest \
             --liveness-probe httpGet.path=/health,httpGet.port=8080,initialDelaySeconds=10,periodSeconds=30,failureThreshold=3,timeoutSeconds=10 \
             --project ${{ env.PROJECT_ID }}
 

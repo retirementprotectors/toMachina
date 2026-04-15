@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kimberly K Ruth — Asset Inventory</title>
+<title>Kimberly K Ruth — Client Roadmap</title>
 <style>
-:root{--bg:#0a0e17;--card:#111827;--card2:#1a2236;--border:#1e293b;--text:#e2e8f0;--muted:#94a3b8;--green:#22c55e;--blue:#3b82f6;--red:#ef4444;--orange:#f59e0b;--gold:#d4a44c;--cyan:#06b6d4}
+:root{--bg:#0a0e17;--card:#111827;--card2:#1a2236;--border:#1e293b;--text:#e2e8f0;--muted:#94a3b8;--green:#22c55e;--blue:#3b82f6;--red:#ef4444;--orange:#f59e0b;--gold:#d4a44c;--cyan:#06b6d4;--purple:#a78bfa}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
 .header{background:linear-gradient(135deg,#020b1a 0%,#0a1a0a 50%,#020b1a 100%);border-bottom:1px solid var(--border);padding:40px 32px;text-align:center;position:relative;overflow:hidden}
@@ -13,16 +13,46 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 .header h1{font-size:2.2rem;font-weight:800;background:linear-gradient(135deg,var(--green),var(--blue),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px;position:relative}
 .header .sub{font-size:0.95rem;color:var(--muted);position:relative}
 .header .badge{display:inline-block;margin-top:12px;padding:4px 16px;border-radius:999px;font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;background:rgba(34,197,94,0.1);color:var(--green);border:1px solid rgba(34,197,94,0.3);position:relative}
-.tab-bar{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px solid var(--border);overflow-x:auto;display:flex;max-width:1100px;margin:0 auto;padding:0 8px}
-.tab{padding:14px 18px;font-size:0.82rem;font-weight:600;color:var(--muted);cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;transition:all .2s}
+
+/* L1 top-level tabs */
+.tab-bar{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px solid var(--border);overflow-x:auto;display:flex;max-width:1200px;margin:0 auto;padding:0 8px}
+.tab{padding:16px 26px;font-size:0.88rem;font-weight:700;color:var(--muted);cursor:pointer;white-space:nowrap;border-bottom:3px solid transparent;transition:all .2s;text-transform:uppercase;letter-spacing:1px}
 .tab:hover{color:var(--text)}
 .tab.active{color:var(--green);border-bottom-color:var(--green)}
-.content{max-width:1100px;margin:0 auto;padding:24px 16px}
+
+/* L1 panels */
+.content{max-width:1200px;margin:0 auto;padding:24px 16px}
 .panel{display:none}
 .panel.active{display:block}
+
+/* L2 sub-tabs (inside AI3, Analysis) */
+.l2-bar{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:18px;padding-bottom:2px;border-bottom:2px solid var(--border)}
+.l2-tab{padding:10px 18px;font-size:0.8rem;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;border-radius:6px 6px 0 0}
+.l2-tab:hover{color:var(--text);background:rgba(255,255,255,0.02)}
+.l2-tab.active{color:var(--cyan);border-bottom-color:var(--cyan);background:rgba(6,182,212,0.08)}
+.l2-panel{display:none}
+.l2-panel.active{display:block}
+
+/* L3 sub-sub-tabs (e.g. Assets > Investable/Real/Total) */
+.l3-bar{display:flex;flex-wrap:wrap;gap:4px;margin:10px 0 14px;padding-bottom:2px;border-bottom:1px dashed var(--border)}
+.l3-tab{padding:7px 14px;font-size:0.75rem;font-weight:600;color:var(--muted);cursor:pointer;border-radius:4px}
+.l3-tab:hover{color:var(--text);background:rgba(255,255,255,0.02)}
+.l3-tab.active{color:var(--green);background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.25)}
+.l3-panel{display:none}
+.l3-panel.active{display:block}
+
+/* L4 sub-sub-sub-tabs (e.g. Investable > Type/Tax/Target) */
+.l4-bar{display:flex;flex-wrap:wrap;gap:4px;margin:8px 0 12px}
+.l4-tab{padding:5px 12px;font-size:0.72rem;font-weight:500;color:var(--muted);cursor:pointer;border-radius:4px;border:1px solid var(--border)}
+.l4-tab:hover{color:var(--text);background:var(--card2)}
+.l4-tab.active{color:var(--orange);background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.35)}
+.l4-panel{display:none}
+.l4-panel.active{display:block}
+
 .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:16px}
 .card h2{font-size:1.15rem;margin-bottom:12px}
 .card h3{font-size:0.95rem;margin:14px 0 8px;color:var(--green)}
+.card h4{font-size:0.82rem;margin:12px 0 6px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
 .card p,.card li{color:var(--muted);font-size:0.88rem;margin-bottom:6px}
 .card ul{margin-left:20px}
 .card strong{color:var(--text)}
@@ -62,44 +92,69 @@ tr.totals td{font-weight:700;color:var(--text);border-top:2px solid var(--border
 .note{background:rgba(6,182,212,0.06);border:1px solid rgba(6,182,212,0.2);border-radius:8px;padding:14px 18px;margin:14px 0;font-size:0.85rem;color:var(--muted)}
 .note strong{color:var(--cyan)}
 .footer{text-align:center;padding:24px;color:var(--muted);font-size:0.72rem;border-top:1px solid var(--border);margin-top:32px}
-.form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin:16px 0}
-.form-grid label{display:block;font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
-.form-grid input,.form-grid select{width:100%;padding:8px 10px;border-radius:6px;border:1px solid var(--border);background:var(--card2);color:var(--text);font-size:0.85rem;outline:none}
-.form-grid input:focus,.form-grid select:focus{border-color:var(--green)}
-.btn-add{display:inline-flex;align-items:center;gap:6px;padding:10px 20px;border-radius:8px;border:none;background:var(--green);color:#fff;font-size:0.85rem;font-weight:600;cursor:pointer;margin-top:12px}
-.btn-add:hover{filter:brightness(1.1)}
-.btn-copy{display:inline-flex;align-items:center;gap:4px;padding:6px 14px;border-radius:6px;border:1px solid var(--border);background:var(--card2);color:var(--muted);font-size:0.78rem;cursor:pointer;margin-left:8px}
-.btn-copy:hover{color:var(--text);border-color:var(--muted)}
-.life-count{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;border-radius:50%;background:var(--green);color:#fff;font-size:0.7rem;font-weight:700;margin-left:6px}
-@media print{body{background:#fff;color:#000}.header{background:#f8f8f8;border-bottom:2px solid #000}.header h1{-webkit-text-fill-color:#000;color:#000}.tab-bar{display:none}.panel{display:block!important;page-break-inside:avoid}.card,.stat,.flag,.income-card,.mat-card{background:#fff;border-color:#ccc}th{background:#eee;color:#000}td,.card p,.card li,.flag p{color:#333}.stat .num{color:#000}.none{color:#c00}.footer{color:#666}}
+.xref{display:inline-block;padding:3px 10px;border-radius:4px;font-size:0.72rem;background:rgba(6,182,212,0.1);color:var(--cyan);border:1px solid rgba(6,182,212,0.3);text-decoration:none;margin:2px}
+.xref:hover{background:rgba(6,182,212,0.2)}
+.placeholder-stub{background:rgba(245,158,11,0.04);border:1px dashed var(--orange);border-radius:8px;padding:16px 20px;margin:12px 0;color:var(--muted);font-size:0.85rem}
+.placeholder-stub strong{color:var(--orange)}
+.sub-panel{display:none}
+.sub-tab{padding:10px 18px;cursor:pointer}
+@media print{body{background:#fff;color:#000}.header{background:#f8f8f8;border-bottom:2px solid #000}.header h1{-webkit-text-fill-color:#000;color:#000}.tab-bar,.l2-bar,.l3-bar,.l4-bar{display:none}.panel,.l2-panel,.l3-panel,.l4-panel{display:block!important;page-break-inside:avoid}.card,.stat,.flag,.income-card,.mat-card{background:#fff;border-color:#ccc}th{background:#eee;color:#000}td,.card p,.card li,.flag p{color:#333}.stat .num{color:#000}.none{color:#c00}.footer{color:#666}}
 </style>
 </head>
 <body>
 
 <div class="header">
-<h1>Kimberly K Ruth &mdash; Asset Inventory</h1>
+<h1>Kimberly K Ruth &mdash; Client Roadmap</h1>
 <div class="sub">Male &bull; Age 71 &bull; Single &bull; No Children &bull; Riverside, IA 52327 &bull; (319) 648-2552<br>COF Member Since 1974 &bull; Sole Intended Beneficiary: Karla S Ruth (Sister)<br>Purpose: Accumulation + Legacy &bull; Practicing Catholic</div>
-<div class="badge">VOLTRON CSO &bull; 2026-04-13 &bull; 2025 TAX RETURN RECEIVED</div>
+<div class="badge">VOLTRON CSO &bull; Format-Locked 2026-04-15 &bull; A+R with Archer</div>
 </div>
 
+<!-- ============== L1 TOP-LEVEL TAB BAR ============== -->
 <div class="tab-bar">
-<div class="tab active" onclick="showPanel('agenda',this)">AGENDA</div>
-<div class="tab" onclick="showPanel('summary',this)">SUMMARY</div>
-<div class="tab" onclick="showPanel('annuities',this)">ANNUITIES</div>
-<div class="tab" onclick="showPanel('cds',this)">CDs</div>
-<div class="tab" onclick="showPanel('life',this)">LIFE</div>
-<div class="tab" onclick="showPanel('beni',this)">BENI CENTER</div>
-<div class="tab" onclick="showPanel('rmd',this)">RMD CENTER</div>
-<div class="tab" onclick="showPanel('tax',this)">TAX BREAKDOWN</div>
-<div class="tab" onclick="showPanel('flags',this)">FLAGS</div>
-<div class="tab" onclick="showPanel('income',this)">INCOME</div>
-<div class="tab" onclick="showPanel('realestate',this)">REAL ESTATE</div>
+<div class="tab active" onclick="show('tab','panel','p-agenda',this)">AGENDA</div>
+<div class="tab" onclick="show('tab','panel','p-ai3',this)">AI3</div>
+<div class="tab" onclick="show('tab','panel','p-analysis',this)">ANALYSIS</div>
+<div class="tab" onclick="show('tab','panel','p-recommendations',this)">RECOMMENDATIONS</div>
+<div class="tab" onclick="show('tab','panel','p-nextsteps',this)">NEXT STEPS</div>
 </div>
 
 <div class="content">
 
-<!-- ANALYSIS MEETING AGENDA -->
-<div id="agenda" class="panel active">
+<!-- ============== P-AGENDA ============== -->
+<div id="p-agenda" class="panel active">
+
+<div class="card">
+<h2>Agenda &mdash; A+R Meeting with Archer</h2>
+<p>Previous meeting recap, outstanding issues/questions, and quick-jump links to the rest of this roadmap.</p>
+<div style="margin-top:14px">
+<a class="xref" onclick="show('tab','panel','p-ai3',document.querySelectorAll('.tab')[1])" style="cursor:pointer">→ AI3 (Inventory)</a>
+<a class="xref" onclick="show('tab','panel','p-analysis',document.querySelectorAll('.tab')[2])" style="cursor:pointer">→ Analysis (TAIL)</a>
+<a class="xref" onclick="show('tab','panel','p-recommendations',document.querySelectorAll('.tab')[3])" style="cursor:pointer">→ Recommendations</a>
+<a class="xref" onclick="show('tab','panel','p-nextsteps',document.querySelectorAll('.tab')[4])" style="cursor:pointer">→ Next Steps</a>
+</div>
+</div>
+
+<div class="card">
+<h3>Previous Meeting Recap</h3>
+<p>Archer conducted the initial 3.5-hour discovery meeting. Today is Discovery #2 (A+R). Between meetings: Kim delivered his 2025 tax return (Bontrager Tax, prepared 2026-02-24), confirming Schedule F sole proprietor farm structure, 22% marginal / 18% effective tax bracket (revised down from earlier 32-35% assumption), and a $25K IRA distribution (source TBD). Real estate inventory enriched via ISU farmland parcel data.</p>
+</div>
+
+<div class="card">
+<h3>Outstanding Issues &amp; Questions for Kim (at this meeting)</h3>
+<ul>
+<li><strong>Church name + address</strong> — needed for QCD designation on IPP10 contract</li>
+<li><strong>$25,000 2025 IRA distribution</strong> — which account? Strategic or needed?</li>
+<li><strong>POA friend identity + details</strong> — name, contact, relationship, POA type (financial/healthcare/limited/durable)</li>
+<li><strong>Estate questions</strong> (ProDashX Estate tab): Has Trust? Will Exists? Financial POA? Healthcare POA? Beneficiary Deed? Living Will?</li>
+<li><strong>Farm succession intent</strong> — does the farm pass to Karla? Friend? Acreage/valuation/land vs equipment breakdown?</li>
+<li><strong>Don Ruth (parent contingent on COF #1206927)</strong> — verify if living; contingent may need update</li>
+<li><strong>MassMutual policies</strong> (#3456086 + #5022977) — confirm Karla is named beneficiary</li>
+<li><strong>Farm Bureau dividend</strong> — 2025 dividend was $0.00 vs peer policies at $250–$300; investigate policy-state or carrier performance</li>
+<li><strong>LPA Disposition choice</strong> (for Reco #1 IPP10) — Full QCD / Split / Full taxable; see Recommendations tab</li>
+</ul>
+</div>
+
+
 <div class="card">
 <h2>Analysis Meeting Agenda &mdash; Discovery #2 with Kim Ruth</h2>
 <p>Second discovery meeting following Archer&rsquo;s 3.5-hour initial meeting. Goal: complete the Health/Wealth/Legacy picture, gather missing info, and outline the analysis we&rsquo;ll deliver in the follow-up presentation.</p>
@@ -212,7 +267,279 @@ tr.totals td{font-weight:700;color:var(--text);border-top:2px solid var(--border
 </div>
 
 <!-- SUMMARY -->
-<div id="summary" class="panel">
+
+</div> <!-- /p-agenda -->
+
+<!-- ============== P-AI3 (Assets · Insurance · Income + Centers) ============== -->
+<div id="p-ai3" class="panel">
+
+<div class="card">
+<h2>AI3 &mdash; Complete Client Inventory</h2>
+<p><strong>Assets · Insurance · Income</strong> — the three primary inventories. Plus the Beneficiary Center (all policy/account beni designations) and RMD Center (required-minimum-distribution setup).</p>
+</div>
+
+<div class="l2-bar">
+<div class="l2-tab active" onclick="showL2('p-ai3','ai3-assets',this)">Assets</div>
+<div class="l2-tab" onclick="showL2('p-ai3','ai3-insurance',this)">Insurance</div>
+<div class="l2-tab" onclick="showL2('p-ai3','ai3-income',this)">Income</div>
+<div class="l2-tab" onclick="showL2('p-ai3','ai3-beni',this)">Beneficiary Center</div>
+<div class="l2-tab" onclick="showL2('p-ai3','ai3-rmd',this)">RMD Center</div>
+</div>
+
+<!-- AI3 > Assets -->
+<div id="ai3-assets" class="l2-panel active">
+<div class="l3-bar">
+<div class="l3-tab active" onclick="showL3('ai3-assets','assets-investable',this)">Investable</div>
+<div class="l3-tab" onclick="showL3('ai3-assets','assets-real',this)">Real Estate</div>
+<div class="l3-tab" onclick="showL3('ai3-assets','assets-total',this)">Total</div>
+</div>
+
+<!-- Assets > Investable -->
+<div id="assets-investable" class="l3-panel active">
+<div class="l4-bar">
+<div class="l4-tab active" onclick="showL4('assets-investable','inv-type',this)">Type</div>
+<div class="l4-tab" onclick="showL4('assets-investable','inv-tax',this)">Tax</div>
+<div class="l4-tab" onclick="showL4('assets-investable','inv-target',this)">Target (S/L/G)</div>
+</div>
+
+<!-- Investable > Type (holds Annuities + CDs + future investment accounts) -->
+<div id="inv-type" class="l4-panel active">
+<div class="note"><strong>Investable Assets by Type</strong> &mdash; organized by account type (annuity, bank CD, investment, etc.).</div>
+
+<h3 style="margin-top:14px;color:var(--green)">Annuities</h3>
+
+<div class="card">
+<h2>Annuities (5 Accounts &mdash; $872,927)</h2>
+<div style="overflow-x:auto">
+<table>
+<tr><th>Carrier</th><th>Product</th><th>Policy #</th><th>Tax</th><th>Value</th><th>CSV</th><th>Rate</th><th>Death Benefit</th><th>Issue</th><th>Maturity</th><th>Beneficiary</th><th>Source</th></tr>
+<tr><td>Catholic Order of Foresters</td><td>Annuity Loyalty SPDA</td><td>4041671</td><td>NQ</td><td>$447,073</td><td>$418,866</td><td>3.25% (2.75% guar)</td><td>$447,073</td><td>11/05/2023</td><td>11/05/2049</td><td>Karla S Ruth</td><td>COF stmt 04/2025</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>Annuity Loyalty SPDA</td><td>4041673</td><td>Roth IRA</td><td>$90,560</td><td>$84,847</td><td>3.00% (2.75% guar)</td><td>$90,560</td><td>11/05/2023</td><td>11/05/2049</td><td>Karla S Ruth</td><td>COF stmt 04/2025</td></tr>
+<tr><td>Prosperity / S.USA Life</td><td>S.USA Annuity</td><td>920330879</td><td>NQ</td><td>$184,837</td><td>$184,837</td><td>3.00%</td><td>$184,837</td><td>05/04/2022</td><td>05/04/2028</td><td class="none">&#9888; NONE</td><td>Prosperity stmt 05/2025</td></tr>
+<tr><td>Brighthouse Financial</td><td>Fixed Annuity XR</td><td>940267409</td><td>NQ</td><td>$135,034</td><td>$135,034</td><td>3.00%</td><td>$135,034</td><td>06/08/2004</td><td>1yr renew</td><td class="none">&#9888; NONE</td><td>Brighthouse stmt</td></tr>
+<tr><td>Brighthouse Financial</td><td>Fixed Annuity XR</td><td>9200553464</td><td>Trad IRA</td><td>$15,423</td><td>$15,423</td><td>3.00%</td><td>$15,423</td><td>06/11/2004</td><td>1yr renew</td><td class="none">&#9888; NONE</td><td>Brighthouse stmt</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>SPIA (Karla annuitant)</td><td>1311997</td><td>NQ</td><td>$36,610 prem</td><td>&mdash;</td><td>3.00%</td><td>$1,603/yr lifetime to Karla</td><td>04/01/2004</td><td>Lifetime</td><td>Karla S Ruth (annuitant)</td><td>COF app 2004</td></tr>
+<tr class="totals"><td></td><td></td><td></td><td>TOTAL</td><td>$872,927</td><td>$839,007</td><td></td><td>$872,927</td><td></td><td></td><td></td><td></td></tr>
+</table>
+</div>
+</div>
+
+<div class="card">
+<h3>Surrender Notes</h3>
+<ul>
+<li><strong>COF 4041671 + 4041673:</strong> Year 3 of 7 surrender period. ~$34K in surrender charges if liquidated today.</li>
+<li><strong>Prosperity 920330879:</strong> Fully liquid. CSV = AV. $0 surrender charge.</li>
+<li><strong>Brighthouse 940267409 + 9200553464:</strong> Fully liquid. 20+ year contracts. 1-year guarantee renewals at 3.0%.</li>
+</ul>
+</div>
+</div>
+
+<!-- CDs -->
+
+<h3 style="margin-top:20px;color:var(--green)">Bank CDs</h3>
+
+<div class="card">
+<h2>Certificates of Deposit (10 Accounts &mdash; $1,012,727)</h2>
+<p>Sorted by maturity date. Values refreshed from 2025/26 Hills Bank renewal statements.</p>
+<div style="overflow-x:auto">
+<table>
+<tr><th>Bank</th><th>Acct #</th><th>Tax</th><th>Renewal Balance</th><th>APY</th><th>Term</th><th>Issue</th><th>Maturity</th><th>Beneficiary</th></tr>
+<tr><td>Hills Bank</td><td>10521680</td><td>NQ</td><td>$94,794</td><td>3.60%</td><td>11mo</td><td>06/09/2025</td><td>05/09/2026</td><td class="none">&#9888; NONE</td></tr>
+<tr><td>Hills Bank</td><td>50102383</td><td>NQ</td><td>$118,473</td><td>3.60%</td><td>11mo</td><td>07/03/2025</td><td>06/02/2026</td><td class="none">&#9888; NONE</td></tr>
+<tr><td>Hills Bank</td><td>10402477</td><td>Trad IRA</td><td>$96,314</td><td>3.60%</td><td>11mo</td><td>07/05/2025</td><td>06/05/2026</td><td class="none">&#9888; NONE</td></tr>
+<tr><td>Hills Bank</td><td>10527117</td><td>NQ</td><td>$59,138</td><td>3.60%</td><td>11mo</td><td>07/07/2025</td><td>06/07/2026</td><td class="none">&#9888; NONE</td></tr>
+<tr><td>Hills Bank</td><td>80013907</td><td>Trad IRA</td><td>$7,675</td><td>3.48%</td><td>6mo</td><td>12/13/2025</td><td>06/13/2026</td><td class="none">&#9888; NONE</td></tr>
+<tr><td>Hills Bank</td><td>50127000</td><td>NQ</td><td>$46,501</td><td>3.49%</td><td>6mo</td><td>02/23/2026</td><td>08/23/2026</td><td class="none">&#9888; NONE</td></tr>
+<tr><td>Hills Bank</td><td>10242469</td><td>NQ</td><td>$50,706</td><td>3.49%</td><td>6mo</td><td>03/20/2026</td><td>09/20/2026</td><td class="none">&#9888; NONE</td></tr>
+<tr><td>Washington State Bank</td><td>89237</td><td>NQ</td><td>$115,585</td><td>4.00%</td><td>11mo</td><td>10/06/2025</td><td>10/06/2026</td><td class="none">&#9888; NONE</td></tr>
+<tr><td>Washington State Bank</td><td>89421</td><td>NQ</td><td>$165,895</td><td>4.00%</td><td>11mo</td><td>11/04/2025</td><td>11/04/2026</td><td class="none">&#9888; NONE</td></tr>
+<tr><td>Hills Bank</td><td>10424356</td><td>NQ</td><td>$258,259</td><td>3.40%</td><td>11mo</td><td>12/28/2025</td><td>11/28/2026</td><td class="none">&#9888; NONE</td></tr>
+<tr class="totals"><td></td><td></td><td>TOTAL</td><td>$1,012,727</td><td></td><td></td><td></td><td></td><td></td></tr>
+</table>
+</div>
+<div class="note" style="margin-top:14px"><strong>Source notes:</strong>
+<ul style="margin-left:20px">
+<li>Hills Bank values: 2025/26 renewal statements (most are 11mo terms initiated mid-2025)</li>
+<li>Hills #10402477 IRA corrected from $73K (Archer estimate) to $96,314 (renewal statement 07/05/2025)</li>
+<li>Hills #10242469 account number corrected from 10142469 (was a typo) to 10242469</li>
+<li>Hills #80013907: confirmed via Archer's spreadsheet ($7,675 / 3.48% APY / 12/13/2025-06/13/2026). The handwritten 4.81% note in inbox is from an OLDER 01/13/2024 term that already renewed twice.</li>
+<li>Washington State Bank: per Archer's spreadsheet (4.00% APY 11mo terms, no renewal statements yet)</li>
+<li><strong>2025 Interest Earned (per 1040 Sch B):</strong> Hills Bank $26,338 (across all 6 Hills CDs + any checking), Washington State Bank $9,808 (across WSB #89237 + #89421), Farmers &amp; Merchants $28 (<em>account not on inventory &mdash; see FLAG 2C</em>). Total 2025 interest = $36,174, all taxed as ordinary income at 22% marginal.</li>
+</ul>
+</div>
+</div>
+
+<div class="card">
+<h3>Maturity Calendar &mdash; 2026</h3>
+<div class="maturity-grid">
+<div class="mat-card"><div class="mo">May</div><div class="amt">$95K</div><div class="ct">1 CD</div></div>
+<div class="mat-card"><div class="mo">Jun</div><div class="amt">$281K</div><div class="ct">4 CDs</div></div>
+<div class="mat-card empty"><div class="mo">Jul</div><div class="amt">&mdash;</div><div class="ct">0</div></div>
+<div class="mat-card"><div class="mo">Aug</div><div class="amt">$47K</div><div class="ct">1 CD</div></div>
+<div class="mat-card"><div class="mo">Sep</div><div class="amt">$51K</div><div class="ct">1 CD</div></div>
+<div class="mat-card"><div class="mo">Oct</div><div class="amt">$116K</div><div class="ct">1 CD</div></div>
+<div class="mat-card"><div class="mo">Nov</div><div class="amt">$424K</div><div class="ct">2 CDs</div></div>
+</div>
+</div>
+</div>
+
+<!-- TAX BREAKDOWN -->
+
+<div class="placeholder-stub"><strong>Investment Accounts (stocks/funds/brokerage):</strong> Kim owns Hills Bancorporation stock (per Sch B $1,500 dividends in 2025). Share count, basis, custodian pending. See Flags tab for action item.</div>
+</div>
+
+<!-- Investable > Tax -->
+<div id="inv-tax" class="l4-panel">
+<div class="note"><strong>Investable Assets by Tax Status</strong> &mdash; Roth IRA / Traditional IRA / Non-Qualified / Non-Qualified Institutional (NQ annuities + NQ life CV).</div>
+<div style="overflow-x:auto">
+<table>
+<tr><th>Tax Status</th><th>Account Count</th><th>Total Value</th><th>Notes</th></tr>
+<tr><td><strong style="color:var(--green)">Roth IRA</strong></td><td>1</td><td>$90,560</td><td>COF Annuity Loyalty SPDA #4041673 &mdash; tax-free growth, no RMD, Karla beneficiary. <em>Do not touch.</em></td></tr>
+<tr><td><strong>Traditional IRA</strong></td><td>3</td><td>$119,412</td><td>Brighthouse Fixed Annuity XR #9200553464 ($15,423) + Hills IRA CD #10402477 ($96,314) + Hills IRA CD #80013907 ($7,675). RMD age 73 begins 2027. <em>Consolidating → IPP10 per Reco #1.</em></td></tr>
+<tr><td><strong>Non-Qualified (cash/CDs)</strong></td><td>8</td><td>$909,351</td><td>All 8 NQ CDs at Hills Bank + Washington State Bank. <em>Consolidating → CP10 per Reco #2.</em></td></tr>
+<tr><td><strong>Non-Qualified Institutional (annuities)</strong></td><td>4</td><td>$803,591</td><td>COF SPDA #4041671 ($447,073; in surrender yr 3/7) + COF SPIA #1311997 ($36,610 prem, Karla annuitant, not movable) + Brighthouse NQ #940267409 ($135,034) + Prosperity #920330879 ($184,837). Brighthouse + Prosperity consolidating; COF captures in Phase 3 2030 via CP10 flex-premium.</td></tr>
+<tr><td><strong>Non-Qualified Institutional (life CV)</strong></td><td>6</td><td>$148,479</td><td>4 COF Whole Life + Farm Bureau + 2 MassMutual. Cash value is a liquid asset (available via policy loans or partial surrenders). <em>See Insurance → Life for policy detail.</em></td></tr>
+<tr class="totals"><td><strong>TOTAL Investable</strong></td><td><strong>22</strong></td><td><strong>$2,071,393</strong></td><td>(includes life CV)</td></tr>
+</table>
+</div>
+</div>
+
+<!-- Investable > Target (Safety/Liquidity/Growth) -->
+<div id="inv-target" class="l4-panel">
+<div class="note"><strong>Investable Assets by Target (Safety / Liquidity / Growth)</strong> &mdash; RPI framework: every asset serves one of three retirement-planning purposes.</div>
+<div style="overflow-x:auto">
+<table>
+<tr><th>Target</th><th>Accounts</th><th>Current Value</th><th>Commentary</th></tr>
+<tr><td><strong style="color:var(--blue)">SAFETY</strong></td><td>10 Bank CDs + 2 Brighthouse NQ + Prosperity NQ</td><td>~$1,229K</td><td>Principal-protected, short-duration, predictable income. Currently skewed heavy to this bucket &mdash; ~59% of investable assets. <em>Reco #2 repositions to CP10 indexed-accumulation which preserves principal protection while adding upside (still Safety + some Growth).</em></td></tr>
+<tr><td><strong style="color:var(--green)">LIQUIDITY</strong></td><td>Life CV (~$148K) + 10% free-withdrawal on annuities + maturing CDs</td><td>~$148K + rolling</td><td>Life cash value is liquid via policy loans/partial surrenders. Not counted as primary investable because it's &ldquo;insurance first, savings second.&rdquo; Farm + SSI cover day-to-day.</td></tr>
+<tr><td><strong style="color:var(--purple)">GROWTH</strong></td><td>COF SPDA #4041671 + COF Roth + (future: CP10 + IPP10 indexed strategies)</td><td>~$538K</td><td>Tax-deferred growth with indexed crediting. After Recos implement, this bucket expands to ~$2.0M (CP10 + IPP10 + COF Roth + COF SPDA).</td></tr>
+</table>
+</div>
+<p style="margin-top:14px;font-size:0.85rem;color:var(--muted)"><em>See Analysis → Assets → Safety/Liquidity/Growth for the story of what Kim has vs what he needs.</em></p>
+</div>
+
+</div> <!-- /assets-investable -->
+
+<!-- Assets > Real Estate -->
+<div id="assets-real" class="l3-panel">
+<div class="l4-bar">
+<div class="l4-tab active" onclick="showL4('assets-real','real-ag',this)">Agriculture</div>
+<div class="l4-tab" onclick="showL4('assets-real','real-agres',this)">Ag Residential</div>
+<div class="l4-tab" onclick="showL4('assets-real','real-comm',this)">Commercial</div>
+</div>
+
+<div id="real-ag" class="l4-panel active">
+
+
+<div class="card">
+<h2>Iowa Farmland + Homestead &mdash; 9 Parcels Across 2 Counties</h2>
+<p style="font-size:0.85rem">Source: Property tax statements scanned + parsed 2026-04-14. All parcels in Kim&rsquo;s name (3 jointly with sister Karla S Ruth). Assessed values are for tax purposes; market value typically 1.3-1.5x in Iowa for farmland.</p>
+
+<div class="stat-row" style="margin-top:14px">
+<div class="stat"><div class="num">~294 ac</div><div class="lbl">Total Acreage</div></div>
+<div class="stat"><div class="num">9</div><div class="lbl">Parcels</div></div>
+<div class="stat"><div class="num">$579K</div><div class="lbl">Total Assessed</div></div>
+<div class="stat"><div class="num">~$900K</div><div class="lbl">Est. Market Value</div></div>
+</div>
+
+<h3>Johnson County, IA &mdash; SHARON-MID PRAIRIE School District (5 parcels, 146.28 acres, all STR 35-78-7)</h3>
+<div style="overflow-x:auto">
+<table>
+<tr><th>Parcel #</th><th>Receipt</th><th>Acres</th><th>Legal</th><th>Assessed</th><th>Net Taxable</th><th>Annual Tax</th><th>Sept 2025</th><th>March 2026</th></tr>
+<tr><td>1435476001</td><td>122350</td><td>40.00</td><td>NE SE</td><td>$69,400</td><td>$51,257</td><td>$1,276</td><td>$638</td><td>$638</td></tr>
+<tr><td>1435401001</td><td>140003</td><td>40.00</td><td>NE SE</td><td>$83,500</td><td>$61,671</td><td>$1,534</td><td>$767</td><td>$767</td></tr>
+<tr><td>1435176001</td><td>128313</td><td>26.28</td><td>SE NE Auditor&rsquo;s Parcel B in Survey Bk 32 Pg 263</td><td>partial</td><td>partial</td><td>$964</td><td>$482</td><td>$482</td></tr>
+<tr><td>1435451001</td><td>132540</td><td>22.00</td><td>N 22A SW SE</td><td>$24,500</td><td>$18,095</td><td>$450</td><td>$225</td><td>$225</td></tr>
+<tr><td>1435451002</td><td>090704</td><td>18.00</td><td>S 18A SW SE</td><td>$26,500</td><td>$19,572</td><td>$488</td><td>$244</td><td>$244</td></tr>
+<tr class="totals"><td colspan="2">Johnson County subtotal</td><td>146.28</td><td>5 parcels</td><td>~$204K</td><td>~$150K</td><td>$4,712</td><td>$2,356</td><td>$2,356</td></tr>
+</table>
+</div>
+<p style="margin-top:8px;font-size:0.78rem;color:var(--muted)"><em>Treasurer: Scott Finlayson, Johnson County Treasurer · PO Box 2420 Iowa City IA 52244 · (319) 356-6087 · iowataxandtags.org</em></p>
+
+<h3>Washington County, IA &mdash; IWTHG (Iowa Twp/Highland) + LCTMP (Lime Creek Twp/Mid Prairie) (4 parcels, 148.25 acres incl. homestead)</h3>
+<div style="overflow-x:auto">
+<table>
+<tr><th>Parcel #</th><th>Receipt</th><th>District</th><th>Address</th><th>Acres</th><th>Assessed</th><th>Net Taxable</th><th>Annual Tax</th><th>Owner</th></tr>
+<tr><td>0302200002</td><td>601560</td><td>IWTHG</td><td>Redwood Av</td><td>98.42</td><td>$153,300</td><td>$113,223</td><td>$3,108</td><td>RUTH, KIMBERLY</td></tr>
+<tr><td>0218400015</td><td>606560</td><td>LCTMP</td><td>(land)</td><td>12.18</td><td>$18,300</td><td>$13,516</td><td>$372</td><td><strong>RUTH, KIMBERLY K. &amp; KARLA S.</strong></td></tr>
+<tr><td>0218400017</td><td>618224</td><td>LCTMP</td><td>Gum Ave</td><td>0.51</td><td>$2,800</td><td>$2,068</td><td>$58</td><td><strong>RUTH, KIMBERLY K. &amp; KARLA S.</strong></td></tr>
+<tr><td>0301300001</td><td>418528</td><td>IWTHG</td><td><strong>1054 Redwood Ave (HOMESTEAD)</strong></td><td>37.14</td><td>$179,200 (incl. dwelling $148,800)</td><td>$109,178</td><td>$2,864 (older bill)</td><td>RUTH, KIMBERLY</td></tr>
+<tr class="totals"><td colspan="3">Washington County subtotal</td><td></td><td>148.25</td><td>$353,600</td><td>$237,985</td><td>~$6,402</td><td></td></tr>
+</table>
+</div>
+<p style="margin-top:8px;font-size:0.78rem;color:var(--muted)"><em>Treasurer: Jeffrey A. Garrett, Washington County Treasurer · PO Box 889 Washington IA 52353 · (319) 653-7721 · iowatreasurers.org</em></p>
+
+<div class="note" style="margin-top:14px"><strong>Combined annual property tax burden: ~$11,114/yr.</strong> Aligns with Schedule F line 29 &ldquo;Taxes&rdquo; expense $8,498 (which excludes the homestead portion since it&rsquo;s personal-use, not farm-business). Kim claims AG Land credits on most parcels (small but real: $32-$59 per parcel).</div>
+</div>
+
+<div class="card">
+<h3>Estate-Planning Levers (NEW &mdash; was completely off prior roadmap)</h3>
+<ul>
+<li><strong>Joint-with-Karla parcels:</strong> 0218400015 (12.18 ac) + 0218400017 (0.51 ac) = <strong>12.69 acres in joint tenancy with sister Karla.</strong> These transfer outside probate to Karla automatically on Kim&rsquo;s death (joint-tenancy-with-right-of-survivorship is the Iowa default for "K. &amp; K." titling unless stated otherwise &mdash; verify on the deeds).</li>
+<li><strong>Beneficiary deed (transfer-on-death deed):</strong> Iowa allows TOD deeds as of 2018. Kim can record a TOD deed on the other 7 parcels naming Karla as beneficiary &mdash; bypasses probate, no transfer tax, revocable, doesn&rsquo;t affect his ability to sell during lifetime. <strong>This is the cleanest legacy move available given his stated wishes (Karla = sole beneficiary).</strong></li>
+<li><strong>Homestead exemption:</strong> 0301300001 has the dwelling but the bill we have shows Homestead Exemption = $0 / Military Exemption = $0. <strong>Iowa offers a Homestead Tax Credit ($4,850 of taxable value) + Homestead Exemption.</strong> If Kim isn&rsquo;t claiming, applying could save ~$120/yr. Check with County Assessor.</li>
+<li><strong>Senior Property Tax Credit:</strong> Kim is 71, eligible for Iowa&rsquo;s Senior Property Tax Credit (age 65+, income limits apply). Worth checking.</li>
+<li><strong>Family Farm credits:</strong> Most parcels show Family Farm Credit = $0. Could save modestly if Kim qualifies (must be actively farmed by family member, which Kim does).</li>
+<li><strong>Farm-business titling:</strong> Some farmers move farmland into an LLC for liability + estate efficiency. Kim is sole-prop Schedule F today; LLC conversion is a separate planning conversation.</li>
+</ul>
+</div>
+
+<div class="card">
+<h3>Action Items &mdash; Real Estate</h3>
+<ul>
+<li>Pull deeds for all 9 parcels (county recorder online portals; Kim or Archer can request)</li>
+<li>Verify joint-tenancy structure on the 2 Karla-titled parcels (could be JTWROS or tenancy-in-common &mdash; matters for probate)</li>
+<li>Discuss TOD beneficiary deed with Kim (cheap, revocable, probate-bypass for Karla on the 7 solo parcels)</li>
+<li>Check homestead exemption + senior tax credit + family farm credit status with Washington County Assessor (potential ~$300-500/yr savings combined)</li>
+<li>Get current farm rental agreement on the rented parcels (income side already on tax return; document side for the file)</li>
+<li>If Kim has a will, confirm real-estate disposition aligns with Karla-as-sole-beneficiary intent</li>
+</ul>
+</div>
+
+<div class="card">
+<h3>Total Net Worth &mdash; Reframed</h3>
+<table>
+<tr><th>Category</th><th>Value</th><th>Source</th></tr>
+<tr><td>Annuities (5 active + 1 SPIA)</td><td>$872,927</td><td>Carrier statements</td></tr>
+<tr><td>CDs (10)</td><td>$1,012,727</td><td>Hills Bank + WSB renewal statements</td></tr>
+<tr><td>Life Insurance Cash Value (6 policies)</td><td>$148,479</td><td>COF + Farm Bureau + MassMutual statements</td></tr>
+<tr><td><strong>Financial subtotal</strong></td><td><strong>$2,034,133</strong></td><td>(was previously the &ldquo;Total&rdquo;)</td></tr>
+<tr><td>Iowa Farmland (assessed)</td><td>$579,800</td><td>9 parcel tax statements</td></tr>
+<tr><td>Farmland market premium (~1.5x adj)</td><td>~$300K</td><td>Iowa farmland market typical</td></tr>
+<tr class="totals"><td><strong>Total Net Worth (estimated)</strong></td><td><strong>~$2.93M</strong></td><td></td></tr>
+<tr><td>Plus: COF LTC lifetime coverage cap</td><td><em>$3,071,520 (insured, not asset)</em></td><td>Policy schedule</td></tr>
+<tr><td>Plus: COF total death benefit on life insurance</td><td>$270,519</td><td>(separate from CV)</td></tr>
+</table>
+<p style="margin-top:10px"><strong>Bottom line: Kim is a $3M+ household when farmland is included.</strong> Estate planning moves from &ldquo;moderate&rdquo; to &ldquo;substantive.&rdquo; Federal estate tax threshold ($13.61M) is still untouched, but the real-estate component meaningfully changes the legacy conversation with Karla.</p>
+</div>
+</div>
+
+<!-- RECOMMENDATION -->
+</div>
+
+<div id="real-agres" class="l4-panel">
+<div class="placeholder-stub"><strong>Agricultural Residential:</strong> homestead structure on farmland. Kim's residence (1603-ish area, Riverside IA 52327). Structure value and assessed tax value pending separate parcel lookup. Part of the Agriculture tab inventory &mdash; break out here once we have structure-only valuation.</div>
+</div>
+
+<div id="real-comm" class="l4-panel">
+<div class="placeholder-stub"><strong>Commercial Real Estate:</strong> none identified. Kim's real estate is agricultural (farmland + homestead). If commercial holdings surface in discovery, populate this tab.</div>
+</div>
+</div>
+
+<!-- Assets > Total -->
+<div id="assets-total" class="l3-panel">
+<div class="card">
+<h3>Total Net Worth Snapshot</h3>
+<div class="stat-row">
+<div class="stat"><div class="num">~$2.03M</div><div class="lbl">Investable (financial assets)</div></div>
+<div class="stat"><div class="num">~$900K</div><div class="lbl">Real Estate (farmland est.)</div></div>
+<div class="stat"><div class="num">~$2.93M</div><div class="lbl">TOTAL NET WORTH</div></div>
+<div class="stat"><div class="num">~$271K</div><div class="lbl">Life Death Benefit (plus NW)</div></div>
+</div>
+<div class="placeholder-stub" style="margin-top:14px"><strong>TODO:</strong> pie chart / visualization of investable vs real estate vs life DB breakdown. Current state is stats above; next version should include SVG pie chart grouped by major asset class.</div>
+<p style="margin-top:10px;color:var(--muted);font-size:0.85rem">Kim is a $3M+ household when farmland is included. Estate planning moves from &ldquo;moderate&rdquo; to &ldquo;substantive.&rdquo; Federal estate tax threshold ($13.61M) is still untouched. The real-estate component meaningfully changes the legacy conversation with Karla.</p>
+</div>
+
 <div class="stat-row">
 <div class="stat"><div class="num">$2,034,133</div><div class="lbl">Total Assets (CV)</div></div>
 <div class="stat"><div class="num">$2,156,173</div><div class="lbl">Total Death Benefit</div></div>
@@ -265,82 +592,382 @@ tr.totals td{font-weight:700;color:var(--text);border-top:2px solid var(--border
 </div>
 
 <!-- ANNUITIES -->
-<div id="annuities" class="panel">
-<div class="card">
-<h2>Annuities (5 Accounts &mdash; $872,927)</h2>
-<div style="overflow-x:auto">
-<table>
-<tr><th>Carrier</th><th>Product</th><th>Policy #</th><th>Tax</th><th>Value</th><th>CSV</th><th>Rate</th><th>Death Benefit</th><th>Issue</th><th>Maturity</th><th>Beneficiary</th><th>Source</th></tr>
-<tr><td>Catholic Order of Foresters</td><td>Annuity Loyalty SPDA</td><td>4041671</td><td>NQ</td><td>$447,073</td><td>$418,866</td><td>3.25% (2.75% guar)</td><td>$447,073</td><td>11/05/2023</td><td>11/05/2049</td><td>Karla S Ruth</td><td>COF stmt 04/2025</td></tr>
-<tr><td>Catholic Order of Foresters</td><td>Annuity Loyalty SPDA</td><td>4041673</td><td>Roth IRA</td><td>$90,560</td><td>$84,847</td><td>3.00% (2.75% guar)</td><td>$90,560</td><td>11/05/2023</td><td>11/05/2049</td><td>Karla S Ruth</td><td>COF stmt 04/2025</td></tr>
-<tr><td>Prosperity / S.USA Life</td><td>S.USA Annuity</td><td>920330879</td><td>NQ</td><td>$184,837</td><td>$184,837</td><td>3.00%</td><td>$184,837</td><td>05/04/2022</td><td>05/04/2028</td><td class="none">&#9888; NONE</td><td>Prosperity stmt 05/2025</td></tr>
-<tr><td>Brighthouse Financial</td><td>Fixed Annuity XR</td><td>940267409</td><td>NQ</td><td>$135,034</td><td>$135,034</td><td>3.00%</td><td>$135,034</td><td>06/08/2004</td><td>1yr renew</td><td class="none">&#9888; NONE</td><td>Brighthouse stmt</td></tr>
-<tr><td>Brighthouse Financial</td><td>Fixed Annuity XR</td><td>9200553464</td><td>Trad IRA</td><td>$15,423</td><td>$15,423</td><td>3.00%</td><td>$15,423</td><td>06/11/2004</td><td>1yr renew</td><td class="none">&#9888; NONE</td><td>Brighthouse stmt</td></tr>
-<tr><td>Catholic Order of Foresters</td><td>SPIA (Karla annuitant)</td><td>1311997</td><td>NQ</td><td>$36,610 prem</td><td>&mdash;</td><td>3.00%</td><td>$1,603/yr lifetime to Karla</td><td>04/01/2004</td><td>Lifetime</td><td>Karla S Ruth (annuitant)</td><td>COF app 2004</td></tr>
-<tr class="totals"><td></td><td></td><td></td><td>TOTAL</td><td>$872,927</td><td>$839,007</td><td></td><td>$872,927</td><td></td><td></td><td></td><td></td></tr>
-</table>
 </div>
+
+</div> <!-- /ai3-assets -->
+
+<!-- AI3 > Insurance -->
+<div id="ai3-insurance" class="l2-panel">
+<div class="l3-bar">
+<div class="l3-tab active" onclick="showL3('ai3-insurance','ins-medicare',this)">Medicare</div>
+<div class="l3-tab" onclick="showL3('ai3-insurance','ins-life',this)">Life</div>
+<div class="l3-tab" onclick="showL3('ai3-insurance','ins-ancillary',this)">Ancillary (LTC + others)</div>
+</div>
+
+<div id="ins-medicare" class="l3-panel active">
+<div class="placeholder-stub"><strong>Medicare Inventory:</strong> Kim has been Medicare-eligible since 2019 (turned 65). Current plan, premium, supplements, Part D pending discovery at meeting OR pull from QUE Medicare Lion if we have it in platform. Populate after meeting with actual plan details + any Medigap / Part D / MAPD in force.</div>
+</div>
+
+<div id="ins-life" class="l3-panel">
+
+<div class="card">
+<h2>Life Insurance Policies (6 Active &mdash; $270,519 DB / $148,479 CV)</h2>
+<p>All Whole Life. All confirmed via 04/09/2026 statements (except MassMutual policies which carry over from 04/08 entry).</p>
 </div>
 
 <div class="card">
-<h3>Surrender Notes</h3>
+<h3>Policies</h3>
+<div style="overflow-x:auto">
+<table>
+<tr><th>Carrier</th><th>Policy #</th><th>Face</th><th>Death Benefit</th><th>Cash Value</th><th>Last Yr Dividend</th><th>Premium</th><th>Issue</th><th>Beneficiary</th><th>Source</th></tr>
+<tr><td>Catholic Order of Foresters</td><td>1305586</td><td>$41,000</td><td>$58,908</td><td>$30,309</td><td>$307.63 (08/2025)</td><td>$2,418/yr (Annual)</td><td>08/01/2003 (age 49)</td><td>Karla Ruth (Sib) / Estate</td><td>COF stmt 04/09/2026</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>1299513</td><td>$40,000</td><td>$57,701</td><td>$29,728</td><td>$291.64 (10/2025)</td><td>$2,149/yr ($179/mo)</td><td>10/01/2002 (age 48)</td><td>Karla Sue Roth (Sib) / Deb Nieuman</td><td>COF stmt 04/09/2026</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>1206927</td><td>$42,786</td><td>$43,089</td><td>$22,818</td><td>$251.15 (11/2025)</td><td>$535/yr (Annual)</td><td>11/01/1989 (age 35)</td><td>Karla Ruth (Sib) / Don Ruth (Parent) &#9888;</td><td>COF stmt 04/09/2026</td></tr>
+<tr><td>Farm Bureau Life</td><td>04000678365</td><td>$30,000</td><td>$35,055</td><td>$18,755</td><td class="none"><strong>$0.00</strong> (2025) &#9888;</td><td>$363/yr (Annual)</td><td>05/18/1985 (age 30)</td><td>Karla Sue Ruth (Sib) / Estate</td><td>FBFS Annual Report 04/21/2025</td></tr>
+<tr><td>MassMutual (fka Conn. Mutual)</td><td>3456086</td><td>$30,000</td><td>$65,866</td><td>$46,869</td><td>PUAs accumulating (need 2025 stmt)</td><td>Paid-up?</td><td>05/23/1977 (age 23)</td><td class="none">&#9888; TBD</td><td>MassMutual stmt 04/27/2023</td></tr>
+<tr><td>MassMutual</td><td>5022977</td><td>$9,900</td><td>$9,900</td><td>TBD</td><td>TBD (need stmt)</td><td>$613/yr ($53/mo)</td><td>01/02/2018 (age 63)</td><td class="none">&#9888; TBD</td><td>MassMutual stmt 03/2018</td></tr>
+<tr class="totals"><td></td><td>TOTAL</td><td>$193,686</td><td>$270,519</td><td>$148,479</td><td>$850.42 (3 of 6)</td><td>~$5,678/yr</td><td></td><td></td><td></td></tr>
+</table>
+</div>
+<p style="margin-top:8px;font-size:0.78rem;color:var(--muted)"><strong>Source notes:</strong> All COF + Farm Bureau values are CURRENT (statements within last 12 months). MassMutual #3456086 values are from 2023 statement &mdash; <em>actual 2026 values will be higher (2+ years of dividend accumulation)</em>. MassMutual #5022977 has no current cash value on file. <strong>Order in-force illustrations on all 6.</strong></p>
+</div>
+
+<div class="card">
+<h3>Long-Term Care Policy</h3>
+<div style="overflow-x:auto">
+<table>
+<tr><th>Carrier</th><th>Policy #</th><th>Plan</th><th>Daily Benefit</th><th>Lifetime Max</th><th>Elimination</th><th>Inflation Rider</th><th>Issue Date</th><th>Issue Age</th><th>Premium</th></tr>
+<tr><td>Catholic Order of Foresters</td><td>1299491</td><td>LTC + ROP rider 100% active</td><td><strong>$307.15/day current</strong> ($100 base × 24yr compound) · Lifetime cap <strong>$3,071,520.68</strong> · Home &amp; Community 50% = $153.58/day</td><td>Lifetime</td><td>90 days</td><td>Compound (since 2002)</td><td>11/01/2002</td><td>48</td><td>$823.28/yr (ACP) · Base $394.70 + Compound Inf $367.60 + ROP $60.98</td></tr>
+</table>
+</div>
+<p style="margin-top:10px"><em>Includes: Bed Reservation (21 days/yr), Caregiver Training ($500 lifetime), Respite Care (21 days/yr), Hospice Care, Return of Premium rider.</em></p>
+<div class="note" style="margin-top:14px;background:rgba(212,164,76,0.06);border-color:rgba(212,164,76,0.3)"><strong style="color:var(--gold)">LTC Administrator:</strong> This policy is administered by a third-party service provider, <strong>Davies</strong>. For current values, claim status, or any policy information, Kim can contact <strong>Davies at (877) 702-7770</strong>. COF&rsquo;s home office does not handle LTC servicing directly.</div>
+</div>
+
+<div class="card">
+<h3>Insights</h3>
 <ul>
-<li><strong>COF 4041671 + 4041673:</strong> Year 3 of 7 surrender period. ~$34K in surrender charges if liquidated today.</li>
-<li><strong>Prosperity 920330879:</strong> Fully liquid. CSV = AV. $0 surrender charge.</li>
-<li><strong>Brighthouse 940267409 + 9200553464:</strong> Fully liquid. 20+ year contracts. 1-year guarantee renewals at 3.0%.</li>
+<li><strong>Real cash on the table:</strong> $148,479 in life policy cash value is liquid money &mdash; not just death benefit. Adds 8% to his total liquid asset pool.</li>
+<li><strong>Dividend-driven growth:</strong> 4 of 6 policies use Paid-Up Additions dividend option. The COF policies have substantial PUA accumulation (combined ~$50K in PUA cash). The Farm Bureau dividend was $0 in 2025 &mdash; investigate.</li>
+<li><strong>40+ year contracts:</strong> Farm Bureau (40 years), MassMutual #3456086 (49 years), COF #1206927 (37 years). Dividend trajectory should be substantial. Order in-force illustrations to see what they project forward.</li>
+<li><strong>Beneficiary verification needed:</strong> 2 MassMutual policies have unconfirmed beneficiaries. Action item.</li>
+<li><strong>Don Ruth concern:</strong> COF #1206927 lists him as parent contingent &mdash; needs current status verification.</li>
+<li><strong>The LTC is a sleeper asset:</strong> $100/day base from 2002 with compound inflation = significant current daily benefit. JDM should request current values from COF.</li>
 </ul>
 </div>
 </div>
 
-<!-- CDs -->
-<div id="cds" class="panel">
+<!-- BENI CENTER -->
+</div>
+
+<div id="ins-ancillary" class="l3-panel">
+<div class="note"><strong>Ancillary Insurance</strong> &mdash; LTC + any other non-life/non-medicare coverage.</div>
 <div class="card">
-<h2>Certificates of Deposit (10 Accounts &mdash; $1,012,727)</h2>
-<p>Sorted by maturity date. Values refreshed from 2025/26 Hills Bank renewal statements.</p>
+<h3>Long-Term Care Policy (COF #1299491)</h3>
+<p style="color:var(--muted)">See Life tab (above) for full LTC policy details. Summary: $100/day base benefit since 2002, compound inflation rider, 90-day elimination, lifetime max. Administered by <strong>Davies (877-702-7770)</strong>. Current daily benefit is likely $200-250/day after 24 years of compounding.</p>
+</div>
+<div class="placeholder-stub"><strong>Other Ancillary (disability, critical illness, cancer, etc.):</strong> none identified in current discovery. If Kim has additional ancillary coverage, populate here.</div>
+</div>
+</div> <!-- /ai3-insurance -->
+
+<!-- AI3 > Income -->
+<div id="ai3-income" class="l2-panel">
+<div class="l3-bar">
+<div class="l3-tab active" onclick="showL3('ai3-income','income-type',this)">By Type</div>
+<div class="l3-tab" onclick="showL3('ai3-income','income-tax',this)">By Tax Treatment</div>
+</div>
+
+<div id="income-type" class="l3-panel active">
+
+<div class="card">
+<h2>Income Sources &mdash; 2025 Actuals (from Federal Return)</h2>
+<p style="font-size:0.82rem">Replaces pre-return estimates. All figures direct from 1040 + Schedule B + Schedule F, filed as Single 2026-02-24.</p>
+</div>
+
+<div class="income-card">
+<div>
+<div class="src">Social Security (2025)</div>
+<div class="detail">Gross benefit &asymp; $34,194 &middot; 85% taxable &rarr; $29,065 on return</div>
+</div>
+<div style="text-align:right">
+<div class="val">~$2,849/mo</div>
+<div class="detail">$34,194/yr gross &middot; $29,065 taxable</div>
+</div>
+</div>
+
+<div class="income-card">
+<div>
+<div class="src">Farm (Schedule F &mdash; Net)</div>
+<div class="detail">Corn &amp; soybeans &middot; Sole prop &middot; 2024: $76,674 &middot; <strong>2025: $18,765</strong> &mdash; commodity/input squeeze</div>
+</div>
+<div style="text-align:right">
+<div class="val">$18,765</div>
+<div class="detail">Gross $164,089 &minus; Expenses $145,324</div>
+</div>
+</div>
+
+<div class="income-card">
+<div>
+<div class="src">Interest Income (CDs + checking)</div>
+<div class="detail">Hills Bank $26,338 &middot; WSB $9,808 &middot; F&amp;M $28</div>
+</div>
+<div style="text-align:right">
+<div class="val">$36,174</div>
+<div class="detail">Ordinary income &mdash; hits at 22% marginal</div>
+</div>
+</div>
+
+<div class="income-card">
+<div>
+<div class="src">Taxable IRA Distribution (2025)</div>
+<div class="detail"><strong style="color:var(--orange)">NEW in 2025</strong> &mdash; source TBD (Brighthouse IRA? Hills IRA CD?). Ask Kim.</div>
+</div>
+<div style="text-align:right">
+<div class="val">$25,000</div>
+<div class="detail">Taxable ordinary income</div>
+</div>
+</div>
+
+<div class="income-card">
+<div>
+<div class="src">Other Gains (sale of business property, Form 4797)</div>
+<div class="detail">2024: $3,500 &middot; 2025: $8,500 &mdash; likely old equipment sale tied to farm</div>
+</div>
+<div style="text-align:right">
+<div class="val">$8,500</div>
+<div class="detail">Reported on 1040 line 10</div>
+</div>
+</div>
+
+<div class="income-card">
+<div>
+<div class="src">Dividend Income (Hills Bancorporation)</div>
+<div class="detail">Qualified: $1,456 &mdash; taxed at 0% (under $48,475 qualified threshold doesn&rsquo;t apply single &rarr; actually 15%). Kim owns Hills Bancorp stock &mdash; ask for share count.</div>
+</div>
+<div style="text-align:right">
+<div class="val">$1,500</div>
+<div class="detail">$1,456 qualified</div>
+</div>
+</div>
+
+<div class="income-card" style="background:rgba(148,163,184,0.08);opacity:0.85">
+<div>
+<div class="src">Prosperity Annuity Benefit (NOT currently drawn)</div>
+<div class="detail">Paid-up monthly benefit &mdash; available option, not activated in 2025</div>
+</div>
+<div style="text-align:right">
+<div class="val">$1,007.35/mo</div>
+<div class="detail">$12,088/yr if activated</div>
+</div>
+</div>
+
+<div class="card" style="margin-top:16px">
+<h3>2025 Income Reconciliation</h3>
+<div class="stat-row">
+<div class="stat"><div class="num">$119,204</div><div class="lbl">Total Income (1040)</div></div>
+<div class="stat"><div class="num">$107,400</div><div class="lbl">AGI</div></div>
+<div class="stat"><div class="num">$64,067</div><div class="lbl">Taxable Income</div></div>
+<div class="stat"><div class="num" style="color:var(--orange)">$11,548</div><div class="lbl">Total Federal Tax</div></div>
+</div>
+</div>
+
+<div class="note">
+<strong>Tax Bracket Correction:</strong> Earlier roadmap modeled Kim at <strong>32&ndash;35% marginal</strong>. The 2025 return puts him at <strong>22% marginal / 18% effective</strong>. This reshapes every downstream recommendation:
+<ul style="margin-left:20px;margin-top:8px">
+<li><strong>Roth conversions are ~4x cheaper</strong> than we thought. Targeted $39K/yr conversion plan fills the 22% bracket without overflow &mdash; details in TAX BREAKDOWN tab.</li>
+<li><strong>Tax-deferral on CD interest</strong> still valuable but less urgent. Priority for MYGA/FIA rotation shifts from pure tax arbitrage to yield-plus-deferral.</li>
+<li><strong>QCD to church</strong> still attractive as RMD-rate insurance, but immediate pre-RMD value is lower than at 32%.</li>
+<li><strong>Activating the Prosperity $1,007/mo</strong> would add $12K/yr at ~22% marginal = $2.6K additional tax &mdash; decision hinges on need, not tax drag.</li>
+</ul>
+</div>
+</div>
+
+<!-- REAL ESTATE -->
+</div>
+
+<div id="income-tax" class="l3-panel">
+<div class="note"><strong>Income by Tax Treatment</strong> &mdash; organizing Kim's 2025 income by how each piece is taxed.</div>
 <div style="overflow-x:auto">
 <table>
-<tr><th>Bank</th><th>Acct #</th><th>Tax</th><th>Renewal Balance</th><th>APY</th><th>Term</th><th>Issue</th><th>Maturity</th><th>Beneficiary</th></tr>
-<tr><td>Hills Bank</td><td>10521680</td><td>NQ</td><td>$94,794</td><td>3.60%</td><td>11mo</td><td>06/09/2025</td><td>05/09/2026</td><td class="none">&#9888; NONE</td></tr>
-<tr><td>Hills Bank</td><td>50102383</td><td>NQ</td><td>$118,473</td><td>3.60%</td><td>11mo</td><td>07/03/2025</td><td>06/02/2026</td><td class="none">&#9888; NONE</td></tr>
-<tr><td>Hills Bank</td><td>10402477</td><td>Trad IRA</td><td>$96,314</td><td>3.60%</td><td>11mo</td><td>07/05/2025</td><td>06/05/2026</td><td class="none">&#9888; NONE</td></tr>
-<tr><td>Hills Bank</td><td>10527117</td><td>NQ</td><td>$59,138</td><td>3.60%</td><td>11mo</td><td>07/07/2025</td><td>06/07/2026</td><td class="none">&#9888; NONE</td></tr>
-<tr><td>Hills Bank</td><td>80013907</td><td>Trad IRA</td><td>$7,675</td><td>3.48%</td><td>6mo</td><td>12/13/2025</td><td>06/13/2026</td><td class="none">&#9888; NONE</td></tr>
-<tr><td>Hills Bank</td><td>50127000</td><td>NQ</td><td>$46,501</td><td>3.49%</td><td>6mo</td><td>02/23/2026</td><td>08/23/2026</td><td class="none">&#9888; NONE</td></tr>
-<tr><td>Hills Bank</td><td>10242469</td><td>NQ</td><td>$50,706</td><td>3.49%</td><td>6mo</td><td>03/20/2026</td><td>09/20/2026</td><td class="none">&#9888; NONE</td></tr>
-<tr><td>Washington State Bank</td><td>89237</td><td>NQ</td><td>$115,585</td><td>4.00%</td><td>11mo</td><td>10/06/2025</td><td>10/06/2026</td><td class="none">&#9888; NONE</td></tr>
-<tr><td>Washington State Bank</td><td>89421</td><td>NQ</td><td>$165,895</td><td>4.00%</td><td>11mo</td><td>11/04/2025</td><td>11/04/2026</td><td class="none">&#9888; NONE</td></tr>
-<tr><td>Hills Bank</td><td>10424356</td><td>NQ</td><td>$258,259</td><td>3.40%</td><td>11mo</td><td>12/28/2025</td><td>11/28/2026</td><td class="none">&#9888; NONE</td></tr>
-<tr class="totals"><td></td><td></td><td>TOTAL</td><td>$1,012,727</td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><th>Tax Treatment</th><th>Source</th><th>2025 Amount</th><th>Tax Impact</th></tr>
+<tr><td><strong>Ordinary Income (Sch 1 SE/Farm)</strong></td><td>Schedule F Farm Net</td><td>$18,765</td><td>Income tax + SE tax (~15.3% up to SS base)</td></tr>
+<tr><td><strong>Ordinary Income (1099-INT)</strong></td><td>CD Interest (Hills + WSB + F&amp;M)</td><td>$36,174</td><td>22% marginal on full amount</td></tr>
+<tr><td><strong>Ordinary Income (1099-R)</strong></td><td>IRA distribution (source TBD)</td><td>$25,000</td><td>22% marginal</td></tr>
+<tr><td><strong>Other Gains</strong> (Form 4797)</td><td>Business property sale</td><td>$8,500</td><td>Ordinary income (depreciation recapture)</td></tr>
+<tr><td><strong>Social Security (85% taxable)</strong></td><td>SSI</td><td>$29,065 taxable (of ~$34,194 gross)</td><td>Taxed at ordinary rates on the taxable portion</td></tr>
+<tr><td><strong>Qualified Dividends</strong></td><td>Hills Bancorp Stock</td><td>$1,456 qualified (of $1,500 ordinary)</td><td>15% LTCG rate for Kim's bracket</td></tr>
+<tr class="totals"><td><strong>TOTAL 2025</strong></td><td></td><td><strong>$119,204</strong></td><td>AGI $107,400 · Taxable $64,067 · Total tax $11,548</td></tr>
 </table>
 </div>
-<div class="note" style="margin-top:14px"><strong>Source notes:</strong>
-<ul style="margin-left:20px">
-<li>Hills Bank values: 2025/26 renewal statements (most are 11mo terms initiated mid-2025)</li>
-<li>Hills #10402477 IRA corrected from $73K (Archer estimate) to $96,314 (renewal statement 07/05/2025)</li>
-<li>Hills #10242469 account number corrected from 10142469 (was a typo) to 10242469</li>
-<li>Hills #80013907: confirmed via Archer's spreadsheet ($7,675 / 3.48% APY / 12/13/2025-06/13/2026). The handwritten 4.81% note in inbox is from an OLDER 01/13/2024 term that already renewed twice.</li>
-<li>Washington State Bank: per Archer's spreadsheet (4.00% APY 11mo terms, no renewal statements yet)</li>
-<li><strong>2025 Interest Earned (per 1040 Sch B):</strong> Hills Bank $26,338 (across all 6 Hills CDs + any checking), Washington State Bank $9,808 (across WSB #89237 + #89421), Farmers &amp; Merchants $28 (<em>account not on inventory &mdash; see FLAG 2C</em>). Total 2025 interest = $36,174, all taxed as ordinary income at 22% marginal.</li>
-</ul>
+<p style="margin-top:14px;font-size:0.85rem;color:var(--muted)"><em>See Analysis → Tax → Income for the story of what Kim's income mix means and what we can optimize.</em></p>
+</div>
+</div> <!-- /ai3-income -->
+
+<!-- AI3 > Beni Center -->
+<div id="ai3-beni" class="l2-panel">
+
+<div class="card">
+<h2>Beneficiary Center &mdash; All 23 Active Accounts</h2>
+<p>Sole intended beneficiary across the estate: <strong>Karla S Ruth (Sister)</strong>. Iowa inheritance tax repealed 01/01/2025 — Karla owes no state tax on inheritance.</p>
+</div>
+
+<div class="stat-row">
+<div class="stat"><div class="num" style="color:var(--green)">10</div><div class="lbl">Named Beneficiary</div></div>
+<div class="stat warn"><div class="num">13</div><div class="lbl">No Beneficiary</div></div>
+<div class="stat"><div class="num" style="color:var(--orange)">$1.48M</div><div class="lbl">Probate Risk</div></div>
+<div class="stat"><div class="num">$2.16M</div><div class="lbl">Total Death Benefit</div></div>
+</div>
+
+<div class="card">
+<h3>Accounts WITH Beneficiary (10)</h3>
+<div style="overflow-x:auto">
+<table>
+<tr><th>Carrier</th><th>Policy #</th><th>Type</th><th>Value</th><th>Primary Beneficiary</th><th>Contingent</th><th>Source</th></tr>
+<tr><td>Catholic Order of Foresters</td><td>4041671</td><td>NQ Annuity</td><td>$447,073</td><td>Karla S Ruth (Sib) 100%</td><td>&mdash;</td><td>COF stmt 04/2025</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>4041673</td><td>Roth IRA Annuity</td><td>$90,560</td><td>Karla S Ruth (Sib) 100%</td><td>&mdash;</td><td>COF stmt 04/2025</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>1305586</td><td>Whole Life</td><td>$58,908 DB</td><td>Karla Ruth (Sib)</td><td>Estate</td><td>COF stmt 04/09/2026</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>1299513</td><td>Whole Life</td><td>$57,701 DB</td><td>Karla Sue Roth (Sib)</td><td>Deb Nieuman</td><td>COF stmt 04/09/2026</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>1206927</td><td>Whole Life</td><td>$43,089 DB</td><td>Karla Ruth (Sib)</td><td><strong style="color:var(--orange)">Don Ruth (Parent) &#9888;</strong></td><td>COF stmt 04/09/2026</td></tr>
+<tr><td>Farm Bureau Life</td><td>04000678365</td><td>Special Whole Life</td><td>$35,055 DB</td><td>Karla Sue Ruth (Sib)</td><td>Estate of Insured</td><td>FBFS stmt 04/2025</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>1311997</td><td>Single Life Annuity (SPIA)</td><td>$36,610 single premium</td><td colspan="2" style="font-style:italic">Karla S Ruth is the annuitant — receives $1,603/yr lifetime income. Owner/beni TBD.</td><td>COF app 2004</td></tr>
+<tr><td>MassMutual (fka Conn. Mutual)</td><td>3456086</td><td>Whole Life</td><td>$65,866 DB</td><td colspan="2" class="none">&#9888; TBD &mdash; need current statement</td><td>2023 stmt</td></tr>
+<tr><td>MassMutual</td><td>5022977</td><td>Whole Life</td><td>$9,900 DB</td><td colspan="2" class="none">&#9888; TBD &mdash; need current statement</td><td>2018 stmt</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>1299491</td><td>LTC (no DB)</td><td>$100/day base</td><td colspan="2" style="font-style:italic">N/A &mdash; benefits paid to Kim during lifetime</td><td>COF app 2002</td></tr>
+</table>
 </div>
 </div>
 
 <div class="card">
-<h3>Maturity Calendar &mdash; 2026</h3>
-<div class="maturity-grid">
-<div class="mat-card"><div class="mo">May</div><div class="amt">$95K</div><div class="ct">1 CD</div></div>
-<div class="mat-card"><div class="mo">Jun</div><div class="amt">$281K</div><div class="ct">4 CDs</div></div>
-<div class="mat-card empty"><div class="mo">Jul</div><div class="amt">&mdash;</div><div class="ct">0</div></div>
-<div class="mat-card"><div class="mo">Aug</div><div class="amt">$47K</div><div class="ct">1 CD</div></div>
-<div class="mat-card"><div class="mo">Sep</div><div class="amt">$51K</div><div class="ct">1 CD</div></div>
-<div class="mat-card"><div class="mo">Oct</div><div class="amt">$116K</div><div class="ct">1 CD</div></div>
-<div class="mat-card"><div class="mo">Nov</div><div class="amt">$424K</div><div class="ct">2 CDs</div></div>
-</div>
+<h3 style="color:var(--red)">Accounts WITHOUT Beneficiary (13) &mdash; ALL probate-bound</h3>
+<div style="overflow-x:auto">
+<table>
+<tr><th>Carrier</th><th>Acct #</th><th>Type</th><th>Tax</th><th>Value</th><th>Action Required</th><th>Form Source</th></tr>
+<tr><td>Hills Bank</td><td>10521680</td><td>CD 11mo</td><td>NQ</td><td>$94,794</td><td>POD form (Hills Bank)</td><td>Bank in person</td></tr>
+<tr><td>Hills Bank</td><td>50102383</td><td>CD 11mo</td><td>NQ</td><td>$118,473</td><td>POD form (Hills Bank)</td><td>Bank in person</td></tr>
+<tr><td>Hills Bank</td><td>10402477</td><td>CD 11mo</td><td>Trad IRA</td><td>$96,314</td><td>IRA beneficiary form (Hills Bank)</td><td>Bank in person</td></tr>
+<tr><td>Hills Bank</td><td>10527117</td><td>CD 11mo</td><td>NQ</td><td>$59,138</td><td>POD form (Hills Bank)</td><td>Bank in person</td></tr>
+<tr><td>Hills Bank</td><td>80013907</td><td>CD 6mo</td><td>Trad IRA</td><td>$7,675</td><td>IRA beneficiary form (Hills Bank)</td><td>Bank in person</td></tr>
+<tr><td>Hills Bank</td><td>50127000</td><td>CD 6mo</td><td>NQ</td><td>$46,501</td><td>POD form (Hills Bank)</td><td>Bank in person</td></tr>
+<tr><td>Hills Bank</td><td>10242469</td><td>CD 6mo</td><td>NQ</td><td>$50,706</td><td>POD form (Hills Bank)</td><td>Bank in person</td></tr>
+<tr><td>Hills Bank</td><td>10424356</td><td>CD 11mo</td><td>NQ</td><td>$258,259</td><td>POD form (Hills Bank)</td><td>Bank in person</td></tr>
+<tr><td>Washington State Bank</td><td>89421</td><td>CD 11mo</td><td>NQ</td><td>$165,895</td><td>POD form (WSB)</td><td>Bank in person</td></tr>
+<tr><td>Washington State Bank</td><td>89237</td><td>CD 11mo</td><td>NQ</td><td>$115,585</td><td>POD form (WSB)</td><td>Bank in person</td></tr>
+<tr><td>Prosperity / S.USA Life</td><td>920330879</td><td>NQ Annuity</td><td>NQ</td><td>$184,837</td><td>Carrier beni change form</td><td>Prosperity carrier portal</td></tr>
+<tr><td>Brighthouse Financial</td><td>940267409</td><td>NQ Annuity</td><td>NQ</td><td>$135,034</td><td>Carrier beni change form</td><td>Brighthouse carrier portal</td></tr>
+<tr><td>Brighthouse Financial</td><td>9200553464</td><td>IRA Annuity</td><td>Trad IRA</td><td>$15,423</td><td>Carrier beni change form</td><td>Brighthouse carrier portal</td></tr>
+<tr class="totals"><td></td><td></td><td></td><td>TOTAL EXPOSED</td><td>$1,478,820</td><td></td><td></td></tr>
+</table>
 </div>
 </div>
 
-<!-- TAX BREAKDOWN -->
-<div id="tax" class="panel">
+<div class="card">
+<h3>Action Plan</h3>
+<ol style="margin-left:20px;color:var(--muted)">
+<li><strong>Immediate (no second discovery needed):</strong> Print 13 beni forms. Have Kim sign at next meeting. Name Karla S Ruth as primary on all 13.</li>
+<li><strong>For the Hills Bank IRAs ($104K):</strong> IRA beneficiary forms are different from POD &mdash; ensure correct form. Hills will provide.</li>
+<li><strong>For Brighthouse + Prosperity:</strong> Each carrier has its own beni change form. Submit via carrier portal or fax.</li>
+<li><strong>Verify MassMutual #3456086 + #5022977 benis</strong> &mdash; request current statements to confirm. May already be Karla &mdash; just unconfirmed.</li>
+<li><strong>Verify Don Ruth status</strong> on COF #1206927 contingent &mdash; if deceased, file contingent change.</li>
+<li><strong>COF SPIA #1311997</strong> &mdash; verify owner and remainder beneficiary structure (Karla is the annuitant, but who owns the contract?).</li>
+</ol>
+</div>
+</div>
+
+<!-- RMD CENTER -->
+</div>
+
+<!-- AI3 > RMD Center -->
+<div id="ai3-rmd" class="l2-panel">
+
+<div class="card">
+<h2>RMD Center &mdash; Required Minimum Distributions</h2>
+<p>Kimberly K Ruth &bull; DOB 07/13/1954 &bull; <strong>Turns 73 on 07/13/2027</strong> &bull; First RMD year: <strong>2027</strong> &bull; Required Beginning Date: <strong>04/01/2028</strong></p>
+</div>
+
+<div class="stat-row">
+<div class="stat"><div class="num">$119,412</div><div class="lbl">Total Trad IRA Subject to RMD</div></div>
+<div class="stat"><div class="num">3</div><div class="lbl">IRA Accounts</div></div>
+<div class="stat"><div class="num" style="color:var(--orange)">$4,506</div><div class="lbl">Est. First RMD (2027)</div></div>
+<div class="stat"><div class="num">26.5</div><div class="lbl">Age 73 Divisor</div></div>
+</div>
+
+<div class="card">
+<h3>Traditional IRA Accounts (RMD Required)</h3>
+<div style="overflow-x:auto">
+<table>
+<tr><th>Carrier</th><th>Account #</th><th>Type</th><th>Value</th><th>Maturity</th><th>RMD Strategy Note</th><th>Source</th></tr>
+<tr><td>Hills Bank</td><td>10402477</td><td>IRA CD (11mo)</td><td>$96,314</td><td>06/05/2026</td><td>Largest IRA. Will mature before RMD trigger. Keep liquid for first RMD.</td><td>Hills renewal 07/05/2025</td></tr>
+<tr><td>Brighthouse Financial</td><td>9200553464</td><td>Fixed Annuity XR (IRA)</td><td>$15,423</td><td>1yr renew</td><td>Fully liquid annuity. Could fund RMD or be 1035'd to better product.</td><td>Brighthouse stmt</td></tr>
+<tr><td>Hills Bank</td><td>80013907</td><td>IRA CD (6mo)</td><td>$7,675</td><td>06/13/2026</td><td>Small balance. Could absorb full annual RMD without touching others.</td><td>Archer spreadsheet</td></tr>
+<tr class="totals"><td></td><td></td><td>TOTAL</td><td>$119,412</td><td></td><td></td><td></td></tr>
+</table>
+</div>
+</div>
+
+<div class="card">
+<h3>RMD Calculation (Projected)</h3>
+<div style="overflow-x:auto">
+<table>
+<tr><th>Year</th><th>Age</th><th>Account Balance</th><th>Divisor</th><th>RMD Amount</th><th>Notes</th></tr>
+<tr><td>2026</td><td>72</td><td>~$119,412</td><td>&mdash;</td><td>$0</td><td>No RMD &mdash; not yet 73</td></tr>
+<tr><td>2027</td><td>73</td><td>~$120K projected (assumes 0.5% net growth)</td><td>26.5</td><td><strong>~$4,528</strong></td><td>First RMD year. Can defer to 04/01/2028.</td></tr>
+<tr><td>2028</td><td>74</td><td>~$117K projected</td><td>25.5</td><td>~$4,580</td><td>Two RMDs in same calendar year if 2027 was deferred.</td></tr>
+<tr><td>2029</td><td>75</td><td>~$113K projected</td><td>24.6</td><td>~$4,591</td><td></td></tr>
+<tr><td>2030</td><td>76</td><td>~$109K projected</td><td>23.7</td><td>~$4,597</td><td></td></tr>
+</table>
+</div>
+<p style="margin-top:10px"><em>Divisors from IRS Uniform Lifetime Table (2022 update). Projections are illustrative &mdash; actual balances depend on growth + withdrawals.</em></p>
+</div>
+
+<div class="card">
+<h3>Key Decisions</h3>
+<ul>
+<li><strong>Roth Conversion Window:</strong> Kim is in the 32&ndash;35% bracket due to farm income. Roth conversion of all $119K would cost ~$38K&ndash;$42K in federal tax. <strong>BUT</strong> if farm income drops in any year before 2027, that creates a low-bracket conversion window.</li>
+<li><strong>CD Rollover Strategy:</strong> 2 of 3 IRAs mature June 2026. Top option: roll into a FIA with GLWB &mdash; the rider locks in lifetime income that satisfies RMDs automatically and the indexed growth beats CD returns. Free-withdrawal-only FIAs also work.</li>
+<li><strong>Inherited IRA for Karla:</strong> Under SECURE Act 2.0, Karla (non-spouse) must drain inherited IRA within 10 years. Plan accordingly.</li>
+<li><strong>QCD Option:</strong> At age 70.5+, Kim can do Qualified Charitable Distributions (up to $108K/yr in 2025) directly from IRA &mdash; satisfies RMD without taxable income. Useful if he has charitable intent — Kim is a practicing Catholic and may be interested in directing RMDs to his church.</li>
+<li><strong>1035 Exchange:</strong> The Brighthouse IRA could be 1035 exchanged into a higher-yielding annuity without triggering tax. Same product type, same tax status.</li>
+</ul>
+</div>
+
+<div class="card" style="background:rgba(34,197,94,0.04);border-color:rgba(34,197,94,0.2)">
+<h3 style="color:var(--green)">Roth IRA &mdash; NO RMD EVER</h3>
+<table>
+<tr><th>Carrier</th><th>Policy #</th><th>Type</th><th>Value</th><th>Notes</th></tr>
+<tr><td>Catholic Order of Foresters</td><td>4041673</td><td>Roth IRA Annuity</td><td>$90,560</td><td>Karla beneficiary. Tax-free growth + tax-free inheritance. <strong>Do not touch this asset.</strong></td></tr>
+</table>
+</div>
+</div>
+
+<!-- INCOME -->
+</div>
+
+</div> <!-- /p-ai3 -->
+
+<!-- ============== P-ANALYSIS (TAIL: Tax · Assets · Income · Legacy) ============== -->
+<div id="p-analysis" class="panel">
+
+<div class="card">
+<h2>Analysis &mdash; TAIL Framework</h2>
+<p>Every case is analyzed across four analytical dimensions &mdash; <strong>T</strong>ax · <strong>A</strong>ssets · <strong>I</strong>ncome · <strong>L</strong>egacy &mdash; with equal weight. Each dimension surfaces what Kim <em>has</em> vs what he <em>needs</em>. Recommendations are downstream of this thinking.</p>
+</div>
+
+<div class="l2-bar">
+<div class="l2-tab active" onclick="showL2('p-analysis','ana-tax',this)">Tax (T)</div>
+<div class="l2-tab" onclick="showL2('p-analysis','ana-assets',this)">Assets (A)</div>
+<div class="l2-tab" onclick="showL2('p-analysis','ana-income',this)">Income (I)</div>
+<div class="l2-tab" onclick="showL2('p-analysis','ana-legacy',this)">Legacy (L)</div>
+</div>
+
+<!-- Analysis > Tax -->
+<div id="ana-tax" class="l2-panel active">
+<div class="l3-bar">
+<div class="l3-tab active" onclick="showL3('ana-tax','tax-income',this)">Income Tax Analysis</div>
+<div class="l3-tab" onclick="showL3('ana-tax','tax-assets',this)">Asset Tax Analysis</div>
+</div>
+
+<div id="tax-income" class="l3-panel active">
+
 
 <div class="card" style="background:rgba(34,197,94,0.04);border-color:rgba(34,197,94,0.25)">
 <h2 style="color:var(--green)">2025 Federal Return &mdash; Actuals (Received 2026-04-13)</h2>
@@ -472,7 +1099,580 @@ tr.totals td{font-weight:700;color:var(--text);border-top:2px solid var(--border
 </div>
 
 <!-- FLAGS -->
-<div id="flags" class="panel">
+</div>
+
+<div id="tax-assets" class="l3-panel">
+<div class="note"><strong>Asset Tax Analysis</strong> &mdash; tax status breakdown across the asset inventory, and what it means for planning.</div>
+<div class="card">
+<h3>Tax Status of Investable Assets</h3>
+<div style="overflow-x:auto">
+<table>
+<tr><th></th><th>Non-Qualified</th><th>Traditional IRA</th><th>Roth IRA</th><th>TOTAL</th></tr>
+<tr><td><strong>Annuities</strong></td><td>$766,944</td><td>$15,423</td><td>$90,560</td><td>$872,927</td></tr>
+<tr><td><strong>CDs</strong></td><td>$909,350</td><td>$103,377</td><td>$0</td><td>$1,012,727</td></tr>
+<tr><td><strong>Life Cash Value</strong></td><td>$148,479</td><td>$0</td><td>$0</td><td>$148,479</td></tr>
+<tr class="totals"><td><strong>TOTAL</strong></td><td><strong>$1,824,773</strong></td><td><strong>$118,800</strong></td><td><strong>$90,560</strong></td><td><strong>$2,034,133</strong></td></tr>
+</table>
+</div>
+</div>
+<div class="card">
+<h3>What This Says About Kim's Plan</h3>
+<ul>
+<li><strong>90% NQ concentration (~$1.82M)</strong> &mdash; no RMD obligation on this bucket, basis already taxed, interest/gains taxed as ordinary on withdrawal. Kim's tax-drag is almost entirely from this bucket in the form of 1099-INT CD interest.</li>
+<li><strong>Traditional IRA is small ($119K ≈ 5.8% of assets)</strong> &mdash; which makes the RMD obligation small (~$4,528/yr at 73). This is what makes the QCD strategy so powerful: Kim can send ALL of the IPP10 LPA ($10,317/yr) to church and still have trivial 1040 tax impact.</li>
+<li><strong>Roth is untouchable ($91K)</strong> &mdash; tax-free growth forever, tax-free inheritance to Karla. Do not ever withdraw. This is Kim's single most tax-efficient asset.</li>
+<li><strong>Tax-deferral migration opportunity:</strong> every dollar of CD interest ($36K/yr in 2025) is taxed as ordinary income. Moving to CP10 (Reco #2) defers that tax completely. <strong>Effective ongoing tax savings at 22% marginal: ~$8K/yr.</strong></li>
+</ul>
+</div>
+</div>
+</div> <!-- /ana-tax -->
+
+<!-- Analysis > Assets -->
+<div id="ana-assets" class="l2-panel">
+<div class="l3-bar">
+<div class="l3-tab active" onclick="showL3('ana-assets','assets-slg',this)">Safety / Liquidity / Growth</div>
+<div class="l3-tab" onclick="showL3('ana-assets','assets-typestory',this)">Type Story</div>
+<div class="l3-tab" onclick="showL3('ana-assets','assets-taxstory',this)">Tax Story</div>
+</div>
+
+<div id="assets-slg" class="l3-panel active">
+<div class="placeholder-stub"><strong>Safety / Liquidity / Growth Analysis:</strong> Kim's current allocation skews heavy to Safety (~59% in Bank CDs + fixed annuities). After Reco implementation, allocation rebalances to ~40% Safety + 15% Liquidity + 45% Growth (via indexed strategies on CP10 + IPP10). Deep-dive narrative on what Kim has vs needs &mdash; TODO fill in.</div>
+</div>
+<div id="assets-typestory" class="l3-panel">
+<div class="placeholder-stub"><strong>Type Story Analysis:</strong> Kim's assets are concentrated in fixed/indexed annuities (COF, Brighthouse, Prosperity) + CDs (Hills, WSB) + Whole Life (COF, MassMutual, Farm Bureau). No direct equity exposure (Hills Bancorp stock excepted). What does this mix say about Kim's risk tolerance and what's missing? &mdash; TODO fill in.</div>
+</div>
+<div id="assets-taxstory" class="l3-panel">
+<div class="placeholder-stub"><strong>Tax Story Analysis on Assets:</strong> see Tax → Asset Tax Analysis for the quantitative breakdown. Deep-dive narrative on tax efficiency of current allocation vs post-Reco state &mdash; TODO fill in.</div>
+</div>
+</div>
+
+<!-- Analysis > Income -->
+<div id="ana-income" class="l2-panel">
+<div class="l3-bar">
+<div class="l3-tab active" onclick="showL3('ana-income','income-type-ana',this)">By Type</div>
+<div class="l3-tab" onclick="showL3('ana-income','income-tax-ana',this)">By Tax Treatment</div>
+</div>
+<div id="income-type-ana" class="l3-panel active">
+<div class="placeholder-stub"><strong>Income Type Analysis:</strong> Kim's income mix: Farm (declining 2024→2025 $77K→$19K), SSI ($29K taxable), CD interest ($36K), IRA distribution ($25K first year 2025), other gains ($8.5K), dividends ($1.5K). Income is trending more-passive as farm operations scale down. What does Kim need the income to do vs what it's doing? &mdash; TODO fill in.</div>
+</div>
+<div id="income-tax-ana" class="l3-panel">
+<div class="placeholder-stub"><strong>Income Tax Treatment Analysis:</strong> see AI3 → Income → By Tax Treatment for current-state data. Opportunities: (1) IPP10 + QCD shifts $10K/yr of IRA income to tax-free charitable. (2) CP10 defers $36K/yr of CD interest to tax-deferred growth &mdash; annual tax savings ~$8K. (3) Roth conversion window is small but targeted — see Tax → Income for the recalibrated math. &mdash; TODO fill in narrative.</div>
+</div>
+</div>
+
+<!-- Analysis > Legacy (C3 + Legal) -->
+<div id="ana-legacy" class="l2-panel">
+<div class="l3-bar">
+<div class="l3-tab active" onclick="showL3('ana-legacy','legacy-c3',this)">C3 &mdash; Charity / Children / Care</div>
+<div class="l3-tab" onclick="showL3('ana-legacy','legacy-legal',this)">Legal &mdash; Trust / Will / POA</div>
+</div>
+
+<div id="legacy-c3" class="l3-panel active">
+<div class="note"><strong>C3 Framework:</strong> every client's legacy flows to three destinations &mdash; <strong>C</strong>harity, <strong>C</strong>hildren (heirs), <strong>C</strong>are (self + possibly dependents). Analyze what they HAVE vs what they NEED across all three.</div>
+<div class="card">
+<h3>Charity (Legacy to Kim's Church)</h3>
+<h4>What Kim Has</h4>
+<ul>
+<li>2025 reported charitable deduction: $524 (Sch A itemized)</li>
+<li>Self-described tithing intent; practicing Catholic; small-cash-gift pattern</li>
+<li>No structured charitable giving vehicle (CRT, DAF, direct bequest)</li>
+</ul>
+<h4>What Kim Needs</h4>
+<ul>
+<li><strong>Structured recurring giving mechanism</strong> &mdash; Reco #1 IPP10 + QCD delivers this: up to $10,317/yr to church, tax-free, for life</li>
+<li><strong>Terminal bequest</strong> &mdash; Kim's estate planning should include explicit church bequest (through will or beneficiary designation on specific accounts). Currently not reflected anywhere we can see.</li>
+</ul>
+</div>
+<div class="card">
+<h3>Children (Legacy to Karla S Ruth, Sister)</h3>
+<h4>What Kim Has</h4>
+<ul>
+<li>Karla is sole intended beneficiary across the estate (no children)</li>
+<li>10 of 23 accounts name Karla as primary beneficiary directly; 13 accounts have NO named beneficiary ($1.48M probate exposure)</li>
+<li>Life death benefit total ~$271K (all 6 policies name Karla primary)</li>
+<li>Farm land (~$900K assessed) &mdash; succession mechanism unclear (no TOD / beneficiary deed / trust / will detail known)</li>
+<li>Federal estate tax threshold $13.61M &mdash; untouched. Iowa inheritance tax repealed 01/01/2025.</li>
+</ul>
+<h4>What Kim Needs</h4>
+<ul>
+<li><strong>Beneficiary cleanup on 13 accounts</strong> &mdash; Reco covers immediately (POD forms for CDs + carrier beni change for annuities)</li>
+<li><strong>Farm succession mechanism</strong> &mdash; Beneficiary Deed (Iowa TOD statute) OR trust OR will. This is the biggest legacy gap.</li>
+<li><strong>Contingent beneficiaries</strong> &mdash; Karla is primary; if she predeceases Kim, what's the contingent? Currently: COF #1206927 has Don Ruth (parent) listed contingent &mdash; needs verification if still living.</li>
+</ul>
+</div>
+<div class="card">
+<h3>Care (Long-Term Care for Kim)</h3>
+<h4>What Kim Has</h4>
+<ul>
+<li>COF LTC #1299491: $100/day base from 2002, compound inflation rider, 90-day elimination, lifetime max. Current daily benefit likely $200-250/day (24 years of compounding).</li>
+<li>Administered by Davies (877-702-7770). Kim hasn't filed a claim &mdash; full lifetime max still available.</li>
+<li>IPP10 QCF Multiplier (post-Reco): 2× LPA = $20,634/yr for 5 years if confined</li>
+<li>CP10 QCF waiver (post-Reco): 100% of accumulation value available if confined to qualified care facility</li>
+</ul>
+<h4>What Kim Needs</h4>
+<ul>
+<li>Confirm LTC policy current daily benefit with Davies (pending action)</li>
+<li>Long-term care coverage is <strong>robust</strong> between LTC policy + IPP10 QCF + CP10 QCF waiver. After Recos: triple-layered. No gap identified.</li>
+</ul>
+</div>
+</div>
+
+<div id="legacy-legal" class="l3-panel">
+<div class="note"><strong>Legal Instruments</strong> &mdash; Trust, Will, POA (financial + medical), Healthcare Directive, Beneficiary Deed. What Kim has vs what he needs.</div>
+<div class="card">
+<h3>Kim's Estate Legal Instruments &mdash; Status Unknown Except Where Noted</h3>
+<div style="overflow-x:auto">
+<table>
+<tr><th>Instrument</th><th>Has It?</th><th>Status</th><th>Gap / Action</th></tr>
+<tr><td><strong>Trust</strong></td><td>?</td><td>Unknown</td><td>Ask at meeting. If substantial real estate + $3M+ net worth, probably should have one.</td></tr>
+<tr><td><strong>Will</strong></td><td>?</td><td>Unknown</td><td>Ask at meeting. Even a simple will directs residuary estate — critical for the 13 accounts without named beni.</td></tr>
+<tr><td><strong>Financial POA</strong></td><td>Yes (friend)</td><td>Friend identified but not named to us; POA type unknown (durable/limited/springing)</td><td>Get friend's name + POA document type + copy. Durable is strongly preferred.</td></tr>
+<tr><td><strong>Medical POA</strong></td><td>?</td><td>Unknown</td><td>Ask at meeting. Needed for incapacity scenarios.</td></tr>
+<tr><td><strong>Healthcare Directive / Living Will</strong></td><td>?</td><td>Unknown</td><td>Ask at meeting. Not yet a tracked field in ProDashX Estate tab (flagged to add).</td></tr>
+<tr><td><strong>Beneficiary Deed (farm)</strong></td><td>?</td><td>Unknown</td><td>Iowa allows TOD deeds for real property. Useful for farm succession to Karla without probate.</td></tr>
+</table>
+</div>
+</div>
+<div class="placeholder-stub"><strong>Action:</strong> ProDashX Estate tab scoring on these 5-6 instruments. Advisor can walk Kim through each at meeting and populate the ProDashX record. Post-meeting, update this tab with verified status + gap analysis.</div>
+</div>
+</div>
+
+</div> <!-- /p-analysis -->
+
+<!-- ============== P-RECOMMENDATIONS ============== -->
+<div id="p-recommendations" class="panel">
+
+
+<!-- =========================== AM FLAG LIST =========================== -->
+<div class="card" style="background:rgba(239,68,68,0.08);border:2px solid var(--red);border-radius:12px">
+<h2 style="color:var(--red);font-size:1.1rem">⚠ JDM AM ACTION ITEMS &mdash; Before Ruth A+R Meeting</h2>
+<ol style="margin-left:22px;margin-top:8px;font-size:0.92rem;color:var(--text)">
+<li style="margin-bottom:8px"><strong>Confirm CP10 base bonus schedule (first-3-year bonus eligibility).</strong> We need the 12% base + 2% special at minimum through 2028 so we can capture the COF SPDA into the same CP10 contract when its surrender period ends in December 2030. Standard CP10 flex-premium is first 3 years; if bonus holds past year 3, all the better.</li>
+<li style="margin-bottom:8px"><strong>Ask Kim for church name + address</strong> (Reco #1 QCD designation on IPP10 contract).</li>
+<li style="margin-bottom:8px"><strong>Confirm IPP10 contract can issue June 2026</strong> (aligned with first IRA CD maturity 6/5/2026). Contract anniversary is load-bearing for RMD-to-contract-year alignment &mdash; see Reco #1 &gt; RMD Timing section.</li>
+<li style="margin-bottom:8px"><strong>Decide LPA disposition with Kim</strong> (Reco #1 &gt; LPA Disposition Options): full QCD ($10,317 to church, zero tax) vs split ($5,139 QCD / $5,178 to Kim for life-premium funding). Not a reco &mdash; Kim's decision.</li>
+<li style="margin-bottom:8px"><strong>ZRD for post-meeting:</strong> Farm Bureau policy #04000678365 dividend was $0.00 in 2025 while peer policies pay $250&ndash;$300. Either lapsed dividend option or carrier-performance issue &mdash; worth ~$350/yr if fixed. Follow-up task.</li>
+</ol>
+</div>
+
+<!-- =========================== TWO-RECO HEADER =========================== -->
+<div class="card" style="background:linear-gradient(135deg,rgba(34,197,94,0.08),rgba(59,130,246,0.04));border-color:rgba(34,197,94,0.3)">
+<h2 style="background:linear-gradient(135deg,var(--green),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent">Two Primary Recommendations &mdash; Qualified / Non-Qualified Split</h2>
+<p style="color:var(--text);font-size:1rem"><strong>Reco #1 &mdash; IRA Consolidation → NAC Income Pay Pro 10 (with GMIB rider):</strong> $119,412 (Brighthouse Trad IRA + 2 Hills IRA CDs) into one contract. GMIB powers QCD-to-church strategy. Guaranteed Level LPA $10,317/yr for life starting Contract Year 2. Lifetime payout $443K = 3.72× premium. Premium:LPA ratio is the headline.</p>
+<p style="color:var(--text);font-size:1rem;margin-top:10px"><strong>Reco #2 &mdash; NQ Consolidation → NAC Charter Plus 10 (base bonus, no EBR, flex-premium chassis):</strong> $1,229,222 (2 NQ annuities + 8 NQ CDs). 12%+2% base bonus applies to all premium in first 3 years. Flex-premium chassis also <em>captures the COF SPDA</em> when its surrender period ends in Dec 2030 &mdash; all into the same contract, maintaining basis. Alternate reco (VC10, wait-for-maturity) available in the third sub-tab.</p>
+<p style="margin-top:12px;padding:10px 14px;background:rgba(245,158,11,0.08);border-left:3px solid var(--orange);border-radius:0 6px 6px 0;font-size:0.88rem"><strong style="color:var(--orange)">RPI Doctrine applied:</strong> (1) bonus products only when they capture strategic value &mdash; here the CP10 flex-premium + bonus combo captures the COF SPDA $447K later; (2) no rider fees on accumulation &mdash; EBR not recommended; (3) income-rider fee is intentional on IPP10 where we're buying the guarantee; (4) preferred allocation = 50% S&amp;P 500 annual PtP with cap (always credits in low-to-mid growth) + 50% S&amp;P MARC 5% ER with participation rate (strongest back-tested performer, avoids the new-index fake-backtest trap).</p>
+</div>
+
+<!-- =========================== SUB-TAB NAVIGATION =========================== -->
+<div style="display:flex;gap:6px;margin:20px 0 0;border-bottom:2px solid var(--border);padding:0 4px">
+<div onclick="showSub('sub-reco-1',this)" class="sub-tab active" style="padding:12px 20px;font-size:0.85rem;font-weight:700;color:var(--purple);cursor:pointer;border-bottom:3px solid var(--purple);margin-bottom:-2px;background:rgba(139,92,246,0.08);border-radius:8px 8px 0 0">🎯 RECO #1 &mdash; IRA &rarr; IPP10</div>
+<div onclick="showSub('sub-reco-2',this)" class="sub-tab" style="padding:12px 20px;font-size:0.85rem;font-weight:700;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;border-radius:8px 8px 0 0">🟢 RECO #2 &mdash; NQ &rarr; CP10 (Primary)</div>
+<div onclick="showSub('sub-reco-2-alt',this)" class="sub-tab" style="padding:12px 20px;font-size:0.85rem;font-weight:700;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;border-radius:8px 8px 0 0">🔵 RECO #2 ALT &mdash; NQ &rarr; VC10</div>
+</div>
+
+<!-- =========================== SUB-PANEL: RECO #1 =========================== -->
+<div id="sub-reco-1" class="sub-panel" style="display:block;padding-top:20px">
+
+<div class="card" style="background:rgba(139,92,246,0.04);border-left:4px solid #a78bfa">
+<h2 style="color:#a78bfa">Recommendation #1 &mdash; Traditional IRA Consolidation &rarr; NAC Income Pay Pro 10</h2>
+<p style="font-size:0.92rem;color:var(--text)"><strong>Consolidate three separate Traditional IRA contracts into a single NAC Income Pay Pro 10 with GMIB rider. Direct trustee-to-trustee transfer. $119,412 total premium. GMIB guarantees $10,317/yr for life (Level LPA) with a QCD strategy that satisfies Kim's RMD obligations with zero income tax hit.</strong></p>
+<p style="margin-top:10px"><a href="illustrations/ruth-nac-ipp10-119k-ira.pdf" style="color:var(--cyan);text-decoration:none;font-weight:600">📄 View NAC IPP10 Illustration PDF &rarr;</a></p>
+</div>
+
+<div class="stat-row">
+<div class="stat"><div class="num">$119,412</div><div class="lbl">Premium (3 IRAs Consolidating)</div></div>
+<div class="stat"><div class="num">$10,317</div><div class="lbl">Guaranteed Lifetime LPA</div></div>
+<div class="stat"><div class="num">3.72&times;</div><div class="lbl">Premium-to-Lifetime-Payout</div></div>
+<div class="stat"><div class="num">$443,639</div><div class="lbl">Lifetime Total (to age 114)</div></div>
+</div>
+
+<div class="card">
+<h3>Source Contracts &rarr; NAC Income Pay Pro 10</h3>
+<div style="overflow-x:auto">
+<table>
+<tr><th>Source</th><th>Carrier / Account</th><th>Value</th><th>Tax Status</th><th>Transfer Method</th><th>Notes</th></tr>
+<tr><td>IRA Annuity</td><td>Brighthouse Fixed Annuity XR #9200553464</td><td>$15,423</td><td>Trad IRA</td><td>Trustee-to-trustee IRA transfer</td><td>1-year renewal at 3.00%; no surrender</td></tr>
+<tr><td>IRA CD (large)</td><td>Hills Bank IRA CD #10402477</td><td>$96,314</td><td>Trad IRA</td><td>Trustee-to-trustee at maturity 6/5/2026</td><td>Primary driver of contract issue date</td></tr>
+<tr><td>IRA CD (small)</td><td>Hills Bank IRA CD #80013907</td><td>$7,675</td><td>Trad IRA</td><td>Trustee-to-trustee at maturity 6/13/2026</td><td>Eight-day-later maturity aligns with issue</td></tr>
+<tr class="totals"><td colspan="2"><strong>Total consolidating</strong></td><td><strong>$119,412</strong></td><td></td><td></td><td></td></tr>
+</table>
+</div>
+</div>
+
+<div class="card" style="background:rgba(34,197,94,0.04);border-color:rgba(34,197,94,0.3)">
+<h3 style="color:var(--green)">IPP10 Illustration Numbers (Actual Carrier Run 04/15/2026)</h3>
+<p style="font-size:0.82rem">Allocation per doctrine: <strong>50% S&amp;P 500 APP with Cap (5.00%)</strong> + <strong>50% S&amp;P MARC 5% ER APP with Participation (100%)</strong>. GLWB rider charge 1.15% of GLWB Value annually. Roll-up 8%/yr for 10 years or until LPED.</p>
+
+<h4 style="margin-top:14px;color:var(--green)">GLWB Value Growth &mdash; Guaranteed</h4>
+<div style="overflow-x:auto">
+<table>
+<tr><th>End of Year</th><th>Age</th><th>GLWB Value</th><th>LPP</th><th>Level LPA</th><th>QCF Multiplier (2&times;)</th></tr>
+<tr><td>At Issue</td><td>71</td><td>$119,412</td><td>7.90%</td><td>$9,434</td><td>Not yet available</td></tr>
+<tr><td>Yr 1</td><td>72</td><td><strong>$128,965</strong> (8% rollup)</td><td>7.90%</td><td><strong>$10,317</strong> LPA available CY2</td><td>$20,634</td></tr>
+<tr><td>Yr 2</td><td>73 <em>(RMD trigger)</em></td><td>$117,682</td><td>&mdash;</td><td>$10,317/yr locked</td><td>$20,634</td></tr>
+<tr><td>Yr 5</td><td>76</td><td>$82,957</td><td>&mdash;</td><td>$10,317/yr</td><td>$20,634</td></tr>
+<tr><td>Yr 10</td><td>81</td><td>$21,917</td><td>&mdash;</td><td>$10,317/yr</td><td>$20,634</td></tr>
+<tr><td>Yr 11+</td><td>82+</td><td>Depleted (LPA Reserve continues)</td><td>&mdash;</td><td><strong>$10,317/yr FOR LIFE</strong></td><td>$20,634</td></tr>
+</table>
+</div>
+
+<h4 style="margin-top:14px;color:var(--green)">Non-Guaranteed Scenario &mdash; 10-Year Most Recent Back-Test (2015–2025)</h4>
+<p style="font-size:0.82rem">Annual Effective Rate: <strong>4.71%</strong>. Accumulation Value reflects GLWB rider charges.</p>
+<div style="overflow-x:auto">
+<table>
+<tr><th>End of Year</th><th>Age</th><th>Accumulation Value</th><th>Annual Withdrawal</th><th>Credited Rate</th></tr>
+<tr><td>At Issue</td><td>71</td><td>$119,412</td><td>&mdash;</td><td>&mdash;</td></tr>
+<tr><td>Yr 1</td><td>72</td><td>$123,494</td><td>$0</td><td>4.66%</td></tr>
+<tr><td>Yr 2</td><td>73</td><td>$120,697</td><td>$10,317</td><td>7.85%</td></tr>
+<tr><td>Yr 5</td><td>76</td><td>$102,221</td><td>$10,317</td><td>6.74%</td></tr>
+<tr><td>Yr 10</td><td>81</td><td>$59,463</td><td>$10,317</td><td>7.76%</td></tr>
+<tr><td>Yr 15</td><td>86</td><td>$3,913</td><td>$10,317</td><td>4.76%</td></tr>
+<tr><td>Yr 16+</td><td>87+</td><td>$0 (depleted; LPA Reserve continues)</td><td>$10,317 continues for life</td><td>&mdash;</td></tr>
+</table>
+</div>
+</div>
+
+<!-- ==================== RMD TIMING ANALYSIS (NEW) ==================== -->
+<div class="card" style="background:rgba(59,130,246,0.04);border-color:rgba(59,130,246,0.25)">
+<h3 style="color:var(--blue)">RMD Timing Analysis &mdash; Contract Year × Tax Year Alignment</h3>
+<p><strong>Kim DOB: 07/13/1954.</strong> Turns 72 on 07/13/2026 (~3 months from now). Turns 73 on 07/13/2027 &mdash; SECURE Act 2.0 RMD age.</p>
+<p style="margin-top:8px"><strong>IRS RMD deadlines:</strong></p>
+<ul>
+<li><strong>First RMD</strong> (tax year 2027): must be taken by <strong>April 1, 2028</strong></li>
+<li><strong>All subsequent RMDs</strong>: must be taken by <strong>Dec 31</strong> of the RMD tax year</li>
+</ul>
+
+<h4 style="margin-top:14px;color:var(--blue)">Contract-Year × RMD Alignment</h4>
+<p style="font-size:0.82rem">Contract anniversary is load-bearing. IPP10 targets June 2026 issue (aligned with first IRA CD maturity 6/5/2026 &mdash; primary driver of timing).</p>
+<div style="overflow-x:auto">
+<table>
+<tr><th>Year</th><th>Age</th><th>RMD Status</th><th>Contract Year</th><th>GMIB LPA Status</th></tr>
+<tr><td>2026</td><td>72</td><td>No RMD</td><td>CY1 (Jun 2026 &ndash; Jun 2027)</td><td>Accumulating; LPA not yet available</td></tr>
+<tr><td>2027</td><td>73 <em>(RMD trigger)</em></td><td>First RMD tax year; deadline April 1, 2028</td><td>CY2 (Jun 2027 &ndash; Jun 2028)</td><td><strong>LPA available &mdash; take once in CY2</strong></td></tr>
+<tr><td>2028</td><td>74</td><td>Second RMD tax year; deadline Dec 31, 2028</td><td>CY3 (Jun 2028 &ndash; Jun 2029)</td><td>Take LPA once in CY3 (Jun 2028+)</td></tr>
+<tr><td>2029+</td><td>75+</td><td>Annual Dec 31 deadline</td><td>Subsequent CYs</td><td>One LPA per CY (clean)</td></tr>
+</table>
+</div>
+
+<h4 style="margin-top:14px;color:var(--green)">🎯 Recommended: Scenario A &mdash; Take First RMD in Calendar 2027</h4>
+<ul>
+<li><strong>First RMD taken 2027</strong> (between 07/13/2027 Kim's 73rd birthday and 12/31/2027) &mdash; falls in CY2 (LPA fires once)</li>
+<li><strong>Second RMD taken by 12/31/2028</strong> &mdash; falls in CY3 (LPA fires once)</li>
+<li>Result: <strong>one LPA per contract year AND one RMD per tax year.</strong> Clean alignment.</li>
+</ul>
+
+<h4 style="margin-top:14px;color:var(--orange)">Scenario B (not recommended) &mdash; Defer First RMD to April 1, 2028</h4>
+<ul>
+<li>First RMD deferred into calendar 2028 (Jan&ndash;Apr). Still falls in CY2 (before June anniversary).</li>
+<li>Second RMD still due by 12/31/2028 in CY3.</li>
+<li><strong>Contract-year-wise still OK</strong> (LPA fires once per CY), BUT <strong>tax-year 2028 gets both RMDs = ~$9,056 double-up income</strong> (vs $4,528 single for Scenario A). Kim's 22% marginal bracket = extra ~$1,000 federal tax unnecessarily.</li>
+<li><strong>If Kim does full QCD</strong> (all $10,317 LPA to church each year), the double-up is a non-issue because all LPA is tax-free via QCD. But if Kim splits the LPA (see Disposition Options below), Scenario A is cleaner.</li>
+</ul>
+<p style="margin-top:8px"><strong>Lock Scenario A.</strong> Even if we don't know yet whether Kim does full QCD or splits, Scenario A works either way. Scenario B only works if we commit to full QCD &mdash; less optionality.</p>
+</div>
+
+<!-- ==================== LPA DISPOSITION OPTIONS (NEW) ==================== -->
+<div class="card" style="background:rgba(212,164,76,0.04);border-color:rgba(212,164,76,0.3)">
+<h3 style="color:var(--gold)">LPA Disposition Options &mdash; Kim's Decision, Not a Recommendation</h3>
+<p>$10,317/yr LPA can be disposed of multiple ways. All options satisfy the RMD requirement. Each has different tax/charitable tradeoffs. <em>Present all three to Kim, let him choose.</em></p>
+
+<h4 style="margin-top:14px;color:var(--gold)">Option A &mdash; Full QCD to Church ($10,317 &rarr; church annually)</h4>
+<ul>
+<li><strong>Church receives:</strong> $10,317/yr</li>
+<li><strong>Kim taxable income impact:</strong> $0 (full LPA is QCD)</li>
+<li><strong>RMD satisfied:</strong> Yes ($10,317 QCD &gt; $4,528 RMD obligation)</li>
+<li><strong>Net federal tax saved vs taking as income:</strong> $2,270/yr @ 22% marginal</li>
+<li><strong>Life insurance premiums:</strong> continue to be paid from farm + SSI cash flow (no change from current state)</li>
+<li><strong>10-year cumulative to church:</strong> $103,170 · <strong>Lifetime to 114:</strong> $443,639</li>
+</ul>
+
+<h4 style="margin-top:14px;color:var(--gold)">Option B &mdash; Split: Part to Church (QCD) + Part to Life Premium Funding</h4>
+<p><em>Strategic: use the LPA to fund both tithing AND life premiums from the same IRA stream.</em></p>
+<ul>
+<li><strong>$5,139 as QCD to church</strong> &mdash; satisfies RMD ($4,528) + $611 surplus to church, zero income tax on that slice</li>
+<li><strong>$5,178 as taxable income to Kim</strong> &mdash; used to pay his net annual life insurance premium ($5,178 net of dividends). Taxed at 22% ≈ $1,139 federal tax</li>
+<li><strong>Church receives:</strong> $5,139/yr (vs $10,317 in Option A)</li>
+<li><strong>Life premiums funded directly from IRA stream</strong> &mdash; frees up farm/SSI cash flow for other uses</li>
+<li><strong>Net federal tax:</strong> $1,139/yr (vs $0 in Option A, vs $2,270 if all taxable)</li>
+<li><strong>Gross &ldquo;win&rdquo; vs current state (RMD taxed + life prems from cash flow):</strong> $1,131/yr saved</li>
+</ul>
+
+<h4 style="margin-top:14px;color:var(--gold)">Option C &mdash; Full LPA as Taxable Income (no QCD at all)</h4>
+<ul>
+<li><strong>$10,317 as taxable income.</strong> Tax at 22% marginal = $2,270/yr</li>
+<li><strong>Kim's charitable giving:</strong> unchanged from current state ($524 itemized in 2025)</li>
+<li><strong>Not recommended.</strong> Listed for completeness only &mdash; leaves QCD strategy on the table unnecessarily.</li>
+</ul>
+
+<h4 style="margin-top:14px;color:var(--green)">Net Life Insurance Premium Detail (for Option B)</h4>
+<div style="overflow-x:auto">
+<table>
+<tr><th>Policy</th><th>Annual Premium</th><th>Last-Yr Dividend</th><th>Net Out-of-Pocket</th></tr>
+<tr><td>COF #1305586</td><td>$2,418</td><td>$307.63</td><td>$2,110</td></tr>
+<tr><td>COF #1299513</td><td>$2,149</td><td>$291.64</td><td>$1,857</td></tr>
+<tr><td>COF #1206927</td><td>$535</td><td>$251.15</td><td>$284</td></tr>
+<tr><td>Farm Bureau #04000678365</td><td>$363</td><td><span style="color:var(--red)">$0.00 ⚠</span></td><td>$363</td></tr>
+<tr><td>MassMutual #3456086</td><td>Paid-up?</td><td>PUAs accumulating</td><td>~$0</td></tr>
+<tr><td>MassMutual #5022977</td><td>$613</td><td>TBD (2018)</td><td>~$563&ndash;$613</td></tr>
+<tr class="totals"><td><strong>TOTAL</strong></td><td><strong>~$6,078</strong></td><td><strong>~$850 known</strong></td><td><strong>~$5,178</strong></td></tr>
+</table>
+</div>
+<p style="margin-top:10px;font-size:0.85rem;color:var(--muted)"><em>Farm Bureau $0 dividend is anomalous &mdash; peer policies pay $250&ndash;$300. Investigate policy-state (dividend option lapsed?) or carrier performance. Potential ~$350/yr recovery. ZRD for post-meeting follow-up.</em></p>
+</div>
+
+<!-- ==================== QCD MATH ==================== -->
+<div class="card" style="background:rgba(34,197,94,0.04);border-color:rgba(34,197,94,0.3)">
+<h3 style="color:var(--green)">The QCD Math (Option A &mdash; Full QCD)</h3>
+<div class="stat-row">
+<div class="stat"><div class="num">~$4,528</div><div class="lbl">Projected 1st RMD (age 73)</div></div>
+<div class="stat"><div class="num">$10,317</div><div class="lbl">IPP10 LPA at age 73</div></div>
+<div class="stat"><div class="num">$5,789</div><div class="lbl">LPA Surplus over RMD</div></div>
+<div class="stat"><div class="num">$108,000</div><div class="lbl">QCD Annual Limit</div></div>
+</div>
+<p style="margin-top:12px"><strong>The play:</strong> Direct the entire $10,317/yr LPA as QCD to Kim's church. RMD satisfied + surplus gift + zero income tax.</p>
+<p style="margin-top:8px">Lifetime cumulative to church (to age 114): up to <strong>$443,639</strong>. Federal tax avoided: <strong>$2,270/yr</strong> at 22% marginal, indefinite.</p>
+</div>
+
+<!-- ==================== QCF MULTIPLIER ==================== -->
+<div class="card" style="background:rgba(212,164,76,0.04);border-color:rgba(212,164,76,0.3)">
+<h3 style="color:var(--gold)">QCF Multiplier &mdash; The Long-Term Care Backstop</h3>
+<p>If Kim is confined to a qualified care facility 90+ days on or after Contract Year 2, LPA doubles to <strong>$20,634/yr for up to 5 annual payments</strong> (max $103,170 in doubled payments).</p>
+<ul>
+<li>Layers on top of Kim's existing COF LTC policy ($100/day base + 24yr compound inflation = est $200&ndash;250/day current)</li>
+<li>Independent of LTC policy &mdash; both can fire simultaneously</li>
+<li>Activated by same medical criteria as standard LTC waivers</li>
+</ul>
+</div>
+
+<div class="card">
+<h3>Reco #1 Pitch Language for Archer</h3>
+<div style="background:var(--card2);border-left:4px solid #a78bfa;padding:14px 18px;border-radius:0 8px 8px 0">
+<p style="font-style:italic;color:var(--text)">&ldquo;Kim, you've got three Traditional IRAs spread across two institutions totaling about $120K. When you turn 73 next year, you're required to start taking withdrawals. Right now, the plan is you'd take the withdrawal as income, pay tax on it, then write a check to your church. That's messy: you pay tax first, and if your total donations don't beat the standard deduction, the charitable gift gives you nothing. Here's the clean version: we consolidate the three IRAs into one North American contract with a guaranteed-income rider. That rider promises you $10,317 every year for the rest of your life. We can send that entire amount directly from the IRA to your church as a Qualified Charitable Distribution. You never see it as taxable income &mdash; IRS is satisfied, church gets the money, and your tithing intent gets hardcoded into the plan regardless of what happens with tax law. Over your lifetime that's $443,000 going to your church, guaranteed. We'll walk through a couple different ways to dispose of the income &mdash; it's your call how aggressive you want to be on the QCD side.&rdquo;</p>
+</div>
+</div>
+
+</div> <!-- /sub-reco-1 -->
+
+<!-- =========================== SUB-PANEL: RECO #2 (CP10 PRIMARY) =========================== -->
+<div id="sub-reco-2" class="sub-panel" style="display:none;padding-top:20px">
+
+<div class="card" style="background:rgba(34,197,94,0.04);border-left:4px solid var(--green)">
+<h2 style="color:var(--green)">Recommendation #2 &mdash; NQ Consolidation &rarr; NAC Charter Plus 10 (Base Bonus, Flex-Premium)</h2>
+<p style="font-size:0.92rem;color:var(--text)"><strong>Roll all NQ money into a single NAC Charter Plus 10 contract with the base 12%+2% special bonus (NO EBR rider, NO rider fee). Day 1: 1035 Brighthouse + Prosperity NQ annuities ($319,871). Throughout 2026: 8 NQ CDs roll in as they mature (or earlier) &mdash; all eligible for the same bonus in the flex-premium chassis. End of 2030: when COF #4041671 SPDA surrender clears, 1035 it into the same contract (an additional ~$450K at whatever bonus rate exists at that time, if any). Strategic one-contract NQ capture across 5 years.</strong></p>
+<p style="margin-top:10px"><a href="illustrations/ruth-nac-cp10-1-2m-nq.pdf" style="color:var(--cyan);text-decoration:none;font-weight:600">📄 View NAC CP10 Illustration PDF &rarr;</a></p>
+</div>
+
+<div class="stat-row">
+<div class="stat"><div class="num">$1,229,222</div><div class="lbl">Phase 1-2 NQ Premium</div></div>
+<div class="stat"><div class="num">14%</div><div class="lbl">Base Bonus (10% + 2% special + 2% more per illustration)</div></div>
+<div class="stat"><div class="num">$1,401,313</div><div class="lbl">Day-1 AV</div></div>
+<div class="stat"><div class="num">0%</div><div class="lbl">Rider Fee / Strategy Fee</div></div>
+</div>
+
+<div class="card">
+<h3>Why CP10 Base (Flex-Premium) Is the Right Answer for Ruth</h3>
+<ul>
+<li><strong>Flex-premium chassis is the load-bearing feature.</strong> Unlike VC10 (Modified Single Premium, 12-month deposit window) or CX (Single Premium), CP10 accepts new premium across the first 3 years &mdash; and with the bonus-on-all-first-year-premium provision, every dollar deposited in that window gets the 12%+2% bonus.</li>
+<li><strong>Captures Kim's entire NQ consolidation path over 5 years:</strong> Phase 1 now ($320K 1035), Phase 2 2026 ($909K CDs as they mature), and <strong>Phase 3 2030 ($447K COF SPDA when surrender ends)</strong>. All into one contract. Maintaining basis on all rollovers. One statement for Kim.</li>
+<li><strong>Bonus eligibility assumption:</strong> 12% base bonus available on premium received in first 3 years per CP10 spec. 2% special bonus is time-limited (need to confirm window). JDM to verify bonus rate schedule through 2030 to confirm COF SPDA capture qualifies.</li>
+<li><strong>No rider fee.</strong> EBR is NOT recommended &mdash; on liquid source it pays for itself in lower crediting (see Reco #2 Alt for the VC10 comparison).</li>
+<li><strong>10% free withdrawal starting year 2</strong> covers any incidental liquidity need.</li>
+<li><strong>QCF waiver:</strong> 100% of accumulation value if confined to qualified care facility &mdash; backstop to existing COF LTC.</li>
+</ul>
+</div>
+
+<div class="card">
+<h3>Source Contracts &rarr; NAC Charter Plus 10 (Flex-Premium)</h3>
+<div style="overflow-x:auto">
+<table>
+<tr><th>Source</th><th>Carrier / Account</th><th>Value</th><th>Phase / Timing</th><th>Transfer Method</th></tr>
+<tr><td><strong>Phase 1 &mdash; Day 1 (May-Jun 2026):</strong></td><td colspan="4"></td></tr>
+<tr><td>NQ Annuity</td><td>Brighthouse Fixed Annuity XR #940267409</td><td>$135,034</td><td>Phase 1</td><td>1035 exchange</td></tr>
+<tr><td>NQ Annuity</td><td>Prosperity / S.USA #920330879</td><td>$184,837</td><td>Phase 1</td><td>1035 exchange</td></tr>
+<tr class="totals"><td colspan="2"><strong>Phase 1 subtotal</strong></td><td><strong>$319,871</strong></td><td></td><td></td></tr>
+<tr><td><strong>Phase 2 &mdash; CD maturity rolls (May-Nov 2026):</strong></td><td colspan="4" style="font-style:italic;color:var(--muted)">Added to same CP10 as each matures; all eligible for bonus.</td></tr>
+<tr><td>NQ CD</td><td>Hills Bank #10521680</td><td>$94,794</td><td>Matures 5/9/2026</td><td>Direct deposit</td></tr>
+<tr><td>NQ CD</td><td>Hills Bank #50102383</td><td>$118,473</td><td>Matures 6/2/2026</td><td>Direct deposit</td></tr>
+<tr><td>NQ CD</td><td>Hills Bank #10527117</td><td>$59,138</td><td>Matures 6/7/2026</td><td>Direct deposit</td></tr>
+<tr><td>NQ CD</td><td>Hills Bank #50127000</td><td>$46,501</td><td>Matures 8/23/2026</td><td>Direct deposit</td></tr>
+<tr><td>NQ CD</td><td>Hills Bank #10242469</td><td>$50,706</td><td>Matures 9/20/2026</td><td>Direct deposit</td></tr>
+<tr><td>NQ CD</td><td>Washington State Bank #89237</td><td>$115,585</td><td>Matures 10/6/2026</td><td>Direct deposit</td></tr>
+<tr><td>NQ CD</td><td>Washington State Bank #89421</td><td>$165,895</td><td>Matures 11/4/2026</td><td>Direct deposit</td></tr>
+<tr><td>NQ CD</td><td>Hills Bank #10424356</td><td>$258,259</td><td>Matures 11/28/2026</td><td>Direct deposit</td></tr>
+<tr class="totals"><td colspan="2"><strong>Phase 2 subtotal</strong></td><td><strong>$909,351</strong></td><td></td><td></td></tr>
+<tr class="totals"><td colspan="2" style="background:rgba(34,197,94,0.08)"><strong>Phase 1 + 2 combined (all bonus-eligible, assuming bonus holds through 2028)</strong></td><td style="background:rgba(34,197,94,0.08)"><strong>$1,229,222</strong></td><td></td><td></td></tr>
+<tr><td><strong>Phase 3 &mdash; COF SPDA 1035 (Dec 2030):</strong></td><td colspan="4" style="font-style:italic;color:var(--muted)">Added to same CP10 when COF #4041671 surrender period ends (year 7 of 7). Bonus rate at that future date TBD &mdash; depends on CP10 bonus schedule at time of deposit.</td></tr>
+<tr><td>COF SPDA (future)</td><td>Catholic Order of Foresters #4041671</td><td>~$450K+ (growing)</td><td>Phase 3 Dec 2030</td><td>1035 exchange, basis carries</td></tr>
+<tr class="totals"><td colspan="2" style="background:rgba(34,197,94,0.08)"><strong>Potential lifetime capture into CP10</strong></td><td style="background:rgba(34,197,94,0.08)"><strong>$1.67M+</strong></td><td></td><td></td></tr>
+</table>
+</div>
+<p style="margin-top:10px;font-size:0.85rem"><strong>Not rolling ever:</strong> COF SPIA #1311997 ($37K prem, Karla's lifetime annuitant, cannot be moved); COF Roth #4041673 ($91K, never touch Roth); 4 life policies + Farm Bureau + MassMutual + COF LTC (separate conversation).</p>
+</div>
+
+<div class="card" style="background:rgba(59,130,246,0.04);border-color:rgba(59,130,246,0.25)">
+<h3 style="color:var(--blue)">CP10 Illustration Numbers (Actual Carrier Run 04/15/2026)</h3>
+<p style="font-size:0.82rem">Allocation per doctrine: <strong>50% S&amp;P 500 APP with Cap (6.00%)</strong> + <strong>50% S&amp;P MARC 5% ER APP with Participation (85%)</strong>. No rider fee, no strategy fee.</p>
+<p style="font-size:0.82rem;margin-top:6px">Note: the 14% bonus illustrated is higher than the 12% baseline CP10 flyer shows &mdash; this is the Iowa-specific / current-special rate.</p>
+
+<h4 style="margin-top:14px;color:var(--blue)">Guaranteed Values (0% growth scenario)</h4>
+<p style="font-size:0.82rem">Day-1 Accumulation Value = $1,401,313 (premium + 14% bonus). Minimum Guaranteed Surrender Value grows from $1,101,383 (Yr 1) to $1,401,313 (Yr 10) to $2,190,973 (Yr 30) to $3,053,771 (Yr 44/age 115).</p>
+
+<h4 style="margin-top:14px;color:var(--blue)">Non-Guaranteed Values &mdash; 10-Year Back-Test (2015&ndash;2025)</h4>
+<p style="font-size:0.82rem">Annual Effective Rate: <strong>4.68%</strong>.</p>
+<div style="overflow-x:auto">
+<table>
+<tr><th>End of Year</th><th>Age</th><th>Accumulation Value</th><th>Credited Rate</th></tr>
+<tr><td>Day 1</td><td>71</td><td>$1,401,313</td><td>&mdash;</td></tr>
+<tr><td>Yr 1</td><td>72</td><td>$1,469,067</td><td>4.84%</td></tr>
+<tr><td>Yr 2</td><td>73</td><td>$1,579,728</td><td>7.53%</td></tr>
+<tr><td>Yr 5</td><td>76</td><td>$1,831,645</td><td>6.54%</td></tr>
+<tr><td>Yr 10 <em>(surrender ends)</em></td><td>81</td><td><strong>$2,214,584</strong></td><td>7.35%</td></tr>
+<tr><td>Yr 15</td><td>86</td><td>$2,783,748</td><td>4.68%</td></tr>
+<tr><td>Yr 20</td><td>91</td><td>$3,342,765</td><td>4.68%</td></tr>
+<tr><td>Yr 30</td><td>101</td><td>$5,529,567</td><td>4.68%</td></tr>
+<tr><td>Yr 44 (age 115)</td><td>115</td><td><strong>$10,494,138</strong></td><td>4.68%</td></tr>
+</table>
+</div>
+<p style="margin-top:10px;font-size:0.85rem"><em>Note: illustration reflects Phase 1 + Phase 2 premium ($1.23M) only. Adding Phase 3 (COF SPDA $450K+ in 2030) at the future bonus rate could meaningfully lift these totals.</em></p>
+</div>
+
+<div class="card">
+<h3>Reco #2 Pitch Language for Archer</h3>
+<div style="background:var(--card2);border-left:4px solid var(--green);padding:14px 18px;border-radius:0 8px 8px 0">
+<p style="font-style:italic;color:var(--text)">&ldquo;Kim, on the non-qualified side you've got about $1.2M scattered across eight CDs, two old fixed annuities, and two banks. Everything is earning 3 to 4%, and every dollar of interest hits your 1040 as ordinary income each year at 22%. Here's what we do: one North American Charter Plus 10 contract, everything consolidated, flexible-premium chassis. Day one we 1035 the Brighthouse and Prosperity annuities, about $320,000. Then as your CDs mature throughout 2026, each one rolls into the same contract and picks up the bonus. North American is adding a 14% bonus &mdash; that's about $172,000 of credit applied to your deposits. It grows tax-deferred in indexed strategies with no market loss. You've got 10% penalty-free withdrawals starting year 2. And here's the quiet win: in late 2030, your existing COF annuity comes out of surrender &mdash; we 1035 that into the same contract too, and potentially get bonused again depending on where bonus rates are then. One contract, one statement, roll-up growing over 5 years into the $1.7M range.&rdquo;</p>
+</div>
+</div>
+
+</div> <!-- /sub-reco-2 -->
+
+<!-- =========================== SUB-PANEL: RECO #2 ALT (VC10) =========================== -->
+<div id="sub-reco-2-alt" class="sub-panel" style="display:none;padding-top:20px">
+
+<div class="card" style="background:rgba(59,130,246,0.04);border-left:4px solid var(--blue)">
+<h2 style="color:var(--blue)">Recommendation #2 ALTERNATE &mdash; NQ Consolidation &rarr; NAC VersaChoice 10 (No Bonus, Wait-for-Maturity)</h2>
+<p style="font-size:0.92rem;color:var(--text)"><strong>Same $1,229,222 NQ consolidation, but into NAC VC10 (Modified Single Premium) instead of CP10. No bonus &mdash; trading the 14% Day-1 boost for materially stronger declared rates (7.39% AER vs 4.68% on CP10 in the same 10-yr back-test). MSPDA chassis accepts rolling deposits within 12 months of issue &mdash; sufficient for Phase 1 + Phase 2 (all CDs mature in 2026). COF SPDA (Phase 3, 2030) would have to go into a separate future contract since MSPDA window closes after 12 months.</strong></p>
+<p style="margin-top:10px"><a href="illustrations/ruth-nac-vc10-1-2m-nq.pdf" style="color:var(--cyan);text-decoration:none;font-weight:600">📄 View NAC VC10 Illustration PDF &rarr;</a></p>
+</div>
+
+<div class="stat-row">
+<div class="stat"><div class="num">$1,229,222</div><div class="lbl">Phase 1-2 NQ Premium</div></div>
+<div class="stat"><div class="num">0%</div><div class="lbl">Bonus (no bonus chassis)</div></div>
+<div class="stat"><div class="num">7.39%</div><div class="lbl">Annual Effective Rate (back-test)</div></div>
+<div class="stat"><div class="num">$2,508,529</div><div class="lbl">Yr 10 AV (non-guaranteed)</div></div>
+</div>
+
+<div class="card">
+<h3>When to Pick This Alternate over CP10 Primary</h3>
+<ul>
+<li><strong>If the CP10 bonus schedule doesn't hold past year 3</strong> and we can't capture the COF SPDA with a bonus on top &mdash; the strategic flex-premium advantage of CP10 collapses. VC10 wins on pure accumulation math.</li>
+<li><strong>If Kim prefers maximum accumulation over bonus optics</strong> &mdash; VC10 at 7.39% back-test beats CP10 at 4.68% by $294K at Year 10 (illustration numbers, see below).</li>
+<li><strong>If there's an issue with CP10's flex-premium bonus mechanics</strong> that the field desk surfaces during the app process &mdash; VC10 is the clean no-bonus fallback.</li>
+</ul>
+</div>
+
+<div class="card" style="background:rgba(59,130,246,0.04);border-color:rgba(59,130,246,0.25)">
+<h3 style="color:var(--blue)">VC10 Illustration Numbers (Actual Carrier Run 04/15/2026)</h3>
+<p style="font-size:0.82rem">Allocation per doctrine: <strong>50% S&amp;P 500 APP with Cap (9.20%)</strong> + <strong>50% S&amp;P MARC 5% ER APP with Participation (140%)</strong>. No rider fee. High-band premium tier ($75K+) applies.</p>
+
+<h4 style="margin-top:14px;color:var(--blue)">Non-Guaranteed Values &mdash; 10-Year Back-Test</h4>
+<p style="font-size:0.82rem">Annual Effective Rate: <strong>7.39%</strong>.</p>
+<div style="overflow-x:auto">
+<table>
+<tr><th>End of Year</th><th>Age</th><th>Accumulation Value</th><th>Credited Rate</th></tr>
+<tr><td>Day 1</td><td>71</td><td>$1,229,222</td><td>&mdash;</td></tr>
+<tr><td>Yr 1</td><td>72</td><td>$1,322,950</td><td>7.63%</td></tr>
+<tr><td>Yr 2</td><td>73</td><td>$1,482,466</td><td>12.06%</td></tr>
+<tr><td>Yr 5</td><td>76</td><td>$1,870,916</td><td>10.47%</td></tr>
+<tr><td>Yr 10 <em>(surrender ends)</em></td><td>81</td><td><strong>$2,508,529</strong></td><td>11.77%</td></tr>
+<tr><td>Yr 20</td><td>91</td><td>$5,118,134</td><td>7.39%</td></tr>
+<tr><td>Yr 30</td><td>101</td><td>$10,443,398</td><td>7.39%</td></tr>
+<tr><td>Yr 44 (age 115)</td><td>115</td><td><strong>$28,348,317</strong></td><td>7.39%</td></tr>
+</table>
+</div>
+</div>
+
+<div class="card" style="background:rgba(212,164,76,0.04);border-color:rgba(212,164,76,0.3)">
+<h3 style="color:var(--gold)">CP10 Primary vs VC10 Alternate &mdash; Side-by-Side at Year 10 (Phase 1-2 only)</h3>
+<div style="overflow-x:auto">
+<table>
+<tr><th>Metric</th><th>CP10 (Primary, 14% bonus)</th><th>VC10 (Alt, no bonus)</th><th>Delta</th></tr>
+<tr><td>Phase 1-2 Premium</td><td>$1,229,222</td><td>$1,229,222</td><td>&mdash;</td></tr>
+<tr><td>Day-1 Accumulation Value</td><td>$1,401,313 (bonus)</td><td>$1,229,222 (no bonus)</td><td>CP10 +$172,091</td></tr>
+<tr><td>Annual Effective Rate</td><td>4.68%</td><td>7.39%</td><td>VC10 +271 bps</td></tr>
+<tr><td>Year 10 AV</td><td>$2,214,584</td><td>$2,508,529</td><td><strong style="color:var(--blue)">VC10 +$293,945</strong></td></tr>
+<tr><td>Year 44 AV (age 115)</td><td>$10,494,138</td><td>$28,348,317</td><td>VC10 +$17.9M</td></tr>
+<tr><td><strong>Phase 3 (COF SPDA 2030) capture?</strong></td><td><strong style="color:var(--green)">Yes (flex-premium)</strong></td><td>No (MSPDA window closed)</td><td>CP10 structural advantage</td></tr>
+</table>
+</div>
+<p style="margin-top:12px;font-size:0.9rem"><strong>The honest trade:</strong> VC10 wins Phase 1-2 pure-accumulation ($294K at Yr 10, $17.9M over lifetime). CP10 wins by capturing the COF SPDA ($447K+ in 2030) into the same contract with a bonus.</p>
+<p style="margin-top:8px;font-size:0.9rem"><strong>Which matters more?</strong> If the bonus on the COF SPDA addition is at least 5-6%, the CP10 strategic capture wins cumulatively. If the bonus schedule has expired or is reduced below 5% by 2030, VC10's higher accumulation compounding wins. JDM's judgment call &mdash; confirm bonus schedule trajectory before the meeting.</p>
+</div>
+
+</div> <!-- /sub-reco-2-alt -->
+
+</div> <!-- /#reco panel -->
+</div>
+
+<!-- ============== P-NEXT STEPS ============== -->
+<div id="p-nextsteps" class="panel">
+<div class="card">
+<h2>Next Steps &mdash; Post-Meeting Action Plan</h2>
+<p>Sequenced action items flowing from today's A+R meeting. Owner, deadline, and dependency noted where known.</p>
+</div>
+
+<div class="card">
+<h3>Immediate (Week of Meeting)</h3>
+<ol style="margin-left:22px">
+<li><strong>Beneficiary designation forms</strong> &mdash; all 13 accounts without named beni. Archer initiates bank POD + carrier beni forms. Kim signs at next visit.</li>
+<li><strong>CP10 application</strong> &mdash; NAC submission for Reco #2. Target issue date: June 2026 (aligned with IRA CD maturity).</li>
+<li><strong>IPP10 application</strong> &mdash; NAC submission for Reco #1. Same target issue date.</li>
+<li><strong>1035 exchange forms</strong> &mdash; Brighthouse + Prosperity both fully liquid. 2-4 week carrier processing.</li>
+<li><strong>IRA transfer forms</strong> &mdash; Brighthouse IRA direct trustee-to-trustee to NAC IPP10.</li>
+</ol>
+</div>
+
+<div class="card">
+<h3>Near-Term (30-60 Days)</h3>
+<ol style="margin-left:22px">
+<li><strong>Maturing IRA CDs</strong> &mdash; June 2026: Hills IRA CDs roll to IPP10 via trustee-to-trustee</li>
+<li><strong>First maturing NQ CDs</strong> &mdash; May-June 2026: Hills NQ CDs #10521680 ($95K), #50102383 ($118K), #10527117 ($59K) roll into CP10</li>
+<li><strong>MassMutual beneficiary verification</strong> &mdash; request current statements for #3456086 + #5022977</li>
+<li><strong>Don Ruth status check</strong> &mdash; COF #1206927 contingent beneficiary</li>
+<li><strong>Farm Bureau dividend investigation</strong> &mdash; $0 dividend in 2025 is anomalous</li>
+</ol>
+</div>
+
+<div class="card">
+<h3>2026 Full Year (Phase 2 CD Roll-in)</h3>
+<ol style="margin-left:22px">
+<li>All remaining NQ CDs roll into CP10 as they mature (Aug-Nov 2026)</li>
+<li>Confirm CP10 bonus rate schedule remains eligible for each deposit</li>
+<li>LTC policy current daily benefit confirmation call to Davies</li>
+<li>Estate legal instrument discovery (Trust/Will/POA/Directive) &mdash; may involve attorney coordination</li>
+</ol>
+</div>
+
+<div class="card">
+<h3>2027 (RMD Year 1)</h3>
+<ol style="margin-left:22px">
+<li>IPP10 GMIB activation (Q3 2027, after Kim's 73rd birthday)</li>
+<li>First RMD taken in calendar 2027 (Scenario A — locked)</li>
+<li>QCD designation set up per Kim's disposition choice (Option A / B / C from Reco #1)</li>
+</ol>
+</div>
+
+<div class="card">
+<h3>2030 (Phase 3 Capture Window)</h3>
+<ol style="margin-left:22px">
+<li>COF SPDA #4041671 surrender period ends (Dec 2030, year 7 of 7)</li>
+<li>1035 exchange into existing CP10 (maintains basis, adds to flex-premium contract)</li>
+<li>Confirm CP10 bonus rate available at time of Phase 3 deposit</li>
+</ol>
+</div>
+
+</div> <!-- /p-nextsteps -->
+
+
 
 <div class="flag red">
 <div class="title">FLAG 1 &mdash; BENEFICIARY GAP</div>
@@ -603,385 +1803,62 @@ tr.totals td{font-weight:700;color:var(--text);border-top:2px solid var(--border
 </div>
 
 <!-- LIFE -->
-<div id="life" class="panel">
-<div class="card">
-<h2>Life Insurance Policies (6 Active &mdash; $270,519 DB / $148,479 CV)</h2>
-<p>All Whole Life. All confirmed via 04/09/2026 statements (except MassMutual policies which carry over from 04/08 entry).</p>
-</div>
 
-<div class="card">
-<h3>Policies</h3>
-<div style="overflow-x:auto">
-<table>
-<tr><th>Carrier</th><th>Policy #</th><th>Face</th><th>Death Benefit</th><th>Cash Value</th><th>Last Yr Dividend</th><th>Premium</th><th>Issue</th><th>Beneficiary</th><th>Source</th></tr>
-<tr><td>Catholic Order of Foresters</td><td>1305586</td><td>$41,000</td><td>$58,908</td><td>$30,309</td><td>$307.63 (08/2025)</td><td>$2,418/yr (Annual)</td><td>08/01/2003 (age 49)</td><td>Karla Ruth (Sib) / Estate</td><td>COF stmt 04/09/2026</td></tr>
-<tr><td>Catholic Order of Foresters</td><td>1299513</td><td>$40,000</td><td>$57,701</td><td>$29,728</td><td>$291.64 (10/2025)</td><td>$2,149/yr ($179/mo)</td><td>10/01/2002 (age 48)</td><td>Karla Sue Roth (Sib) / Deb Nieuman</td><td>COF stmt 04/09/2026</td></tr>
-<tr><td>Catholic Order of Foresters</td><td>1206927</td><td>$42,786</td><td>$43,089</td><td>$22,818</td><td>$251.15 (11/2025)</td><td>$535/yr (Annual)</td><td>11/01/1989 (age 35)</td><td>Karla Ruth (Sib) / Don Ruth (Parent) &#9888;</td><td>COF stmt 04/09/2026</td></tr>
-<tr><td>Farm Bureau Life</td><td>04000678365</td><td>$30,000</td><td>$35,055</td><td>$18,755</td><td class="none"><strong>$0.00</strong> (2025) &#9888;</td><td>$363/yr (Annual)</td><td>05/18/1985 (age 30)</td><td>Karla Sue Ruth (Sib) / Estate</td><td>FBFS Annual Report 04/21/2025</td></tr>
-<tr><td>MassMutual (fka Conn. Mutual)</td><td>3456086</td><td>$30,000</td><td>$65,866</td><td>$46,869</td><td>PUAs accumulating (need 2025 stmt)</td><td>Paid-up?</td><td>05/23/1977 (age 23)</td><td class="none">&#9888; TBD</td><td>MassMutual stmt 04/27/2023</td></tr>
-<tr><td>MassMutual</td><td>5022977</td><td>$9,900</td><td>$9,900</td><td>TBD</td><td>TBD (need stmt)</td><td>$613/yr ($53/mo)</td><td>01/02/2018 (age 63)</td><td class="none">&#9888; TBD</td><td>MassMutual stmt 03/2018</td></tr>
-<tr class="totals"><td></td><td>TOTAL</td><td>$193,686</td><td>$270,519</td><td>$148,479</td><td>$850.42 (3 of 6)</td><td>~$5,678/yr</td><td></td><td></td><td></td></tr>
-</table>
-</div>
-<p style="margin-top:8px;font-size:0.78rem;color:var(--muted)"><strong>Source notes:</strong> All COF + Farm Bureau values are CURRENT (statements within last 12 months). MassMutual #3456086 values are from 2023 statement &mdash; <em>actual 2026 values will be higher (2+ years of dividend accumulation)</em>. MassMutual #5022977 has no current cash value on file. <strong>Order in-force illustrations on all 6.</strong></p>
-</div>
-
-<div class="card">
-<h3>Long-Term Care Policy</h3>
-<div style="overflow-x:auto">
-<table>
-<tr><th>Carrier</th><th>Policy #</th><th>Plan</th><th>Daily Benefit</th><th>Lifetime Max</th><th>Elimination</th><th>Inflation Rider</th><th>Issue Date</th><th>Issue Age</th><th>Premium</th></tr>
-<tr><td>Catholic Order of Foresters</td><td>1299491</td><td>LTC + ROP rider 100% active</td><td><strong>$307.15/day current</strong> ($100 base × 24yr compound) · Lifetime cap <strong>$3,071,520.68</strong> · Home &amp; Community 50% = $153.58/day</td><td>Lifetime</td><td>90 days</td><td>Compound (since 2002)</td><td>11/01/2002</td><td>48</td><td>$823.28/yr (ACP) · Base $394.70 + Compound Inf $367.60 + ROP $60.98</td></tr>
-</table>
-</div>
-<p style="margin-top:10px"><em>Includes: Bed Reservation (21 days/yr), Caregiver Training ($500 lifetime), Respite Care (21 days/yr), Hospice Care, Return of Premium rider.</em></p>
-<div class="note" style="margin-top:14px;background:rgba(212,164,76,0.06);border-color:rgba(212,164,76,0.3)"><strong style="color:var(--gold)">LTC Administrator:</strong> This policy is administered by a third-party service provider, <strong>Davies</strong>. For current values, claim status, or any policy information, Kim can contact <strong>Davies at (877) 702-7770</strong>. COF&rsquo;s home office does not handle LTC servicing directly.</div>
-</div>
-
-<div class="card">
-<h3>Insights</h3>
-<ul>
-<li><strong>Real cash on the table:</strong> $148,479 in life policy cash value is liquid money &mdash; not just death benefit. Adds 8% to his total liquid asset pool.</li>
-<li><strong>Dividend-driven growth:</strong> 4 of 6 policies use Paid-Up Additions dividend option. The COF policies have substantial PUA accumulation (combined ~$50K in PUA cash). The Farm Bureau dividend was $0 in 2025 &mdash; investigate.</li>
-<li><strong>40+ year contracts:</strong> Farm Bureau (40 years), MassMutual #3456086 (49 years), COF #1206927 (37 years). Dividend trajectory should be substantial. Order in-force illustrations to see what they project forward.</li>
-<li><strong>Beneficiary verification needed:</strong> 2 MassMutual policies have unconfirmed beneficiaries. Action item.</li>
-<li><strong>Don Ruth concern:</strong> COF #1206927 lists him as parent contingent &mdash; needs current status verification.</li>
-<li><strong>The LTC is a sleeper asset:</strong> $100/day base from 2002 with compound inflation = significant current daily benefit. JDM should request current values from COF.</li>
-</ul>
-</div>
-</div>
-
-<!-- BENI CENTER -->
-<div id="beni" class="panel">
-<div class="card">
-<h2>Beneficiary Center &mdash; All 23 Active Accounts</h2>
-<p>Sole intended beneficiary across the estate: <strong>Karla S Ruth (Sister)</strong>. Iowa inheritance tax repealed 01/01/2025 — Karla owes no state tax on inheritance.</p>
-</div>
-
-<div class="stat-row">
-<div class="stat"><div class="num" style="color:var(--green)">10</div><div class="lbl">Named Beneficiary</div></div>
-<div class="stat warn"><div class="num">13</div><div class="lbl">No Beneficiary</div></div>
-<div class="stat"><div class="num" style="color:var(--orange)">$1.48M</div><div class="lbl">Probate Risk</div></div>
-<div class="stat"><div class="num">$2.16M</div><div class="lbl">Total Death Benefit</div></div>
-</div>
-
-<div class="card">
-<h3>Accounts WITH Beneficiary (10)</h3>
-<div style="overflow-x:auto">
-<table>
-<tr><th>Carrier</th><th>Policy #</th><th>Type</th><th>Value</th><th>Primary Beneficiary</th><th>Contingent</th><th>Source</th></tr>
-<tr><td>Catholic Order of Foresters</td><td>4041671</td><td>NQ Annuity</td><td>$447,073</td><td>Karla S Ruth (Sib) 100%</td><td>&mdash;</td><td>COF stmt 04/2025</td></tr>
-<tr><td>Catholic Order of Foresters</td><td>4041673</td><td>Roth IRA Annuity</td><td>$90,560</td><td>Karla S Ruth (Sib) 100%</td><td>&mdash;</td><td>COF stmt 04/2025</td></tr>
-<tr><td>Catholic Order of Foresters</td><td>1305586</td><td>Whole Life</td><td>$58,908 DB</td><td>Karla Ruth (Sib)</td><td>Estate</td><td>COF stmt 04/09/2026</td></tr>
-<tr><td>Catholic Order of Foresters</td><td>1299513</td><td>Whole Life</td><td>$57,701 DB</td><td>Karla Sue Roth (Sib)</td><td>Deb Nieuman</td><td>COF stmt 04/09/2026</td></tr>
-<tr><td>Catholic Order of Foresters</td><td>1206927</td><td>Whole Life</td><td>$43,089 DB</td><td>Karla Ruth (Sib)</td><td><strong style="color:var(--orange)">Don Ruth (Parent) &#9888;</strong></td><td>COF stmt 04/09/2026</td></tr>
-<tr><td>Farm Bureau Life</td><td>04000678365</td><td>Special Whole Life</td><td>$35,055 DB</td><td>Karla Sue Ruth (Sib)</td><td>Estate of Insured</td><td>FBFS stmt 04/2025</td></tr>
-<tr><td>Catholic Order of Foresters</td><td>1311997</td><td>Single Life Annuity (SPIA)</td><td>$36,610 single premium</td><td colspan="2" style="font-style:italic">Karla S Ruth is the annuitant — receives $1,603/yr lifetime income. Owner/beni TBD.</td><td>COF app 2004</td></tr>
-<tr><td>MassMutual (fka Conn. Mutual)</td><td>3456086</td><td>Whole Life</td><td>$65,866 DB</td><td colspan="2" class="none">&#9888; TBD &mdash; need current statement</td><td>2023 stmt</td></tr>
-<tr><td>MassMutual</td><td>5022977</td><td>Whole Life</td><td>$9,900 DB</td><td colspan="2" class="none">&#9888; TBD &mdash; need current statement</td><td>2018 stmt</td></tr>
-<tr><td>Catholic Order of Foresters</td><td>1299491</td><td>LTC (no DB)</td><td>$100/day base</td><td colspan="2" style="font-style:italic">N/A &mdash; benefits paid to Kim during lifetime</td><td>COF app 2002</td></tr>
-</table>
-</div>
-</div>
-
-<div class="card">
-<h3 style="color:var(--red)">Accounts WITHOUT Beneficiary (13) &mdash; ALL probate-bound</h3>
-<div style="overflow-x:auto">
-<table>
-<tr><th>Carrier</th><th>Acct #</th><th>Type</th><th>Tax</th><th>Value</th><th>Action Required</th><th>Form Source</th></tr>
-<tr><td>Hills Bank</td><td>10521680</td><td>CD 11mo</td><td>NQ</td><td>$94,794</td><td>POD form (Hills Bank)</td><td>Bank in person</td></tr>
-<tr><td>Hills Bank</td><td>50102383</td><td>CD 11mo</td><td>NQ</td><td>$118,473</td><td>POD form (Hills Bank)</td><td>Bank in person</td></tr>
-<tr><td>Hills Bank</td><td>10402477</td><td>CD 11mo</td><td>Trad IRA</td><td>$96,314</td><td>IRA beneficiary form (Hills Bank)</td><td>Bank in person</td></tr>
-<tr><td>Hills Bank</td><td>10527117</td><td>CD 11mo</td><td>NQ</td><td>$59,138</td><td>POD form (Hills Bank)</td><td>Bank in person</td></tr>
-<tr><td>Hills Bank</td><td>80013907</td><td>CD 6mo</td><td>Trad IRA</td><td>$7,675</td><td>IRA beneficiary form (Hills Bank)</td><td>Bank in person</td></tr>
-<tr><td>Hills Bank</td><td>50127000</td><td>CD 6mo</td><td>NQ</td><td>$46,501</td><td>POD form (Hills Bank)</td><td>Bank in person</td></tr>
-<tr><td>Hills Bank</td><td>10242469</td><td>CD 6mo</td><td>NQ</td><td>$50,706</td><td>POD form (Hills Bank)</td><td>Bank in person</td></tr>
-<tr><td>Hills Bank</td><td>10424356</td><td>CD 11mo</td><td>NQ</td><td>$258,259</td><td>POD form (Hills Bank)</td><td>Bank in person</td></tr>
-<tr><td>Washington State Bank</td><td>89421</td><td>CD 11mo</td><td>NQ</td><td>$165,895</td><td>POD form (WSB)</td><td>Bank in person</td></tr>
-<tr><td>Washington State Bank</td><td>89237</td><td>CD 11mo</td><td>NQ</td><td>$115,585</td><td>POD form (WSB)</td><td>Bank in person</td></tr>
-<tr><td>Prosperity / S.USA Life</td><td>920330879</td><td>NQ Annuity</td><td>NQ</td><td>$184,837</td><td>Carrier beni change form</td><td>Prosperity carrier portal</td></tr>
-<tr><td>Brighthouse Financial</td><td>940267409</td><td>NQ Annuity</td><td>NQ</td><td>$135,034</td><td>Carrier beni change form</td><td>Brighthouse carrier portal</td></tr>
-<tr><td>Brighthouse Financial</td><td>9200553464</td><td>IRA Annuity</td><td>Trad IRA</td><td>$15,423</td><td>Carrier beni change form</td><td>Brighthouse carrier portal</td></tr>
-<tr class="totals"><td></td><td></td><td></td><td>TOTAL EXPOSED</td><td>$1,478,820</td><td></td><td></td></tr>
-</table>
-</div>
-</div>
-
-<div class="card">
-<h3>Action Plan</h3>
-<ol style="margin-left:20px;color:var(--muted)">
-<li><strong>Immediate (no second discovery needed):</strong> Print 13 beni forms. Have Kim sign at next meeting. Name Karla S Ruth as primary on all 13.</li>
-<li><strong>For the Hills Bank IRAs ($104K):</strong> IRA beneficiary forms are different from POD &mdash; ensure correct form. Hills will provide.</li>
-<li><strong>For Brighthouse + Prosperity:</strong> Each carrier has its own beni change form. Submit via carrier portal or fax.</li>
-<li><strong>Verify MassMutual #3456086 + #5022977 benis</strong> &mdash; request current statements to confirm. May already be Karla &mdash; just unconfirmed.</li>
-<li><strong>Verify Don Ruth status</strong> on COF #1206927 contingent &mdash; if deceased, file contingent change.</li>
-<li><strong>COF SPIA #1311997</strong> &mdash; verify owner and remainder beneficiary structure (Karla is the annuitant, but who owns the contract?).</li>
-</ol>
-</div>
-</div>
-
-<!-- RMD CENTER -->
-<div id="rmd" class="panel">
-<div class="card">
-<h2>RMD Center &mdash; Required Minimum Distributions</h2>
-<p>Kimberly K Ruth &bull; DOB 07/13/1954 &bull; <strong>Turns 73 on 07/13/2027</strong> &bull; First RMD year: <strong>2027</strong> &bull; Required Beginning Date: <strong>04/01/2028</strong></p>
-</div>
-
-<div class="stat-row">
-<div class="stat"><div class="num">$119,412</div><div class="lbl">Total Trad IRA Subject to RMD</div></div>
-<div class="stat"><div class="num">3</div><div class="lbl">IRA Accounts</div></div>
-<div class="stat"><div class="num" style="color:var(--orange)">$4,506</div><div class="lbl">Est. First RMD (2027)</div></div>
-<div class="stat"><div class="num">26.5</div><div class="lbl">Age 73 Divisor</div></div>
-</div>
-
-<div class="card">
-<h3>Traditional IRA Accounts (RMD Required)</h3>
-<div style="overflow-x:auto">
-<table>
-<tr><th>Carrier</th><th>Account #</th><th>Type</th><th>Value</th><th>Maturity</th><th>RMD Strategy Note</th><th>Source</th></tr>
-<tr><td>Hills Bank</td><td>10402477</td><td>IRA CD (11mo)</td><td>$96,314</td><td>06/05/2026</td><td>Largest IRA. Will mature before RMD trigger. Keep liquid for first RMD.</td><td>Hills renewal 07/05/2025</td></tr>
-<tr><td>Brighthouse Financial</td><td>9200553464</td><td>Fixed Annuity XR (IRA)</td><td>$15,423</td><td>1yr renew</td><td>Fully liquid annuity. Could fund RMD or be 1035'd to better product.</td><td>Brighthouse stmt</td></tr>
-<tr><td>Hills Bank</td><td>80013907</td><td>IRA CD (6mo)</td><td>$7,675</td><td>06/13/2026</td><td>Small balance. Could absorb full annual RMD without touching others.</td><td>Archer spreadsheet</td></tr>
-<tr class="totals"><td></td><td></td><td>TOTAL</td><td>$119,412</td><td></td><td></td><td></td></tr>
-</table>
-</div>
-</div>
-
-<div class="card">
-<h3>RMD Calculation (Projected)</h3>
-<div style="overflow-x:auto">
-<table>
-<tr><th>Year</th><th>Age</th><th>Account Balance</th><th>Divisor</th><th>RMD Amount</th><th>Notes</th></tr>
-<tr><td>2026</td><td>72</td><td>~$119,412</td><td>&mdash;</td><td>$0</td><td>No RMD &mdash; not yet 73</td></tr>
-<tr><td>2027</td><td>73</td><td>~$120K projected (assumes 0.5% net growth)</td><td>26.5</td><td><strong>~$4,528</strong></td><td>First RMD year. Can defer to 04/01/2028.</td></tr>
-<tr><td>2028</td><td>74</td><td>~$117K projected</td><td>25.5</td><td>~$4,580</td><td>Two RMDs in same calendar year if 2027 was deferred.</td></tr>
-<tr><td>2029</td><td>75</td><td>~$113K projected</td><td>24.6</td><td>~$4,591</td><td></td></tr>
-<tr><td>2030</td><td>76</td><td>~$109K projected</td><td>23.7</td><td>~$4,597</td><td></td></tr>
-</table>
-</div>
-<p style="margin-top:10px"><em>Divisors from IRS Uniform Lifetime Table (2022 update). Projections are illustrative &mdash; actual balances depend on growth + withdrawals.</em></p>
-</div>
-
-<div class="card">
-<h3>Key Decisions</h3>
-<ul>
-<li><strong>Roth Conversion Window:</strong> Kim is in the 32&ndash;35% bracket due to farm income. Roth conversion of all $119K would cost ~$38K&ndash;$42K in federal tax. <strong>BUT</strong> if farm income drops in any year before 2027, that creates a low-bracket conversion window.</li>
-<li><strong>CD Rollover Strategy:</strong> 2 of 3 IRAs mature June 2026. Top option: roll into a FIA with GLWB &mdash; the rider locks in lifetime income that satisfies RMDs automatically and the indexed growth beats CD returns. Free-withdrawal-only FIAs also work.</li>
-<li><strong>Inherited IRA for Karla:</strong> Under SECURE Act 2.0, Karla (non-spouse) must drain inherited IRA within 10 years. Plan accordingly.</li>
-<li><strong>QCD Option:</strong> At age 70.5+, Kim can do Qualified Charitable Distributions (up to $108K/yr in 2025) directly from IRA &mdash; satisfies RMD without taxable income. Useful if he has charitable intent — Kim is a practicing Catholic and may be interested in directing RMDs to his church.</li>
-<li><strong>1035 Exchange:</strong> The Brighthouse IRA could be 1035 exchanged into a higher-yielding annuity without triggering tax. Same product type, same tax status.</li>
-</ul>
-</div>
-
-<div class="card" style="background:rgba(34,197,94,0.04);border-color:rgba(34,197,94,0.2)">
-<h3 style="color:var(--green)">Roth IRA &mdash; NO RMD EVER</h3>
-<table>
-<tr><th>Carrier</th><th>Policy #</th><th>Type</th><th>Value</th><th>Notes</th></tr>
-<tr><td>Catholic Order of Foresters</td><td>4041673</td><td>Roth IRA Annuity</td><td>$90,560</td><td>Karla beneficiary. Tax-free growth + tax-free inheritance. <strong>Do not touch this asset.</strong></td></tr>
-</table>
-</div>
-</div>
-
-<!-- INCOME -->
-<div id="income" class="panel">
-<div class="card">
-<h2>Income Sources &mdash; 2025 Actuals (from Federal Return)</h2>
-<p style="font-size:0.82rem">Replaces pre-return estimates. All figures direct from 1040 + Schedule B + Schedule F, filed as Single 2026-02-24.</p>
-</div>
-
-<div class="income-card">
-<div>
-<div class="src">Social Security (2025)</div>
-<div class="detail">Gross benefit &asymp; $34,194 &middot; 85% taxable &rarr; $29,065 on return</div>
-</div>
-<div style="text-align:right">
-<div class="val">~$2,849/mo</div>
-<div class="detail">$34,194/yr gross &middot; $29,065 taxable</div>
-</div>
-</div>
-
-<div class="income-card">
-<div>
-<div class="src">Farm (Schedule F &mdash; Net)</div>
-<div class="detail">Corn &amp; soybeans &middot; Sole prop &middot; 2024: $76,674 &middot; <strong>2025: $18,765</strong> &mdash; commodity/input squeeze</div>
-</div>
-<div style="text-align:right">
-<div class="val">$18,765</div>
-<div class="detail">Gross $164,089 &minus; Expenses $145,324</div>
-</div>
-</div>
-
-<div class="income-card">
-<div>
-<div class="src">Interest Income (CDs + checking)</div>
-<div class="detail">Hills Bank $26,338 &middot; WSB $9,808 &middot; F&amp;M $28</div>
-</div>
-<div style="text-align:right">
-<div class="val">$36,174</div>
-<div class="detail">Ordinary income &mdash; hits at 22% marginal</div>
-</div>
-</div>
-
-<div class="income-card">
-<div>
-<div class="src">Taxable IRA Distribution (2025)</div>
-<div class="detail"><strong style="color:var(--orange)">NEW in 2025</strong> &mdash; source TBD (Brighthouse IRA? Hills IRA CD?). Ask Kim.</div>
-</div>
-<div style="text-align:right">
-<div class="val">$25,000</div>
-<div class="detail">Taxable ordinary income</div>
-</div>
-</div>
-
-<div class="income-card">
-<div>
-<div class="src">Other Gains (sale of business property, Form 4797)</div>
-<div class="detail">2024: $3,500 &middot; 2025: $8,500 &mdash; likely old equipment sale tied to farm</div>
-</div>
-<div style="text-align:right">
-<div class="val">$8,500</div>
-<div class="detail">Reported on 1040 line 10</div>
-</div>
-</div>
-
-<div class="income-card">
-<div>
-<div class="src">Dividend Income (Hills Bancorporation)</div>
-<div class="detail">Qualified: $1,456 &mdash; taxed at 0% (under $48,475 qualified threshold doesn&rsquo;t apply single &rarr; actually 15%). Kim owns Hills Bancorp stock &mdash; ask for share count.</div>
-</div>
-<div style="text-align:right">
-<div class="val">$1,500</div>
-<div class="detail">$1,456 qualified</div>
-</div>
-</div>
-
-<div class="income-card" style="background:rgba(148,163,184,0.08);opacity:0.85">
-<div>
-<div class="src">Prosperity Annuity Benefit (NOT currently drawn)</div>
-<div class="detail">Paid-up monthly benefit &mdash; available option, not activated in 2025</div>
-</div>
-<div style="text-align:right">
-<div class="val">$1,007.35/mo</div>
-<div class="detail">$12,088/yr if activated</div>
-</div>
-</div>
-
-<div class="card" style="margin-top:16px">
-<h3>2025 Income Reconciliation</h3>
-<div class="stat-row">
-<div class="stat"><div class="num">$119,204</div><div class="lbl">Total Income (1040)</div></div>
-<div class="stat"><div class="num">$107,400</div><div class="lbl">AGI</div></div>
-<div class="stat"><div class="num">$64,067</div><div class="lbl">Taxable Income</div></div>
-<div class="stat"><div class="num" style="color:var(--orange)">$11,548</div><div class="lbl">Total Federal Tax</div></div>
-</div>
-</div>
-
-<div class="note">
-<strong>Tax Bracket Correction:</strong> Earlier roadmap modeled Kim at <strong>32&ndash;35% marginal</strong>. The 2025 return puts him at <strong>22% marginal / 18% effective</strong>. This reshapes every downstream recommendation:
-<ul style="margin-left:20px;margin-top:8px">
-<li><strong>Roth conversions are ~4x cheaper</strong> than we thought. Targeted $39K/yr conversion plan fills the 22% bracket without overflow &mdash; details in TAX BREAKDOWN tab.</li>
-<li><strong>Tax-deferral on CD interest</strong> still valuable but less urgent. Priority for MYGA/FIA rotation shifts from pure tax arbitrage to yield-plus-deferral.</li>
-<li><strong>QCD to church</strong> still attractive as RMD-rate insurance, but immediate pre-RMD value is lower than at 32%.</li>
-<li><strong>Activating the Prosperity $1,007/mo</strong> would add $12K/yr at ~22% marginal = $2.6K additional tax &mdash; decision hinges on need, not tax drag.</li>
-</ul>
-</div>
-</div>
-
-<!-- REAL ESTATE -->
-<div id="realestate" class="panel">
-
-<div class="card">
-<h2>Iowa Farmland + Homestead &mdash; 9 Parcels Across 2 Counties</h2>
-<p style="font-size:0.85rem">Source: Property tax statements scanned + parsed 2026-04-14. All parcels in Kim&rsquo;s name (3 jointly with sister Karla S Ruth). Assessed values are for tax purposes; market value typically 1.3-1.5x in Iowa for farmland.</p>
-
-<div class="stat-row" style="margin-top:14px">
-<div class="stat"><div class="num">~294 ac</div><div class="lbl">Total Acreage</div></div>
-<div class="stat"><div class="num">9</div><div class="lbl">Parcels</div></div>
-<div class="stat"><div class="num">$579K</div><div class="lbl">Total Assessed</div></div>
-<div class="stat"><div class="num">~$900K</div><div class="lbl">Est. Market Value</div></div>
-</div>
-
-<h3>Johnson County, IA &mdash; SHARON-MID PRAIRIE School District (5 parcels, 146.28 acres, all STR 35-78-7)</h3>
-<div style="overflow-x:auto">
-<table>
-<tr><th>Parcel #</th><th>Receipt</th><th>Acres</th><th>Legal</th><th>Assessed</th><th>Net Taxable</th><th>Annual Tax</th><th>Sept 2025</th><th>March 2026</th></tr>
-<tr><td>1435476001</td><td>122350</td><td>40.00</td><td>NE SE</td><td>$69,400</td><td>$51,257</td><td>$1,276</td><td>$638</td><td>$638</td></tr>
-<tr><td>1435401001</td><td>140003</td><td>40.00</td><td>NE SE</td><td>$83,500</td><td>$61,671</td><td>$1,534</td><td>$767</td><td>$767</td></tr>
-<tr><td>1435176001</td><td>128313</td><td>26.28</td><td>SE NE Auditor&rsquo;s Parcel B in Survey Bk 32 Pg 263</td><td>partial</td><td>partial</td><td>$964</td><td>$482</td><td>$482</td></tr>
-<tr><td>1435451001</td><td>132540</td><td>22.00</td><td>N 22A SW SE</td><td>$24,500</td><td>$18,095</td><td>$450</td><td>$225</td><td>$225</td></tr>
-<tr><td>1435451002</td><td>090704</td><td>18.00</td><td>S 18A SW SE</td><td>$26,500</td><td>$19,572</td><td>$488</td><td>$244</td><td>$244</td></tr>
-<tr class="totals"><td colspan="2">Johnson County subtotal</td><td>146.28</td><td>5 parcels</td><td>~$204K</td><td>~$150K</td><td>$4,712</td><td>$2,356</td><td>$2,356</td></tr>
-</table>
-</div>
-<p style="margin-top:8px;font-size:0.78rem;color:var(--muted)"><em>Treasurer: Scott Finlayson, Johnson County Treasurer · PO Box 2420 Iowa City IA 52244 · (319) 356-6087 · iowataxandtags.org</em></p>
-
-<h3>Washington County, IA &mdash; IWTHG (Iowa Twp/Highland) + LCTMP (Lime Creek Twp/Mid Prairie) (4 parcels, 148.25 acres incl. homestead)</h3>
-<div style="overflow-x:auto">
-<table>
-<tr><th>Parcel #</th><th>Receipt</th><th>District</th><th>Address</th><th>Acres</th><th>Assessed</th><th>Net Taxable</th><th>Annual Tax</th><th>Owner</th></tr>
-<tr><td>0302200002</td><td>601560</td><td>IWTHG</td><td>Redwood Av</td><td>98.42</td><td>$153,300</td><td>$113,223</td><td>$3,108</td><td>RUTH, KIMBERLY</td></tr>
-<tr><td>0218400015</td><td>606560</td><td>LCTMP</td><td>(land)</td><td>12.18</td><td>$18,300</td><td>$13,516</td><td>$372</td><td><strong>RUTH, KIMBERLY K. &amp; KARLA S.</strong></td></tr>
-<tr><td>0218400017</td><td>618224</td><td>LCTMP</td><td>Gum Ave</td><td>0.51</td><td>$2,800</td><td>$2,068</td><td>$58</td><td><strong>RUTH, KIMBERLY K. &amp; KARLA S.</strong></td></tr>
-<tr><td>0301300001</td><td>418528</td><td>IWTHG</td><td><strong>1054 Redwood Ave (HOMESTEAD)</strong></td><td>37.14</td><td>$179,200 (incl. dwelling $148,800)</td><td>$109,178</td><td>$2,864 (older bill)</td><td>RUTH, KIMBERLY</td></tr>
-<tr class="totals"><td colspan="3">Washington County subtotal</td><td></td><td>148.25</td><td>$353,600</td><td>$237,985</td><td>~$6,402</td><td></td></tr>
-</table>
-</div>
-<p style="margin-top:8px;font-size:0.78rem;color:var(--muted)"><em>Treasurer: Jeffrey A. Garrett, Washington County Treasurer · PO Box 889 Washington IA 52353 · (319) 653-7721 · iowatreasurers.org</em></p>
-
-<div class="note" style="margin-top:14px"><strong>Combined annual property tax burden: ~$11,114/yr.</strong> Aligns with Schedule F line 29 &ldquo;Taxes&rdquo; expense $8,498 (which excludes the homestead portion since it&rsquo;s personal-use, not farm-business). Kim claims AG Land credits on most parcels (small but real: $32-$59 per parcel).</div>
-</div>
-
-<div class="card">
-<h3>Estate-Planning Levers (NEW &mdash; was completely off prior roadmap)</h3>
-<ul>
-<li><strong>Joint-with-Karla parcels:</strong> 0218400015 (12.18 ac) + 0218400017 (0.51 ac) = <strong>12.69 acres in joint tenancy with sister Karla.</strong> These transfer outside probate to Karla automatically on Kim&rsquo;s death (joint-tenancy-with-right-of-survivorship is the Iowa default for "K. &amp; K." titling unless stated otherwise &mdash; verify on the deeds).</li>
-<li><strong>Beneficiary deed (transfer-on-death deed):</strong> Iowa allows TOD deeds as of 2018. Kim can record a TOD deed on the other 7 parcels naming Karla as beneficiary &mdash; bypasses probate, no transfer tax, revocable, doesn&rsquo;t affect his ability to sell during lifetime. <strong>This is the cleanest legacy move available given his stated wishes (Karla = sole beneficiary).</strong></li>
-<li><strong>Homestead exemption:</strong> 0301300001 has the dwelling but the bill we have shows Homestead Exemption = $0 / Military Exemption = $0. <strong>Iowa offers a Homestead Tax Credit ($4,850 of taxable value) + Homestead Exemption.</strong> If Kim isn&rsquo;t claiming, applying could save ~$120/yr. Check with County Assessor.</li>
-<li><strong>Senior Property Tax Credit:</strong> Kim is 71, eligible for Iowa&rsquo;s Senior Property Tax Credit (age 65+, income limits apply). Worth checking.</li>
-<li><strong>Family Farm credits:</strong> Most parcels show Family Farm Credit = $0. Could save modestly if Kim qualifies (must be actively farmed by family member, which Kim does).</li>
-<li><strong>Farm-business titling:</strong> Some farmers move farmland into an LLC for liability + estate efficiency. Kim is sole-prop Schedule F today; LLC conversion is a separate planning conversation.</li>
-</ul>
-</div>
-
-<div class="card">
-<h3>Action Items &mdash; Real Estate</h3>
-<ul>
-<li>Pull deeds for all 9 parcels (county recorder online portals; Kim or Archer can request)</li>
-<li>Verify joint-tenancy structure on the 2 Karla-titled parcels (could be JTWROS or tenancy-in-common &mdash; matters for probate)</li>
-<li>Discuss TOD beneficiary deed with Kim (cheap, revocable, probate-bypass for Karla on the 7 solo parcels)</li>
-<li>Check homestead exemption + senior tax credit + family farm credit status with Washington County Assessor (potential ~$300-500/yr savings combined)</li>
-<li>Get current farm rental agreement on the rented parcels (income side already on tax return; document side for the file)</li>
-<li>If Kim has a will, confirm real-estate disposition aligns with Karla-as-sole-beneficiary intent</li>
-</ul>
-</div>
-
-<div class="card">
-<h3>Total Net Worth &mdash; Reframed</h3>
-<table>
-<tr><th>Category</th><th>Value</th><th>Source</th></tr>
-<tr><td>Annuities (5 active + 1 SPIA)</td><td>$872,927</td><td>Carrier statements</td></tr>
-<tr><td>CDs (10)</td><td>$1,012,727</td><td>Hills Bank + WSB renewal statements</td></tr>
-<tr><td>Life Insurance Cash Value (6 policies)</td><td>$148,479</td><td>COF + Farm Bureau + MassMutual statements</td></tr>
-<tr><td><strong>Financial subtotal</strong></td><td><strong>$2,034,133</strong></td><td>(was previously the &ldquo;Total&rdquo;)</td></tr>
-<tr><td>Iowa Farmland (assessed)</td><td>$579,800</td><td>9 parcel tax statements</td></tr>
-<tr><td>Farmland market premium (~1.5x adj)</td><td>~$300K</td><td>Iowa farmland market typical</td></tr>
-<tr class="totals"><td><strong>Total Net Worth (estimated)</strong></td><td><strong>~$2.93M</strong></td><td></td></tr>
-<tr><td>Plus: COF LTC lifetime coverage cap</td><td><em>$3,071,520 (insured, not asset)</em></td><td>Policy schedule</td></tr>
-<tr><td>Plus: COF total death benefit on life insurance</td><td>$270,519</td><td>(separate from CV)</td></tr>
-</table>
-<p style="margin-top:10px"><strong>Bottom line: Kim is a $3M+ household when farmland is included.</strong> Estate planning moves from &ldquo;moderate&rdquo; to &ldquo;substantive.&rdquo; Federal estate tax threshold ($13.61M) is still untouched, but the real-estate component meaningfully changes the legacy conversation with Karla.</p>
-</div>
-</div>
-
-</div>
+</div> <!-- /content -->
 
 <div class="footer">
-VOLTRON CSO &bull; 2026-04-13 &bull; Source: COF, Brighthouse, Prosperity, Farm Bureau, MassMutual, Hills Bank, Washington State Bank Statements + Archer Discovery Notes + 2025 Federal Tax Return (Bontrager Tax, prepared 2026-02-24)<br>
-Client: Kimberly K Ruth (M) &bull; ProDash: 2195c26e-b009-46b6-a2da-52229955eae6 &bull; #RunningOurOwnRACE
+VOLTRON CSO &bull; Format-Locked 2026-04-15 &bull; Kimberly K Ruth (Male, 71) &bull; ProDash: 2195c26e-b009-46b6-a2da-52229955eae6<br>
+Source: COF, Brighthouse, Prosperity, Farm Bureau, MassMutual, Hills Bank, Washington State Bank Statements + Archer Discovery Notes + 2025 Federal Tax Return (Bontrager Tax, prepared 2026-02-24) + NAC Illustrations (IPP10, CP10, VC10, CX)<br>
+#RunningOurOwnRACE
 </div>
 
 <script>
-function showPanel(id,el){document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active')});document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});document.getElementById(id).classList.add('active');el.classList.add('active')}
+// Generic: hide all siblings, show target, toggle active class on tab
+function show(tabClass,panelClass,id,el){
+  document.querySelectorAll('.'+panelClass).forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.'+tabClass).forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  el.classList.add('active');
+}
+// Within a specific parent, show L2 panel
+function showL2(parentId,id,el){
+  const parent=document.getElementById(parentId);
+  parent.querySelectorAll('.l2-panel').forEach(p=>p.classList.remove('active'));
+  parent.querySelectorAll('.l2-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  el.classList.add('active');
+}
+function showL3(parentId,id,el){
+  const parent=document.getElementById(parentId);
+  parent.querySelectorAll('.l3-panel').forEach(p=>p.classList.remove('active'));
+  parent.querySelectorAll('.l3-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  el.classList.add('active');
+}
+function showL4(parentId,id,el){
+  const parent=document.getElementById(parentId);
+  parent.querySelectorAll('.l4-panel').forEach(p=>p.classList.remove('active'));
+  parent.querySelectorAll('.l4-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  el.classList.add('active');
+}
+// Back-compat: original showPanel + showSub (used in embedded Reco panel sub-tabs)
+function showPanel(id,el){
+  document.querySelectorAll('#p-recommendations .panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('#p-recommendations .tab').forEach(t=>t.classList.remove('active'));
+  const target=document.getElementById(id); if(target) target.classList.add('active');
+  if(el) el.classList.add('active');
+}
+function showSub(id,el){
+  document.querySelectorAll('.sub-panel').forEach(p=>p.style.display='none');
+  document.querySelectorAll('.sub-tab').forEach(t=>{t.style.color='var(--muted)';t.style.borderBottomColor='transparent';t.style.background='transparent'});
+  const target=document.getElementById(id); if(target) target.style.display='block';
+  if(el){
+    el.style.color=id==='sub-reco-1'?'var(--purple)':(id==='sub-reco-2'?'var(--green)':'var(--blue)');
+    el.style.borderBottomColor=id==='sub-reco-1'?'var(--purple)':(id==='sub-reco-2'?'var(--green)':'var(--blue)');
+    el.style.background=id==='sub-reco-1'?'rgba(139,92,246,0.08)':(id==='sub-reco-2'?'rgba(34,197,94,0.08)':'rgba(59,130,246,0.08)');
+  }
+}
 </script>
 </body>
 </html>

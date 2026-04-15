@@ -55,18 +55,18 @@ td:first-child{color:var(--text);font-weight:500}
 </head>
 <body>
 
-<div class="wip-banner">🚧 WORKING DOC v2 — NAC + Nassau parsed from VOLTRON DOCS Drive. Rate data current as of 6/23/25 (Nassau) + 1/27/26–4/2/26 (NAC). Carrier coverage still expanding (RevolONE, Ameritas, ASPIDA pending flyer drops). Replace with registry-driven QUE data once intake wire lands.</div>
+<div class="wip-banner">🚧 WORKING DOC v3 — NAC + Nassau parsed from VOLTRON DOCS Drive. Athos not available via RPI distribution. Bonus Annuity Plus = do-not-write. RevolONE dropped from lineup. Ameritas used ONLY for GMIB on age 81+. Rate data current as of 6/23/25 (Nassau) + 1/27/26–4/2/26 (NAC). Replace with registry-driven QUE data once intake wire lands.</div>
 
 <div class="header">
 <h1>RPI Preferred Products</h1>
 <div class="sub">The Yellow Lens — what we sell, when, and why</div>
-<div class="badge">VOLTRON CSO · 2026-04-15 · v2 · Nassau + NAC Core (RevolONE / Ameritas / ASPIDA pending)</div>
+<div class="badge">VOLTRON CSO · 2026-04-15 · v3 · NAC + Nassau Core · Ameritas (81+ GMIB only) · ASPIDA</div>
 </div>
 
 <div class="content">
 
 <div class="intro">
-<p><strong>Framework:</strong> RPI's annuity core is <strong style="color:var(--nac)">NAC</strong> + <strong style="color:var(--nassau)">Nassau</strong>, with RevolONE / Ameritas / ASPIDA as the broader carrier waterfall (pending product drops to VOLTRON DOCS). Match client need → goal lane → carrier / product. MYGAs are intentionally NOT on this sheet — <em>we don't recommend them</em>.</p>
+<p><strong>Framework:</strong> RPI's annuity core is <strong style="color:var(--nac)">NAC</strong> + <strong style="color:var(--nassau)">Nassau</strong>, with Ameritas (81+ GMIB only) / ASPIDA as the broader carrier waterfall (pending product drops to VOLTRON DOCS). Match client need → goal lane → carrier / product. MYGAs are intentionally NOT on this sheet — <em>we don't recommend them</em>.</p>
 <p style="margin-top:8px"><strong>How to use:</strong> Decision matrix below → pick product card → pull current rates + pitch language into the case roadmap. For clients aged out of the main accumulation menu (typically 81+), NAC Guaranteed Allocation 5/7 is the fallback — not shown as a headline card on purpose.</p>
 </div>
 
@@ -246,34 +246,6 @@ td:first-child{color:var(--text);font-weight:500}
 
 <div class="grid">
 
-<!-- Nassau Athos Annuity -->
-<div class="product-card nassau-card">
-<h3>Nassau Athos Annuity</h3>
-<div class="carrier">Nassau · Accumulation FIA with Premium Bonus + Extendable Accounts · 10yr surrender</div>
-<div class="tag-row">
-<span class="tag lane-accum">Accumulation</span>
-<span class="tag feature">12% bonus (0–80)</span>
-<span class="tag feature">8% bonus (81–85)</span>
-<span class="tag feature">Extendable indexed accounts</span>
-<span class="tag feature">NH + TI waivers</span>
-</div>
-<div class="stat-row">
-<div class="mini-stat"><div class="num">12%</div><div class="lbl">Premium Bonus (0–80)</div></div>
-<div class="mini-stat"><div class="num">3.00%</div><div class="lbl">Fixed Account</div></div>
-<div class="mini-stat"><div class="num">48%</div><div class="lbl">S&amp;P 500 Dynamic Intraday TCA Part</div></div>
-<div class="mini-stat"><div class="num">40%</div><div class="lbl">Nasdaq-100 VC 15% Part</div></div>
-</div>
-<h4>Why this over Bonus Annuity</h4>
-<ul>
-<li><strong>Extendable indexed accounts</strong> — client can Extend or Reset each segment on contract anniversary. Extending locks in 90% of the highest Daily Account Value as a Protected Account Value floor.</li>
-<li>Up to $1M premium (ages 0–80), $500K (ages 81–85); 7% free withdrawal starting year 2</li>
-<li>Nursing Home + Terminal Illness waivers on surrender (ages 0–80) — important for older/ill clients</li>
-<li>Clean tax treatment: bonus treated as gain on withdrawal, fully vested on death</li>
-<li>10-yr surrender: 12%/12%/12%/11%/10%/9%/8%/7%/6%/4%/0%</li>
-</ul>
-<div class="pitch-box"><strong>Pitch language:</strong> "Nassau gives us an instant 12% premium bonus on every dollar we move. The indexed accounts have an Extend feature — if the market is ripping, we keep rolling. If it isn't, we reset. Plus nursing-home and terminal-illness waivers come built in."</div>
-</div>
-
 <!-- Nassau Bonus Annuity -->
 <div class="product-card nassau-card">
 <h3>Nassau Bonus Annuity</h3>
@@ -329,19 +301,19 @@ td:first-child{color:var(--text);font-weight:500}
 <div class="pitch-box"><strong>Pitch language:</strong> "Bonus products take back some growth through lower caps and participation rates. If you don't need the bonus — say, this is a CD that just matured — the Growth Annuity gives you materially stronger caps and par rates. 11% on the S&amp;P, 5% fixed today."</div>
 </div>
 
-<!-- Nassau Bonus Annuity Plus — partial -->
-<div class="product-card nassau-card placeholder">
-<h3>Nassau Bonus Annuity Plus</h3>
-<div class="carrier">Nassau · Premium Bonus FIA + enhanced income rider</div>
+<!-- Nassau Bonus Annuity Plus — DO NOT RECOMMEND -->
+<div class="product-card nassau-card" style="border-left-color:var(--red);opacity:0.85">
+<h3 style="color:var(--red)">⛔ Nassau Bonus Annuity Plus — DO NOT WRITE</h3>
+<div class="carrier" style="color:var(--red)">Nassau · Deprecated — performance degraded by design</div>
 <div class="tag-row">
-<span class="tag lane-later">Income Later</span>
-<span class="tag feature">Bonus + enhanced rider</span>
+<span class="tag" style="background:rgba(239,68,68,0.15);color:var(--red)">Not recommended</span>
 </div>
-<h4>Framework (full parse pending)</h4>
+<h4 style="color:var(--red)">Why we don't write it</h4>
 <ul>
-<li>Extension of the Bonus Annuity chassis with enhanced income rider structure (A5245SPA / A5245PO)</li>
-<li>Use when client wants bonus + stronger income rider than the standard Amplified Income rider</li>
-<li><strong>Pending:</strong> detailed rider structure + current rate spotlight — product kit is in <code>/VOLTRON DOCS!/NASSAU/Product Level/Bonus Annuity Plus/</code> (A5245 series)</li>
+<li>The "Plus" layers on enhanced bonus/rider structure but <strong>pays for it by lowering caps, lowering participation rates, adding spreads, and stacking fees</strong></li>
+<li>Net effect: the extra bonus gets more than given back over the life of the contract</li>
+<li>Per JDM: <em>"pretty much a fucking turd"</em></li>
+<li>If the case needs a bonus + income rider, the correct answer is <strong>NAC Charter Plus 10</strong> with the Bonus Rider (EBR), not this</li>
 </ul>
 </div>
 

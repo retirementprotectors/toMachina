@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NAC vs Nassau — Head-to-Head Matrix for Advisor Walk-In</title>
+<style>
+:root{--bg:#0a0e17;--card:#111827;--card2:#1a2236;--border:#1e293b;--text:#e2e8f0;--muted:#94a3b8;--green:#22c55e;--blue:#3b82f6;--red:#ef4444;--orange:#f59e0b;--gold:#d4a44c;--cyan:#06b6d4;--nac:#10b981;--nassau:#8b5cf6}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.55}
+.wip-banner{background:linear-gradient(90deg,rgba(245,158,11,0.18),rgba(245,158,11,0.08));border-bottom:1px solid rgba(245,158,11,0.4);color:var(--orange);font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;text-align:center;padding:10px 16px}
+.header{background:linear-gradient(135deg,#020b1a 0%,#0a1a0a 50%,#020b1a 100%);border-bottom:1px solid var(--border);padding:28px;text-align:center}
+.header h1{font-size:1.9rem;font-weight:800;background:linear-gradient(135deg,var(--nac),var(--nassau));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px}
+.header .sub{font-size:0.9rem;color:var(--muted)}
+.header .badge{display:inline-block;margin-top:10px;padding:4px 14px;border-radius:999px;font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;background:rgba(34,197,94,0.1);color:var(--green);border:1px solid rgba(34,197,94,0.3)}
+.content{max-width:1400px;margin:0 auto;padding:20px 16px 60px}
+.intro{background:rgba(6,182,212,0.06);border:1px solid rgba(6,182,212,0.2);border-radius:10px;padding:16px 22px;margin-bottom:24px;font-size:0.88rem;color:var(--muted)}
+.intro strong{color:var(--cyan)}
+.section{margin-top:32px}
+.section h2{font-size:1.15rem;color:var(--text);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.section h2 .lane{font-size:0.72rem;text-transform:uppercase;letter-spacing:1px;font-weight:600;color:var(--muted);margin-left:12px}
+.section p{color:var(--muted);font-size:0.88rem;margin-bottom:10px}
+table{width:100%;border-collapse:collapse;font-size:0.8rem;background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin:10px 0}
+th{text-align:left;padding:9px 12px;background:var(--card2);color:var(--green);font-weight:700;font-size:0.7rem;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border);white-space:nowrap}
+th.nac-col{color:var(--nac)}
+th.nassau-col{color:var(--nassau)}
+td{padding:9px 12px;border-bottom:1px solid var(--border);color:var(--muted);vertical-align:top}
+td:first-child{color:var(--text);font-weight:500;white-space:nowrap}
+tr:hover td{background:var(--card2)}
+tr.sep td{border-top:2px solid var(--border)}
+.nac{color:var(--nac);font-weight:600}
+.nassau{color:var(--nassau);font-weight:600}
+.winner{background:rgba(34,197,94,0.08);border-left:3px solid var(--green);font-weight:700;color:var(--text)}
+.na{color:var(--muted);font-style:italic}
+.callout{background:var(--card);border:1px solid var(--border);border-left:4px solid var(--blue);border-radius:0 10px 10px 0;padding:14px 18px;margin:14px 0}
+.callout.orange{border-left-color:var(--orange)}
+.callout.green{border-left-color:var(--green)}
+.callout.red{border-left-color:var(--red)}
+.callout.purple{border-left-color:var(--nassau)}
+.callout .title{font-size:0.9rem;font-weight:700;margin-bottom:6px;color:var(--text)}
+.callout p{font-size:0.84rem;margin:4px 0}
+.meeting-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px 22px;margin:16px 0}
+.meeting-card h3{font-size:1rem;color:var(--green);margin-bottom:8px}
+.meeting-card .tag-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.tag{padding:3px 10px;border-radius:4px;font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.tag.accum{background:rgba(59,130,246,0.15);color:var(--blue)}
+.tag.income{background:rgba(139,92,246,0.15);color:var(--nassau)}
+.tag.liquid{background:rgba(34,197,94,0.15);color:var(--green)}
+.tag.locked{background:rgba(239,68,68,0.15);color:var(--red)}
+.tag.age{background:rgba(245,158,11,0.15);color:var(--orange)}
+.reco-lead{background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.3);border-radius:8px;padding:12px 16px;margin-top:10px;font-size:0.88rem}
+.reco-lead strong{color:var(--nac)}
+.footer{text-align:center;padding:24px;color:var(--muted);font-size:0.72rem;border-top:1px solid var(--border);margin-top:40px}
+</style>
+</head>
+<body>
+
+<div class="wip-banner">🚧 WORKING DOC — NAC vs Nassau head-to-head for tomorrow's 3 advisor meetings. Pre-tuned case-shape recos at the bottom. Walk-in-ready.</div>
+
+<div class="header">
+<h1>NAC vs Nassau</h1>
+<div class="sub">Head-to-Head Matrix · Same-Day Advisor Weapon · "Why this carrier for this client shape"</div>
+<div class="badge">VOLTRON CSO · 2026-04-15 · v1</div>
+</div>
+
+<div class="content">
+
+<div class="intro">
+<p><strong>What this is:</strong> NAC and Nassau side-by-side on every crediting method + rider feature, grouped by lane (Bonus Accumulation / No-Bonus Accumulation / Income Rider). Built so an advisor walking into a meeting can answer &ldquo;why NAC over Nassau?&rdquo; (or vice versa) in real time with the client in front of them.</p>
+<p style="margin-top:6px"><strong>Carrier colors:</strong> <span class="nac">NAC / North American = green</span> · <span class="nassau">Nassau = purple</span>. Winners highlighted per-row where one carrier clearly beats the other.</p>
+<p style="margin-top:6px"><strong>Tomorrow's 3 meetings tagged at the bottom</strong> (Section 5) with pre-tuned recos by case-shape.</p>
+</div>
+
+<!-- 1. BONUS ACCUMULATION HEAD-TO-HEAD -->
+<div class="section">
+<h2>1. Bonus Accumulation Head-to-Head <span class="lane">CP10 + EBR vs Bonus Annuity</span></h2>
+<p>Both are 10-year surrender, premium-bonus accumulation FIAs. The pitch is the same shape: &ldquo;we'll move your money, you get a day-1 bonus, it grows tax-deferred.&rdquo; Here's how the economics actually compare.</p>
+<div style="overflow-x:auto">
+<table>
+<tr><th>Feature</th><th class="nac-col">NAC Charter Plus 10 + EBR</th><th class="nassau-col">Nassau Bonus Annuity (Group A / IA)</th></tr>
+<tr><td>Premium Bonus (ages 0–80)</td><td class="winner">Up to <strong class="nac">21%</strong> (12% base + 9% EBR rider)</td><td>10%</td></tr>
+<tr><td>Premium Bonus (ages 81–85)</td><td class="na">EBR not available; base only</td><td class="winner"><strong class="nassau">7%</strong> (with adjusted surrender schedule)</td></tr>
+<tr><td>Bonus Rider Fee</td><td>0.95%/yr on accumulation value (EBR)</td><td class="winner"><strong class="nassau">None</strong> (bonus is priced into caps/parts)</td></tr>
+<tr><td>Fixed Account Rate</td><td>3.00%</td><td class="winner"><strong class="nassau">3.70%</strong></td></tr>
+<tr><td>S&amp;P 500 Annual Cap</td><td>6.00%</td><td class="winner"><strong class="nassau">8.00%</strong></td></tr>
+<tr><td>S&amp;P 500 Monthly Cap</td><td class="winner"><strong class="nac">1.40%</strong></td><td class="na">Not offered</td></tr>
+<tr><td>S&amp;P 500 Annual Participation</td><td>20%</td><td class="winner"><strong class="nassau">40%</strong></td></tr>
+<tr><td>S&amp;P 500 2-Year Participation</td><td>25%</td><td class="winner"><strong class="nassau">51%</strong></td></tr>
+<tr><td>Headline Vol-Control Strategy</td><td>Morgan Stanley DGI 2-yr @ <strong>130%</strong> participation</td><td>Sunrise Smart Passage SG 2-yr @ <strong>125%</strong> base / <strong>165%</strong> w/ 1% fee</td></tr>
+<tr><td>Enhanced Participation (w/ fee)</td><td class="na">Not on CP10</td><td class="winner">Multiple strategies, 1.00% annual fee — MS DGI-equivalent Sunrise @ 165% vs NAC CP10's 130%</td></tr>
+<tr><td>Nasdaq-100 exposure</td><td class="na">Not offered</td><td class="winner"><strong class="nassau">27/37/37/50%</strong> part rates across 1yr/1yr-enh/2yr/2yr-enh</td></tr>
+<tr><td>Indices offered</td><td>S&amp;P 500, MS DGI, Fidelity Multifactor, S&amp;P MARC, Goldman TimeX, Barclays 6VC/12VC</td><td>S&amp;P 500, Sunrise Smart Passage SG, Nasdaq-100</td></tr>
+<tr><td>Surrender (yr 1 / yr 5 / yr 10)</td><td>~10% / ~6% / ~1%</td><td>12% / 10% / 4%</td></tr>
+<tr><td>Annual Free Withdrawal</td><td class="winner"><strong class="nac">10%</strong> starting yr 2</td><td><strong>10%</strong> starting yr 2 (tie)</td></tr>
+<tr><td>Income rider available</td><td class="na">No (EBR is bonus, not income)</td><td class="winner"><strong class="nassau">Yes — Amplified Income Plus Rider (+ RIO version)</strong></td></tr>
+<tr><td>QCF / LTC waiver</td><td class="winner">100% AV if confined to qualified care facility</td><td>NH + TI waivers (ages 0–80 only)</td></tr>
+<tr><td>Premium range</td><td class="winner">Up to $1M; ages 0–80 qualifies for EBR</td><td>$15K–$1M (ages 0–80); $500K cap (81–85)</td></tr>
+</table>
+</div>
+<div class="callout orange">
+<div class="title">The bonus-accumulation head-to-head, honest read</div>
+<p><strong>NAC CP10 + EBR wins on max bonus (21% vs 10%) for clients 0–80.</strong> That's the only reason to pick it: <em>the source money has real surrender charges and the 21% upfront offsets them</em>. Every other metric points to <strong>Nassau Bonus Annuity</strong> — better fixed rate (3.70% vs 3.00%), better S&amp;P cap (8% vs 6%), better S&amp;P participation (40/51% vs 20/25%), Nasdaq-100 exposure NAC doesn't offer, and an optional income rider NAC's CP10 doesn't carry at all. <strong>At ages 81–85 Nassau is the only bonus play</strong> — EBR isn't available, and Nassau still pays 7%.</p>
+<p style="margin-top:6px"><strong>Sales-desk rule:</strong> if source money has surrender charges and client is 0–80 → NAC CP10 + EBR for max offset. If source is liquid OR client is 81+ OR client wants an income rider attached → Nassau Bonus Annuity.</p>
+</div>
+</div>
+
+<!-- 2. NO-BONUS ACCUMULATION HEAD-TO-HEAD -->
+<div class="section">
+<h2>2. No-Bonus Accumulation Head-to-Head <span class="lane">VersaChoice 10 / Control X vs Nassau Growth Annuity</span></h2>
+<p>Highest-capacity accumulation plays. No bonus = cleaner economics = stronger declared rates across the board. This is the comparison for liquid incoming money.</p>
+<div style="overflow-x:auto">
+<table>
+<tr><th>Feature</th><th class="nac-col">NAC VersaChoice 10 (High band $75K+)</th><th class="nac-col">NAC Control X</th><th class="nassau-col">Nassau Growth Annuity (10yr)</th></tr>
+<tr><td>Fixed Account Rate</td><td>3.25%</td><td class="winner"><strong class="nac">3.90%</strong></td><td>5.00%</td></tr>
+<tr><td>Fixed Account Rate (best available)</td><td>3.25%</td><td>3.90%</td><td class="winner"><strong class="nassau">5.00%</strong> (highest)</td></tr>
+<tr><td>S&amp;P 500 Annual Cap</td><td class="winner"><strong class="nac">9.20%</strong></td><td>9.00%</td><td>11.00%</td></tr>
+<tr><td>S&amp;P 500 Annual Cap (best available)</td><td>9.20%</td><td>9.00%</td><td class="winner"><strong class="nassau">11.00%</strong> (highest)</td></tr>
+<tr><td>S&amp;P 500 Annual Participation</td><td>40%</td><td>40%</td><td class="winner"><strong class="nassau">62%</strong> base / 73% w/ 1% fee</td></tr>
+<tr><td>S&amp;P 500 2-Year Participation</td><td>50%</td><td>50%</td><td class="winner"><strong class="nassau">75%</strong> base / 90% w/ 1% fee</td></tr>
+<tr><td>S&amp;P 500 2-Year Cap</td><td class="na">—</td><td class="winner"><strong class="nac">14.00%</strong></td><td class="na">—</td></tr>
+<tr><td>Headline Vol-Control Strategy</td><td class="winner">MS DGI 2-yr @ <strong class="nac">200% base / 260% enhanced</strong> (0.95% fee)</td><td>Barclays 12VC 2-yr, 4% margin + <strong>165% part</strong></td><td>Sunrise Smart Passage 2-yr @ 165% base / <strong>205% w/ 1% fee</strong></td></tr>
+<tr><td>Enhanced Strategy Fee</td><td>0.95%/yr</td><td>N/A (no fee-based enhanced rates)</td><td>1.00%/yr</td></tr>
+<tr><td>Indices offered</td><td>S&amp;P 500, MS DGI, Fidelity Multifactor, S&amp;P MARC, Goldman TimeX</td><td>S&amp;P 500, Barclays 6VC/12VC</td><td>S&amp;P 500, Sunrise Smart Passage SG, Nasdaq-100</td></tr>
+<tr><td>Nasdaq-100 exposure</td><td class="na">No</td><td class="na">No</td><td class="winner"><strong class="nassau">42% annual / 53% 2-yr base (52%/65% w/ fee)</strong></td></tr>
+<tr><td>Surrender term option</td><td>10yr only</td><td>10yr only</td><td class="winner"><strong class="nassau">7yr OR 10yr</strong></td></tr>
+<tr><td>Income rider available</td><td class="na">No</td><td class="na">No</td><td class="winner"><strong class="nassau">Yes — Amplified Income Plus + RIO</strong></td></tr>
+<tr><td>Surrender schedule</td><td>Standard 10yr declining</td><td>Standard 10yr declining</td><td>12/12/12/11/10/9/8/7/6/4/0%</td></tr>
+<tr><td>Annual Free Withdrawal</td><td>10%</td><td>10%</td><td>10%</td></tr>
+</table>
+</div>
+<div class="callout green">
+<div class="title">The no-bonus accumulation head-to-head, honest read</div>
+<p><strong>Nassau Growth Annuity wins on headline rates: 5.00% fixed, 11% S&amp;P cap, 62% S&amp;P annual part, 7-year option.</strong> If the pitch is &ldquo;I'll give you my best accumulation numbers,&rdquo; Nassau Growth Annuity is the honest answer.</p>
+<p style="margin-top:6px">BUT — <strong>NAC VersaChoice 10 (High band)</strong> still wins the <em>volatility-control-index participation race</em>: MS DGI 2-yr at <strong>260% enhanced</strong> (0.95% fee) vs Nassau's Sunrise 2-yr at <strong>205% enhanced</strong> (1.00% fee). That 55% participation delta matters when the index actually credits — and MS DGI has a longer track record.</p>
+<p style="margin-top:6px"><strong>NAC Control X</strong> is the <em>simplest-pitch</em> winner — 3.90% fixed is the highest declared fixed in the NAC book, and the Barclays 12VC 2-yr margin strategy is a different kind of product (4% margin + 165% participation) that appeals to clients who find Sunrise confusing.</p>
+<p style="margin-top:6px"><strong>Sales-desk rule:</strong> client wants strongest declared rates / Nasdaq-100 exposure / a 7-yr option / or an income-rider attachment → <strong>Nassau Growth Annuity</strong>. Client wants max volatility-control-index participation / diversified strategy menu / MS DGI specifically → <strong>NAC VersaChoice 10 High</strong>. Client wants cleanest conversation and highest fixed → <strong>NAC Control X</strong>.</p>
+</div>
+</div>
+
+<!-- 3. INCOME RIDER HEAD-TO-HEAD -->
+<div class="section">
+<h2>3. Income Rider Head-to-Head <span class="lane">BS10 / IPP10 vs Nassau Amplified Income Plus</span></h2>
+<p>The income-rider lane is where NAC has more product clarity. Nassau offers income riders as <em>add-ons</em> to Bonus Annuity or Growth Annuity; NAC has dedicated chassis (BenefitSolutions 10 + Income Pay Pro 10) built around the rider.</p>
+<div style="overflow-x:auto">
+<table>
+<tr><th>Feature</th><th class="nac-col">NAC BenefitSolutions 10</th><th class="nac-col">NAC Income Pay Pro 10</th><th class="nassau-col">Nassau Bonus/Growth + Amplified Income Plus Rider</th></tr>
+<tr><td>Structure</td><td>Dedicated income chassis w/ benefit-base stack</td><td>Dedicated income chassis w/ cleaner rollup</td><td>Income rider bolted on to Bonus or Growth Annuity</td></tr>
+<tr><td>Benefit Base Day 1</td><td class="winner"><strong class="nac">120% of premium</strong></td><td>Premium + rollup %</td><td class="na">Pending full parse of rider terms</td></tr>
+<tr><td>Benefit Base Trajectory</td><td class="winner"><strong class="nac">Stacks to 150% yr 6–10, 180% yr 11+</strong></td><td>Rollup compounds</td><td class="na">Rider-driven; needs flyer</td></tr>
+<tr><td>Underlying Accumulation Fixed</td><td>2.30%</td><td>2.50%</td><td>3.70% (Bonus) / 5.00% (Growth)</td></tr>
+<tr><td>Underlying Accumulation S&amp;P Cap</td><td>5.00%</td><td>5.00%</td><td class="winner"><strong class="nassau">8.00% (Bonus) / 11.00% (Growth)</strong></td></tr>
+<tr><td>Underlying MS DGI 2-yr Part</td><td>145%</td><td class="winner"><strong class="nac">155%</strong></td><td>N/A (Nassau doesn't offer MS DGI)</td></tr>
+<tr><td>Rider availability by age</td><td>Standard issue ages</td><td>Standard issue ages</td><td>Riders unavailable under age 50; NH/TI waivers 0–80 only</td></tr>
+<tr><td>Best for</td><td class="winner"><strong>10+ year deferral window</strong> — benefit base stack pays off</td><td><strong>5–10 year deferral window</strong> — cleaner math, better accumulation</td><td>Client wants income rider + the underlying accumulation strength of Nassau Growth</td></tr>
+</table>
+</div>
+<div class="callout purple">
+<div class="title">The income-rider head-to-head, honest read</div>
+<p><strong>NAC owns this lane when the client's focus is income.</strong> BS10's 120/150/180% benefit base stack is the single strongest guaranteed-income-base growth feature in our carrier lineup, and IPP10 is the cleanest 5–10yr alternative. Nassau's Amplified Income Plus Rider is <em>a feature on top of an accumulation chassis</em>, not a dedicated income product.</p>
+<p style="margin-top:6px"><strong>Sales-desk rule:</strong> client-conversation is &ldquo;what guaranteed income will I get and when?&rdquo; → NAC. Client conversation is &ldquo;I want this accumulation product but also income as a safety net&rdquo; → Nassau. Different shape, different winner.</p>
+<p style="margin-top:6px"><em>Flyer gap:</em> Nassau Amplified Income Plus Rider specs (rollup %, payout %, benefit base structure) need full parse. Until then this comparison is directionally correct but not numerically tight.</p>
+</div>
+</div>
+
+<!-- 4. BOTTOM-LINE DECISION MATRIX -->
+<div class="section">
+<h2>4. Bottom-Line Decision Matrix &mdash; NAC vs Nassau by Case Shape</h2>
+<div style="overflow-x:auto">
+<table>
+<tr><th>Case Shape</th><th>Winner</th><th>Lead Product</th><th>Why</th></tr>
+<tr><td><strong>Source has surrender charges, client 0–80, max bonus wanted</strong></td><td class="nac">NAC</td><td>Charter Plus 10 + EBR</td><td>21% bonus vs Nassau 10%; offsets real surrender dollars</td></tr>
+<tr><td><strong>Source has surrender charges, client 81–85</strong></td><td class="nassau">Nassau</td><td>Bonus Annuity</td><td>EBR unavailable at 81+; Nassau still pays 7% bonus</td></tr>
+<tr><td><strong>Liquid source, pure accumulation, max caps wanted</strong></td><td class="nassau">Nassau</td><td>Growth Annuity</td><td>Best fixed (5.00%), best S&amp;P cap (11%), Nasdaq-100 exposure, 7yr option</td></tr>
+<tr><td><strong>Liquid source, max volatility-control participation wanted</strong></td><td class="nac">NAC</td><td>VersaChoice 10 High band</td><td>MS DGI 2-yr at 260% enhanced wins the VC race; diversified index menu</td></tr>
+<tr><td><strong>Liquid source, client wants simplest pitch</strong></td><td class="nac">NAC</td><td>Control X</td><td>3.90% fixed (highest), 9% S&amp;P cap, Barclays margin strategy, clean menu</td></tr>
+<tr><td><strong>Income rider, 10+ year deferral</strong></td><td class="nac">NAC</td><td>BenefitSolutions 10</td><td>120/150/180% benefit base stack</td></tr>
+<tr><td><strong>Income rider, 5–10 year deferral</strong></td><td class="nac">NAC</td><td>Income Pay Pro 10</td><td>Cleaner rider math, stronger underlying accumulation than BS10</td></tr>
+<tr><td><strong>Income rider + strong underlying accumulation</strong></td><td class="nassau">Nassau</td><td>Growth Annuity + Amplified Income Plus</td><td>Get the accumulation strength of Growth Annuity plus income rider safety net</td></tr>
+<tr><td><strong>Shorter surrender tolerance (7yr)</strong></td><td class="nassau">Nassau</td><td>Growth Annuity 7-year</td><td>Only carrier with a 7yr no-bonus option; NAC's shortest accumulation is PC8</td></tr>
+<tr><td><strong>Shorter surrender tolerance (8yr)</strong></td><td class="nac">NAC</td><td>Performance Choice 8</td><td>8yr if the 7yr Nassau option isn't a fit</td></tr>
+<tr><td><strong>Client 81+, any case</strong></td><td>Check</td><td>Nassau for bonus; NAC GA 5/7 for simple; <strong>Ameritas</strong> for GMIB</td><td>Age-gated decisions dominate; Ameritas is the 81+ GMIB answer</td></tr>
+</table>
+</div>
+</div>
+
+<!-- 5. TOMORROW'S 3 MEETINGS — PRE-TUNED -->
+<div class="section">
+<h2>5. Tomorrow's 3 Meetings &mdash; Pre-Tuned Recommendations</h2>
+<p>Case-shape tags + walk-in-ready reco for each. Advisors should read their case below, open this matrix to the relevant section, and they'll have the head-to-head numbers at their fingertips.</p>
+
+<div class="meeting-card">
+<h3>Meeting 1 — Kim Ruth A+R (Archer)</h3>
+<div class="tag-row">
+<span class="tag accum">Accumulation</span>
+<span class="tag liquid">Liquid source ($320K)</span>
+<span class="tag">No income rider needed</span>
+<span class="tag">Age 71, 10yr horizon</span>
+</div>
+<p style="font-size:0.88rem">Brighthouse + Prosperity ~$320K fully liquid at 3.00% (no surrender to overcome). Plus ~$917K NQ CDs maturing May–Nov 2026. 22% marginal tax bracket. Farm + SSI cover expenses — <em>no income rider needed</em>. Goal: tax-deferred accumulation + legacy to Karla.</p>
+<div class="reco-lead">
+<strong>Lead reco: NAC VersaChoice 10 High band + Enhanced participation on MS DGI 2-yr</strong><br>
+<strong>Alt reco: Nassau Growth Annuity</strong> (better declared rates + optional income rider safety net)<br>
+<strong>Fall-back if client wants simplicity: NAC Control X</strong> (3.90% fixed, Barclays margin strategy)<br>
+<span style="color:var(--red)">✗ NOT Charter Plus 10 + EBR</span> — <em>source has no surrender; 21% bonus is paid-for-later in weaker crediting. Write-it-test inverse: no surrender to overcome = no reason to write the bonus.</em>
+</div>
+<p style="margin-top:10px;font-size:0.82rem;color:var(--muted)"><em>Ruth's RECOMMENDATION tab (PR #492) was built with CP10 + EBR as the lead — <strong>needs revision in the morning</strong> to VersaChoice 10 High or Growth Annuity. Projections will recompute cleanly.</em></p>
+</div>
+
+<div class="meeting-card">
+<h3>Meeting 2 — Thurman (Archer)</h3>
+<div class="tag-row">
+<span class="tag income">Income rider preservation</span>
+<span class="tag age">Age 78 → 81+ threshold</span>
+<span class="tag">Survivor transition</span>
+<span class="tag locked">Existing contracts in surrender</span>
+</div>
+<p style="font-size:0.88rem">Eileen 78 (uninsurable post-stroke). Robert's 4 Modern Woodmen IRAs out of surrender 12/8/27. Robert's Nationwide FIA GMIB fires 4/10/27. Eileen's 2 SPIAs exhaust 8/27 + 9/27 — income gap. Nationwide FIA stays locked. <em>Question is: what to do with the MW IRAs when they free up in Dec 2027?</em> Eileen is nearing 81, so product-age-eligibility matters.</p>
+<div class="reco-lead">
+<strong>Lead reco for MW IRA rollover (Dec 2027): NAC Income Pay Pro 10</strong> (5–10yr fits if Eileen is 79 then; cleaner rider math + stronger accumulation underneath)<br>
+<strong>Alt if Eileen is 81+ at rollover: Ameritas GMIB</strong> (our 81+ GMIB answer per JDM's carrier rule)<br>
+<strong>Fall-back if income rider isn't needed: Nassau Bonus Annuity 81+</strong> (7% bonus still available, Amplified Income rider optional)<br>
+<span style="color:var(--muted)">KCL IUL #2844833 preserve (uninsurable = irreplaceable). BRK-B brokerage is separate decision.</span>
+</div>
+</div>
+
+<div class="meeting-card">
+<h3>Meeting 3 — Westfall (Archer)</h3>
+<div class="tag-row">
+<span class="tag accum">Accumulation (pre-retirement)</span>
+<span class="tag income">→ Income transition</span>
+<span class="tag">Age 59, 3–4yr SSI cook</span>
+<span class="tag liquid">$160K CDs (liquid)</span>
+</div>
+<p style="font-size:0.88rem">Chris 59, pre-FRA, SSI activates Sept/Oct 2026 at $2,400/mo. $160K in 3% CDs (liquid). IRA value TBD. Machinery lease ~$20K/yr through age 70. Colleen 68, past FRA, drawing SSI + IPERS. <em>Use case: accumulation during pre-retirement window with eventual income activation when Chris hits FRA.</em> 3–4yr deferral per Archer.</p>
+<div class="reco-lead">
+<strong>Lead reco for Chris's IRA: NAC Income Pay Pro 10</strong> (3–4yr deferral to FRA + activation fits the 5–10yr IPP10 sweet spot; income rider handles the income transition)<br>
+<strong>Lead reco for Chris's $160K CDs: Nassau Growth Annuity</strong> (liquid source, max accumulation, optional Amplified Income rider if he wants income to start at FRA)<br>
+<strong>Alt for CDs if Chris wants bonus: Nassau Bonus Annuity</strong> (10% bonus + income rider option; CDs are liquid so bonus is technically paid-for-later, but some clients want the &ldquo;day 1 boost&rdquo; feeling)<br>
+<span style="color:var(--muted)">Do NOT use NAC Charter Plus 10+EBR here — CD source is liquid.</span>
+</div>
+</div>
+
+</div>
+
+<!-- 6. STILL PENDING -->
+<div class="section">
+<h2>6. What's Still Pending</h2>
+<ul style="margin-left:22px;font-size:0.85rem;color:var(--muted)">
+<li><strong>Nassau Amplified Income Plus Rider full spec</strong> — rollup %, payout %, benefit base math. Needed to tighten the income-rider head-to-head (Section 3).</li>
+<li><strong>NAC illustration engine outputs</strong> (incoming from JDM) — will add a Section 7 with actual hypo projections at yr 5 / 10 / 15 per product, cross-referenced into both matrices.</li>
+<li><strong>Ameritas 81+ GMIB product spec</strong> — needed to fill in &ldquo;Client 81+&rdquo; row in the decision matrix (Section 4).</li>
+<li><strong>ASPIDA active-account context</strong> — JDM to walk through each existing contract to explain the use-case pattern. Once understood, add ASPIDA to the carrier comparison.</li>
+<li><strong>Ruth RECOMMENDATION tab revision</strong> — my CP10+EBR lead was wrong given liquid source; revise to VersaChoice 10 High or Growth Annuity tomorrow AM before the A+R meeting.</li>
+</ul>
+</div>
+
+</div>
+
+<div class="footer">
+NAC vs Nassau Head-to-Head Matrix · VOLTRON CSO · 2026-04-15<br>
+Source: NAC Rate Spotlights (BS10 20819Z · VersaChoice 29344Z · Performance Choice 29346Z · Charter Plus 29545Z · Income Pay Pro 35473Z · Control X 35951Z) + Nassau Product Summaries (Bonus Annuity A5219 · Growth Annuity A5179). All rates current per cover dates.<br>
+Not for use in Oregon · Rates subject to change, re-pull before illustrating · #RunningOurOwnRACE
+</div>
+
+</body>
+</html>
