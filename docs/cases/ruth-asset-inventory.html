@@ -1016,7 +1016,7 @@ tr.totals td{font-weight:700;color:var(--text);border-top:2px solid var(--border
 <ul>
 <li><strong>Dedicated income-rider chassis:</strong> IPP10 is built around the GMIB &mdash; benefit base grows on a rollup schedule independent of accumulation value, then lifetime income fires off the benefit base at activation.</li>
 <li><strong>5&ndash;10 year deferral sweet spot:</strong> Kim turns 73 in July 2027 (first RMD year 2027, required-beginning-date 04/01/2028). IPP10's rollup window aligns perfectly &mdash; we activate GMIB at the RMD year or slightly later.</li>
-<li><strong>Rider fee is deliberate here:</strong> Income rider carries ~0.95&ndash;1.25% annual fee. Unlike accumulation products where we avoid fees, on income rider product we're <em>buying</em> the guarantee &mdash; fee is the cost of the promise.</li>
+<li><strong>Rider fee is deliberate here:</strong> Income rider carries 1.15% annual fee on GLWB Value (per actual illustration). Unlike accumulation products where we avoid fees, on income rider product we're <em>buying</em> the guarantee &mdash; fee is the cost of the promise.</li>
 <li><strong>Underlying accumulation still decent:</strong> 2.50% fixed, 5.00% S&amp;P annual cap, 155% MS DGI 2-yr participation &mdash; meaningful even with income rider attached.</li>
 <li><strong>10-year surrender schedule:</strong> matches Kim's horizon; first RMD year falls in year 2 (handled by free-withdrawal provision).</li>
 </ul>
@@ -1035,9 +1035,79 @@ tr.totals td{font-weight:700;color:var(--text);border-top:2px solid var(--border
 <p style="margin-top:10px;font-style:italic;color:var(--muted)"><strong>Narrative arc for Archer:</strong> &ldquo;Kim, we're going to consolidate your three IRAs into one clean contract with a guaranteed-income rider. That rider is going to guarantee you more income per year than the IRS makes you take out &mdash; we'll send that excess directly to your church every year as a Qualified Charitable Distribution. You never see that money as taxable income, the IRS is satisfied, and your tithing intent gets hardcoded into the plan instead of depending on you remembering to write the check.&rdquo;</p>
 </div>
 
-<div class="card">
-<h3>IPP10 GMIB Illustration &mdash; Placeholder Until JDM Runs</h3>
-<p style="background:rgba(245,158,11,0.06);border-left:3px solid var(--orange);padding:10px 14px;border-radius:0 6px 6px 0;font-size:0.85rem">JDM is running a NAC illustration on this configuration. When it lands, this section gets populated with: (1) benefit base growth by year, (2) projected GMIB payout at Kim's activation age, (3) excess of projected payout over RMD, (4) cumulative QCD opportunity over 10 years.</p>
+<div class="card" style="background:rgba(34,197,94,0.04);border-color:rgba(34,197,94,0.3)">
+<h3 style="color:var(--green)">IPP10 GMIB Illustration &mdash; Actual Numbers from NAC</h3>
+<p style="font-size:0.82rem">Illustration dated 2026-04-15. Premium $119,412 on Kim Ruth, age 71, Iowa. Allocation: 50% S&amp;P 500 APP (5.00% cap) + 50% S&amp;P MARC 5% ER APP (100% participation). GLWB rider charge 1.15% of GLWB Value annually. GLWB Roll-up 8%/yr for 10 years or until LPED.</p>
+
+<h4 style="margin-top:14px;color:var(--green)">GLWB Value Growth (Roll-up) &mdash; Guaranteed</h4>
+<div style="overflow-x:auto">
+<table>
+<tr><th>End of Year</th><th>Age</th><th>GLWB Value (Benefit Base)</th><th>LPP</th><th>Level LPA</th><th>QCF Multiplier (2&times;)</th></tr>
+<tr><td>At Issue</td><td>71</td><td>$119,412</td><td>7.90%</td><td>$9,434</td><td class="na">Not yet available</td></tr>
+<tr><td>Yr 1</td><td>72</td><td><strong>$128,965</strong> (8% rollup)</td><td>7.90%</td><td><strong>$10,317</strong> &mdash; LPA available</td><td>$20,634</td></tr>
+<tr><td>Yr 2</td><td>73 <em>(RMD trigger)</em></td><td>$117,682</td><td>&mdash;</td><td>$10,317/yr locked</td><td>$20,634</td></tr>
+<tr><td>Yr 5</td><td>76</td><td>$82,957</td><td>&mdash;</td><td>$10,317/yr</td><td>$20,634</td></tr>
+<tr><td>Yr 10</td><td>81</td><td>$21,917</td><td>&mdash;</td><td>$10,317/yr</td><td>$20,634</td></tr>
+<tr><td>Yr 11+</td><td>82+</td><td>Depleted (continues paying from LPA Reserve)</td><td>&mdash;</td><td><strong>$10,317/yr continues FOR LIFE</strong></td><td>$20,634</td></tr>
+</table>
+</div>
+
+<h4 style="margin-top:14px;color:var(--green)">Lifetime Income Totals &mdash; Guaranteed</h4>
+<div class="stat-row">
+<div class="stat"><div class="num">$10,317/yr</div><div class="lbl">Level Guaranteed Lifetime LPA</div></div>
+<div class="stat"><div class="num">$299,199</div><div class="lbl">First 30 Years Cumulative</div></div>
+<div class="stat"><div class="num">$443,639</div><div class="lbl">To Age 114 (max life)</div></div>
+<div class="stat"><div class="num">3.72&times;</div><div class="lbl">Lifetime Payout / Premium</div></div>
+</div>
+
+<h4 style="margin-top:14px;color:var(--green)">Non-Guaranteed Scenario &mdash; 10-Year Most Recent Back-Test (12/31/2015–12/31/2025)</h4>
+<p style="font-size:0.82rem">Annual Effective Rate over first 10 years: <strong>4.71%</strong>. Accumulation value reflects GLWB rider charges.</p>
+<div style="overflow-x:auto">
+<table>
+<tr><th>End of Year</th><th>Age</th><th>Accumulation Value</th><th>Annual Withdrawal (LPA)</th><th>Credited Interest Rate</th></tr>
+<tr><td>At Issue</td><td>71</td><td>$119,412</td><td>&mdash;</td><td>&mdash;</td></tr>
+<tr><td>Yr 1</td><td>72</td><td>$123,494</td><td>$0</td><td>4.66%</td></tr>
+<tr><td>Yr 2</td><td>73</td><td>$120,697</td><td>$10,317</td><td>7.85%</td></tr>
+<tr><td>Yr 5</td><td>76</td><td>$102,221</td><td>$10,317</td><td>6.74%</td></tr>
+<tr><td>Yr 10</td><td>81</td><td>$59,463</td><td>$10,317</td><td>7.76%</td></tr>
+<tr><td>Yr 15</td><td>86</td><td>$3,913</td><td>$10,317</td><td>4.76%</td></tr>
+<tr><td>Yr 16+</td><td>87+</td><td>$0 (depleted &mdash; LPA continues from Reserve)</td><td>$10,317 continues for life</td><td>&mdash;</td></tr>
+</table>
+</div>
+</div>
+
+<div class="card" style="background:rgba(34,197,94,0.04);border-color:rgba(34,197,94,0.3)">
+<h3 style="color:var(--green)">The QCD Math &mdash; This Is the Sale</h3>
+<div class="stat-row">
+<div class="stat"><div class="num">~$4,528</div><div class="lbl">Projected 1st RMD (age 73)</div></div>
+<div class="stat"><div class="num">$10,317</div><div class="lbl">IPP10 LPA at age 73</div></div>
+<div class="stat"><div class="num">$5,789</div><div class="lbl">LPA Surplus over RMD</div></div>
+<div class="stat"><div class="num">$108,000</div><div class="lbl">QCD Annual Limit</div></div>
+</div>
+<p style="margin-top:12px"><strong>The play:</strong> Direct the entire $10,317/yr LPA as a QCD to Kim's church. The RMD requirement ($4,528) is satisfied by the QCD; the additional $5,789 is a surplus contribution to the church that also doesn't count as taxable income. <strong>Kim donates $10,317/yr to church, pays $0 federal tax on it, and zero out-of-pocket.</strong> He accomplishes his tithing intent through the plan structure &mdash; no separate check-writing, no dependency on his memory.</p>
+<p style="margin-top:8px"><strong>10-year QCD cumulative to church: $103,170.</strong> Lifetime cumulative (to age 114): up to <strong>$443,639</strong> &mdash; all tax-free to Kim AND fully deductible-equivalent to charity at the same time.</p>
+<p style="margin-top:8px"><strong>Tax savings math:</strong> $10,317/yr &times; 22% marginal = <strong>$2,270/yr in federal tax avoided</strong>, indefinitely. Over 10 years that's $22,700 of additional giving capacity preserved for the church (money that would have gone to IRS goes to church instead).</p>
+</div>
+
+<div class="card" style="background:rgba(59,130,246,0.04);border-color:rgba(59,130,246,0.25)">
+<h3 style="color:var(--blue)">Activation Timing Decision</h3>
+<p>LPA becomes available at Contract Year 2 (Kim age 72). First RMD isn't until age 73 (Contract Year 3 based on 2026 issue). Two options:</p>
+<ul>
+<li><strong>Activate Year 2 (age 72):</strong> LPA = $10,317/yr starts immediately. Kim doesn't have RMD obligation yet, so entire $10,317 can go as QCD to church. Extra year of giving. GLWB Value draws down faster.</li>
+<li><strong>Activate Year 3 (age 73, at RMD):</strong> LPA = $10,317/yr (same rate per LPP table). Waits until RMD actually required. GLWB Value gets one more year of 8% rollup before activation.</li>
+</ul>
+<p style="margin-top:8px"><strong>Recommendation:</strong> Activate Year 3 at age 73. Extra year of rollup means slightly higher AV cushion behind the LPA (doesn't change the LPA itself, but delays GLWB Value depletion). Aligns with RMD obligation for natural pacing.</p>
+</div>
+
+<div class="card" style="background:rgba(212,164,76,0.04);border-color:rgba(212,164,76,0.3)">
+<h3 style="color:var(--gold)">QCF Multiplier &mdash; The Long-Term Care Backstop</h3>
+<p>If Kim is confined to a qualified care facility for 90+ days on or after Contract Year 2, the LPA doubles to <strong>$20,634/yr for up to 5 annual payments</strong> (total maximum $103,170 in doubled payments).</p>
+<ul>
+<li>Layers on top of Kim's existing COF LTC policy ($100/day base with 24yr compound inflation = est $200–250/day current)</li>
+<li>Independent of LTC policy &mdash; both can fire simultaneously</li>
+<li>After the 5 doubled payments, LPA returns to normal $10,317/yr</li>
+<li>Activated by SAME medical/confinement criteria as standard LTC waivers</li>
+</ul>
 </div>
 
 <!-- =========================== RECO #2 =========================== -->
@@ -1176,7 +1246,7 @@ tr.totals td{font-weight:700;color:var(--text);border-top:2px solid var(--border
 </ul>
 <h4 style="margin-top:10px;color:var(--red)">Reco #1 (IPP10 with GMIB) specifics</h4>
 <ul>
-<li>Income rider fee (~0.95&ndash;1.25%/yr on accumulation value) is the cost of the guarantee &mdash; this is intentional, unlike Reco #2 where we avoid rider fees.</li>
+<li>Income rider fee (1.15%/yr on GLWB Value (per actual illustration)) is the cost of the guarantee &mdash; this is intentional, unlike Reco #2 where we avoid rider fees.</li>
 <li>GMIB activation is one-way &mdash; once income starts, the accumulation value is replaced by the income stream.</li>
 <li>QCD eligibility requires age 70.5+ (Kim qualifies) AND the IRA must be at a carrier/custodian that supports QCD distribution (NAC does).</li>
 </ul>
