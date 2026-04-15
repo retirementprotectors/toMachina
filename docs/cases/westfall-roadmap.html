@@ -3,568 +3,140 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Chris + Colleen Westfall — Pre-Retirement Income Roadmap — RPI</title>
-<!--
-  westfall-roadmap.html  ·  VOLTRON CSO  ·  2026-04-15
-  Template: tpl.preserve-stage-analysis v1
-  Stage: PRESERVE (Chris age 59 per Archer DOB 12/29/1966, pre-FRA)
-  DOB ruling: JDM confirmed use Archer 12/29/1966 over Firestore 1959-12-21
-  Flag: Stray Minearts sig page found in scan bundle — routed to Minearts casework separately
--->
+<title>Chris + Colleen Westfall — Pre-Retirement Income Roadmap</title>
 <style>
-:root{--bg:#0a0e17;--card:#111827;--card2:#1a2236;--border:#1e293b;--text:#e2e8f0;--muted:#94a3b8;--green:#22c55e;--blue:#3b82f6;--red:#ef4444;--orange:#f59e0b;--gold:#d4a44c;--cyan:#06b6d4;--purple:#a78bfa;--rpi-blue:#4a7ab5}
+:root{--bg:#0a0e17;--card:#111827;--card2:#1a2236;--border:#1e293b;--text:#e2e8f0;--muted:#94a3b8;--green:#22c55e;--blue:#3b82f6;--red:#ef4444;--orange:#f59e0b;--gold:#d4a44c;--cyan:#06b6d4}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.65}
-.page-header{background:linear-gradient(135deg,#020b1a 0%,#0a1a0a 50%,#020b1a 100%);border-bottom:1px solid var(--border);padding:32px 40px 24px}
-.page-header h1{font-size:1.75rem;font-weight:800;background:linear-gradient(135deg,var(--green),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1.2;margin-bottom:6px}
-.page-header .meta{font-size:0.78rem;color:var(--muted);letter-spacing:.3px}
-.page-header .meta strong{color:var(--text)}
-.stage-badge{display:inline-block;padding:3px 12px;border-radius:999px;font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;margin-left:10px;background:rgba(212,164,76,0.12);color:var(--gold);border:1px solid rgba(212,164,76,0.3)}
-.tab-bar{display:flex;gap:0;background:var(--card);border-bottom:1px solid var(--border);padding:0 40px;overflow-x:auto}
-.tab-btn{padding:14px 22px;font-size:0.82rem;font-weight:600;color:var(--muted);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;letter-spacing:.3px;transition:color .15s}
-.tab-btn:hover{color:var(--text)}
-.tab-btn.active{color:var(--green);border-bottom-color:var(--green)}
-.tab-panel{display:none;padding:36px 40px 60px;max-width:960px;margin:0 auto}
-.tab-panel.active{display:block}
-h2{font-size:1.2rem;margin:32px 0 12px;color:var(--text);padding-bottom:6px;border-bottom:1px solid var(--border)}
-h2:first-child{margin-top:0}
-h3{font-size:1rem;margin:20px 0 8px;color:var(--green)}
-h4{font-size:0.85rem;margin:14px 0 6px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;font-weight:700}
-p,li{color:var(--muted);margin-bottom:8px;font-size:0.9rem}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.65;padding:40px 24px}
+.wrap{max-width:920px;margin:0 auto}
+h1{font-size:1.9rem;font-weight:800;background:linear-gradient(135deg,var(--green),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px;line-height:1.25}
+h2{font-size:1.25rem;margin:32px 0 12px;color:var(--text);padding-bottom:6px;border-bottom:1px solid var(--border)}
+h3{font-size:1.02rem;margin:20px 0 8px;color:var(--green)}
+p,li{color:var(--muted);margin-bottom:8px}
 strong{color:var(--text)}
-.info{background:rgba(6,182,212,0.06);border-left:3px solid var(--cyan);padding:12px 18px;margin:14px 0;border-radius:0 8px 8px 0}
-.info p{color:var(--muted);margin:0;font-size:0.86rem}
+code{background:var(--card2);padding:2px 7px;border-radius:4px;font-size:0.82rem;color:var(--cyan);font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+blockquote{background:rgba(6,182,212,0.06);border-left:3px solid var(--cyan);padding:12px 18px;margin:14px 0;border-radius:0 8px 8px 0}
+blockquote p{color:var(--muted);margin:0;font-size:0.88rem}
 .warn{background:rgba(245,158,11,0.08);border-left:3px solid var(--orange);padding:12px 18px;margin:14px 0;border-radius:0 8px 8px 0}
-.warn p{color:var(--muted);margin:0;font-size:0.86rem}
-.flag{background:rgba(239,68,68,0.07);border-left:3px solid var(--red);padding:12px 18px;margin:14px 0;border-radius:0 8px 8px 0}
-.flag p{color:var(--muted);margin:0;font-size:0.86rem}
-table{width:100%;border-collapse:collapse;margin:14px 0;font-size:0.86rem;background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden}
-th{text-align:left;padding:10px 12px;background:var(--card2);color:var(--green);font-weight:700;font-size:0.72rem;text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid var(--border)}
+.warn p{color:var(--muted);margin:0;font-size:0.88rem}
+ul,ol{margin:10px 0 12px 24px}
+li{margin-bottom:6px}
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:0.88rem;background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+th{text-align:left;padding:10px 12px;background:var(--card2);color:var(--green);font-weight:700;font-size:0.75rem;text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid var(--border)}
 td{padding:10px 12px;border-bottom:1px solid var(--border);color:var(--muted);vertical-align:top}
 tr:last-child td{border-bottom:none}
-.reco-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:22px 24px;margin:16px 0}
-.reco-card.health{border-left:4px solid var(--cyan)}
-.reco-card.wealth{border-left:4px solid var(--green)}
-.reco-card.legacy{border-left:4px solid var(--gold)}
-.reco-card .reco-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.reco-card .reco-num{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:800;flex-shrink:0}
-.reco-card.health .reco-num{background:rgba(6,182,212,0.15);color:var(--cyan)}
-.reco-card.wealth .reco-num{background:rgba(34,197,94,0.12);color:var(--green)}
-.reco-card.legacy .reco-num{background:rgba(212,164,76,0.12);color:var(--gold)}
-.reco-card h3{color:var(--text);margin:0;font-size:1rem}
-.reco-card .product-tag{display:inline-block;padding:2px 10px;border-radius:4px;font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-left:auto;background:var(--card2);color:var(--green);border:1px solid rgba(34,197,94,0.25)}
-.reco-card .rationale{font-size:0.86rem;color:var(--muted);margin-bottom:10px}
-.reco-card .illustration-stub{background:rgba(167,139,250,0.07);border:1px dashed rgba(167,139,250,0.4);border-radius:6px;padding:10px 14px;font-size:0.8rem;color:var(--purple);margin-top:10px}
-.step-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:12px 0}
-.step-card .step-label{font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
-.step-card.doc .step-label{color:var(--blue)}
-.step-card.uw .step-label{color:var(--orange)}
-.step-card.admin .step-label{color:var(--purple)}
-.step-card h4{color:var(--text);font-size:0.92rem;margin:0 0 8px;text-transform:none;letter-spacing:0}
-.step-card ul{margin-left:18px}
-ul.check{margin:10px 0 14px 0}
-ul.check li{list-style:none;margin-left:0;padding-left:24px;position:relative;margin-bottom:8px}
-ul.check li::before{content:"☐";position:absolute;left:0;color:var(--green);font-size:0.9rem}
-ul,ol{margin:10px 0 12px 22px}
-li{margin-bottom:5px}
 a{color:var(--blue);text-decoration:none}
 a:hover{text-decoration:underline}
-.page-footer{text-align:center;padding:24px 40px;color:var(--muted);font-size:0.7rem;border-top:1px solid var(--border);margin-top:0}
-code{background:var(--card2);padding:2px 7px;border-radius:4px;font-size:0.8rem;color:var(--cyan);font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.footer{text-align:center;padding:32px 0 0;color:var(--muted);font-size:0.72rem;border-top:1px solid var(--border);margin-top:44px}
+input[type="checkbox"]{accent-color:var(--green);margin-right:6px}
+.checklist li{list-style:none;margin-left:-20px}
 </style>
 </head>
 <body>
+<div class="wrap">
 
-<div class="page-header">
-  <h1>Chris + Colleen Westfall — Pre-Retirement Income Roadmap <span class="stage-badge">PRESERVE</span></h1>
-  <div class="meta">
-    <strong>Date:</strong> 2026-04-15 &nbsp;&middot;&nbsp;
-    <strong>Advisor:</strong> Josh Archer / Retirement Protectors, Inc. &nbsp;&middot;&nbsp;
-    <strong>Stage:</strong> PRESERVE (Chris pre-FRA, age 59) &nbsp;&middot;&nbsp;
-    Template: <code>tpl.preserve-stage-analysis v1</code>
-  </div>
-</div>
+<h1>Chris + Colleen Westfall — Pre-Retirement Income Roadmap</h1>
 
-<div class="tab-bar">
-  <button class="tab-btn active" onclick="showTab('agenda',this)">Agenda</button>
-  <button class="tab-btn" onclick="showTab('ai3',this)">AI3 &mdash; Asset + Income Index</button>
-  <button class="tab-btn" onclick="showTab('analysis',this)">Analysis</button>
-  <button class="tab-btn" onclick="showTab('recos',this)">Recommendations</button>
-  <button class="tab-btn" onclick="showTab('nextsteps',this)">Next Steps</button>
-</div>
+<blockquote><p><strong>Draft — 2026-04-14</strong> · VOLTRON CSO · Source: Josh Archer case notes + existing Firestore client record + Farm Bureau policy PDF (scanned, CamScanner — full extraction pending platform intake fix). Data gaps flagged inline.</p></blockquote>
 
-<!-- TAB 1: AGENDA -->
-<div id="tab-agenda" class="tab-panel active">
-<h2>Meeting Agenda</h2>
-<div class="info"><p><strong>Purpose:</strong> Analysis + Recommendations (Step 2 of the RPI Way&trade;). We reviewed the Westfall household &mdash; here&rsquo;s what we found across Health, Wealth, and Legacy, and here&rsquo;s our recommendation for each area. Chris is months from SSI activation. Now is the time to structure the 3&ndash;4 year deferral window before that income fires.</p></div>
-
-<h3>Opening (5 min)</h3>
-<ul>
-  <li>Welcome back &mdash; thank you for gathering the CD statements and IRA info</li>
-  <li>Confirm: &ldquo;Is there anything that&rsquo;s changed since we last spoke?&rdquo;</li>
-  <li>Set agenda: &ldquo;We&rsquo;re going to walk through what we found, show you our recommendations, and give you a clear list of what happens next.&rdquo;</li>
-</ul>
-
-<h3>AI3 Walk-Through (15 min)</h3>
-<ul>
-  <li>Confirm the 4 CDs &mdash; carrier(s), maturity dates, account numbers</li>
-  <li>Confirm Chris&rsquo;s IRA &mdash; custodian, current value, is it already an annuity or brokerage?</li>
-  <li>Confirm Colleen&rsquo;s IRA type &mdash; Traditional or Roth (the &ldquo;cook til 73&rdquo; plan differs)</li>
-  <li>Review income timeline: farm rent + machinery lease + Colleen&rsquo;s SSI/IPERS now &rarr; Chris SSI activates Sept/Oct 2026</li>
-  <li>Flag: Chris&rsquo;s DOB &mdash; confirm 12/29/1966 with a driver&rsquo;s license copy</li>
-</ul>
-
-<h3>Analysis (10 min)</h3>
-<ul>
-  <li><strong>Health:</strong> Chris is 6 years out from Medicare &mdash; awareness only, no action yet. Colleen is Medicare-age &mdash; confirm current plan.</li>
-  <li><strong>Wealth:</strong> Chris&rsquo;s IRA is the income-engine candidate. CDs are underperforming at 3.00%.</li>
-  <li><strong>Legacy:</strong> COF assignment for Colleen, beneficiary cleanup, farm succession question.</li>
-</ul>
-
-<h3>Recommendations (20 min)</h3>
-<ul>
-  <li>Health Reco #1 &mdash; Medicare awareness (Chris) + Colleen plan confirm</li>
-  <li>Wealth Reco #1 &mdash; Chris IRA &rarr; NAC Income Pay Pro 10 with GMIB rider</li>
-  <li>Wealth Reco #2 &mdash; $160K NQ CDs &rarr; NAC Charter Plus 10</li>
-  <li>Legacy Reco #1 &mdash; Colleen&rsquo;s COF policy assignment to RPI (admin, 5 min)</li>
-  <li>Legacy Reco #2 &mdash; Beneficiary cleanup across all accounts</li>
-  <li>Legacy Reco #3 &mdash; Farm + machinery succession planning</li>
-  <li>Walk illustrations together (pending &mdash; see Recos tab)</li>
-</ul>
-
-<h3>Next Steps + Close (10 min)</h3>
-<ul>
-  <li>Confirm which recos they&rsquo;re ready to move on today</li>
-  <li>Hand them the Next Steps checklist</li>
-  <li>Schedule Implementation call: &ldquo;Once we have the IRA custodian number, I can have the paperwork to you in 48 hours.&rdquo;</li>
-  <li>Route Colleen&rsquo;s COF: &ldquo;We just need a simple assignment form &mdash; I can walk you through it in five minutes.&rdquo;</li>
-</ul>
-
-<div class="flag"><p><strong>Flag &mdash; Stray Minearts sig page:</strong> A signature page for the Minearts case was found in the Westfall scan bundle. It has been routed to Minearts casework separately. Do NOT present to Chris + Colleen and do not include in this roadmap. File under Minearts only.</p></div>
-</div>
-
-<!-- TAB 2: AI3 -->
-<div id="tab-ai3" class="tab-panel">
-<h2>Asset + Income Index (AI3)</h2>
-
-<div class="warn"><p><strong>Extraction blocker:</strong> <code>ZRD-INTAKE-WIRE-TRIGGER-PROD-BROKEN</code> &mdash; the Farm Bureau PDF scan (<code>Westfall Farm Bureau (1).pdf</code>) is a CamScanner image with no text layer. Values marked <em>TBD</em> below will populate when the intake Cloud Function is restored. Data comes from Archer&rsquo;s case notes + household context.</p></div>
-
-<h3>Household Identity</h3>
+<h2>Household</h2>
 <table>
-<tr><th>Field</th><th>Chris Westfall</th><th>Colleen Westfall</th></tr>
-<tr><td><strong>DOB</strong></td><td>12/29/1966 (age 59 per Archer &mdash; JDM confirmed, use over Firestore)</td><td>~1957&ndash;1958 (age ~68 per Archer notes)</td></tr>
-<tr><td><strong>Stage</strong></td><td>Pre-FRA &middot; PRESERVE</td><td>Past FRA &middot; drawing SSI + IPERS</td></tr>
-<tr><td><strong>Address</strong></td><td colspan="2">Iowa City, IA 52240 &middot; 319-351-4584</td></tr>
-<tr><td><strong>Client ID</strong></td><td><code>dc40f681-7ac4-47d4-bd6e-6ebdaec6488b</code></td><td>New record pending ingest</td></tr>
-<tr><td><strong>ACF</strong></td><td><code>11zME7DVhM9Rc0hS8llf3TSkF8GFg-jQD</code></td><td>Pending</td></tr>
-<tr><td><strong>Source</strong></td><td colspan="2">Active Client &mdash; imported from <code>cof_members_q126</code> via sheets_migration</td></tr>
+<tr><th>Field</th><th>Value</th></tr>
+<tr><td><strong>Chris E Westfall</strong></td><td><code>client_id: dc40f681-7ac4-47d4-bd6e-6ebdaec6488b</code> · Iowa City IA 52240 · phone 319-351-4584 · ACF <code>11zME7DVhM9Rc0hS8llf3TSkF8GFg-jQD</code> · Active Client (imported from <code>cof_members_q126</code> via sheets_migration)</td></tr>
+<tr><td><strong>Colleen Westfall</strong></td><td>New record pending ingest — household spouse of Chris, existing Firestore record not yet located</td></tr>
 </table>
 
-<div class="warn"><p><strong>DOB discrepancy (Chris):</strong> Firestore carries <code>1959-12-21</code> (age 66). Archer&rsquo;s notes say <code>12/29/66</code> (age 59). The planning narrative &mdash; deferring SSI to FRA, 3&ndash;4yr GMIB cook &mdash; fits age 59 cleanly. JDM has ruled: use Archer&rsquo;s DOB for all planning math. Firestore record to be corrected after driver&rsquo;s license confirmation at meeting.</p></div>
+<div class="warn"><p><strong>⚠️ DOB discrepancy (Chris):</strong> Firestore: <code>1959-12-21</code> (would be age 66) · Archer's notes: <code>12/29/66</code> (age 59) — 7-year gap. Archer's planning narrative (deferring SSI to FRA kicks in Sept/Oct, 3-4 year GMIB cook) fits age 59 cleanly; Firestore DOB likely mangled by the sheets migration. <strong>JDM-blocked:</strong> which DOB is correct? Roadmap uses Archer's number (age 59) for planning math; Firestore record stays as-is until JDM rules.</p></div>
 
-<h3>Income Sources</h3>
+<h2>Case Framing — Pre-Retirement Income Structure</h2>
+<p>Chris is the active planning subject: pre-FRA, farm-income-heavy, structuring pre-retirement annuity strategy with a 3-4 year deferral window. Colleen is already past FRA and drawing SSI + IPERS. Goals: bridge Chris to SSI activation (Sept/Oct this year per Archer), structure his lump-sum assets to cook through FRA, then fire income for remaining retirement.</p>
+
+<h2>Income Profile</h2>
+
+<h3>Chris (pre-FRA, age ~59 per Archer)</h3>
 <table>
-<tr><th>Owner</th><th>Source</th><th>Monthly</th><th>Annual</th><th>Timing</th><th>Notes</th></tr>
-<tr><td><strong>Chris</strong></td><td>Farm rent (tenant)</td><td>~$3,000</td><td>~$36,000</td><td>Ongoing</td><td>Tenant-farmed; legal structure TBD</td></tr>
-<tr><td><strong>Chris</strong></td><td>Machinery lease</td><td>~$1,667</td><td>~$20,000</td><td>Until ~age 70</td><td>Ends when Chris is ~70 &mdash; income gap GMIB will fill</td></tr>
-<tr><td><strong>Chris</strong></td><td>SSI (deferred to FRA)</td><td><strong>$2,400</strong></td><td>$28,800</td><td><strong>Sept/Oct 2026</strong></td><td>Confirm Sept vs Oct with Chris</td></tr>
-<tr><td><strong>Colleen</strong></td><td>SSI</td><td>$1,200</td><td>$14,400</td><td>Now</td><td>Verify exact amount at meeting</td></tr>
-<tr><td><strong>Colleen</strong></td><td>IPERS (Iowa Public Employees)</td><td><strong>$1,006</strong></td><td>$12,072</td><td>Now</td><td>Defined benefit pension; confirm earnings test</td></tr>
+<tr><th>Source</th><th>Amount</th><th>Timing</th></tr>
+<tr><td>Farm rent</td><td><strong>~$3,000/mo</strong> (~$36K/yr)</td><td>Ongoing</td></tr>
+<tr><td>Machinery lease</td><td><strong>~$20,000/yr</strong></td><td>Until ~age 70</td></tr>
+<tr><td><strong>SSI (deferred to FRA)</strong></td><td><strong>$2,400/mo</strong></td><td>Kicks in <strong>Sept/Oct</strong> (current year)</td></tr>
+<tr><td>Total annual income (post-SSI-activation)</td><td>~$85K/yr</td><td></td></tr>
 </table>
 
-<h4>Income Timeline</h4>
+<h3>Colleen (past FRA, age ~68)</h3>
 <table>
-<tr><th>Period</th><th>Monthly HH</th><th>Annual HH</th><th>Key Event</th></tr>
-<tr><td><strong>Now &rarr; Sept/Oct 2026</strong></td><td>~$5,873</td><td>~$70,500</td><td>Pre-SSI activation</td></tr>
-<tr><td><strong>Post-SSI activation</strong></td><td>~$8,273</td><td>~$99,300</td><td>Chris SSI fires; full household floor</td></tr>
-<tr><td><strong>~Age 70 (Chris)</strong></td><td>~$6,606</td><td>~$79,300</td><td>Machinery lease ends; GMIB activation filling the gap by then</td></tr>
+<tr><th>Source</th><th>Amount</th><th>Notes</th></tr>
+<tr><td>SSI</td><td><strong>$1,200/mo</strong> ($14.4K/yr)</td><td>Drawing now</td></tr>
+<tr><td>IPERS</td><td><strong>$1,006/mo</strong> ($12K/yr)</td><td>Iowa Public Employees Retirement System — confirm earnings test status</td></tr>
+<tr><td>Total</td><td>~$26K/yr</td><td></td></tr>
 </table>
 
-<h3>Assets</h3>
-<table>
-<tr><th>Owner</th><th>Type</th><th>Carrier / Custodian</th><th>Value</th><th>Tax Character</th><th>Notes</th></tr>
-<tr><td><strong>Chris + Colleen</strong></td><td>CDs (4 accounts)</td><td>TBD</td><td><strong>~$160,000</strong></td><td>NQ</td><td>@ 3.00% &mdash; underperforming. Maturity dates needed.</td></tr>
-<tr><td><strong>Chris</strong></td><td>Traditional IRA</td><td>TBD</td><td>TBD</td><td>Qualified</td><td>Core income-engine candidate. Custodian + value needed for illustration.</td></tr>
-<tr><td><strong>Colleen</strong></td><td>Roth IRA (+ possible Trad)</td><td>TBD</td><td>TBD</td><td>Roth / Trad</td><td>Archer&rsquo;s &ldquo;cook til 73&rdquo; note implies Traditional IRA &mdash; Roth has no RMD for original owner. Confirm at meeting.</td></tr>
-<tr><td><strong>Chris</strong></td><td>COF Life Policy</td><td>Catholic Order of Foresters</td><td>TBD</td><td>&mdash;</td><td><strong>Assigned to RPI.</strong></td></tr>
-<tr><td><strong>Colleen</strong></td><td>COF Life Policy</td><td>Catholic Order of Foresters</td><td>TBD</td><td>&mdash;</td><td><strong>NOT assigned to RPI.</strong> Assignment is Legacy Reco #1.</td></tr>
-<tr><td><strong>Chris</strong></td><td>Farm (land + machinery)</td><td>&mdash;</td><td>TBD</td><td>Real property</td><td>~$36K/yr rent + ~$20K/yr lease. Succession planning needed (Legacy Reco #3).</td></tr>
-</table>
+<h3>Household combined</h3>
+<p><strong>~$111K/yr</strong> once Chris SSI activates. Before activation: ~$83K (farm rent + lease + Colleen).</p>
 
-<div class="warn"><p><strong>Farm Bureau policy:</strong> Scan bundle contains what appears to be a Farm Bureau policy. CamScanner image &mdash; no text extraction. Archer noted a possible dividend anomaly &mdash; flag for carrier-level inquiry when extraction runs.</p></div>
+<h2>Asset Inventory (partial — pending full extraction)</h2>
+<div class="warn"><p><strong>⚠️ Note:</strong> The <code>Westfall Farm Bureau (1).pdf</code> in the inbox is a CamScanner scan with no text layer. Can't parse programmatically without OCR. Content below is from Archer's notes + household context. Full extraction runs when <code>services/intake</code> Cloud Function is fixed (<code>ZRD-INTAKE-WIRE-TRIGGER-PROD-BROKEN</code>).</p></div>
 
-<h3>Beneficiary Audit</h3>
-<table>
-<tr><th>Account</th><th>Primary Beni</th><th>Contingent</th><th>Status</th></tr>
-<tr><td>Chris&rsquo;s IRA</td><td>TBD</td><td>TBD</td><td style="color:var(--orange)">Confirm at meeting</td></tr>
-<tr><td>Chris&rsquo;s COF policy</td><td>TBD</td><td>TBD</td><td style="color:var(--orange)">Confirm at meeting</td></tr>
-<tr><td>Colleen&rsquo;s IRA</td><td>TBD</td><td>TBD</td><td style="color:var(--orange)">Confirm at meeting</td></tr>
-<tr><td>Colleen&rsquo;s COF policy</td><td>TBD</td><td>TBD</td><td style="color:var(--orange)">Confirm at meeting + assignment</td></tr>
-<tr><td>CDs (all 4)</td><td>TBD</td><td>TBD</td><td style="color:var(--red)">High priority &mdash; bank CDs often no POD; pass through probate</td></tr>
-</table>
-
-<h3>COF Policy Assignment Status</h3>
-<table>
-<tr><th>Insured</th><th>Assigned to RPI?</th><th>Action</th></tr>
-<tr><td><strong>Chris</strong></td><td style="color:var(--green)">Yes &mdash; assigned</td><td>Confirm maintained; no action needed</td></tr>
-<tr><td><strong>Colleen</strong></td><td style="color:var(--red)">No &mdash; NOT assigned</td><td>Assignment form at this meeting. See Legacy Reco #1.</td></tr>
-</table>
-</div>
-
-<!-- TAB 3: ANALYSIS -->
-<div id="tab-analysis" class="tab-panel">
-<h2>PRESERVE Stage Analysis</h2>
-
-<div class="info"><p><strong>Stage: PRESERVE</strong> &mdash; Chris is in transition phase (age 59, pre-FRA). Protecting accumulated assets while still growing select positions. SSI fires in months. GMIB deferral window opens now. Colleen is past FRA in distribution mode. All 8 VIEWs active.</p></div>
-
-<h3>VIEW 1 &mdash; Service Team</h3>
+<h3>Bank CDs</h3>
 <ul>
-  <li><strong>Advisor of record:</strong> Josh Archer, Retirement Protectors, Inc.</li>
-  <li>Chris imported from <code>cof_members_q126</code> &mdash; Active Client status confirmed in Firestore</li>
-  <li>Colleen: new record to be created at Implementation; household spouse link to Chris&rsquo;s record</li>
-  <li>Chris&rsquo;s COF assigned to RPI &mdash; confirmed</li>
-  <li>Colleen&rsquo;s COF assignment: pending (Legacy Reco #1)</li>
+<li><strong>4 CDs · combined $160,000 @ 3.00%</strong></li>
+<li>Carrier/maturity TBD on extraction</li>
 </ul>
 
-<h3>VIEW 2 &mdash; Health Care</h3>
+<h3>Chris's IRA</h3>
 <ul>
-  <li><strong>Chris (age 59):</strong> Medicare enrollment 6 years out &mdash; no action today. Initial Enrollment Period opens approx. July 2031 (7-month window around 65th birthday). Late enrollment = permanent 10% per year Part B penalty. Calendar this window NOW.</li>
-  <li>Current coverage for Chris: confirm at meeting (ACA marketplace likely given farm-only income)</li>
-  <li><strong>Colleen (~68):</strong> Already Medicare-age &mdash; pull current plan via QUE Medicare Lion before or at meeting. Confirm Part D drug coverage and whether supplement (Medigap) or MAPD is in place.</li>
+<li>Chris has an IRA. Value + custodian TBD on extraction.</li>
+<li><strong>Planning lever: cook 3-4 years</strong> before activating GMIB rider (per Archer)</li>
+<li>Candidate strategy: roll into FIA with GMIB, let rollup compound to 2029-2030, then activate lifetime income stream that stacks on top of his SSI</li>
 </ul>
 
-<h3>VIEW 3 &mdash; Extended Care</h3>
+<h3>Colleen's Roth IRA</h3>
 <ul>
-  <li>No LTC coverage noted for either Chris or Colleen from Archer&rsquo;s notes or scan bundle</li>
-  <li>Iowa farm assets create Medicaid spend-down exposure &mdash; farm land is subject to Iowa estate recovery if LTC needed without proper planning</li>
-  <li>NAC Charter Plus 10 carries a <strong>QCF waiver</strong> (100% AV available if confined to qualified care facility) &mdash; meaningful LTC-adjacent protection on the CD-reposition product</li>
-  <li>Confirm: does Colleen have any LTC coverage from prior employment (IPERS state benefit package)?</li>
+<li>Scan mix-up per Archer: Chris's IRA statement + Colleen's Roth IRA statement + stray Minearts sig page ended up in the same scan. Ownership attribution needed on extraction.</li>
+<li><strong>Planning lever:</strong> let Colleen's IRA cook <strong>until age 73</strong> (per Archer) — max Roth tax-free growth window before RMDs aren't an issue (Roth has no RMD for original owner, so "cook til 73" probably refers to Trad IRA if she has one, not the Roth).</li>
 </ul>
 
-<h3>VIEW 4 &mdash; Portfolio Snapshot</h3>
-<table>
-<tr><th>Asset</th><th>Estimated Value</th><th>Tax Character</th><th>Current Rate</th></tr>
-<tr><td>CDs (4 combined)</td><td>~$160,000</td><td>NQ</td><td>3.00% &mdash; underperforming FIA rates</td></tr>
-<tr><td>Chris&rsquo;s IRA</td><td>TBD</td><td>Traditional IRA</td><td>TBD</td></tr>
-<tr><td>Colleen&rsquo;s IRA(s)</td><td>TBD</td><td>Roth + possible Trad</td><td>TBD</td></tr>
-<tr><td>COF policies (2)</td><td>TBD</td><td>Life insurance</td><td>&mdash;</td></tr>
-<tr><td>Farm land</td><td>TBD</td><td>Real property</td><td>~$36K/yr rent income</td></tr>
-<tr><td>Farm machinery</td><td>TBD</td><td>Depreciating asset</td><td>~$20K/yr lease income</td></tr>
-</table>
-<div class="warn"><p>Total liquid/investable assets partially unknown until IRA values confirmed. Minimum known: ~$160K NQ CDs + Chris&rsquo;s IRA (unknown) + Colleen&rsquo;s IRA (unknown).</p></div>
-
-<h3>VIEW 5 &mdash; Accumulation</h3>
-<h4>Chris&rsquo;s IRA &mdash; Primary Lever</h4>
+<h3>COF Policies</h3>
 <ul>
-  <li><strong>Deferral window: ~3&ndash;4 years</strong> from now to FRA (target activation 2029&ndash;2030 per Archer)</li>
-  <li>NAC Income Pay Pro 10 is the right chassis &mdash; 5&ndash;10yr deferral sweet spot, simpler than BenefitSolutions 10 for a client who doesn&rsquo;t need the 11-year stack</li>
-  <li>GMIB fires on top of SSI ($2,400/mo) at FRA &mdash; combined income stream forms the retirement income floor</li>
-  <li>IRA rollover into FIA is a qualified transfer &mdash; no tax event (confirm IRA is not already in a surrendered product)</li>
+<li><strong>Chris's COF policy</strong> — currently assigned to RPI</li>
+<li><strong>Colleen's COF policy</strong> — <strong>NOT assigned to RPI</strong> (assignment ask on the table with Archer)</li>
+<li>Details + values TBD on extraction</li>
 </ul>
-<h4>CDs &mdash; Secondary Lever</h4>
+
+<h3>Farm Business</h3>
 <ul>
-  <li>$160K @ 3.00% = ~$4,800/yr interest &mdash; fully taxable, no deferred growth</li>
-  <li>NAC Charter Plus 10 <strong>14% combined bonus</strong> (12% base + 2% special) immediately lifts $160K to ~$182,400 effective principal &mdash; offsets any early-withdrawal CD penalty</li>
-  <li>Flex-premium chassis: deposit each CD as it matures; no need to break early</li>
-  <li>NQ money: 1035 exchange does not apply; simple transfer at maturity</li>
+<li>Farm rent to a tenant (~$36K/yr revenue to Chris)</li>
+<li>Machinery leased out (~$20K/yr revenue, ends ~age 70)</li>
+<li>Legal structure (sole prop / LLC / trust) TBD — likely sole prop given Iowa farm pattern</li>
 </ul>
 
-<h3>VIEW 6 &mdash; Income</h3>
+<h2>Action Items</h2>
+
+<h3>Pre-meeting</h3>
+<ul class="checklist">
+<li><input type="checkbox"> Resolve Chris's DOB (12/29/66 vs 1959-12-21) — Archer should have a copy of his driver's license or birth certificate</li>
+<li><input type="checkbox"> Verify SSI activation timing with Chris (Sept or Oct 2026?)</li>
+<li><input type="checkbox"> Confirm 4 CDs: carrier(s), maturity dates, account numbers</li>
+<li><input type="checkbox"> Chris IRA: custodian, value, product type (is it already an annuity or a brokerage IRA?)</li>
+<li><input type="checkbox"> Colleen IRA: Traditional or Roth (the "cook til 73" reasoning only applies to Trad for RMD purposes)</li>
+<li><input type="checkbox"> Get Colleen's COF policy details + discuss assignment-to-RPI</li>
+<li><input type="checkbox"> Stray Minearts sig page (in the Westfall scan bundle) — classify + route to Minearts casework separately</li>
+</ul>
+
+<h3>Product recommendations (draft — pending numbers)</h3>
+<ul class="checklist">
+<li><input type="checkbox"> <strong>Chris: FIA with GMIB rider · 3-4 year deferral.</strong> Target: activate 2029-2030, stacks on SSI ($2,400/mo) + farm rent + machinery lease. Candidate carriers: Nationwide, Athene, Global Atlantic, Allianz, Pacific Life.</li>
+<li><input type="checkbox"> <strong>Colleen: preserve Roth, let Trad cook to 73.</strong> If Trad IRA value is meaningful, consider Roth conversion strategy during Chris's low-income years (pre-SSI-activation window is shrinking — Sept is close).</li>
+<li><input type="checkbox"> <strong>CDs: reposition to MYGA or FIA.</strong> $160K @ 3% is underperforming current MYGA rates (4.0-5.25%). Non-qualified so 1035 exchange not applicable; simple rollover at maturity.</li>
+<li><input type="checkbox"> <strong>Legacy structure:</strong> if Chris + Colleen have specific children/grandchildren for farm succession, mirror the Thurman "DB-to-grandson" pattern consideration.</li>
+</ul>
+
+<h3>Platform blockers</h3>
 <ul>
-  <li><strong>Chris income gap:</strong> Before SSI (~$70K/yr), After SSI (~$99K/yr), After machinery lease ends @ 70 (~$79K/yr) &mdash; GMIB fills the machinery lease gap</li>
-  <li><strong>GMIB activation target:</strong> 2029&ndash;2030 &mdash; benefit base + lifetime income stream fires off product, not accumulation value</li>
-  <li><strong>Colleen income:</strong> ~$2,206/mo combined (SSI + IPERS) &mdash; stable, no changes planned</li>
+<li><code>ZRD-INTAKE-WIRE-TRIGGER-PROD-BROKEN</code> (P0) — blocks the Farm Bureau PDF extraction</li>
+<li>DOB reconciliation on Firestore record — JDM ruling needed</li>
 </ul>
 
-<h3>VIEW 7 &mdash; Estate</h3>
-<ul>
-  <li>Will/trust status: unknown &mdash; confirm at meeting. Iowa farm + IRA assets benefit from basic estate plan minimum (will, POA, HCPOA)</li>
-  <li>Farm legal structure: likely sole proprietorship; LLC or trust simplifies succession and may provide Medicaid protection</li>
-  <li>Beneficiary table: multiple accounts with unknown status &mdash; CDs highest risk (no named beni = probate)</li>
-  <li>Children: confirm at meeting (mentioned in Archer&rsquo;s notes for succession planning)</li>
-</ul>
-
-<h3>VIEW 8 &mdash; Legacy</h3>
-<ul>
-  <li>Colleen&rsquo;s COF assignment to RPI: admin action, no product change &mdash; enables proper servicing and future death benefit processing</li>
-  <li>Farm succession: who inherits, does farm stay intact, does tenant have right of refusal? Iowa LLC or family trust is the standard vehicle</li>
-  <li>IRA beneficiary designations critical post-SECURE Act 2.0: non-spouse inheritors (children) subject to 10-year RMD drain &mdash; must be named correctly</li>
-  <li>Farm Bureau policy: dividend anomaly flagged by Archer &mdash; confirm at carrier inquiry</li>
-</ul>
+<div class="footer">Chris + Colleen Westfall · Pre-Retirement Income Roadmap · 2026-04-14 · VOLTRON CSO · Retirement Protectors, Inc.</div>
 </div>
-
-<!-- TAB 4: RECOMMENDATIONS -->
-<div id="tab-recos" class="tab-panel">
-<h2>Recommendations</h2>
-<div class="info"><p>6 recommendations across Health, Wealth, and Legacy. Wealth Reco #1 and #2 require carrier illustrations before walk-in &mdash; both stubbed pending delivery from JDM. Health + Legacy recos are presentation-ready now.</p></div>
-
-<h3>Health</h3>
-
-<div class="reco-card health">
-  <div class="reco-header">
-    <span class="reco-num">H1</span>
-    <h3>Medicare Pre-Enrollment Awareness (Chris) + Current Plan Confirm (Colleen)</h3>
-  </div>
-  <p class="rationale">Chris is 59 &mdash; Medicare IEP is 6 years out. Missing it generates a permanent 10% per year Part B premium penalty. Calendar the window now. Colleen at ~68 is already Medicare-age &mdash; confirm her current plan is optimized before the meeting via QUE Medicare Lion.</p>
-  <ul>
-    <li><strong>Chris:</strong> IEP opens approx. July 2031 &mdash; 7-month window around 65th birthday. Calendar NOW. If on ACA marketplace, subsidies end at 65 and Medicare enrollment becomes mandatory.</li>
-    <li><strong>Colleen:</strong> Pull current Medicare plan via QUE Medicare Lion. Confirm Part D drug coverage. If on bare Original Medicare, evaluate Medigap or MAPD at Implementation call.</li>
-    <li>No product recommendation for Chris today &mdash; awareness and calendar action only</li>
-  </ul>
-</div>
-
-<h3>Wealth</h3>
-
-<div class="reco-card wealth">
-  <div class="reco-header">
-    <span class="reco-num">W1</span>
-    <h3>Chris&rsquo;s Traditional IRA &rarr; NAC Income Pay Pro 10 with GMIB Rider</h3>
-    <span class="product-tag">NAC IPP10</span>
-  </div>
-  <p class="rationale">Chris has a 3&ndash;4 year deferral window before FRA (target activation 2029&ndash;2030 per Archer). NAC Income Pay Pro 10 is built for this window &mdash; 5&ndash;10yr deferral sweet spot, dedicated income rider, simpler story than BenefitSolutions 10. The GMIB fires off a benefit base at deferral-end, producing lifetime income that stacks directly on SSI ($2,400/mo). Together they form the retirement income floor. When the machinery lease ends at ~age 70, the GMIB is already cooking and fills that gap.</p>
-  <ul>
-    <li><strong>Product:</strong> NAC Income Pay Pro 10 (10-year surrender, dedicated income rider)</li>
-    <li><strong>Rates (current flyer):</strong> Fixed 2.50%; Morgan Stanley DGI 2-yr participation 155%; Barclays 6 VC 2-yr participation 150%</li>
-    <li><strong>Transfer type:</strong> IRA rollover &mdash; qualified transfer, no tax event</li>
-    <li><strong>GMIB activation target:</strong> 2029&ndash;2030 (3&ndash;4 years post-placement)</li>
-    <li><strong>Income stacking:</strong> SSI $2,400/mo + GMIB income stream = retirement income floor from ~age 63&ndash;64 forward</li>
-    <li>Confirm IRA custodian + current value &mdash; if IRA is already an annuity with surrender charges, run surrender math before submitting TOA</li>
-  </ul>
-  <div class="illustration-stub">
-    &#128203; <strong>Illustration pending from JDM.</strong><br>
-    Stub link: <code>illustrations/westfall-nac-ipp10-ira.pdf</code><br>
-    Illustration should show: premium = IRA value (TBD), GMIB benefit base at years 3, 4, and 5, projected lifetime income payout at each activation point. Re-pull rates before illustration is ordered &mdash; rates are current as of flyer date (1/27/26&ndash;4/2/26).
-  </div>
-</div>
-
-<div class="reco-card wealth">
-  <div class="reco-header">
-    <span class="reco-num">W2</span>
-    <h3>$160K NQ CDs &rarr; NAC Charter Plus 10 (Flex-Premium, CD-by-CD)</h3>
-    <span class="product-tag">NAC CP10</span>
-  </div>
-  <p class="rationale">Four CDs at 3.00% generate ~$4,800/yr fully taxable interest on $160K. NAC Charter Plus 10 offers a 14% combined bonus (12% base + 2% special) on a flex-premium chassis. The bonus immediately lifts $160K to ~$182,400 effective principal &mdash; offsetting any early-withdrawal CD penalty. If Chris prefers patience, the flex-premium chassis lets him deposit each CD as it matures with no pressure to break early. NQ repositioning: simple transfer at maturity, no 1035 exchange applicable.</p>
-  <ul>
-    <li><strong>Product:</strong> NAC Charter Plus 10 (10-year surrender, premium bonus)</li>
-    <li><strong>Bonus:</strong> 12% base + 2% special = 14% combined on premiums in first 3 years &rarr; $160K becomes ~$182,400</li>
-    <li><strong>Rates (current flyer):</strong> Fixed 3.00%; S&amp;P 500 Annual Cap 6.00%; Morgan Stanley DGI Part Rate 85%; Enhanced Part Rate 135% (0.95% fee)</li>
-    <li><strong>Flex-premium:</strong> Deposit each CD as it matures &mdash; no pressure to break early; subsequent premiums still earn the bonus within first 3 years</li>
-    <li><strong>QCF waiver:</strong> 100% AV available if confined to qualified care facility &mdash; meaningful LTC-adjacent protection</li>
-    <li><strong>Free withdrawals:</strong> 10% annually starting year 2 &mdash; handles any liquidity needs cleanly</li>
-    <li>Confirm 2% special bonus is still active on current rate sheet before submitting application</li>
-  </ul>
-  <div class="illustration-stub">
-    &#128203; <strong>Illustration pending from JDM.</strong><br>
-    Stub link: <code>illustrations/westfall-nac-cp10-160k-nq.pdf</code><br>
-    Illustration should show: $160,000 NQ premium, 14% bonus application (~$182,400 effective), 10-year accumulation at fixed + S&amp;P cap scenarios, QCF waiver callout. Confirm special bonus offer active on current flyer before ordering.
-  </div>
-</div>
-
-<h3>Legacy</h3>
-
-<div class="reco-card legacy">
-  <div class="reco-header">
-    <span class="reco-num">L1</span>
-    <h3>Colleen&rsquo;s COF Policy &mdash; Assignment to RPI (Admin Only)</h3>
-  </div>
-  <p class="rationale">Colleen&rsquo;s Catholic Order of Foresters policy is not currently assigned to RPI. This is a 5-minute administrative action &mdash; no product change, no surrender, no underwriting. Assigning makes RPI the agent of record, enabling servicing, death benefit processing, and policy review. Chris&rsquo;s COF is already assigned. This gets Colleen on parity.</p>
-  <ul>
-    <li><strong>Action:</strong> COF assignment / agent of record change form &mdash; Colleen signs at this meeting or mail-in</li>
-    <li><strong>What changes:</strong> Agent of record only. Policy terms, beneficiaries, premium schedule &mdash; unchanged</li>
-    <li><strong>What unlocks:</strong> RPI can service, flag anomalies (dividend question), and process death benefit when needed</li>
-    <li>Confirm Colleen&rsquo;s COF policy number and current value at this meeting</li>
-  </ul>
-</div>
-
-<div class="reco-card legacy">
-  <div class="reco-header">
-    <span class="reco-num">L2</span>
-    <h3>Beneficiary Cleanup &mdash; All Accounts</h3>
-  </div>
-  <p class="rationale">Multiple accounts have unknown or unconfirmed beneficiary status (see AI3 tab). Bank CDs are the highest risk: four accounts with likely no POD on file &mdash; they pass through probate rather than directly to Colleen. IRA beneficiaries post-SECURE Act 2.0 are critical &mdash; non-spouse beneficiaries (children) are subject to the 10-year RMD drain. This is a 10-minute ask per account and one of the most cost-effective legacy actions we can take today.</p>
-  <ul>
-    <li><strong>CDs:</strong> Add POD (Payable on Death) designation to each CD at the issuing bank &mdash; primary = Colleen. Do at repositioning or now if not repositioning yet</li>
-    <li><strong>Chris&rsquo;s IRA:</strong> Name Colleen as primary; confirm contingent (children? trust?)</li>
-    <li><strong>Colleen&rsquo;s IRA(s):</strong> Name Chris as primary; confirm contingent</li>
-    <li><strong>COF policies:</strong> Confirm and update beneficiaries on both at the assignment meeting (L1)</li>
-    <li><strong>Farm Bureau policy:</strong> Confirm beneficiary + flag dividend anomaly at same carrier inquiry</li>
-  </ul>
-</div>
-
-<div class="reco-card legacy">
-  <div class="reco-header">
-    <span class="reco-num">L3</span>
-    <h3>Farm + Machinery Succession Plan &mdash; Confirm and Structure</h3>
-  </div>
-  <p class="rationale">Chris has a working farm leased to a tenant and machinery leased out until ~age 70. Who inherits? If Chris + Colleen have children, the succession question should be addressed while Chris is healthy. Iowa farm succession often involves an LLC or family trust to avoid forced sale, split interests, or Medicaid estate recovery exposure. This is a planning conversation &mdash; not a product sale today &mdash; but it may generate an estate attorney referral and/or a wealth-transfer product discussion (DB-growth earmark for a specific heir, per the Thurman pattern).</p>
-  <ul>
-    <li>Confirm at meeting: do Chris + Colleen have children? How many, and ages?</li>
-    <li>Is there a current will or trust that addresses the farm? If not, this is the most pressing estate planning gap</li>
-    <li>Does the farm stay intact to one heir, or split? Does the tenant have first right of refusal?</li>
-    <li>Machinery: often the cleaner asset to earmark for a specific beneficiary separately from the land</li>
-    <li>If children exist: consider a product where DB growth earmarks to a specific heir &mdash; not a recommendation yet, pending their intent at this meeting</li>
-    <li>Referral candidate: Iowa farm estate attorney for LLC/trust structure if no current plan exists</li>
-  </ul>
-</div>
-</div>
-
-<!-- TAB 5: NEXT STEPS -->
-<div id="tab-nextsteps" class="tab-panel">
-<h2>Next Steps</h2>
-<div class="info"><p>Next Steps are derived from the 6 Recommendations. Document requirements must come first. Underwriting follows. Administrative actions run in parallel. <strong>Walk-in blocker: Wealth Reco #1 and #2 illustrations must be in hand before presenting to Chris + Colleen.</strong></p></div>
-
-<h3>Document Requirements</h3>
-
-<div class="step-card doc">
-  <div class="step-label">Document &middot; W1</div>
-  <h4>Chris&rsquo;s IRA &mdash; Custodian Statement + Transfer of Assets Form</h4>
-  <ul>
-    <li>Most recent IRA statement: custodian name, account number, current value</li>
-    <li>If already in an annuity: surrender schedule, current surrender value, surrender date</li>
-    <li>NAC Transfer of Assets (TOA) form &mdash; completed at Implementation; custodian processes the transfer</li>
-    <li>Confirm Traditional IRA type (qualified rollover &rarr; IPP10 is a straight transfer, no tax event)</li>
-  </ul>
-</div>
-
-<div class="step-card doc">
-  <div class="step-label">Document &middot; W2</div>
-  <h4>CDs &mdash; All 4 Account Statements + Maturity Dates</h4>
-  <ul>
-    <li>Statement for each CD: carrier/bank, account number, balance, rate, maturity date</li>
-    <li>Early withdrawal penalty disclosed (typically 3&ndash;6 months interest)</li>
-    <li>POD designation status &mdash; if no POD on file, request bank&rsquo;s POD change form at the same visit</li>
-    <li>Charter Plus 10 flex-premium application: submit with first CD&rsquo;s proceeds; subsequent CDs follow as each matures</li>
-  </ul>
-</div>
-
-<div class="step-card doc">
-  <div class="step-label">Document &middot; L1</div>
-  <h4>Colleen&rsquo;s COF Policy &mdash; Assignment Form</h4>
-  <ul>
-    <li>COF policy number and current statement (if available)</li>
-    <li>COF Agent of Record Change / Assignment form &mdash; Colleen signs at meeting or mail-in/docusign</li>
-    <li>Simultaneously confirm Chris&rsquo;s assignment is still current on file</li>
-  </ul>
-</div>
-
-<div class="step-card doc">
-  <div class="step-label">Document &middot; L2</div>
-  <h4>Beneficiary Change Forms &mdash; All Accounts</h4>
-  <ul>
-    <li>IRA custodian beneficiary form (Chris): Primary = Colleen; Contingent = TBD at meeting</li>
-    <li>Colleen&rsquo;s IRA beneficiary form: Primary = Chris; Contingent = TBD</li>
-    <li>COF policy beneficiary update &mdash; both Chris + Colleen at the L1 assignment meeting</li>
-    <li>Bank POD forms for all 4 CDs &mdash; request from each bank at repositioning or now</li>
-    <li>Farm Bureau policy beneficiary review &mdash; request carrier form; flag dividend anomaly at same inquiry</li>
-  </ul>
-</div>
-
-<div class="step-card doc">
-  <div class="step-label">Document &middot; L3</div>
-  <h4>Farm Estate Documents &mdash; Confirm What Exists</h4>
-  <ul>
-    <li>Current will: exists? Current (post-children, names Colleen properly)?</li>
-    <li>POA + HCPOA for both Chris and Colleen: confirm both exist and are current</li>
-    <li>Farm deed: who holds title? Sole ownership, joint tenancy with right of survivorship, other?</li>
-    <li>Tenant lease: does it address right of first refusal on ownership transfer?</li>
-    <li>If no current estate plan: refer to Iowa farm estate attorney &mdash; this is a gap that needs a professional</li>
-  </ul>
-</div>
-
-<h3>Underwriting Requirements</h3>
-
-<div class="step-card uw">
-  <div class="step-label">Underwriting &middot; W1</div>
-  <h4>NAC Income Pay Pro 10 &mdash; IRA Rollover Application</h4>
-  <ul>
-    <li>NAC annuity application &mdash; no medical underwriting for FIA (non-life product)</li>
-    <li>Suitability documentation required: income, assets, investment objectives, risk tolerance at signing</li>
-    <li>IRA rollover form + TOA submitted to custodian simultaneously with application</li>
-    <li>Confirm Chris&rsquo;s DOB (12/29/1966) on application &mdash; age affects income rider payout rate</li>
-  </ul>
-</div>
-
-<div class="step-card uw">
-  <div class="step-label">Underwriting &middot; W2</div>
-  <h4>NAC Charter Plus 10 &mdash; NQ Flex-Premium Application</h4>
-  <ul>
-    <li>NAC annuity application &mdash; no medical underwriting for FIA</li>
-    <li>Suitability documentation: confirm NQ money character, no 1035 exchange applicable</li>
-    <li>First premium submitted with application (first CD proceeds); subsequent premiums follow as CDs mature &mdash; flag flex-premium intent to carrier at application</li>
-    <li>Confirm 14% combined bonus (2% special) is still active on current rate sheet before submitting</li>
-  </ul>
-</div>
-
-<h3>Administrative</h3>
-
-<div class="step-card admin">
-  <div class="step-label">Administrative &middot; L1</div>
-  <h4>Colleen COF Assignment &mdash; RPI Agent of Record</h4>
-  <ul>
-    <li>COF assignment / AOR change form submitted</li>
-    <li>Confirm Chris&rsquo;s assignment still current &mdash; verify no lapse or inadvertent reassignment</li>
-  </ul>
-</div>
-
-<div class="step-card admin">
-  <div class="step-label">Administrative &middot; Platform</div>
-  <h4>Colleen Westfall &mdash; New Client Record Creation</h4>
-  <ul>
-    <li>Colleen&rsquo;s Firestore record does not exist &mdash; create at Implementation</li>
-    <li>Link as household spouse under Chris&rsquo;s record (<code>dc40f681-7ac4-47d4-bd6e-6ebdaec6488b</code>)</li>
-    <li>DOB, phone, address, COF policy number &mdash; all confirmed at this meeting</li>
-  </ul>
-</div>
-
-<div class="step-card admin">
-  <div class="step-label">Administrative &middot; Platform</div>
-  <h4>Chris Firestore DOB Correction</h4>
-  <ul>
-    <li>Firestore shows <code>1959-12-21</code> &mdash; incorrect per Archer + JDM ruling</li>
-    <li>Correct to <code>1966-12-29</code> after driver&rsquo;s license confirmation at this meeting</li>
-    <li>Triggers correct age display across all ProDashX views</li>
-  </ul>
-</div>
-
-<div class="step-card admin">
-  <div class="step-label">Administrative &middot; Flag</div>
-  <h4>Stray Minearts Sig Page &mdash; Route to Minearts Casework</h4>
-  <ul>
-    <li>Signature page for the Minearts case found in the Westfall scan bundle</li>
-    <li>Do NOT present to Chris + Colleen &mdash; not their document</li>
-    <li>File under Minearts casework separately; confirm it was properly processed in that case</li>
-  </ul>
-</div>
-
-<h3>Master Checklist &mdash; Walk-In Ready</h3>
-
-<div class="warn"><p><strong>Walk-in blockers:</strong> Wealth Reco #1 (IPP10) and Wealth Reco #2 (Charter Plus 10) both require carrier illustrations before presenting. Do not walk in without illustrations in hand. The rest of this checklist (Health + Legacy) is presentation-ready now.</p></div>
-
-<ul class="check">
-  <li><strong>Chris DOB confirmed</strong> &mdash; driver&rsquo;s license copy on file &rarr; queue Firestore DOB correction</li>
-  <li><strong>Chris IRA value + custodian confirmed</strong> &mdash; needed for illustration order (W1)</li>
-  <li><strong>4 CD statements gathered</strong> &mdash; carrier, balance, rate, maturity date for each (W2)</li>
-  <li><strong>Illustration ordered: westfall-nac-ipp10-ira.pdf</strong> &mdash; IRA value TBD &rarr; JDM to order once value confirmed</li>
-  <li><strong>Illustration ordered: westfall-nac-cp10-160k-nq.pdf</strong> &mdash; $160,000 NQ &rarr; JDM to order</li>
-  <li><strong>Colleen Medicare plan confirmed</strong> via QUE Medicare Lion (H1)</li>
-  <li><strong>COF assignment form printed</strong> &mdash; Colleen signs at meeting (L1)</li>
-  <li><strong>Beneficiary change forms staged</strong> &mdash; IRA + COF (L2)</li>
-  <li><strong>Farm succession conversation prep</strong> &mdash; confirm kids + intent at meeting (L3)</li>
-  <li><strong>Minearts sig page routed</strong> &mdash; out of Westfall file, into Minearts casework</li>
-  <li><strong>Colleen new record queued</strong> for creation at Implementation</li>
-  <li><strong>Implementation call scheduled</strong> &mdash; after illustrations approved by JDM</li>
-</ul>
-</div>
-
-<div class="page-footer">Chris + Colleen Westfall &middot; Pre-Retirement Income Roadmap &middot; 2026-04-15 &middot; VOLTRON CSO &middot; Retirement Protectors, Inc. &middot; Template: tpl.preserve-stage-analysis v1</div>
-
-<script>
-function showTab(name, btn) {
-  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('tab-' + name).classList.add('active');
-  btn.classList.add('active');
-}
-</script>
 </body>
 </html>
