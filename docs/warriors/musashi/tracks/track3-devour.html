@@ -307,7 +307,7 @@
         <div class="matrix-cell header">B2E (RAPID / RIIMO)</div>
 
         <div class="matrix-cell row-label">Print Artisan<span class="artisan-status-live">&#10003; LIVE (Track 2)</span></div>
-        <div class="matrix-cell"><span class="pill pill-green">Medicare brochure</span><br><span class="pill pill-green">FIA fact-finder</span><br><span class="pill pill-green">MYGA product sheet</span></div>
+        <div class="matrix-cell"><span class="pill pill-green">Medicare brochure</span><br><span class="pill pill-green">FIA fact-finder</span><br><span class="pill pill-green">FIA product sheet</span></div>
         <div class="matrix-cell"><span class="pill pill-green">Partnership deck</span><br><span class="pill pill-green">Capability one-pager</span></div>
         <div class="matrix-cell"><span class="pill pill-muted">Internal only</span></div>
 
@@ -343,7 +343,7 @@
           <tr><td><strong>FIA Fact-Finder</strong></td><td><span class="status-live">Yes</span></td><td><span class="status-gap">Missing</span></td><td><span class="status-gap">Missing</span></td><td><span class="status-gap">Missing</span></td><td><span class="parity-hi">HIGH</span></td></tr>
           <tr><td><strong>RPI Brand Overview</strong></td><td><span class="status-live">Yes</span></td><td><span class="status-gap">Missing</span></td><td><span class="status-gap">Missing</span></td><td><span class="status-gap">Missing</span></td><td><span class="parity-hi">HIGH</span></td></tr>
           <tr><td><strong>DAVID Partnership Deck</strong></td><td><span class="status-live">Yes</span></td><td><span class="status-gap">Missing</span></td><td><span class="status-gap">Missing</span></td><td><span class="status-gap">Missing</span></td><td><span class="parity-hi">HIGH &mdash; B2B</span></td></tr>
-          <tr><td><strong>MYGA Product Sheet</strong></td><td><span class="status-live">Yes</span></td><td><span class="status-gap">Missing</span></td><td><span class="status-gap">Missing</span></td><td><span class="status-gap">Missing</span></td><td><span class="parity-med">MEDIUM</span></td></tr>
+          <tr><td><strong>FIA Product Sheet</strong></td><td><span class="status-live">Yes</span></td><td><span class="status-gap">Missing</span></td><td><span class="status-gap">Missing</span></td><td><span class="status-gap">Missing</span></td><td><span class="parity-med">MEDIUM</span></td></tr>
           <tr><td><strong>Life Insurance POS</strong></td><td><span class="status-live">Yes</span></td><td><span class="status-gap">Missing</span></td><td><span class="status-gap">Missing</span></td><td><span class="status-gap">Missing</span></td><td><span class="parity-med">MEDIUM</span></td></tr>
           <tr><td><strong>+ 5 additional assets</strong></td><td><span class="status-live">Yes</span></td><td><span class="status-planned">TBD</span></td><td><span class="status-planned">TBD</span></td><td><span class="status-planned">TBD</span></td><td><span class="parity-low">BACKLOG</span></td></tr>
         </tbody>
@@ -506,7 +506,7 @@ packages/core/src/cmo/types.ts                       — MODIFY: add CmoInventor
         <li>Uses <code>wordpress_list_pages</code> and <code>wordpress_get_post</code> MCP tools</li>
         <li>Marks 'stale' if no content update in 365 days</li>
         <li>Marks 'draft' if WordPress status is 'draft' or 'pending'</li>
-        <li>Gap detection: Medicare landing page, FIA product page, MYGA product page, Life insurance page, DAVID/partnership page, About page, Contact page — if any missing, appears as 'gap' entry</li>
+        <li>Gap detection: Medicare landing page, FIA product page, FIA product page, Life insurance page, DAVID/partnership page, About page, Contact page — if any missing, appears as 'gap' entry</li>
       </ul>
 
       <h3>Test Plan</h3>
@@ -880,7 +880,7 @@ packages/core/src/cmo/campaigns/index.ts      — NEW (barrel)</div>
         <li>AEP blackout Oct 1 &ndash; Dec 31: all non-AEP entries in that window &rarr; status 'blocked', blockedReason: 'AEP_BLACKOUT'. No override parameter.</li>
         <li>T65 entries: clients turning 65 in next 90 days. Reads Firestore <code>clients</code> collection by birth date range via <code>@tomachina/db</code>. Birth dates used for date math only &mdash; never logged or returned in calendar entries.</li>
         <li>Annual review entries: clients with last review &gt; 365 days ago</li>
-        <li>Always-on campaigns: Medicare, FIA nurture, MYGA nurture &mdash; one entry per channel per 30-day window</li>
+        <li>Always-on campaigns: Medicare, FIA nurture, FIA nurture &mdash; one entry per channel per 30-day window</li>
         <li>Calendar sorted by scheduledDate ascending</li>
         <li>Client identifiers and birth dates NEVER appear in calendar entries or log output</li>
       </ul>
@@ -925,7 +925,7 @@ Request body:
   "carrierName": string,
   "productId": string,
   "productName": string,
-  "productType": "FIA" | "MYGA" | "Life" | "Medicare" | "Advisory",
+  "productType": "FIA" | "FIA" | "Life" | "Medicare" | "Advisory",
   "market": "b2c" | "b2b" | "b2e" | "all",
   "launchDate": string  // ISO date
 }
