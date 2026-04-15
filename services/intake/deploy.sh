@@ -48,6 +48,65 @@ gcloud functions deploy email-intake \
   --allow-unauthenticated=false \
   --project=claude-mcp-484718
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Firestore-triggered functions (were live-but-not-in-deploy-sh until now —
+# ZRD-INTAKE-WIRE-TRIGGER-PROD-BROKEN landed the first of these; we're
+# closing the rest of the gap while we're here).
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Wire dispatcher — fires on intake_queue creation, routes to /api/atlas wires.
+# THIS is the P0 fix. Was never in deploy.sh, so any earlier operator deploy
+# has been frozen on stale source since 2026-03-20.
+gcloud functions deploy onIntakeQueueCreated \
+  --gen2 \
+  --runtime=nodejs20 \
+  --region=us-central1 \
+  --source=. \
+  --entry-point=onIntakeQueueCreated \
+  --trigger-event-filters="type=google.cloud.firestore.document.v1.created" \
+  --trigger-event-filters="database=(default)" \
+  --trigger-event-filters-path-pattern="document=intake_queue/{queueId}" \
+  --trigger-location=nam5 \
+  --memory=256MiB \
+  --timeout=180s \
+  --project=claude-mcp-484718
+
+# Notification triggers — fire on client + account writes to create notification docs.
+gcloud functions deploy onClientWrite \
+  --gen2 \
+  --runtime=nodejs20 \
+  --region=us-central1 \
+  --source=. \
+  --entry-point=onClientWrite \
+  --trigger-event-filters="type=google.cloud.firestore.document.v1.written" \
+  --trigger-event-filters="database=(default)" \
+  --trigger-event-filters-path-pattern="document=clients/{clientId}" \
+  --trigger-location=nam5 \
+  --memory=256MiB \
+  --timeout=60s \
+  --project=claude-mcp-484718
+
+gcloud functions deploy onAccountWrite \
+  --gen2 \
+  --runtime=nodejs20 \
+  --region=us-central1 \
+  --source=. \
+  --entry-point=onAccountWrite \
+  --trigger-event-filters="type=google.cloud.firestore.document.v1.written" \
+  --trigger-event-filters="database=(default)" \
+  --trigger-event-filters-path-pattern="document=clients/{clientId}/accounts/{accountId}" \
+  --trigger-location=nam5 \
+  --memory=256MiB \
+  --timeout=60s \
+  --project=claude-mcp-484718
+
+# Firebase Auth blocking trigger — onPartnerUserCreate.
+# NOTE: beforeUserCreated blocking functions are deployed via `firebase deploy
+# --only functions:onPartnerUserCreate` (Firebase CLI), not gcloud. They use a
+# different trigger mechanism (Identity Platform blocking) that gcloud's
+# `functions deploy` subcommand doesn't surface cleanly.
+# Tracked as follow-up: ZRD-INTAKE-AUTH-BLOCKING-DEPLOY-WIRE.
+
 echo "Deploying Cloud Scheduler jobs..."
 gcloud scheduler jobs create http intake-spc-scan \
   --schedule="*/5 * * * *" \
