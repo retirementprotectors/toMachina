@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>[CLIENT NAME] — Client Roadmap (Template)</title>
+<style>
+:root{--bg:#0a0e17;--card:#111827;--card2:#1a2236;--border:#1e293b;--text:#e2e8f0;--muted:#94a3b8;--green:#22c55e;--blue:#3b82f6;--red:#ef4444;--orange:#f59e0b;--gold:#d4a44c;--cyan:#06b6d4;--purple:#a78bfa}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+
+/* TEMPLATE BANNER */
+.template-banner{background:linear-gradient(90deg,rgba(245,158,11,0.2),rgba(245,158,11,0.08));border-bottom:2px solid var(--orange);color:var(--orange);font-size:0.82rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;text-align:center;padding:12px 16px}
+
+/* HEADER */
+.header{background:linear-gradient(135deg,#020b1a 0%,#0a1a0a 50%,#020b1a 100%);border-bottom:1px solid var(--border);padding:40px 32px;text-align:center;position:relative;overflow:hidden}
+.header::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(ellipse at 30% 50%,rgba(34,197,94,0.06) 0%,transparent 50%),radial-gradient(ellipse at 70% 50%,rgba(59,130,246,0.04) 0%,transparent 50%);pointer-events:none}
+.header h1{font-size:2.2rem;font-weight:800;background:linear-gradient(135deg,var(--green),var(--blue),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px;position:relative}
+.header .sub{font-size:0.95rem;color:var(--muted);position:relative}
+.header .badge{display:inline-block;margin-top:12px;padding:4px 16px;border-radius:999px;font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;background:rgba(34,197,94,0.1);color:var(--green);border:1px solid rgba(34,197,94,0.3);position:relative}
+
+/* L1 main tabs */
+.tab-bar{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px solid var(--border);overflow-x:auto;display:flex;max-width:1200px;margin:0 auto;padding:0 8px}
+.tab{padding:16px 26px;font-size:0.88rem;font-weight:700;color:var(--muted);cursor:pointer;white-space:nowrap;border-bottom:3px solid transparent;transition:all .2s;text-transform:uppercase;letter-spacing:1px}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--green);border-bottom-color:var(--green)}
+
+.content{max-width:1200px;margin:0 auto;padding:24px 16px}
+.panel{display:none}
+.panel.active{display:block}
+
+/* L2 sub-tabs (AI3, Analysis) */
+.l2-bar{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:18px;padding-bottom:2px;border-bottom:2px solid var(--border)}
+.l2-tab{padding:10px 18px;font-size:0.8rem;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;border-radius:6px 6px 0 0}
+.l2-tab:hover{color:var(--text);background:rgba(255,255,255,0.02)}
+.l2-tab.active{color:var(--cyan);border-bottom-color:var(--cyan);background:rgba(6,182,212,0.08)}
+.l2-panel{display:none}
+.l2-panel.active{display:block}
+
+/* L3 tabs (Assets > Investable/Real/Total, etc.) */
+.l3-bar{display:flex;flex-wrap:wrap;gap:4px;margin:10px 0 14px;padding-bottom:2px;border-bottom:1px dashed var(--border)}
+.l3-tab{padding:7px 14px;font-size:0.75rem;font-weight:600;color:var(--muted);cursor:pointer;border-radius:4px}
+.l3-tab:hover{color:var(--text);background:rgba(255,255,255,0.02)}
+.l3-tab.active{color:var(--green);background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.25)}
+.l3-panel{display:none}
+.l3-panel.active{display:block}
+
+/* L4 tabs (Investable > Type/Tax/Target) */
+.l4-bar{display:flex;flex-wrap:wrap;gap:4px;margin:8px 0 12px}
+.l4-tab{padding:5px 12px;font-size:0.72rem;font-weight:500;color:var(--muted);cursor:pointer;border-radius:4px;border:1px solid var(--border)}
+.l4-tab:hover{color:var(--text);background:var(--card2)}
+.l4-tab.active{color:var(--orange);background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.35)}
+.l4-panel{display:none}
+.l4-panel.active{display:block}
+
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:16px}
+.card h2{font-size:1.15rem;margin-bottom:12px}
+.card h3{font-size:0.95rem;margin:14px 0 8px;color:var(--green)}
+.card h4{font-size:0.82rem;margin:12px 0 6px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+.card p,.card li{color:var(--muted);font-size:0.88rem;margin-bottom:6px}
+.card ul,.card ol{margin-left:20px}
+.card strong{color:var(--text)}
+
+.stat-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:20px}
+.stat{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:18px;text-align:center}
+.stat .num{font-size:1.8rem;font-weight:800;color:var(--green);line-height:1}
+.stat .lbl{font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:4px}
+
+table{width:100%;border-collapse:collapse;font-size:0.8rem;margin:10px 0}
+th{text-align:left;padding:8px 10px;background:var(--card2);color:var(--green);font-weight:700;font-size:0.7rem;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border)}
+td{padding:8px 10px;border-bottom:1px solid var(--border);color:var(--muted);vertical-align:top}
+td:first-child{color:var(--text);font-weight:500}
+tr:hover td{background:var(--card2)}
+tr.totals td{font-weight:700;color:var(--text);border-top:2px solid var(--border)}
+
+.xref{display:inline-block;padding:3px 10px;border-radius:4px;font-size:0.72rem;background:rgba(6,182,212,0.1);color:var(--cyan);border:1px solid rgba(6,182,212,0.3);text-decoration:none;margin:2px;cursor:pointer}
+.xref:hover{background:rgba(6,182,212,0.2)}
+
+.stub{background:rgba(245,158,11,0.04);border:1px dashed var(--orange);border-radius:8px;padding:16px 20px;margin:12px 0;color:var(--muted);font-size:0.85rem}
+.stub strong{color:var(--orange)}
+.stub-populate{color:var(--muted);font-style:italic;font-size:0.82rem;margin-top:6px}
+
+.footer{text-align:center;padding:24px;color:var(--muted);font-size:0.72rem;border-top:1px solid var(--border);margin-top:32px}
+</style>
+</head>
+<body>
+
+<div class="template-banner">📋 TEMPLATE — Client Roadmap Scaffold · Populate per-case · v1.0 (2026-04-15)</div>
+
+<div class="header">
+<h1>[CLIENT NAME] &mdash; Client Roadmap</h1>
+<div class="sub">[Gender] &bull; Age [AGE] &bull; [Marital Status] &bull; [City, ST ZIP] &bull; [Phone]<br>[Relationship origin/advisor] &bull; Sole Intended Beneficiary: [BENEFICIARY]<br>Purpose: [ACCUMULATION / INCOME / LEGACY / COMBINATION]</div>
+<div class="badge">VOLTRON CSO &bull; [DATE] &bull; [MEETING TYPE]</div>
+</div>
+
+<!-- ============== L1 MAIN TAB BAR ============== -->
+<div class="tab-bar">
+<div class="tab active" onclick="show('tab','panel','p-agenda',this)">AGENDA</div>
+<div class="tab" onclick="show('tab','panel','p-ai3',this)">AI3</div>
+<div class="tab" onclick="show('tab','panel','p-analysis',this)">ANALYSIS</div>
+<div class="tab" onclick="show('tab','panel','p-recommendations',this)">RECOMMENDATIONS</div>
+<div class="tab" onclick="show('tab','panel','p-nextsteps',this)">NEXT STEPS</div>
+</div>
+
+<div class="content">
+
+<!-- ============== P-AGENDA ============== -->
+<div id="p-agenda" class="panel active">
+
+<div class="card">
+<h2>Agenda &mdash; [MEETING TYPE] with [ADVISOR]</h2>
+<p>Meeting recap, outstanding issues / questions, and quick-jump links to the rest of this roadmap.</p>
+<div style="margin-top:14px">
+<a class="xref" onclick="show('tab','panel','p-ai3',document.querySelectorAll('.tab')[1])">→ AI3 (Inventory)</a>
+<a class="xref" onclick="show('tab','panel','p-analysis',document.querySelectorAll('.tab')[2])">→ Analysis (TAIL)</a>
+<a class="xref" onclick="show('tab','panel','p-recommendations',document.querySelectorAll('.tab')[3])">→ Recommendations</a>
+<a class="xref" onclick="show('tab','panel','p-nextsteps',document.querySelectorAll('.tab')[4])">→ Next Steps</a>
+</div>
+</div>
+
+<div class="card">
+<h3>Previous Meeting Recap</h3>
+<div class="stub">
+<strong>STUB — populate per case:</strong> What was covered in the prior meeting(s). What changed between meetings (new documents received, events that shifted the picture, data enriched).
+</div>
+</div>
+
+<div class="card">
+<h3>Outstanding Issues &amp; Questions for [CLIENT] (at this meeting)</h3>
+<div class="stub">
+<strong>STUB — populate per case:</strong> Bulleted list of items we need to gather / confirm / decide at this meeting. Examples: missing beneficiary designations, POA details, document requests, charity designation, product disposition choices, LTC status, estate legal instrument discovery.
+</div>
+<ul>
+<li>[Item 1 — what we need from client]</li>
+<li>[Item 2 — decision needed from client]</li>
+<li>[Item 3 — document to obtain]</li>
+</ul>
+</div>
+
+<div class="card">
+<h3>Outstanding Items (Internal / RPI-Side Action)</h3>
+<div class="stub">
+<strong>STUB:</strong> Things on our side &mdash; illustrations to run, carrier field-desk questions, ZRD follow-ups, open discovery tasks. Not client-facing.
+</div>
+</div>
+
+</div> <!-- /p-agenda -->
+
+<!-- ============== P-AI3 (Assets · Insurance · Income + Centers) ============== -->
+<div id="p-ai3" class="panel">
+
+<div class="card">
+<h2>AI3 &mdash; Complete Client Inventory</h2>
+<p><strong>Assets · Insurance · Income</strong> are the three primary inventories for every case. Plus the <strong>Beneficiary Center</strong> (all account/policy beni designations) and <strong>RMD Center</strong> (required-minimum-distribution setup).</p>
+</div>
+
+<div class="l2-bar">
+<div class="l2-tab active" onclick="showL2('p-ai3','ai3-assets',this)">Assets</div>
+<div class="l2-tab" onclick="showL2('p-ai3','ai3-insurance',this)">Insurance</div>
+<div class="l2-tab" onclick="showL2('p-ai3','ai3-income',this)">Income</div>
+<div class="l2-tab" onclick="showL2('p-ai3','ai3-beni',this)">Beneficiary Center</div>
+<div class="l2-tab" onclick="showL2('p-ai3','ai3-rmd',this)">RMD Center</div>
+</div>
+
+<!-- AI3 > Assets -->
+<div id="ai3-assets" class="l2-panel active">
+<div class="l3-bar">
+<div class="l3-tab active" onclick="showL3('ai3-assets','assets-investable',this)">Investable</div>
+<div class="l3-tab" onclick="showL3('ai3-assets','assets-real',this)">Real Estate</div>
+<div class="l3-tab" onclick="showL3('ai3-assets','assets-total',this)">Total</div>
+</div>
+
+<!-- Investable (Type/Tax/Target) -->
+<div id="assets-investable" class="l3-panel active">
+<div class="l4-bar">
+<div class="l4-tab active" onclick="showL4('assets-investable','inv-type',this)">Type</div>
+<div class="l4-tab" onclick="showL4('assets-investable','inv-tax',this)">Tax</div>
+<div class="l4-tab" onclick="showL4('assets-investable','inv-target',this)">Target (S/L/G)</div>
+</div>
+
+<div id="inv-type" class="l4-panel active">
+<div class="stub">
+<strong>STUB — populate per case:</strong> Investable Assets by Account Type.
+<div class="stub-populate">Sections typically needed: Annuities · Bank CDs · Brokerage / Investment Accounts · Money Market / Checking. Each section is a table of accounts with: Carrier/Institution, Policy/Account #, Tax status, Value, Rate/APY, Issue Date, Maturity, Beneficiary, Source.</div>
+</div>
+</div>
+
+<div id="inv-tax" class="l4-panel">
+<div class="stub">
+<strong>STUB — populate per case:</strong> Investable Assets by Tax Status.
+<div class="stub-populate">Standard breakdown:
+<ul>
+<li><strong>Roth IRA</strong> — tax-free growth, no RMD, tax-free inheritance. <em>Do not touch.</em></li>
+<li><strong>Traditional IRA</strong> — RMD at age 73. Taxed as ordinary income on withdrawal.</li>
+<li><strong>Non-Qualified (cash / CDs)</strong> — basis already taxed, interest/gains ordinary income as realized.</li>
+<li><strong>Non-Qualified Institutional (annuities)</strong> — basis already taxed, growth tax-deferred.</li>
+<li><strong>Non-Qualified Institutional (life CV)</strong> — cash value available via loans/partial surrender.</li>
+</ul>
+Table with account count + total value per tax status.</div>
+</div>
+</div>
+
+<div id="inv-target" class="l4-panel">
+<div class="stub">
+<strong>STUB — populate per case:</strong> Investable Assets by Target (Safety / Liquidity / Growth).
+<div class="stub-populate">RPI framework: every asset serves one of three retirement-planning purposes. Table showing:
+<ul>
+<li><strong>SAFETY</strong> — principal-protected, predictable (CDs, fixed annuities, bond ladders)</li>
+<li><strong>LIQUIDITY</strong> — immediately accessible without penalty (cash, money market, life CV via policy loan, free-withdrawal provisions)</li>
+<li><strong>GROWTH</strong> — tax-deferred/qualified growth potential (indexed strategies, equity exposure, Roth)</li>
+</ul>
+Include commentary on current allocation mix vs target.</div>
+</div>
+</div>
+
+</div> <!-- /assets-investable -->
+
+<!-- Real Estate -->
+<div id="assets-real" class="l3-panel">
+<div class="l4-bar">
+<div class="l4-tab active" onclick="showL4('assets-real','real-ag',this)">Agriculture</div>
+<div class="l4-tab" onclick="showL4('assets-real','real-agres',this)">Ag Residential</div>
+<div class="l4-tab" onclick="showL4('assets-real','real-comm',this)">Commercial</div>
+</div>
+
+<div id="real-ag" class="l4-panel active">
+<div class="stub"><strong>STUB:</strong> Agricultural real estate — farmland, tillable acres, pasture, timber. Parcel-level table with acreage, assessed value, estimated market value, county/township, tenant info if leased, legal description. Link to ISU parcel data if available.</div>
+</div>
+<div id="real-agres" class="l4-panel">
+<div class="stub"><strong>STUB:</strong> Ag-residential structures — homestead on farmland. Structure value separate from land.</div>
+</div>
+<div id="real-comm" class="l4-panel">
+<div class="stub"><strong>STUB:</strong> Commercial real estate — business property, rental income-producing, non-residential.</div>
+</div>
+</div>
+
+<!-- Total -->
+<div id="assets-total" class="l3-panel">
+<div class="stub">
+<strong>STUB — populate per case:</strong> Total Net Worth Snapshot + Visualization.
+<div class="stub-populate">Stats bar with Investable / Real Estate / Total Net Worth. Pie chart of allocation by major asset class (bank, annuity, life, real estate). Context on how net worth positioning affects estate planning thresholds (federal estate tax $13.61M, state inheritance tax if applicable).</div>
+</div>
+</div>
+
+</div> <!-- /ai3-assets -->
+
+<!-- AI3 > Insurance -->
+<div id="ai3-insurance" class="l2-panel">
+<div class="l3-bar">
+<div class="l3-tab active" onclick="showL3('ai3-insurance','ins-medicare',this)">Medicare</div>
+<div class="l3-tab" onclick="showL3('ai3-insurance','ins-life',this)">Life</div>
+<div class="l3-tab" onclick="showL3('ai3-insurance','ins-ancillary',this)">Ancillary</div>
+</div>
+
+<div id="ins-medicare" class="l3-panel active">
+<div class="stub">
+<strong>STUB — populate per case:</strong> Medicare inventory.
+<div class="stub-populate">Parts A/B/C/D. Medigap/Part D/MAPD plan name + carrier + monthly premium + deductibles. Effective date + status. Plan ratings. IRMAA tier. Pull from QUE Medicare Lion if platform data available.</div>
+</div>
+</div>
+
+<div id="ins-life" class="l3-panel">
+<div class="stub">
+<strong>STUB — populate per case:</strong> Life insurance policies inventory.
+<div class="stub-populate">Table columns: Carrier · Policy # · Face · Death Benefit · Cash Value · Last-Yr Dividend · Premium · Issue Date/Age · Primary Beneficiary · Contingent · Source/Statement Date. Include dividend option (PUA / cash / premium offset / accumulate at interest).</div>
+</div>
+</div>
+
+<div id="ins-ancillary" class="l3-panel">
+<div class="stub">
+<strong>STUB — populate per case:</strong> Ancillary coverage (LTC, disability, critical illness, cancer, etc.).
+<div class="stub-populate">For each policy: Carrier · Policy # · Plan · Daily/lifetime max · Elimination period · Inflation rider · Issue date + age · Current daily benefit (compounded) · Premium · Administrator.</div>
+</div>
+</div>
+
+</div> <!-- /ai3-insurance -->
+
+<!-- AI3 > Income -->
+<div id="ai3-income" class="l2-panel">
+<div class="l3-bar">
+<div class="l3-tab active" onclick="showL3('ai3-income','income-type',this)">By Type</div>
+<div class="l3-tab" onclick="showL3('ai3-income','income-tax',this)">By Tax Treatment</div>
+</div>
+
+<div id="income-type" class="l3-panel active">
+<div class="stub">
+<strong>STUB — populate per case:</strong> Income sources by type.
+<div class="stub-populate">Card per source: SSI · Pension · Farm/Business · Investment Income · RMDs · Rental · Part-time work · Annuity payouts. Amount (monthly + annualized) + notes.</div>
+</div>
+</div>
+
+<div id="income-tax" class="l3-panel">
+<div class="stub">
+<strong>STUB — populate per case:</strong> Income by tax treatment.
+<div class="stub-populate">Table grouping each income source by tax treatment: Ordinary Income (1099-INT, 1099-MISC, Schedule F SE) · Social Security taxable portion · Qualified Dividends · Long-Term Capital Gains · IRA distributions (1099-R). Connect to TAIL tax analysis.</div>
+</div>
+</div>
+</div> <!-- /ai3-income -->
+
+<!-- AI3 > Beni Center -->
+<div id="ai3-beni" class="l2-panel">
+<div class="stub">
+<strong>STUB — populate per case:</strong> Beneficiary Center.
+<div class="stub-populate">Two tables: (1) Accounts WITH beneficiary — carrier/account/type/value/primary/contingent/source. (2) Accounts WITHOUT beneficiary — probate-bound with total $ exposure. Action plan card with sequenced beni update items (POD forms for CDs, carrier beni change forms for annuities, IRA beneficiary forms distinct from POD).</div>
+</div>
+</div>
+
+<!-- AI3 > RMD Center -->
+<div id="ai3-rmd" class="l2-panel">
+<div class="stub">
+<strong>STUB — populate per case:</strong> RMD Center.
+<div class="stub-populate">Header: client DOB, age turning 73 date, first RMD tax year, required beginning date (April 1 following year of 73). Table of Traditional IRA accounts. Projected RMD calculation year-by-year (age × IRS Uniform Lifetime Table divisor). Key decisions card: Roth conversion window, CD rollover strategy, Inherited IRA implications, QCD option.</div>
+</div>
+</div>
+
+</div> <!-- /p-ai3 -->
+
+<!-- ============== P-ANALYSIS (TAIL) ============== -->
+<div id="p-analysis" class="panel">
+
+<div class="card">
+<h2>Analysis &mdash; TAIL Framework</h2>
+<p>Every case is analyzed across four analytical dimensions &mdash; <strong>T</strong>ax · <strong>A</strong>ssets · <strong>I</strong>ncome · <strong>L</strong>egacy &mdash; with equal weight. Each dimension surfaces what the client <em>has</em> vs what they <em>need</em>. Recommendations are downstream of this analysis.</p>
+</div>
+
+<div class="l2-bar">
+<div class="l2-tab active" onclick="showL2('p-analysis','ana-tax',this)">Tax (T)</div>
+<div class="l2-tab" onclick="showL2('p-analysis','ana-assets',this)">Assets (A)</div>
+<div class="l2-tab" onclick="showL2('p-analysis','ana-income',this)">Income (I)</div>
+<div class="l2-tab" onclick="showL2('p-analysis','ana-legacy',this)">Legacy (L)</div>
+</div>
+
+<!-- Analysis > Tax -->
+<div id="ana-tax" class="l2-panel active">
+<div class="l3-bar">
+<div class="l3-tab active" onclick="showL3('ana-tax','tax-income',this)">Income Tax</div>
+<div class="l3-tab" onclick="showL3('ana-tax','tax-assets',this)">Asset Tax</div>
+</div>
+<div id="tax-income" class="l3-panel active">
+<div class="stub">
+<strong>STUB — populate per case:</strong> Income tax analysis.
+<div class="stub-populate">2024 vs 2025 comparison. AGI · Taxable income · Total tax · Effective rate · Marginal rate. Itemized deduction detail. Schedule F / business detail. 1099-INT → account inventory tie-out. Qualified dividend detail. Roth conversion window math (headroom in current bracket).</div>
+</div>
+</div>
+<div id="tax-assets" class="l3-panel">
+<div class="stub">
+<strong>STUB — populate per case:</strong> Asset tax analysis.
+<div class="stub-populate">Tax status breakdown: NQ / Trad IRA / Roth. Commentary on concentration, RMD exposure, tax-deferral migration opportunity (e.g., moving CD interest into annuity defers ordinary income tax). Roth untouchable positioning.</div>
+</div>
+</div>
+</div>
+
+<!-- Analysis > Assets -->
+<div id="ana-assets" class="l2-panel">
+<div class="l3-bar">
+<div class="l3-tab active" onclick="showL3('ana-assets','assets-slg',this)">Safety / Liquidity / Growth</div>
+<div class="l3-tab" onclick="showL3('ana-assets','assets-typestory',this)">Type Story</div>
+<div class="l3-tab" onclick="showL3('ana-assets','assets-taxstory',this)">Tax Story</div>
+</div>
+<div id="assets-slg" class="l3-panel active">
+<div class="stub"><strong>STUB — populate per case:</strong> S/L/G analysis. Current allocation percentages. What client HAS vs what client NEEDS. Post-Reco allocation shift. Commentary on whether current mix matches retirement-stage needs.</div>
+</div>
+<div id="assets-typestory" class="l3-panel">
+<div class="stub"><strong>STUB — populate per case:</strong> Type story. What kinds of accounts/products does the client concentrate in? What's missing? What does the mix tell us about risk tolerance + advisor history? What should we add/remove/rebalance?</div>
+</div>
+<div id="assets-taxstory" class="l3-panel">
+<div class="stub"><strong>STUB — populate per case:</strong> Tax story. Tax efficiency of current allocation. Dollars of annual tax drag at current state. Dollars saved post-Reco. NQ → tax-deferred migration value.</div>
+</div>
+</div>
+
+<!-- Analysis > Income -->
+<div id="ana-income" class="l2-panel">
+<div class="l3-bar">
+<div class="l3-tab active" onclick="showL3('ana-income','income-type-ana',this)">By Type</div>
+<div class="l3-tab" onclick="showL3('ana-income','income-tax-ana',this)">By Tax Treatment</div>
+</div>
+<div id="income-type-ana" class="l3-panel active">
+<div class="stub"><strong>STUB — populate per case:</strong> Income type analysis. What does the client need income to do? What is it actually doing? Any projected shifts (farm wind-down, pension kickoff, SSI activation, pre-FRA bridge). Does income cover expected lifestyle expenses?</div>
+</div>
+<div id="income-tax-ana" class="l3-panel">
+<div class="stub"><strong>STUB — populate per case:</strong> Income tax-treatment analysis. Opportunities to shift ordinary income to tax-advantaged (QCD, Roth conversion, tax-deferral). Quantified annual savings of each opportunity.</div>
+</div>
+</div>
+
+<!-- Analysis > Legacy -->
+<div id="ana-legacy" class="l2-panel">
+<div class="l3-bar">
+<div class="l3-tab active" onclick="showL3('ana-legacy','legacy-c3',this)">C3 — Charity / Children / Care</div>
+<div class="l3-tab" onclick="showL3('ana-legacy','legacy-legal',this)">Legal — Instruments</div>
+</div>
+
+<div id="legacy-c3" class="l3-panel active">
+<div class="stub">
+<strong>STUB — populate per case:</strong> C3 Framework — every client's legacy flows to three destinations. Analyze WHAT THEY HAVE vs WHAT THEY NEED across all three.
+<div class="stub-populate">
+<strong>Charity card:</strong> current giving pattern · structured vehicles (CRT/DAF/direct bequest) · opportunities (QCD via GMIB, charitable beni designation).<br>
+<strong>Children (heirs) card:</strong> named beneficiaries status · accounts missing beni · probate exposure · inheritance tax (state + federal) · specific assets with succession complexity (farm, business, closely-held stock).<br>
+<strong>Care (self + dependents) card:</strong> LTC coverage current state · daily benefit with inflation compounding · supplementary layers (annuity QCF multipliers, waivers) · gap analysis vs expected need.
+</div>
+</div>
+</div>
+
+<div id="legacy-legal" class="l3-panel">
+<div class="stub">
+<strong>STUB — populate per case:</strong> Legal instruments inventory + gap analysis.
+<div class="stub-populate">Table with: Instrument · Has It? · Status (Yes/No/Unknown) · Gap or Action. Standard rows: Trust · Will · Financial POA (durable/limited/springing) · Medical POA · Healthcare Directive / Living Will · Beneficiary Deed (for real property). Flag items to discuss at meeting vs items requiring attorney coordination.</div>
+</div>
+</div>
+
+</div> <!-- /p-analysis -->
+
+<!-- ============== P-RECOMMENDATIONS ============== -->
+<div id="p-recommendations" class="panel">
+
+<div class="card" style="background:rgba(239,68,68,0.08);border:2px solid var(--red);border-radius:12px">
+<h2 style="color:var(--red);font-size:1.1rem">⚠ JDM AM ACTION ITEMS &mdash; Before [MEETING]</h2>
+<div class="stub">
+<strong>STUB — populate per case:</strong> Red-border high-visibility list of action items that block Reco selection or advisor walk-in. Typically 3-5 items: carrier availability confirmations, illustration pulls, client decisions, field-desk questions, ZRD follow-ups.
+</div>
+</div>
+
+<div class="card" style="background:linear-gradient(135deg,rgba(34,197,94,0.08),rgba(59,130,246,0.04));border-color:rgba(34,197,94,0.3)">
+<h2 style="background:linear-gradient(135deg,var(--green),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent">[N] Primary Recommendations &mdash; [Summary framing]</h2>
+<div class="stub">
+<strong>STUB:</strong> Top-level header of the Recommendation set. One-paragraph summary of each Reco (what we're doing and why). Then a doctrine callout box explaining the RPI rules being applied (bonus-only-for-surrender, no-rider-fee-on-accumulation, preferred allocation 50% S&amp;P-Cap + 50% S&amp;P-MARC-Part).
+</div>
+</div>
+
+<!-- Sub-tab navigation (sub-tabs are dynamic per case — add/remove as recos grow) -->
+<div style="display:flex;gap:6px;margin:20px 0 0;border-bottom:2px solid var(--border);padding:0 4px">
+<div onclick="showSub('sub-reco-1',this)" class="sub-tab active" style="padding:12px 20px;font-size:0.85rem;font-weight:700;color:var(--purple);cursor:pointer;border-bottom:3px solid var(--purple);margin-bottom:-2px;background:rgba(139,92,246,0.08);border-radius:8px 8px 0 0">🎯 RECO #1 &mdash; [TITLE]</div>
+<div onclick="showSub('sub-reco-2',this)" class="sub-tab" style="padding:12px 20px;font-size:0.85rem;font-weight:700;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;border-radius:8px 8px 0 0">🟢 RECO #2 &mdash; [TITLE]</div>
+<div onclick="showSub('sub-reco-2-alt',this)" class="sub-tab" style="padding:12px 20px;font-size:0.85rem;font-weight:700;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;border-radius:8px 8px 0 0">🔵 RECO #2 ALT &mdash; [TITLE]</div>
+</div>
+
+<!-- Reco #1 sub-panel -->
+<div id="sub-reco-1" class="sub-panel" style="display:block;padding-top:20px">
+<div class="card" style="background:rgba(139,92,246,0.04);border-left:4px solid #a78bfa">
+<h2 style="color:#a78bfa">Recommendation #1 &mdash; [Title]</h2>
+<div class="stub"><strong>STUB:</strong> Primary recommendation statement. What we're recommending, why, what source money, what destination product, strategic rationale.</div>
+<p style="margin-top:10px"><a href="illustrations/[client-product-illustration].pdf" style="color:var(--cyan);text-decoration:none;font-weight:600">📄 View Carrier Illustration PDF &rarr;</a></p>
+</div>
+<div class="stub"><strong>STUB per Reco #1:</strong> Source contracts table · Product summary (why this product per doctrine) · Illustration numbers (guaranteed + non-guaranteed back-test) · Any specialized analysis sections (RMD timing, LPA disposition options, QCD math, QCF multiplier, etc.) · Transfer mechanics · Pitch language for advisor.</div>
+</div>
+
+<!-- Reco #2 sub-panel -->
+<div id="sub-reco-2" class="sub-panel" style="display:none;padding-top:20px">
+<div class="card" style="background:rgba(34,197,94,0.04);border-left:4px solid var(--green)">
+<h2 style="color:var(--green)">Recommendation #2 &mdash; [Title]</h2>
+<div class="stub"><strong>STUB:</strong> Primary recommendation statement. Source money, destination product, strategic rationale (e.g., bonus-to-overcome-surrender, flex-premium-captures-future-SPDA, tax-deferral-on-NQ-interest).</div>
+<p style="margin-top:10px"><a href="illustrations/[client-product-illustration].pdf" style="color:var(--cyan);text-decoration:none;font-weight:600">📄 View Carrier Illustration PDF &rarr;</a></p>
+</div>
+<div class="stub"><strong>STUB per Reco #2:</strong> Source contracts table · Phased deposit schedule · Why this product (doctrine applied) · Illustration numbers · Accumulation projection · Pitch language.</div>
+</div>
+
+<!-- Reco #2 Alt sub-panel -->
+<div id="sub-reco-2-alt" class="sub-panel" style="display:none;padding-top:20px">
+<div class="card" style="background:rgba(59,130,246,0.04);border-left:4px solid var(--blue)">
+<h2 style="color:var(--blue)">Recommendation #2 ALTERNATE &mdash; [Title]</h2>
+<div class="stub"><strong>STUB:</strong> Alternative path for Reco #2. When to pick this alternate over the primary (e.g., if product isn't approved, if bonus schedule changes, if client pushback requires different framing).</div>
+<p style="margin-top:10px"><a href="illustrations/[client-product-illustration].pdf" style="color:var(--cyan);text-decoration:none;font-weight:600">📄 View Alternate Illustration PDF &rarr;</a></p>
+</div>
+<div class="stub"><strong>STUB per Alt:</strong> When to pick this alt · Product terms · Illustration numbers · Primary vs Alt head-to-head (side-by-side).</div>
+</div>
+
+</div> <!-- /p-recommendations -->
+
+<!-- ============== P-NEXT STEPS ============== -->
+<div id="p-nextsteps" class="panel">
+<div class="card">
+<h2>Next Steps &mdash; Post-Meeting Action Plan</h2>
+<p>Sequenced action items flowing from this meeting. Owner, deadline, and dependency noted where known.</p>
+</div>
+
+<div class="card">
+<h3>Immediate (Week of Meeting)</h3>
+<div class="stub"><strong>STUB — populate per case:</strong> 3-7 items that happen within 7 days. Typically: application submissions, beneficiary forms, 1035 initiations, trustee-to-trustee transfer forms.</div>
+</div>
+
+<div class="card">
+<h3>Near-Term (30–60 Days)</h3>
+<div class="stub"><strong>STUB — populate per case:</strong> Items that happen within 2 months. Typically: carrier processing windows, first maturity rollovers, verification calls to administrators.</div>
+</div>
+
+<div class="card">
+<h3>Within Current Year</h3>
+<div class="stub"><strong>STUB — populate per case:</strong> Items that happen within the current calendar year. Typically: remaining CD maturities, estate legal instrument discovery, annual review scheduling.</div>
+</div>
+
+<div class="card">
+<h3>Future Years (Scheduled Events)</h3>
+<div class="stub"><strong>STUB — populate per case:</strong> Scheduled future events. Examples: RMD activation year, GMIB LPA activation, surrender period ends on existing contracts, phase-N capture windows.</div>
+</div>
+
+</div> <!-- /p-nextsteps -->
+
+</div> <!-- /content -->
+
+<div class="footer">
+VOLTRON CSO &bull; Client Roadmap Template v1.0 &bull; 2026-04-15<br>
+Source: [carrier statements + advisor discovery notes + tax return + illustrations]<br>
+Client: [CLIENT NAME] · ProDash: [CLIENT ID] · #RunningOurOwnRACE
+</div>
+
+<script>
+// L1 main tabs: hide all .panel, show target, toggle .tab active
+function show(tabClass,panelClass,id,el){
+  document.querySelectorAll('.'+panelClass).forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.'+tabClass).forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  el.classList.add('active');
+}
+// L2 scoped to parent panel
+function showL2(parentId,id,el){
+  const parent=document.getElementById(parentId);
+  parent.querySelectorAll('.l2-panel').forEach(p=>p.classList.remove('active'));
+  parent.querySelectorAll('.l2-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  el.classList.add('active');
+}
+function showL3(parentId,id,el){
+  const parent=document.getElementById(parentId);
+  parent.querySelectorAll('.l3-panel').forEach(p=>p.classList.remove('active'));
+  parent.querySelectorAll('.l3-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  el.classList.add('active');
+}
+function showL4(parentId,id,el){
+  const parent=document.getElementById(parentId);
+  parent.querySelectorAll('.l4-panel').forEach(p=>p.classList.remove('active'));
+  parent.querySelectorAll('.l4-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  el.classList.add('active');
+}
+// Reco sub-tabs (within p-recommendations)
+function showSub(id,el){
+  document.querySelectorAll('.sub-panel').forEach(p=>p.style.display='none');
+  document.querySelectorAll('.sub-tab').forEach(t=>{t.style.color='var(--muted)';t.style.borderBottomColor='transparent';t.style.background='transparent'});
+  const target=document.getElementById(id); if(target) target.style.display='block';
+  if(el){
+    const color=id==='sub-reco-1'?'var(--purple)':(id==='sub-reco-2'?'var(--green)':'var(--blue)');
+    const bg=id==='sub-reco-1'?'rgba(139,92,246,0.08)':(id==='sub-reco-2'?'rgba(34,197,94,0.08)':'rgba(59,130,246,0.08)');
+    el.style.color=color;
+    el.style.borderBottomColor=color;
+    el.style.background=bg;
+  }
+}
+</script>
+</body>
+</html>
