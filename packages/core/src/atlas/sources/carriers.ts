@@ -40,4 +40,7 @@ export const CARRIER_SOURCES: CarrierSourceDefinition[] = [
   // Reference data
   { carrierId: 'CARRIER_NAIC', carrierName: 'NAIC', status: 'GREEN', feedType: 'automated', productLine: 'ALL', dataDomain: 'DEMOGRAPHICS', notes: 'Carrier seeding via NAIC database' },
   { carrierId: 'CARRIER_DST_VISION', carrierName: 'DST Vision', status: 'YELLOW', feedType: 'manual_csv', productLine: 'INVESTMENTS', dataDomain: 'ACCOUNTS', notes: 'Data aggregator for directly held mutual fund / variable annuity accounts' },
+  // Farmland valuation sources (FV-001 / SPR-FARMLAND-VALUATION-001 — 2026-04-15)
+  { carrierId: 'SOURCE_ISU_EXTENSION', carrierName: 'ISU Extension (Iowa Farmland Value Survey)', status: 'GREEN', feedType: 'automated', productLine: 'ALL', dataDomain: 'VALUATION', notes: 'Annual county-avg + district-tier xlsx from CARD Farmland portal (farmland.card.iastate.edu). Seeded annually Jan 15 via WIRE_FARMLAND_VALUE_SEED.' },
+  { carrierId: 'SOURCE_USDA_NASS', carrierName: 'USDA NASS (Quick Stats)', status: 'GREEN', feedType: 'automated', productLine: 'ALL', dataDomain: 'VALUATION', notes: 'USDA National Ag Statistics Service Quick Stats API. Key NASS_QUICK_STATS_KEY in GSM. Cross-checks ISU at county grain for confidence upgrade.' },
 ]
