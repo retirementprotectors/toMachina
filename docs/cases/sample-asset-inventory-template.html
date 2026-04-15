@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sample Client — Asset Inventory & Planning Roadmap</title>
+<style>
+:root{--bg:#0a0e17;--card:#111827;--card2:#1a2236;--border:#1e293b;--text:#e2e8f0;--muted:#94a3b8;--green:#22c55e;--blue:#3b82f6;--red:#ef4444;--orange:#f59e0b;--gold:#d4a44c;--cyan:#06b6d4}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+.sample-banner{background:linear-gradient(90deg,rgba(245,158,11,0.18),rgba(245,158,11,0.08));border-bottom:1px solid rgba(245,158,11,0.4);color:var(--orange);font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;text-align:center;padding:10px 16px}
+.header{background:linear-gradient(135deg,#020b1a 0%,#0a1a0a 50%,#020b1a 100%);border-bottom:1px solid var(--border);padding:40px 32px;text-align:center;position:relative;overflow:hidden}
+.header::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(ellipse at 30% 50%,rgba(34,197,94,0.06) 0%,transparent 50%),radial-gradient(ellipse at 70% 50%,rgba(59,130,246,0.04) 0%,transparent 50%);pointer-events:none}
+.header h1{font-size:2.2rem;font-weight:800;background:linear-gradient(135deg,var(--green),var(--blue),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px;position:relative}
+.header .sub{font-size:0.95rem;color:var(--muted);position:relative}
+.header .badge{display:inline-block;margin-top:12px;padding:4px 16px;border-radius:999px;font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;background:rgba(34,197,94,0.1);color:var(--green);border:1px solid rgba(34,197,94,0.3);position:relative}
+.tab-bar{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px solid var(--border);overflow-x:auto;display:flex;max-width:1100px;margin:0 auto;padding:0 8px}
+.tab{padding:14px 18px;font-size:0.82rem;font-weight:600;color:var(--muted);cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;transition:all .2s}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--green);border-bottom-color:var(--green)}
+.content{max-width:1100px;margin:0 auto;padding:24px 16px}
+.panel{display:none}
+.panel.active{display:block}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:16px}
+.card h2{font-size:1.15rem;margin-bottom:12px}
+.card h3{font-size:0.95rem;margin:14px 0 8px;color:var(--green)}
+.card p,.card li{color:var(--muted);font-size:0.88rem;margin-bottom:6px}
+.card ul{margin-left:20px}
+.card strong{color:var(--text)}
+.stat-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:20px}
+.stat{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:18px;text-align:center}
+.stat .num{font-size:1.8rem;font-weight:800;color:var(--green);line-height:1}
+.stat .lbl{font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:4px}
+.stat.warn .num{color:var(--red)}
+table{width:100%;border-collapse:collapse;font-size:0.8rem;margin:10px 0}
+th{text-align:left;padding:8px 10px;background:var(--card2);color:var(--green);font-weight:700;font-size:0.7rem;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border)}
+td{padding:8px 10px;border-bottom:1px solid var(--border);color:var(--muted);vertical-align:top}
+td:first-child{color:var(--text);font-weight:500}
+tr:hover td{background:var(--card2)}
+tr.totals td{font-weight:700;color:var(--text);border-top:2px solid var(--border)}
+.none{color:var(--red);font-weight:700}
+.flag{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin-bottom:12px;border-left:4px solid var(--muted)}
+.flag.red{border-left-color:var(--red)}
+.flag.orange{border-left-color:var(--orange)}
+.flag.blue{border-left-color:var(--blue)}
+.flag .title{font-size:0.9rem;font-weight:700;margin-bottom:4px}
+.flag.red .title{color:var(--red)}
+.flag.orange .title{color:var(--orange)}
+.flag.blue .title{color:var(--blue)}
+.flag p{font-size:0.85rem;color:var(--muted);margin:4px 0}
+.flag .action{margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
+.flag .action strong{color:var(--green);font-size:0.78rem;text-transform:uppercase;letter-spacing:1px}
+.maturity-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin:16px 0}
+.mat-card{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:14px;text-align:center}
+.mat-card .mo{font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+.mat-card .amt{font-size:1.3rem;font-weight:800;color:var(--orange);margin:4px 0}
+.mat-card .ct{font-size:0.7rem;color:var(--muted)}
+.mat-card.empty{opacity:.3}
+.income-card{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+.income-card .src{font-size:0.9rem;font-weight:600}
+.income-card .val{font-size:1.2rem;font-weight:800;color:var(--green)}
+.income-card .detail{font-size:0.75rem;color:var(--muted)}
+.note{background:rgba(6,182,212,0.06);border:1px solid rgba(6,182,212,0.2);border-radius:8px;padding:14px 18px;margin:14px 0;font-size:0.85rem;color:var(--muted)}
+.note strong{color:var(--cyan)}
+.footer{text-align:center;padding:24px;color:var(--muted);font-size:0.72rem;border-top:1px solid var(--border);margin-top:32px}
+@media print{body{background:#fff;color:#000}.sample-banner{background:#fff8e6;color:#a66400;border-color:#a66400}.header{background:#f8f8f8;border-bottom:2px solid #000}.header h1{-webkit-text-fill-color:#000;color:#000}.tab-bar{display:none}.panel{display:block!important;page-break-inside:avoid}.card,.stat,.flag,.income-card,.mat-card{background:#fff;border-color:#ccc}th{background:#eee;color:#000}td,.card p,.card li,.flag p{color:#333}.stat .num{color:#000}.none{color:#c00}.footer{color:#666}}
+</style>
+</head>
+<body>
+
+<div class="sample-banner">⚠ SAMPLE — PHI redacted. Template demonstration of RPI's case-output format. All names, account numbers, dates, and identifiers have been genericized.</div>
+
+<div class="header">
+<h1>Sample Client &mdash; Asset Inventory &amp; Planning Roadmap</h1>
+<div class="sub">Male &bull; Age 71 &bull; Single &bull; No Children &bull; [CITY, ST ZIP] &bull; [PHONE]<br>Primary Carrier Member Since 1974 &bull; Sole Intended Beneficiary: [SIBLING]<br>Purpose: Accumulation + Legacy</div>
+<div class="badge">VOLTRON CSO &bull; SAMPLE OUTPUT &bull; TAX RETURN INTEGRATED</div>
+</div>
+
+<div class="tab-bar">
+<div class="tab active" onclick="showPanel('agenda',this)">AGENDA</div>
+<div class="tab" onclick="showPanel('summary',this)">SUMMARY</div>
+<div class="tab" onclick="showPanel('annuities',this)">ANNUITIES</div>
+<div class="tab" onclick="showPanel('cds',this)">CDs</div>
+<div class="tab" onclick="showPanel('life',this)">LIFE</div>
+<div class="tab" onclick="showPanel('beni',this)">BENI CENTER</div>
+<div class="tab" onclick="showPanel('rmd',this)">RMD CENTER</div>
+<div class="tab" onclick="showPanel('tax',this)">TAX BREAKDOWN</div>
+<div class="tab" onclick="showPanel('flags',this)">FLAGS</div>
+<div class="tab" onclick="showPanel('income',this)">INCOME</div>
+</div>
+
+<div class="content">
+
+<!-- ANALYSIS MEETING AGENDA -->
+<div id="agenda" class="panel active">
+<div class="card">
+<h2>Analysis Meeting Agenda &mdash; Discovery #2</h2>
+<p>Second discovery meeting following [FIELD AGENT]&rsquo;s 3.5-hour initial meeting. Goal: complete the Health/Wealth/Legacy picture, gather missing info, and outline the analysis we&rsquo;ll deliver in the follow-up presentation.</p>
+</div>
+
+<div class="card">
+<h3>1 &mdash; Summary</h3>
+<p>[CLIENT] is a 71-year-old single male farmer. ~$2.03M in financial assets across 23 accounts (6 annuities, 10 CDs, 6 life policies, 1 LTC). Sole intended beneficiary is [SIBLING]. No financial dependents. Practicing Catholic. Friend serves as POA (details TBD). Purpose of planning: <strong>accumulation and legacy</strong>.</p>
+<ul>
+<li><strong>Total assets (CV):</strong> ~$2.03M</li>
+<li><strong>Total death benefit:</strong> ~$2.16M</li>
+<li><strong>2025 Total income (per return):</strong> ~$119K &mdash; SSI $29K taxable + Farm net $19K + Interest $36K + IRA distribution $25K + Gains $8.5K + Dividends $1.5K</li>
+<li><strong>2025 Farm (Schedule F, sole prop):</strong> Gross ~$164K / Expenses ~$145K / <strong>Net ~$19K</strong> (corn &amp; soybeans)</li>
+<li><strong>2025 Tax bracket:</strong> <strong>22% federal marginal / 18% effective</strong> (was previously assumed 32&ndash;35% &mdash; actual is dramatically lower)</li>
+<li><strong>2025 Total tax:</strong> ~$11.5K (~$8.9K income tax + ~$2.7K SE tax) on ~$64K taxable income. AGI ~$107K. Itemized ~$35K (vs std ~$18K).</li>
+<li><strong>Beneficiary gap:</strong> 13 of 23 accounts have no named beni (~$1.48M probate exposure)</li>
+</ul>
+</div>
+
+<div class="card">
+<h3>2 &mdash; Health, Wealth &amp; Legacy Review</h3>
+
+<div style="background:rgba(34,197,94,0.04);border:1px solid rgba(34,197,94,0.2);border-radius:10px;padding:18px;margin:12px 0">
+<h4 style="color:var(--green);font-size:0.85rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Health</h4>
+<ul>
+<li><strong>Medicare:</strong> Client has been Medicare-eligible since 2019 (turned 65). Confirm current plan, premium, supplements. Pull from QUE Medicare Lion if needed.</li>
+<li><strong>Long-term care:</strong> Existing COF LTC policy from 2002 with compound inflation rider &mdash; mentioned briefly here, deep dive in Legacy section.</li>
+</ul>
+</div>
+
+<div style="background:rgba(59,130,246,0.04);border:1px solid rgba(59,130,246,0.2);border-radius:10px;padding:18px;margin:12px 0">
+<h4 style="color:var(--blue);font-size:0.85rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Wealth</h4>
+<ul>
+<li><strong>Beneficiary Center:</strong> Walk through the 13 accounts with no beni. Get sign-off on [SIBLING] as primary across the board. Quickest win of the meeting.</li>
+<li><strong>Long-term care policy values:</strong> $100/day base from 2002 with compound inflation = significant current daily benefit. Need current values from [LTC ADMINISTRATOR].</li>
+<li><strong>Income picture:</strong> SSI + farm + Prosperity paid-up monthly benefit (~$1,007/mo available, not yet drawn). Charitable giving to church may change the income strategy.</li>
+</ul>
+</div>
+
+<div style="background:rgba(212,164,76,0.04);border:1px solid rgba(212,164,76,0.3);border-radius:10px;padding:18px;margin:12px 0">
+<h4 style="color:var(--gold);font-size:0.85rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Legacy</h4>
+<ul>
+<li><strong>Estate planning items:</strong> POA (friend), trust, will, healthcare directive &mdash; status unknown for all. See To-Do section.</li>
+<li><strong>Farm structure:</strong> <span style="color:var(--green)">&#10003; CONFIRMED via 2025 return</span> &mdash; Schedule F sole proprietor, corn &amp; soybeans (code 111100), cash accounting, materially participated. <em>Still TBD for legacy:</em> does the farm pass to [SIBLING]? Acreage/valuation/land vs equipment breakdown?</li>
+<li><strong>Beneficiary cleanup:</strong> Same as Wealth &mdash; mostly [SIBLING], but one [PARENT] contingent on COF POL-XXXXXXX needs verification.</li>
+<li><strong>State inheritance tax:</strong> Iowa inheritance tax repealed 01/01/2025 &mdash; [SIBLING] owes no state tax on inheritance. Federal estate tax threshold $13.61M &mdash; only matters if farm pushes total estate above that.</li>
+</ul>
+</div>
+</div>
+
+<div class="card">
+<h3>3 &mdash; Analysis Meeting To-Do (Info Needed)</h3>
+<p>Items to gather <strong>during this meeting</strong> so we can complete the follow-up analysis.</p>
+<ul>
+<li><strong>LTC current values:</strong> Have client call <strong>[LTC ADMINISTRATOR]</strong> for current daily benefit, lifetime balance, claim status.</li>
+<li><strong>POA friend &mdash; identity and details:</strong>
+  <ul>
+    <li>Name, contact info, relationship, length of friendship</li>
+    <li>POA type: <strong>Financial? Healthcare? Limited? Durable?</strong> &mdash; need a copy of the document</li>
+    <li>Is the friend aware of all assets, or just specific ones?</li>
+  </ul>
+</li>
+<li><strong>Estate questions from ProDashX Estate tab</strong> &mdash; ask client and capture in contact record:
+  <ol style="margin-top:6px">
+    <li><strong>Has Trust?</strong> (Yes/No) &mdash; if Yes: type (Revocable Living, Irrevocable, Testamentary), name, date</li>
+    <li><strong>Will Exists?</strong> (Yes/No) &mdash; if Yes: type (Simple, Pour-Over, Testamentary Trust Will), executor</li>
+    <li><strong>Financial POA?</strong> (Yes/No) &mdash; if Yes: name, durable or limited?</li>
+    <li><strong>Healthcare POA?</strong> (Yes/No) &mdash; if Yes: name, scope</li>
+    <li><strong>Beneficiary Deed?</strong> (Yes/No) &mdash; for real property transfer at death (relevant for the farm)</li>
+    <li><strong>Living Will / Advance Directive?</strong></li>
+  </ol>
+  <p style="margin-top:6px;font-size:0.78rem;color:var(--muted)"><em>The Estate tab in ProDashX scores completeness based on these yes/no items. Get yes/no for each + capture the detail fields.</em></p>
+</li>
+<li><strong>Farm structure for tax purposes:</strong> <span style="color:var(--green)">&#10003; RESOLVED via 2025 return</span>
+  <ul>
+    <li>Files as <strong>sole proprietor / Schedule F</strong>, cash accounting, materially participates</li>
+    <li>Gross income 2025: <strong>~$164K</strong> (grain sales + ag program + rent &amp; equipment sale + fuel tax refund)</li>
+    <li>Total expenses 2025: <strong>~$145K</strong> (feed · seeds · custom hire · rent · insurance · taxes · utilities · depreciation)</li>
+    <li>Net farm profit: <strong>~$19K</strong> &mdash; down sharply from ~$77K in 2024 (commodity/input squeeze)</li>
+    <li><strong>Still TBD for legacy:</strong> Does the farm pass to [SIBLING]? Acreage, valuation, land vs equipment breakdown?</li>
+  </ul>
+</li>
+<li><strong>Income vs. Charitable giving intent:</strong>
+  <ul>
+    <li>Does client need RMD income or is he comfortable not drawing it?</li>
+    <li>How important is the church? Tithing history?</li>
+    <li>Would he be open to <strong>QCD (Qualified Charitable Distribution)</strong> sending RMDs directly to the church &mdash; satisfies RMD without taxable income?</li>
+  </ul>
+</li>
+<li><strong>MassMutual policy beneficiaries</strong> (POL-XXXXXXX + POL-XXXXXXX) &mdash; no current statements showing benis. Confirm [SIBLING] is named.</li>
+<li><strong>[PARENT] contingent on COF POL-XXXXXXX</strong> &mdash; verify if living. If deceased, contingent needs update.</li>
+</ul>
+</div>
+
+<div class="card">
+<h3>4 &mdash; Next Steps (Post-Meeting Analysis)</h3>
+<p>What we&rsquo;ll deliver in the follow-up presentation, based on what we learn at this meeting.</p>
+<ol style="margin-left:20px">
+<li><strong>Life insurance analysis:</strong> Determine what we can do to get the 6 whole life policies <em>paying for themselves</em> (dividends covering premiums) and/or <em>completely paid up</em>. Order in-force illustrations from all 6 carriers.</li>
+<li><strong>Beneficiary update plan:</strong> Walk through the 13 missing-beni accounts and determine the cleanest path to get [SIBLING] named on everything. POD forms for the banks, carrier-specific forms for the annuities.</li>
+<li><strong>Estate planning recommendation:</strong> Based on what we learn about POA, trust, will, and farm structure, recommend the most logical path to ensure everything goes as client intends &mdash; whether that&rsquo;s setting up a trust, updating documents, or coordinating with an estate attorney.</li>
+<li><strong>1035 exchange analysis on existing annuities:</strong> Brighthouse ~$135K + Prosperity ~$185K (and potentially the 4 COF whole life policies&rsquo; ~$101K combined cash value) for higher-yielding products. FIA with GLWB is the lead candidate.</li>
+<li><strong>CD analysis vs. tax bracket:</strong> ~$1.01M in CDs maturing throughout 2026. Determine if rolling into MYGAs, FIAs, or different vehicles makes more sense given the <strong>22% marginal / 18% effective 2025 bracket</strong> and the ~$36K of 2025 CD interest that hit the return as ordinary income. <em>Note: bracket is lower than previously assumed &mdash; tax-deferral value is real but less urgent than at 32&ndash;35%.</em></li>
+<li><strong>Roth conversion + QCD analysis:</strong> ~$119K in Traditional IRAs facing RMDs starting 2027. <strong>Recalibrated math with actual 2025 return:</strong> Client has <strong>~$39K of headroom in the 22% bracket</strong> ($103,350 single threshold &minus; ~$64K current taxable income). Strategy: $39K/yr conversions for 3 years clears the full ~$119K IRA before RMDs begin &mdash; estimated tax cost <strong>~$8.6K total</strong> (vs ~$38K if done at the 32% bracket originally assumed). QCD to church still valuable during/after RMD years as marginal-rate insurance.</li>
+<li><strong>Medical deduction investigation (~$21K itemized in 2025):</strong> Unusually high medical deductible &mdash; ask client to itemize. Likely components: LTC premium (~$823/yr base), SE health insurance (~$10.5K), Medicare premiums, out-of-pocket medical. Worth understanding for 2026 planning &mdash; if there&rsquo;s a recurring medical burden it shapes the income strategy.</li>
+</ol>
+</div>
+
+<div class="note"><strong>Meeting prep complete.</strong> [FIELD AGENT] can pull this up at the meeting. SUMMARY tab has the headline numbers. The other tabs have the full data backing each line item.</div>
+</div>
+
+<!-- SUMMARY -->
+<div id="summary" class="panel">
+<div class="stat-row">
+<div class="stat"><div class="num">~$2.03M</div><div class="lbl">Total Assets (CV)</div></div>
+<div class="stat"><div class="num">~$2.16M</div><div class="lbl">Total Death Benefit</div></div>
+<div class="stat"><div class="num">~$148K</div><div class="lbl">Life Cash Value (6)</div></div>
+<div class="stat warn"><div class="num">13 / 23</div><div class="lbl">Missing Beneficiary</div></div>
+</div>
+<div class="stat-row">
+<div class="stat"><div class="num">~$873K</div><div class="lbl">Annuities (6)</div></div>
+<div class="stat"><div class="num">~$1.01M</div><div class="lbl">CDs (10)</div></div>
+<div class="stat"><div class="num">~$271K</div><div class="lbl">Life Death Benefit</div></div>
+<div class="stat"><div class="num">$100/day</div><div class="lbl">LTC + Compound Inflation</div></div>
+</div>
+
+<div class="note"><strong>Case update:</strong> 6 life policies confirmed via [FIELD AGENT]&rsquo;s scans + ProDash sync. <strong>2 NEW</strong> policies (COF POL-XXXXXXX from 1989, Farm Bureau POL-XXXXXXXXX from 1985). <strong>2 UPDATED</strong> with current statement values (one reclassified from Term to Whole Life). CD values refreshed from 2025/26 renewal statements. Minor account-number typos corrected.</div>
+
+<div class="note" style="background:rgba(34,197,94,0.06);border-color:rgba(34,197,94,0.25)"><strong style="color:var(--green)">Tax Return Integration &mdash; 2025 Federal Return Received</strong> (prepared by [TAX PREPARER]). Farm structure <strong>confirmed as Schedule F sole proprietor</strong>. 2025 figures: <strong>Gross farm ~$164K &middot; Net farm ~$19K &middot; AGI ~$107K &middot; Taxable income ~$64K &middot; Total tax ~$11.5K &middot; Effective rate 18% &middot; Marginal 22%.</strong> Roadmap&rsquo;s earlier 32&ndash;35% bracket assumption was too high &mdash; Roth conversion math re-run below. Also: client took first ~$25K IRA distribution in 2025 (source not yet identified &mdash; review IRA activity). PDF in client ACF.</div>
+
+<div class="flag red">
+<div class="title">BENEFICIARY GAP</div>
+<p>13 of 23 active accounts have no named beneficiary. ~$1,478,820 at probate risk (10 CDs + Prosperity + 2 Brighthouse). All 6 life policies + 2 COF SPDAs name [SIBLING] as primary.</p>
+</div>
+<div class="flag red">
+<div class="title">RMD PLANNING</div>
+<p>~$118,800 in Traditional IRA (Brighthouse ~$15K + one IRA CD ~$96K + second IRA CD ~$7K). SECURE Act 2.0: RMD age 73. First RMD due 04/01/2028.</p>
+</div>
+<div class="flag orange">
+<div class="title">CD MATURITY WAVE</div>
+<p>All 10 CDs (~$1.01M) mature May&ndash;Nov 2026. Rollover strategy needed before first maturity.</p>
+</div>
+<div class="flag orange">
+<div class="title">1035 CANDIDATES</div>
+<p>Brighthouse NQ ~$135K + Prosperity NQ ~$185K = ~$320K fully liquid at 3.0%. Prime for 1035 exchange. Plus &mdash; 4 COF Whole Life policies have ~$101K combined cash value generating 0&ndash;1% effective return; possible 1035 to MEC-safe annuity.</p>
+</div>
+<div class="flag blue">
+<div class="title">LIFE INSURANCE &mdash; 6 POLICIES, ~$271K DB / ~$148K CV</div>
+<p>4 Catholic Order of Foresters Whole Life (1989, 2002, 2003, plus original 1989 just discovered) + 1 Farm Bureau Special Whole Life (1985, 40 years in force) + 2 MassMutual Whole Life. All primary beneficiaries name [SIBLING]. <strong>~$148K in cash value is real liquid money</strong> &mdash; adds to the planning pool.</p>
+</div>
+<div class="flag blue">
+<div class="title">COF LTC &mdash; LIFETIME BENEFIT WITH COMPOUND INFLATION</div>
+<p>$100/day base benefit from 2002. With 24 years of compound inflation rider, current daily benefit is likely $200&ndash;250/day. Lifetime maximum. 90-day elimination. Need current values from administrator.</p>
+</div>
+</div>
+
+<!-- ANNUITIES -->
+<div id="annuities" class="panel">
+<div class="card">
+<h2>Annuities (6 Accounts &mdash; ~$873K)</h2>
+<div style="overflow-x:auto">
+<table>
+<tr><th>Carrier</th><th>Product</th><th>Policy #</th><th>Tax</th><th>Value</th><th>CSV</th><th>Rate</th><th>Death Benefit</th><th>Issue</th><th>Maturity</th><th>Beneficiary</th><th>Source</th></tr>
+<tr><td>Catholic Order of Foresters</td><td>Annuity Loyalty SPDA</td><td>POL-XXXXXXX</td><td>NQ</td><td>~$447K</td><td>~$419K</td><td>3.25% (2.75% guar)</td><td>~$447K</td><td>11/XX/2023</td><td>11/XX/2049</td><td>[SIBLING]</td><td>Carrier stmt</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>Annuity Loyalty SPDA</td><td>POL-XXXXXXX</td><td>Roth IRA</td><td>~$91K</td><td>~$85K</td><td>3.00% (2.75% guar)</td><td>~$91K</td><td>11/XX/2023</td><td>11/XX/2049</td><td>[SIBLING]</td><td>Carrier stmt</td></tr>
+<tr><td>Prosperity / S.USA Life</td><td>S.USA Annuity</td><td>POL-XXXXXXXXX</td><td>NQ</td><td>~$185K</td><td>~$185K</td><td>3.00%</td><td>~$185K</td><td>05/XX/2022</td><td>05/XX/2028</td><td class="none">&#9888; NONE</td><td>Carrier stmt</td></tr>
+<tr><td>Brighthouse Financial</td><td>Fixed Annuity XR</td><td>POL-XXXXXXXXX</td><td>NQ</td><td>~$135K</td><td>~$135K</td><td>3.00%</td><td>~$135K</td><td>06/XX/2004</td><td>1yr renew</td><td class="none">&#9888; NONE</td><td>Carrier stmt</td></tr>
+<tr><td>Brighthouse Financial</td><td>Fixed Annuity XR</td><td>POL-XXXXXXXXXX</td><td>Trad IRA</td><td>~$15K</td><td>~$15K</td><td>3.00%</td><td>~$15K</td><td>06/XX/2004</td><td>1yr renew</td><td class="none">&#9888; NONE</td><td>Carrier stmt</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>SPIA ([SIBLING] annuitant)</td><td>POL-XXXXXXX</td><td>NQ</td><td>~$37K prem</td><td>&mdash;</td><td>3.00%</td><td>~$1,603/yr lifetime to [SIBLING]</td><td>04/XX/2004</td><td>Lifetime</td><td>[SIBLING] (annuitant)</td><td>Carrier app</td></tr>
+<tr class="totals"><td></td><td></td><td></td><td>TOTAL</td><td>~$873K</td><td>~$839K</td><td></td><td>~$873K</td><td></td><td></td><td></td><td></td></tr>
+</table>
+</div>
+</div>
+
+<div class="card">
+<h3>Surrender Notes</h3>
+<ul>
+<li><strong>COF SPDAs:</strong> Year 3 of 7 surrender period. ~$34K in surrender charges if liquidated today.</li>
+<li><strong>Prosperity:</strong> Fully liquid. CSV = AV. $0 surrender charge.</li>
+<li><strong>Brighthouse contracts:</strong> Fully liquid. 20+ year contracts. 1-year guarantee renewals at 3.0%.</li>
+</ul>
+</div>
+</div>
+
+<!-- CDs -->
+<div id="cds" class="panel">
+<div class="card">
+<h2>Certificates of Deposit (10 Accounts &mdash; ~$1.01M)</h2>
+<p>Sorted by maturity date. Values refreshed from 2025/26 renewal statements.</p>
+<div style="overflow-x:auto">
+<table>
+<tr><th>Bank</th><th>Acct #</th><th>Tax</th><th>Renewal Balance</th><th>APY</th><th>Term</th><th>Issue</th><th>Maturity</th><th>Beneficiary</th></tr>
+<tr><td>Community Bank A</td><td>ACCT-XXXXXXX</td><td>NQ</td><td>~$95K</td><td>3.60%</td><td>11mo</td><td>06/XX/2025</td><td>05/XX/2026</td><td class="none">&#9888; NONE</td></tr>
+<tr><td>Community Bank A</td><td>ACCT-XXXXXXX</td><td>NQ</td><td>~$118K</td><td>3.60%</td><td>11mo</td><td>07/XX/2025</td><td>06/XX/2026</td><td class="none">&#9888; NONE</td></tr>
+<tr><td>Community Bank A</td><td>ACCT-XXXXXXX</td><td>Trad IRA</td><td>~$96K</td><td>3.60%</td><td>11mo</td><td>07/XX/2025</td><td>06/XX/2026</td><td class="none">&#9888; NONE</td></tr>
+<tr><td>Community Bank A</td><td>ACCT-XXXXXXX</td><td>NQ</td><td>~$59K</td><td>3.60%</td><td>11mo</td><td>07/XX/2025</td><td>06/XX/2026</td><td class="none">&#9888; NONE</td></tr>
+<tr><td>Community Bank A</td><td>ACCT-XXXXXXX</td><td>Trad IRA</td><td>~$8K</td><td>3.48%</td><td>6mo</td><td>12/XX/2025</td><td>06/XX/2026</td><td class="none">&#9888; NONE</td></tr>
+<tr><td>Community Bank A</td><td>ACCT-XXXXXXX</td><td>NQ</td><td>~$47K</td><td>3.49%</td><td>6mo</td><td>02/XX/2026</td><td>08/XX/2026</td><td class="none">&#9888; NONE</td></tr>
+<tr><td>Community Bank A</td><td>ACCT-XXXXXXX</td><td>NQ</td><td>~$51K</td><td>3.49%</td><td>6mo</td><td>03/XX/2026</td><td>09/XX/2026</td><td class="none">&#9888; NONE</td></tr>
+<tr><td>Community Bank B</td><td>ACCT-XXXXX</td><td>NQ</td><td>~$116K</td><td>4.00%</td><td>11mo</td><td>10/XX/2025</td><td>10/XX/2026</td><td class="none">&#9888; NONE</td></tr>
+<tr><td>Community Bank B</td><td>ACCT-XXXXX</td><td>NQ</td><td>~$166K</td><td>4.00%</td><td>11mo</td><td>11/XX/2025</td><td>11/XX/2026</td><td class="none">&#9888; NONE</td></tr>
+<tr><td>Community Bank A</td><td>ACCT-XXXXXXX</td><td>NQ</td><td>~$258K</td><td>3.40%</td><td>11mo</td><td>12/XX/2025</td><td>11/XX/2026</td><td class="none">&#9888; NONE</td></tr>
+<tr class="totals"><td></td><td></td><td>TOTAL</td><td>~$1.01M</td><td></td><td></td><td></td><td></td><td></td></tr>
+</table>
+</div>
+<div class="note" style="margin-top:14px"><strong>Source notes:</strong>
+<ul style="margin-left:20px">
+<li>Community Bank A values: 2025/26 renewal statements (most are 11mo terms initiated mid-2025)</li>
+<li>One IRA CD corrected from ~$73K (field-agent estimate) to ~$96K (renewal statement)</li>
+<li>One CD account number corrected from typo&rsquo;d version</li>
+<li>Community Bank B: per field-agent spreadsheet (4.00% APY 11mo terms, no renewal statements yet)</li>
+<li><strong>2025 Interest Earned (per 1040 Sch B):</strong> Community Bank A ~$26K, Community Bank B ~$10K, Community Bank C ~$28 (account not on inventory &mdash; see FLAG 2C). Total 2025 interest ~$36K, all taxed as ordinary income at 22% marginal.</li>
+</ul>
+</div>
+</div>
+
+<div class="card">
+<h3>Maturity Calendar &mdash; 2026</h3>
+<div class="maturity-grid">
+<div class="mat-card"><div class="mo">May</div><div class="amt">~$95K</div><div class="ct">1 CD</div></div>
+<div class="mat-card"><div class="mo">Jun</div><div class="amt">~$281K</div><div class="ct">4 CDs</div></div>
+<div class="mat-card empty"><div class="mo">Jul</div><div class="amt">&mdash;</div><div class="ct">0</div></div>
+<div class="mat-card"><div class="mo">Aug</div><div class="amt">~$47K</div><div class="ct">1 CD</div></div>
+<div class="mat-card"><div class="mo">Sep</div><div class="amt">~$51K</div><div class="ct">1 CD</div></div>
+<div class="mat-card"><div class="mo">Oct</div><div class="amt">~$116K</div><div class="ct">1 CD</div></div>
+<div class="mat-card"><div class="mo">Nov</div><div class="amt">~$424K</div><div class="ct">2 CDs</div></div>
+</div>
+</div>
+</div>
+
+<!-- TAX BREAKDOWN -->
+<div id="tax" class="panel">
+
+<div class="card" style="background:rgba(34,197,94,0.04);border-color:rgba(34,197,94,0.25)">
+<h2 style="color:var(--green)">2025 Federal Return &mdash; Actuals</h2>
+<p style="font-size:0.82rem">Prepared by [TAX PREPARER]. Filed as <strong>Single</strong>, Schedule F sole proprietor for farming operations. Source PDF in client ACF.</p>
+
+<div class="stat-row" style="margin-top:14px">
+<div class="stat"><div class="num">~$119K</div><div class="lbl">Total Income 2025</div></div>
+<div class="stat"><div class="num">~$107K</div><div class="lbl">AGI 2025</div></div>
+<div class="stat"><div class="num">~$64K</div><div class="lbl">Taxable Income</div></div>
+<div class="stat"><div class="num" style="color:var(--orange)">~$11.5K</div><div class="lbl">Total Tax 2025</div></div>
+</div>
+<div class="stat-row">
+<div class="stat"><div class="num">22%</div><div class="lbl">Federal Marginal</div></div>
+<div class="stat"><div class="num">18%</div><div class="lbl">Effective Rate</div></div>
+<div class="stat"><div class="num">~$35K</div><div class="lbl">Itemized Deductions</div></div>
+<div class="stat"><div class="num">~$3K</div><div class="lbl">QBI Deduction</div></div>
+</div>
+
+<h3 style="margin-top:18px">2024 vs 2025 Comparison</h3>
+<div style="overflow-x:auto">
+<table>
+<tr><th>Line Item</th><th>2024</th><th>2025</th><th>Δ</th></tr>
+<tr><td><strong>Interest income</strong> (CDs, checking)</td><td>~$38K</td><td>~$36K</td><td>&minus;~$2K</td></tr>
+<tr><td><strong>Dividend income</strong> (community bank holding co)</td><td>~$1.5K</td><td>~$1.5K</td><td>flat</td></tr>
+<tr><td><strong>Other gains/losses</strong></td><td>~$3.5K</td><td>~$8.5K</td><td>+~$5K</td></tr>
+<tr><td><strong>Taxable IRA distribution</strong></td><td>$0</td><td><strong style="color:var(--orange)">~$25K</strong></td><td><strong>NEW in 2025</strong></td></tr>
+<tr><td><strong>Farm net (Schedule F)</strong></td><td>~$77K</td><td>~$19K</td><td>&minus;~$58K</td></tr>
+<tr><td><strong>Taxable Social Security</strong></td><td>~$28K</td><td>~$29K</td><td>+~$1K</td></tr>
+<tr class="totals"><td>Total income</td><td>~$147K</td><td>~$119K</td><td>&minus;~$28K</td></tr>
+<tr><td>Adjustments (SE tax, SE health ins)</td><td>~$17K</td><td>~$12K</td><td>&minus;~$5K</td></tr>
+<tr><td>AGI</td><td>~$130K</td><td>~$107K</td><td>&minus;~$23K</td></tr>
+<tr><td>Deduction taken</td><td>~$17K (std)</td><td>~$35K (itemized)</td><td>+~$18K</td></tr>
+<tr><td>QBI deduction</td><td>~$12K</td><td>~$3K</td><td>&minus;~$9K</td></tr>
+<tr class="totals"><td>Taxable income</td><td>~$101K</td><td>~$64K</td><td>&minus;~$37K</td></tr>
+<tr><td>Income tax</td><td>~$16K</td><td>~$9K</td><td>&minus;~$7K</td></tr>
+<tr><td>Self-employment tax</td><td>~$11K</td><td>~$3K</td><td>&minus;~$8K</td></tr>
+<tr class="totals"><td><strong>Total tax</strong></td><td><strong>~$28K</strong></td><td><strong>~$11.5K</strong></td><td><strong>&minus;~$16K</strong></td></tr>
+<tr><td>Effective rate</td><td>28.0%</td><td>18.0%</td><td>&minus;10 pts</td></tr>
+</table>
+</div>
+
+<h3 style="margin-top:18px">Itemized Deduction Detail (2025 = ~$35K)</h3>
+<div style="overflow-x:auto">
+<table>
+<tr><th>Category</th><th>Amount</th><th>Note</th></tr>
+<tr><td>Medical &amp; dental (net of 7.5% AGI floor)</td><td>~$21K</td><td>Itemize with client &mdash; likely includes LTC premium, Medicare premiums, out-of-pocket</td></tr>
+<tr><td>Taxes (SALT)</td><td>~$5.6K</td><td>Property tax + state income tax, capped at $10K</td></tr>
+<tr><td>Interest</td><td>$0</td><td>No mortgage interest reported</td></tr>
+<tr><td>Charitable contributions</td><td>~$524</td><td>Low &mdash; QCD opportunity much larger than current giving</td></tr>
+<tr class="totals"><td><strong>Itemized total</strong></td><td><strong>~$27K</strong></td><td>Plus Sch 1-A adjustments = ~$35K taken</td></tr>
+</table>
+</div>
+
+<h3 style="margin-top:18px">Schedule F Farm Detail (2025)</h3>
+<div style="overflow-x:auto">
+<table>
+<tr><th>Category</th><th>Line</th><th>Amount</th></tr>
+<tr><td>Grain sales (corn &amp; soybeans)</td><td>Sch F line 2</td><td>~$150K</td></tr>
+<tr><td>Ag program payments</td><td>line 4b</td><td>~$6K</td></tr>
+<tr><td>Other (equipment/rent sale, fuel tax refund)</td><td>line 8</td><td>~$7.5K</td></tr>
+<tr class="totals"><td><strong>Gross farm income</strong></td><td><strong>line 9</strong></td><td><strong>~$164K</strong></td></tr>
+<tr><td>Feed</td><td>line 16</td><td>~$55K</td></tr>
+<tr><td>Seeds &amp; plants</td><td>line 26</td><td>~$22K</td></tr>
+<tr><td>Custom hire (machine work)</td><td>line 13</td><td>~$17K</td></tr>
+<tr><td>Rent (land/animals/equipment)</td><td>line 24b</td><td>~$15K</td></tr>
+<tr><td>Insurance (non-health)</td><td>line 19</td><td>~$14.5K</td></tr>
+<tr><td>Taxes (farm real estate, payroll)</td><td>line 29</td><td>~$8.5K</td></tr>
+<tr><td>Utilities</td><td>line 30</td><td>~$4K</td></tr>
+<tr><td>Depreciation &amp; &sect;179</td><td>line 14</td><td>~$3.7K</td></tr>
+<tr><td>Supplies · Repairs · Fuel · Other</td><td>&mdash;</td><td>~$5K</td></tr>
+<tr class="totals"><td><strong>Total expenses</strong></td><td><strong>line 33</strong></td><td><strong>~$145K</strong></td></tr>
+<tr class="totals"><td><strong>Net farm profit</strong></td><td><strong>line 34</strong></td><td><strong style="color:var(--green)">~$19K</strong></td></tr>
+</table>
+</div>
+<p style="margin-top:10px;font-size:0.8rem;color:var(--muted)"><strong>Farm code:</strong> 111100 (corn &amp; soybeans) &middot; <strong>Accounting:</strong> Cash &middot; <strong>Materially participated:</strong> Yes &middot; <strong>Filed 1099s:</strong> Yes &middot; <strong>SE tax paid:</strong> ~$2.7K (~15.3% of ~$19K)</p>
+
+<h3 style="margin-top:18px">1099-INT Map &rarr; Account Inventory</h3>
+<p style="font-size:0.82rem">Schedule B (interest income) ties each payer back to account inventory. ~$36K total 2025 interest, all reported:</p>
+<div style="overflow-x:auto">
+<table>
+<tr><th>Payer on Schedule B</th><th>2025 Interest</th><th>Inventory Match</th></tr>
+<tr><td>Community Bank A</td><td>~$26K</td><td>All 6 Community Bank A CDs (incl. both Trad IRA CDs) &mdash; mix of NQ + IRA interest</td></tr>
+<tr><td>Community Bank B</td><td>~$10K</td><td>Community Bank B CDs (~$281K combined NQ)</td></tr>
+<tr><td>Community Bank C</td><td>~$28</td><td><strong>Not in current inventory</strong> &mdash; checking-level balance, but confirms there&rsquo;s a third bank relationship we don&rsquo;t have on the roadmap. Ask client.</td></tr>
+<tr class="totals"><td>Total reported interest</td><td><strong>~$36K</strong></td><td>Matches Sch B line 4</td></tr>
+</table>
+</div>
+<div class="note" style="margin-top:12px"><strong>Dividends (Schedule B Part II):</strong> ~$1.5K ordinary / ~$1.5K qualified from <strong>community bank holding company</strong> &mdash; client owns holding-co stock. Not on current asset inventory. Ask client for share count / statement.</div>
+</div>
+
+<div class="card">
+<h2>Tax Status Breakdown (Asset Pool)</h2>
+<table>
+<tr><th></th><th>Non-Qualified</th><th>Traditional IRA</th><th>Roth IRA</th><th>TOTAL</th></tr>
+<tr><td><strong>Annuities</strong></td><td>~$767K</td><td>~$15K</td><td>~$91K</td><td><strong>~$873K</strong></td></tr>
+<tr><td><strong>CDs</strong></td><td>~$909K</td><td>~$103K</td><td>$0</td><td><strong>~$1.01M</strong></td></tr>
+<tr><td><strong>Life Cash Value</strong></td><td>~$148K</td><td>$0</td><td>$0</td><td><strong>~$148K</strong></td></tr>
+<tr class="totals"><td><strong>TOTAL</strong></td><td><strong>~$1.82M</strong></td><td><strong>~$119K</strong></td><td><strong>~$91K</strong></td><td><strong>~$2.03M</strong></td></tr>
+</table>
+</div>
+
+<div class="card">
+<h3>Tax Notes</h3>
+<ul>
+<li><strong>Non-Qualified (90% &mdash; ~$1.68M):</strong> No RMD requirements. No tax on withdrawal of cost basis. Interest/gains taxed as ordinary income when withdrawn.</li>
+<li><strong>Traditional IRA (~$119K):</strong> RMD begins at age 73 (SECURE Act 2.0). Client turns 73 in 2027. First RMD due by 04/01/2028. All withdrawals taxed as ordinary income.</li>
+<li><strong>Roth IRA (~$91K):</strong> No RMD requirement ever. Tax-free growth. Tax-free to [SIBLING] on inheritance. Do not touch this money &mdash; it&rsquo;s the most tax-efficient asset.</li>
+<li><strong>2025 IRA distribution ~$25K &mdash; source TBD:</strong> The 1040 shows ~$25K of taxable IRA distributions. Reconcile against Brighthouse IRA (~$15K) + IRA CDs. Likely a withdrawal from one of the IRA CDs or the Brighthouse IRA XR. Confirm which account and whether this was strategic or needed.</li>
+</ul>
+</div>
+
+<div class="card" style="background:rgba(59,130,246,0.04);border-color:rgba(59,130,246,0.25)">
+<h3 style="color:var(--blue)">Roth Conversion Window &mdash; Recalibrated with 2025 Return</h3>
+<p>Earlier roadmap modeled conversions at the assumed 32&ndash;35% bracket. The actual 2025 return puts client at <strong>22% marginal / 18% effective</strong>. This dramatically changes the math.</p>
+<div style="overflow-x:auto">
+<table>
+<tr><th>Plan</th><th>Per-Year Conversion</th><th>Tax Cost</th><th>Bracket Impact</th><th>Years to Clear ~$119K</th></tr>
+<tr><td><strong>Fill 22% bracket only</strong></td><td>~$39K</td><td>~$8.6K/yr &times; 3 = <strong>~$25.8K total</strong></td><td>Stays in 22% (under $103,350 single threshold)</td><td>3 years (2026&ndash;2028)</td></tr>
+<tr><td>Aggressive (fill to 24%)</td><td>~$60K</td><td>~$14K/yr &times; 2 = ~$28K total</td><td>Pushes into 24% on ~$20K of each conversion</td><td>2 years (2026&ndash;2027)</td></tr>
+<tr><td>Convert all in year 1</td><td>~$119K</td><td>~$30K (straddles 22/24/32%)</td><td>Kicks into 32% bracket on top</td><td>1 year &mdash; not recommended</td></tr>
+</table>
+</div>
+<p style="margin-top:10px"><strong>Recommendation:</strong> Targeted ~$39K/yr conversion for 3 years. Keeps client inside the 22% bracket, clears the full Traditional IRA before RMD trigger, at <strong>~1/4 the tax cost</strong> of the original 32% assumption. <em>Caveat:</em> if farm income recovers or IRA distributions continue at ~$25K/yr, headroom shrinks &mdash; re-run annually.</p>
+</div>
+
+<div class="note">
+<strong>COF NQ Basis:</strong> Policy POL-XXXXXXX has a post-Tefra basis of ~$240K. This means ~$240K of the ~$447K account value is return of premium (not taxable on withdrawal). The gain (~$207K) is taxable as ordinary income. Important for any 1035 exchange &mdash; basis carries over.
+</div>
+</div>
+
+<!-- FLAGS -->
+<div id="flags" class="panel">
+
+<div class="flag red">
+<div class="title">FLAG 1 &mdash; BENEFICIARY GAP</div>
+<p>13 of 23 active accounts have <strong>no named beneficiary</strong>. Total exposed to probate: <strong>~$1,478,820</strong>.</p>
+<p>Missing on: All 10 CDs (~$1.01M) + Prosperity (~$185K) + Brighthouse NQ (~$135K) + Brighthouse IRA (~$15K)</p>
+<p>Has beneficiary: COF annuities ([SIBLING] 100%) + 4 COF life policies ([SIBLING] primary) + Farm Bureau ([SIBLING] primary, Estate contingent)</p>
+<div class="action">
+<strong>Action Items:</strong>
+<ul>
+<li>Beneficiary designation forms for all 13 accounts. Name [SIBLING] as primary on everything.</li>
+<li>Verify benis on the 2 MassMutual policies &mdash; not yet confirmed from statements.</li>
+<li>Field agent can start this immediately &mdash; no second discovery needed.</li>
+<li>Community banks require POD (Payable on Death) designation forms for CDs.</li>
+<li>Brighthouse and Prosperity require carrier-specific beneficiary change forms.</li>
+<li><strong>VERIFY:</strong> COF POL-XXXXXXX lists [PARENT] as contingent beneficiary &mdash; confirm if still living. May need contingent update.</li>
+</ul>
+</div>
+</div>
+
+<div class="flag red">
+<div class="title">FLAG 2 &mdash; RMD PLANNING</div>
+<p>3 Traditional IRA accounts totaling <strong>~$118.8K</strong>:</p>
+<ul>
+<li>Brighthouse IRA: ~$15K</li>
+<li>Community Bank A IRA CD (large): ~$96K (corrected from ~$73K)</li>
+<li>Community Bank A IRA CD (small): ~$7K</li>
+</ul>
+<p>SECURE Act 2.0: RMD age is 73. Client turns 73 in 2027. First RMD due by 04/01/2028.</p>
+<div class="action">
+<strong>Action Items:</strong>
+<ul>
+<li>No RMD required in 2026. But the 2 IRA CDs (~$104K) mature Jun 2026 &mdash; rollover decision should factor upcoming RMD needs.</li>
+<li><strong>FIAs are appropriate here.</strong> Between free withdrawal provisions (typically 10% annual) and/or Guaranteed Lifetime Withdrawal Benefit (GLWB) riders, FIAs are MORE than liquid enough to satisfy RMDs &mdash; while delivering tax-deferred indexed growth that beats CD rates. Don&rsquo;t default to "keep it in CDs because it&rsquo;s liquid."</li>
+<li>Roth conversion of part/all of ~$119K before age 73 could eliminate future RMDs entirely. <strong>Recalibrated with 2025 return:</strong> marginal is 22% (not 32&ndash;35%), with ~$39K of headroom below the 24% threshold. A 3-year ~$39K/yr conversion plan clears the full IRA at ~$8.6K total tax cost &mdash; dramatically cheaper than previously modeled.</li>
+</ul>
+</div>
+</div>
+
+<div class="flag orange">
+<div class="title">FLAG 2B &mdash; UNIDENTIFIED ~$25K IRA DISTRIBUTION (2025)</div>
+<p>The 2025 1040 line 4b shows <strong>~$25K of taxable IRA distributions</strong> &mdash; first year client took any IRA money. Source is not yet identified on inventory. Candidates: Brighthouse IRA (~$15K), Community Bank A IRA CD (~$96K), or smaller Community Bank A IRA CD (~$7K).</p>
+<div class="action">
+<strong>Action Items:</strong>
+<ul>
+<li>Ask client: did he withdraw ~$25K from an IRA in 2025? Which account? Strategic or needed?</li>
+<li>Pull 2025 1099-R to identify the payer.</li>
+<li>If the large IRA CD was the source, its current balance may be closer to ~$71K than the ~$96K renewal statement suggests &mdash; reconcile before the June 2026 maturity decision.</li>
+</ul>
+</div>
+</div>
+
+<div class="flag blue">
+<div class="title">FLAG 2C &mdash; ACCOUNTS ON THE RETURN BUT NOT IN INVENTORY</div>
+<p>Schedule B names two institutions not on the asset roadmap:</p>
+<ul>
+<li><strong>Community Bank C</strong> &mdash; ~$28 of 2025 interest (checking-level balance). Small but confirms account exists.</li>
+<li><strong>Community bank holding-co stock</strong> &mdash; paid ~$1.5K ordinary / ~$1.5K qualified dividends in 2025. Client owns shares. Not on inventory &mdash; need share count, basis, and custodian.</li>
+</ul>
+<div class="action">
+<strong>Action Items:</strong>
+<ul>
+<li>Ask client for current Community Bank C account info (account #, balance, purpose &mdash; likely operating checking for the farm).</li>
+<li>Ask client for holding-co stock statements &mdash; shares, basis, custodian, DRIP enrollment. Closely-held community bank stock has limited liquidity and may need separate estate-planning treatment.</li>
+<li>Update asset inventory &mdash; total accounts may rise from 23 to 25.</li>
+</ul>
+</div>
+</div>
+
+<div class="flag orange">
+<div class="title">FLAG 3 &mdash; CD MATURITY WAVE</div>
+<p><strong>~$1.01M</strong> in CDs all maturing May&ndash;November 2026. This is the biggest near-term decision.</p>
+<p>June is the heaviest month: 4 CDs (~$281K) mature within 2 weeks of each other.</p>
+<div class="action">
+<strong>Action Items:</strong>
+<ul>
+<li><strong>Option A &mdash; Re-up:</strong> Roll into new CDs at current banks. Simple, known. Current rates 3.4-4.0%.</li>
+<li><strong>Option B &mdash; Redirect NQ:</strong> ~$917K NQ portion into MYGA/FIA. Higher rates available + tax deferral (CDs pay tax on interest annually, annuities defer).</li>
+<li><strong>Option C &mdash; Split:</strong> Keep IRA CDs as CDs (liquidity for RMDs). Redirect NQ CDs to annuities for tax efficiency.</li>
+<li>Decision needed before May 2026 (first maturity). Second discovery should address this directly.</li>
+</ul>
+</div>
+</div>
+
+<div class="flag orange">
+<div class="title">FLAG 4 &mdash; 1035 EXCHANGE CANDIDATES</div>
+<p>Two NQ annuities are fully liquid with no surrender charge, earning 3.0%:</p>
+<ul>
+<li><strong>Brighthouse NQ:</strong> ~$135K &mdash; 20 years old. 1-year guarantee renewal. Zero reason to keep this contract at current rates.</li>
+<li><strong>Prosperity:</strong> ~$185K &mdash; Fully liquid. No surrender. 3.0% current rate.</li>
+</ul>
+<p>Combined: <strong>~$320K</strong> available for tax-free 1035 exchange into higher-crediting products.</p>
+<div class="action">
+<strong>Action Items:</strong>
+<ul>
+<li>Research current MYGA/FIA rates from RPI carrier partners. Target: 4.5%+ guaranteed for 3-5yr MYGA.</li>
+<li>COF NQ basis (~$240K) is relevant if recommending any NQ annuity repositioning.</li>
+<li>1035 exchange preserves basis and avoids taxable event.</li>
+</ul>
+</div>
+</div>
+
+<div class="flag blue">
+<div class="title">FLAG 5 &mdash; LIFE INSURANCE: 6 POLICIES, ~$271K DB / ~$148K CV</div>
+<p>2 NEW policies confirmed via field-agent scans. Original "no life insurance" assessment was wrong &mdash; the primary-carrier portal didn&rsquo;t surface the older policies.</p>
+<p><strong>The 6 policies (all Whole Life with [SIBLING] as primary beneficiary):</strong></p>
+<ul>
+<li><strong>COF POL-XXXXXXX</strong> &mdash; Forester Life, ~$59K DB / ~$30K CV, ~$2.4K/yr, 2003 (age 49), Table L</li>
+<li><strong>COF POL-XXXXXXX</strong> &mdash; Forester Life, ~$58K DB / ~$30K CV, ~$2.1K/yr, 2002 (age 48), Table J. <em>Was misclassified as Term &mdash; reclassified to Whole Life per current statement.</em></li>
+<li><strong>COF POL-XXXXXXX</strong> &mdash; Whole Life, ~$43K DB / ~$23K CV, ~$535/yr, 1989 (age 35). 37 years in force. <strong>NEW DISCOVERY.</strong></li>
+<li><strong>Farm Bureau POL-XXXXXXXXX</strong> &mdash; Special Whole Life, ~$35K DB / ~$19K CV, ~$363/yr, 1985 (40 years in force). <strong>NEW DISCOVERY.</strong> Agent: [CARRIER AGENT].</li>
+<li><strong>MassMutual POL-XXXXXXX</strong> &mdash; Limited Premium Whole Life, ~$66K DB / ~$47K CV (2023 statement). 1977 issue (age 23) &mdash; 49 years in force.</li>
+<li><strong>MassMutual POL-XXXXXXX</strong> &mdash; Whole Life, $9,900 face, ~$613/yr, 2018 (age 63). Premiums payable to 2055.</li>
+</ul>
+<p>Plus: <strong>COF LTC POL-XXXXXXX</strong> &mdash; $100/day lifetime benefit since 2002 with compound inflation rider. Current daily benefit is likely $200&ndash;250/day after 24 years of compounding.</p>
+<div class="action">
+<strong>Action Items:</strong>
+<ul>
+<li>Order in-force illustrations on all 6 life policies + the LTC. Need current cash values, dividend trajectories, projected death benefits.</li>
+<li>~$148K cash value is <strong>real liquid money</strong> &mdash; should factor into the planning conversation. Available without surrender on most.</li>
+<li>The 4 COF policies all have low premiums + 8% loan rate &mdash; could be 1035 candidates if cash value is more useful elsewhere.</li>
+<li>Farm Bureau policy: 2025 dividend was $0.00 &mdash; investigate why (rate environment, mortality experience, or company decision).</li>
+<li>Verify MassMutual beneficiaries (not yet confirmed from statements).</li>
+<li>Get current LTC values from administrator &mdash; this is significant coverage that&rsquo;s been quietly compounding since 2002.</li>
+</ul>
+</div>
+</div>
+
+</div>
+
+<!-- LIFE -->
+<div id="life" class="panel">
+<div class="card">
+<h2>Life Insurance Policies (6 Active &mdash; ~$271K DB / ~$148K CV)</h2>
+<p>All Whole Life. All confirmed via current-year statements (except MassMutual policies which carry over from earlier statements).</p>
+</div>
+
+<div class="card">
+<h3>Policies</h3>
+<div style="overflow-x:auto">
+<table>
+<tr><th>Carrier</th><th>Policy #</th><th>Face</th><th>Death Benefit</th><th>Cash Value</th><th>Last Yr Dividend</th><th>Premium</th><th>Issue</th><th>Beneficiary</th><th>Source</th></tr>
+<tr><td>Catholic Order of Foresters</td><td>POL-XXXXXXX</td><td>~$41K</td><td>~$59K</td><td>~$30K</td><td>~$308</td><td>~$2,418/yr (Annual)</td><td>08/XX/2003 (age 49)</td><td>[SIBLING] / Estate</td><td>Carrier stmt</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>POL-XXXXXXX</td><td>~$40K</td><td>~$58K</td><td>~$30K</td><td>~$292</td><td>~$2,149/yr (~$179/mo)</td><td>10/XX/2002 (age 48)</td><td>[SIBLING] / [CONTINGENT]</td><td>Carrier stmt</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>POL-XXXXXXX</td><td>~$43K</td><td>~$43K</td><td>~$23K</td><td>~$251</td><td>~$535/yr (Annual)</td><td>11/XX/1989 (age 35)</td><td>[SIBLING] / [PARENT] &#9888;</td><td>Carrier stmt</td></tr>
+<tr><td>Farm Bureau Life</td><td>POL-XXXXXXXXX</td><td>~$30K</td><td>~$35K</td><td>~$19K</td><td class="none"><strong>$0.00</strong> (2025) &#9888;</td><td>~$363/yr (Annual)</td><td>05/XX/1985 (age 30)</td><td>[SIBLING] / Estate</td><td>Carrier annual report</td></tr>
+<tr><td>MassMutual (fka Conn. Mutual)</td><td>POL-XXXXXXX</td><td>~$30K</td><td>~$66K</td><td>~$47K</td><td>PUAs accumulating (need 2025 stmt)</td><td>Paid-up?</td><td>05/XX/1977 (age 23)</td><td class="none">&#9888; TBD</td><td>Carrier stmt (2023)</td></tr>
+<tr><td>MassMutual</td><td>POL-XXXXXXX</td><td>$9,900</td><td>$9,900</td><td>TBD</td><td>TBD (need stmt)</td><td>~$613/yr (~$53/mo)</td><td>01/XX/2018 (age 63)</td><td class="none">&#9888; TBD</td><td>Carrier stmt (2018)</td></tr>
+<tr class="totals"><td></td><td>TOTAL</td><td>~$194K</td><td>~$271K</td><td>~$148K</td><td>~$850 (3 of 6)</td><td>~$5,678/yr</td><td></td><td></td><td></td></tr>
+</table>
+</div>
+<p style="margin-top:8px;font-size:0.78rem;color:var(--muted)"><strong>Source notes:</strong> COF + Farm Bureau values are CURRENT. One MassMutual policy values are from 2023 statement &mdash; <em>actual current values will be higher (2+ years of dividend accumulation)</em>. Other MassMutual policy has no current cash value on file. <strong>Order in-force illustrations on all 6.</strong></p>
+</div>
+
+<div class="card">
+<h3>Long-Term Care Policy</h3>
+<div style="overflow-x:auto">
+<table>
+<tr><th>Carrier</th><th>Policy #</th><th>Plan</th><th>Daily Benefit</th><th>Lifetime Max</th><th>Elimination</th><th>Inflation Rider</th><th>Issue Date</th><th>Issue Age</th><th>Premium</th></tr>
+<tr><td>Catholic Order of Foresters</td><td>POL-XXXXXXX</td><td>LTC</td><td>$100/day base (24yr compound = est $200&ndash;250/day)</td><td>Lifetime</td><td>90 days</td><td>Compound (since 2002)</td><td>11/XX/2002</td><td>48</td><td>~$823/yr (ACP)</td></tr>
+</table>
+</div>
+<p style="margin-top:10px"><em>Includes: Bed Reservation (21 days/yr), Caregiver Training ($500 lifetime), Respite Care (21 days/yr), Hospice Care, Return of Premium rider.</em></p>
+<div class="note" style="margin-top:14px;background:rgba(212,164,76,0.06);border-color:rgba(212,164,76,0.3)"><strong style="color:var(--gold)">LTC Administrator:</strong> This policy is administered by a third-party service provider, <strong>[LTC ADMINISTRATOR]</strong>. For current values, claim status, or any policy information, client contacts the administrator directly. The primary carrier&rsquo;s home office does not handle LTC servicing.</div>
+</div>
+
+<div class="card">
+<h3>Insights</h3>
+<ul>
+<li><strong>Real cash on the table:</strong> ~$148K in life policy cash value is liquid money &mdash; not just death benefit. Adds ~8% to total liquid asset pool.</li>
+<li><strong>Dividend-driven growth:</strong> 4 of 6 policies use Paid-Up Additions dividend option. The COF policies have substantial PUA accumulation (combined ~$50K in PUA cash). The Farm Bureau dividend was $0 in 2025 &mdash; investigate.</li>
+<li><strong>40+ year contracts:</strong> Farm Bureau (40 years), MassMutual (49 years), COF (37 years). Dividend trajectory should be substantial. Order in-force illustrations to see what they project forward.</li>
+<li><strong>Beneficiary verification needed:</strong> 2 MassMutual policies have unconfirmed beneficiaries. Action item.</li>
+<li><strong>[PARENT] contingent concern:</strong> One COF policy lists [PARENT] as parent contingent &mdash; needs current status verification.</li>
+<li><strong>The LTC is a sleeper asset:</strong> $100/day base from 2002 with compound inflation = significant current daily benefit. Request current values from administrator.</li>
+</ul>
+</div>
+</div>
+
+<!-- BENI CENTER -->
+<div id="beni" class="panel">
+<div class="card">
+<h2>Beneficiary Center &mdash; All 23 Active Accounts</h2>
+<p>Sole intended beneficiary across the estate: <strong>[SIBLING]</strong>. Iowa inheritance tax repealed 01/01/2025 &mdash; [SIBLING] owes no state tax on inheritance.</p>
+</div>
+
+<div class="stat-row">
+<div class="stat"><div class="num" style="color:var(--green)">10</div><div class="lbl">Named Beneficiary</div></div>
+<div class="stat warn"><div class="num">13</div><div class="lbl">No Beneficiary</div></div>
+<div class="stat"><div class="num" style="color:var(--orange)">~$1.48M</div><div class="lbl">Probate Risk</div></div>
+<div class="stat"><div class="num">~$2.16M</div><div class="lbl">Total Death Benefit</div></div>
+</div>
+
+<div class="card">
+<h3>Accounts WITH Beneficiary (10)</h3>
+<div style="overflow-x:auto">
+<table>
+<tr><th>Carrier</th><th>Policy #</th><th>Type</th><th>Value</th><th>Primary Beneficiary</th><th>Contingent</th><th>Source</th></tr>
+<tr><td>Catholic Order of Foresters</td><td>POL-XXXXXXX</td><td>NQ Annuity</td><td>~$447K</td><td>[SIBLING] 100%</td><td>&mdash;</td><td>Carrier stmt</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>POL-XXXXXXX</td><td>Roth IRA Annuity</td><td>~$91K</td><td>[SIBLING] 100%</td><td>&mdash;</td><td>Carrier stmt</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>POL-XXXXXXX</td><td>Whole Life</td><td>~$59K DB</td><td>[SIBLING]</td><td>Estate</td><td>Carrier stmt</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>POL-XXXXXXX</td><td>Whole Life</td><td>~$58K DB</td><td>[SIBLING]</td><td>[CONTINGENT]</td><td>Carrier stmt</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>POL-XXXXXXX</td><td>Whole Life</td><td>~$43K DB</td><td>[SIBLING]</td><td><strong style="color:var(--orange)">[PARENT] &#9888;</strong></td><td>Carrier stmt</td></tr>
+<tr><td>Farm Bureau Life</td><td>POL-XXXXXXXXX</td><td>Special Whole Life</td><td>~$35K DB</td><td>[SIBLING]</td><td>Estate of Insured</td><td>Carrier stmt</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>POL-XXXXXXX</td><td>Single Life Annuity (SPIA)</td><td>~$37K single premium</td><td colspan="2" style="font-style:italic">[SIBLING] is the annuitant &mdash; receives ~$1,603/yr lifetime income. Owner/beni TBD.</td><td>Carrier app</td></tr>
+<tr><td>MassMutual (fka Conn. Mutual)</td><td>POL-XXXXXXX</td><td>Whole Life</td><td>~$66K DB</td><td colspan="2" class="none">&#9888; TBD &mdash; need current statement</td><td>Carrier stmt (2023)</td></tr>
+<tr><td>MassMutual</td><td>POL-XXXXXXX</td><td>Whole Life</td><td>$9,900 DB</td><td colspan="2" class="none">&#9888; TBD &mdash; need current statement</td><td>Carrier stmt (2018)</td></tr>
+<tr><td>Catholic Order of Foresters</td><td>POL-XXXXXXX</td><td>LTC (no DB)</td><td>$100/day base</td><td colspan="2" style="font-style:italic">N/A &mdash; benefits paid to client during lifetime</td><td>Carrier app</td></tr>
+</table>
+</div>
+</div>
+
+<div class="card">
+<h3 style="color:var(--red)">Accounts WITHOUT Beneficiary (13) &mdash; ALL probate-bound</h3>
+<div style="overflow-x:auto">
+<table>
+<tr><th>Carrier</th><th>Acct #</th><th>Type</th><th>Tax</th><th>Value</th><th>Action Required</th><th>Form Source</th></tr>
+<tr><td>Community Bank A</td><td>ACCT-XXXXXXX</td><td>CD 11mo</td><td>NQ</td><td>~$95K</td><td>POD form</td><td>Bank in person</td></tr>
+<tr><td>Community Bank A</td><td>ACCT-XXXXXXX</td><td>CD 11mo</td><td>NQ</td><td>~$118K</td><td>POD form</td><td>Bank in person</td></tr>
+<tr><td>Community Bank A</td><td>ACCT-XXXXXXX</td><td>CD 11mo</td><td>Trad IRA</td><td>~$96K</td><td>IRA beneficiary form</td><td>Bank in person</td></tr>
+<tr><td>Community Bank A</td><td>ACCT-XXXXXXX</td><td>CD 11mo</td><td>NQ</td><td>~$59K</td><td>POD form</td><td>Bank in person</td></tr>
+<tr><td>Community Bank A</td><td>ACCT-XXXXXXX</td><td>CD 6mo</td><td>Trad IRA</td><td>~$8K</td><td>IRA beneficiary form</td><td>Bank in person</td></tr>
+<tr><td>Community Bank A</td><td>ACCT-XXXXXXX</td><td>CD 6mo</td><td>NQ</td><td>~$47K</td><td>POD form</td><td>Bank in person</td></tr>
+<tr><td>Community Bank A</td><td>ACCT-XXXXXXX</td><td>CD 6mo</td><td>NQ</td><td>~$51K</td><td>POD form</td><td>Bank in person</td></tr>
+<tr><td>Community Bank A</td><td>ACCT-XXXXXXX</td><td>CD 11mo</td><td>NQ</td><td>~$258K</td><td>POD form</td><td>Bank in person</td></tr>
+<tr><td>Community Bank B</td><td>ACCT-XXXXX</td><td>CD 11mo</td><td>NQ</td><td>~$166K</td><td>POD form</td><td>Bank in person</td></tr>
+<tr><td>Community Bank B</td><td>ACCT-XXXXX</td><td>CD 11mo</td><td>NQ</td><td>~$116K</td><td>POD form</td><td>Bank in person</td></tr>
+<tr><td>Prosperity / S.USA Life</td><td>POL-XXXXXXXXX</td><td>NQ Annuity</td><td>NQ</td><td>~$185K</td><td>Carrier beni change form</td><td>Carrier portal</td></tr>
+<tr><td>Brighthouse Financial</td><td>POL-XXXXXXXXX</td><td>NQ Annuity</td><td>NQ</td><td>~$135K</td><td>Carrier beni change form</td><td>Carrier portal</td></tr>
+<tr><td>Brighthouse Financial</td><td>POL-XXXXXXXXXX</td><td>IRA Annuity</td><td>Trad IRA</td><td>~$15K</td><td>Carrier beni change form</td><td>Carrier portal</td></tr>
+<tr class="totals"><td></td><td></td><td></td><td>TOTAL EXPOSED</td><td>~$1.48M</td><td></td><td></td></tr>
+</table>
+</div>
+</div>
+
+<div class="card">
+<h3>Action Plan</h3>
+<ol style="margin-left:20px;color:var(--muted)">
+<li><strong>Immediate (no second discovery needed):</strong> Print 13 beni forms. Have client sign at next meeting. Name [SIBLING] as primary on all 13.</li>
+<li><strong>For the IRA CDs (~$104K):</strong> IRA beneficiary forms are different from POD &mdash; ensure correct form. Bank will provide.</li>
+<li><strong>For Brighthouse + Prosperity:</strong> Each carrier has its own beni change form. Submit via carrier portal or fax.</li>
+<li><strong>Verify MassMutual benis</strong> &mdash; request current statements to confirm. May already be [SIBLING] &mdash; just unconfirmed.</li>
+<li><strong>Verify [PARENT] status</strong> on COF contingent &mdash; if deceased, file contingent change.</li>
+<li><strong>COF SPIA</strong> &mdash; verify owner and remainder beneficiary structure ([SIBLING] is the annuitant, but who owns the contract?).</li>
+</ol>
+</div>
+</div>
+
+<!-- RMD CENTER -->
+<div id="rmd" class="panel">
+<div class="card">
+<h2>RMD Center &mdash; Required Minimum Distributions</h2>
+<p>[CLIENT] &bull; DOB XX/XX/YYYY &bull; <strong>Turns 73 in 2027</strong> &bull; First RMD year: <strong>2027</strong> &bull; Required Beginning Date: <strong>04/01/2028</strong></p>
+</div>
+
+<div class="stat-row">
+<div class="stat"><div class="num">~$119K</div><div class="lbl">Total Trad IRA Subject to RMD</div></div>
+<div class="stat"><div class="num">3</div><div class="lbl">IRA Accounts</div></div>
+<div class="stat"><div class="num" style="color:var(--orange)">~$4,506</div><div class="lbl">Est. First RMD (2027)</div></div>
+<div class="stat"><div class="num">26.5</div><div class="lbl">Age 73 Divisor</div></div>
+</div>
+
+<div class="card">
+<h3>Traditional IRA Accounts (RMD Required)</h3>
+<div style="overflow-x:auto">
+<table>
+<tr><th>Carrier</th><th>Account #</th><th>Type</th><th>Value</th><th>Maturity</th><th>RMD Strategy Note</th><th>Source</th></tr>
+<tr><td>Community Bank A</td><td>ACCT-XXXXXXX</td><td>IRA CD (11mo)</td><td>~$96K</td><td>06/XX/2026</td><td>Largest IRA. Will mature before RMD trigger. Keep liquid for first RMD.</td><td>Bank renewal</td></tr>
+<tr><td>Brighthouse Financial</td><td>POL-XXXXXXXXXX</td><td>Fixed Annuity XR (IRA)</td><td>~$15K</td><td>1yr renew</td><td>Fully liquid annuity. Could fund RMD or be 1035&rsquo;d to better product.</td><td>Carrier stmt</td></tr>
+<tr><td>Community Bank A</td><td>ACCT-XXXXXXX</td><td>IRA CD (6mo)</td><td>~$8K</td><td>06/XX/2026</td><td>Small balance. Could absorb full annual RMD without touching others.</td><td>Field-agent spreadsheet</td></tr>
+<tr class="totals"><td></td><td></td><td>TOTAL</td><td>~$119K</td><td></td><td></td><td></td></tr>
+</table>
+</div>
+</div>
+
+<div class="card">
+<h3>RMD Calculation (Projected)</h3>
+<div style="overflow-x:auto">
+<table>
+<tr><th>Year</th><th>Age</th><th>Account Balance</th><th>Divisor</th><th>RMD Amount</th><th>Notes</th></tr>
+<tr><td>2026</td><td>72</td><td>~$119K</td><td>&mdash;</td><td>$0</td><td>No RMD &mdash; not yet 73</td></tr>
+<tr><td>2027</td><td>73</td><td>~$120K projected (assumes 0.5% net growth)</td><td>26.5</td><td><strong>~$4,528</strong></td><td>First RMD year. Can defer to 04/01/2028.</td></tr>
+<tr><td>2028</td><td>74</td><td>~$117K projected</td><td>25.5</td><td>~$4,580</td><td>Two RMDs in same calendar year if 2027 was deferred.</td></tr>
+<tr><td>2029</td><td>75</td><td>~$113K projected</td><td>24.6</td><td>~$4,591</td><td></td></tr>
+<tr><td>2030</td><td>76</td><td>~$109K projected</td><td>23.7</td><td>~$4,597</td><td></td></tr>
+</table>
+</div>
+<p style="margin-top:10px"><em>Divisors from IRS Uniform Lifetime Table (2022 update). Projections are illustrative &mdash; actual balances depend on growth + withdrawals.</em></p>
+</div>
+
+<div class="card">
+<h3>Key Decisions</h3>
+<ul>
+<li><strong>Roth Conversion Window:</strong> Original assumption was a 32&ndash;35% bracket due to farm income. Actual 2025 return came in at 22% marginal / 18% effective &mdash; dramatically lower. Recalibrated plan in TAX BREAKDOWN tab.</li>
+<li><strong>CD Rollover Strategy:</strong> 2 of 3 IRAs mature June 2026. Top option: roll into a FIA with GLWB &mdash; the rider locks in lifetime income that satisfies RMDs automatically and the indexed growth beats CD returns. Free-withdrawal-only FIAs also work.</li>
+<li><strong>Inherited IRA for [SIBLING]:</strong> Under SECURE Act 2.0, a non-spouse beneficiary must drain inherited IRA within 10 years. Plan accordingly.</li>
+<li><strong>QCD Option:</strong> At age 70.5+, client can do Qualified Charitable Distributions (up to $108K/yr in 2025) directly from IRA &mdash; satisfies RMD without taxable income. Useful given charitable intent &mdash; client is a practicing Catholic and may be interested in directing RMDs to his church.</li>
+<li><strong>1035 Exchange:</strong> The Brighthouse IRA could be 1035 exchanged into a higher-yielding annuity without triggering tax. Same product type, same tax status.</li>
+</ul>
+</div>
+
+<div class="card" style="background:rgba(34,197,94,0.04);border-color:rgba(34,197,94,0.2)">
+<h3 style="color:var(--green)">Roth IRA &mdash; NO RMD EVER</h3>
+<table>
+<tr><th>Carrier</th><th>Policy #</th><th>Type</th><th>Value</th><th>Notes</th></tr>
+<tr><td>Catholic Order of Foresters</td><td>POL-XXXXXXX</td><td>Roth IRA Annuity</td><td>~$91K</td><td>[SIBLING] beneficiary. Tax-free growth + tax-free inheritance. <strong>Do not touch this asset.</strong></td></tr>
+</table>
+</div>
+</div>
+
+<!-- INCOME -->
+<div id="income" class="panel">
+<div class="card">
+<h2>Income Sources &mdash; 2025 Actuals (from Federal Return)</h2>
+<p style="font-size:0.82rem">Replaces pre-return estimates. All figures direct from 1040 + Schedule B + Schedule F, filed as Single.</p>
+</div>
+
+<div class="income-card">
+<div>
+<div class="src">Social Security (2025)</div>
+<div class="detail">Gross benefit &asymp; ~$34K &middot; 85% taxable &rarr; ~$29K on return</div>
+</div>
+<div style="text-align:right">
+<div class="val">~$2,849/mo</div>
+<div class="detail">~$34K/yr gross &middot; ~$29K taxable</div>
+</div>
+</div>
+
+<div class="income-card">
+<div>
+<div class="src">Farm (Schedule F &mdash; Net)</div>
+<div class="detail">Corn &amp; soybeans &middot; Sole prop &middot; 2024: ~$77K &middot; <strong>2025: ~$19K</strong> &mdash; commodity/input squeeze</div>
+</div>
+<div style="text-align:right">
+<div class="val">~$19K</div>
+<div class="detail">Gross ~$164K &minus; Expenses ~$145K</div>
+</div>
+</div>
+
+<div class="income-card">
+<div>
+<div class="src">Interest Income (CDs + checking)</div>
+<div class="detail">Community Bank A ~$26K &middot; Community Bank B ~$10K &middot; Community Bank C ~$28</div>
+</div>
+<div style="text-align:right">
+<div class="val">~$36K</div>
+<div class="detail">Ordinary income &mdash; hits at 22% marginal</div>
+</div>
+</div>
+
+<div class="income-card">
+<div>
+<div class="src">Taxable IRA Distribution (2025)</div>
+<div class="detail"><strong style="color:var(--orange)">NEW in 2025</strong> &mdash; source TBD (Brighthouse IRA? IRA CD?). Ask client.</div>
+</div>
+<div style="text-align:right">
+<div class="val">~$25K</div>
+<div class="detail">Taxable ordinary income</div>
+</div>
+</div>
+
+<div class="income-card">
+<div>
+<div class="src">Other Gains (sale of business property, Form 4797)</div>
+<div class="detail">2024: ~$3.5K &middot; 2025: ~$8.5K &mdash; likely old equipment sale tied to farm</div>
+</div>
+<div style="text-align:right">
+<div class="val">~$8.5K</div>
+<div class="detail">Reported on 1040 line 10</div>
+</div>
+</div>
+
+<div class="income-card">
+<div>
+<div class="src">Dividend Income (community bank holding co)</div>
+<div class="detail">Qualified: ~$1.5K. Client owns holding-co stock &mdash; ask for share count.</div>
+</div>
+<div style="text-align:right">
+<div class="val">~$1.5K</div>
+<div class="detail">~$1.5K qualified</div>
+</div>
+</div>
+
+<div class="income-card" style="background:rgba(148,163,184,0.08);opacity:0.85">
+<div>
+<div class="src">Prosperity Annuity Benefit (NOT currently drawn)</div>
+<div class="detail">Paid-up monthly benefit &mdash; available option, not activated in 2025</div>
+</div>
+<div style="text-align:right">
+<div class="val">~$1,007/mo</div>
+<div class="detail">~$12K/yr if activated</div>
+</div>
+</div>
+
+<div class="card" style="margin-top:16px">
+<h3>2025 Income Reconciliation</h3>
+<div class="stat-row">
+<div class="stat"><div class="num">~$119K</div><div class="lbl">Total Income (1040)</div></div>
+<div class="stat"><div class="num">~$107K</div><div class="lbl">AGI</div></div>
+<div class="stat"><div class="num">~$64K</div><div class="lbl">Taxable Income</div></div>
+<div class="stat"><div class="num" style="color:var(--orange)">~$11.5K</div><div class="lbl">Total Federal Tax</div></div>
+</div>
+</div>
+
+<div class="note">
+<strong>Tax Bracket Correction:</strong> Earlier roadmap modeled client at <strong>32&ndash;35% marginal</strong>. The 2025 return puts him at <strong>22% marginal / 18% effective</strong>. This reshapes every downstream recommendation:
+<ul style="margin-left:20px;margin-top:8px">
+<li><strong>Roth conversions are ~4x cheaper</strong> than previously thought. Targeted ~$39K/yr conversion plan fills the 22% bracket without overflow &mdash; details in TAX BREAKDOWN tab.</li>
+<li><strong>Tax-deferral on CD interest</strong> still valuable but less urgent. Priority for MYGA/FIA rotation shifts from pure tax arbitrage to yield-plus-deferral.</li>
+<li><strong>QCD to church</strong> still attractive as RMD-rate insurance, but immediate pre-RMD value is lower than at 32%.</li>
+<li><strong>Activating the Prosperity ~$1,007/mo</strong> would add ~$12K/yr at ~22% marginal = ~$2.6K additional tax &mdash; decision hinges on need, not tax drag.</li>
+</ul>
+</div>
+</div>
+
+</div>
+
+<div class="footer">
+SAMPLE TEMPLATE &bull; VOLTRON CSO &bull; Sources: Catholic Order of Foresters, Brighthouse Financial, Prosperity / S.USA Life, Farm Bureau Life, MassMutual, Community Bank A, Community Bank B + Field Agent Discovery Notes + 2025 Federal Tax Return<br>
+PHI-redacted template demonstration &bull; #RunningOurOwnRACE
+</div>
+
+<script>
+function showPanel(id,el){document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active')});document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});document.getElementById(id).classList.add('active');el.classList.add('active')}
+</script>
+</body>
+</html>
