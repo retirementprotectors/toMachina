@@ -133,6 +133,62 @@ tr:hover td{background:var(--card2)}
 </div>
 
 <div class="card">
+<h2>Dual APPA Scaling Paths — Task vs Cognitive Automation</h2>
+
+<p>Not every CXO saturation has the same answer. The Specialization Fork pattern (VP-level) is ONE of two APPA-aligned scaling paths, not the only one. The choice depends on <strong>which kind of work is saturating the CXO.</strong></p>
+
+<div class="layer ccsdk">
+<h3>Path A — Task Automation (Mechanical Saturation)</h3>
+<p><strong>Signals:</strong> repeatable task with clear inputs/outputs, no session memory needed, pattern-match-and-execute work, high volume but low judgment per call.</p>
+<p><strong>APPA curve:</strong></p>
+<ul>
+<li><strong>Activity:</strong> CXO doing the repeatable task manually</li>
+<li><strong>Process/Tool:</strong> build a Tool → then a SuperTool → then a Wire (composed pipeline)</li>
+<li><strong>People/Systems:</strong> integrate the Wire into the CXO's daily workflow</li>
+<li><strong>Automation:</strong> <strong>CCSDK Mesh Warrior</strong> executes the task autonomously (Ranger/Lion/Artisan/Bolt)</li>
+</ul>
+<p><strong>Examples tonight + existing:</strong></p>
+<ul>
+<li>MEGAZORD's Rangers (wire executors) — task-automation of data-ingest + wire-composed pipelines</li>
+<li>RAIDEN's future bolt-mesh (classify bug report → route by failure class) — task-oriented pattern-match-and-dispatch</li>
+<li>Any "pull a statement, extract fields, validate, write" flow — task-automation</li>
+</ul>
+</div>
+
+<div class="layer vp">
+<h3>Path B — Cognitive Automation (Judgment/Domain Saturation)</h3>
+<p><strong>Signals:</strong> needs persistent context across time, requires judgment calls that accumulate learnings, pattern-matches across many cases with nuance, persistent B+S+S develops over time.</p>
+<p><strong>APPA curve:</strong></p>
+<ul>
+<li><strong>Activity:</strong> CXO doing the cognitive work in the full context of the domain</li>
+<li><strong>Process/Tool:</strong> maybe a Tool or SuperTool or Wire emerges to support the work (but the judgment itself isn't automatable at tool level)</li>
+<li><strong>People/Systems:</strong> <strong>VP-level Specialization Fork</strong> picks up the cognitive work as its own persistent domain</li>
+<li><strong>Automation:</strong> the <strong>VP IS the automation</strong> — cognitive work runs through the VP without CXO daily involvement, liberating the CXO's attention</li>
+</ul>
+<p><strong>Examples tonight:</strong></p>
+<ul>
+<li><strong>SHINOB1-COACH (Path B — live 2026-04-15)</strong> — warrior coaching is cognitive: needs persistent context on each warrior's patterns, requires judgment (when to push vs confirm), accumulates learnings. A coaching tool wouldn't have helped. VP was the right endpoint.</li>
+<li>Potential future MUSASHI BRAND-review VP — brand voice consistency is judgment-heavy, accumulates across campaigns, not reducible to a tool</li>
+<li>Potential future VOLTRON CASEWORK VP — per-case doctrine application needs judgment across product choices + client-shape nuance</li>
+</ul>
+</div>
+
+<div class="flag purple">
+<div class="title">The Decision Question</div>
+<p>When a CXO is saturated, ask: <strong>"Is this saturation mechanical or cognitive?"</strong></p>
+<ul>
+<li>Mechanical (repetitive, clear rules, no context accumulation) → Path A, scale via Tools → Wires → CCSDK Mesh Warriors</li>
+<li>Cognitive (judgment, context accumulation, pattern-matching across time) → Path B, scale via VP Specialization Fork</li>
+</ul>
+<p>Some CXOs will have BOTH kinds of saturation across different scope slices — they scale on both paths simultaneously. Tonight's SHINOB1 is an example: SHINOB1-COACH (Path B, warrior coaching) exists; a future Path-A mesh for specific task types (log analysis, deploy monitoring) is possible when that Activity surfaces.</p>
+</div>
+
+<div class="note">
+<strong>Why this matters for APPA discipline:</strong> don't build Tools when the saturation is cognitive (they'll sit unused because the work doesn't reduce to tool-calls). Don't spawn VPs when the saturation is mechanical (they'll over-engineer judgment into work that just needs mechanical execution). Matching the scaling path to the saturation type is how APPA stays honest — right layer, right work.
+</div>
+</div>
+
+<div class="card">
 <h2>Decision Rubric — When to Spawn a VP</h2>
 
 <table>
