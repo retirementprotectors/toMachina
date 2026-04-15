@@ -64,6 +64,7 @@ import type {
   TierMethod,
   ValueConfidence,
 } from '../../types/farm-holdings'
+import { synthesizeCountyTier } from '../tools/isu-land-value-parse'
 
 /* ─── Tool definition ────────────────────────────────────────────────── */
 
@@ -92,6 +93,19 @@ export const TIER_BLEND_WEIGHTS: Record<QualityTier, number> = {
 export const CONFIDENCE_DELTA_THRESHOLDS = {
   HIGH_MAX: 0.10, // delta < 0.10 → HIGH
   MEDIUM_MAX: 0.20, // 0.10 ≤ delta ≤ 0.20 → MEDIUM; > 0.20 → LOW
+} as const
+
+/**
+ * Thresholds for the DISTRICT_RATIO_SYNTHESIZED upgrade path. Synthesized
+ * per-county-tier values start at MEDIUM; both checks must pass to promote
+ * to HIGH. Either failing leaves the value at MEDIUM. MEGAZORD Guardrail 2
+ * ruling (2026-04-15).
+ */
+export const SYNTHESIS_CONFIDENCE_THRESHOLDS = {
+  /** County baseline agreement: |ISU county_avg − NASS county_value| / max ≤ 0.10. */
+  COUNTY_BASELINE_MAX: 0.10,
+  /** Synthesized tier agreement vs NASS-derived tier estimate: ≤ 0.15. */
+  SYNTHESIZED_TIER_MAX: 0.15,
 } as const
 
 /* ─── Input / output shapes ─────────────────────────────────────────── */
@@ -160,6 +174,36 @@ export function buildNassRowId(
   return `NASS_${state}_${county.replace(/\s+/g, '_')}_${year}`
 }
 
+/* ─── v2 ID helpers (FV-003 v2 CARD xlsx schema) ───────────────────── */
+
+/** county-average row id: `ISU_{state}_{county}_{year}`. */
+export function buildIsuCountyAvgRowId(
+  state: string,
+  county: string,
+  year: number,
+): string {
+  return `ISU_${state}_${county.replace(/\s+/g, '_')}_${year}`
+}
+
+/** district tier row id: `ISU_{state}_DIST_{district}_{year}_{tier}`. */
+export function buildIsuDistrictTierRowId(
+  state: string,
+  district: string,
+  year: number,
+  tier: QualityTier,
+): string {
+  return `ISU_${state}_DIST_${district.replace(/\s+/g, '_')}_${year}_${tier}`
+}
+
+/** district weighted-avg row id: `ISU_{state}_DIST_{district}_{year}_WAVG`. */
+export function buildIsuDistrictWavgRowId(
+  state: string,
+  district: string,
+  year: number,
+): string {
+  return `ISU_${state}_DIST_${district.replace(/\s+/g, '_')}_${year}_WAVG`
+}
+
 /* ─── execute — main entry ───────────────────────────────────────────── */
 
 export async function execute(
@@ -173,10 +217,17 @@ export async function execute(
   let isuTier: QualityTier | null = null
   let isuTierMethod: TierMethod = 'NASS_ONLY_NO_TIER'
   let isuAsOf: string | null = null
+  // Synthesis-path state (populated when DISTRICT_RATIO_SYNTHESIZED fires).
+  // Carried into the confidence branches so Guardrails 2 + 3 can apply.
+  let countyAvgForSynth: number | null = null
+  let districtWavgForSynth: number | null = null
+  let districtTierForSynth: number | null = null
+  let synthesisFormula: string | undefined
+  let outlierFromDistrict = false
 
   if (state === 'IA') {
     if (quality_tier) {
-      // Single-tier lookup
+      // Legacy single-tier lookup (v1 schema: per-county-tier rows).
       const row = await loadRow(buildIsuRowId(state, county, year, quality_tier))
       if (row) {
         isuValue = row.value_per_acre
@@ -185,10 +236,7 @@ export async function execute(
         isuAsOf = row.fetched_at
       }
     } else {
-      // Blend lookup — fetch all three tiers in parallel, apply weighted
-      // average over whichever subset returns. If fewer than 3 rows are
-      // cached for this (state, county, year), re-normalize the weights
-      // over the present tiers so the blend still sums to 1.
+      // Legacy 3-tier blend — same v1 schema path.
       const results = await Promise.all(
         (Object.keys(TIER_BLEND_WEIGHTS) as QualityTier[]).map(async (tier) => {
           const row = await loadRow(buildIsuRowId(state, county, year, tier))
@@ -208,11 +256,55 @@ export async function execute(
           ) / (weightSum || 1)
         isuValue = Math.round(blended)
         isuTierMethod = 'BLEND_DEFAULT'
-        // Prefer MEDIUM as the representative as-of, fall back to any
-        // present tier's fetched_at (they should be within seconds of
-        // each other since the seed wire writes them in one batch).
         const medium = present.find((p) => p.tier === 'MEDIUM')
         isuAsOf = (medium ?? present[0]).row.fetched_at
+      }
+    }
+
+    // ── v2 synthesis fallback (DISTRICT_RATIO_SYNTHESIZED) ────────────
+    // v2 schema (FV-003 v2 / CARD xlsx) publishes county averages + district
+    // tiers — no per-county-tier rows. If the legacy lookups returned null,
+    // try the county_avg + district_tier + district_wavg triple and synth.
+    if (isuValue == null) {
+      const countyRow = await loadRow(buildIsuCountyAvgRowId(state, county, year))
+      if (countyRow) {
+        countyAvgForSynth = countyRow.value_per_acre
+        outlierFromDistrict = countyRow.outlier_from_district === true
+        isuAsOf = countyRow.fetched_at
+        if (quality_tier && countyRow.district_id) {
+          // Tier-specific synthesis: county_tier = district_tier ×
+          //                          (county_avg / district_weighted_avg)
+          const [distTierRow, distWavgRow] = await Promise.all([
+            loadRow(
+              buildIsuDistrictTierRowId(state, countyRow.district_id, year, quality_tier),
+            ),
+            loadRow(buildIsuDistrictWavgRowId(state, countyRow.district_id, year)),
+          ])
+          const distWavg = distWavgRow?.value_per_acre ?? countyRow.district_weighted_avg
+          if (distTierRow && distWavg) {
+            districtTierForSynth = distTierRow.value_per_acre
+            districtWavgForSynth = distWavg
+            const synth = synthesizeCountyTier({
+              county_avg: countyAvgForSynth,
+              district_tier: distTierRow.value_per_acre,
+              district_weighted_avg: distWavg,
+            })
+            isuValue = synth.value_per_acre
+            isuTier = quality_tier
+            isuTierMethod = 'DISTRICT_RATIO_SYNTHESIZED'
+            synthesisFormula = synth.synthesis_formula
+          } else {
+            // Missing district-tier or district-wavg row — fall back to
+            // county_avg with BLEND_DEFAULT so the caller still gets a
+            // sensible number rather than insufficient_data.
+            isuValue = countyAvgForSynth
+            isuTierMethod = 'BLEND_DEFAULT'
+          }
+        } else {
+          // No tier specified — county_avg IS the blended default.
+          isuValue = countyAvgForSynth
+          isuTierMethod = 'BLEND_DEFAULT'
+        }
       }
     }
   }
@@ -226,7 +318,23 @@ export async function execute(
   // Case 1: both sources → ensemble with delta + real confidence
   if (isuValue != null && nassValue != null) {
     const delta = computeDelta(isuValue, nassValue)
-    const confidence = confidenceFromDelta(delta)
+    // Default confidence from delta; then apply synthesis guardrails.
+    let confidence: ValueConfidence = confidenceFromDelta(delta)
+    if (isuTierMethod === 'DISTRICT_RATIO_SYNTHESIZED') {
+      // Guardrail 3: outlier_from_district forces LOW regardless of delta.
+      if (outlierFromDistrict) {
+        confidence = 'LOW'
+      } else {
+        // Guardrail 2: upgrade to HIGH only on dual agreement.
+        confidence = confidenceForSynthesizedTier({
+          county_avg: countyAvgForSynth,
+          nass_county_value: nassValue,
+          district_tier: districtTierForSynth,
+          district_weighted_avg: districtWavgForSynth,
+          synthesized_tier: isuValue,
+        })
+      }
+    }
     const payload: FarmlandValuationSuccess = {
       estimated_value: isuValue,
       value_per_acre: isuValue,
@@ -238,13 +346,21 @@ export async function execute(
       year,
       as_of: isuAsOf ?? new Date().toISOString(),
       tier_method: isuTierMethod,
+      ...(synthesisFormula ? { synthesis_formula: synthesisFormula } : {}),
+      ...(isuTierMethod === 'DISTRICT_RATIO_SYNTHESIZED'
+        ? { outlier_from_district: outlierFromDistrict }
+        : {}),
       ...(force_refresh ? { force_refreshed: true } : {}),
     }
     return { success: true, data: payload }
   }
 
-  // Case 2: ISU only (Iowa, pre-NASS seed) → MEDIUM cap
+  // Case 2: ISU only (Iowa, pre-NASS seed) → MEDIUM cap, LOW if outlier synth
   if (isuValue != null) {
+    const confidence: ValueConfidence =
+      isuTierMethod === 'DISTRICT_RATIO_SYNTHESIZED' && outlierFromDistrict
+        ? 'LOW'
+        : 'MEDIUM'
     const payload: FarmlandValuationSuccess = {
       estimated_value: isuValue,
       value_per_acre: isuValue,
@@ -252,10 +368,14 @@ export async function execute(
       cross_check_source: null,
       cross_check_value_per_acre: null,
       delta: null,
-      confidence: 'MEDIUM',
+      confidence,
       year,
       as_of: isuAsOf ?? new Date().toISOString(),
       tier_method: isuTierMethod,
+      ...(synthesisFormula ? { synthesis_formula: synthesisFormula } : {}),
+      ...(isuTierMethod === 'DISTRICT_RATIO_SYNTHESIZED'
+        ? { outlier_from_district: outlierFromDistrict }
+        : {}),
       ...(force_refresh ? { force_refreshed: true } : {}),
     }
     return { success: true, data: payload }
@@ -307,6 +427,38 @@ export function confidenceFromDelta(delta: number): ValueConfidence {
 }
 
 /**
+ * Confidence for a DISTRICT_RATIO_SYNTHESIZED value with NASS cross-check
+ * available. Per MEGAZORD Guardrail 2 (2026-04-15):
+ *   start MEDIUM, upgrade to HIGH only when BOTH
+ *     |ISU county_avg − NASS county_value| / max  ≤ 0.10   (baseline)
+ *     |synthesized_tier − NASS-derived tier|  / max ≤ 0.15   (tier fidelity)
+ * Either failing holds at MEDIUM. Outlier-from-district is handled by the
+ * caller (forces LOW regardless of this result).
+ *
+ * NASS-derived tier uses the same district ratio applied to the NASS
+ * county value: `district_tier × (nass_county / district_weighted_avg)`.
+ * Missing inputs (any of `district_tier`, `district_weighted_avg`,
+ * `county_avg`) collapse to MEDIUM — we can't prove agreement without the
+ * full inputs.
+ */
+export function confidenceForSynthesizedTier(args: {
+  county_avg: number | null
+  nass_county_value: number
+  district_tier: number | null
+  district_weighted_avg: number | null
+  synthesized_tier: number
+}): ValueConfidence {
+  const { county_avg, nass_county_value, district_tier, district_weighted_avg, synthesized_tier } = args
+  if (county_avg == null || district_tier == null || !district_weighted_avg) return 'MEDIUM'
+  const baselineDelta = computeDelta(county_avg, nass_county_value)
+  if (baselineDelta > SYNTHESIS_CONFIDENCE_THRESHOLDS.COUNTY_BASELINE_MAX) return 'MEDIUM'
+  const nassDerivedTier = district_tier * (nass_county_value / district_weighted_avg)
+  const tierDelta = computeDelta(synthesized_tier, nassDerivedTier)
+  if (tierDelta > SYNTHESIS_CONFIDENCE_THRESHOLDS.SYNTHESIZED_TIER_MAX) return 'MEDIUM'
+  return 'HIGH'
+}
+
+/**
  * Pick the most useful insufficient_data reason for the caller. Preference:
  *   - Iowa + a user-specified tier that's missing → no_iowa_tier_survey_for_county
  *   - Non-Iowa → no_nass_data_for_county_year
@@ -330,9 +482,14 @@ export function resolveInsufficientReason(
 export const __testonly = {
   TIER_BLEND_WEIGHTS,
   CONFIDENCE_DELTA_THRESHOLDS,
+  SYNTHESIS_CONFIDENCE_THRESHOLDS,
   buildIsuRowId,
   buildNassRowId,
+  buildIsuCountyAvgRowId,
+  buildIsuDistrictTierRowId,
+  buildIsuDistrictWavgRowId,
   computeDelta,
   confidenceFromDelta,
+  confidenceForSynthesizedTier,
   resolveInsufficientReason,
 }

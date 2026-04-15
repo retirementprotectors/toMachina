@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Session Learnings — 2026-04-15 Casework Doctrine</title>
+<style>
+:root{--bg:#0a0e17;--card:#111827;--card2:#1a2236;--border:#1e293b;--text:#e2e8f0;--muted:#94a3b8;--green:#22c55e;--blue:#3b82f6;--red:#ef4444;--orange:#f59e0b;--gold:#d4a44c;--cyan:#06b6d4;--purple:#a78bfa}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:16px}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.65}
+.header{background:linear-gradient(135deg,#020b1a 0%,#0a1a0a 50%,#020b1a 100%);border-bottom:1px solid var(--border);padding:40px 24px;text-align:center}
+.header h1{font-size:1.9rem;font-weight:800;background:linear-gradient(135deg,var(--green),var(--blue),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px}
+.header .sub{font-size:0.95rem;color:var(--muted)}
+.header .badge{display:inline-block;margin-top:12px;padding:4px 16px;border-radius:999px;font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;background:rgba(34,197,94,0.1);color:var(--green);border:1px solid rgba(34,197,94,0.3)}
+.wrap{max-width:960px;margin:0 auto;padding:24px 16px 80px}
+.toc{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-bottom:32px}
+.toc h2{font-size:0.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px}
+.toc ol{list-style:none;counter-reset:toc}
+.toc li{counter-increment:toc;font-size:0.9rem;padding:6px 0;border-bottom:1px dashed var(--border)}
+.toc li:last-child{border-bottom:none}
+.toc li::before{content:counter(toc,decimal) ".";color:var(--green);font-weight:700;margin-right:10px}
+.toc a{color:var(--text);text-decoration:none;transition:color .15s}
+.toc a:hover{color:var(--green)}
+section{margin-bottom:44px;scroll-margin-top:12px}
+section h2.sec-title{font-size:1.25rem;font-weight:700;color:var(--green);border-bottom:2px solid var(--border);padding-bottom:10px;margin-bottom:18px;letter-spacing:0.3px}
+section h2.sec-title .num{color:var(--muted);font-weight:400;margin-right:10px;font-size:0.95rem;letter-spacing:2px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px 22px;margin-bottom:14px}
+.card h3{font-size:0.95rem;color:var(--cyan);margin-bottom:8px;letter-spacing:0.3px}
+.card h4{font-size:0.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin:14px 0 6px}
+.card p,.card li{color:var(--muted);font-size:0.88rem;margin-bottom:6px}
+.card ul,.card ol{margin-left:22px;margin-bottom:8px}
+.card strong{color:var(--text);font-weight:600}
+.card code{background:var(--card2);border:1px solid var(--border);padding:1px 6px;border-radius:4px;font-size:0.82rem;color:var(--gold);font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
+table{width:100%;border-collapse:collapse;font-size:0.82rem;margin:10px 0}
+th{text-align:left;padding:8px 10px;background:var(--card2);color:var(--green);font-weight:700;font-size:0.7rem;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border)}
+td{padding:8px 10px;border-bottom:1px solid var(--border);color:var(--muted);vertical-align:top}
+td:first-child{color:var(--text);font-weight:500;white-space:nowrap}
+tr:hover td{background:var(--card2)}
+.rule{background:var(--card);border:1px solid var(--border);border-left:4px solid var(--green);border-radius:8px;padding:14px 18px;margin-bottom:10px}
+.rule .rnum{color:var(--green);font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px}
+.rule .rtitle{color:var(--text);font-size:0.95rem;font-weight:600;margin:2px 0 6px}
+.rule p{color:var(--muted);font-size:0.85rem}
+.rule.red{border-left-color:var(--red)}
+.rule.red .rnum{color:var(--red)}
+.rule.orange{border-left-color:var(--orange)}
+.rule.orange .rnum{color:var(--orange)}
+.rule.blue{border-left-color:var(--blue)}
+.rule.blue .rnum{color:var(--blue)}
+.kv{display:grid;grid-template-columns:180px 1fr;gap:8px 16px;font-size:0.86rem;margin:8px 0}
+.kv dt{color:var(--muted);font-size:0.78rem;text-transform:uppercase;letter-spacing:1px}
+.kv dd{color:var(--text)}
+.callout{background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.3);border-radius:8px;padding:14px 18px;margin:12px 0;font-size:0.86rem;color:var(--text)}
+.callout .tag{color:var(--blue);font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;margin-right:8px}
+.callout.green{background:rgba(34,197,94,0.08);border-color:rgba(34,197,94,0.3)}
+.callout.green .tag{color:var(--green)}
+.callout.orange{background:rgba(245,158,11,0.08);border-color:rgba(245,158,11,0.3)}
+.callout.orange .tag{color:var(--orange)}
+.pr-chip{display:inline-block;background:var(--card2);border:1px solid var(--border);border-radius:4px;padding:1px 8px;font-size:0.78rem;color:var(--gold);margin:0 2px;font-family:ui-monospace,monospace}
+footer{max-width:960px;margin:0 auto;padding:24px 16px;text-align:center;border-top:1px solid var(--border);color:var(--muted);font-size:0.78rem}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>Session Learnings — Casework Doctrine Lock-In</h1>
+  <div class="sub">2026-04-15 · Ruth A+R prep → doctrine + format + governance artifacts</div>
+  <div class="badge">Reference material · Internal</div>
+</div>
+
+<div class="wrap">
+
+<nav class="toc">
+  <h2>Contents</h2>
+  <ol>
+    <li><a href="#casework-doctrine">Casework Doctrine — product-selection rules + case-shape defaults</a></li>
+    <li><a href="#case-format">Case Format Template — AGENDA / AI³ / TAIL / Recommendations / Next Steps</a></li>
+    <li><a href="#decision-governance">Decision Governance — class-of-bug + vendor-cost gates</a></li>
+    <li><a href="#book-reality">Book Reality Corrections — numbers locked tonight</a></li>
+    <li><a href="#status-tonight">Status as of tonight — PRs, cascades, AM flag list</a></li>
+  </ol>
+</nav>
+
+<!-- ============================================================ -->
+<section id="casework-doctrine">
+  <h2 class="sec-title"><span class="num">01</span>Casework Doctrine</h2>
+  <div class="card">
+    <h3>The 4 product-selection rules</h3>
+    <p>Locked during Ruth A+R prep. Every annuity recommendation runs through these before anything else.</p>
+
+    <div class="rule green">
+      <div class="rnum">Rule 1</div>
+      <div class="rtitle">Bonus products only to overcome surrender</div>
+      <p>Minimum bonus needed, no more. A 21% bonus on a 0%-surrender source = wasted performance over 10yr because carriers pay back bonuses through lower caps/participation rates.</p>
+    </div>
+
+    <div class="rule green">
+      <div class="rnum">Rule 2</div>
+      <div class="rtitle">Avoid rider fees on accumulation products</div>
+      <p>Income products have rider fees (deliberate — buying income). Accumulation should be fee-clean unless bonus requires EBR to cover surrender.</p>
+    </div>
+
+    <div class="rule green">
+      <div class="rnum">Rule 3</div>
+      <div class="rtitle">IRAs consolidate into IPP10 with GMIB for QCD strategy</div>
+      <p>Traditional IRAs roll into <strong>NAC Income Pay Pro 10</strong>. GMIB base powers QCD (Qualified Charitable Distribution) — RMDs sent direct to church/charity, no income tax, within $108K QCD annual limit.</p>
+    </div>
+
+    <div class="rule green">
+      <div class="rnum">Rule 4 / 7</div>
+      <div class="rtitle">NQ consolidates into CP10 base (no EBR, no rider fee)</div>
+      <p>Non-qualified money → <strong>NAC CP10 base</strong>. 12% bonus on premiums received in first 3 years. Flex-premium structure lets CDs be added as they mature without starting new contracts. No EBR when source is liquid.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Case-shape → product defaults</h3>
+    <table>
+      <tr><th>Case shape</th><th>Default product</th></tr>
+      <tr><td>IRA + charitable intent</td><td>IPP10 with GMIB + QCD</td></tr>
+      <tr><td>NQ liquid</td><td>CP10 base (no EBR)</td></tr>
+      <tr><td>NQ with surrender</td><td>CP10 + EBR (bonus offsets source surrender)</td></tr>
+      <tr><td>Overwhelmed client wanting simple</td><td>Control X (fixed rate, one story)</td></tr>
+      <tr><td>10yr+ deferral with income goal</td><td>BS10 (180% benefit base stack)</td></tr>
+      <tr><td>5–10yr deferral with income</td><td>IPP10 (cleaner, better accumulation)</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>What NOT to touch (Ruth case)</h3>
+    <ul>
+      <li>SPDA in-surrender window — let it run out</li>
+      <li>SPIA on another life — can't move</li>
+      <li>Roth — never touch</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>Flex-premium SPDA capture</h3>
+    <p>CP10's flex-premium design means CDs maturing at staggered dates can land into a single NQ contract as they come due — no new contract per CD, no reset of surrender schedule clock for future adds. This is how the SPDA (when it exits surrender) gets absorbed into the same CP10 that already holds the liquid NQ pile.</p>
+  </div>
+
+  <div class="card">
+    <h3>Split-LPA framing</h3>
+    <p>Liquid Premium Account disposition is split deliberately: the portion matching current-year cashflow needs stays liquid (no annuity wrap); the remainder rolls to CP10 base as consolidation capacity. Framing prevents over-annuitization and preserves emergency-access posture.</p>
+  </div>
+
+  <div class="card">
+    <h3>EBR kill-shot math</h3>
+    <p>On a 0%-surrender source, EBR cost structure (typically ~1.15%/yr on benefit base) compounds against cap/participation headwinds from the bonus itself. Over 10yr the bonus dollars are recaptured by the carrier and the rider fee is pure drag. EBR only earns its keep when it's offsetting a real surrender charge on the source.</p>
+  </div>
+
+  <div class="card">
+    <h3>Contract anniversary × RMD alignment</h3>
+    <p>IPP10 GMIB rollup and RMD timing must be aligned at contract setup: anniversary dates that fall after the RMD deadline force awkward bridge distributions. Setup-time decision, not a post-issue fix. Advisor checklist: confirm anniversary month ≤ RMD deadline month before binding.</p>
+  </div>
+
+  <div class="card">
+    <h3>270–400 bps validation band</h3>
+    <p>Illustration runs that project net of fees outside the 270–400 bps corridor against the underlying index are treated as stress-test outliers, not central cases. Anything above 400 bps requires re-running the assumption set; below 270 bps gets flagged as conservative but acceptable. This band was tested against live NAC and Nassau illustrations during <span class="pr-chip">#495</span> <span class="pr-chip">#496</span>.</p>
+  </div>
+
+  <div class="callout">
+    <span class="tag">Why this matters</span>
+    Carrier marketing pushes bonus + EBR + rider stacks because they increase <em>carrier</em> margins, not client outcomes. The doctrine optimizes for long-run client performance, not Day-1 headline numbers.
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section id="case-format">
+  <h2 class="sec-title"><span class="num">02</span>Case Format Template</h2>
+
+  <div class="card">
+    <h3>Canonical 5-tab structure</h3>
+    <ol>
+      <li><strong>AGENDA</strong> — meeting agenda, attendees, objectives</li>
+      <li><strong>AI³</strong> — asset + insurance + income + beneficiary/RMD inventory (the <em>what</em>)</li>
+      <li><strong>Analysis (TAIL)</strong> — analytical deep-dives across four dimensions (the <em>thinking</em>)</li>
+      <li><strong>Recommendations</strong> — product recommendations with doctrine applied (the <em>output</em>)</li>
+      <li><strong>Next Steps</strong> — action items + timeline</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <h3>AI³ sub-structure (inventory)</h3>
+    <ul>
+      <li><strong>Assets</strong> — Investable (Type / Tax / Target) · Real (Ag / AgRes / Commercial) · Total</li>
+      <li><strong>Insurance</strong> — Medicare · Life · Ancillary</li>
+      <li><strong>Income</strong> — Type · Tax</li>
+      <li><strong>Beneficiaries</strong> — Beni Center</li>
+      <li><strong>RMD Center</strong></li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>TAIL sub-structure (analysis)</h3>
+    <ul>
+      <li><strong>Tax</strong> — Income · Assets</li>
+      <li><strong>Assets</strong> — S/L/G (short/long/gain) · Type · Tax</li>
+      <li><strong>Income</strong> — Type · Tax</li>
+      <li><strong>Legacy</strong> — C3 (charity/children/care) · Legal (POA/Trust/Will)</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>Why the mnemonics are deliberate</h3>
+    <p><strong>AI³</strong> = three A/I domains (Assets, Insurance, Income), superscript because no clean 4-letter word exists from A-I-T-E. <strong>TAIL</strong> = Tax, Assets, Income, Legacy — a real English word, chosen over AITL for that reason. Every case has all four TAIL dimensions by definition; empty quadrants signal scaffolding for future content, not missing information.</p>
+  </div>
+
+  <div class="card">
+    <h3>Why Tax-view is load-bearing</h3>
+    <p>Tax is the <em>first</em> TAIL column because every downstream decision (asset allocation, income sequencing, legacy vehicle) is tax-constrained. Building Tax-view last means re-doing the rest. The advisor's thinking should surface tax first, then map Assets/Income/Legacy against the tax lens — not the other way around.</p>
+  </div>
+
+  <div class="card">
+    <h3>Why C3 + Legal gap-columns = the punch list</h3>
+    <p>Legacy tab's C3 (charity/children/care) and Legal (POA/Trust/Will) columns are explicitly gap-columns: they surface what the client has <em>not</em> done. Empty cells there aren't neutral — they're action items. A case with four blank Legal cells is a client who needs estate work before any annuity strategy closes. The format forces the punch list into view.</p>
+  </div>
+
+  <div class="callout green">
+    <span class="tag">Format lock</span>
+    Scaffold the 5 tabs + AI³ + TAIL sub-structure <em>first</em>, then migrate content into slots. Placeholder stubs in empty slots are preferred over forcing content into wrong slots. Existing Ruth content (<span class="pr-chip">#500</span> era) was migrated into this structure; future cases start with scaffold. Recommendations panel retains internal sub-tab structure (Reco #1 / Reco #2 Primary / Reco #2 Alt, color-coded).
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section id="decision-governance">
+  <h2 class="sec-title"><span class="num">03</span>Decision Governance</h2>
+
+  <div class="card">
+    <h3>Class-of-bug scope expansion is JDM-gate territory</h3>
+    <p>Individual ticket resolution is warrior lane. When a single bug surfaces a systemic pattern, <strong>pause before filing a remediation epic</strong> — surface to JDM first.</p>
+    <h4>The three-step pattern</h4>
+    <ol>
+      <li><strong>Detection</strong> → warrior lane (find the pattern, count it, understand it)</li>
+      <li><strong>Authorization</strong> → JDM-gate (is this breakage or intentional? should we fix it?)</li>
+      <li><strong>Execution</strong> → warrior lane (once authorized, remediate)</li>
+    </ol>
+    <p>Skipping step 2 and jumping from detection to execution is the failure mode.</p>
+    <h4>Why</h4>
+    <p>2026-04-15 — MEGAZORD's ACF audit surfaced "409 broken folder refs" and filed a remediation ZRD treating it as breakage. Trash state may have been intentional (offboarding, archive lifecycle, deliberate cleanup). Scope-expanded remediation would have overwritten intentional state — worse than doing nothing. Warriors moving fast on well-intentioned remediation is only valuable when the fault-finding is correct.</p>
+    <h4>Scales beyond ACF</h4>
+    <p>Applies to dup detection, schema backfills, hygiene epics, any warrior-initiated remediation sprint. Warrior-initiated detection is fine; warrior-initiated scope-expansion into an epic is not. Hold is cheap. Remediation that overwrites intentional state is expensive.</p>
+  </div>
+
+  <div class="card">
+    <h3>Vendor-cost decisions are JDM-gate territory</h3>
+    <p>Any action that creates or materially changes a recurring vendor charge (API credits, SaaS seats, carrier fees, data-feed subscriptions) requires explicit JDM authorization before execution — regardless of the dollar amount per-call. Warrior estimates of "this is small" are not a substitute for the gate.</p>
+    <p>The warrior's job: surface cost shape (one-time vs recurring, per-call vs flat), annualized estimate, and cheaper alternatives considered. JDM's job: approve or reject. This prevents death-by-thousand-cuts on the monthly bill.</p>
+  </div>
+
+  <div class="callout orange">
+    <span class="tag">Posture</span>
+    Warrior = detection + options + execution. JDM = authorization on class-of-bug remediation + recurring vendor cost. The gate is the difference between individual-ticket velocity (good) and unauthorized epic-creation (bad).
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section id="book-reality">
+  <h2 class="sec-title"><span class="num">04</span>Book Reality Corrections</h2>
+
+  <div class="card">
+    <h3>Numbers locked tonight</h3>
+    <table>
+      <tr><th>Dimension</th><th>Prior number</th><th>Actual</th></tr>
+      <tr><td>Total client book size</td><td>1,567</td><td><strong>5,199</strong></td></tr>
+      <tr><td>ACF (Active Client File) share</td><td>26%</td><td><strong>8%</strong></td></tr>
+      <tr><td>Employment field populated</td><td>—</td><td><strong>0–0.3%</strong></td></tr>
+      <tr><td>Duplicate detection rescan status</td><td>—</td><td><strong>Required</strong> (current counts stale)</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>What each correction changes</h3>
+    <ul>
+      <li><strong>5,199 not 1,567</strong> — prior ACF/dedupe/enrichment math was denominated on a ~3× underestimate. Anything expressed as "% of book" computed before 2026-04-15 is suspect; re-run against 5,199 before acting.</li>
+      <li><strong>8% ACF not 26%</strong> — the active-client population is materially smaller than earlier framing suggested. Campaign targeting, licensing headcount math, and enrichment ROI calcs all move.</li>
+      <li><strong>0–0.3% employment populate</strong> — the employment field is effectively empty. Any workflow that branches on it (e.g., retirement-readiness segmentation) is running on noise. Either populate via intake or stop branching on it.</li>
+      <li><strong>Dup detection rescan required</strong> — counts from earlier passes pre-date schema work + import activity. Rerun before any remediation sprint; per §03, remediation itself stays JDM-gated.</li>
+    </ul>
+  </div>
+
+  <div class="callout">
+    <span class="tag">Stance</span>
+    Where prior numbers get cited in team-facing docs, replace with locked values above and note "corrected 2026-04-15". Do not retroactively edit historical Slack posts — the record stays; the corrections propagate forward.
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section id="status-tonight">
+  <h2 class="sec-title"><span class="num">05</span>Status As Of Tonight</h2>
+
+  <div class="card">
+    <h3>Ruth A+R casework</h3>
+    <dl class="kv">
+      <dt>PR #501</dt><dd>Ruth FORMAT LOCK — 4-main-tab architecture (AGENDA · AI³ · ANALYSIS · RECOMMENDATIONS · NEXT STEPS) — merged</dd>
+      <dt>PR #502</dt><dd>Client roadmap TEMPLATE — pure scaffold for approval — merged</dd>
+      <dt>Upstream chain</dt><dd><span class="pr-chip">#497</span> <span class="pr-chip">#498</span> <span class="pr-chip">#499</span> <span class="pr-chip">#500</span> all merged — recommendation v1 → v3 with CP10 primary, flex-premium SPDA capture, RMD timing, LPA split, illustration PDFs</dd>
+      <dt>Product matrices</dt><dd><span class="pr-chip">#495</span> NAC comparative rate matrix · <span class="pr-chip">#496</span> NAC vs Nassau head-to-head — walk-in ready for tomorrow's 3 meetings</dd>
+    </dl>
+  </div>
+
+  <div class="card">
+    <h3>MEGAZORD — Farmland cascade</h3>
+    <p>Sprint 9/9 built. Tonight MEGAZORD resolved 3 merge conflicts on the Farmland cascade (<span class="pr-chip">#480</span> <span class="pr-chip">#481</span> <span class="pr-chip">#482</span>) and delivered a scope memo on the v2→v3 data-discovery path. Cascade closing to Gate A imminent. FV-001/002/003/004/007 all landed (<span class="pr-chip">#487</span> <span class="pr-chip">#488</span> <span class="pr-chip">#491</span> plus prior). ATLAS USDA NASS + ISU source_registry live.</p>
+  </div>
+
+  <div class="card">
+    <h3>VOLTRON2 — QUE audit</h3>
+    <p>QUE registry audit 2026-04-15 (<span class="pr-chip">#493</span>) + golden-number fixtures extracted from JDM xlsx casework (<span class="pr-chip">#494</span>). Inventory + gap vs JDM xlsx documented. Audit output feeds the doctrine codification here.</p>
+  </div>
+
+  <div class="card">
+    <h3>RAIDEN — stood down</h3>
+    <p>Per JDM directive on class-of-bug overstep (see §03). Triage posture holds; remediation initiatives paused until authorization gate is respected. No active RAIDEN workstreams tonight.</p>
+  </div>
+
+  <div class="card">
+    <h3>JDM AM flag list</h3>
+    <ol>
+      <li>Approve / revise the 4-rule doctrine articulation in §01 (wording, not content)</li>
+      <li>Confirm Ruth case anniversary × RMD alignment before binding IPP10</li>
+      <li>Sign off on Farmland cascade closing to Gate A once MEGAZORD posts</li>
+      <li>Authorize (or defer) the dup-detection rescan on the 5,199 corrected book</li>
+      <li>Vendor-cost gate: any new recurring spend proposals land here for JDM call per §03</li>
+    </ol>
+  </div>
+</section>
+
+</div>
+
+<footer>
+  SHINOB1-3 · CTO-delegated · 2026-04-15 · Internal reference material
+</footer>
+
+</body>
+</html>
