@@ -254,6 +254,19 @@ export interface FarmlandValuationSuccess {
    * paths should leave this undefined.
    */
   force_refreshed?: boolean
+  /**
+   * Set when `tier_method === 'DISTRICT_RATIO_SYNTHESIZED'`. Human-readable
+   * math string (e.g. "synth: 13507 × (12174 / 14522) = 11328") for the
+   * provenance drawer in `RealEstateFarmHoldings` (FV-008).
+   */
+  synthesis_formula?: string
+  /**
+   * Set when `tier_method === 'DISTRICT_RATIO_SYNTHESIZED'`. Mirrors the
+   * county_avg row's outlier flag into the response so the UI can render
+   * a LOW-confidence badge + explanation without a second round-trip.
+   * MEGAZORD Guardrail 3 (2026-04-15).
+   */
+  outlier_from_district?: boolean
 }
 
 /**
