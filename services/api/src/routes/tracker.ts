@@ -351,22 +351,29 @@ trackerRoutes.post('/', async (req: Request, res: Response) => {
     const err = validateRequired(req.body, ['title'])
     if (err) { res.status(400).json(errorResponse(err)); return }
 
-    // TRK-14240: Duplicate detection — fires BEFORE creating a second ticket
-    const dupResult = await checkForDuplicate(req.body.title as string)
-    if (dupResult.isDuplicate && dupResult.match) {
-      res.status(409).json({
-        success: false,
-        error: 'Duplicate detected',
-        existing: {
-          item_id: dupResult.match.item_id,
-          title: dupResult.match.title,
-          status: dupResult.match.status,
-          reason: dupResult.match.reason,
-          score: dupResult.match.score,
-        },
-        channel_posted: dupResult.channelPosted,
-      })
-      return
+    // TRK-14240: Duplicate detection — fires BEFORE creating a second ticket.
+    // RDN-011 (2026-04-15): honor `force: true` from the frontend dedup
+    // dialog's "not a duplicate — submit anyway" action. Bypass fires only
+    // on explicit user confirmation; cron + dispatcher-driven submits
+    // continue to hit the guard.
+    const force = req.body.force === true
+    if (!force) {
+      const dupResult = await checkForDuplicate(req.body.title as string)
+      if (dupResult.isDuplicate && dupResult.match) {
+        res.status(409).json({
+          success: false,
+          error: 'Duplicate detected',
+          existing: {
+            item_id: dupResult.match.item_id,
+            title: dupResult.match.title,
+            status: dupResult.match.status,
+            reason: dupResult.match.reason,
+            score: dupResult.match.score,
+          },
+          channel_posted: dupResult.channelPosted,
+        })
+        return
+      }
     }
 
     const db = getFirestore()
@@ -457,15 +464,24 @@ trackerRoutes.post('/', async (req: Request, res: Response) => {
 
     // TRK-14240: Post 🔴 NEW to #dojo-fixes (<60 seconds from submission)
     // TKO-DOJO-REPORTER-SLACK-002: include signed URLs for any attachments
-    const newAttachments = (data.attachments || []) as Array<{ path?: string; name?: string; original_name?: string; content_type?: string }>
-    postNewSubmission(
-      itemTitle,
-      itemId,
-      reporterName,
-      notifItemType,
-      (req.body.priority as string) || 'P2',
-      newAttachments,
-    ).catch(slackErr => console.error('[raiden-channel] NEW post failed:', slackErr))
+    //
+    // DOJO-REPORTER-DIRECT-ROUTE (2026-04-15): when the client is the Dojo
+    // Reporter (which uploads screenshot/recording AFTER creating the row),
+    // it sets `defer_channel_post: true` and calls POST /:id/announce after
+    // attachments land so the Slack message includes media links. Legacy
+    // callers (dojo-board quick-submit, dispatcher, cron) unchanged.
+    const deferChannelPost = req.body.defer_channel_post === true
+    if (!deferChannelPost) {
+      const newAttachments = (data.attachments || []) as Array<{ path?: string; name?: string; original_name?: string; content_type?: string }>
+      postNewSubmission(
+        itemTitle,
+        itemId,
+        reporterName,
+        notifItemType,
+        (req.body.priority as string) || 'P2',
+        newAttachments,
+      ).catch(slackErr => console.error('[raiden-channel] NEW post failed:', slackErr))
+    }
 
     res.status(201).json(successResponse<TrackerItemDTO>({ id: itemId, ...data } as unknown as TrackerItemDTO))
   } catch (err) {
@@ -640,6 +656,53 @@ trackerRoutes.patch('/:id/status', async (req: Request, res: Response) => {
 // POST /:id/notify — post a Slack update to the original reporter thread
 // Reads source_channel + source_thread_ts + reporter_user_id from the ticket
 // and posts "@user Your issue {ticket_id} has been {status}. {message}"
+// POST /:id/announce — emit the NEW post to #the-dojo for a ticket whose
+// initial POST set `defer_channel_post: true`. Used by the Dojo Reporter
+// flow where attachments upload AFTER tracker creation; the client calls
+// this endpoint once all attachments have landed so the channel message
+// includes signed media links in the first (and only) post.
+//
+// DOJO-REPORTER-DIRECT-ROUTE (2026-04-15). Idempotent at the ticket level
+// via a `channel_announced_at` timestamp on the Firestore row: repeat
+// calls are no-ops (200 with announced:false, reason:already_announced).
+trackerRoutes.post('/:id/announce', async (req: Request, res: Response) => {
+  try {
+    const store = getFirestore()
+    const items = store['collection'](COLLECTION)
+    const id = param(req.params.id)
+    const docRef = items.doc(id)
+    const doc = await docRef.get()
+    if (!doc.exists) { res.status(404).json(errorResponse('Tracker item not found')); return }
+
+    const data = doc.data() as Record<string, unknown>
+    if (data.channel_announced_at) {
+      res.json(successResponse({ announced: false, reason: 'already_announced', channel_announced_at: data.channel_announced_at }))
+      return
+    }
+
+    const itemId = (data.item_id as string) || id
+    const title = (data.title as string) || '(untitled)'
+    const reporter = ((data.reporter_user_id as string)
+      || (data.reporter as string)
+      || (data.created_by as string)
+      || 'unknown')
+    const itemType = (data.type as string) || 'bug'
+    const priority = (data.priority as string) || 'P2'
+    const attachments = (data.attachments || []) as Array<{ path?: string; name?: string; original_name?: string; content_type?: string }>
+
+    const result = await postNewSubmission(title, itemId, reporter, itemType, priority, attachments)
+
+    if (result.success) {
+      await docRef.set({ channel_announced_at: new Date().toISOString(), channel_announce_ts: result.ts || null }, { merge: true })
+    }
+
+    res.json(successResponse({ announced: result.success, ts: result.ts, error: result.error }))
+  } catch (err) {
+    console.error('POST /api/tracker/:id/announce error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+
 trackerRoutes.post('/:id/notify', async (req: Request, res: Response) => {
   try {
     const db = getFirestore()

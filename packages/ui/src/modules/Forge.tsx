@@ -510,14 +510,32 @@ function ForgeInner({ portal }: ForgeProps) {
   const [quickSubmitForm, setQuickSubmitForm] = useState({ title: '', type: 'bug', priority: 'P2', screenshot: null as File | null })
   const [quickSubmitError, setQuickSubmitError] = useState('')
   const [quickSubmitting, setQuickSubmitting] = useState(false)
+  // ─── RDN-011: Dedup dialog state ───
+  // Populated when backend returns 409 with `existing` body. Null when no
+  // dedup conflict is active. The dialog offers three resolutions per
+  // SHINOB1 spec: link to existing, force-submit anyway, cancel.
+  const [dedupMatch, setDedupMatch] = useState<{
+    item_id: string
+    title: string
+    status: string
+    reason: string
+    score: number
+    channel_posted?: boolean
+  } | null>(null)
 
   const openQuickSubmit = useCallback(() => {
     setQuickSubmitForm({ title: '', type: 'bug', priority: 'P2', screenshot: null })
     setQuickSubmitError('')
+    setDedupMatch(null)
     setShowQuickSubmit(true)
   }, [])
 
-  const submitQuickForm = async () => {
+  // Core submit — accepts `force` for the "not a duplicate — submit anyway"
+  // resolution from the dedup dialog. Raw fetch (not fetchValidated)
+  // because we need access to the 409 body's `existing` field — the
+  // shared helper discards 4xx bodies and returns a generic HTTP-code
+  // error. RDN-011.
+  const submitQuickForm = async (force = false) => {
     if (!quickSubmitForm.title.trim()) {
       setQuickSubmitError('Title is required')
       return
@@ -525,7 +543,7 @@ function ForgeInner({ portal }: ForgeProps) {
     setQuickSubmitting(true)
     setQuickSubmitError('')
     try {
-      const result = await fetchValidated<{ id: string; item_id: string }>(`${API_BASE}/tracker`, {
+      const res = await fetchWithAuth(`${API_BASE}/tracker`, {
         method: 'POST',
         body: JSON.stringify({
           title: quickSubmitForm.title.trim(),
@@ -535,16 +553,35 @@ function ForgeInner({ portal }: ForgeProps) {
           source: 'dojo_board',
           status: dojoTab === 'ronin' ? 'RON-new' : 'RDN-new',
           portal: portal.toUpperCase(),
+          ...(force ? { force: true } : {}),
         }),
       })
-      if (result.success) {
-        showToast(`Submitted: ${result.data?.item_id || 'item'} — ${dojoTab === 'ronin' ? 'RONIN' : 'RAIDEN'} is on it`, 'success')
+      let body: Record<string, unknown> = {}
+      try { body = await res.json() as Record<string, unknown> } catch { /* empty body */ }
+      if (res.status === 409 && body.existing) {
+        // Surface the dedup dialog — user picks resolution.
+        const ex = body.existing as { item_id: string; title: string; status: string; reason: string; score: number }
+        setDedupMatch({
+          item_id: ex.item_id,
+          title: ex.title,
+          status: ex.status,
+          reason: ex.reason,
+          score: ex.score,
+          channel_posted: body.channel_posted === true,
+        })
+        setQuickSubmitting(false)
+        return
+      }
+      if (res.ok && body.success) {
+        const data = body.data as { id?: string; item_id?: string } | undefined
+        showToast(`Submitted: ${data?.item_id || 'item'} — ${dojoTab === 'ronin' ? 'RONIN' : 'RAIDEN'} is on it`, 'success')
         setShowQuickSubmit(false)
+        setDedupMatch(null)
         if (dojoTab === 'ronin') await loadRoninItems()
         else await loadRaidenItems()
         await loadItems()
       } else {
-        setQuickSubmitError((result as unknown as Record<string, unknown>).error as string || 'Submit failed')
+        setQuickSubmitError((body.error as string) || `Submit failed (HTTP ${res.status})`)
       }
     } catch (err) {
       setQuickSubmitError(String(err))
@@ -1923,7 +1960,7 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
                     Cancel
                   </button>
                   <button
-                    onClick={submitQuickForm}
+                    onClick={() => submitQuickForm()}
                     disabled={quickSubmitting}
                     style={{
                       padding: '8px 18px', borderRadius: 6, border: 'none', cursor: quickSubmitting ? 'default' : 'pointer',
@@ -1931,6 +1968,109 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
                     }}
                   >
                     {quickSubmitting ? 'Submitting...' : 'Submit to RAIDEN'}
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* ─── RDN-011: Dedup Dialog ─── */}
+          {/* Surfaces the backend 409 payload (existing TRK + match reason + */}
+          {/* score). Three resolutions: link me to existing, force-submit, */}
+          {/* cancel. Stacked above the quick-submit modal (higher z-index). */}
+          {dedupMatch && (
+            <>
+              <div
+                onClick={() => setDedupMatch(null)}
+                style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 300 }}
+              />
+              <div style={{
+                position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', zIndex: 301,
+                width: '92%', maxWidth: 520,
+                background: s.surface, border: `1px solid ${s.border}`, borderRadius: 10,
+                padding: 24, boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+                  <span className="material-icons-outlined" style={{ fontSize: 22, color: 'rgb(245,158,11)' }}>
+                    content_copy
+                  </span>
+                  <h3 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: s.text }}>
+                    Looks like a duplicate
+                  </h3>
+                </div>
+
+                <p style={{ margin: '0 0 10px 0', fontSize: 13, color: s.textSecondary, lineHeight: 1.5 }}>
+                  An existing ticket matches your submission:
+                </p>
+
+                <div style={{
+                  border: `1px solid ${s.border}`, borderRadius: 6, padding: 12, marginBottom: 14,
+                  background: s.surface,
+                }}>
+                  <div style={{ display: 'flex', gap: 8, alignItems: 'baseline', marginBottom: 4 }}>
+                    <a
+                      href={`#tracker/${dedupMatch.item_id}`}
+                      onClick={(e) => {
+                        e.preventDefault()
+                        window.dispatchEvent(new CustomEvent('forge-open-item', { detail: { item_id: dedupMatch.item_id } }))
+                      }}
+                      style={{ fontSize: 13, fontWeight: 700, color: 'var(--portal, rgb(59,130,246))', textDecoration: 'none' }}
+                    >
+                      {dedupMatch.item_id}
+                    </a>
+                    <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: s.surface, color: s.textMuted }}>
+                      {dedupMatch.status}
+                    </span>
+                  </div>
+                  <div style={{ fontSize: 13, color: s.text, marginBottom: 6 }}>
+                    {dedupMatch.title}
+                  </div>
+                  <div style={{ fontSize: 11, color: s.textMuted }}>
+                    Match reason: <span style={{ color: s.textSecondary }}>{dedupMatch.reason}</span>
+                    {' · '}
+                    Score: <span style={{ color: s.textSecondary }}>{(dedupMatch.score * 100).toFixed(0)}%</span>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <button
+                    onClick={() => {
+                      window.dispatchEvent(new CustomEvent('forge-open-item', { detail: { item_id: dedupMatch.item_id } }))
+                      showToast(`Linked — tracking ${dedupMatch.item_id}`, 'success')
+                      setDedupMatch(null)
+                      setShowQuickSubmit(false)
+                    }}
+                    style={{
+                      padding: '10px 14px', borderRadius: 6, border: 'none',
+                      background: 'var(--portal, rgb(59,130,246))', color: '#fff',
+                      fontSize: 13, fontWeight: 600, cursor: 'pointer', textAlign: 'left',
+                    }}
+                  >
+                    Same issue — link me to {dedupMatch.item_id}
+                  </button>
+                  <button
+                    onClick={() => {
+                      setDedupMatch(null)
+                      submitQuickForm(true)
+                    }}
+                    disabled={quickSubmitting}
+                    style={{
+                      padding: '10px 14px', borderRadius: 6,
+                      border: `1px solid ${s.border}`, background: 'transparent', color: s.textSecondary,
+                      fontSize: 13, cursor: quickSubmitting ? 'default' : 'pointer', textAlign: 'left',
+                    }}
+                  >
+                    Not a duplicate — submit anyway
+                  </button>
+                  <button
+                    onClick={() => setDedupMatch(null)}
+                    style={{
+                      padding: '10px 14px', borderRadius: 6,
+                      border: 'none', background: 'transparent', color: s.textMuted,
+                      fontSize: 13, cursor: 'pointer', textAlign: 'left',
+                    }}
+                  >
+                    Cancel
                   </button>
                 </div>
               </div>
