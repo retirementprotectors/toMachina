@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RPI Preferred Products — Working Pitch Sheet</title>
+<style>
+:root{--bg:#0a0e17;--card:#111827;--card2:#1a2236;--border:#1e293b;--text:#e2e8f0;--muted:#94a3b8;--green:#22c55e;--blue:#3b82f6;--red:#ef4444;--orange:#f59e0b;--gold:#d4a44c;--cyan:#06b6d4;--nassau:#8b5cf6;--nac:#10b981}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+.wip-banner{background:linear-gradient(90deg,rgba(245,158,11,0.18),rgba(245,158,11,0.08));border-bottom:1px solid rgba(245,158,11,0.4);color:var(--orange);font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;text-align:center;padding:10px 16px}
+.header{background:linear-gradient(135deg,#020b1a 0%,#0a1a0a 50%,#020b1a 100%);border-bottom:1px solid var(--border);padding:32px;text-align:center;position:relative}
+.header h1{font-size:1.9rem;font-weight:800;background:linear-gradient(135deg,var(--green),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px}
+.header .sub{font-size:0.9rem;color:var(--muted)}
+.header .badge{display:inline-block;margin-top:10px;padding:4px 14px;border-radius:999px;font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;background:rgba(34,197,94,0.1);color:var(--green);border:1px solid rgba(34,197,94,0.3)}
+.content{max-width:1200px;margin:0 auto;padding:24px 16px}
+.intro{background:rgba(6,182,212,0.06);border:1px solid rgba(6,182,212,0.2);border-radius:10px;padding:18px 22px;margin-bottom:24px;font-size:0.9rem;color:var(--muted)}
+.intro strong{color:var(--cyan)}
+.section-label{font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin:32px 0 12px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.section-label.nac{color:var(--nac)}
+.section-label.nassau{color:var(--nassau)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(400px,1fr));gap:16px}
+.product-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:22px;border-left:4px solid var(--green)}
+.product-card.accumulation{border-left-color:var(--nac)}
+.product-card.income{border-left-color:var(--orange)}
+.product-card.nassau-card{border-left-color:var(--nassau)}
+.product-card.placeholder{border-left-color:var(--muted);opacity:0.65}
+.product-card h3{font-size:1.1rem;margin-bottom:4px;color:var(--text)}
+.product-card .carrier{font-size:0.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
+.tag-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.tag{padding:3px 10px;border-radius:4px;font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.tag.lane-now{background:rgba(239,68,68,0.15);color:var(--red)}
+.tag.lane-soon{background:rgba(245,158,11,0.15);color:var(--orange)}
+.tag.lane-later{background:rgba(34,197,94,0.15);color:var(--green)}
+.tag.lane-accum{background:rgba(59,130,246,0.15);color:var(--blue)}
+.tag.feature{background:var(--card2);color:var(--text);border:1px solid var(--border)}
+.product-card .stat-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
+.mini-stat{background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:10px 12px}
+.mini-stat .num{font-size:1.1rem;font-weight:800;color:var(--green);line-height:1.1}
+.mini-stat .lbl{font-size:0.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+.product-card h4{font-size:0.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin:14px 0 6px}
+.product-card ul{margin-left:18px;font-size:0.85rem;color:var(--muted)}
+.product-card ul li{margin-bottom:4px}
+.product-card strong{color:var(--text)}
+.pitch-box{background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.2);border-radius:6px;padding:10px 14px;margin-top:12px;font-size:0.82rem;color:var(--muted);font-style:italic}
+.pitch-box strong{color:var(--green);font-style:normal}
+table{width:100%;border-collapse:collapse;font-size:0.82rem;background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin:14px 0}
+th{text-align:left;padding:10px 12px;background:var(--card2);color:var(--green);font-weight:700;font-size:0.7rem;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border)}
+td{padding:10px 12px;border-bottom:1px solid var(--border);color:var(--muted);vertical-align:top}
+td:first-child{color:var(--text);font-weight:500}
+.decision-matrix td{color:var(--muted)}
+.decision-matrix td strong{color:var(--text)}
+.footer{text-align:center;padding:24px;color:var(--muted);font-size:0.72rem;border-top:1px solid var(--border);margin-top:44px}
+</style>
+</head>
+<body>
+
+<div class="wip-banner">🚧 WORKING DOC — built tonight for case pitching. NAC data parsed from rate flyers (current as of 1/27/26–4/2/26). Nassau placeholders pending flyer drops. Replace with registry-driven QUE data once intake wire lands.</div>
+
+<div class="header">
+<h1>RPI Preferred Products</h1>
+<div class="sub">The Yellow Lens — what we sell, when, and why</div>
+<div class="badge">VOLTRON CSO · 2026-04-15 · Nassau + NAC Core</div>
+</div>
+
+<div class="content">
+
+<div class="intro">
+<p><strong>Framework:</strong> RPI's annuity playbook is a two-carrier core — <strong style="color:var(--nassau)">Nassau</strong> for income now / income soon (0–7yr horizon), <strong style="color:var(--nac)">NAC</strong> for income later / accumulation / stacking (10yr+ horizon with GMIB doubling and LTC doubler options). This sheet is the working knowledge VOLTRON references when pitching on cases. MYGAs not on this sheet by design — <em>we don't recommend them</em>.</p>
+<p style="margin-top:8px"><strong>How to use:</strong> Match client horizon (from the Decision Matrix at the bottom) → pick product card → pull talking points + current rates into the case roadmap.</p>
+</div>
+
+<!-- DECISION MATRIX -->
+<div class="section-label">Decision Matrix — Pick Your Lane</div>
+<table class="decision-matrix">
+<tr><th>Client Horizon</th><th>Goal</th><th>Lead Carrier</th><th>Lead Product</th><th>Alt Product</th></tr>
+<tr><td><strong>Income now</strong> (day 1 payout)</td><td>SPIA / lifetime income immediately</td><td>Nassau</td><td>Personal Income Annuity <em>(flyer pending)</em></td><td>NAC SPIA equiv.</td></tr>
+<tr><td><strong>Income soon</strong> (1–7yr deferral)</td><td>Short cook, then GLWB fires</td><td>Nassau</td><td>Personal Protection Choice <em>(flyer pending)</em></td><td>NAC Income Pay Pro (10yr)</td></tr>
+<tr><td><strong>Income later</strong> (10yr+ deferral)</td><td>Long cook, GMIB rollup, LTC doubler</td><td>NAC</td><td><strong>NAC BenefitSolutions 10</strong></td><td>NAC Income Pay Pro</td></tr>
+<tr><td><strong>Accumulation + liquidity</strong></td><td>Indexed growth, no income rider</td><td>NAC</td><td><strong>NAC Charter Plus 10/14</strong> (premium bonus)</td><td>NAC VersaChoice 10 / Performance Choice 8</td></tr>
+<tr><td><strong>Accumulation, simpler</strong></td><td>Fewer strategies, cleaner story</td><td>NAC</td><td><strong>NAC Control X</strong></td><td>—</td></tr>
+<tr><td><strong>CD repositioning</strong> (NQ)</td><td>Replace CD ladder with tax-deferred growth</td><td>NAC</td><td>Charter Plus 10 (premium bonus offsets surrender)</td><td>Control X (simpler for older clients)</td></tr>
+</table>
+
+<!-- NAC PRODUCTS -->
+<div class="section-label nac">NAC — Income Later, Accumulation, GMIB Stacking</div>
+
+<div class="grid">
+
+<!-- Charter Plus 10 -->
+<div class="product-card accumulation">
+<h3>NAC Charter Plus 10</h3>
+<div class="carrier">North American · Flagship Accumulation · 10yr surrender</div>
+<div class="tag-row">
+<span class="tag lane-accum">Accumulation</span>
+<span class="tag feature">Premium Bonus up to 12%</span>
+<span class="tag feature">+ 9% EBR (optional)</span>
+<span class="tag feature">10% free w/d yr 2+</span>
+</div>
+<div class="stat-row">
+<div class="mini-stat"><div class="num">3.00%</div><div class="lbl">Fixed Account</div></div>
+<div class="mini-stat"><div class="num">6.00%</div><div class="lbl">S&amp;P 500 Annual Cap</div></div>
+<div class="mini-stat"><div class="num">85%</div><div class="lbl">Morgan Stanley DGI Part Rate</div></div>
+<div class="mini-stat"><div class="num">135%</div><div class="lbl">Enh. Part Rate (0.95% fee)</div></div>
+</div>
+<h4>Why we lead with this</h4>
+<ul>
+<li><strong>Premium bonus of up to 21%</strong> (12% base + 9% EBR rider) on premiums received in first 3 years — instantly offsets surrender charges from 1035 exchanges of older contracts</li>
+<li>18 uncapped index options + 6 volatility-control indexes (Morgan Stanley, Fidelity, S&amp;P, Goldman Sachs, Barclays)</li>
+<li>10% annual penalty-free withdrawal starting year 2 — handles RMDs cleanly</li>
+<li>100% accumulation value available if confined to qualified care facility (LTC-style waiver)</li>
+</ul>
+<div class="pitch-box"><strong>Pitch language:</strong> "Your CD is paying you to lose to inflation. We can move that money into a North American contract, pick up an immediate premium bonus, and let it grow tax-deferred with zero market risk — and if you ever need it for care, you get 100% of it back without surrender."</div>
+</div>
+
+<!-- BenefitSolutions 10 -->
+<div class="product-card income">
+<h3>NAC BenefitSolutions 10</h3>
+<div class="carrier">North American · GMIB Income Product · 10yr surrender</div>
+<div class="tag-row">
+<span class="tag lane-later">Income Later</span>
+<span class="tag feature">GMIB rollup 120/150/180%</span>
+<span class="tag feature">Benefit base floor</span>
+<span class="tag feature">Lifetime income rider</span>
+</div>
+<div class="stat-row">
+<div class="mini-stat"><div class="num">2.30%</div><div class="lbl">Fixed Account</div></div>
+<div class="mini-stat"><div class="num">5.00%</div><div class="lbl">S&amp;P 500 Annual Cap</div></div>
+<div class="mini-stat"><div class="num">180%</div><div class="lbl">Benefit Base @ Yr 11+</div></div>
+<div class="mini-stat"><div class="num">145%</div><div class="lbl">Barclays 12 VC 2-yr Part</div></div>
+</div>
+<h4>The stacking lever</h4>
+<ul>
+<li><strong>Benefit base doubles on a schedule:</strong> 120% of premium in years 1–5, 150% in 6–10, <strong>180% in years 11+</strong> — with floors of $120K/$150K/$180K on a $100K premium</li>
+<li>Income rider fires off the benefit base, not the accumulation value — pure income multiplier</li>
+<li>Ideal for clients in their mid-60s wanting a guaranteed income stream in their late 70s</li>
+<li>Rider can stack with LTC doubler (state-dependent — confirm Iowa availability)</li>
+</ul>
+<div class="pitch-box"><strong>Pitch language:</strong> "Let's cook this for 10 years. On day one, your income base is $120K. Year 11, your income base is $180K — that's an 80% lift on the money you pay income off of, guaranteed, regardless of what the market does. And if you need long-term care, that number doubles again."</div>
+</div>
+
+<!-- Income Pay Pro -->
+<div class="product-card income">
+<h3>NAC Income Pay Pro 10</h3>
+<div class="carrier">North American · Income Rider · 10yr surrender</div>
+<div class="tag-row">
+<span class="tag lane-soon">Income Soon</span>
+<span class="tag lane-later">Income Later</span>
+<span class="tag feature">Dedicated income rider</span>
+</div>
+<div class="stat-row">
+<div class="mini-stat"><div class="num">2.50%</div><div class="lbl">Fixed Account</div></div>
+<div class="mini-stat"><div class="num">5.00%</div><div class="lbl">S&amp;P 500 Annual Cap</div></div>
+<div class="mini-stat"><div class="num">155%</div><div class="lbl">Morgan Stanley DGI 2-yr Part</div></div>
+<div class="mini-stat"><div class="num">150%</div><div class="lbl">Barclays 6 VC 2-yr Part</div></div>
+</div>
+<h4>When to use vs BenefitSolutions</h4>
+<ul>
+<li>Use when client wants income rider but doesn't need the 11-year benefit base stack</li>
+<li>Slightly better accumulation floor than BenefitSolutions (2.50% vs 2.30% fixed)</li>
+<li>Good fit for 5–10yr deferral window (between Nassau's short-cook and BenefitSolutions' long-cook lanes)</li>
+</ul>
+<div class="pitch-box"><strong>Pitch language:</strong> "You've got a 7-year window before you want the income turned on. Income Pay Pro locks in the rider for that window and gives you better indexed growth along the way — you're not paying the extra cost of a 10-year-plus stack you won't use."</div>
+</div>
+
+<!-- VersaChoice 10 -->
+<div class="product-card accumulation">
+<h3>NAC VersaChoice 10</h3>
+<div class="carrier">North American · Accumulation · 10yr surrender · Two bands</div>
+<div class="tag-row">
+<span class="tag lane-accum">Accumulation</span>
+<span class="tag feature">Enhanced part rates</span>
+<span class="tag feature">0.95% strategy fee</span>
+<span class="tag feature">High band $75K+</span>
+</div>
+<div class="stat-row">
+<div class="mini-stat"><div class="num">3.25%</div><div class="lbl">Fixed (High Band)</div></div>
+<div class="mini-stat"><div class="num">9.20%</div><div class="lbl">S&amp;P 500 Cap (High)</div></div>
+<div class="mini-stat"><div class="num">260%</div><div class="lbl">MS DGI 2-yr Enh Part</div></div>
+<div class="mini-stat"><div class="num">140%</div><div class="lbl">Goldman TimeX Annual Part</div></div>
+</div>
+<h4>When to use</h4>
+<ul>
+<li>Client wants strongest uncapped S&amp;P exposure without needing an income rider</li>
+<li>High band ($75K+ premium) meaningfully better than low band — size matters</li>
+<li>Enhanced part rates come with 0.95% annual strategy fee — only worth it when projected index credit clearly exceeds the drag</li>
+<li>Good alternative to Charter Plus when the client doesn't need the premium bonus (e.g., non-qualified money with no surrender to offset)</li>
+</ul>
+<div class="pitch-box"><strong>Pitch language:</strong> "If we put $100K in, you're in the high band — that gets you a 9.20% cap on the S&amp;P and 260% participation on the Morgan Stanley Dynamic Global two-year strategy. The fee is 0.95%, so you're keeping almost all of that upside."</div>
+</div>
+
+<!-- Performance Choice 8 -->
+<div class="product-card accumulation">
+<h3>NAC Performance Choice 8</h3>
+<div class="carrier">North American · Accumulation · 8yr surrender</div>
+<div class="tag-row">
+<span class="tag lane-accum">Accumulation</span>
+<span class="tag feature">Shorter surrender</span>
+<span class="tag feature">Enhanced part rates</span>
+</div>
+<div class="stat-row">
+<div class="mini-stat"><div class="num">3.20%</div><div class="lbl">Fixed Account</div></div>
+<div class="mini-stat"><div class="num">8.00%</div><div class="lbl">S&amp;P 500 Annual Cap</div></div>
+<div class="mini-stat"><div class="num">255%</div><div class="lbl">MS DGI 2-yr Enh Part</div></div>
+<div class="mini-stat"><div class="num">195%</div><div class="lbl">S&amp;P MARC 2-yr Part</div></div>
+</div>
+<h4>When to use</h4>
+<ul>
+<li>Client wants NAC indexed growth but won't accept a 10-year surrender — 8yr is the compromise</li>
+<li>Rate structure nearly identical to VersaChoice 10 in many strategies — the tradeoff is accumulation ceiling vs shorter lock</li>
+<li>Good for clients in their 70s where an 8yr lock reaches late 70s / early 80s</li>
+</ul>
+<div class="pitch-box"><strong>Pitch language:</strong> "Ten years feels long to you — understood. Performance Choice gives you the same NAC indexed strategies on an 8-year chassis. Slightly less cap room, but it matures when you're 81 instead of 83."</div>
+</div>
+
+<!-- Control X -->
+<div class="product-card accumulation">
+<h3>NAC Control X</h3>
+<div class="carrier">North American · Accumulation · Simpler Story</div>
+<div class="tag-row">
+<span class="tag lane-accum">Accumulation</span>
+<span class="tag feature">Best declared rates</span>
+<span class="tag feature">Margin + P-rate</span>
+<span class="tag feature">Cleaner story</span>
+</div>
+<div class="stat-row">
+<div class="mini-stat"><div class="num">3.90%</div><div class="lbl">Fixed Account (highest)</div></div>
+<div class="mini-stat"><div class="num">9.00%</div><div class="lbl">S&amp;P 500 Annual Cap</div></div>
+<div class="mini-stat"><div class="num">14.00%</div><div class="lbl">S&amp;P 500 2-yr Cap</div></div>
+<div class="mini-stat"><div class="num">165%</div><div class="lbl">Barclays 12 VC P-rate (4% margin)</div></div>
+</div>
+<h4>When to use</h4>
+<ul>
+<li><strong>Highest declared fixed rate in the NAC lineup (3.90%)</strong> — the "I just want a safe rate" answer</li>
+<li>Fewer crediting strategies = simpler client conversation; better for clients overwhelmed by option menus</li>
+<li>The 2-year Margin+P-rate Barclays strategy shows 17.14% last-10-years hypothetical — very strong</li>
+<li>Good follow-on product when moving clients off Brighthouse-era 3.00% contracts</li>
+</ul>
+<div class="pitch-box"><strong>Pitch language:</strong> "You don't need 20 crediting options. You need one clean product with a strong fixed rate and a couple of solid indexed strategies. Control X is that — 3.90% fixed today, a 9% cap on the S&amp;P, and a two-year Barclays strategy that's been averaging double digits."</div>
+</div>
+
+</div>
+
+<!-- NASSAU PLACEHOLDERS -->
+<div class="section-label nassau">Nassau — Income Now, Income Soon <span style="color:var(--orange);font-weight:600;font-size:0.7rem;letter-spacing:0;text-transform:none">⚠ PLACEHOLDER — flyers pending drop to /home/jdm/inbox/</span></div>
+
+<div class="grid">
+
+<div class="product-card nassau-card placeholder">
+<h3>Nassau Personal Income Annuity</h3>
+<div class="carrier">Nassau · Immediate SPIA · Income Day 1</div>
+<div class="tag-row">
+<span class="tag lane-now">Income Now</span>
+</div>
+<h4>What we know (framework)</h4>
+<ul>
+<li><strong>Use case:</strong> client wants income stream starting immediately — no deferral</li>
+<li>Typical fit: widow transitioning after spouse's passing, replacing lost Social Security / pension income</li>
+<li>SPIA structure — irrevocable in exchange for guaranteed lifetime payout</li>
+<li><strong>Pending:</strong> current payout rates by age/gender, period-certain options, joint-life options</li>
+</ul>
+<div class="pitch-box"><strong>Action:</strong> Drop Nassau Personal Income Annuity flyer in <code>/home/jdm/inbox/</code> — VOLTRON will parse and populate this card.</div>
+</div>
+
+<div class="product-card nassau-card placeholder">
+<h3>Nassau Simple Annuity (1–3yr deferral)</h3>
+<div class="carrier">Nassau · Short-Cook Deferred Income</div>
+<div class="tag-row">
+<span class="tag lane-soon">Income Soon</span>
+</div>
+<h4>What we know (framework)</h4>
+<ul>
+<li><strong>Use case:</strong> client wants income in 1–3 years — bridge while SSI-deferral or other timing plays out</li>
+<li>Typical fit: pre-FRA client deferring SSI to full retirement age (ex: Westfall's Sept/Oct SSI activation + 3–4 year annuity cook)</li>
+<li>Short surrender / simple structure — not an indexed product</li>
+<li><strong>Pending:</strong> declared rate, specific term options</li>
+</ul>
+<div class="pitch-box"><strong>Action:</strong> Drop Nassau Simple Annuity flyer in inbox.</div>
+</div>
+
+<div class="product-card nassau-card placeholder">
+<h3>Nassau Personal Protection Choice</h3>
+<div class="carrier">Nassau · Deferred Income with GLWB · 3–7yr cook</div>
+<div class="tag-row">
+<span class="tag lane-soon">Income Soon</span>
+<span class="tag feature">GLWB rider</span>
+</div>
+<h4>What we know (framework)</h4>
+<ul>
+<li><strong>Use case:</strong> client wants income in 3–7 years with GLWB guaranteeing lifetime withdrawals</li>
+<li>Bridges the gap between Nassau Simple (shortest) and NAC BenefitSolutions (longest)</li>
+<li>GLWB rider fires lifetime income off the benefit base</li>
+<li><strong>Pending:</strong> rollup rate, benefit base calc, surrender schedule</li>
+</ul>
+<div class="pitch-box"><strong>Action:</strong> Drop Nassau Personal Protection Choice flyer in inbox.</div>
+</div>
+
+</div>
+
+<!-- RATES REFERENCE -->
+<div class="section-label">Current Rates Summary — All NAC Products</div>
+<table>
+<tr><th>Product</th><th>Fixed</th><th>S&amp;P 500 Annual Cap</th><th>Best 2-yr Part Strategy</th><th>Surrender</th><th>Special</th></tr>
+<tr><td>Charter Plus 10</td><td>3.00%</td><td>6.00%</td><td>MS DGI 130%</td><td>10yr</td><td>Up to 21% premium bonus (12% base + 9% EBR)</td></tr>
+<tr><td>Charter Plus 14</td><td>3.00%</td><td>6.50%</td><td>MS DGI 135%</td><td>14yr</td><td>Up to 27% premium bonus (15% base + 12% EBR)</td></tr>
+<tr><td>BenefitSolutions 10</td><td>2.30%</td><td>5.00%</td><td>Barclays 12 VC 145%</td><td>10yr</td><td>GMIB 120/150/180% benefit base stack</td></tr>
+<tr><td>Income Pay Pro 10</td><td>2.50%</td><td>5.00%</td><td>MS DGI 155%</td><td>10yr</td><td>Dedicated income rider, 5–10yr sweet spot</td></tr>
+<tr><td>VersaChoice 10 (High band)</td><td>3.25%</td><td>9.20%</td><td>MS DGI 200% (260% Enh)</td><td>10yr</td><td>Band pricing $75K+; Enh rates with 0.95% fee</td></tr>
+<tr><td>Performance Choice 8</td><td>3.20%</td><td>8.00%</td><td>MS DGI 195% (255% Enh)</td><td>8yr</td><td>Shorter surrender, same strategy menu</td></tr>
+<tr><td>Control X</td><td><strong>3.90%</strong></td><td>9.00%</td><td>Barclays 12 VC 165% (4% margin)</td><td>10yr</td><td>Simplest story, highest declared fixed</td></tr>
+</table>
+<p style="font-size:0.75rem;color:var(--muted);margin-top:10px"><em>Rates as of 1/27/26 (BenefitSolutions, Income Pay Pro) and 4/2/26 (VersaChoice, Performance Choice, Control X, Charter Plus). Declared rates subject to change — pull current illustration before any client-facing recommendation. Not for use in Oregon. State variations apply.</em></p>
+
+<!-- APPLICATION TO TONIGHT'S CASES -->
+<div class="section-label">Tonight's Cases — Product Fits</div>
+<table class="decision-matrix">
+<tr><th>Case</th><th>Situation</th><th>Recommended Lane</th><th>Lead Product</th></tr>
+<tr><td><strong>Kim Ruth (age 71)</strong></td><td>~$320K NQ (Brighthouse + Prosperity) fully liquid @ 3.0%. Plus ~$917K NQ CDs maturing 2026.</td><td>Accumulation + CD repositioning</td><td><strong>NAC Charter Plus 10</strong> (premium bonus offsets surrender; no income rider needed since farm + SSI covers expenses)</td></tr>
+<tr><td><strong>Chris Westfall (age ~59)</strong></td><td>Pre-FRA, SSI activating Sept/Oct 2026, $160K in 3% CDs + IRA. 3–4yr deferral window per Archer.</td><td>Income Soon (bridge to FRA)</td><td><strong>Nassau Personal Protection Choice</strong> (3–7yr GLWB) for the IRA; CDs reposition into <strong>NAC Charter Plus 10</strong> for bonus</td></tr>
+<tr><td><strong>Robert/Eileen Thurman (age 78)</strong></td><td>Survivor transition. 4 MW IRAs out of surrender 12/8/27. Nationwide FIA GMIB fires 4/10/27. Eileen uninsurable post-stroke.</td><td>Preserve + consolidate at 2027 turn</td><td>Nationwide FIA stays (GMIB locked). MW IRAs roll to <strong>NAC Control X</strong> for Eileen's lifetime simplicity or <strong>Income Pay Pro</strong> if she needs incremental income post-SPIA exhaustion</td></tr>
+</table>
+
+</div>
+
+<div class="footer">
+RPI Preferred Products · Working Pitch Sheet · 2026-04-15 · VOLTRON CSO<br>
+Nassau + NAC · The YELLOW Lens · Replace with QUE registry data post-intake-wire-fix<br>
+#RunningOurOwnRACE
+</div>
+
+</body>
+</html>
