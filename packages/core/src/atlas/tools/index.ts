@@ -53,6 +53,11 @@ export type {
 } from './isu-land-value-parse'
 export { definition as isuLandValueParseDefinition } from './isu-land-value-parse'
 
+// USDA NASS Quick Stats atomic tool (FV-002 / SPR-FARMLAND-VALUATION-001).
+// Uses fetch + process.env (requires NASS_QUICK_STATS_KEY). Backend-only.
+export type { NassLookupInput, NassLookupOutput, NassCategory } from './nass-lookup'
+export { definition as nassLookupDefinition } from './nass-lookup'
+
 // ACF tools — definitions are browser-safe; execute functions are stubs.
 // For full ACF tool implementations, see services/api/src/scripts/acf-*.ts
 export {

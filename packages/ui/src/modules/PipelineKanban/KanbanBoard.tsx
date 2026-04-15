@@ -37,6 +37,23 @@ async function fetchInstances(apiBase: string, pipelineKey: string): Promise<Flo
   return result.data || []
 }
 
+/**
+ * Minimal opportunity shape needed by Kanban cards. The full opportunity
+ * doc has many more fields; we only care about the identifiers the card
+ * renders (RDN-005). Matches packages/core/src/opportunities `OpportunityDTO`.
+ */
+interface KanbanOpportunitySummary {
+  id: string
+  custom_fields?: Record<string, unknown>
+}
+
+async function fetchOpportunities(apiBase: string, pipelineKey: string): Promise<KanbanOpportunitySummary[]> {
+  // Scoped to this pipeline — keeps the response tight and avoids N+1 per card.
+  const result = await fetchValidated<KanbanOpportunitySummary[]>(`${apiBase}/opportunities?pipeline=${encodeURIComponent(pipelineKey)}&limit=500`)
+  if (!result.success) return [] // non-fatal: cards degrade to pre-RDN-005 display
+  return result.data || []
+}
+
 async function moveInstance(
   apiBase: string,
   instanceId: string,
@@ -229,6 +246,7 @@ export default function PipelineKanban({
   /* State */
   const [stages, setStages] = useState<StageWithGate[]>([])
   const [instances, setInstances] = useState<FlowInstanceData[]>([])
+  const [opportunityMap, setOpportunityMap] = useState<Map<string, Record<string, unknown>>>(new Map())
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [view, setView] = useState<BoardView>('kanban')
@@ -240,12 +258,18 @@ export default function PipelineKanban({
     try {
       setLoading(true)
       setError(null)
-      const [stageData, instanceData] = await Promise.all([
+      const [stageData, instanceData, oppData] = await Promise.all([
         fetchStages(apiBase, pipelineKey),
         fetchInstances(apiBase, pipelineKey),
+        fetchOpportunities(apiBase, pipelineKey), // RDN-005: for card carrier + policy_number/plan_id
       ])
       setStages(stageData)
       setInstances(instanceData)
+      const oppMap = new Map<string, Record<string, unknown>>()
+      for (const opp of oppData) {
+        if (opp.id && opp.custom_fields) oppMap.set(opp.id, opp.custom_fields)
+      }
+      setOpportunityMap(oppMap)
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Failed to load pipeline data'
       setError(msg)
@@ -431,6 +455,8 @@ export default function PipelineKanban({
                 count={col.count}
                 onDrop={handleDrop}
                 onInstanceClick={handleInstanceClick}
+                pipelineKey={pipelineKey}
+                opportunityMap={opportunityMap}
               />
             ))
           )}
