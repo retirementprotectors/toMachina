@@ -35,9 +35,14 @@ export type QualityTier = 'HIGH' | 'MEDIUM' | 'LOW'
 
 /** How the quality tier value was resolved for a given valuation. */
 export type TierMethod =
-  | 'USER_SPECIFIED'     // user explicitly selected HIGH / MEDIUM / LOW
-  | 'BLEND_DEFAULT'      // super tool applied 0.35/0.45/0.20 weighted blend
-  | 'NASS_ONLY_NO_TIER'  // non-Iowa county — NASS has no tier concept
+  | 'USER_SPECIFIED'                  // user explicitly selected HIGH / MEDIUM / LOW
+  | 'BLEND_DEFAULT'                   // super tool applied 0.35/0.45/0.20 weighted blend
+  | 'NASS_ONLY_NO_TIER'               // non-Iowa county — NASS has no tier concept
+  | 'DISTRICT_RATIO_SYNTHESIZED'      // synthesized at county grain via
+                                      // county_tier = district_tier × (county_avg / district_weighted_avg).
+                                      // Used when ISU provides a county average but tier data only at
+                                      // crop-reporting-district grain (MEGAZORD ruling 2026-04-14).
+                                      // Confidence caps at MEDIUM until NASS cross-check.
 
 /** How the client holds the parcel. Shapes ownership-aware roadmap treatment. */
 export type OwnershipType =
@@ -103,10 +108,17 @@ export interface FarmHolding {
 /* ─── farmland_values — new top-level Firestore collection ─────────────── */
 
 /**
- * One document per (source × state × county × year × tier). Keyed with a
- * composite ID to keep upsert-by-cron deterministic:
- *   ISU:  `ISU_{state}_{county}_{year}_{tier}`   (tier required for ISU rows)
- *   NASS: `NASS_{state}_{county}_{year}`          (no tier)
+ * One document per surveyed/derived value. Composite IDs keep cron upserts
+ * deterministic. Post-MEGAZORD-2026-04-14 ruling on ISU CARD-xlsx source:
+ * ISU publishes *county-grain averages only* + *district-grain tiers*; per-
+ * county tier values are *synthesized* at lookup time via ratio scaling
+ * (`tier_method: DISTRICT_RATIO_SYNTHESIZED`). See FV-007 amendment PR.
+ *
+ * ID patterns:
+ *   ISU county avg:      `ISU_{state}_{county}_{year}`
+ *   ISU district tier:   `ISU_{state}_DIST_{district}_{year}_{tier}`
+ *   ISU district w-avg:  `ISU_{state}_DIST_{district}_{year}_WAVG`
+ *   NASS county:         `NASS_{state}_{county}_{year}`
  */
 export interface FarmlandValueRow {
   /** Composite doc id, see ID pattern above. */
@@ -114,10 +126,16 @@ export interface FarmlandValueRow {
   source: FarmlandValueSource
   /** Two-letter US state code. */
   state: string
+  /**
+   * County name for county-grain rows. For district-grain rows (ISU crop
+   * reporting district tier / weighted-avg), this is the district name
+   * (e.g. "Northwest") and `district_id` carries the same value for clarity.
+   */
   county: string
   year: number
   /**
-   * ISU rows carry a tier. NASS rows are `null` (county-average, no tier).
+   * Tier for tier-bearing rows (ISU district tier rows). `null` for
+   * county-average rows (ISU county) and NASS county rows (no tier).
    */
   tier: QualityTier | null
   /** Dollars per acre. Integer or float acceptable. */
@@ -137,6 +155,45 @@ export interface FarmlandValueRow {
    * moved. Format: `sha256:<hex>`.
    */
   source_doc_hash: string
+
+  // ─── FV-003 v2 / CARD-xlsx amendment fields ─────────────────────────
+  /**
+   * Grain of the row. New rows always populate this. Omitted on legacy rows
+   * from the pre-v2 PDF parser — consumers should treat `undefined` as
+   * `county_tier` for back-compat.
+   */
+  grain?: 'county_avg' | 'district_tier' | 'district_weighted_avg' | 'county_tier_legacy'
+  /**
+   * ISU crop-reporting-district identifier (one of the 9 Iowa districts, e.g.
+   * "Northwest", "Central"). Present on district-grain rows and on county-
+   * grain rows that carry district context for synthesis.
+   */
+  district_id?: string
+  /**
+   * Weighted average $/ac for the district, for any year. Stored on district
+   * weighted-avg rows; also mirrored onto county_avg rows so synthesis at
+   * lookup time doesn't need a second load.
+   */
+  district_weighted_avg?: number
+  /**
+   * County average $/ac mirrored here on district-grain rows that want to
+   * expose the county→district ratio without a second load.
+   */
+  county_avg?: number
+  /**
+   * Human-readable math describing how the value was derived (for synthesized
+   * per-county-tier rows emitted at valuation time — NOT written to
+   * farmland_values directly). Super tool attaches this to response payloads;
+   * FarmlandValueRow carries it when a row represents a materialized
+   * synthesis. Example: "synth: 13507 × (12174 / 14522) = 11328".
+   */
+  synthesis_formula?: string
+  /**
+   * Set `true` when `county_avg` deviates > 25% from `district_weighted_avg`.
+   * Synthesized per-county-tier values for this county are forced to LOW
+   * confidence regardless of NASS cross-check (MEGAZORD guardrail 3).
+   */
+  outlier_from_district?: boolean
 }
 
 /* ─── API-type helpers (valuation endpoint + super tool) ──────────────── */
