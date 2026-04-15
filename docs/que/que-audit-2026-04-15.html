@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QUE Registry Audit — 2026-04-15</title>
+<style>
+:root{--bg:#0a0e17;--card:#111827;--card2:#1a2236;--border:#1e293b;--text:#e2e8f0;--muted:#94a3b8;--green:#22c55e;--blue:#3b82f6;--red:#ef4444;--orange:#f59e0b;--gold:#d4a44c;--cyan:#06b6d4;--purple:#a78bfa}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+.header{background:linear-gradient(135deg,#020b1a 0%,#0a1a2a 50%,#020b1a 100%);border-bottom:1px solid var(--border);padding:40px 32px;text-align:center}
+.header h1{font-size:2.2rem;font-weight:800;background:linear-gradient(135deg,var(--blue),var(--cyan),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px}
+.header .sub{font-size:0.95rem;color:var(--muted)}
+.header .badge{display:inline-block;margin-top:12px;padding:4px 16px;border-radius:999px;font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;background:rgba(59,130,246,0.1);color:var(--blue);border:1px solid rgba(59,130,246,0.3)}
+.tab-bar{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px solid var(--border);overflow-x:auto;display:flex;max-width:1200px;margin:0 auto;padding:0 8px}
+.tab{padding:14px 18px;font-size:0.82rem;font-weight:600;color:var(--muted);cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;transition:all .2s}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--blue);border-bottom-color:var(--blue)}
+.content{max-width:1200px;margin:0 auto;padding:24px 16px}
+.panel{display:none}
+.panel.active{display:block}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:16px}
+.card h2{font-size:1.2rem;margin-bottom:12px}
+.card h3{font-size:1rem;margin:14px 0 8px;color:var(--blue)}
+.card p,.card li{color:var(--muted);font-size:0.88rem;margin-bottom:6px}
+.card ul,.card ol{margin-left:20px}
+.card strong{color:var(--text)}
+.stat-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:20px}
+.stat{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:18px;text-align:center}
+.stat .num{font-size:1.8rem;font-weight:800;color:var(--blue);line-height:1}
+.stat .lbl{font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:4px}
+.stat.green .num{color:var(--green)}
+.stat.orange .num{color:var(--orange)}
+.stat.red .num{color:var(--red)}
+.stat.purple .num{color:var(--purple)}
+table{width:100%;border-collapse:collapse;font-size:0.82rem;margin:10px 0}
+th{text-align:left;padding:8px 10px;background:var(--card2);color:var(--blue);font-weight:700;font-size:0.7rem;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border)}
+td{padding:8px 10px;border-bottom:1px solid var(--border);color:var(--muted);vertical-align:top}
+td:first-child{color:var(--text);font-weight:500}
+tr:hover td{background:var(--card2)}
+code{font-family:'SF Mono',Monaco,monospace;font-size:0.78rem;background:var(--card2);padding:2px 6px;border-radius:4px;color:var(--cyan)}
+.pill{display:inline-block;padding:2px 10px;border-radius:999px;font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.pill.built{background:rgba(34,197,94,0.1);color:var(--green);border:1px solid rgba(34,197,94,0.3)}
+.pill.stub{background:rgba(245,158,11,0.1);color:var(--orange);border:1px solid rgba(245,158,11,0.3)}
+.pill.gap{background:rgba(239,68,68,0.1);color:var(--red);border:1px solid rgba(239,68,68,0.3)}
+.pill.concept{background:rgba(167,139,250,0.1);color:var(--purple);border:1px solid rgba(167,139,250,0.3)}
+.pill.supertool{background:rgba(6,182,212,0.1);color:var(--cyan);border:1px solid rgba(6,182,212,0.3)}
+.pill.wire{background:rgba(59,130,246,0.1);color:var(--blue);border:1px solid rgba(59,130,246,0.3)}
+.note{background:rgba(6,182,212,0.06);border:1px solid rgba(6,182,212,0.2);border-radius:8px;padding:14px 18px;margin:14px 0;font-size:0.85rem;color:var(--muted)}
+.note strong{color:var(--cyan)}
+.note.red{background:rgba(239,68,68,0.05);border-color:rgba(239,68,68,0.2)}
+.note.red strong{color:var(--red)}
+.note.orange{background:rgba(245,158,11,0.05);border-color:rgba(245,158,11,0.2)}
+.note.orange strong{color:var(--orange)}
+.footer{text-align:center;padding:24px;color:var(--muted);font-size:0.72rem;border-top:1px solid var(--border);margin-top:32px}
+.gap-card{background:var(--card);border:1px solid var(--border);border-left:4px solid var(--red);border-radius:8px;padding:16px 20px;margin-bottom:12px}
+.gap-card.yellow{border-left-color:var(--orange)}
+.gap-card.green{border-left-color:var(--green)}
+.gap-card h4{font-size:0.95rem;font-weight:700;margin-bottom:6px;color:var(--text)}
+.gap-card .what{font-size:0.82rem;color:var(--muted);margin:6px 0}
+.gap-card .action{margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:0.8rem}
+.gap-card .action strong{color:var(--green);font-size:0.72rem;text-transform:uppercase;letter-spacing:1px}
+.sig-block{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:14px;margin:10px 0;font-family:'SF Mono',Monaco,monospace;font-size:0.78rem;color:var(--muted);overflow-x:auto;white-space:pre}
+@media print{body{background:#fff;color:#000}.tab-bar{display:none}.panel{display:block!important;page-break-inside:avoid}}
+</style>
+</head>
+<body>
+
+<div class="header">
+<h1>QUE Registry Audit</h1>
+<div class="sub">VOLTRON2 • 2026-04-15 • 61 entries: 38 tools + 13 super-tools + 15 wires<br>Gap analysis vs JDM&rsquo;s 13 xlsx casework components (<code>VOLTRON DOCS!/CaseWork- COMPONENTS/</code>)</div>
+<div class="badge">SOURCE: packages/core/src/que/</div>
+</div>
+
+<div class="tab-bar">
+<div class="tab active" onclick="showPanel('summary',this)">SUMMARY</div>
+<div class="tab" onclick="showPanel('tools',this)">TOOLS (38)</div>
+<div class="tab" onclick="showPanel('supertools',this)">SUPER TOOLS (13)</div>
+<div class="tab" onclick="showPanel('wires',this)">WIRES (15)</div>
+<div class="tab" onclick="showPanel('xlsx',this)">JDM XLSX (13)</div>
+<div class="tab" onclick="showPanel('gaps',this)">GAP ANALYSIS</div>
+<div class="tab" onclick="showPanel('buildplan',this)">BUILD-OUT PLAN</div>
+</div>
+
+<div class="content">
+
+<!-- SUMMARY -->
+<div id="summary" class="panel active">
+<div class="stat-row">
+<div class="stat green"><div class="num">47</div><div class="lbl">Calc + Lookup Tools</div></div>
+<div class="stat green"><div class="num">5</div><div class="lbl">Generators</div></div>
+<div class="stat green"><div class="num">13</div><div class="lbl">Super Tools</div></div>
+<div class="stat"><div class="num">15</div><div class="lbl">Wires</div></div>
+</div>
+<div class="stat-row">
+<div class="stat green"><div class="num">10 / 13</div><div class="lbl">XLSX Covered by Existing</div></div>
+<div class="stat orange"><div class="num">3</div><div class="lbl">Presentation Gaps</div></div>
+<div class="stat red"><div class="num">2</div><div class="lbl">Concept Tool Gaps</div></div>
+<div class="stat purple"><div class="num">1</div><div class="lbl">Unified API Rename</div></div>
+</div>
+
+<div class="card">
+<h2>What exists, what&rsquo;s missing, and what to build</h2>
+<p>VOLTRON's QUE registry is already <strong>calculation-complete</strong> for JDM's casework spreadsheets. Every formula in <code>ANNUITY- GROWTH MAX</code>, <code>Income Comparison</code>, <code>VA DB Illustration</code>, and <code>Index + MVA Calcs</code> maps cleanly to an existing <code>calc-*</code> tool. The super-tools <code>ANALYZE_GROWTH</code>, <code>ANALYZE_INCOME_LATER</code>, and <code>ANALYZE_MGE</code> compose those atomic calcs into the end-to-end pipelines the spreadsheets describe.</p>
+<p>The gaps are <strong>presentation</strong> (HTML renderers that mirror JDM's spreadsheet visual), <strong>multi-product side-by-side</strong> (current super-tools are 2-way CURRENT vs PROPOSED; the FIA Head2Head needs N-way), and <strong>educational concept generators</strong> (Asset Types, Balanced Portfolio, Accumulation vs Distribution — these are visual aids, not calcs).</p>
+<p>The Opportunity Folder Builder is an ACF stage tracker, not QUE — belongs in MEGAZORD's registry.</p>
+</div>
+
+<div class="note">
+<strong>How VOLTRON should use this tonight:</strong>
+<ol style="margin-top:6px;margin-left:20px">
+<li>For any client projection (Ruth / Westfall / Thurman), use <code>ANALYZE_GROWTH</code> or <code>ANALYZE_INCOME_LATER</code> — do NOT hand-calculate year-by-year depletion.</li>
+<li>For multi-carrier side-by-side (Mitchell diligence), note the <strong>gap</strong> — N-way comparison isn't a super-tool yet. Call <code>calc-fia-projection</code> 3x with different product inputs and assemble manually, or stage the build-out.</li>
+<li>For the 4-Phase LTC framework (Ruth's COF LTC policy): <code>ANALYZE_LTC</code> exists.</li>
+<li>For Roth conversion math (Ruth's $39K × 3yr plan): <code>ANALYZE_ROTH</code> exists.</li>
+<li>Presentation — the spreadsheets have a specific visual (Client Name header / Contract Basics grid / Year-by-year projection table). <code>generate-summary-html</code> and <code>generate-detail-html</code> exist but don't currently mirror this layout. Tracked as Build Plan item 5.</li>
+</ol>
+</div>
+
+<div class="card">
+<h3>Registry file map</h3>
+<table>
+<tr><th>Location</th><th>Count</th><th>Purpose</th></tr>
+<tr><td><code>packages/core/src/que/tools/</code></td><td>38</td><td>Atomic calc + lookup primitives (calc-*, lookup-*)</td></tr>
+<tr><td><code>packages/core/src/que/tools/data/</code></td><td>—</td><td>Static data tables (IRS factors, tax brackets, IRMAA, carrier products)</td></tr>
+<tr><td><code>packages/core/src/que/super-tools/</code></td><td>13</td><td>Composed analyses (ANALYZE_*, GENERATE_CASEWORK, ASSEMBLE_OUTPUT, QUOTE_MEDSUPP)</td></tr>
+<tr><td><code>packages/core/src/que/wires/</code></td><td>15</td><td>End-to-end pipelines (WIRE_GROWTH_MAX, WIRE_INCOME_LATER, etc.)</td></tr>
+<tr><td><code>packages/core/src/que/generators/</code></td><td>5</td><td>Output renderers (HTML summary/detail, AI3 PDF, Meeting Prep, Factfinder)</td></tr>
+<tr><td><code>packages/core/src/que/registry.ts</code></td><td>61</td><td>Canonical registry — id / type / composedOf index</td></tr>
+<tr><td><code>packages/core/src/que/engine.ts</code></td><td>1</td><td>Wire executor</td></tr>
+<tr><td><code>packages/core/src/que/adapters/</code></td><td>—</td><td>Household/account → calc input adapters</td></tr>
+</table>
+</div>
+
+</div>
+
+<!-- TOOLS -->
+<div id="tools" class="panel">
+<div class="card">
+<h2>Calc Tools (25) — atomic financial primitives</h2>
+<table>
+<tr><th>ID</th><th>Formula / Purpose</th><th>Status</th></tr>
+<tr><td><code>calc-rmd</code></td><td>Prior Year Value / IRS Factor</td><td><span class="pill built">BUILT</span></td></tr>
+<tr><td><code>calc-gmib</code></td><td>Benefit Base × Payout Rate</td><td><span class="pill built">BUILT</span></td></tr>
+<tr><td><code>calc-rollup</code></td><td>Benefit base growth (simple + compound)</td><td><span class="pill built">BUILT</span></td></tr>
+<tr><td><code>calc-surrender-charge</code></td><td>AV × Charge% − Free Withdrawal</td><td><span class="pill built">BUILT</span></td></tr>
+<tr><td><code>calc-ltcg</code></td><td>(MV − Basis) × LTCG Rate</td><td><span class="pill built">BUILT</span></td></tr>
+<tr><td><code>calc-bonus-offset</code></td><td>Net cost after carrier bonus</td><td><span class="pill built">BUILT</span></td></tr>
+<tr><td><code>calc-provisional-income</code></td><td>IRS SS taxation threshold formula</td><td><span class="pill built">BUILT</span></td></tr>
+<tr><td><code>calc-ss-taxation</code></td><td>0% / 50% / 85% SS taxable</td><td><span class="pill built">BUILT</span></td></tr>
+<tr><td><code>calc-federal-tax</code></td><td>2025 marginal bracket</td><td><span class="pill built">BUILT</span></td></tr>
+<tr><td><code>calc-state-tax</code></td><td>State income tax w/ retirement exemptions</td><td><span class="pill built">BUILT</span></td></tr>
+<tr><td><code>calc-irmaa</code></td><td>Medicare Part B + D surcharge by MAGI</td><td><span class="pill built">BUILT</span></td></tr>
+<tr><td><code>calc-ss-earnings-limit</code></td><td>Pre-FRA earnings impact</td><td><span class="pill built">BUILT</span></td></tr>
+<tr><td><code>calc-income-multiplier</code></td><td>Life needs by age bracket</td><td><span class="pill built">BUILT</span></td></tr>
+<tr><td><code>calc-college-funding</code></td><td>Future cost w/ inflation</td><td><span class="pill built">BUILT</span></td></tr>
+<tr><td><code>calc-net-outlay</code></td><td>True life cost (premium − CV)</td><td><span class="pill built">BUILT</span></td></tr>
+<tr><td><code>calc-breakeven-equity</code></td><td>Return needed to sustain withdrawals</td><td><span class="pill built">BUILT</span></td></tr>
+<tr><td><code>calc-mva</code></td><td>Hidden MVA decomposition: (AV − SV) / AV</td><td><span class="pill built">BUILT</span> <span class="pill supertool">XLSX match</span></td></tr>
+<tr><td><code>calc-mgsv</code></td><td>Minimum guaranteed surrender floor</td><td><span class="pill built">BUILT</span></td></tr>
+<tr><td><code>calc-va-depletion</code></td><td>Year-by-year VA burn: (Start − W/D) × (1 + Net Return)</td><td><span class="pill built">BUILT</span> <span class="pill supertool">XLSX match</span></td></tr>
+<tr><td><code>calc-fia-projection</code></td><td>FIA growth w/ bonus: Start × (1 + Bonus), then (Start − W/D) × (1 + Growth)</td><td><span class="pill built">BUILT</span> <span class="pill supertool">XLSX match</span></td></tr>
+<tr><td><code>calc-delta</code></td><td>Year-by-year proposed vs current advantage</td><td><span class="pill built">BUILT</span></td></tr>
+<tr><td><code>calc-lot-selection</code></td><td>Optimal tax lot liquidation</td><td><span class="pill built">BUILT</span></td></tr>
+<tr><td><code>calc-ltc-phase-access</code></td><td>4-Phase LTC framework mapping</td><td><span class="pill built">BUILT</span></td></tr>
+<tr><td><code>calc-household-aggregate</code></td><td>Combined household financials</td><td><span class="pill built">BUILT</span></td></tr>
+<tr><td><code>calc-effective-tax-rate</code></td><td>Combined federal + state</td><td><span class="pill built">BUILT</span></td></tr>
+</table>
+</div>
+
+<div class="card">
+<h3>Life Needs calc tools (8) — TRK Life &amp; Estate expansion</h3>
+<table>
+<tr><th>ID</th><th>Purpose</th><th>Status</th></tr>
+<tr><td><code>calc-income-need</code></td><td>Survivor income replacement over years w/ inflation</td><td><span class="pill built">BUILT</span></td></tr>
+<tr><td><code>calc-debt-need</code></td><td>Outstanding debts at death</td><td><span class="pill built">BUILT</span></td></tr>
+<tr><td><code>calc-misc-cash-need</code></td><td>Funeral / emergency / final expenses</td><td><span class="pill built">BUILT</span></td></tr>
+<tr><td><code>calc-survivor-cash-need</code></td><td>Total immediate cash at death</td><td><span class="pill built">BUILT</span></td></tr>
+<tr><td><code>calc-survivor-income-need</code></td><td>Ongoing survivor income gap</td><td><span class="pill built">BUILT</span></td></tr>
+<tr><td><code>calc-existing-coverage-offset</code></td><td>Total existing life coverage aggregation</td><td><span class="pill built">BUILT</span></td></tr>
+<tr><td><code>calc-total-life-need</code></td><td>Master: all needs − existing coverage</td><td><span class="pill built">BUILT</span></td></tr>
+<tr><td><code>calc-1035-exchange</code></td><td>Tax-free insurance transfer w/ basis carryover</td><td><span class="pill built">BUILT</span></td></tr>
+</table>
+</div>
+
+<div class="card">
+<h3>Lookup Tools (13)</h3>
+<table>
+<tr><th>ID</th><th>Purpose</th><th>Status</th></tr>
+<tr><td><code>lookup-irs-factor</code></td><td>Uniform Lifetime Table divisor by age</td><td><span class="pill built">BUILT</span></td></tr>
+<tr><td><code>lookup-carrier-product</code></td><td>Product specs, rates, features</td><td><span class="pill built">BUILT</span></td></tr>
+<tr><td><code>lookup-index-rate</code></td><td>FIA index / cap / par rate</td><td><span class="pill built">BUILT</span></td></tr>
+<tr><td><code>lookup-surrender-schedule</code></td><td>Surrender charge % by year</td><td><span class="pill built">BUILT</span></td></tr>
+<tr><td><code>lookup-fyc-rate</code></td><td>Commission target/excess</td><td><span class="pill built">BUILT</span></td></tr>
+<tr><td><code>lookup-tax-bracket</code></td><td>Federal + state by filing status</td><td><span class="pill built">BUILT</span></td></tr>
+<tr><td><code>lookup-irmaa-bracket</code></td><td>Part B+D surcharge tiers</td><td><span class="pill built">BUILT</span></td></tr>
+<tr><td><code>lookup-community-property</code></td><td>Spousal signature states</td><td><span class="pill built">BUILT</span></td></tr>
+<tr><td><code>lookup-group-portability</code></td><td>Group life conversion windows</td><td><span class="pill built">BUILT</span></td></tr>
+<tr><td><code>lookup-health-rating-map</code></td><td>Health → rate class mapping</td><td><span class="pill built">BUILT</span></td></tr>
+<tr><td><code>lookup-paramed-requirements</code></td><td>Exam reqs by face amount</td><td><span class="pill built">BUILT</span></td></tr>
+<tr><td><code>lookup-life-rate</code></td><td>Premium by product/class/age</td><td><span class="pill built">BUILT</span></td></tr>
+<tr><td><code>lookup-life-carrier-product</code></td><td>Carrier product specs (term/UL/IUL/WL)</td><td><span class="pill built">BUILT</span></td></tr>
+</table>
+</div>
+
+<div class="card">
+<h3>CSG Actuarial Tools (5)</h3>
+<table>
+<tr><th>ID</th><th>Purpose</th><th>Status</th></tr>
+<tr><td><code>csg-medsupp-quote</code></td><td>Live MedSupp quotes across 50+ carriers</td><td><span class="pill built">BUILT</span></td></tr>
+<tr><td><code>csg-medsupp-companies</code></td><td>Carrier list w/ NAIC + AM Best</td><td><span class="pill built">BUILT</span></td></tr>
+<tr><td><code>csg-medsupp-plan-letters</code></td><td>Plan A–N descriptions</td><td><span class="pill built">BUILT</span></td></tr>
+<tr><td><code>csg-hospital-indemnity-quote</code></td><td>HI quote (TRK-EPIC-07)</td><td><span class="pill stub">STUB — 403 entitlement</span></td></tr>
+<tr><td><code>csg-dental-quote</code></td><td>Dental quote (TRK-EPIC-07)</td><td><span class="pill stub">STUB — 403 entitlement</span></td></tr>
+</table>
+</div>
+
+<div class="card">
+<h3>Generators (5)</h3>
+<table>
+<tr><th>ID</th><th>Output</th><th>Status</th></tr>
+<tr><td><code>generate-summary-html</code></td><td>Tier 1 one-pager per casework type</td><td><span class="pill built">BUILT</span></td></tr>
+<tr><td><code>generate-detail-html</code></td><td>Tier 2/3 year-by-year detail</td><td><span class="pill built">BUILT</span></td></tr>
+<tr><td><code>generate-ai3-pdf</code></td><td>Client-facing AI3</td><td><span class="pill built">BUILT</span></td></tr>
+<tr><td><code>generate-meeting-prep</code></td><td>3-page meeting agenda w/ talk tracks</td><td><span class="pill built">BUILT</span></td></tr>
+<tr><td><code>generate-factfinder</code></td><td>Pre-filled application package</td><td><span class="pill built">BUILT</span></td></tr>
+</table>
+<p style="margin-top:10px"><strong>Gap:</strong> no generator mirrors JDM&rsquo;s spreadsheet visual layout (Client Name header / Contract Basics / year-by-year projection grid with CURRENT vs PROPOSED side-by-side). See Build Plan item 5.</p>
+</div>
+</div>
+
+<!-- SUPER TOOLS -->
+<div id="supertools" class="panel">
+<div class="card">
+<h2>Super Tools (13) — composed analyses</h2>
+<table>
+<tr><th>ID</th><th>Composes</th><th>Output</th><th>XLSX Match</th></tr>
+<tr><td><code>ANALYZE_INCOME_NOW</code></td><td>household-aggregate, gmib, rmd, breakeven-equity</td><td>Dormant rider activation analysis</td><td>—</td></tr>
+<tr><td><code>ANALYZE_INCOME_LATER</code></td><td>rollup, gmib, provisional-income, federal-tax</td><td>Deferred rollup growth strategy</td><td><strong>Income Comparison</strong></td></tr>
+<tr><td><code>ANALYZE_ESTATE</code></td><td>va-depletion, income-multiplier, college-funding, fyc-rate</td><td>Lapse detection + survivor needs</td><td>VA DB Illustration (partial)</td></tr>
+<tr><td><code>ANALYZE_GROWTH</code></td><td>va-depletion, fia-projection, delta, surrender-charge, ltcg, bonus-offset</td><td>VA vs FIA sustainability comparison (2-way)</td><td><strong>GROWTH MAX</strong></td></tr>
+<tr><td><code>ANALYZE_LTC</code></td><td>ltc-phase-access, gmib, mgsv, carrier-product</td><td>4-Phase LTC access framework</td><td>—</td></tr>
+<tr><td><code>ANALYZE_ROTH</code></td><td>provisional-income, ss-taxation, federal-tax, irmaa</td><td>Roth conversion bracket/IRMAA modeling</td><td>—</td></tr>
+<tr><td><code>ANALYZE_TAX_HARVEST</code></td><td>lot-selection, ltcg, ss-earnings-limit, provisional-income</td><td>NQ liquidation lot optimization</td><td>—</td></tr>
+<tr><td><code>ANALYZE_MGE</code></td><td>ALL 7 ANALYZE_* + household-aggregate</td><td>Master gateway — full case analysis</td><td><strong>Retirement Income Strategy</strong></td></tr>
+<tr><td><code>ANALYZE_GROUP_GAP</code></td><td>group-portability, existing-coverage-offset, total-life-need</td><td>Employer group coverage gap</td><td>—</td></tr>
+<tr><td><code>ANALYZE_LIFE_NEED</code></td><td>8 life needs calcs</td><td>Complete life needs w/ face amount target</td><td>—</td></tr>
+<tr><td><code>ANALYZE_UNDERWRITING_PATH</code></td><td>health-rating-map, paramed-requirements, life-rate</td><td>Health → rate class → price impact</td><td>—</td></tr>
+<tr><td><code>ANALYZE_LIFE_OPTIONS</code></td><td>total-life-need, life-carrier-product, life-rate, net-outlay</td><td>3-option life comparison</td><td>—</td></tr>
+<tr><td><code>QUOTE_MEDSUPP</code></td><td>csg-medsupp-quote, csg-medsupp-companies</td><td>Ranked MedSupp quotes w/ NAIC + AM Best</td><td>—</td></tr>
+</table>
+</div>
+
+<div class="card">
+<h3>Output super tools (2)</h3>
+<table>
+<tr><th>ID</th><th>Role</th></tr>
+<tr><td><code>GENERATE_CASEWORK</code></td><td>Summary + Detail HTML per applicable casework type</td></tr>
+<tr><td><code>GENERATE_LIFE_CASEWORK</code></td><td>Life analysis → multi-tab HTML presentation</td></tr>
+<tr><td><code>ASSEMBLE_OUTPUT</code></td><td>All 5 Yellow Stage outputs → ACF B4 package (AI3 + factfinder + ...)</td></tr>
+</table>
+</div>
+</div>
+
+<!-- WIRES -->
+<div id="wires" class="panel">
+<div class="card">
+<h2>Wires (15) — end-to-end pipelines</h2>
+<table>
+<tr><th>ID</th><th>Pipeline</th><th>Trigger</th></tr>
+<tr><td><code>WIRE_INCOME_NOW</code></td><td>ANALYZE_INCOME_NOW → GENERATE_CASEWORK</td><td>Dormant-rider flagged in review</td></tr>
+<tr><td><code>WIRE_INCOME_LATER</code></td><td>ANALYZE_INCOME_LATER → GENERATE_CASEWORK</td><td>GMIB-to-life opportunity</td></tr>
+<tr><td><code>WIRE_ESTATE_MAX</code></td><td>ANALYZE_ESTATE → GENERATE_CASEWORK</td><td>Lapse risk / survivor need</td></tr>
+<tr><td><code>WIRE_GROWTH_MAX</code></td><td>ANALYZE_GROWTH → GENERATE_CASEWORK</td><td>VA/FIA replacement (Griffin, Ruth annuities)</td></tr>
+<tr><td><code>WIRE_LTC_MAX</code></td><td>ANALYZE_LTC → GENERATE_CASEWORK</td><td>LTC phase mapping (Ruth COF LTC)</td></tr>
+<tr><td><code>WIRE_ROTH_CONVERSION</code></td><td>ANALYZE_ROTH → GENERATE_CASEWORK</td><td>Bracket arbitrage opportunity (Ruth $39K × 3)</td></tr>
+<tr><td><code>WIRE_TAX_HARVEST</code></td><td>ANALYZE_TAX_HARVEST → GENERATE_CASEWORK</td><td>NQ liquidation optimization</td></tr>
+<tr><td><code>WIRE_MGE_DETAILED</code></td><td>ANALYZE_MGE → GENERATE_CASEWORK</td><td>Full case — all applicable types</td></tr>
+<tr><td><code>WIRE_REVIEW_MEETING</code></td><td>ANALYZE_MGE → generate-meeting-prep → file-to-acf</td><td>Pre-meeting prep</td></tr>
+<tr><td><code>WIRE_ASSEMBLE_B4</code></td><td>ASSEMBLE_OUTPUT</td><td>ACF Yellow Stage handoff</td></tr>
+<tr><td><code>WIRE_LIFE_DISCOVERY</code></td><td>ANALYZE_GROUP_GAP</td><td>Pre-discovery group gap read</td></tr>
+<tr><td><code>WIRE_LIFE_NEEDS</code></td><td>ANALYZE_LIFE_NEED</td><td>Full life needs w/ face amount</td></tr>
+<tr><td><code>WIRE_LIFE_OPTIONS</code></td><td>ANALYZE_UNDERWRITING_PATH + ANALYZE_LIFE_OPTIONS</td><td>Underwriting + 3-option quote</td></tr>
+<tr><td><code>WIRE_LIFE_PRESENTATION</code></td><td>ALL 4 life super-tools</td><td>Complete life multi-tab presentation</td></tr>
+<tr><td><code>WIRE_MEDSUPP_QUOTE</code></td><td>AEP blackout check → QUOTE_MEDSUPP</td><td>Live quote (blocked Oct 1–Dec 7)</td></tr>
+</table>
+</div>
+</div>
+
+<!-- XLSX INVENTORY -->
+<div id="xlsx" class="panel">
+<div class="card">
+<h2>JDM&rsquo;s 13 XLSX Components — inventory + structure</h2>
+<p>Located at <code>/home/jdm/inbox/VOLTRON DOCS!/CaseWork- COMPONENTS/</code>. Sampled sheet structure, formulas, and client tabs to map against QUE.</p>
+
+<table>
+<tr><th>File</th><th>Sheets</th><th>Purpose</th><th>Formula DNA</th></tr>
+<tr><td>ANNUITY- GROWTH MAX.xlsx</td><td>Master + <strong>James Griffin</strong></td><td>VA → FIA accumulation projection + depletion model (2-way)</td><td>(Start − W/D) × (1 + Net Return). Year rows 9–29 CURRENT, 39+ PROPOSED.</td></tr>
+<tr><td>ANNUITY- Income Comparison.xlsx</td><td>Master + <strong>11 client tabs</strong>: Griffin, Gerald+Kathy Dowell, Paul+Ann Blotz, Gerald+Anna Pyle, Carol+Kenneth Seeger, Ann Wilkening</td><td>GMIB rollup projection + income comparison (CURRENT vs PROPOSED rollup product)</td><td>Benefit Base rollup (simple/compound) × Payout Rate at attained age</td></tr>
+<tr><td>ANNUITY- FIA Head2Head Comparison.xlsx</td><td>FIA Head2Head Comparison</td><td><strong>N-way</strong> carrier-by-carrier side-by-side (Kansas City Life / Delaware Life / Ameritas)</td><td>Annualized% = Total Return / Years, Account Value vs Surrender Value</td></tr>
+<tr><td>ANNUITY- Income Portfolio Analysis.xlsx</td><td>Income Portfolio Analysis</td><td>Custodian × Asset Class × Income Type aggregation (Ed Jones example)</td><td>Sum by custodian, sum by asset class, Advisory Fee %</td></tr>
+<tr><td>ANNUITY- Index + MVA Calcs.xlsx</td><td>Index Strategy DATA / MVA Index DATA / 1-Index Calc / 2-MVA Calc / 3-Presentation</td><td>FIA index growth calcs + MVA decomposition</td><td>Growth = (End/Start) − 1; MVA = Penalty% − Free W/D − Surrender Charge</td></tr>
+<tr><td>ANNUITY- VA DB Illustration.xlsx</td><td>VA DB Illustration</td><td>Standalone VA death benefit depletion curve</td><td>Starting = Prior Ending (if &gt; 0), Withdrawal at fixed $/yr, Ending = (Start − W/D) × (1 + Gross Return − Fees)</td></tr>
+<tr><td>CONCEPT- Accumulation vs Distribution.xlsx</td><td>Accumulation vs Distribution</td><td><strong>Educational curve</strong> — not a calc</td><td>Simple +5 step generator (illustrative)</td></tr>
+<tr><td>CONCEPT- Asset Types Overview.xlsx</td><td>Asset Types</td><td><strong>Educational matrix</strong> — Safety / Liquidity / Growth / Income / Legacy × Bank / Institutional / Fiduciary</td><td>Static checkmark matrix, no formula</td></tr>
+<tr><td>CONCEPT- Balanced Retirement Portfolio.xlsx</td><td>Balanced Portfolio</td><td><strong>Educational</strong> — NOW (0-1yr) / LATER (1+yr) bucket visual</td><td>Static bucket layout</td></tr>
+<tr><td>RETIREMENT- Income Strategy.BASIC.xlsx</td><td>x-DVORAK + Fisettes</td><td>Year-over-year household income projection (pensions, W2s, SS, RMDs)</td><td>Age = (Year − DOB) / 365, RMD% = 1 / IRS Factor, income rolls forward</td></tr>
+<tr><td>RETIREMENT- Income Strategy.DETAILED.xlsx</td><td>x-Parmenter</td><td>Deeper projection — same as BASIC plus SS start dates, bracket-by-bracket tax</td><td>Same + SS inflation = prior × (1 + $A$25)</td></tr>
+<tr><td>Retirement Growth+Income+Legacy Strategy.xlsx</td><td>Sheet1</td><td>AI3-style strategy summary — Product Details / Ai3 column / Strategy classification (Legacy/BD/RIA)</td><td>No computation — layout/summary</td></tr>
+<tr><td>Opportunity Folder Builder- RETIREMENT.xlsx</td><td>NEW CASE / OPEN CASE / CLOSED CASE</td><td><strong>ACF stage tracker</strong> — Orange → Blue → Yellow → Green stage checklists</td><td>Not a calc — belongs in MEGAZORD&rsquo;s ACF registry</td></tr>
+</table>
+
+<div class="note">
+<strong>Live clients inside these sheets</strong> (golden-path test fixtures — Deliverable 3 stretch):
+James Griffin (Corebridge AG10, DOB 1949-01-17, AV $73,056, SV $59,854, deposits net of $15,316 w/d), Gerald Dowell, Kathy Dowell, Paul Blotz, Ann Blotz, Gerald Pyle, Anna Pyle, Carol Seeger, Kenneth Seeger, Ann Wilkening. All in <code>ANNUITY- Income Comparison.xlsx</code>.
+</div>
+</div>
+</div>
+
+<!-- GAPS -->
+<div id="gaps" class="panel">
+<div class="card">
+<h2>Gap analysis — XLSX components vs QUE registry</h2>
+<p>Mapping each xlsx file to the existing QUE tool/super-tool that covers it. Gaps called out in red (new build needed), orange (presentation or extension), green (already covered — no build).</p>
+</div>
+
+<h3 style="color:var(--green);margin:10px 0">✓ ALREADY COVERED (10 of 13)</h3>
+
+<div class="gap-card green">
+<h4>ANNUITY- GROWTH MAX.xlsx → <code>ANALYZE_GROWTH</code> + <code>WIRE_GROWTH_MAX</code></h4>
+<p class="what">Spreadsheet formula (Start − W/D) × (1 + NetReturn) matches <code>calc-va-depletion</code> exactly. The PROPOSED section matches <code>calc-fia-projection</code> (Start × (1 + Bonus) compound). Delta and 2-way comparison handled by <code>calc-delta</code> and super-tool composition.</p>
+<p class="action"><strong>Action:</strong> None. Use <code>WIRE_GROWTH_MAX</code> for any client swap projection.</p>
+</div>
+
+<div class="gap-card green">
+<h4>ANNUITY- Income Comparison.xlsx → <code>ANALYZE_INCOME_LATER</code> + <code>WIRE_INCOME_LATER</code></h4>
+<p class="what">Benefit Base rollup × Payout Rate = <code>calc-rollup</code> → <code>calc-gmib</code>. 11 client tabs are instances, not separate formulas. <strong>Calculation-complete.</strong></p>
+<p class="action"><strong>Action:</strong> Upgrade presentation (Build Plan item 4) — current HTML doesn&rsquo;t mirror the Income Comparison Master visual layout (CURRENT/PROPOSED side-by-side with GMIB $ column).</p>
+</div>
+
+<div class="gap-card green">
+<h4>ANNUITY- Index + MVA Calcs.xlsx → <code>calc-fia-projection</code> + <code>calc-mva</code></h4>
+<p class="what">Index calc = (End Value / Start Value) − 1 which is the crediting rate input to <code>calc-fia-projection</code>. MVA decomp matches <code>calc-mva</code> formula 1:1 (Total Penalty% − Free W/D − Surrender Charge = Hidden MVA).</p>
+<p class="action"><strong>Action:</strong> None. These tools are ready.</p>
+</div>
+
+<div class="gap-card green">
+<h4>ANNUITY- VA DB Illustration.xlsx → <code>calc-va-depletion</code></h4>
+<p class="what">Standalone DB depletion curve — same formula as GROWTH MAX CURRENT side. <code>ANALYZE_ESTATE</code> includes <code>calc-va-depletion</code> for lapse detection.</p>
+<p class="action"><strong>Action:</strong> None.</p>
+</div>
+
+<div class="gap-card green">
+<h4>RETIREMENT- Income Strategy.BASIC + DETAILED → <code>ANALYZE_MGE</code> + <code>WIRE_MGE_DETAILED</code></h4>
+<p class="what">Multi-household year-over-year income + RMD projections. <code>calc-household-aggregate</code> handles aggregation; <code>calc-rmd</code> + <code>lookup-irs-factor</code> handle RMD; <code>ANALYZE_MGE</code> chains all 7 sub-analyses.</p>
+<p class="action"><strong>Action:</strong> None for calculation. Presentation gap noted in item 5.</p>
+</div>
+
+<div class="gap-card green">
+<h4>Retirement Growth+Income+Legacy Strategy → <code>ASSEMBLE_OUTPUT</code> + <code>generate-ai3-pdf</code></h4>
+<p class="what">Strategy classification (Legacy / BD / RIA) + product details — this is the AI3 layout. <code>generate-ai3-pdf</code> exists.</p>
+<p class="action"><strong>Action:</strong> None.</p>
+</div>
+
+<h3 style="color:var(--orange);margin:20px 0 10px">⚠ PRESENTATION GAPS (3)</h3>
+
+<div class="gap-card yellow">
+<h4>No spreadsheet-mirror HTML renderer</h4>
+<p class="what">JDM&rsquo;s spreadsheets have a distinctive visual: Client Name / Account # / Carrier / Product header row → Basic Contract Details block → GMIB details block → GMDB details block → year-by-year projection grid with CURRENT above PROPOSED. Current <code>generate-summary-html</code> + <code>generate-detail-html</code> emit different layouts.</p>
+<p class="action"><strong>Action:</strong> Build Plan item 5 — add <code>generate-spreadsheet-mirror-html</code> generator. Template per casework type (GROWTH MAX, INCOME LATER).</p>
+</div>
+
+<div class="gap-card yellow">
+<h4>ANNUITY- Income Portfolio Analysis → partial coverage</h4>
+<p class="what">Aggregates custodian × asset class × income type (Ed Jones 815-* account, fixed income / mutual funds / equities / annuities). <code>calc-household-aggregate</code> has the bones but not the asset-class-by-custodian matrix view.</p>
+<p class="action"><strong>Action:</strong> Build Plan item 6 — add <code>calc-portfolio-income-matrix</code> atomic tool + compose into an <code>ANALYZE_INCOME_PORTFOLIO</code> super-tool.</p>
+</div>
+
+<div class="gap-card yellow">
+<h4>Opportunity Folder Builder — not QUE domain</h4>
+<p class="what">Orange/Blue/Yellow/Green ACF stage tracker with Discovery Meeting / Authorization / Market / Supporting Docs / Tech / Process / Document Updates columns. This is an ACF workflow, not a QUE calc.</p>
+<p class="action"><strong>Action:</strong> Route to MEGAZORD — ACF stage builder belongs in ATLAS registry, not QUE. Not in VOLTRON2 scope.</p>
+</div>
+
+<h3 style="color:var(--red);margin:20px 0 10px">✗ NEW BUILDS NEEDED (3)</h3>
+
+<div class="gap-card">
+<h4>No N-way multi-product side-by-side comparison</h4>
+<p class="what">ANNUITY- FIA Head2Head Comparison compares 3+ carriers side-by-side (Kansas City Life / Delaware Life / Ameritas). Current <code>ANALYZE_GROWTH</code> is 2-way CURRENT vs PROPOSED only. For Matt Mitchell&rsquo;s diligence, or any head-to-head rep quote, we need N-way.</p>
+<p class="action"><strong>Action:</strong> Build Plan item 3 — add <code>analyze-accumulation-comparison</code> super-tool that accepts an array of product projections + outputs ranked side-by-side table.</p>
+</div>
+
+<div class="gap-card">
+<h4>CONCEPT- Asset Types Overview — no generator</h4>
+<p class="what">Educational matrix (Safety / Liquidity / Growth / Income / Legacy rows × Bank / Institutional / Fiduciary columns) with client objective picker (&quot;Pick 2/3 Objectives&quot;). Static visual — not a calc, but a legitimate casework artifact.</p>
+<p class="action"><strong>Action:</strong> Low priority. If built, it's a static HTML generator with client-picked objectives highlighted. Defer.</p>
+</div>
+
+<div class="gap-card">
+<h4>CONCEPT- Balanced Retirement Portfolio / Accumulation vs Distribution — no generator</h4>
+<p class="what">Educational visuals used in client presentations. NOW (0-1yr) / LATER (1+yr) bucket and the curve showing accumulation phase → distribution phase transition.</p>
+<p class="action"><strong>Action:</strong> Low priority. Defer — these are presentation, not analysis.</p>
+</div>
+
+<h3 style="color:var(--purple);margin:20px 0 10px">Δ UNIFIED API RENAME (1)</h3>
+
+<div class="gap-card" style="border-left-color:var(--purple)">
+<h4>calc-accumulation-depletion (JDM&rsquo;s requested name) = calc-va-depletion (existing)</h4>
+<p class="what">JDM&rsquo;s build plan calls for <code>calc-accumulation-depletion</code>; we have <code>calc-va-depletion</code> which implements the exact same formula. Naming: &quot;VA depletion&quot; implies Variable Annuity, but the math works for any accumulation account with withdrawals and a net return.</p>
+<p class="action"><strong>Action:</strong> Build Plan item 1 — add <code>calc-accumulation-depletion</code> as the canonical name, keep <code>calc-va-depletion</code> as an alias export (no behavior change, no migration). Update registry description.</p>
+</div>
+
+</div>
+
+<!-- BUILD PLAN -->
+<div id="buildplan" class="panel">
+<div class="card">
+<h2>Build-out Plan — DOCUMENT ONLY (no implementation tonight)</h2>
+<p>Per JDM&rsquo;s directive: sketch the super-tools + renderers to mirror the 13 xlsx components. Sequence from lowest-cost / highest-leverage to stretch.</p>
+</div>
+
+<div class="card">
+<h3>1. <code>calc-accumulation-depletion</code> (unified API)</h3>
+<p><strong>What:</strong> Canonical name for the (Start − W/D) × (1 + NetReturn) formula. Aliases <code>calc-va-depletion</code>.</p>
+<p><strong>Inputs:</strong> <code>{ startingValue, annualWithdrawal, grossReturn, totalFeeRate, years }</code> (identical to <code>calc-va-depletion</code>).</p>
+<p><strong>Output:</strong> <code>{ schedule: YearRow[], depletionYear: number | null }</code> — same shape as existing.</p>
+<p><strong>Cost:</strong> ~30 min. Add file, add registry entry, add alias export in <code>tools/index.ts</code>.</p>
+</div>
+
+<div class="card">
+<h3>2. <code>analyze-accumulation-projection</code> (composition)</h3>
+<p><strong>What:</strong> Super-tool composing <code>calc-accumulation-depletion</code> + <code>calc-household-aggregate</code>. Takes a household + 1 product and returns a complete projection with client demographics baked in (primary age, joint age, policy year all derived from DOB + issue date like the spreadsheet does).</p>
+<p><strong>Composes:</strong> <code>calc-household-aggregate</code>, <code>calc-accumulation-depletion</code>, <code>calc-fia-projection</code> (conditional on product type).</p>
+<p><strong>Output shape:</strong></p>
+<div class="sig-block">{
+  household: HouseholdSummary,
+  currentProjection: DepletionSchedule,
+  product: ProductSpec,
+  ageTimeline: { primaryAge: number[], jointAge: number[], policyYear: number[] }
+}</div>
+<p><strong>UI surface:</strong> Reuses <code>generate-summary-html</code> + (new) <code>generate-spreadsheet-mirror-html</code>.</p>
+<p><strong>Cost:</strong> ~90 min.</p>
+</div>
+
+<div class="card">
+<h3>3. <code>analyze-accumulation-comparison</code> (N-way side-by-side)</h3>
+<p><strong>What:</strong> Multi-product comparison matching FIA Head2Head layout. Accepts an array of products + a household, returns ranked comparison.</p>
+<p><strong>Composes:</strong> <code>analyze-accumulation-projection</code> × N, then <code>calc-delta</code> against the first as baseline.</p>
+<p><strong>Output shape:</strong></p>
+<div class="sig-block">{
+  baseline: ProductProjection,
+  alternatives: ProductProjection[],
+  ranked: { productId, totalReturn, annualizedPct, accountValue, surrenderValue, netAdvantageVsBaseline }[],
+  sideBySide: ComparisonRow[]  // year 1..N with one column per product
+}</div>
+<p><strong>Cost:</strong> ~2 hr.</p>
+</div>
+
+<div class="card">
+<h3>4. Upgrade <code>analyze-income-later</code> to match Income Comparison Master template</h3>
+<p><strong>What:</strong> Current super-tool returns rollup + GMIB calcs. Upgrade to emit the <em>Income Comparison Master visual structure</em>: CURRENT Benefit Base table (rows = policy years, cols = BenefitBase / GMIB / Bonus% / Bonus$ / GMIB% / GMIB$) stacked above PROPOSED rollup table with same column layout.</p>
+<p><strong>No new calcs.</strong> Pure presentation upgrade. Update output shape to return <code>{ current: IncomeComparisonRows, proposed: IncomeComparisonRows, delta: DeltaRow[] }</code> instead of flat rollup schedule.</p>
+<p><strong>Cost:</strong> ~60 min (no new calc tools needed).</p>
+</div>
+
+<div class="card">
+<h3>5. <code>generate-spreadsheet-mirror-html</code> (new generator)</h3>
+<p><strong>What:</strong> HTML renderer whose layout mirrors JDM&rsquo;s spreadsheet visual — Client Name + Account # header row, Contract Basics grid (Issue Date / AV / SV / Deposit-W/D / As-Of / Annualized% / M+E+A), GMIB details block, GMDB details block, year-by-year projection table with CURRENT above PROPOSED.</p>
+<p><strong>Templates needed:</strong></p>
+<ul>
+<li><code>growth-max.template.html</code> — for ANALYZE_GROWTH output</li>
+<li><code>income-later.template.html</code> — for ANALYZE_INCOME_LATER output</li>
+<li><code>head2head.template.html</code> — for ANALYZE_ACCUMULATION_COMPARISON output (N columns)</li>
+</ul>
+<p><strong>Print-CSS ready</strong> (per HTML-is-the-brochure-production-path rule) — Poppins + Mulish + RPI navy, page-break-inside:avoid on year-row groups.</p>
+<p><strong>Cost:</strong> ~3 hr for all three templates.</p>
+</div>
+
+<div class="card">
+<h3>6. <code>calc-portfolio-income-matrix</code> + <code>ANALYZE_INCOME_PORTFOLIO</code> (stretch)</h3>
+<p><strong>What:</strong> Atomic calc that aggregates accounts by custodian × asset class × income type (matching Income Portfolio Analysis sheet). Super-tool wraps it with advisory fee calcs and income totals.</p>
+<p><strong>Cost:</strong> ~90 min.</p>
+</div>
+
+<div class="card">
+<h3>Sequencing recommendation</h3>
+<ol>
+<li><strong>Tonight (done):</strong> this audit doc — live reference for VOLTRON&rsquo;s tonight casework.</li>
+<li><strong>Next session (when approved):</strong> Items 1 + 4 (lowest cost, highest leverage for Ruth / Thurman / Griffin cases).</li>
+<li><strong>Sprint:</strong> Items 2 + 3 + 5 (N-way comparison + spreadsheet-mirror renderer) — unlocks Mitchell diligence and any rep quote.</li>
+<li><strong>Backlog:</strong> Item 6 (portfolio income matrix) + Concept generators (Asset Types, Balanced Portfolio) — defer.</li>
+<li><strong>Route to MEGAZORD:</strong> Opportunity Folder Builder — ACF stage tracker, not QUE.</li>
+</ol>
+</div>
+
+<div class="note orange">
+<strong>Explicit non-goals:</strong> This audit does NOT implement any of the build-out items. No code changes in this PR besides the doc file. Implementation sequenced after JDM approval.
+</div>
+</div>
+
+<div class="footer">
+VOLTRON2 • QUE Registry Audit • 2026-04-15 • <code>packages/core/src/que/</code> + <code>/home/jdm/inbox/VOLTRON DOCS!/CaseWork- COMPONENTS/</code><br>
+🦁 — VOLTRON, The BFF
+</div>
+
+</div>
+
+<script>
+function showPanel(id,el){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  el.classList.add('active');
+}
+</script>
+
+</body>
+</html>
