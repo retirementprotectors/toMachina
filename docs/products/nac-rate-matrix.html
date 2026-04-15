@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NAC Product Rate Matrix — Bonus vs No-Bonus, Income vs Accumulation</title>
+<style>
+:root{--bg:#0a0e17;--card:#111827;--card2:#1a2236;--border:#1e293b;--text:#e2e8f0;--muted:#94a3b8;--green:#22c55e;--blue:#3b82f6;--red:#ef4444;--orange:#f59e0b;--gold:#d4a44c;--cyan:#06b6d4;--purple:#a78bfa}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.55}
+.wip-banner{background:linear-gradient(90deg,rgba(245,158,11,0.18),rgba(245,158,11,0.08));border-bottom:1px solid rgba(245,158,11,0.4);color:var(--orange);font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;text-align:center;padding:10px 16px}
+.header{background:linear-gradient(135deg,#020b1a 0%,#0a1a0a 50%,#020b1a 100%);border-bottom:1px solid var(--border);padding:28px;text-align:center}
+.header h1{font-size:1.8rem;font-weight:800;background:linear-gradient(135deg,var(--green),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px}
+.header .sub{font-size:0.9rem;color:var(--muted)}
+.header .badge{display:inline-block;margin-top:10px;padding:4px 14px;border-radius:999px;font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;background:rgba(34,197,94,0.1);color:var(--green);border:1px solid rgba(34,197,94,0.3)}
+.content{max-width:1400px;margin:0 auto;padding:20px 16px 60px}
+.intro{background:rgba(6,182,212,0.06);border:1px solid rgba(6,182,212,0.2);border-radius:10px;padding:16px 22px;margin-bottom:24px;font-size:0.88rem;color:var(--muted)}
+.intro strong{color:var(--cyan)}
+.section{margin-top:32px}
+.section h2{font-size:1.1rem;color:var(--green);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.section p{color:var(--muted);font-size:0.88rem;margin-bottom:10px}
+table{width:100%;border-collapse:collapse;font-size:0.78rem;background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin:10px 0}
+th{text-align:left;padding:8px 10px;background:var(--card2);color:var(--green);font-weight:700;font-size:0.68rem;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:8px 10px;border-bottom:1px solid var(--border);color:var(--muted);vertical-align:top}
+td:first-child{color:var(--text);font-weight:500;white-space:nowrap}
+tr:hover td{background:var(--card2)}
+tr.sep td{border-top:2px solid var(--border)}
+.bonus-cell{color:var(--orange);font-weight:600}
+.nobonus-cell{color:var(--green);font-weight:600}
+.income-cell{color:var(--purple);font-weight:600}
+.high{color:var(--green);font-weight:700}
+.low{color:var(--red)}
+.na{color:var(--muted);font-style:italic}
+.callout{background:var(--card);border:1px solid var(--border);border-left:4px solid var(--blue);border-radius:0 10px 10px 0;padding:14px 18px;margin:16px 0}
+.callout.orange{border-left-color:var(--orange)}
+.callout.green{border-left-color:var(--green)}
+.callout.purple{border-left-color:var(--purple)}
+.callout .title{font-size:0.9rem;font-weight:700;margin-bottom:6px;color:var(--text)}
+.callout p{font-size:0.84rem;margin:4px 0}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:0.75rem;margin-bottom:10px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend span::before{content:'';width:12px;height:3px;border-radius:2px}
+.legend .bonus::before{background:var(--orange)}
+.legend .nobonus::before{background:var(--green)}
+.legend .income::before{background:var(--purple)}
+.footer{text-align:center;padding:24px;color:var(--muted);font-size:0.72rem;border-top:1px solid var(--border);margin-top:40px}
+</style>
+</head>
+<body>
+
+<div class="wip-banner">🚧 WORKING DOC — NAC rate inventory. All caps, participation rates, and spreads as-declared on current flyers (1/27/26–4/2/26; GA 1/28/25). Rates subject to change — re-pull before any client-facing illustration.</div>
+
+<div class="header">
+<h1>NAC Product Rate Matrix</h1>
+<div class="sub">Bonus vs No-Bonus · Income vs Accumulation · Full crediting method rate card across 8 product chassis</div>
+<div class="badge">VOLTRON CSO · 2026-04-15 · Comparative Matrix v1</div>
+</div>
+
+<div class="content">
+
+<div class="intro">
+<p><strong>What this is:</strong> A complete side-by-side of every NAC product we write (plus GA as aged-out fallback), showing declared fixed rates, S&amp;P 500 caps/participation, volatility-control index participation, enhanced-strategy rates + fees, surrender periods, and income-rider availability.</p>
+<p style="margin-top:6px"><strong>How to read it:</strong> <span class="bonus-cell">Orange labels</span> = premium-bonus accumulation products · <span class="nobonus-cell">Green</span> = no-bonus accumulation · <span class="income-cell">Purple</span> = income-rider lead products. The cost of a premium bonus is paid in lower caps, lower participation, or higher fees elsewhere — the matrix lets you see the trade.</p>
+<div class="legend">
+<span class="bonus">Bonus product</span>
+<span class="nobonus">No-bonus accumulation</span>
+<span class="income">Income rider lead</span>
+</div>
+</div>
+
+<!-- 1. OVERVIEW -->
+<div class="section">
+<h2>1. Product Overview &mdash; Surrender, Bonus, Income Rider at a Glance</h2>
+<div style="overflow-x:auto">
+<table>
+<tr><th>Product</th><th>Lane</th><th>Surrender</th><th>Premium Bonus</th><th>EBR Available</th><th>Fixed Rate</th><th>Free W/D</th><th>Income Rider</th><th>QCF / LTC Waiver</th></tr>
+<tr><td class="bonus-cell">Charter Plus 10</td><td>Accumulation + Bonus</td><td>10 yr</td><td>Up to 12% (10% base + 2% special)</td><td>+9% for 0.95% fee</td><td>3.00%</td><td>10% (yr 2+)</td><td>No (EBR is a bonus rider, not income)</td><td>100% AV if QCF</td></tr>
+<tr><td class="bonus-cell">Charter Plus 14</td><td>Accumulation + Bonus (longer)</td><td>14 yr</td><td>Up to 15% (13% base + 2% special)</td><td>+12% for 0.95% fee</td><td>3.00%</td><td>10% (yr 2+)</td><td>No</td><td>100% AV if QCF</td></tr>
+<tr class="sep"><td class="income-cell">BenefitSolutions 10</td><td>Income Rider Lead</td><td>10 yr</td><td class="na">None</td><td class="na">N/A</td><td>2.30%</td><td>Standard</td><td>Yes — GMIB 120/150/180% benefit base stack</td><td class="na">N/A</td></tr>
+<tr><td class="income-cell">Income Pay Pro 10</td><td>Income Rider Lead (simpler)</td><td>10 yr</td><td class="na">None</td><td class="na">N/A</td><td>2.50%</td><td>Standard</td><td>Yes — dedicated income rider</td><td class="na">N/A</td></tr>
+<tr class="sep"><td class="nobonus-cell">VersaChoice 10 (High band $75K+)</td><td>Accumulation (banded)</td><td>10 yr</td><td class="na">None</td><td class="na">N/A</td><td>3.25%</td><td>Standard</td><td>No</td><td class="na">N/A</td></tr>
+<tr><td class="nobonus-cell">Performance Choice 8</td><td>Accumulation (shorter)</td><td>8 yr</td><td class="na">None</td><td class="na">N/A</td><td>3.20%</td><td>Standard</td><td>No</td><td class="na">N/A</td></tr>
+<tr><td class="nobonus-cell">Control X</td><td>Accumulation (simplest)</td><td>10 yr</td><td class="na">None</td><td class="na">N/A</td><td class="high">3.90% (highest)</td><td>Standard</td><td>No</td><td class="na">N/A</td></tr>
+<tr class="sep"><td>Guaranteed Allocation 5</td><td>Aged-out / simple fallback</td><td>5 yr</td><td class="na">None</td><td class="na">N/A</td><td>3.05%</td><td>Standard</td><td>No</td><td class="na">N/A</td></tr>
+<tr><td>Guaranteed Allocation 7</td><td>Aged-out / simple fallback</td><td>7 yr</td><td class="na">None</td><td class="na">N/A</td><td>3.15%</td><td>Standard</td><td>No</td><td class="na">N/A</td></tr>
+<tr><td>Guaranteed Allocation 10</td><td>Aged-out / simple fallback</td><td>10 yr</td><td class="na">None</td><td class="na">N/A</td><td>3.25%</td><td>Standard</td><td>No</td><td class="na">N/A</td></tr>
+</table>
+</div>
+</div>
+
+<!-- 2. S&P 500 CAPACITY -->
+<div class="section">
+<h2>2. S&amp;P 500 Capacity &mdash; Caps and Participation Rates</h2>
+<p>This is the headline equity-exposure number clients ask about. Caps are for Cap-Rate methods; Participation is for Participation-Rate methods. 2-year strategies typically carry higher rates in exchange for a 2-year lock per segment.</p>
+<div style="overflow-x:auto">
+<table>
+<tr><th>Product</th><th>S&amp;P 500 Annual Cap</th><th>S&amp;P 500 Monthly Cap</th><th>S&amp;P 500 Annual Part</th><th>S&amp;P 500 2-yr Part</th><th>Enhanced 2-yr Part (fee)</th></tr>
+<tr><td class="bonus-cell">Charter Plus 10</td><td>6.00%</td><td>1.40%</td><td>20%</td><td>25%</td><td class="na">N/A</td></tr>
+<tr><td class="bonus-cell">Charter Plus 14</td><td>6.50%</td><td>1.45%</td><td>20%</td><td>30%</td><td class="na">N/A</td></tr>
+<tr class="sep"><td class="income-cell">BenefitSolutions 10</td><td>5.00%</td><td>1.85%</td><td>25%</td><td>35%</td><td class="na">N/A</td></tr>
+<tr><td class="income-cell">Income Pay Pro 10</td><td>5.00%</td><td>1.85%</td><td>25%</td><td>35%</td><td class="na">N/A</td></tr>
+<tr class="sep"><td class="nobonus-cell">VersaChoice 10 (High band)</td><td class="high">9.20%</td><td class="high">2.40%</td><td>40%</td><td>50%</td><td class="na">N/A</td></tr>
+<tr><td class="nobonus-cell">VersaChoice 10 (Low band)</td><td>8.20%</td><td>2.10%</td><td>35%</td><td>45%</td><td class="na">N/A</td></tr>
+<tr><td class="nobonus-cell">Performance Choice 8</td><td>8.00%</td><td>2.35%</td><td>35%</td><td>45%</td><td class="na">N/A</td></tr>
+<tr><td class="nobonus-cell">Control X</td><td class="high">9.00%</td><td class="na">—</td><td>40%</td><td>50%</td><td class="high">Two-yr Index Margin 4% + Barclays 12VC @ 165% part</td></tr>
+<tr class="sep"><td>GA 5 (Blend A–D)</td><td>6.75–11.00%</td><td class="na">—</td><td class="na">Model blend only</td><td class="na">N/A</td><td class="na">N/A</td></tr>
+<tr><td>GA 7 (Blend A–D)</td><td>7.00–11.50%</td><td class="na">—</td><td class="na">Model blend only</td><td class="na">N/A</td><td class="na">N/A</td></tr>
+<tr><td>GA 10 (Blend A–D)</td><td>7.50–12.00%</td><td class="na">—</td><td class="na">Model blend only</td><td class="na">N/A</td><td class="na">N/A</td></tr>
+</table>
+</div>
+<div class="callout orange">
+<div class="title">The Bonus Cost on S&amp;P 500 Capacity</div>
+<p><strong>Charter Plus 10</strong> (12–21% bonus) pays you up-front but drops the S&amp;P 500 Annual Cap to <strong>6.00%</strong>, while <strong>VersaChoice 10 High band</strong> (no bonus) delivers <strong>9.20%</strong> — that's a <strong>320 bps</strong> cap spread. <strong>Control X</strong> (no bonus, simplest chassis) comes in at <strong>9.00%</strong> annual cap with the highest fixed rate at 3.90%. The bonus isn't free — you're paying for it in every S&amp;P crediting year for the life of the surrender period.</p>
+</div>
+</div>
+
+<!-- 3. VOLATILITY-CONTROL INDICES (the real growth engines) -->
+<div class="section">
+<h2>3. Volatility-Control Index Participation &mdash; Where the Real Growth Happens</h2>
+<p>These are the uncapped index strategies where participation rates &gt;100% are common. Hypothetical 10-year back-tests routinely produce 6–11% projected returns here vs 4–6% on S&amp;P caps. Rates shown are Annual Point-to-Point Participation Rate / 2-Year Point-to-Point Participation Rate.</p>
+<div style="overflow-x:auto">
+<table>
+<tr><th>Product</th><th>MS Dynamic Global (ann/2yr)</th><th>Fidelity Multifactor 5% ER (ann/2yr)</th><th>S&amp;P MARC 5% ER (ann/2yr)</th><th>Goldman Equity TimeX (ann/2yr)</th><th>Barclays 6 VC (ann/2yr)</th><th>Barclays 12 VC (ann/2yr)</th></tr>
+<tr><td class="bonus-cell">Charter Plus 10</td><td>85% / 130%</td><td>85% / 120%</td><td>85% / 120%</td><td>40% / 70%</td><td>75% / 125%</td><td>40% / 60%</td></tr>
+<tr><td class="bonus-cell">Charter Plus 14</td><td>90% / 135%</td><td>90% / 125%</td><td>90% / 125%</td><td>45% / 75%</td><td>85% / 135%</td><td>45% / 65%</td></tr>
+<tr class="sep"><td class="income-cell">BenefitSolutions 10</td><td>100% / 145%</td><td>100% / 145%</td><td>90% / 135%</td><td>50% / 90%</td><td>90% / 140%</td><td>45% / 70%</td></tr>
+<tr><td class="income-cell">Income Pay Pro 10</td><td>110% / 155%</td><td>105% / 155%</td><td>100% / 145%</td><td>55% / 80%</td><td>100% / 150%</td><td>50% / 75%</td></tr>
+<tr class="sep"><td class="nobonus-cell">VersaChoice 10 (High band)</td><td class="high">140% / 200%</td><td>135% / 200%</td><td>140% / 190%</td><td>70% / 100%</td><td class="na">—</td><td class="na">—</td></tr>
+<tr><td class="nobonus-cell">VersaChoice 10 (Low band)</td><td>115% / 175%</td><td>110% / 175%</td><td>115% / 165%</td><td>60% / 85%</td><td class="na">—</td><td class="na">—</td></tr>
+<tr><td class="nobonus-cell">Performance Choice 8</td><td>135% / 195%</td><td>130% / 195%</td><td>135% / 185%</td><td>65% / 95%</td><td class="na">—</td><td class="na">—</td></tr>
+<tr><td class="nobonus-cell">Control X</td><td class="na">—</td><td class="na">—</td><td class="na">—</td><td class="na">—</td><td>130% / 200%</td><td>70% (annual only)</td></tr>
+</table>
+</div>
+
+<h3 style="color:var(--purple);font-size:0.95rem;margin-top:16px;margin-bottom:8px">Enhanced Participation Rates (with 0.95% annual strategy fee)</h3>
+<div style="overflow-x:auto">
+<table>
+<tr><th>Product</th><th>Fidelity Multifactor — Enh (ann/2yr)</th><th>Morgan Stanley DGI — Enh (ann/2yr)</th><th>Strategy Fee</th></tr>
+<tr><td class="nobonus-cell">VersaChoice 10 (High band)</td><td>175% / 250%</td><td>185% / 260%</td><td>0.95% of allocated AV, annually</td></tr>
+<tr><td class="nobonus-cell">VersaChoice 10 (Low band)</td><td>160% / 225%</td><td>170% / 235%</td><td>0.95%</td></tr>
+<tr><td class="nobonus-cell">Performance Choice 8</td><td>170% / 245%</td><td>180% / 255%</td><td>0.95%</td></tr>
+</table>
+</div>
+<div class="callout green">
+<div class="title">Volatility-Control Index Participation Tells the Real Story</div>
+<p>On the flagship <strong>Morgan Stanley Dynamic Global 2-year strategy</strong>: <strong>Charter Plus 10 = 130%</strong> participation (with bonus). <strong>VersaChoice 10 High band = 200%</strong> base / <strong>260% enhanced</strong>. <strong>That's a 70–130% participation delta.</strong> If MS DGI runs +8% gross, CP10 credits 10.4% and VersaChoice Enh credits 20.8%. Over 10 years of crediting, the bonus gives up more than it pays.</p>
+<p style="margin-top:6px"><strong>The honest math:</strong> bonus wins when source money comes from a surrender-charged contract (the bonus offsets real surrender dollars). No-bonus wins when source is liquid.</p>
+</div>
+</div>
+
+<!-- 4. INCOME RIDER LINEUP -->
+<div class="section">
+<h2>4. Income Rider Lineup &mdash; Benefit Base Structure, Rollup, Payout</h2>
+<p>Only two NAC chassis lead with income. The rider determines the benefit base growth pattern (separate from accumulation value) and the lifetime payout off that base.</p>
+<div style="overflow-x:auto">
+<table>
+<tr><th>Product</th><th>Rider Structure</th><th>Benefit Base Day 1</th><th>Benefit Base Trajectory</th><th>Payout Method</th><th>When to Pick</th></tr>
+<tr><td class="income-cell">BenefitSolutions 10</td><td>GMIB rollup with benefit-base stack</td><td>120% of premium (yr 1–5)</td><td>Stacks to 150% yr 6–10, <strong>180% yr 11+</strong>; floors $120K / $150K / $180K on $100K premium</td><td>GMIB payout rate × benefit base</td><td>Long deferral window (10+ yr), client wants maximum guaranteed income base</td></tr>
+<tr><td class="income-cell">Income Pay Pro 10</td><td>Dedicated income rider</td><td>Premium + rollup %</td><td>Rollup compounds on benefit base; no multi-stage stack</td><td>GMIB payout rate × benefit base</td><td>Shorter deferral (5–10 yr), client wants income rider but not the full 10-yr-plus stack</td></tr>
+</table>
+</div>
+<div class="callout purple">
+<div class="title">BS10 vs IPP10 — The Deferral Test</div>
+<p>If the client's income turn-on is 10+ years out, <strong>BenefitSolutions 10</strong> wins — the 180% stack lift is real money on the benefit base. If turn-on is 5–7 years, <strong>Income Pay Pro 10</strong> is the right answer — cleaner structure, better indexed crediting underneath (2.50% fixed vs 2.30%), 5.00% S&amp;P cap matches BS10 but MS DGI part rates are higher (155% 2-yr vs 145%).</p>
+</div>
+</div>
+
+<!-- 5. ENHANCED STRATEGIES -->
+<div class="section">
+<h2>5. Enhanced Strategies &mdash; When the Extra Fee Pays Off</h2>
+<p>VersaChoice 10 and Performance Choice 8 both offer Enhanced participation rates on Fidelity Multifactor and Morgan Stanley DGI indices — 0.95% annual strategy fee in exchange for higher participation. The break-even is roughly: if the underlying index is projected to credit &gt;5%, enhanced wins; below 5%, you're paying a fee for nothing.</p>
+<div style="overflow-x:auto">
+<table>
+<tr><th>Strategy</th><th>Product</th><th>Base Participation</th><th>Enhanced Participation</th><th>Gross Index Needed for Enhanced to Win</th></tr>
+<tr><td>Morgan Stanley DGI Annual PtP</td><td class="nobonus-cell">VersaChoice 10 High band</td><td>140%</td><td>185% (+45%)</td><td>~2.1% (0.95% / 0.45 lift)</td></tr>
+<tr><td>Morgan Stanley DGI 2-Year PtP</td><td class="nobonus-cell">VersaChoice 10 High band</td><td>200%</td><td>260% (+60%)</td><td>~1.6%</td></tr>
+<tr><td>Morgan Stanley DGI 2-Year PtP</td><td class="nobonus-cell">Performance Choice 8</td><td>195%</td><td>255% (+60%)</td><td>~1.6%</td></tr>
+<tr><td>Fidelity Multifactor 2-Year</td><td class="nobonus-cell">VersaChoice 10 High band</td><td>200%</td><td>250% (+50%)</td><td>~1.9%</td></tr>
+</table>
+</div>
+<div class="callout">
+<div class="title">Allocation Rule of Thumb</div>
+<p>Recommended allocation mix for an accumulation-focused client: <strong>70% base strategies</strong> (no fee) + <strong>30% enhanced strategies</strong> (0.95% fee). Over the 10-year surrender, enhanced fees will cost ~$2,850 per $100K allocated, versus ~$6,000+ of additional indexed credits in a mid-case scenario.</p>
+</div>
+</div>
+
+<!-- 6. KEY CROSS-CUTS -->
+<div class="section">
+<h2>6. Comparative Cross-Cuts &mdash; The Four Conversations That Matter Most</h2>
+
+<div class="callout orange">
+<div class="title">A. Bonus vs No-Bonus (Same Surrender): Charter Plus 10 vs VersaChoice 10 High Band</div>
+<p>Both are 10-year surrender accumulation FIAs. The comparison:</p>
+<ul style="margin-left:22px;margin-top:6px;font-size:0.84rem;color:var(--muted)">
+<li><strong>CP10:</strong> 12% base bonus + optional 9% EBR = up to 21% upfront | Fixed 3.00% | S&amp;P cap 6.00% | MS DGI 2-yr part 130%</li>
+<li><strong>VersaChoice 10 High:</strong> No bonus | Fixed 3.25% | S&amp;P cap 9.20% | MS DGI 2-yr part 200% (base) / 260% (Enh+0.95% fee)</li>
+<li><strong>Write CP10 when:</strong> incoming money carries surrender charges or is otherwise cost-bound; the bonus pays real offset dollars</li>
+<li><strong>Write VersaChoice when:</strong> incoming money is liquid (matured CDs, paid-up annuities, cash); the bonus is a gift we pay for over 10 years in lower crediting</li>
+</ul>
+</div>
+
+<div class="callout purple">
+<div class="title">B. Income vs Accumulation (Same Surrender): BenefitSolutions 10 vs VersaChoice 10</div>
+<p>Both 10-year surrender. Both NAC. Completely different pitches:</p>
+<ul style="margin-left:22px;margin-top:6px;font-size:0.84rem;color:var(--muted)">
+<li><strong>BS10:</strong> Rider does the work. Benefit base grows on a stacking schedule (120→150→180%), payout is off the benefit base. Crediting on the accumulation value is weaker (5.00% S&amp;P cap vs 9.20%). Client trades accumulation growth for guaranteed income base growth.</li>
+<li><strong>VersaChoice 10:</strong> No rider. All growth shows up in the accumulation value directly. 9.20% S&amp;P cap + 200% MS DGI 2-yr base gives ~2× the accumulation capacity of BS10.</li>
+<li><strong>Rule:</strong> if the client's conversation is &ldquo;what income will I get?&rdquo;, BS10 wins. If it's &ldquo;how much will this be worth?&rdquo;, VersaChoice wins. Don't mix the pitches.</li>
+</ul>
+</div>
+
+<div class="callout green">
+<div class="title">C. Simple vs Complex Accumulation: Control X vs VersaChoice 10 (High Band)</div>
+<ul style="margin-left:22px;margin-top:6px;font-size:0.84rem;color:var(--muted)">
+<li><strong>Control X:</strong> 3.90% fixed (highest in lineup) | 9.00% S&amp;P cap | 14.00% S&amp;P 2-yr cap | Barclays 12VC 2-yr index margin 4% + 165% participation | <strong>FEWER strategies, cleaner client conversation</strong></li>
+<li><strong>VersaChoice 10:</strong> 3.25% fixed | 9.20% S&amp;P cap | 20+ strategies including Fidelity, MS DGI, Goldman, S&amp;P MARC | Enhanced participation rates available for 0.95% fee</li>
+<li><strong>Pick Control X when:</strong> client is older, overwhelmed by option menus, or wants &ldquo;one simple product&rdquo; pitch — and you can get them on the Barclays 12VC margin strategy as the growth driver (17.14% hypothetical last-10yr)</li>
+<li><strong>Pick VersaChoice when:</strong> client is engaged, wants diversified crediting across multiple indices, or will use enhanced strategies meaningfully</li>
+</ul>
+</div>
+
+<div class="callout">
+<div class="title">D. Shorter vs Longer Surrender Accumulation: Performance Choice 8 vs VersaChoice 10 / Control X</div>
+<ul style="margin-left:22px;margin-top:6px;font-size:0.84rem;color:var(--muted)">
+<li><strong>PC8 trades 2 years of lock for:</strong> slightly lower fixed (3.20% vs 3.25%) | slightly lower S&amp;P cap (8.00% vs 9.20%) | essentially the same volatility-control participation (135% / 195% MS DGI base)</li>
+<li><strong>Pick PC8 when:</strong> client is 73–78 and the extra 2 years of lock meaningfully crosses their life expectancy threshold, or when the 10-year lock is itself the objection</li>
+<li><strong>Pick VersaChoice 10 High when:</strong> the $75K+ band applies — you get materially better base rates for the same surrender you'd have anyway (clients don't typically surrender on year 9 if they haven't on year 7)</li>
+</ul>
+</div>
+
+</div>
+
+<!-- 7. Cross-cut summary -->
+<div class="section">
+<h2>7. Bottom Line — Which NAC Product for Which Case Shape</h2>
+<table>
+<tr><th>Client Situation</th><th>Lead NAC Product</th><th>Alt NAC Product</th></tr>
+<tr><td>Surrender charges on incoming money</td><td class="bonus-cell">Charter Plus 10 (+ EBR if CP10 alone can't overcome)</td><td>Charter Plus 14 (bigger bonus, longer lock)</td></tr>
+<tr><td>Liquid incoming money (matured CDs, paid-up annuities)</td><td class="nobonus-cell">VersaChoice 10 High band</td><td>Control X (simpler pitch)</td></tr>
+<tr><td>Client wants guaranteed lifetime income starting 10+ yrs out</td><td class="income-cell">BenefitSolutions 10 (180% benefit base stack)</td><td>Income Pay Pro 10 (cleaner, shorter window)</td></tr>
+<tr><td>Client wants guaranteed lifetime income starting 5–10 yrs out</td><td class="income-cell">Income Pay Pro 10</td><td>BenefitSolutions 10 (if they'll hold to year 11)</td></tr>
+<tr><td>Client overwhelmed by options, wants simplicity</td><td class="nobonus-cell">Control X (3.90% fixed, fewer strategies)</td><td>GA 10 (Model Blend, most-simple)</td></tr>
+<tr><td>Shorter surrender tolerance (8yr max)</td><td class="nobonus-cell">Performance Choice 8</td><td>GA 7</td></tr>
+<tr><td>Age 80+, can't qualify for flagship accumulation</td><td>GA 5 / 7 / 10 (Model Blend, age-capped fallback)</td><td>Control X if still eligible</td></tr>
+</table>
+</div>
+
+<div class="section">
+<h2>8. What's Missing From This Matrix (to fill in once flyers land)</h2>
+<ul style="margin-left:22px;font-size:0.85rem;color:var(--muted)">
+<li><strong>Ameritas GMIB (ages 81+ only)</strong> — flyer pending, to be added as the age-81+ income-rider lane</li>
+<li><strong>ASPIDA</strong> — super-limited per JDM; pulling active-account list tomorrow to see the use-case pattern</li>
+<li><strong>Nassau Bonus Annuity + Growth Annuity</strong> rates compared side-by-side to NAC — already on the Preferred Products pitch sheet, will fold into a Nassau-equivalent matrix tomorrow</li>
+<li><strong>Enhanced Participation rates on BenefitSolutions 10 / Income Pay Pro 10 / Charter Plus</strong> — not shown in current flyers; check next rate update</li>
+<li><strong>NAC illustration engine outputs</strong> — JDM feeding those in; will add a section showing how each product's hypo projections actually land at key deferral points (yr 5 / yr 10 / yr 15)</li>
+</ul>
+</div>
+
+</div>
+
+<div class="footer">
+NAC Product Rate Matrix · VOLTRON CSO · 2026-04-15<br>
+Source: NAC Rate Spotlight flyers (BenefitSolutions 20819Z · VersaChoice 29344Z · Performance Choice 29346Z · Charter Plus 29545Z · Income Pay Pro 35473Z · Control X 35951Z · Guaranteed Allocation 38661Z) — all current per cover dates<br>
+Not for use in Oregon · Rates subject to change, re-pull before illustrating · #RunningOurOwnRACE
+</div>
+
+</body>
+</html>
