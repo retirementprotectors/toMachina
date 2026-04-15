@@ -1,0 +1,169 @@
+{
+  "_meta": {
+    "source": "/home/jdm/inbox/VOLTRON DOCS!/CaseWork- COMPONENTS/",
+    "extracted_at": "2026-04-15",
+    "extracted_by": "VOLTRON2",
+    "purpose": "Golden-number fixtures from JDM's live xlsx casework — inputs + expected outputs for QUE calc tool validation. NOT WIRED TO TESTS YET.",
+    "caveats": [
+      "Dowell tabs (Gerald + Kathy) are empty templates in the source xlsx — row 13-15 values are copy-paste artifacts from the Griffin master, not real Dowell projections.",
+      "Wilkening / Pyle / Seeger / Ann Blotz tabs sampled but not inventoried here — same Income Comparison template.",
+      "GMIB Payout % column in Income Comparison Master is marked 'SEE BELOW' — payout rate by attained age lives in a lookup table not embedded in the sheet.",
+      "Formulas use =TODAY() and date arithmetic — fixtures captured on 2026-04-14/15; re-extraction on a different date will produce different row-1 age values."
+    ]
+  },
+
+  "griffin_growth_max": {
+    "_source_sheet": "ANNUITY- GROWTH MAX.xlsx :: 'James Griffin !FIA Comparison- '",
+    "description": "NYL VA CURRENT → NAC Benefit Solutions 10 FIA PROPOSED (2-way GROWTH MAX)",
+    "client": {
+      "name": "James Griffin",
+      "account_number": "A24D6511998",
+      "carrier": "Corebridge",
+      "product": "AG10",
+      "dob": "1949-01-17",
+      "tax_status": "NQ",
+      "product_type": "FIA"
+    },
+    "current_contract_inputs": {
+      "issue_date": "2016-03-22",
+      "accumulation_value": 73056.00,
+      "surrender_value": 69854.00,
+      "net_deposits": 64764.00,
+      "as_of_date": "2024-10-02",
+      "annual_withdrawal": 27600.00,
+      "mea_fee_rate": 0.0165,
+      "gross_return_rate": 0.06,
+      "net_return_rate": 0.0438
+    },
+    "current_expected_row1_outputs": {
+      "_year": 1,
+      "_as_of": "2026-04-14",
+      "starting_value": 73056.00,
+      "withdrawal": 27600.00,
+      "fees": 2727.36,
+      "ending_value": 48183.36,
+      "_note": "Formula: (Start − W/D) × (1 + NetReturn). Validates calc-va-depletion / calc-accumulation-depletion."
+    },
+    "current_expected_row2_outputs": {
+      "_year": 2,
+      "starting_value": 48183.36,
+      "withdrawal": 27600.00,
+      "fees": 1235.00,
+      "ending_value_approx": 21819.0,
+      "_note": "Fees drop as account shrinks (1.65% of shrinking base)."
+    },
+    "proposed_contract_inputs": {
+      "carrier": "NAC",
+      "product": "Benefit Solutions 10",
+      "tax_status": "IRA",
+      "product_type": "FIA",
+      "initial_deposit": 69854.00,
+      "first_year_bonus_rate": 0.25,
+      "mea_fee_rate": 0.00,
+      "hypo_growth_rate_placeholder": "TBD — fill from illustration"
+    },
+    "proposed_notes": [
+      "1- Higher DB for 10 Years",
+      "2- 2x Income LTC Benefit Available",
+      "3- $27,885 GUARANTEED FOR LIFE",
+      "4- Elimination of Market Risk (FIA vs VA)",
+      "5- ALL ASSUME POSITIVE 6% GROSS RETURN FROM NYL VA"
+    ],
+    "qume_tool_mapping": {
+      "wire": "WIRE_GROWTH_MAX",
+      "super_tool": "ANALYZE_GROWTH",
+      "atomic_tools": ["calc-va-depletion", "calc-fia-projection", "calc-delta", "calc-surrender-charge"]
+    }
+  },
+
+  "griffin_income_comparison": {
+    "_source_sheet": "ANNUITY- Income Comparison.xlsx :: 'James Griffin Core Bridge'",
+    "description": "Corebridge AG10 CURRENT GMIB → PROPOSED rollup product",
+    "client": {
+      "name": "James Griffin",
+      "account_number": "A24D6511998",
+      "carrier": "Corebridge",
+      "product": "AG10",
+      "dob": "1949-01-17"
+    },
+    "current_inputs": {
+      "issue_date": "2016-03-22",
+      "accumulation_value": 73056.00,
+      "surrender_value": 59854.00,
+      "net_deposits": 64764.00,
+      "as_of_date": "2024-09-26",
+      "tax_status": "NQ",
+      "product_type": "FIA"
+    },
+    "current_expected_gmib_projection": {
+      "year1_gmib_dollar": 3400.00,
+      "year2_gmib_dollar": 3362.00,
+      "year3_gmib_dollar": 3529.00,
+      "year4_gmib_dollar": 3526.00,
+      "year5_gmib_dollar": 3601.00,
+      "_note": "Dollar payouts per year, driven by benefit base + payout rate lookup at attained age."
+    },
+    "proposed_rollup_inputs": {
+      "initial_benefit_base": 59854.00,
+      "first_year_bonus_rate": 0.10,
+      "rollup_rate": 0.10,
+      "rollup_method": "SIMPLE",
+      "gmib_fee_rate": 0.0095,
+      "tax_status": "IRA",
+      "product_type": "FIA"
+    },
+    "proposed_expected_row1": {
+      "benefit_base_year0": 65839.40,
+      "_formula_check": "59854 × (1 + 0.10) = 65839.40",
+      "_validates": "calc-rollup (simple method, year 0 after first-year bonus)"
+    },
+    "qume_tool_mapping": {
+      "wire": "WIRE_INCOME_LATER",
+      "super_tool": "ANALYZE_INCOME_LATER",
+      "atomic_tools": ["calc-rollup", "calc-gmib", "calc-provisional-income", "calc-federal-tax"]
+    }
+  },
+
+  "blotz_income_comparison": {
+    "_source_sheet": "ANNUITY- Income Comparison.xlsx :: 'Paul Blotz'",
+    "description": "Paul Blotz Corebridge CURRENT → PROPOSED 10% simple rollup",
+    "client": {
+      "name": "Paul Blotz",
+      "account_number": "A24D6542834",
+      "carrier": "Corebridge"
+    },
+    "current_inputs": {
+      "issue_date": "2016-11-14",
+      "accumulation_value": 89461.00,
+      "surrender_value": 82647.71,
+      "net_deposits": 83200.00
+    },
+    "proposed_rollup_inputs": {
+      "initial_benefit_base": 82647.71,
+      "first_year_bonus_rate": 0.10,
+      "rollup_rate": 0.10,
+      "rollup_method": "SIMPLE",
+      "gmib_fee_rate": 0.0095
+    },
+    "proposed_expected_row1": {
+      "benefit_base_year0_approx": 90912.48,
+      "gmib_fee_dollar_row31": 863.67,
+      "_formula_check": "82647.71 × 1.10 = 90912.48; GMIB fee $ = 90912.48 × 0.0095 = 863.67",
+      "_validates": "calc-rollup + GMIB fee calc"
+    },
+    "qume_tool_mapping": {
+      "wire": "WIRE_INCOME_LATER"
+    }
+  },
+
+  "_next_steps": {
+    "not_done_tonight": [
+      "Wire these fixtures into vitest / jest test files at packages/core/src/que/tools/__tests__/",
+      "Capture the full 20-year row-by-row expected outputs (only year 1-5 sampled)",
+      "Extract Dowell / Wilkening / Pyle / Seeger / Ann Blotz fixtures — Dowell tabs in source xlsx appear to be empty templates, others unsampled",
+      "Capture GROWTH MAX Master + VA DB Illustration golden numbers",
+      "Validate GMIB payout rate lookup table against ages (rates not embedded in source sheets — sit in lookup-irs-factor equivalent)"
+    ],
+    "recommendation": "Ship fixtures-to-tests as a follow-up VOLTRON2 sprint when calc-accumulation-depletion alias lands (Build Plan item 1)."
+  }
+}
