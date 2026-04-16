@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RPI Preferred Provider Matrix — The YELLOW Lens</title>
+<style>
+:root{--bg:#0a0e17;--card:#111827;--card2:#1a2236;--border:#1e293b;--text:#e2e8f0;--muted:#94a3b8;--green:#22c55e;--blue:#3b82f6;--red:#ef4444;--orange:#f59e0b;--gold:#d4a44c;--cyan:#06b6d4;--nassau:#8b5cf6;--nac:#10b981;--ameritas:#f97316;--corebridge:#ec4899;--fg:#14b8a6;--delaware:#a855f7}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+.header{background:linear-gradient(135deg,#020b1a 0%,#0a1a0a 50%,#020b1a 100%);border-bottom:1px solid var(--border);padding:36px 24px;text-align:center}
+.header h1{font-size:2rem;font-weight:800;background:linear-gradient(135deg,var(--green),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px}
+.header .sub{font-size:0.95rem;color:var(--muted)}
+.header .badge{display:inline-block;margin-top:12px;padding:5px 16px;border-radius:999px;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;background:rgba(34,197,94,0.1);color:var(--green);border:1px solid rgba(34,197,94,0.3)}
+.content{max-width:1240px;margin:0 auto;padding:24px 18px}
+.intro{background:rgba(6,182,212,0.06);border:1px solid rgba(6,182,212,0.2);border-radius:10px;padding:18px 22px;margin-bottom:24px;font-size:0.9rem;color:var(--muted)}
+.intro strong{color:var(--cyan)}
+
+.tab-nav{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 24px;border-bottom:1px solid var(--border);padding-bottom:8px}
+.tab-btn{background:var(--card);border:1px solid var(--border);color:var(--muted);padding:10px 16px;border-radius:8px 8px 0 0;font-size:0.82rem;font-weight:600;cursor:pointer;transition:all 0.15s}
+.tab-btn:hover{color:var(--text);border-color:var(--green)}
+.tab-btn.active{background:linear-gradient(135deg,rgba(34,197,94,0.12),rgba(59,130,246,0.08));color:var(--green);border-color:var(--green);border-bottom-color:var(--card)}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+.section-label{font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin:32px 0 12px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.section-label.nac{color:var(--nac)}
+.section-label.nassau{color:var(--nassau)}
+.section-label.carriers{color:var(--gold)}
+.section-label.rules{color:var(--red)}
+.section-label.allocation{color:var(--blue)}
+.section-label.reference{color:var(--cyan)}
+
+.doctrine-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px;margin-bottom:18px}
+.doctrine-card{background:linear-gradient(135deg,rgba(239,68,68,0.08),rgba(239,68,68,0.02));border:1px solid rgba(239,68,68,0.3);border-left:4px solid var(--red);border-radius:10px;padding:16px 20px}
+.doctrine-card h4{color:var(--red);font-size:0.82rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;font-weight:700}
+.doctrine-card .rule{color:var(--text);font-size:0.92rem;font-weight:600;margin-bottom:8px}
+.doctrine-card .why{color:var(--muted);font-size:0.8rem;line-height:1.5}
+.doctrine-card .why strong{color:var(--text)}
+
+.carrier-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;margin-bottom:18px}
+.carrier-card{background:var(--card);border:1px solid var(--border);border-left:4px solid var(--gold);border-radius:10px;padding:18px 20px}
+.carrier-card.nassau{border-left-color:var(--nassau)}
+.carrier-card.nac{border-left-color:var(--nac)}
+.carrier-card.ameritas{border-left-color:var(--ameritas)}
+.carrier-card.corebridge{border-left-color:var(--corebridge)}
+.carrier-card.fg{border-left-color:var(--fg)}
+.carrier-card.delaware{border-left-color:var(--delaware)}
+.carrier-card h3{font-size:1.12rem;margin-bottom:2px;color:var(--text)}
+.carrier-card .tier{font-size:0.68rem;text-transform:uppercase;letter-spacing:1.2px;font-weight:700;margin-bottom:10px}
+.carrier-card.nassau .tier,.carrier-card.nac .tier{color:var(--green)}
+.carrier-card.ameritas .tier{color:var(--orange)}
+.carrier-card.corebridge .tier,.carrier-card.fg .tier,.carrier-card.delaware .tier{color:var(--blue)}
+.carrier-card .lineup{font-size:0.82rem;color:var(--muted);margin-bottom:8px;line-height:1.5}
+.carrier-card .lineup strong{color:var(--text)}
+.carrier-card .links{margin-top:10px;font-size:0.78rem}
+.carrier-card .links a{color:var(--cyan);text-decoration:none;margin-right:12px}
+.carrier-card .links a:hover{text-decoration:underline}
+
+table{width:100%;border-collapse:collapse;font-size:0.82rem;background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin:14px 0}
+th{text-align:left;padding:11px 12px;background:var(--card2);color:var(--green);font-weight:700;font-size:0.7rem;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border)}
+td{padding:11px 12px;border-bottom:1px solid var(--border);color:var(--muted);vertical-align:top}
+td:first-child{color:var(--text);font-weight:500}
+.decision-matrix td strong{color:var(--text)}
+.allocation-table td strong{color:var(--green)}
+.allocation-table td em{color:var(--orange);font-style:normal}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(400px,1fr));gap:16px}
+.product-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:22px;border-left:4px solid var(--green)}
+.product-card.accumulation{border-left-color:var(--nac)}
+.product-card.income{border-left-color:var(--orange)}
+.product-card.nassau-card{border-left-color:var(--nassau)}
+.product-card h3{font-size:1.1rem;margin-bottom:4px;color:var(--text)}
+.product-card .carrier{font-size:0.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
+.tag-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.tag{padding:3px 10px;border-radius:4px;font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.tag.lane-now{background:rgba(239,68,68,0.15);color:var(--red)}
+.tag.lane-soon{background:rgba(245,158,11,0.15);color:var(--orange)}
+.tag.lane-later{background:rgba(34,197,94,0.15);color:var(--green)}
+.tag.lane-accum{background:rgba(59,130,246,0.15);color:var(--blue)}
+.tag.feature{background:var(--card2);color:var(--text);border:1px solid var(--border)}
+.tag.doctrine-tag{background:rgba(239,68,68,0.18);color:var(--red);border:1px solid rgba(239,68,68,0.4)}
+.product-card .stat-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
+.mini-stat{background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:10px 12px}
+.mini-stat .num{font-size:1.1rem;font-weight:800;color:var(--green);line-height:1.1}
+.mini-stat .lbl{font-size:0.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+.product-card h4{font-size:0.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin:14px 0 6px}
+.product-card ul{margin-left:18px;font-size:0.85rem;color:var(--muted)}
+.product-card ul li{margin-bottom:4px}
+.product-card strong{color:var(--text)}
+.pitch-box{background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.2);border-radius:6px;padding:10px 14px;margin-top:12px;font-size:0.82rem;color:var(--muted);font-style:italic}
+.pitch-box strong{color:var(--green);font-style:normal}
+
+.ref-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.ref-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px 16px}
+.ref-card h4{font-size:0.88rem;color:var(--text);margin-bottom:8px}
+.ref-card ul{list-style:none;margin:0}
+.ref-card ul li{padding:4px 0;font-size:0.82rem;color:var(--muted)}
+.ref-card a{color:var(--cyan);text-decoration:none}
+.ref-card a:hover{text-decoration:underline}
+
+.footer{text-align:center;padding:28px;color:var(--muted);font-size:0.72rem;border-top:1px solid var(--border);margin-top:44px}
+</style>
+</head>
+<body>
+
+<div class="header">
+<h1>RPI Preferred Provider Matrix</h1>
+<div class="sub">Carriers · Products · Situations · Default Allocations · Doctrine · Reference Library</div>
+<div class="badge">VOLTRON CSO · v1 · 2026-04-15 · The YELLOW Lens</div>
+</div>
+
+<div class="content">
+
+<div class="intro">
+<p><strong>What this is:</strong> The single page every advisor, every case, every recommendation references. Replaces the scattered doctrine docs. When a product doctrine changes, it changes here — and every case that links here inherits the update.</p>
+<p style="margin-top:8px"><strong>How to use:</strong> Click a tab. Start with <em>Doctrine</em> (what we always do / never do), then <em>Decision Tree</em> (client shape → product), then <em>Default Allocations</em> (what to put in the illustration), then <em>Product Cards</em> (full mechanics + pitch language). <em>Reference Library</em> has every brochure + rate spotlight + carrier strength PDF.</p>
+</div>
+
+<!-- TAB NAV -->
+<div class="tab-nav">
+<button class="tab-btn active" data-tab="doctrine">🚨 Doctrine</button>
+<button class="tab-btn" data-tab="carriers">🏢 Preferred Carriers</button>
+<button class="tab-btn" data-tab="decision">🎯 Decision Tree</button>
+<button class="tab-btn" data-tab="allocations">📊 Default Allocations</button>
+<button class="tab-btn" data-tab="products">💼 Product Cards</button>
+<button class="tab-btn" data-tab="reference">📎 Reference Library</button>
+</div>
+
+<!-- TAB: DOCTRINE -->
+<div class="tab-panel active" id="doctrine">
+<div class="section-label rules">The Non-Negotiables — What We Always Do / Never Do</div>
+<p style="color:var(--muted);font-size:0.88rem;margin-bottom:18px">Every rule below has a reason. Most came from a live case where violating it cost the client or the firm. These are not preferences — they are doctrine. Break one only with explicit JDM authorization.</p>
+
+<div class="doctrine-grid">
+
+<div class="doctrine-card">
+<h4>🚫 RULE #1 — No MYGA Category</h4>
+<div class="rule">RPI does not sell MYGAs. The term is banned + the category is closed.</div>
+<div class="why"><strong>Why:</strong> FIA strategies (Nassau Growth Annuity fixed, NAC Control X fixed) beat MYGA economics across every meaningful horizon when paired with proper allocation. The MYGA label also makes the product sound commoditized — clients reduce it to "which bank has the highest CD rate" and we lose the relationship. Use the product name (Nassau Growth Annuity) or capability ("fixed-rate tax-deferred accumulation") instead.</div>
+</div>
+
+<div class="doctrine-card">
+<h4>🚫 RULE #2 — EBR Rider OFF Default on NAC Charter Plus</h4>
+<div class="rule">Enhanced Bonus Rider (EBR) never elected unless incoming money has real surrender charges the base bonus alone can't offset.</div>
+<div class="why"><strong>Why:</strong> Base CP10 = 12% bonus. EBR adds 9% more bonus BUT adds 0.95%/yr fee for all 10 surrender years — that's ≈10% compounded drag that wipes out the 9% incremental bonus. On liquid source money (CDs at maturity, matured annuities, cash savings), the EBR is net-negative. Only use when incoming money has ~5%+ surrender charges the base 12% can't cover.</div>
+</div>
+
+<div class="doctrine-card">
+<h4>🚫 RULE #3 — VC10 Allocation LOCKED at 50/50</h4>
+<div class="rule">NAC VersaChoice 10 High-band default = 50% Annual S&amp;P 500 Cap + 50% S&amp;P MARC 5% ER Participation. No MS DGI. No Barclays volatility control. No "enhanced participation with 0.95% fee" add-ons.</div>
+<div class="why"><strong>Why:</strong> RPI-standard allocation = consistent client pitch, consistent output across cases. S&amp;P 500 Cap is household-name + client-explainable. S&amp;P MARC 5% ER Participation = volatility-managed diversifier with upside participation. 50/50 balance behaves well across market regimes. MS DGI, Sunrise, Barclays, etc. are carrier capabilities, not RPI allocation defaults.</div>
+</div>
+
+<div class="doctrine-card">
+<h4>🚫 RULE #4 — GLWB "Joint Life" ≠ Joint Annuitant</h4>
+<div class="rule">On FIA products with a GLWB rider, "Joint Life" vs "Single Life" is a factor selection at rider activation — not a base-contract designation. Comparing apples-to-apples means same rider lens on both products.</div>
+<div class="why"><strong>Why:</strong> IRAs can't have joint annuitants (tax rules). Carriers build joint-life coverage into the rider mechanics separately — joint-life factor runs ~50bps below single-life factor. Don't frame a legacy contract as "no survivor protection" just because the spouse isn't a joint annuitant — check whether the rider has joint-life election first.</div>
+</div>
+
+<div class="doctrine-card">
+<h4>🚫 RULE #5 — Never Ask Carriers for Illustrations</h4>
+<div class="rule">RPI runs illustrations in-house using JDM's monthly factor feed. No carrier-rep illustration requests. No "can you send me an illustration with X allocation" emails.</div>
+<div class="why"><strong>Why:</strong> Carrier reps are salespeople. The second we ask for an illustration, we become a lead for their products, not an independent advisor. We have the factor data. We run our own numbers. We control the allocation narrative. Period.</div>
+</div>
+
+<div class="doctrine-card">
+<h4>🚫 RULE #6 — Anniversary-Before-1035</h4>
+<div class="rule">Before initiating a 1035 exchange, check whether the incoming contract is within 60 days of its policy anniversary. Do the exchange AFTER the anniversary credits hit if possible — never sacrifice a free anniversary credit.</div>
+<div class="why"><strong>Why:</strong> Index-crediting FIAs credit on anniversary only. Exchanging mid-anniversary-year = losing the credit that would have hit in days/weeks. Client gives up real money to save zero time. Flag every 1035 with the source-contract anniversary date before scheduling paperwork.</div>
+</div>
+
+<div class="doctrine-card">
+<h4>🚫 RULE #7 — No Fabricated Contact Names</h4>
+<div class="rule">Never generate rep, advisor, CPA, attorney, or carrier-contact names. If the name isn't in the client file, use a placeholder: <code>[Role — TBD per JDM]</code>.</div>
+<div class="why"><strong>Why:</strong> Hallucinated names end up in client-facing documents, get spoken in meetings, and become embedded in case history. One hallucinated attorney name = one credibility destroyer. Placeholder and ask is always cheaper than guess and embed.</div>
+</div>
+
+<div class="doctrine-card">
+<h4>🚫 RULE #8 — Don't Write Nassau Bonus Annuity Plus</h4>
+<div class="rule">The "Plus" variant layers enhanced bonus/rider mechanics but pays for them by lowering caps, lowering participation rates, adding spreads, and stacking fees. Net: the extra bonus gets more than given back.</div>
+<div class="why"><strong>Why:</strong> If the case needs a bonus + income rider, the correct answer is <strong>NAC Charter Plus 10 (base, no EBR)</strong> + income need addressed via <strong>BenefitSolutions 10</strong> or <strong>Nassau Income Accelerator</strong> — not a degraded chassis.</div>
+</div>
+
+</div>
+
+<div style="background:linear-gradient(135deg,rgba(59,130,246,0.08),rgba(34,197,94,0.04));border:1px solid rgba(59,130,246,0.3);border-radius:10px;padding:18px 22px;margin-top:24px">
+<h4 style="color:var(--blue);font-size:0.82rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">🧭 The Umbrella Principle</h4>
+<p style="color:var(--muted);font-size:0.9rem">Every doctrine above flows from one posture: <strong style="color:var(--text)">don't pay for features that don't add net value for the specific case shape.</strong> Bonuses that drag returns. Indexes that sound fancy but underperform simple ones. Riders that cost more than they save. When in doubt, strip the case to base economics and rebuild only what the client's actual need demands.</p>
+</div>
+</div>
+
+<!-- TAB: CARRIERS -->
+<div class="tab-panel" id="carriers">
+<div class="section-label carriers">Preferred Carriers — Tier + Lineup</div>
+<p style="color:var(--muted);font-size:0.88rem;margin-bottom:18px">RPI's carrier stack is led by NAC and Nassau, with a tier-2 supporting cast for niche cases. Every carrier below has passed RPI's financial-strength and product-quality screen. "Tier 1" = lead with this. "Tier 2" = use when tier 1 doesn't fit the shape.</p>
+
+<div class="carrier-grid">
+
+<div class="carrier-card nac">
+<h3>NAC (North American)</h3>
+<div class="tier">Tier 1 · Annuity Core</div>
+<div class="lineup"><strong>Use for:</strong> Accumulation + bonus (Charter Plus 10/14), accumulation no-bonus (Control X, VersaChoice 10, Performance Choice 8), GMIB income stacking (BenefitSolutions 10), dedicated income rider (Income Pay Pro 10), aged-out fallback (Guaranteed Allocation 5/7).</div>
+<div class="lineup"><strong>Strength:</strong> A+ AM Best · Strongest fixed rates in market (CX 3.90%) · 18+ uncapped indexes · 10% free withdrawal year 2+ · 100% confinement waiver.</div>
+<div class="links">
+<a href="resources/nac-company-strength.pdf" target="_blank">🏢 Company Strength</a>
+<a href="resources/nac-charter-plus-rates.pdf" target="_blank">📊 CP Rates</a>
+<a href="resources/nac-versachoice-10-rates.pdf" target="_blank">📊 VC10 Rates</a>
+<a href="resources/nac-versachoice-10-kit.pdf" target="_blank">📘 VC10 Kit</a>
+</div>
+</div>
+
+<div class="carrier-card nassau">
+<h3>Nassau</h3>
+<div class="tier">Tier 1 · Income + Growth</div>
+<div class="lineup"><strong>Use for:</strong> Dedicated income rider (Income Accelerator — Horizon Later default), accumulation no-bonus (Growth Annuity 7yr or 10yr, 11% S&amp;P cap), bonus + income rider (Bonus Annuity — NOT "Plus").</div>
+<div class="lineup"><strong>Strength:</strong> A- AM Best · Income rider pricing competitive with NAC GMIB · Growth Annuity has shortest surrender in Tier-1 stack (7yr option).</div>
+<div class="links">
+<a href="resources/nassau-corporate-profile.pdf" target="_blank">🏢 Corporate Profile</a>
+<a href="resources/nassau-income-accelerator-brochure.pdf" target="_blank">📘 IA Brochure</a>
+<a href="resources/nassau-growth-annuity-brochure.pdf" target="_blank">📘 Growth Brochure</a>
+</div>
+</div>
+
+<div class="carrier-card ameritas">
+<h3>Ameritas</h3>
+<div class="tier">Tier 2 · Age 81+ GMIB Only</div>
+<div class="lineup"><strong>Use for:</strong> Clients aged 81+ who need guaranteed lifetime income and no longer qualify for NAC/Nassau flagship products. This is the narrow case — everyone under 81 should be on NAC or Nassau.</div>
+<div class="lineup"><strong>Strength:</strong> A AM Best · Issue-age window extends to 85 · Rider pricing tolerable for the narrow cohort.</div>
+<div class="links"><em>Reference kits pending VOLTRON DOCS intake.</em></div>
+</div>
+
+<div class="carrier-card corebridge">
+<h3>Corebridge (AIG)</h3>
+<div class="tier">Tier 2 · Supporting</div>
+<div class="lineup"><strong>Use for:</strong> Specific GMIB scenarios where rider mechanics beat NAC BenefitSolutions for a particular age/deferral shape. Pull carrier-specific illustration before recommending.</div>
+<div class="lineup"><strong>Strength:</strong> A AM Best · Large balance sheet · Full product suite but less RPI volume → less rate-negotiation leverage.</div>
+<div class="links"><em>Reference kits pending VOLTRON DOCS intake.</em></div>
+</div>
+
+<div class="carrier-card fg">
+<h3>F&amp;G (Fidelity &amp; Guaranty)</h3>
+<div class="tier">Tier 2 · Supporting</div>
+<div class="lineup"><strong>Use for:</strong> Alternative bonus-product cases where NAC Charter Plus doesn't fit (specific state availability, issue-age constraints, or commission-structure requirements).</div>
+<div class="lineup"><strong>Strength:</strong> A- AM Best · Competitive bonus products · Sometimes leads on fixed rates.</div>
+<div class="links"><em>Reference kits pending VOLTRON DOCS intake.</em></div>
+</div>
+
+<div class="carrier-card delaware">
+<h3>Delaware Life</h3>
+<div class="tier">Tier 2 · Supporting</div>
+<div class="lineup"><strong>Use for:</strong> Accumulation cases where client has specific carrier preference or where state approval differs from NAC/Nassau.</div>
+<div class="lineup"><strong>Strength:</strong> A- AM Best · Solid indexed chassis · Narrower rider menu than NAC/Nassau.</div>
+<div class="links"><em>Reference kits pending VOLTRON DOCS intake.</em></div>
+</div>
+
+<div class="carrier-card">
+<h3>CoF (Catholic Order of Foresters)</h3>
+<div class="tier" style="color:var(--gold)">Life + Legacy</div>
+<div class="lineup"><strong>Use for:</strong> Life insurance with legacy + faith-aligned positioning. Not an annuity carrier — included here because RPI's legacy-services channel writes CoF for specific client segments.</div>
+<div class="lineup"><strong>Strength:</strong> A (Excellent) AM Best · Fraternal benefits · Simple whole-life + term products.</div>
+<div class="links"><em>Reference kits in life-products library.</em></div>
+</div>
+
+<div class="carrier-card" style="border-left-color:var(--red);opacity:0.7">
+<h3 style="color:var(--red)">⛔ Athos (Nassau)</h3>
+<div class="tier" style="color:var(--red)">Not Available via RPI</div>
+<div class="lineup">Not in RPI distribution as of 2026-04. Nassau's 12%-bonus Extend product. When a case asks for "Nassau bonus + extension feature," the correct answer is <strong>NAC Charter Plus 10 base</strong>, not Athos.</div>
+</div>
+
+</div>
+</div>
+
+<!-- TAB: DECISION TREE -->
+<div class="tab-panel" id="decision">
+<div class="section-label">Situation → Product Decision Tree</div>
+<p style="color:var(--muted);font-size:0.88rem;margin-bottom:14px">Read left to right. Pick the row that matches the client shape. Lead product is what you illustrate first. Alt products are what you illustrate if the lead doesn't fit (state, issue-age, premium-band, or client preference).</p>
+
+<table class="decision-matrix">
+<tr><th>Client Shape</th><th>Goal</th><th>Lead Carrier</th><th>Lead Product</th><th>Alt Product</th></tr>
+<tr><td><strong>CDs at maturity, no surrender</strong></td><td>Replace CD ladder with tax-deferred growth; liquid source, no bonus-offset need</td><td>NAC / Nassau</td><td><strong>NAC Charter Plus 10 (base 12%, NO EBR)</strong></td><td><strong>Nassau Growth Annuity 10-yr</strong> (clean, no bonus)</td></tr>
+<tr><td><strong>Legacy IRA w/ laggard GLWB</strong></td><td>Upgrade income rider to current market; Iowa tax-exempt retirement income</td><td>Nassau</td><td><strong>Nassau Income Accelerator — Horizon Later (Spousal)</strong></td><td>NAC BenefitSolutions 10 if GMIB stacking preferred</td></tr>
+<tr><td><strong>Spousal income priority</strong></td><td>Both spouses covered for lifetime; survivor continues payments</td><td>Nassau / NAC</td><td><strong>Nassau IA Joint Life factor</strong> (rider election, not joint annuitant)</td><td>NAC BenefitSolutions Joint Life factor</td></tr>
+<tr><td><strong>Roth repositioning (age 60-70)</strong></td><td>Tax-free growth chassis; 10-yr horizon before use</td><td>Nassau</td><td><strong>Nassau Growth Annuity 10-yr</strong></td><td>Nassau Growth Annuity 7-yr if liquidity tolerance is lower</td></tr>
+<tr><td><strong>Accumulation + bonus (surrender to offset)</strong></td><td>Incoming 1035 w/ real surrender charges; bonus net-positive</td><td>NAC</td><td><strong>NAC Charter Plus 10 + EBR</strong> (narrow case — surrender &gt;5%)</td><td>NAC Charter Plus 14 if longer tolerance (15% base, 12% EBR)</td></tr>
+<tr><td><strong>Accumulation, no bonus, strong rates</strong></td><td>Clean economics, no bonus story to explain</td><td>NAC / Nassau</td><td><strong>NAC Control X</strong> (3.90% fixed) / <strong>VersaChoice 10 High-band</strong> ($75K+)</td><td>Nassau Growth Annuity (5.00% fixed, 11% S&amp;P cap)</td></tr>
+<tr><td><strong>GMIB rollup stacking</strong></td><td>Benefit base doubles on schedule; lifetime income at year 11+</td><td>NAC</td><td><strong>NAC BenefitSolutions 10</strong> (120/150/180% benefit base)</td><td>NAC Income Pay Pro 10 for shorter 5-10yr window</td></tr>
+<tr><td><strong>Shorter surrender tolerance (8yr max)</strong></td><td>Client won't accept 10-yr lock</td><td>NAC</td><td><strong>NAC Performance Choice 8</strong></td><td>Nassau Growth Annuity 7-yr</td></tr>
+<tr><td><strong>Aged out of main menu (81+)</strong></td><td>Client too old for NAC/Nassau flagships</td><td>Ameritas / NAC</td><td><strong>Ameritas GMIB</strong> (narrow niche)</td><td>NAC Guaranteed Allocation 5/7 fallback</td></tr>
+<tr><td><strong>"I heard MYGAs are hot"</strong></td><td>Client asking for the MYGA acronym specifically</td><td>—</td><td><strong>Re-frame to Nassau Growth Annuity fixed or NAC Control X fixed</strong></td><td>Do not use MYGA terminology in any output</td></tr>
+</table>
+</div>
+
+<!-- TAB: ALLOCATIONS -->
+<div class="tab-panel" id="allocations">
+<div class="section-label allocation">Default Allocations — What Goes in the Illustration</div>
+<p style="color:var(--muted);font-size:0.88rem;margin-bottom:14px">RPI-standard allocation locked per product. When running illustrations, use the DEFAULT column. Deviate only with explicit JDM authorization. Rationale: consistent client pitch, consistent comparative output across cases, clean "what did we illustrate" audit trail.</p>
+
+<table class="allocation-table">
+<tr><th>Product</th><th>Default Allocation</th><th>Current Rate (as of 2026-04)</th><th>Why</th></tr>
+<tr>
+<td><strong>NAC VersaChoice 10 (High Band)</strong></td>
+<td><strong>50%</strong> Annual S&amp;P 500 Point-to-Point, Cap rate<br><strong>50%</strong> S&amp;P MARC 5% Excess Return, Participation rate</td>
+<td>9.20% cap (High) / per feed on MARC 5 ER</td>
+<td>Consistent pitch across cases; S&amp;P is household-name; MARC 5 ER adds volatility-managed upside without capping</td>
+</tr>
+<tr>
+<td><strong>NAC Charter Plus 10</strong></td>
+<td><strong>50%</strong> Annual S&amp;P 500 Point-to-Point, Cap rate<br><strong>50%</strong> S&amp;P MARC 5% Excess Return, Participation rate</td>
+<td>6.00% cap / per feed on MARC 5 ER</td>
+<td>Same allocation posture as VC10 — bonus product but same crediting discipline</td>
+</tr>
+<tr>
+<td><strong>NAC Control X</strong></td>
+<td><strong>100%</strong> Fixed Account</td>
+<td>3.90% declared</td>
+<td>Client wanted fixed → give fixed. Only deviate if client explicitly asks for indexed exposure</td>
+</tr>
+<tr>
+<td><strong>NAC BenefitSolutions 10</strong></td>
+<td><strong>50%</strong> S&amp;P 500 Cap + <strong>50%</strong> MARC 5 ER Participation (same pattern)</td>
+<td>5.00% cap / per feed</td>
+<td>Income-rider product → client cares about benefit base, not index gymnastics. Clean allocation keeps AV healthy beneath the rider</td>
+</tr>
+<tr>
+<td><strong>NAC Income Pay Pro 10</strong></td>
+<td><strong>50%</strong> S&amp;P 500 Cap + <strong>50%</strong> MARC 5 ER Participation</td>
+<td>5.00% cap / per feed</td>
+<td>Same pattern — consistent RPI allocation doctrine across all NAC indexed FIAs</td>
+</tr>
+<tr>
+<td><strong>Nassau Growth Annuity 10-yr</strong></td>
+<td><strong>100%</strong> Fixed Account (default) OR <strong>100%</strong> S&amp;P 500 Cap if client wants indexed</td>
+<td>5.00% fixed / 11.00% S&amp;P cap</td>
+<td>Nassau fixed rate is class-leading — fixed is the default pitch. Indexed only when client explicitly wants S&amp;P exposure</td>
+</tr>
+<tr>
+<td><strong>Nassau Income Accelerator</strong></td>
+<td>Per Horizon Later rider spec — allocation follows rider guidance (Sunrise Smart Passage or S&amp;P depending on activation profile)</td>
+<td>Rider-defined factor set</td>
+<td>Income-rider product — allocation driven by rider mechanics, not RPI lens. Verify against current rate feed before locking</td>
+</tr>
+<tr>
+<td><strong>Nassau Bonus Annuity</strong></td>
+<td><strong>50%</strong> S&amp;P 500 Cap + <strong>50%</strong> Sunrise Smart Passage Annual Part<br><em>(Nassau's closest analog to MARC 5 ER)</em></td>
+<td>8.00% S&amp;P cap / per feed on Sunrise</td>
+<td>Nassau doesn't offer MARC 5 ER — Sunrise is the closest volatility-managed participation equivalent</td>
+</tr>
+</table>
+
+<div style="background:linear-gradient(135deg,rgba(239,68,68,0.06),rgba(239,68,68,0.02));border:1px solid rgba(239,68,68,0.25);border-radius:10px;padding:14px 18px;margin-top:16px;font-size:0.85rem;color:var(--muted)">
+<strong style="color:var(--red)">NOT in default allocations:</strong> Morgan Stanley DGI, Morgan Stanley Dynamic Global, Goldman Sachs TimeX, Barclays volatility-control, Sunrise Enhanced Participation with 0.95% fee, Fidelity AIM, or any "enhanced participation" overlay that carries a strategy fee. These are carrier-marketed capabilities, not RPI allocation defaults. Using them requires a case-specific reason documented in the roadmap.
+</div>
+</div>
+
+<!-- TAB: PRODUCTS -->
+<div class="tab-panel" id="products">
+<div class="section-label nac">NAC Product Cards</div>
+<div class="grid">
+
+<div class="product-card accumulation">
+<h3>NAC Charter Plus 10</h3>
+<div class="carrier">North American · Flagship Bonus Accumulation · 10yr</div>
+<div class="tag-row">
+<span class="tag lane-accum">Accumulation</span>
+<span class="tag feature">12% base bonus</span>
+<span class="tag doctrine-tag">EBR OFF default</span>
+<span class="tag feature">10% free w/d yr 2+</span>
+</div>
+<div class="stat-row">
+<div class="mini-stat"><div class="num">3.00%</div><div class="lbl">Fixed Account</div></div>
+<div class="mini-stat"><div class="num">6.00%</div><div class="lbl">S&amp;P 500 Annual Cap</div></div>
+<div class="mini-stat"><div class="num">12%</div><div class="lbl">Base Premium Bonus</div></div>
+<div class="mini-stat"><div class="num">100%</div><div class="lbl">LTC Confinement AV</div></div>
+</div>
+<h4>Doctrine</h4>
+<ul>
+<li><strong>Base 12% bonus = the default.</strong> EBR (+9%) only when surrender charges on incoming money are real and &gt;5%</li>
+<li>RPI default allocation: 50/50 S&amp;P 500 Cap + MARC 5 ER Participation</li>
+<li>10% annual free withdrawal starting year 2 — handles RMDs cleanly</li>
+<li>100% AV available if confined to qualified care facility</li>
+</ul>
+<div class="pitch-box"><strong>Pitch (CD repositioning, no EBR):</strong> "Your CDs just matured — liquid, no penalties. We roll that into Charter Plus, pick up a 12% premium bonus on day one, keep the money growing tax-deferred with zero market risk, and if you ever need long-term care, you get 100% of it back without surrender."</div>
+</div>
+
+<div class="product-card accumulation">
+<h3>NAC VersaChoice 10 (High Band)</h3>
+<div class="carrier">North American · Accumulation · 10yr · $75K+ tier</div>
+<div class="tag-row">
+<span class="tag lane-accum">Accumulation</span>
+<span class="tag feature">High-band $75K+</span>
+<span class="tag doctrine-tag">50/50 locked</span>
+<span class="tag feature">No bonus</span>
+</div>
+<div class="stat-row">
+<div class="mini-stat"><div class="num">3.25%</div><div class="lbl">Fixed (High Band)</div></div>
+<div class="mini-stat"><div class="num">9.20%</div><div class="lbl">S&amp;P 500 Cap</div></div>
+<div class="mini-stat"><div class="num">50%</div><div class="lbl">S&amp;P Cap Allocation</div></div>
+<div class="mini-stat"><div class="num">50%</div><div class="lbl">MARC 5 ER Part Allocation</div></div>
+</div>
+<h4>Doctrine</h4>
+<ul>
+<li>Strongest no-bonus accumulation chassis in the NAC lineup</li>
+<li><strong>RPI allocation LOCKED: 50/50 S&amp;P 500 Cap + S&amp;P MARC 5% ER Participation.</strong> No MS DGI, no Barclays, no enhanced participation overlays</li>
+<li>High band ($75K+) is meaningfully better than low band — premium size matters</li>
+<li>Use when no surrender to offset (liquid source, NQ money)</li>
+</ul>
+<div class="pitch-box"><strong>Pitch:</strong> "At $75K+ you land in the high band. That gets you a 9.20% cap on the S&amp;P 500 — half your money grows with that cap, the other half goes into a volatility-managed S&amp;P strategy that participates in the upside without being capped. Clean, balanced, zero market risk."</div>
+</div>
+
+<div class="product-card accumulation">
+<h3>NAC Control X</h3>
+<div class="carrier">North American · Cleanest Story · 10yr</div>
+<div class="tag-row">
+<span class="tag lane-accum">Accumulation</span>
+<span class="tag feature">3.90% fixed (best in market)</span>
+<span class="tag feature">Simpler conversation</span>
+</div>
+<div class="stat-row">
+<div class="mini-stat"><div class="num">3.90%</div><div class="lbl">Fixed Account</div></div>
+<div class="mini-stat"><div class="num">9.00%</div><div class="lbl">S&amp;P 500 Cap</div></div>
+<div class="mini-stat"><div class="num">14.00%</div><div class="lbl">S&amp;P 500 2-yr Cap</div></div>
+<div class="mini-stat"><div class="num">10yr</div><div class="lbl">Surrender</div></div>
+</div>
+<h4>Doctrine</h4>
+<ul>
+<li><strong>Highest declared fixed in the NAC lineup.</strong> Default is 100% fixed unless client wants indexed exposure</li>
+<li>Fewer crediting options = simpler client conversation</li>
+<li>Good for clients overwhelmed by multi-index menus</li>
+</ul>
+<div class="pitch-box"><strong>Pitch:</strong> "You don't need 20 crediting options. You need a strong fixed rate, tax deferral, and one good indexed strategy if you want market upside. Control X is that — 3.90% fixed today, cleaner story to explain to your spouse."</div>
+</div>
+
+<div class="product-card income">
+<h3>NAC BenefitSolutions 10</h3>
+<div class="carrier">North American · GMIB Stacking · 10yr</div>
+<div class="tag-row">
+<span class="tag lane-later">Income Later</span>
+<span class="tag feature">120/150/180% benefit base</span>
+<span class="tag doctrine-tag">50/50 allocation</span>
+</div>
+<div class="stat-row">
+<div class="mini-stat"><div class="num">2.30%</div><div class="lbl">Fixed Account</div></div>
+<div class="mini-stat"><div class="num">5.00%</div><div class="lbl">S&amp;P 500 Cap</div></div>
+<div class="mini-stat"><div class="num">180%</div><div class="lbl">Benefit Base @ Yr 11+</div></div>
+<div class="mini-stat"><div class="num">10yr</div><div class="lbl">Surrender</div></div>
+</div>
+<h4>Doctrine</h4>
+<ul>
+<li>Benefit base doubles on schedule: 120% yrs 1-5, 150% yrs 6-10, <strong>180% yrs 11+</strong></li>
+<li>Income fires off benefit base, not accumulation value</li>
+<li>Allocation default: 50/50 S&amp;P Cap + MARC 5 ER (same as other NAC indexed FIAs)</li>
+<li>Ideal mid-60s client wanting guaranteed income stream late 70s</li>
+</ul>
+<div class="pitch-box"><strong>Pitch:</strong> "Cook this for 10 years. Day 1 your income base is $120K on a $100K premium. Year 11, it's $180K — guaranteed, regardless of market. Your income fires off that bigger number."</div>
+</div>
+
+<div class="product-card income">
+<h3>NAC Income Pay Pro 10</h3>
+<div class="carrier">North American · Dedicated Income Rider · 10yr</div>
+<div class="tag-row">
+<span class="tag lane-soon">Income Soon</span>
+<span class="tag lane-later">Income Later</span>
+<span class="tag feature">5-10yr deferral sweet spot</span>
+</div>
+<div class="stat-row">
+<div class="mini-stat"><div class="num">2.50%</div><div class="lbl">Fixed Account</div></div>
+<div class="mini-stat"><div class="num">5.00%</div><div class="lbl">S&amp;P 500 Cap</div></div>
+<div class="mini-stat"><div class="num">10yr</div><div class="lbl">Surrender</div></div>
+<div class="mini-stat"><div class="num">50/50</div><div class="lbl">Default Allocation</div></div>
+</div>
+<h4>Doctrine</h4>
+<ul>
+<li>Use when client wants income rider but doesn't need 11-year benefit base stack</li>
+<li>Better accumulation floor than BenefitSolutions (2.50% vs 2.30%)</li>
+<li>Sweet spot: 5-10yr deferral window</li>
+</ul>
+<div class="pitch-box"><strong>Pitch:</strong> "You've got a 7-year window before income turns on. Income Pay Pro locks the rider for that window with better accumulation floor — you're not paying for a 10-year-plus stack you won't use."</div>
+</div>
+
+<div class="product-card accumulation">
+<h3>NAC Performance Choice 8</h3>
+<div class="carrier">North American · Shorter Surrender · 8yr</div>
+<div class="tag-row">
+<span class="tag lane-accum">Accumulation</span>
+<span class="tag feature">8yr surrender</span>
+<span class="tag doctrine-tag">50/50 allocation</span>
+</div>
+<div class="stat-row">
+<div class="mini-stat"><div class="num">3.20%</div><div class="lbl">Fixed Account</div></div>
+<div class="mini-stat"><div class="num">8.00%</div><div class="lbl">S&amp;P 500 Cap</div></div>
+<div class="mini-stat"><div class="num">8yr</div><div class="lbl">Surrender</div></div>
+<div class="mini-stat"><div class="num">50/50</div><div class="lbl">Default Allocation</div></div>
+</div>
+<h4>Doctrine</h4>
+<ul>
+<li>Use when client won't accept 10-year surrender — 8yr is the compromise</li>
+<li>Rate structure nearly identical to VC10 on many strategies</li>
+<li>Good fit for clients in their 70s (8yr lock reaches late 70s / early 80s)</li>
+</ul>
+</div>
+
+</div>
+
+<div class="section-label nassau">Nassau Product Cards</div>
+<div class="grid">
+
+<div class="product-card nassau-card">
+<h3>Nassau Income Accelerator</h3>
+<div class="carrier">Nassau · Dedicated Income Rider · Flagship Income Product</div>
+<div class="tag-row">
+<span class="tag lane-later">Income Later</span>
+<span class="tag feature">Horizon Later default</span>
+<span class="tag feature">Spousal Joint Life option</span>
+</div>
+<h4>Doctrine</h4>
+<ul>
+<li>Nassau's income-focused FIA — equivalent positioning to NAC BenefitSolutions</li>
+<li><strong>Horizon Later</strong> rider = default for most cases (better factor at later activation)</li>
+<li>Spousal Joint Life = rider election at activation, NOT joint-annuitant on base contract</li>
+<li>Use when client wants Nassau brand + lifetime income rider as the primary pitch</li>
+</ul>
+<div class="pitch-box"><strong>Pitch:</strong> "This is the Nassau income product. You tell it when to turn on — sooner for less, later for more. The Horizon Later schedule gives you the strongest payout factor at your target activation age, and the Joint Life election keeps paying your spouse for life."</div>
+</div>
+
+<div class="product-card nassau-card">
+<h3>Nassau Growth Annuity (10-yr)</h3>
+<div class="carrier">Nassau · Accumulation · No Bonus · 10yr surrender</div>
+<div class="tag-row">
+<span class="tag lane-accum">Accumulation</span>
+<span class="tag feature">5.00% fixed (class-leading)</span>
+<span class="tag feature">11% S&amp;P cap</span>
+<span class="tag feature">7yr or 10yr</span>
+</div>
+<div class="stat-row">
+<div class="mini-stat"><div class="num">5.00%</div><div class="lbl">Fixed Account</div></div>
+<div class="mini-stat"><div class="num">11.00%</div><div class="lbl">S&amp;P 500 Annual Cap</div></div>
+<div class="mini-stat"><div class="num">10yr</div><div class="lbl">Surrender (or 7yr)</div></div>
+<div class="mini-stat"><div class="num">—</div><div class="lbl">No Premium Bonus</div></div>
+</div>
+<h4>Doctrine</h4>
+<ul>
+<li><strong>Rates are materially stronger than the bonus products</strong> — 5.00% fixed (vs 3.70% on Bonus Annuity)</li>
+<li>Use when client doesn't need a bonus (liquid source, NQ money sitting cash)</li>
+<li>10-yr preferred over 7-yr on Roth repositioning (longer compounding horizon)</li>
+<li>Ideal for CD-replacement cases where "no bonus, cleaner economics" resonates</li>
+</ul>
+<div class="pitch-box"><strong>Pitch:</strong> "Bonus products give you a day-one bump but take it back through lower caps. You don't need the bonus — this is CD money that just matured. Growth Annuity gives you a materially stronger cap (11% vs 8%) and 5% fixed today."</div>
+</div>
+
+<div class="product-card nassau-card">
+<h3>Nassau Bonus Annuity</h3>
+<div class="carrier">Nassau · Bonus + Optional Income Rider · 10yr · NOT "Plus"</div>
+<div class="tag-row">
+<span class="tag lane-accum">Accumulation</span>
+<span class="tag feature">10% bonus (0-80)</span>
+<span class="tag feature">Amplified Income Rider optional</span>
+</div>
+<div class="stat-row">
+<div class="mini-stat"><div class="num">10%</div><div class="lbl">Premium Bonus (0-80)</div></div>
+<div class="mini-stat"><div class="num">3.70%</div><div class="lbl">Fixed Account</div></div>
+<div class="mini-stat"><div class="num">8.00%</div><div class="lbl">S&amp;P 500 Cap</div></div>
+<div class="mini-stat"><div class="num">10yr</div><div class="lbl">Surrender</div></div>
+</div>
+<h4>Doctrine</h4>
+<ul>
+<li>Use when client wants a Nassau bonus product AND an income rider</li>
+<li>Vesting: year 1 = 0%, grows to 100% at year 11+</li>
+<li><strong>Bonus Annuity PLUS is DEPRECATED — do not write</strong> (see Doctrine Rule #8)</li>
+</ul>
+</div>
+
+</div>
+</div>
+
+<!-- TAB: REFERENCE -->
+<div class="tab-panel" id="reference">
+<div class="section-label reference">Reference Library — Brochures · Company Strength · Rate Spotlights</div>
+<p style="color:var(--muted);font-size:0.88rem;margin-bottom:18px">Every PDF below is hosted on GitHub Pages and linkable from any case roadmap. When a case references a product, hyperlink the matching brochure + rate spotlight + carrier strength from here — clients get direct access, advisors never have to hunt.</p>
+
+<div class="ref-grid">
+
+<div class="ref-card">
+<h4>🏢 Carrier Strength (Company Profiles)</h4>
+<ul>
+<li><a href="resources/nac-company-strength.pdf" target="_blank">NAC (North American) Company Strength</a></li>
+<li><a href="resources/nassau-corporate-profile.pdf" target="_blank">Nassau Corporate Profile</a></li>
+</ul>
+</div>
+
+<div class="ref-card">
+<h4>📘 NAC Product Brochures + Kits</h4>
+<ul>
+<li><a href="resources/nac-versachoice-10-kit.pdf" target="_blank">NAC VersaChoice 10 Kit</a></li>
+</ul>
+</div>
+
+<div class="ref-card">
+<h4>📊 NAC Current Rates</h4>
+<ul>
+<li><a href="resources/nac-versachoice-10-rates.pdf" target="_blank">NAC VersaChoice 10 Rate Spotlight</a></li>
+<li><a href="resources/nac-charter-plus-rates.pdf" target="_blank">NAC Charter Plus Rate Spotlight</a></li>
+</ul>
+</div>
+
+<div class="ref-card">
+<h4>📘 Nassau Product Brochures</h4>
+<ul>
+<li><a href="resources/nassau-income-accelerator-brochure.pdf" target="_blank">Nassau Income Accelerator Brochure (A5229SPA)</a></li>
+<li><a href="resources/nassau-growth-annuity-brochure.pdf" target="_blank">Nassau Growth Annuity Brochure</a></li>
+</ul>
+</div>
+
+<div class="ref-card">
+<h4>📄 Sample Client Illustrations</h4>
+<ul>
+<li><a href="../cases/illustrations/westfall-nassau-ia-horizon-later-72k-ira.pdf" target="_blank">Westfall — Nassau IA Horizon Later (IRA)</a></li>
+<li><a href="../cases/illustrations/westfall-nassau-growth-chris-roth-28k.pdf" target="_blank">Westfall — Nassau Growth (Chris Roth)</a></li>
+<li><a href="../cases/illustrations/westfall-nassau-growth-coleen-roth-28k.pdf" target="_blank">Westfall — Nassau Growth (Coleen Roth)</a></li>
+<li><a href="../cases/illustrations/westfall-nac-cp10-160k-nq.pdf" target="_blank">Westfall — NAC CP10 base (NQ)</a></li>
+<li><a href="../cases/illustrations/westfall-nac-vc10-160k-nq.pdf" target="_blank">Westfall — NAC VC10 High-band (NQ)</a></li>
+<li><a href="../cases/illustrations/ruth-nac-cp10-1-2m-nq.pdf" target="_blank">Ruth — NAC CP10 ($1.2M NQ)</a></li>
+<li><a href="../cases/illustrations/ruth-nac-vc10-1-2m-nq.pdf" target="_blank">Ruth — NAC VC10 ($1.2M NQ)</a></li>
+<li><a href="../cases/illustrations/ruth-nac-cx-1-2m-nq.pdf" target="_blank">Ruth — NAC Control X ($1.2M NQ)</a></li>
+<li><a href="../cases/illustrations/ruth-nac-ipp10-119k-ira.pdf" target="_blank">Ruth — NAC Income Pay Pro 10 (IRA)</a></li>
+</ul>
+</div>
+
+<div class="ref-card">
+<h4>🔗 Related Matrices</h4>
+<ul>
+<li><a href="rpi-preferred-products.html" target="_blank">RPI Preferred Products — Working Pitch Sheet (legacy view)</a></li>
+<li><a href="nac-rate-matrix.html" target="_blank">NAC Rate Matrix (all products, all rates)</a></li>
+<li><a href="nac-vs-nassau-matrix.html" target="_blank">NAC vs Nassau Head-to-Head Matrix</a></li>
+</ul>
+</div>
+
+</div>
+
+<div style="background:rgba(6,182,212,0.06);border:1px solid rgba(6,182,212,0.2);border-radius:10px;padding:14px 18px;margin-top:20px;font-size:0.85rem;color:var(--muted)">
+<strong style="color:var(--cyan)">Pending VOLTRON DOCS intake:</strong> Ameritas GMIB kit · Corebridge product sheet · F&amp;G bonus product rate spotlight · Delaware Life rate spotlight · CoF life products kit. When those PDFs land in the brochure library, they'll hyperlink here automatically.
+</div>
+</div>
+
+<div class="footer">
+RPI Preferred Provider Matrix · v1 · 2026-04-15 · VOLTRON CSO<br>
+The YELLOW Lens · Carriers · Products · Situations · Allocations · Doctrine · References<br>
+Replaces scattered MD files · Single source of truth · Updates inherit everywhere<br>
+#RunningOurOwnRACE
+</div>
+
+</div>
+
+<script>
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.tab).classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+});
+</script>
+
+</body>
+</html>
