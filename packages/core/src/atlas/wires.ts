@@ -5,6 +5,7 @@
 // ---------------------------------------------------------------------------
 
 import type { WireDefinitionV2, WireDefinition } from './types'
+import { ATLAS_WIRES_SUBDIR } from './wires/index'
 
 // ---------------------------------------------------------------------------
 // Wire Definitions (v2 — super tool composition)
@@ -208,6 +209,8 @@ export const WIRE_DEFINITIONS_V2: WireDefinitionV2[] = [
       { type: 'SCRIPT', name: 'session-start-hook', project: 'services/learning-loop/deploy/hooks', detail: 'Inject briefing into warrior session context' },
     ],
   },
+  // ── Subdir-defined wires (atlas/wires/*) — FV-005 / SPR-FARMLAND-VALUATION-001 ──
+  ...ATLAS_WIRES_SUBDIR,
 ]
 
 // ---------------------------------------------------------------------------
