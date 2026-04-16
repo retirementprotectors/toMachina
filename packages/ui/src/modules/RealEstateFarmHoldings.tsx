@@ -253,8 +253,7 @@ function InsufficientBadge({ onOverride }: { onOverride: () => void }) {
 
 function SourceBadge({ source }: { source: FarmlandValueSource }) {
   const label =
-    source === 'ENSEMBLE_ISU_NASS' ? 'Ensemble'
-    : source === 'ISU_EXTENSION' ? 'ISU'
+    source === 'ISU_EXTENSION' ? 'ISU'
     : source === 'USDA_NASS' ? 'NASS'
     : source
   return (
