@@ -20,6 +20,7 @@ import { QuickCommsBar } from './components/QuickCommsBar'
 import { QualityScoreCard } from './components/QualityScoreCard'
 import { ACFSection } from '@tomachina/ui/src/modules/ACFSection'
 import { ClientDocuments } from '@tomachina/ui/src/modules/ClientDocuments'
+import { RealEstateFarmHoldings } from '@tomachina/ui/src/modules/RealEstateFarmHoldings'
 
 // ---------------------------------------------------------------------------
 // CLIENT360 Detail Page — the heart of ProDash
@@ -150,6 +151,7 @@ export default function Client360Page({
       <QualityScoreCard clientId={id} />
       <PossibleDuplicates client={client} clientId={id} />
       <ClientDocuments clientId={id} />
+      <RealEstateFarmHoldings clientId={id} portal="prodash" farmHoldings={client.farm_holdings} />
       <ClientTabs activeTab={activeTab} onTabChange={setActiveTab} />
       <div className="min-h-[400px]">{renderTabContent()}</div>
     </div>

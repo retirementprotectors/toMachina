@@ -42,6 +42,8 @@ export { MDJPanel } from './MDJPanel'
 
 export { ClientDocuments } from './ClientDocuments'
 export { AccountDocuments } from './AccountDocuments'
+export { RealEstateFarmHoldings } from './RealEstateFarmHoldings'
+export type { RealEstateFarmHoldingsProps } from './RealEstateFarmHoldings'
 
 export { RSPYellowQUE, RSPTransitionPanel, RSPServiceHandoff, RSPAccountReview, RSPAuthStatus, RSPBlueGate, RSPClientProfile, RSPDiscoveryPanel, RSPReportTracker } from './RSPPipeline'
 export type { RSPYellowQUEProps, RSPAccount, RSPAccountReviewProps, RSPAuthStatusProps, RSPBlueGateProps, RSPClientProfileProps, RSPDiscoveryPanelProps, RSPReportTrackerProps } from './RSPPipeline'
