@@ -41,6 +41,7 @@ import {
   execute as executeFarmlandValuation,
   type FarmlandRowLoader,
 } from '@tomachina/core/atlas/super-tools/farmland-valuation'
+import { execute as executeIsuLandValueParse } from '@tomachina/core/atlas/tools/isu-land-value-parse'
 import type {
   FarmlandValuationResponse,
   FarmlandValueRow,
@@ -216,4 +217,222 @@ export async function valueClientHoldings(
   )
 
   return { client_id: clientId, year, holdings: valued }
+}
+
+/* ─── POST /api/valuation/seed ─────────────────────────────────────────── */
+//
+// Annual cache-seeder execution handler for WIRE_FARMLAND_VALUE_SEED
+// (FV-005 definition in packages/core/src/atlas/wires/). Fetches the
+// current ISU Extension Iowa Land Value Survey PDF, parses 99 counties ×
+// 3 tiers = 297 rows, upserts them into the `farmland_values`
+// collection, and posts a completion summary to #megazord.
+//
+// Trigger surface
+//   - Cloud Scheduler cron `farmland-value-seed-annual` (0 6 15 1 *)
+//   - Manual: `POST /api/valuation/seed { manual_trigger: true }` for
+//     Gate A pre-release + casework force-refresh. SA identity token
+//     auth inherited from app-level `requireAuth`.
+//
+// Body
+//   { manual_trigger?: boolean,  // informational, logged only
+//     year_override?: number     // default: currentYear - 1
+//   }
+//
+// Response
+//   { success, isu_rows_written, nass_rows_written, counties_parsed,
+//     missing_counties, warnings, duration_ms, year, source_url }
+//
+// TODO (ZRD-ATLAS-WIRE-EXECUTOR-CUSTOM-STAGES): unify with executeWire()
+//   dispatch once a 2nd non-super-tool wire surfaces (likely commission
+//   reconciliation or ACF audit export). Until then this is the
+//   authorized execution path for FV-005.
+
+interface SeedBody {
+  manual_trigger?: boolean
+  year_override?: number
+}
+
+interface SeedResult {
+  success: boolean
+  isu_rows_written: number
+  nass_rows_written: number
+  counties_parsed: number
+  missing_counties: string[]
+  warnings: string[]
+  duration_ms: number
+  year: number
+  source_url?: string
+  error?: string
+}
+
+valuationRoutes.post('/seed', async (req: Request, res: Response) => {
+  const started = Date.now()
+  const body = (req.body ?? {}) as SeedBody
+  const year = body.year_override ?? new Date().getUTCFullYear() - 1
+  const manual = body.manual_trigger === true
+
+  try {
+    // ── Resolve PDF text extractor (caller-side dep) ──────────────────
+    const textExtractor = await resolvePdfTextExtractor()
+    if (!textExtractor) {
+      const result = buildSeedError(
+        started,
+        year,
+        'No PDF text extractor available in this runtime. Install pdf-parse on the Cloud Run image.',
+      )
+      await postSeedSummaryToSlack(result, { manual })
+      res.status(500).json(errorResponse(result.error!))
+      return
+    }
+
+    // ── Fetch + parse ISU PDF ─────────────────────────────────────────
+    const parseResult = await executeIsuLandValueParse({ year, textExtractor })
+    if (!parseResult.success || !parseResult.data) {
+      const result = buildSeedError(
+        started,
+        year,
+        `ISU fetch/parse failed: ${parseResult.error ?? 'unknown'}`,
+      )
+      await postSeedSummaryToSlack(result, { manual })
+      res.status(500).json(errorResponse(result.error!))
+      return
+    }
+
+    const { rows, warnings, counties_parsed, source_url } = parseResult.data
+
+    // ── Upsert rows into farmland_values (batched) ────────────────────
+    const store = getDb(req.partnerId)
+    const values = store['collection'](VALUES_COLLECTION)
+    const batch = (store as unknown as { batch: () => { set: (ref: unknown, data: unknown) => void; commit: () => Promise<unknown> } }).batch()
+    for (const row of rows) {
+      batch.set(values.doc(row.id), row)
+    }
+    await batch.commit()
+
+    // ── NASS stub — activates with FV-002 + GSM key ───────────────────
+    const nassRowsWritten = 0
+
+    // ── Compose summary + Slack notify ────────────────────────────────
+    const missingCounties = extractMissingCounties(warnings)
+    const result: SeedResult = {
+      success: true,
+      isu_rows_written: rows.length,
+      nass_rows_written: nassRowsWritten,
+      counties_parsed,
+      missing_counties: missingCounties,
+      warnings,
+      duration_ms: Date.now() - started,
+      year,
+      source_url,
+    }
+    await postSeedSummaryToSlack(result, { manual })
+
+    res.json(successResponse(result))
+  } catch (err) {
+    const result = buildSeedError(started, year, err instanceof Error ? err.message : String(err))
+    await postSeedSummaryToSlack(result, { manual })
+    console.error('POST /api/valuation/seed error:', err)
+    res.status(500).json(errorResponse(result.error!))
+  }
+})
+
+/* ─── seed helpers ────────────────────────────────────────────────────── */
+
+function buildSeedError(started: number, year: number, error: string): SeedResult {
+  return {
+    success: false,
+    isu_rows_written: 0,
+    nass_rows_written: 0,
+    counties_parsed: 0,
+    missing_counties: [],
+    warnings: [],
+    duration_ms: Date.now() - started,
+    year,
+    error,
+  }
+}
+
+/**
+ * Pulls the "Missing N counties..." warning back into a structured array
+ * so downstream consumers (Slack summary, gates) can list them without
+ * re-parsing the message.
+ */
+function extractMissingCounties(warnings: string[]): string[] {
+  for (const w of warnings) {
+    if (!w.startsWith('Missing ')) continue
+    const m = w.match(/Missing:\s*(.+?)(?:\s*\(\+\d+ more\))?\.?$/)
+    if (m) return m[1].split(',').map((s) => s.trim()).filter(Boolean)
+  }
+  return []
+}
+
+/**
+ * Dynamic import of `pdf-parse`. Kept behind a try/catch so a missing
+ * runtime dep produces a graceful error rather than a 500 at module load.
+ * When services/api ships with pdf-parse declared in package.json, this
+ * resolves; otherwise the seed returns a structured error and Slack
+ * notification fires regardless.
+ */
+async function resolvePdfTextExtractor(): Promise<((bytes: ArrayBuffer) => Promise<string>) | null> {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const mod: any = await import('pdf-parse').catch(() => null)
+    const pdfParse = mod?.default ?? mod
+    if (typeof pdfParse !== 'function') return null
+    return async (bytes: ArrayBuffer) => {
+      const buf = Buffer.from(bytes)
+      const parsed = await pdfParse(buf)
+      return String(parsed?.text ?? '')
+    }
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Post a cache-seed completion summary to #megazord. Non-blocking —
+ * delivery failure does not fail the wire (the DB rows already landed;
+ * a missed Slack post is a secondary concern).
+ */
+async function postSeedSummaryToSlack(
+  result: SeedResult,
+  meta: { manual: boolean },
+): Promise<void> {
+  const token = process.env.SLACK_BOT_TOKEN
+  const channel = process.env.SLACK_CHANNEL_MEGAZORD || 'C0ARWQMMUMQ'
+  if (!token) return
+  const trigger = meta.manual ? 'manual' : 'cron'
+  const icon = result.success ? ':large_green_circle:' : ':red_circle:'
+  const header = result.success
+    ? `${icon} WIRE_FARMLAND_VALUE_SEED — ${trigger} — year ${result.year}`
+    : `${icon} WIRE_FARMLAND_VALUE_SEED — ${trigger} — year ${result.year} — FAILED`
+  const lines: string[] = [header]
+  if (result.success) {
+    lines.push(`ISU rows written: *${result.isu_rows_written}* (counties parsed: ${result.counties_parsed}/99)`)
+    lines.push(`NASS rows written: ${result.nass_rows_written} (stub until FV-002 + GSM key)`)
+    if (result.missing_counties.length) {
+      const preview = result.missing_counties.slice(0, 8).join(', ')
+      const more = result.missing_counties.length > 8 ? ` (+${result.missing_counties.length - 8} more)` : ''
+      lines.push(`:warning: Missing counties (parser drift signal): ${preview}${more}`)
+    }
+    if (result.warnings.length && result.missing_counties.length < result.warnings.length) {
+      lines.push(`:information_source: ${result.warnings.length} parser warning(s) — see logs`)
+    }
+    lines.push(`Duration: ${result.duration_ms}ms · Source: ${result.source_url ?? 'n/a'}`)
+  } else {
+    lines.push(`Error: \`${result.error}\``)
+    lines.push(`Duration: ${result.duration_ms}ms`)
+  }
+  try {
+    await fetch('https://slack.com/api/chat.postMessage', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ channel, text: lines.join('\n') }),
+    })
+  } catch (err) {
+    console.warn('[valuation.seed] Slack post failed:', err instanceof Error ? err.message : err)
+  }
 }
