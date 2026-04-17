@@ -475,20 +475,281 @@
   .sprint-item .sprint-status.wip { background: rgba(251, 191, 36, 0.12); color: var(--amber); }
   .sprint-item p { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
 
-  /* ── DOJO EMBED ── */
-  .dojo-embed {
-    padding: 0;
-    border-top: 3px solid var(--machine-border, rgba(96,165,250,0.25));
-    margin-top: 60px;
+  /* ── DOJO TAB — PURPLE (TAIKO) THEMING ── */
+  #tab-user h2 .accent { color: var(--magic); }
+  #tab-user .card-icon.dojo { background: rgba(192, 132, 252, 0.12); }
+  .dojo-accent { color: var(--magic); }
+  .dojo-hero {
+    padding: 56px 0 24px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
   }
-  .dojo-embed .container { padding-top: 48px; padding-bottom: 16px; }
-  .dojo-embed h2 { text-align: center; }
-  .dojo-embed .section-sub { text-align: center; margin-left: auto; margin-right: auto; }
-  .dojo-frame {
-    width: 100%;
-    min-height: 2400px;
-    border: none;
-    background: #08080c;
+  .dojo-hero::before {
+    content: '';
+    position: absolute;
+    top: -200px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 800px;
+    height: 600px;
+    background: radial-gradient(circle,
+      rgba(192, 132, 252, 0.10) 0%,
+      rgba(192, 132, 252, 0.04) 40%,
+      transparent 70%);
+    pointer-events: none;
+    max-width: 100vw;
+  }
+  .dojo-hero h1 {
+    font-size: 56px;
+    font-weight: 900;
+    letter-spacing: -2.5px;
+    line-height: 1;
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, #d8b4fe 0%, #c084fc 50%, #9333ea 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .dojo-hero .dojo-epithet {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--magic);
+    margin-bottom: 20px;
+  }
+  .dojo-hero p {
+    max-width: 700px;
+    margin: 0 auto;
+    font-size: 17px;
+    color: var(--text-muted);
+    line-height: 1.7;
+  }
+  .dojo-hero p em {
+    color: var(--text);
+    font-style: normal;
+    font-weight: 600;
+  }
+
+  /* Warriors grid */
+  .warriors-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    margin-top: 40px;
+  }
+  .warrior-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.2s;
+  }
+  .warrior-card:hover {
+    background: var(--bg-card-hover);
+    border-color: rgba(192, 132, 252, 0.35);
+  }
+  .warrior-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--magic);
+  }
+  .warrior-icon {
+    font-size: 28px;
+    margin-bottom: 10px;
+  }
+  .warrior-name {
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 2px;
+    letter-spacing: -0.3px;
+  }
+  .warrior-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--magic);
+    margin-bottom: 12px;
+  }
+  .warrior-desc {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.65;
+  }
+  .warrior-tag {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    background: rgba(192, 132, 252, 0.12);
+    color: var(--magic);
+    border: 1px solid rgba(192, 132, 252, 0.25);
+  }
+
+  /* Dojo stat strip */
+  .dojo-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-top: 40px;
+  }
+  .dojo-stat {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+  }
+  .dojo-stat .num {
+    font-size: 32px;
+    font-weight: 900;
+    letter-spacing: -1px;
+    background: linear-gradient(135deg, #d8b4fe 0%, #c084fc 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .dojo-stat .lbl {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 4px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* Dojo mesh callout */
+  .mesh-callout {
+    background: linear-gradient(135deg, rgba(192, 132, 252, 0.08) 0%, rgba(147, 51, 234, 0.04) 100%);
+    border: 1px solid rgba(192, 132, 252, 0.25);
+    border-radius: 16px;
+    padding: 32px;
+    margin-top: 40px;
+  }
+  .mesh-callout h3 {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--magic);
+    margin-bottom: 12px;
+  }
+  .mesh-callout p {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.75;
+  }
+  .mesh-callout p strong { color: var(--text); }
+
+  /* Journey phases (purple-themed) */
+  .journey-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin-top: 40px;
+  }
+  .journey-phase {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    position: relative;
+  }
+  .journey-phase::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--magic);
+    opacity: 0.5;
+  }
+  .journey-phase .ph-num {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--magic);
+    margin-bottom: 6px;
+  }
+  .journey-phase h4 {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .journey-phase .ph-when {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+  }
+  .journey-phase p {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.55;
+  }
+
+  /* Layer rows (purple-themed) */
+  .layers-wrap { margin-top: 40px; }
+  .layer-row {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 22px;
+    margin-bottom: 10px;
+    display: grid;
+    grid-template-columns: 44px 1fr auto;
+    gap: 16px;
+    align-items: start;
+    transition: border-color 0.2s;
+  }
+  .layer-row:hover { border-color: rgba(192, 132, 252, 0.35); }
+  .layer-num {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(192, 132, 252, 0.12);
+    color: var(--magic);
+    font-weight: 900;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .layer-body h4 {
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .layer-body p {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+  .layer-tag {
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    background: rgba(192, 132, 252, 0.1);
+    color: var(--magic);
+    white-space: nowrap;
+    align-self: start;
+    margin-top: 2px;
+  }
+  @media (max-width: 768px) {
+    .dojo-hero h1 { font-size: 38px; }
+    .dojo-stats { grid-template-columns: repeat(2, 1fr); }
+    .layer-row { grid-template-columns: 40px 1fr; }
+    .layer-tag { grid-column: 1 / -1; justify-self: start; }
   }
 
   /* ── FOOTER ── */
@@ -542,6 +803,8 @@
   .cross-nav a.nav-green:hover { background: rgba(74, 222, 128, 0.08); }
   .cross-nav a.nav-blue:hover { background: rgba(96, 165, 250, 0.08); }
   .cross-nav a.nav-purple:hover { background: rgba(192, 132, 252, 0.08); }
+  .cross-nav a.nav-rpi { color: #7ba8d4; }
+  .cross-nav a.nav-rpi:hover { background: rgba(123, 168, 212, 0.08); }
   .cross-nav a.active { background: rgba(96, 165, 250, 0.12); border-color: rgba(96, 165, 250, 0.25); }
 </style>
 </head>
@@ -569,8 +832,8 @@
 <!-- TABS                                                            -->
 <!-- ════════════════════════════════════════════════════════════════ -->
 <div class="tab-bar">
-  <div class="tab-btn active" onclick="switchTab('admirer')">The Platform</div>
-  <div class="tab-btn dojo-tab" onclick="switchTab('user')">The Dojo</div>
+  <div class="tab-btn active" onclick="switchTab('admirer')">Platform</div>
+  <div class="tab-btn dojo-tab" onclick="switchTab('user')">Dojo</div>
 </div>
 
 <!-- ════════════════════════════════════════════════════════════════ -->
@@ -722,17 +985,254 @@
 </div><!-- /tab-admirer -->
 
 <!-- ════════════════════════════════════════════════════════════════ -->
-<!-- USER TAB                                                        -->
+<!-- DOJO TAB                                                        -->
 <!-- ════════════════════════════════════════════════════════════════ -->
 <div id="tab-user" class="tab-content">
 
-<!-- THE DOJO — Full embedded content -->
+<!-- DOJO HERO -->
+<div class="dojo-hero">
+  <div class="container">
+    <h1>The Dojo</h1>
+    <div class="dojo-epithet">AI Division &middot; Live on MDJ_SERVER</div>
+    <p>The C-suite the founder couldn&rsquo;t hire &mdash; <em>built instead</em>. 7 warriors running CTO, CIO, CMO, CSO, Comms, Guardian, and Builder operations 24/7. Persistent identities. Bilateral Slack channels. Real-time dispatcher. $0 headcount salary.</p>
+  </div>
+</div>
+
+<!-- STATS STRIP -->
+<section style="padding-top: 40px;">
+  <div class="container">
+    <div class="dojo-stats">
+      <div class="dojo-stat"><div class="num">7</div><div class="lbl">Warriors Live</div></div>
+      <div class="dojo-stat"><div class="num">15</div><div class="lbl">Mesh Specialists</div></div>
+      <div class="dojo-stat"><div class="num">24/7</div><div class="lbl">Autonomous Ops</div></div>
+      <div class="dojo-stat"><div class="num">$0</div><div class="lbl">Headcount Salary</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- THE WARRIORS -->
 <section>
   <div class="container">
-    <h2>The <span class="accent">Dojo</span></h2>
-    <p class="section-sub">The AI Division lives inside toMachina. 7 Warriors with CXO titles. $0 headcount salary. 24/7 autonomous operations on a Dell PowerEdge T440. The journey, the layers, the magic, and the team.</p>
+    <h2>The <span class="accent">Warriors</span></h2>
+    <p class="section-sub">Each warrior carries a persistent identity (soul.md + spirit.md + brain.txt), a dedicated Slack channel, and its own lane. No overlap. No manager. A mesh, not a hierarchy.</p>
+
+    <div class="warriors-grid">
+      <div class="warrior-card">
+        <div class="warrior-icon">&#x1F977;</div>
+        <div class="warrior-name">SHINOB1</div>
+        <div class="warrior-title">Chief Technology Officer</div>
+        <p class="warrior-desc">Architecture, Discovery Doc review, CXO mentorship. Reviews every ticket before it ships. The originator session that launched MDJ_SERVER.</p>
+        <span class="warrior-tag">CTO</span>
+      </div>
+      <div class="warrior-card">
+        <div class="warrior-icon">&#x1F3EF;</div>
+        <div class="warrior-name">MEGAZORD</div>
+        <div class="warrior-title">Chief Information Officer</div>
+        <p class="warrior-desc">ATLAS registry (54 data sources, 15 atomic tools, 12 super tools, 5 wires) + 5 Rangers mesh. Owns every data operation across the platform.</p>
+        <span class="warrior-tag">CIO &middot; ATLAS</span>
+      </div>
+      <div class="warrior-card">
+        <div class="warrior-icon">&#x1F981;</div>
+        <div class="warrior-name">VOLTRON</div>
+        <div class="warrior-title">Chief Service Officer</div>
+        <p class="warrior-desc">QUE registry + 5 Lions mesh (Medicare / Annuity / Life-Estate / Investment / Legacy-LTC). 82 tools wired. Client-facing brain, 24/7.</p>
+        <span class="warrior-tag">CSO &middot; QUE</span>
+      </div>
+      <div class="warrior-card">
+        <div class="warrior-icon">&#x2694;&#xFE0F;</div>
+        <div class="warrior-name">MUSASHI</div>
+        <div class="warrior-title">Chief Marketing Officer</div>
+        <p class="warrior-desc">CMO Registry (57 tools, 7 domains) + 5 Artisans mesh (Print, Digital, Web, Social, Video). ARTxBLADE &mdash; writes AND ships his own work.</p>
+        <span class="warrior-tag">CMO &middot; ARTxBLADE</span>
+      </div>
+      <div class="warrior-card">
+        <div class="warrior-icon">&#x1F941;</div>
+        <div class="warrior-name">TAIKO</div>
+        <div class="warrior-title">Comms Infrastructure</div>
+        <p class="warrior-desc">Owns the pipes &mdash; Twilio voice/SMS, SendGrid email, Google Meet/Chat, RPI Connect, in-portal Comms, alerts/notifications. Compliance, A2P, DMARC, STIR/SHAKEN.</p>
+        <span class="warrior-tag">The Drum</span>
+      </div>
+      <div class="warrior-card">
+        <div class="warrior-icon">&#x26A1;</div>
+        <div class="warrior-name">RAIDEN</div>
+        <div class="warrior-title">Reactive Guardian</div>
+        <p class="warrior-desc">Watches Slack for bugs. Triages in seconds. Fixes small stuff autonomously, routes big stuff to RONIN. Not on my watch.</p>
+        <span class="warrior-tag">The Guardian</span>
+      </div>
+      <div class="warrior-card">
+        <div class="warrior-icon">&#x1F5E1;&#xFE0F;</div>
+        <div class="warrior-name">RONIN</div>
+        <div class="warrior-title">Autonomous Builder</div>
+        <p class="warrior-desc">Takes a Discovery Doc, runs the full 11-step FORGE lifecycle, ships PRs with auto-merge. Multiple RONINs run in parallel. It ships tonight.</p>
+        <span class="warrior-tag">The Builder</span>
+      </div>
+    </div>
+
+    <div class="mesh-callout">
+      <h3>The Dojo Mesh &mdash; Bilateral Comms + Dispatcher</h3>
+      <p><strong>8 bilateral Slack channels</strong> (one per warrior + #exec + #warriors) wired through a real-time dispatcher with bot-loop firewall, signoff parsing, and cross-warrior routing. The CEO messages any warrior from any device. Warriors reply in their own channels. Zero synthetic posts. Real signal only.</p>
+    </div>
   </div>
-  <iframe src="the-machine-layers.html" class="dojo-frame" title="The Dojo"></iframe>
+</section>
+
+<!-- THE JOURNEY -->
+<section>
+  <div class="container">
+    <h2>5 Phases. <span class="accent">100 Days.</span></h2>
+    <p class="section-sub">Each transition doubled the speed and halved the time. Output velocity compounded from 20K lines a week to 250K lines a week in the span of 14 weeks.</p>
+
+    <div class="journey-grid">
+      <div class="journey-phase">
+        <div class="ph-num">Phase 1</div>
+        <h4>The Little Shit</h4>
+        <div class="ph-when">Dec &ndash; Feb &middot; 7 weeks</div>
+        <p>Individual scripts in a chat window. Claude.ai + Google Apps Script. 143K lines at 20K/week.</p>
+      </div>
+      <div class="journey-phase">
+        <div class="ph-num">Phase 2</div>
+        <h4>The Interconnected Era</h4>
+        <div class="ph-when">Feb 15 &ndash; Mar 10 &middot; 3.5 weeks</div>
+        <p>Portals, modules, shared services. Cursor. 14 projects talking. 188K lines at 54K/week.</p>
+      </div>
+      <div class="journey-phase">
+        <div class="ph-num">Phase 3</div>
+        <h4>The Re-Platform</h4>
+        <div class="ph-when">Mar 10 &ndash; Mar 23 &middot; 13 days</div>
+        <p>Next.js + Firestore + Cloud Run. One monorepo replaces 14 projects. Claude Code. 132K lines at 71K/week.</p>
+      </div>
+      <div class="journey-phase">
+        <div class="ph-num">Phase 4</div>
+        <h4>The Brain + The Army</h4>
+        <div class="ph-when">Mar 23 &ndash; Apr 4 &middot; 12 days</div>
+        <p>MDJ_SERVER. 6 warriors. Autonomous builders. The Machine starts building itself. 148K at 115K/week.</p>
+      </div>
+      <div class="journey-phase">
+        <div class="ph-num">Phase 5</div>
+        <h4>The CXO Division</h4>
+        <div class="ph-when">Apr 4 &ndash; Present &middot; accelerating</div>
+        <p>3 CXOs + TAIKO. 3 Registries. 3 Meshes. 131+ tickets shipped. 250K lines at 250K/week. 12.5x baseline.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- THE 11 LAYERS -->
+<section>
+  <div class="container">
+    <h2>11 Layers of <span class="accent">Infrastructure</span></h2>
+    <p class="section-sub">The warriors are the top layer. Underneath them is everything that makes them dangerous. Without these layers, a warrior is just a chatbot. With them, it&rsquo;s a team member.</p>
+
+    <div class="layers-wrap">
+      <div class="layer-row">
+        <div class="layer-num">1</div>
+        <div class="layer-body">
+          <h4>Identity</h4>
+          <p>A 55K-character global instruction file. Persistent soul.md + spirit.md + brain.txt per warrior. Every session knows who it is and how to communicate.</p>
+        </div>
+        <span class="layer-tag">CLAUDE.md</span>
+      </div>
+      <div class="layer-row">
+        <div class="layer-num">2</div>
+        <div class="layer-body">
+          <h4>Standards</h4>
+          <p>43 hookify rules that BLOCK bad code before it&rsquo;s written. 16 Block rules, 7 Warn rules, 6 Intent rules, 6 Quality Gates. Self-enforcing compliance.</p>
+        </div>
+        <span class="layer-tag">Immune System</span>
+      </div>
+      <div class="layer-row">
+        <div class="layer-num">3</div>
+        <div class="layer-body">
+          <h4>Memory</h4>
+          <p>30+ memory files indexed by MEMORY.md. Knowledge Pipeline scans violations daily, promotes patterns to CLAUDE.md, tracks trends, sends digest to Slack.</p>
+        </div>
+        <span class="layer-tag">Learning Loop</span>
+      </div>
+      <div class="layer-row">
+        <div class="layer-num">4</div>
+        <div class="layer-body">
+          <h4>Platform Knowledge</h4>
+          <p>Full awareness of 700K+ lines of typed code across 3 portal apps, 4 shared packages, 88 API routes, and 4 backend services. Turborepo. TypeScript strict.</p>
+        </div>
+        <span class="layer-tag">toMachina</span>
+      </div>
+      <div class="layer-row">
+        <div class="layer-num">5</div>
+        <div class="layer-body">
+          <h4>Data Intelligence</h4>
+          <p>29K+ Firestore docs normalized. Every carrier, API, and manual process tracked in the source + tool + wire registry. BigQuery streaming in real-time.</p>
+        </div>
+        <span class="layer-tag">ATLAS</span>
+      </div>
+      <div class="layer-row">
+        <div class="layer-num">6</div>
+        <div class="layer-body">
+          <h4>Tooling</h4>
+          <p>82 tools across 9 MCP servers. Send email, text, calls. Search healthcare registries. Read Drive, post Slack, book calendar, design in Canva. Operate the business.</p>
+        </div>
+        <span class="layer-tag">MCP-Hub</span>
+      </div>
+      <div class="layer-row">
+        <div class="layer-num">7</div>
+        <div class="layer-body">
+          <h4>Process</h4>
+          <p>11-step sprint lifecycle. Discovery Doc &rarr; Plan &rarr; Audit &rarr; Build &rarr; Verify &rarr; Ship. Phase-aware prompts. E2E tests. Paper trail for every sprint.</p>
+        </div>
+        <span class="layer-tag">FORGE</span>
+      </div>
+      <div class="layer-row">
+        <div class="layer-num">8</div>
+        <div class="layer-body">
+          <h4>Autonomy</h4>
+          <p>Discovery Doc to production PR with auto-merge, no human in the loop. Spawns parallel builder sub-agents. Posts status at every phase. Multiple run in parallel.</p>
+        </div>
+        <span class="layer-tag">RONIN</span>
+      </div>
+      <div class="layer-row">
+        <div class="layer-num">9</div>
+        <div class="layer-body">
+          <h4>Self-Improving Infrastructure</h4>
+          <p>Violations &rarr; logging &rarr; knowledge-promote (4am) &rarr; CLAUDE.md patch &rarr; Slack digest. The factory learns from its own mistakes and prevents the entire class.</p>
+        </div>
+        <span class="layer-tag">Closed Loop</span>
+      </div>
+      <div class="layer-row">
+        <div class="layer-num">10</div>
+        <div class="layer-body">
+          <h4>Mesh Orchestration</h4>
+          <p>4 CXOs + 2 Code Warriors + Comms Warrior + 15 mesh specialists. Each CXO owns a registry, a mesh, and a Dojo seat. CONSUME &rarr; OPERATE &rarr; DEVOUR lifecycle.</p>
+        </div>
+        <span class="layer-tag">The Dojo</span>
+      </div>
+      <div class="layer-row">
+        <div class="layer-num">11</div>
+        <div class="layer-body">
+          <h4>Vision</h4>
+          <p>Says what to build. Approves gates. Makes business decisions. The only human. The layer no AI can replace.</p>
+        </div>
+        <span class="layer-tag">Sensei</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- INFRASTRUCTURE -->
+<section>
+  <div class="container">
+    <h2>The <span class="accent">Iron</span></h2>
+    <p class="section-sub">A Dell PowerEdge T440 on a shelf in Des Moines. Persistent tmux sessions. Standalone service account auth. Tailscale funnel. Warriors survive reboots. The factory never goes dark.</p>
+
+    <div class="dojo-stats">
+      <div class="dojo-stat"><div class="num">T440</div><div class="lbl">Dell PowerEdge</div></div>
+      <div class="dojo-stat"><div class="num">16</div><div class="lbl">Xeon Cores</div></div>
+      <div class="dojo-stat"><div class="num">30GB</div><div class="lbl">ECC RAM</div></div>
+      <div class="dojo-stat"><div class="num">:4200</div><div class="lbl">mdj-agent.service</div></div>
+    </div>
+
+    <div class="mesh-callout">
+      <h3>Why 7 Fresh Sessions &ne; 7 Warriors</h3>
+      <p>A fresh Claude session doesn&rsquo;t know who you are, doesn&rsquo;t know the rules, doesn&rsquo;t remember yesterday, can&rsquo;t access your data, and has no tools beyond code. <strong>A warrior in the Dojo</strong> has 11 layers of context stacked underneath it. The warriors are the last thing we built. The infrastructure underneath them is what makes them dangerous.</p>
+    </div>
+  </div>
 </section>
 
 </div><!-- /tab-user (The Dojo) -->
@@ -1004,7 +1504,13 @@ function switchTab(tab) {
   document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
   document.getElementById('tab-' + tab).classList.add('active');
   document.querySelector('.tab-btn[onclick*="' + tab + '"]').classList.add('active');
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  // Scroll to just below cross-nav + tab bar so content anchors properly (no snap-back)
+  const tabBar = document.querySelector('.tab-bar');
+  if (tabBar) {
+    const rect = tabBar.getBoundingClientRect();
+    const offset = window.pageYOffset + rect.top - 40;
+    window.scrollTo({ top: Math.max(0, offset), behavior: 'instant' });
+  }
 }
 </script>
 

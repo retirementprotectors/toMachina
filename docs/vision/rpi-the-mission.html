@@ -18,7 +18,7 @@
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.65; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
-  .container { max-width: 1000px; margin: 0 auto; padding: 0 40px; }
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 40px; }
 
   /* Cross-nav */
   .cross-nav { display: flex; justify-content: center; align-items: center; gap: 8px; padding: 10px 40px; background: var(--bg); border-bottom: 1px solid var(--border); font-size: 12px; font-weight: 700; letter-spacing: 1px; position: sticky; top: 0; z-index: 200; }
@@ -28,10 +28,13 @@
   .cross-nav a.active { background: rgba(123, 168, 212, 0.12); border-color: var(--rpi-border); }
 
   /* Hero */
-  .hero { padding: 80px 0 60px; text-align: center; position: relative; overflow: hidden; }
-  .hero::before { content: ''; position: absolute; top: -150px; left: 50%; transform: translateX(-50%); width: 800px; height: 800px; background: radial-gradient(circle, rgba(123, 168, 212, 0.08) 0%, rgba(123, 168, 212, 0.03) 40%, transparent 70%); pointer-events: none; }
+  .hero { padding: 80px 40px 60px; text-align: center; position: relative; overflow: hidden; }
+  .hero::before { content: ''; position: absolute; top: -150px; left: 50%; transform: translateX(-50%); width: 800px; height: 800px; background: radial-gradient(circle, rgba(123, 168, 212, 0.08) 0%, rgba(123, 168, 212, 0.03) 40%, transparent 70%); pointer-events: none; max-width: 100vw; }
+  .hero .container { position: relative; z-index: 1; }
   .hero-tagline { font-size: 22px; font-weight: 300; letter-spacing: 6px; text-transform: uppercase; color: var(--text-dim); margin-top: 20px; margin-bottom: 24px; }
-  .hero-sub { font-size: 18px; color: var(--text-muted); max-width: 640px; margin: 0 auto; line-height: 1.7; }
+  .hero-promise { font-size: 20px; font-weight: 400; color: var(--text); max-width: 720px; margin: 0 auto 24px; line-height: 1.6; font-style: italic; }
+  .hero-promise strong { color: var(--rpi); font-weight: 700; font-style: normal; }
+  .hero-sub { font-size: 17px; color: var(--text-muted); max-width: 680px; margin: 0 auto; line-height: 1.7; }
   .hero-sub strong { color: var(--rpi); font-weight: 700; }
 
   /* Sections */
@@ -105,9 +108,10 @@
 
 <div class="hero">
   <div class="container">
-    <img src="rpi-logo-v2-white.png" alt="Retirement Protectors, Inc." style="height: 100px; width: auto; margin-bottom: 16px; filter: drop-shadow(0 0 30px rgba(123, 168, 212, 0.25));">
+    <img src="rpi-logo-full-color.png" alt="Retirement Protectors, Inc." style="height: 130px; width: auto; max-width: 100%; margin-bottom: 16px; filter: drop-shadow(0 0 30px rgba(123, 168, 212, 0.25));">
     <div class="hero-tagline">The Mission</div>
-    <p class="hero-sub">The ultimate sales and service experience for <strong>senior-market clients</strong> and their <strong>retiring agents</strong>. Three divisions. One promise. Every hire, every client, every interaction &mdash; protected.</p>
+    <p class="hero-promise">If you&rsquo;re <strong>approaching retirement</strong>, <strong>recently retired</strong>, or <strong>currently living the dream</strong> &mdash; We&rsquo;re Your People.&trade;</p>
+    <p class="hero-sub">The ultimate sales and service experience for senior-market clients and their retiring agents. Three divisions. One promise. Every hire, every client, every interaction &mdash; protected.</p>
   </div>
 </div>
 
@@ -137,8 +141,8 @@
     <div class="divisions">
       <div class="division">
         <h3>Health</h3>
-        <div class="div-sub">Medicare Division</div>
-        <p>Full Medicare coverage &mdash; from initial enrollment through ongoing annual reviews. The Proactive Service Model keeps clients protected every year, not just during AEP.</p>
+        <div class="div-sub">Medicare &amp; Ancillary</div>
+        <p>The most important decision you make regarding your Medicare isn&rsquo;t what carrier or plan you have &mdash; it&rsquo;s the firm you work with that matters most. Full Medicare coverage, annual reviews, and year-round service.</p>
         <ul>
           <li><strong>MAPD</strong> &mdash; Medicare Advantage Prescription Drug</li>
           <li><strong>PDP</strong> &mdash; Standalone Part D</li>
@@ -147,27 +151,33 @@
         </ul>
       </div>
       <div class="division">
-        <h3>Retirement</h3>
-        <div class="div-sub">Retirement Division</div>
-        <p>Accumulation, income, protection, and legacy planning. Every stage of the retirement journey under one roof &mdash; with products chosen for client outcomes, not commissions.</p>
+        <h3>Wealth</h3>
+        <div class="div-sub">Retirement Income &amp; Investments</div>
+        <p>With a typical setup, you can pick two out of three &mdash; safety, liquidity, or growth. With our comprehensive strategies, you can have it all. Accumulation, income, and protection across every stage of the retirement journey.</p>
         <ul>
           <li><strong>Fixed Index Annuity</strong> &mdash; Principal protection + market-linked growth</li>
           <li><strong>Life Insurance</strong> &mdash; Term, Whole, IUL, Final Expense</li>
-          <li><strong>Fee-Based Advisory</strong> &mdash; Managed accounts + financial planning</li>
-          <li><strong>Legacy Planning</strong> &mdash; Estate, LTC, wealth transfer</li>
+          <li><strong>Fee-Based Advisory</strong> &mdash; RIA &amp; BD managed accounts</li>
+          <li><strong>Institutional Partnerships</strong> &mdash; Carrier + product creation</li>
         </ul>
       </div>
       <div class="division">
-        <h3>Investments</h3>
-        <div class="div-sub">Advisory Division</div>
-        <p>Securities, managed accounts, and institutional product partnerships. The third pillar &mdash; completing the health + wealth + legacy triad.</p>
+        <h3>Legacy</h3>
+        <div class="div-sub">Estate &amp; Wealth Transfer</div>
+        <p>Will it be your family, the government, or long-term care costs? We help you keep your hard-earned legacy where it belongs. Estate planning, LTC coverage, and wealth transfer strategies built around the people you love.</p>
         <ul>
-          <li><strong>RIA</strong> &mdash; Registered Investment Advisor</li>
-          <li><strong>BD</strong> &mdash; Broker-Dealer</li>
-          <li><strong>Managed Accounts</strong> &mdash; Fee-based portfolio management</li>
-          <li><strong>Institutional Partnerships</strong> &mdash; Product creation + distribution</li>
+          <li><strong>Estate Planning</strong> &mdash; Wills, trusts, beneficiary design</li>
+          <li><strong>Long-Term Care</strong> &mdash; Traditional &amp; hybrid coverage</li>
+          <li><strong>Wealth Transfer</strong> &mdash; Tax-efficient legacy strategies</li>
+          <li><strong>Final Expense</strong> &mdash; Protecting the family from the last bills</li>
         </ul>
       </div>
+    </div>
+
+    <div class="psm" style="margin-top: 32px;">
+      <div class="psm-tag">200+ Years Combined Expertise &middot; 15+ Professionals On Staff</div>
+      <h3>A team for all your needs, across all your decisions.</h3>
+      <p>Most firms hand you a product and a single point of contact. Your trusted advisor should remain constant &mdash; not the plan you picked last year. Every RPI client gets a full team spanning Health, Wealth, and Legacy &mdash; so every decision gets the right expertise, every time.</p>
     </div>
   </div>
 </section>
