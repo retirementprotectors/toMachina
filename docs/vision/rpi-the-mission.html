@@ -3,54 +3,95 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RPI — The Mission</title>
+<title>RPI — The Mission | AgentX</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
   :root {
-    --bg: #08080c; --bg-card: #0f0f16; --border: #1a1a28; --border-accent: #252536;
+    --bg: #08080c; --bg-card: #0f0f16; --bg-accent: #121219;
+    --border: #1a1a28; --border-accent: #252536;
     --text: #e8e8f2; --text-muted: #8a8aa2; --text-dim: #4a4a62;
-    --gold: #d4a44c; --gold-bright: #f0c060; --gold-dim: #a07830; --gold-glow: rgba(212, 164, 76, 0.12); --gold-border: rgba(212, 164, 76, 0.28);
+    --gold: #d4a44c; --gold-bright: #f0c060; --gold-dim: #a07830;
+    --gold-glow: rgba(212, 164, 76, 0.12); --gold-border: rgba(212, 164, 76, 0.28);
     --money: #4ade80; --machine: #60a5fa;
-    --mission: #4a7ab5; --mission-glow: rgba(74, 122, 181, 0.10); --mission-border: rgba(74, 122, 181, 0.25);
+    --rpi: #4a7ab5; --rpi-bright: #6b9fd4; --rpi-dim: #2e5a8a;
+    --rpi-glow: rgba(74, 122, 181, 0.10); --rpi-border: rgba(74, 122, 181, 0.25);
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.65; -webkit-font-smoothing: antialiased; }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.65; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
   .container { max-width: 1000px; margin: 0 auto; padding: 0 40px; }
+
+  /* Cross-nav */
   .cross-nav { display: flex; justify-content: center; align-items: center; gap: 8px; padding: 10px 40px; background: var(--bg); border-bottom: 1px solid var(--border); font-size: 12px; font-weight: 700; letter-spacing: 1px; position: sticky; top: 0; z-index: 200; }
   .cross-nav a { padding: 6px 16px; border-radius: 6px; text-decoration: none; border: 1px solid transparent; transition: background 0.2s; }
-  .cross-nav a.nav-gold { color: #d4a44c; } .cross-nav a.nav-green { color: #4ade80; } .cross-nav a.nav-blue { color: #60a5fa; } .cross-nav a.nav-purple { color: #c084fc; }
-  .cross-nav a.nav-gold:hover { background: rgba(212, 164, 76, 0.08); } .cross-nav a.nav-green:hover { background: rgba(74, 222, 128, 0.08); } .cross-nav a.nav-blue:hover { background: rgba(96, 165, 250, 0.08); } .cross-nav a.nav-purple:hover { background: rgba(74, 122, 181, 0.08); }
-  .cross-nav a.active { background: rgba(74, 122, 181, 0.12); border-color: rgba(74, 122, 181, 0.25); }
+  .cross-nav a.nav-gold { color: #d4a44c; } .cross-nav a.nav-green { color: #4ade80; } .cross-nav a.nav-blue { color: #60a5fa; } .cross-nav a.nav-rpi { color: #4a7ab5; }
+  .cross-nav a.nav-gold:hover { background: rgba(212, 164, 76, 0.08); } .cross-nav a.nav-green:hover { background: rgba(74, 222, 128, 0.08); } .cross-nav a.nav-blue:hover { background: rgba(96, 165, 250, 0.08); } .cross-nav a.nav-rpi:hover { background: rgba(74, 122, 181, 0.08); }
+  .cross-nav a.active { background: rgba(74, 122, 181, 0.12); border-color: var(--rpi-border); }
 
-  .hero { padding: 100px 40px 80px; text-align: center; position: relative; overflow: hidden; }
+  /* Hero */
+  .hero { padding: 80px 0 60px; text-align: center; position: relative; overflow: hidden; }
   .hero::before { content: ''; position: absolute; top: -150px; left: 50%; transform: translateX(-50%); width: 800px; height: 800px; background: radial-gradient(circle, rgba(74, 122, 181, 0.08) 0%, rgba(74, 122, 181, 0.03) 40%, transparent 70%); pointer-events: none; }
-  .hero-badge { display: inline-block; padding: 6px 18px; border-radius: 100px; background: var(--mission-glow); border: 1px solid var(--mission-border); color: var(--mission); font-size: 11px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; margin-bottom: 32px; }
-  .hero h1 { font-size: 72px; font-weight: 900; letter-spacing: -3px; line-height: 1; margin-bottom: 20px; color: var(--text); }
-  .hero h1 .accent { color: var(--mission); }
-  .hero-tagline { font-size: 22px; font-weight: 300; letter-spacing: 6px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 24px; }
-  .hero-sub { font-size: 18px; color: var(--text-muted); max-width: 600px; margin: 0 auto; line-height: 1.7; }
-  .hero-sub strong { color: var(--mission); font-weight: 700; }
+  .hero-tagline { font-size: 22px; font-weight: 300; letter-spacing: 6px; text-transform: uppercase; color: var(--text-dim); margin-top: 20px; margin-bottom: 24px; }
+  .hero-sub { font-size: 18px; color: var(--text-muted); max-width: 640px; margin: 0 auto; line-height: 1.7; }
+  .hero-sub strong { color: var(--rpi); font-weight: 700; }
 
+  /* Sections */
   section { padding: 80px 0; } section + section { border-top: 1px solid var(--border); }
-  h2 { font-size: 36px; font-weight: 800; letter-spacing: -1.5px; margin-bottom: 16px; } h2 .accent { color: var(--mission); }
+  h2 { font-size: 36px; font-weight: 800; letter-spacing: -1.5px; margin-bottom: 16px; } h2 .accent { color: var(--rpi); }
   .section-sub { font-size: 17px; color: var(--text-muted); margin-bottom: 48px; max-width: 660px; line-height: 1.8; }
 
+  /* Mission block */
+  .mission-block { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 48px; text-align: center; position: relative; overflow: hidden; }
+  .mission-block::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--rpi-dim), var(--rpi), var(--rpi-bright)); }
+  .mission-block .tagline { font-size: 36px; font-weight: 900; color: var(--rpi); letter-spacing: -1px; margin-bottom: 16px; }
+  .mission-block p { font-size: 17px; color: var(--text-muted); max-width: 600px; margin: 0 auto; line-height: 1.8; }
+
+  /* Values */
+  .values-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 40px; }
+  .value-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; text-align: center; }
+  .value-card h4 { font-size: 15px; font-weight: 800; color: var(--rpi); margin-bottom: 8px; }
+  .value-card p { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+
+  /* Divisions */
   .divisions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 40px; }
   .division { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 32px; position: relative; overflow: hidden; }
-  .division::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--mission); }
-  .division h3 { font-size: 20px; font-weight: 800; color: var(--mission); margin-bottom: 8px; }
-  .division .partner { font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 16px; }
-  .division p { font-size: 14px; color: var(--text-muted); line-height: 1.7; }
+  .division::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--rpi); }
+  .division h3 { font-size: 20px; font-weight: 800; color: var(--rpi); margin-bottom: 4px; }
+  .division .div-sub { font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 16px; }
+  .division p { font-size: 14px; color: var(--text-muted); line-height: 1.7; margin-bottom: 12px; }
+  .division ul { list-style: none; padding: 0; }
+  .division ul li { font-size: 13px; color: var(--text-muted); padding: 6px 0; border-top: 1px solid var(--border); }
+  .division ul li strong { color: var(--text); }
 
-  .mission-block { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 48px; text-align: center; margin-top: 40px; position: relative; overflow: hidden; }
-  .mission-block::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--money), var(--machine), var(--mission)); }
-  .mission-block .tagline { font-size: 32px; font-weight: 900; color: var(--mission); letter-spacing: -1px; margin-bottom: 16px; }
-  .mission-block p { font-size: 17px; color: var(--text-muted); max-width: 600px; margin: 0 auto; line-height: 1.8; }
+  /* PSM (Proactive Service Model) */
+  .psm { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 40px; margin-top: 40px; position: relative; overflow: hidden; }
+  .psm::before { content: ''; position: absolute; top: 0; left: 0; bottom: 0; width: 4px; background: var(--rpi); }
+  .psm h3 { font-size: 22px; font-weight: 800; color: var(--rpi); margin-bottom: 8px; }
+  .psm .psm-tag { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 16px; }
+  .psm p { font-size: 15px; color: var(--text-muted); line-height: 1.8; margin-bottom: 16px; }
+  .psm-steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 24px; }
+  .psm-step { text-align: center; padding: 16px; background: var(--bg-accent); border-radius: 10px; border: 1px solid var(--border); }
+  .psm-step .step-num { font-size: 24px; font-weight: 900; color: var(--rpi); line-height: 1; margin-bottom: 6px; }
+  .psm-step .step-label { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 4px; }
+  .psm-step .step-desc { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+
+  /* Differentiators */
+  .diff-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-top: 40px; }
+  .diff-item { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 28px; }
+  .diff-item h4 { font-size: 16px; font-weight: 800; color: var(--text); margin-bottom: 8px; }
+  .diff-item h4 .num { color: var(--rpi); margin-right: 8px; }
+  .diff-item p { font-size: 14px; color: var(--text-muted); line-height: 1.7; }
+
+  /* Flywheel connection */
+  .flywheel-card { background: linear-gradient(135deg, var(--rpi-dim), #1a3a5c); border: 1px solid var(--rpi-border); border-radius: 16px; padding: 48px; text-align: center; margin-top: 40px; position: relative; overflow: hidden; }
+  .flywheel-card h3 { font-size: 28px; font-weight: 900; color: white; margin-bottom: 8px; letter-spacing: -1px; }
+  .flywheel-card .verbs { font-size: 16px; font-weight: 300; letter-spacing: 4px; text-transform: uppercase; color: var(--rpi-bright); margin-bottom: 20px; }
+  .flywheel-card p { font-size: 16px; color: rgba(255,255,255,0.75); max-width: 600px; margin: 0 auto; line-height: 1.8; }
 
   .footer { padding: 48px 40px; text-align: center; border-top: 1px solid var(--border); }
   .footer .sig { font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 4px; }
   .footer .sub { font-size: 12px; color: var(--text-dim); }
-  @media (max-width: 768px) { .hero h1 { font-size: 48px; } .divisions { grid-template-columns: 1fr; } }
+
+  @media (max-width: 768px) { .hero { padding: 60px 20px 40px; } .divisions, .values-grid { grid-template-columns: 1fr; } .psm-steps { grid-template-columns: repeat(2, 1fr); } .diff-grid { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
@@ -59,15 +100,15 @@
   <a href="warriors/shinob1/reference/agentx-framework.html" class="nav-gold">AgentX</a>
   <a href="david-the-money.html" class="nav-green">David.</a>
   <a href="tomachina-the-machine.html" class="nav-blue">toMachina</a>
-  <a href="rpi-the-mission.html" class="nav-purple active">RPI</a>
+  <a href="rpi-the-mission.html" class="nav-rpi active">RPI</a>
 </div>
 
 <div class="hero">
-  <div class="hero-badge">The Mission &middot; B2C</div>
-  <img src="rpi-logo-v2-white.png" alt="Retirement Protectors, Inc." style="height: 90px; width: auto; margin-bottom: 28px; filter: drop-shadow(0 0 24px rgba(74, 122, 181, 0.2));">
-  <h1>Retirement <span class="accent">Protectors</span></h1>
-  <div class="hero-tagline">The Mission</div>
-  <p class="hero-sub">The ultimate sales and service experience for <strong>senior-market clients</strong> and their <strong>retiring agents</strong>. Three divisions. One promise.</p>
+  <div class="container">
+    <img src="rpi-logo-v2-white.png" alt="Retirement Protectors, Inc." style="height: 100px; width: auto; margin-bottom: 16px; filter: drop-shadow(0 0 30px rgba(74, 122, 181, 0.25));">
+    <div class="hero-tagline">The Mission</div>
+    <p class="hero-sub">The ultimate sales and service experience for <strong>senior-market clients</strong> and their <strong>retiring agents</strong>. Three divisions. One promise. Every hire, every client, every interaction &mdash; protected.</p>
+  </div>
 </div>
 
 <section>
@@ -76,30 +117,91 @@
       <div class="tagline">We're Your People&trade;.</div>
       <p>Attracting and developing superior professionals in our businesses, providing the ultimate sales and service experience for senior-market clients and their retiring agents.</p>
     </div>
+
+    <div class="values-grid">
+      <div class="value-card"><h4>Foundation of Integrity</h4><p>Every recommendation. Every transaction. Every conversation. The standard isn't "what can we sell" &mdash; it's "what should we do."</p></div>
+      <div class="value-card"><h4>Strong Work Ethic</h4><p>High Activity is the only way through the Competency Quadrants. Volume before mastery. Mastery before delegation. APPA.</p></div>
+      <div class="value-card"><h4>Determination to Achieve</h4><p>The Career Path isn't a poster on a wall. It's a system &mdash; from Coordinator to Director, with measurable gates at every level.</p></div>
+      <div class="value-card"><h4>Ownership of Results</h4><p>Every client outcome has a name attached to it. Not a department. Not a ticket number. A person who owns it.</p></div>
+      <div class="value-card"><h4>Effective Communication</h4><p>Say it TO the person, not ABOUT them. Every tool, every interface, every message &mdash; addressed directly to the human in front of it.</p></div>
+      <div class="value-card"><h4>Positive + Open-Minded</h4><p>The industry is changing. The clients are changing. The tools are changing. The only way to stay relevant is to stay curious.</p></div>
+    </div>
   </div>
 </section>
 
 <section>
   <div class="container">
     <h2>Three <span class="accent">Divisions</span></h2>
-    <p class="section-sub">Health. Retirement. Investments. Every client touchpoint, every product line, every revenue stream &mdash; organized and protected.</p>
+    <p class="section-sub">Health. Retirement. Investments. Every client touchpoint, every product line, every revenue stream &mdash; organized and protected under one roof.</p>
 
     <div class="divisions">
       <div class="division">
         <h3>Health</h3>
-        <div class="partner">Medicare Division</div>
-        <p>MAPD, PDP, Medigap, and Ancillary. Full Medicare coverage from initial enrollment through ongoing annual reviews. The Proactive Service Model keeps clients protected year after year.</p>
+        <div class="div-sub">Medicare Division</div>
+        <p>Full Medicare coverage &mdash; from initial enrollment through ongoing annual reviews. The Proactive Service Model keeps clients protected every year, not just during AEP.</p>
+        <ul>
+          <li><strong>MAPD</strong> &mdash; Medicare Advantage Prescription Drug</li>
+          <li><strong>PDP</strong> &mdash; Standalone Part D</li>
+          <li><strong>Medigap</strong> &mdash; Plans A through N</li>
+          <li><strong>Ancillary</strong> &mdash; Dental, Vision, Hearing, Hospital Indemnity</li>
+        </ul>
       </div>
       <div class="division">
         <h3>Retirement</h3>
-        <div class="partner">Retirement Division</div>
-        <p>Fixed Annuity, Life Insurance, and Fee-Based Advisory. Accumulation, income, protection, and legacy planning &mdash; every stage of the retirement journey under one roof.</p>
+        <div class="div-sub">Retirement Division</div>
+        <p>Accumulation, income, protection, and legacy planning. Every stage of the retirement journey under one roof &mdash; with products chosen for client outcomes, not commissions.</p>
+        <ul>
+          <li><strong>Fixed Index Annuity</strong> &mdash; Principal protection + market-linked growth</li>
+          <li><strong>Life Insurance</strong> &mdash; Term, Whole, IUL, Final Expense</li>
+          <li><strong>Fee-Based Advisory</strong> &mdash; Managed accounts + financial planning</li>
+          <li><strong>Legacy Planning</strong> &mdash; Estate, LTC, wealth transfer</li>
+        </ul>
       </div>
       <div class="division">
         <h3>Investments</h3>
-        <div class="partner">Advisory Division</div>
-        <p>Securities, managed accounts, and institutional product partnerships &mdash; the third pillar of comprehensive wealth management.</p>
+        <div class="div-sub">Advisory Division</div>
+        <p>Securities, managed accounts, and institutional product partnerships. The third pillar &mdash; completing the health + wealth + legacy triad.</p>
+        <ul>
+          <li><strong>RIA</strong> &mdash; Registered Investment Advisor</li>
+          <li><strong>BD</strong> &mdash; Broker-Dealer</li>
+          <li><strong>Managed Accounts</strong> &mdash; Fee-based portfolio management</li>
+          <li><strong>Institutional Partnerships</strong> &mdash; Product creation + distribution</li>
+        </ul>
       </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2>The Proactive <span class="accent">Service Model</span>&trade;</h2>
+    <p class="section-sub">Most agencies sell a product and disappear. RPI built a system that ensures every client is contacted, reviewed, and protected &mdash; proactively, every year, for life.</p>
+
+    <div class="psm">
+      <div class="psm-tag">Client Proactive Service Model&trade;</div>
+      <h3>The reason clients stay.</h3>
+      <p>It's not the product that creates retention &mdash; it's the experience after the sale. The Proactive Service Model is the systematized version of "we actually give a shit" &mdash; built into the tech, enforced by the platform, and delivered by real people who know your name.</p>
+
+      <div class="psm-steps">
+        <div class="psm-step"><div class="step-num">1</div><div class="step-label">Review</div><div class="step-desc">Annual review of every product, every account, every coverage gap.</div></div>
+        <div class="psm-step"><div class="step-num">2</div><div class="step-label">Recommend</div><div class="step-desc">Data-driven recommendations &mdash; not a pitch. What changed this year and what should you do about it.</div></div>
+        <div class="psm-step"><div class="step-num">3</div><div class="step-label">Execute</div><div class="step-desc">Handle the paperwork, the carriers, the compliance. The client signs. We do the rest.</div></div>
+        <div class="psm-step"><div class="step-num">4</div><div class="step-label">Protect</div><div class="step-desc">Monitor for changes. Life events. Market shifts. IRMAA adjustments. Before they call us, we're calling them.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2>What Makes RPI <span class="accent">Different</span></h2>
+    <p class="section-sub">Not what we sell. What we are.</p>
+
+    <div class="diff-grid">
+      <div class="diff-item"><h4><span class="num">01</span>Employees, Not Contractors</h4><p>100% W-2 team. Full control of the client experience from first call to final claim. No 1099 chaos. No "independent agents" who disappear after AEP. Our people wear the RPI jersey.</p></div>
+      <div class="diff-item"><h4><span class="num">02</span>Cross-Industry Under One Roof</h4><p>Health. Wealth. Legacy. Most agencies pick one. We built all three &mdash; because clients don't retire in silos. Their Medicare, their annuity, their life insurance, and their investments all need to talk to each other.</p></div>
+      <div class="diff-item"><h4><span class="num">03</span>The Machine Behind the Mission</h4><p>toMachina isn't a tech vendor we bought. It's the platform we built from the inside &mdash; every workflow, every data flow, every client touchpoint. ProDashX is the team's daily driver. The Dojo runs 24/7. The Machine arms the team with weapons nobody else has.</p></div>
+      <div class="diff-item"><h4><span class="num">04</span>The Career Path Is Real</h4><p>Coordinator &rarr; Associate &rarr; Specialist &rarr; Director. Silver &rarr; Gold &rarr; Platinum quality tiers. Real comp structures. Real advancement gates. The ladder has rungs &mdash; and we built every one of them.</p></div>
     </div>
   </div>
 </section>
@@ -109,15 +211,16 @@
     <h2>The <span class="accent">Ignition</span></h2>
     <p class="section-sub">RPI is the reason everything else exists. David forges the deals. toMachina arms the team. RPI ignites the client experience &mdash; and the flywheel never stops.</p>
 
-    <div class="mission-block" style="border-top: none;">
-      <div class="tagline" style="font-size: 24px;">Forge &middot; Arm &middot; Ignite</div>
-      <p>Every client interaction generates data. Every data point sharpens The Machine. Every improvement to The Machine makes the next client experience better. RPI is both the mission and the fuel. More clients = more data = smarter Machine = better protection.</p>
+    <div class="flywheel-card">
+      <div class="verbs">Forge &middot; Arm &middot; Ignite</div>
+      <h3>The Mission Is the Fuel.</h3>
+      <p>Every client interaction generates data. Every data point sharpens The Machine. Every improvement to The Machine makes the next client experience better. More clients = more data = smarter Machine = better protection. RPI is both the mission and the ignition.</p>
     </div>
   </div>
 </section>
 
 <div class="footer">
-  <div class="sig">RPI &mdash; The Mission &middot; AgentX Enterprise</div>
+  <div class="sig">Agent<span style="color: var(--gold);">X</span> &mdash; RPI (The Mission) &mdash; #WeAreYourPeople</div>
   <div class="sub">Confidential &middot; April 2026 &middot; #RunningOurOwnRACE</div>
 </div>
 
