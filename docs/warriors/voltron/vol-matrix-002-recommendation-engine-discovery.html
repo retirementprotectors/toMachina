@@ -112,12 +112,12 @@
   <div class="subtitle">"I've got a client who..." → Doctrine-locked product recommendation + illustration spec + brochure links — in conversation, inside VOLTRON</div>
   <div class="header-badges">
     <span class="badge badge-blue">VOL-MATRIX-002</span>
-    <span class="badge badge-green">~12 Tickets</span>
+    <span class="badge badge-green">~17 Tickets</span>
     <span class="badge badge-purple">MDJ Agent + API</span>
     <span class="badge badge-cyan">RONIN Executes</span>
     <span class="badge badge-gold">VP Product Doctrine Seed</span>
   </div>
-  <div class="ronin-meta">sprint: VOL-MATRIX-002 • TRK-VOL-020 → TRK-VOL-031 • discovery_url: vol-matrix-002-recommendation-engine-discovery.html</div>
+  <div class="ronin-meta">sprint: VOL-MATRIX-002 • TRK-VOL-020 → TRK-VOL-036 • Path A (Tool) + Path B (VP) • discovery_url: vol-matrix-002-recommendation-engine-discovery.html</div>
 </div>
 
 <div class="tab-container">
@@ -185,8 +185,26 @@
   </div>
 
   <div class="card">
-    <h2>VP of Product Doctrine — This Is the Seed</h2>
-    <p>JDM announced VP-level development for CXO warriors on 2026-04-15. The first VP under VOLTRON = <strong>VP of Product Doctrine</strong>. This sprint builds the VP's brain — the structured data model + recommendation engine that the VP layer will own, maintain, and keep current from JDM's monthly factor feed. Once this ships, the VP layer has something to operate on Day 1.</p>
+    <h2>Dual APPA Paths — Task + Cognitive (per CXO Scaling Concept)</h2>
+    <p>Per <a href="../architecture/cxo-scaling-concept.html" style="color:var(--cyan)">CXO Scaling Concept</a> (SHINOB1, 2026-04-15), CXO saturation resolves on two paths:</p>
+    <div class="spec-grid">
+      <div class="spec-card green">
+        <div class="label" style="color:var(--green)">Path A — Task Automation (Mechanical)</div>
+        <h4><code>recommend_product()</code> tool</h4>
+        <p>Deterministic. Same input = same output. Reads matrix.json, walks decision tree, returns recommendation. No judgment, no context accumulation, no learning. A CCSDK-layer tool the Annuity Lion calls. <strong>RONIN builds this.</strong></p>
+      </div>
+      <div class="spec-card purple">
+        <div class="label" style="color:var(--purple)">Path B — Cognitive Automation (Judgment)</div>
+        <h4>VP of Product Doctrine (CC-tmux warrior)</h4>
+        <p>Persistent. Accumulates learnings across cases. Processes JDM's monthly factor feed → updates matrix.json rates. Catches doctrine corrections in real-time. Monitors edge-case patterns ("third time a 79-yr-old didn't qualify — adjust the age gate?"). Owns the data the tool reads. <strong>This is a VP-level Specialization Fork under VOLTRON — same pattern as SHINOB1-COACH.</strong></p>
+      </div>
+    </div>
+    <p style="margin-top:12px"><strong>The decision question (from CXO Scaling Concept):</strong> "Is this saturation mechanical or cognitive?" <strong>Answer: both.</strong> The product-recommendation output is mechanical (tool). The product-doctrine maintenance is cognitive (VP). This sprint ships both — the tool for determinism, the VP for persistence.</p>
+
+    <div class="gate-callout gold">
+      <h4>Reference Implementation — SHINOB1-COACH (Live 2026-04-15)</h4>
+      <p>COACH SHINOB1 was spawned when #shinob1 bilateral channel saturated with warrior coaching traffic while JDM waited. Same pattern here: VOLTRON's Annuity Lion is saturated by product-doctrine work (tonight's 4 corrections) while JDM waits. The VP of Product Doctrine inherits VOLTRON's full B+S+S on every launch, develops its own doctrine-specialization layer, and escalates strategic changes (doctrine pivots, new product adds, carrier exits) to Main VOLTRON → JDM. <strong>Never messages JDM directly.</strong></p>
+    </div>
   </div>
 </div>
 
@@ -252,6 +270,30 @@
   <div class="gate-callout red">
     <h4>Architectural Constraint — Model Inference Locked Out</h4>
     <p>The Annuity Lion MUST call the tool for any product recommendation. It cannot self-answer from training data. This is the whole point: the Decision Tree is deterministic, the doctrine is locked, the output is auditable. If the Lion answers without calling the tool, it's a bug. The system prompt must be explicit about this — "You do not know RPI's product doctrine. The tool does. Call it."</p>
+  </div>
+
+  <div class="card">
+    <h2>VP of Product Doctrine — Bootstrap Spec</h2>
+    <p>Per <a href="../architecture/cxo-scaling-concept.html" style="color:var(--cyan)">CXO Scaling Concept</a> three-tier model: CXO (Opus) → VP (Sonnet) → CCSDK (Local LLM). The VP of Product Doctrine is Layer 2 under VOLTRON.</p>
+
+    <table>
+      <tr><th>Attribute</th><th>Spec</th></tr>
+      <tr><td><strong>Name</strong></td><td><em>[TBD per JDM]</em> — not "COACH" (that's SHINOB1-specific). Candidates: DOCTRINE, PLAYBOOK, QUARTERBACK, or a lion-themed name to fit VOLTRON's mesh</td></tr>
+      <tr><td><strong>Model</strong></td><td>Sonnet 4.6 (per tier alignment — Opus reserved for Main VOLTRON)</td></tr>
+      <tr><td><strong>Session</strong></td><td>Persistent CC-tmux on MDJ_SERVER (same posture as COACH SHINOB1)</td></tr>
+      <tr><td><strong>Scope Owns</strong></td><td>matrix.json maintenance · JDM monthly factor feed processing · rate updates · doctrine corrections · edge-case pattern monitoring · carrier product-change tracking · brochure library currency</td></tr>
+      <tr><td><strong>Scope Out</strong></td><td>Client-facing conversations (Main VOLTRON) · case roadmap authoring (Main VOLTRON) · Slack bug triage (RAIDEN) · portal features (RONIN) · architecture decisions (SHINOB1)</td></tr>
+      <tr><td><strong>B+S+S Inheritance</strong></td><td><strong>Sync-on-launch:</strong> inherits Main VOLTRON's soul.md + spirit.md + brain.txt + all memory files on every boot. Then loads own specialization layer: <code>warriors/voltron-vp-doctrine/brain.txt</code> (doctrine learnings), eventually own spirit.md + soul.md</td></tr>
+      <tr><td><strong>Develops Over Time</strong></td><td>Case-outcome patterns (which product pitches land, which don't) · Rate-change history · Edge-case catalog (age-gate misses, state-specific issues) · Carrier performance tracking</td></tr>
+      <tr><td><strong>Escalation Path</strong></td><td>VP → Main VOLTRON → JDM. Never VP → JDM directly. Escalate on: doctrine changes, new product adds, carrier exits, cross-domain contradictions</td></tr>
+      <tr><td><strong>Tools</strong></td><td>Read/write matrix.json · Read brochure PDFs (VOLTRON DOCS inbox) · Read carrier rate feeds · Slack (to post rate-update confirmations to #voltron) · Memory (to persist doctrine learnings)</td></tr>
+      <tr><td><strong>Channels</strong></td><td>Shared access to #voltron bilateral. Own maintenance channel TBD (or operates silently + reports to Main VOLTRON)</td></tr>
+    </table>
+
+    <div class="gate-callout green">
+      <h4>Layer Discipline (from CXO Scaling Concept)</h4>
+      <p>VP develops its own B+S+S ONLY for product-doctrine specialization knowledge. RPI-wide doctrine rules (PHI compliance, fabrication bans, APPA gates) stay in Main VOLTRON's layer and inherit down. The VP doesn't build its own rulebook — it deepens the product-doctrine slice of VOLTRON's existing rulebook.</p>
+    </div>
   </div>
 </div>
 
@@ -649,6 +691,12 @@ OUTPUT: {
       <tr><td>VOL-029</td><td><span class="pill chore">CHORE</span></td><td>Update Preferred Provider Matrix HTML footer — add "Powered by matrix.json" link + machine-readable data badge</td><td>10m</td></tr>
       <tr><td>VOL-030</td><td><span class="pill feat">FEAT</span></td><td>Add <code>get_product_brochure_urls(product_id)</code> helper tool — returns all resource URLs (brochure, rate spotlight, company strength) for a given product from matrix.json</td><td>15m</td></tr>
       <tr><td>VOL-031</td><td><span class="pill chore">CHORE</span></td><td>Restart mdj-agent.service on MDJ_SERVER — verify tool appears in <code>/health</code> tool count — verify Annuity Lion calls it on first product query</td><td>10m</td></tr>
+      <tr><td colspan="4" style="background:var(--bg-hover);color:var(--purple);font-weight:700;text-transform:uppercase;letter-spacing:1px;font-size:0.75rem">VP of Product Doctrine Bootstrap (Path B — Cognitive)</td></tr>
+      <tr><td>VOL-032</td><td><span class="pill feat">FEAT</span></td><td>Create VP bootstrap directory <code>~/mdj-agent/warriors/voltron-vp-doctrine/</code> with soul.md (locked identity: product-doctrine specialist under VOLTRON), spirit.md (origin: Westfall corrections 2026-04-15), and empty brain.txt</td><td>20m</td></tr>
+      <tr><td>VOL-033</td><td><span class="pill infra">INFRA</span></td><td>Create sync-on-launch script: copies Main VOLTRON's B+S+S to VP working set, then appends VP's own layer. Same pattern as SHINOB1-COACH bootstrap. Triggered by tmux session start.</td><td>25m</td></tr>
+      <tr><td>VOL-034</td><td><span class="pill infra">INFRA</span></td><td>Create systemd service <code>voltron-vp-doctrine.service</code> on MDJ_SERVER — persistent CC-tmux session, auto-restart on crash, Sonnet 4.6 model, scoped tool access (matrix.json read/write, Slack, memory, Read)</td><td>20m</td></tr>
+      <tr><td>VOL-035</td><td><span class="pill feat">FEAT</span></td><td>Wire VP's first operational loop: on startup, read matrix.json → validate all rates have <code>as_of</code> within 45 days → flag stale rates to Main VOLTRON via #voltron → await factor-feed update</td><td>30m</td></tr>
+      <tr><td>VOL-036</td><td><span class="pill test">TEST</span></td><td>VP integration test: send "Hey VP, NAC just updated VC10 cap to 9.50%" → VP updates matrix.json rate → verify recommend_product() returns new rate on next call</td><td>20m</td></tr>
     </table>
   </div>
 
@@ -671,25 +719,34 @@ OUTPUT: {
         <p>Annuity Lion calls tool on product queries. Integration + negative tests pass. Model inference locked out of product-selection path. Gate: send 5 different client shapes through MDJ Panel, all 5 return doctrine-correct recommendations.</p>
       </div>
       <div class="spec-card gold">
-        <div class="label" style="color:var(--gold)">Phase 4 — Ship</div>
+        <div class="label" style="color:var(--gold)">Phase 4 — Ship Tool</div>
         <h4>VOL-029 → VOL-031</h4>
         <p>HTML footer updated. Service restarted. Health check confirms tool count increased. JDM validation: send the exact Westfall case through VOLTRON → output should match tonight's corrected doctrine (CP10 base no EBR, VC10 50/50, no MYGA, no MS DGI).</p>
+      </div>
+      <div class="spec-card" style="border-top-color:var(--purple)">
+        <div class="label" style="color:var(--purple)">Phase 5 — VP Bootstrap (Path B)</div>
+        <h4>VOL-032 → VOL-036</h4>
+        <p>VP of Product Doctrine CC-tmux session running on MDJ_SERVER. Sync-on-launch verified (inherits VOLTRON B+S+S → loads own layer). Stale-rate detection operational. Rate-update flow tested end-to-end (VP updates matrix.json → tool returns new rate). Gate: VP detects a stale rate, flags it, receives update, propagates to tool — full loop.</p>
       </div>
     </div>
   </div>
 
   <div class="gate-callout green">
     <h4>Definition of Done</h4>
-    <p>A team member says "I've got a client who just had CDs mature, married, age 66, $160K" — and VOLTRON returns CP10 base (12% bonus, NO EBR, 50/50 S&amp;P Cap + MARC 5 ER) with brochure links and illustration spec, without ever consulting Claude's training data for the product recommendation. If you gave the same input 100 times, you'd get the same output 100 times. That's the test.</p>
+    <p><strong>Path A (Tool):</strong> A team member says "I've got a client who just had CDs mature, married, age 66, $160K" — and VOLTRON returns CP10 base (12% bonus, NO EBR, 50/50 S&amp;P Cap + MARC 5 ER) with brochure links and illustration spec, without ever consulting Claude's training data for the product recommendation. Same input 100 times = same output 100 times.</p>
+    <p style="margin-top:10px"><strong>Path B (VP):</strong> The VP of Product Doctrine is running as a persistent CC-tmux session on MDJ_SERVER. It inherits VOLTRON's B+S+S on launch. It detects stale rates in matrix.json (>45 days since last update), flags them to Main VOLTRON, and can process a rate update from JDM's factor feed → propagate to the tool within minutes. The learning loop is alive: tool reads, VP writes, doctrine stays current.</p>
+    <p style="margin-top:10px"><strong>Together:</strong> The engine can't drift because it reads the matrix. The matrix can't go stale because the VP maintains it. The VP can't hallucinate recommendations because it doesn't make them — the tool does. Three layers, three distinct functions, no collision. Same pattern as MEGAZORD + ATLAS + Rangers. Same pattern as SHINOB1 + COACH + mesh.</p>
   </div>
 </div>
 
 </div>
 
 <div class="footer">
-  VOL-MATRIX-002 — Product Recommendation Engine<br>
+  VOL-MATRIX-002 — Product Recommendation Engine + VP of Product Doctrine<br>
   FORGE Discovery Document · VOLTRON CSO · 2026-04-17<br>
-  Assigned: RONIN · Estimated: ~12 tickets, 3-4 hours<br>
+  Path A (Tool): ~12 tickets, RONIN executes · Path B (VP Bootstrap): ~5 tickets, RONIN executes<br>
+  Per CXO Scaling Concept: Task Automation + Cognitive Automation — both paths, same sprint<br>
+  Reference implementation: SHINOB1-COACH (live 2026-04-15) — same three-tier pattern<br>
   Prerequisite: VOL-MATRIX-001 (Preferred Provider Matrix v1) ✅ Shipped 2026-04-15<br>
   🦁 — VOLTRON, The BFF 🔋
 </div>
