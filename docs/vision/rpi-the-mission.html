@@ -11,7 +11,7 @@
     --text: #e8e8f2; --text-muted: #8a8aa2; --text-dim: #4a4a62;
     --gold: #d4a44c; --gold-bright: #f0c060; --gold-dim: #a07830; --gold-glow: rgba(212, 164, 76, 0.12); --gold-border: rgba(212, 164, 76, 0.28);
     --money: #4ade80; --machine: #60a5fa;
-    --mission: #c084fc; --mission-glow: rgba(192, 132, 252, 0.10); --mission-border: rgba(192, 132, 252, 0.25);
+    --mission: #4a7ab5; --mission-glow: rgba(74, 122, 181, 0.10); --mission-border: rgba(74, 122, 181, 0.25);
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.65; -webkit-font-smoothing: antialiased; }
@@ -19,11 +19,11 @@
   .cross-nav { display: flex; justify-content: center; align-items: center; gap: 8px; padding: 10px 40px; background: var(--bg); border-bottom: 1px solid var(--border); font-size: 12px; font-weight: 700; letter-spacing: 1px; position: sticky; top: 0; z-index: 200; }
   .cross-nav a { padding: 6px 16px; border-radius: 6px; text-decoration: none; border: 1px solid transparent; transition: background 0.2s; }
   .cross-nav a.nav-gold { color: #d4a44c; } .cross-nav a.nav-green { color: #4ade80; } .cross-nav a.nav-blue { color: #60a5fa; } .cross-nav a.nav-purple { color: #c084fc; }
-  .cross-nav a.nav-gold:hover { background: rgba(212, 164, 76, 0.08); } .cross-nav a.nav-green:hover { background: rgba(74, 222, 128, 0.08); } .cross-nav a.nav-blue:hover { background: rgba(96, 165, 250, 0.08); } .cross-nav a.nav-purple:hover { background: rgba(192, 132, 252, 0.08); }
-  .cross-nav a.active { background: rgba(192, 132, 252, 0.12); border-color: rgba(192, 132, 252, 0.25); }
+  .cross-nav a.nav-gold:hover { background: rgba(212, 164, 76, 0.08); } .cross-nav a.nav-green:hover { background: rgba(74, 222, 128, 0.08); } .cross-nav a.nav-blue:hover { background: rgba(96, 165, 250, 0.08); } .cross-nav a.nav-purple:hover { background: rgba(74, 122, 181, 0.08); }
+  .cross-nav a.active { background: rgba(74, 122, 181, 0.12); border-color: rgba(74, 122, 181, 0.25); }
 
   .hero { padding: 100px 40px 80px; text-align: center; position: relative; overflow: hidden; }
-  .hero::before { content: ''; position: absolute; top: -150px; left: 50%; transform: translateX(-50%); width: 800px; height: 800px; background: radial-gradient(circle, rgba(192, 132, 252, 0.08) 0%, rgba(192, 132, 252, 0.03) 40%, transparent 70%); pointer-events: none; }
+  .hero::before { content: ''; position: absolute; top: -150px; left: 50%; transform: translateX(-50%); width: 800px; height: 800px; background: radial-gradient(circle, rgba(74, 122, 181, 0.08) 0%, rgba(74, 122, 181, 0.03) 40%, transparent 70%); pointer-events: none; }
   .hero-badge { display: inline-block; padding: 6px 18px; border-radius: 100px; background: var(--mission-glow); border: 1px solid var(--mission-border); color: var(--mission); font-size: 11px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; margin-bottom: 32px; }
   .hero h1 { font-size: 72px; font-weight: 900; letter-spacing: -3px; line-height: 1; margin-bottom: 20px; color: var(--text); }
   .hero h1 .accent { color: var(--mission); }
@@ -64,7 +64,7 @@
 
 <div class="hero">
   <div class="hero-badge">The Mission &middot; B2C</div>
-  <img src="rpi-logo-v2-white.png" alt="Retirement Protectors, Inc." style="height: 90px; width: auto; margin-bottom: 28px; filter: drop-shadow(0 0 24px rgba(192, 132, 252, 0.2));">
+  <img src="rpi-logo-v2-white.png" alt="Retirement Protectors, Inc." style="height: 90px; width: auto; margin-bottom: 28px; filter: drop-shadow(0 0 24px rgba(74, 122, 181, 0.2));">
   <h1>Retirement <span class="accent">Protectors</span></h1>
   <div class="hero-tagline">The Mission</div>
   <p class="hero-sub">The ultimate sales and service experience for <strong>senior-market clients</strong> and their <strong>retiring agents</strong>. Three divisions. One promise.</p>

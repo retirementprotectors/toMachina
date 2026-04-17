@@ -569,8 +569,8 @@
 <!-- TABS                                                            -->
 <!-- ════════════════════════════════════════════════════════════════ -->
 <div class="tab-bar">
-  <div class="tab-btn active" onclick="switchTab('admirer')">Admirer</div>
-  <div class="tab-btn" onclick="switchTab('user')">User</div>
+  <div class="tab-btn active" onclick="switchTab('admirer')">The Platform</div>
+  <div class="tab-btn" onclick="switchTab('user')">The Dojo</div>
 </div>
 
 <!-- ════════════════════════════════════════════════════════════════ -->
@@ -726,7 +726,20 @@
 <!-- ════════════════════════════════════════════════════════════════ -->
 <div id="tab-user" class="tab-content">
 
-<!-- ARCHITECTURE -->
+<!-- THE DOJO — Full embedded content -->
+<section>
+  <div class="container">
+    <h2>The <span class="accent">Dojo</span></h2>
+    <p class="section-sub">The AI Division lives inside toMachina. 7 Warriors with CXO titles. $0 headcount salary. 24/7 autonomous operations on a Dell PowerEdge T440. The journey, the layers, the magic, and the team.</p>
+  </div>
+  <iframe src="the-machine-layers.html" class="dojo-frame" title="The Dojo"></iframe>
+</section>
+
+</div><!-- /tab-user (The Dojo) -->
+
+<!-- ARCHIVE: Original User tab content preserved below for reference -->
+<div style="display:none" id="tab-user-archive">
+
 <section>
   <div class="container">
     <h2>Platform <span class="accent">Architecture</span></h2>
@@ -978,18 +991,7 @@
   </div>
 </section>
 
-</div><!-- /tab-user -->
-
-<!-- ════════════════════════════════════════════════════════════════ -->
-<!-- FOOTER                                                          -->
-<!-- ════════════════════════════════════════════════════════════════ -->
-<section class="dojo-embed">
-  <div class="container">
-    <h2>The <span class="accent">Dojo</span></h2>
-    <p class="section-sub">The AI Division lives inside toMachina. 7 Warriors. $0 headcount. 24/7 operations.</p>
-  </div>
-  <iframe src="the-machine-layers.html" class="dojo-frame" title="The Dojo"></iframe>
-</section>
+</div><!-- /tab-user-archive (hidden) -->
 
 <div class="footer">
   <div class="sig">Agent<span style="color: var(--gold);">X</span> &mdash; toMachina + The Dojo &mdash; #WeAreAgentX</div>
