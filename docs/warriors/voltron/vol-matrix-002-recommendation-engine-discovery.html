@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en" data-cwd="/home/jdm/Projects/toMachina">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VOL-MATRIX-002 — Product Recommendation Engine Discovery</title>
+<style>
+  :root {
+    --bg: #0a0e17;
+    --bg-card: #111827;
+    --bg-hover: #1a2236;
+    --border: #1e293b;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --accent: #3b82f6;
+    --accent-glow: rgba(59, 130, 246, 0.12);
+    --green: #22c55e;
+    --green-glow: rgba(34, 197, 94, 0.12);
+    --orange: #f59e0b;
+    --orange-glow: rgba(245, 158, 11, 0.12);
+    --red: #ef4444;
+    --red-glow: rgba(239, 68, 68, 0.12);
+    --purple: #a855f7;
+    --purple-glow: rgba(168, 85, 247, 0.12);
+    --cyan: #06b6d4;
+    --cyan-glow: rgba(6, 182, 212, 0.12);
+    --blue: #3b82f6;
+    --blue-glow: rgba(59, 130, 246, 0.15);
+    --gold: #d4a44c;
+    --gold-glow: rgba(212, 164, 76, 0.12);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+  .header { background: linear-gradient(135deg, #020b1a 0%, #0a0a1a 30%, #0a1a0a 60%, #020b1a 100%); border-bottom: 1px solid var(--border); padding: 48px 32px 40px; text-align: center; position: relative; overflow: hidden; }
+  .header::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(ellipse at 30% 50%, rgba(59,130,246,0.08) 0%, transparent 60%), radial-gradient(ellipse at 70% 50%, rgba(34,197,94,0.04) 0%, transparent 60%); pointer-events: none; }
+  .header .sprint-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--blue); margin-bottom: 12px; position: relative; }
+  .header h1 { font-size: 2.8rem; font-weight: 800; background: linear-gradient(135deg, var(--blue) 0%, var(--green) 50%, var(--blue) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; letter-spacing: -0.5px; position: relative; }
+  .header .subtitle { font-size: 1.05rem; color: var(--text-muted); max-width: 700px; margin: 0 auto 20px; position: relative; }
+  .header-badges { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; position: relative; }
+  .badge { display: inline-block; padding: 4px 14px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+  .badge-red { background: var(--red-glow); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
+  .badge-gold { background: var(--gold-glow); color: var(--gold); border: 1px solid rgba(212,164,76,0.3); }
+  .badge-purple { background: var(--purple-glow); color: var(--purple); border: 1px solid rgba(168,85,247,0.3); }
+  .badge-blue { background: var(--blue-glow); color: var(--blue); border: 1px solid rgba(59,130,246,0.3); }
+  .badge-green { background: var(--green-glow); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+  .badge-cyan { background: var(--cyan-glow); color: var(--cyan); border: 1px solid rgba(6,182,212,0.3); }
+  .badge-orange { background: var(--orange-glow); color: var(--orange); border: 1px solid rgba(245,158,11,0.3); }
+  .ronin-meta { font-size: 0.72rem; color: var(--text-muted); font-family: 'SF Mono', monospace; margin-top: 12px; position: relative; }
+  .tab-container { position: sticky; top: 0; z-index: 100; background: var(--bg); border-bottom: 1px solid var(--border); overflow-x: auto; }
+  .tabs { display: flex; max-width: 1200px; margin: 0 auto; padding: 0 16px; gap: 0; }
+  .tab { padding: 14px 20px; cursor: pointer; font-size: 0.85rem; font-weight: 500; color: var(--text-muted); border-bottom: 2px solid transparent; white-space: nowrap; transition: all 0.2s; }
+  .tab:hover { color: var(--text); background: var(--bg-hover); }
+  .tab.active { color: var(--blue); border-bottom-color: var(--blue); background: var(--blue-glow); }
+  .content { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+  .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+  .card h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 16px; color: var(--text); }
+  .card h3 { font-size: 1rem; font-weight: 600; margin: 16px 0 8px; color: var(--blue); }
+  .card p { color: var(--text-muted); margin-bottom: 12px; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 0.875rem; }
+  th { text-align: left; padding: 10px 12px; background: var(--bg-hover); color: var(--green); font-weight: 600; border-bottom: 1px solid var(--border); }
+  td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text-muted); vertical-align: top; }
+  tr:hover td { background: var(--bg-hover); }
+  td:first-child { color: var(--text); font-weight: 500; }
+  .diagram { background: #0d1117; border: 1px solid var(--border); border-radius: 8px; padding: 24px; overflow-x: auto; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.8rem; line-height: 1.5; color: var(--text-muted); white-space: pre; margin: 16px 0; }
+  .spec-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; margin: 16px 0; }
+  .spec-card { background: var(--bg-hover); border: 1px solid var(--border); border-radius: 8px; padding: 16px; border-top: 3px solid var(--blue); }
+  .spec-card.green { border-top-color: var(--green); }
+  .spec-card.orange { border-top-color: var(--orange); }
+  .spec-card.cyan { border-top-color: var(--cyan); }
+  .spec-card.purple { border-top-color: var(--purple); }
+  .spec-card.red { border-top-color: var(--red); }
+  .spec-card.gold { border-top-color: var(--gold); }
+  .spec-card h4 { font-size: 1rem; margin-bottom: 8px; }
+  .spec-card p { font-size: 0.85rem; color: var(--text-muted); margin: 0; }
+  .spec-card .label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+  .level-bar { padding: 16px; margin-bottom: 8px; border-radius: 8px; border-left: 4px solid var(--blue); background: var(--blue-glow); }
+  .level-bar.green { border-left-color: var(--green); background: rgba(34,197,94,0.08); }
+  .level-bar.orange { border-left-color: var(--orange); background: rgba(245,158,11,0.08); }
+  .level-bar.red { border-left-color: var(--red); background: rgba(239,68,68,0.08); }
+  .level-bar.gold { border-left-color: var(--gold); background: rgba(212,164,76,0.08); }
+  .level-bar.purple { border-left-color: var(--purple); background: rgba(168,85,247,0.08); }
+  .level-bar.cyan { border-left-color: var(--cyan); background: rgba(6,182,212,0.08); }
+  .level-bar h4 { font-size: 0.95rem; margin-bottom: 4px; }
+  .level-bar p { font-size: 0.85rem; color: var(--text-muted); margin: 0; }
+  .gate-callout { padding: 20px; border-radius: 10px; margin-bottom: 16px; background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.25); border-left: 4px solid var(--blue); }
+  .gate-callout.red { background: rgba(239,68,68,0.08); border-color: rgba(239,68,68,0.25); border-left-color: var(--red); }
+  .gate-callout.green { background: rgba(34,197,94,0.08); border-color: rgba(34,197,94,0.25); border-left-color: var(--green); }
+  .gate-callout.gold { background: rgba(212,164,76,0.08); border-color: rgba(212,164,76,0.25); border-left-color: var(--gold); }
+  .gate-callout h4 { color: var(--blue); margin-bottom: 8px; font-size: 0.95rem; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; }
+  .gate-callout.red h4 { color: var(--red); }
+  .gate-callout.green h4 { color: var(--green); }
+  .gate-callout.gold h4 { color: var(--gold); }
+  .gate-callout p { font-size: 0.85rem; color: var(--text-muted); margin: 0; }
+  code { font-family: 'SF Mono', monospace; font-size: 0.8rem; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; color: var(--cyan); }
+  .pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+  .pill.feat { background: rgba(168,85,247,0.15); color: var(--purple); }
+  .pill.chore { background: rgba(59,130,246,0.15); color: var(--blue); }
+  .pill.infra { background: rgba(6,182,212,0.15); color: var(--cyan); }
+  .pill.tool { background: rgba(34,197,94,0.15); color: var(--green); }
+  .pill.data { background: rgba(245,158,11,0.15); color: var(--orange); }
+  .pill.test { background: rgba(212,164,76,0.15); color: var(--gold); }
+  .footer { text-align: center; padding: 32px; color: var(--text-muted); font-size: 0.72rem; border-top: 1px solid var(--border); margin-top: 44px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="sprint-label">VOL-MATRIX-002 &mdash; FORGE Discovery Document</div>
+  <h1>Product Recommendation Engine</h1>
+  <div class="subtitle">"I've got a client who..." → Doctrine-locked product recommendation + illustration spec + brochure links — in conversation, inside VOLTRON</div>
+  <div class="header-badges">
+    <span class="badge badge-blue">VOL-MATRIX-002</span>
+    <span class="badge badge-green">~12 Tickets</span>
+    <span class="badge badge-purple">MDJ Agent + API</span>
+    <span class="badge badge-cyan">RONIN Executes</span>
+    <span class="badge badge-gold">VP Product Doctrine Seed</span>
+  </div>
+  <div class="ronin-meta">sprint: VOL-MATRIX-002 • TRK-VOL-020 → TRK-VOL-031 • discovery_url: vol-matrix-002-recommendation-engine-discovery.html</div>
+</div>
+
+<div class="tab-container">
+  <div class="tabs">
+    <div class="tab active" data-tab="mission">The Mission</div>
+    <div class="tab" data-tab="architecture">Architecture</div>
+    <div class="tab" data-tab="statemachine">State Machine</div>
+    <div class="tab" data-tab="data">Data Model</div>
+    <div class="tab" data-tab="integration">Integration</div>
+    <div class="tab" data-tab="ux">User Experience</div>
+    <div class="tab" data-tab="files">Files</div>
+    <div class="tab" data-tab="sprint">Sprint Plan</div>
+  </div>
+</div>
+
+<div class="content">
+
+<!-- ============================================ -->
+<!-- TAB 1: THE MISSION                           -->
+<!-- ============================================ -->
+<div class="tab-panel active" id="mission">
+
+  <div class="gate-callout">
+    <h4>Sprint Gate — What Makes This Worth Building</h4>
+    <p>Tonight (2026-04-15), VOLTRON burned JDM's time on <strong>4 product-doctrine corrections</strong> in one case (Westfall). EBR rider elected when it shouldn't be. MS DGI 260% recommended when 50/50 S&amp;P/MARC is locked doctrine. MYGA language used when the category is banned. GLWB joint-life mechanics misapplied. Each correction consumed CEO bandwidth on details that should have been <em>one tool call away</em>. The Preferred Provider Matrix (VOL-MATRIX-001) captured the doctrine as a static HTML reference. This sprint makes it <strong>interactive inside VOLTRON</strong> — a recommendation engine the team talks to mid-case.</p>
+  </div>
+
+  <div class="card">
+    <h2>The Directive</h2>
+    <p><strong>JDM, 2026-04-15:</strong></p>
+    <blockquote style="border-left:3px solid var(--blue);padding:12px 18px;margin:12px 0;color:var(--text);background:rgba(59,130,246,0.05);border-radius:0 8px 8px 0;font-style:italic">
+      "So this becomes a recommendation engine that we probably could build in maybe even the MDJ engine? With how the wiring is right now in the MDJ engine, if somebody says, 'I've got a client who,' and then they are talking about their money, is that something that we currently do or could route to this decision tree? Like how would that work? Would it start to ask questions about the client to determine the right option? Or could it?"
+    </blockquote>
+    <p><strong>Answer:</strong> Today MDJ routes these queries to the Annuity Lion by keyword — but the Lion answers from model knowledge, not from RPI doctrine. It doesn't consult the matrix. This sprint wires the matrix into the Lion as a structured tool, so every product recommendation is doctrine-locked by definition.</p>
+  </div>
+
+  <div class="card">
+    <h2>The Problem — One Sentence</h2>
+    <p style="font-size:1.2rem;color:var(--text);font-weight:600">VOLTRON's Annuity Lion knows annuity mechanics from training data, but doesn't know <em>RPI's specific product doctrine</em> — which products to recommend, which allocations to lock, which riders to elect, which carriers to prefer.</p>
+    <h3>What We're Building</h3>
+    <p>A <strong>structured recommendation tool</strong> inside the MDJ agent that:</p>
+    <ol style="margin-left:20px;color:var(--text-muted)">
+      <li>Detects "I've got a client who..." patterns in conversation</li>
+      <li>Asks 3-5 clarifying questions about the client's money shape</li>
+      <li>Walks the Decision Tree from the Preferred Provider Matrix</li>
+      <li>Returns: <strong>lead product + alt product + default allocation + doctrinal flags + brochure links + illustration spec</strong></li>
+      <li>Every answer is backed by the matrix JSON — not model inference</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <h2>Why Now — The Upstream Fix</h2>
+    <div class="spec-grid">
+      <div class="spec-card red">
+        <div class="label" style="color:var(--red)">Before (tonight)</div>
+        <h4>Model-knowledge recommendations</h4>
+        <p>VOLTRON recommends products from Claude's training data. Drift from RPI doctrine is invisible until JDM catches it. EBR gets elected. MS DGI gets allocated. MYGA language leaks through. Each correction costs 5-10 minutes of CEO time.</p>
+      </div>
+      <div class="spec-card green">
+        <div class="label" style="color:var(--green)">After (this sprint)</div>
+        <h4>Doctrine-locked recommendations</h4>
+        <p>VOLTRON calls <code>recommend_product()</code> which reads the matrix JSON. Output is deterministic: same client shape always produces same recommendation. Doctrine changes update the JSON → every future recommendation inherits. Model inference locked out of the product-selection path.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>VP of Product Doctrine — This Is the Seed</h2>
+    <p>JDM announced VP-level development for CXO warriors on 2026-04-15. The first VP under VOLTRON = <strong>VP of Product Doctrine</strong>. This sprint builds the VP's brain — the structured data model + recommendation engine that the VP layer will own, maintain, and keep current from JDM's monthly factor feed. Once this ships, the VP layer has something to operate on Day 1.</p>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- TAB 2: ARCHITECTURE                          -->
+<!-- ============================================ -->
+<div class="tab-panel" id="architecture">
+
+  <div class="card">
+    <h2>Where It Lives — MDJ Agent on MDJ_SERVER</h2>
+    <p>The recommendation engine is a <strong>new tool</strong> registered in the MDJ agent's tool set (port 4200 on MDJ_SERVER). It does not live in the toMachina Cloud Run API — it lives alongside VOLTRON's 82 existing tools in <code>~/mdj-agent/</code>.</p>
+
+    <div class="diagram">┌─────────────────────────────────────────────────────┐
+│  MDJ Agent (mdj-agent:4200)                         │
+│                                                     │
+│  Team member: "I've got a client who just had        │
+│  CDs mature, $400K, wants to keep it safe"          │
+│       │                                             │
+│       ▼                                             │
+│  ┌─────────────┐                                    │
+│  │  VOLTRON    │  keyword → annuity/money signal    │
+│  │  Router     │                                    │
+│  └──────┬──────┘                                    │
+│         ▼                                           │
+│  ┌─────────────┐     ┌──────────────────────┐       │
+│  │ Annuity     │────▶│ recommend_product()  │       │
+│  │ Lion        │     │ (NEW TOOL)           │       │
+│  └─────────────┘     └──────────┬───────────┘       │
+│                                 │                   │
+│                      ┌──────────▼───────────┐       │
+│                      │ matrix.json          │       │
+│                      │ (structured mirror   │       │
+│                      │  of HTML matrix)     │       │
+│                      └──────────────────────┘       │
+│                                                     │
+│  Output: lead product, alt, allocation,             │
+│          doctrine flags, brochure URLs,             │
+│          illustration spec template                 │
+└─────────────────────────────────────────────────────┘</div>
+  </div>
+
+  <div class="card">
+    <h2>Three Components</h2>
+    <div class="spec-grid">
+      <div class="spec-card green">
+        <div class="label" style="color:var(--green)">Component 1</div>
+        <h4><code>matrix.json</code> — The Data</h4>
+        <p>Machine-readable mirror of the Preferred Provider Matrix. Contains: carriers (tier + lineup), products (mechanics + rates + doctrine), decision tree (client_shape → product mapping), default allocations (locked per product), doctrine rules, and reference links. Single source of truth — HTML matrix renders FROM this JSON (or stays in sync via build step).</p>
+      </div>
+      <div class="spec-card cyan">
+        <div class="label" style="color:var(--cyan)">Component 2</div>
+        <h4><code>recommend_product()</code> — The Tool</h4>
+        <p>MDJ agent tool that accepts structured intake (source_type, has_surrender, horizon, spouse_coverage, age_band) and walks the decision tree. Returns deterministic output. Can be called directly with all params (from the Annuity Lion after Q&amp;A) OR called in state-machine mode where it asks questions one round at a time.</p>
+      </div>
+      <div class="spec-card purple">
+        <div class="label" style="color:var(--purple)">Component 3</div>
+        <h4>Annuity Lion — Enhanced System Prompt</h4>
+        <p>Annuity Lion's specialist prompt gets a new instruction block: "When a team member describes a client's money situation, call <code>recommend_product()</code> instead of answering from your own knowledge. Ask clarifying questions if the intake params aren't clear. Never recommend a product, allocation, or rider configuration without calling the tool first."</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="gate-callout red">
+    <h4>Architectural Constraint — Model Inference Locked Out</h4>
+    <p>The Annuity Lion MUST call the tool for any product recommendation. It cannot self-answer from training data. This is the whole point: the Decision Tree is deterministic, the doctrine is locked, the output is auditable. If the Lion answers without calling the tool, it's a bug. The system prompt must be explicit about this — "You do not know RPI's product doctrine. The tool does. Call it."</p>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- TAB 3: STATE MACHINE                         -->
+<!-- ============================================ -->
+<div class="tab-panel" id="statemachine">
+
+  <div class="card">
+    <h2>The Intake State Machine — 5 Questions</h2>
+    <p>When a team member says "I've got a client who..." and the Annuity Lion doesn't have enough information to call <code>recommend_product()</code> with all required params, it asks clarifying questions. Maximum 5 rounds — most cases resolve in 2-3.</p>
+
+    <table>
+      <tr><th>Round</th><th>Question</th><th>Maps To</th><th>Options (not exhaustive)</th></tr>
+      <tr>
+        <td><strong>1</strong></td>
+        <td>"What's the money source?"</td>
+        <td><code>source_type</code></td>
+        <td>CD at maturity · Existing annuity (in surrender) · Existing annuity (past surrender) · IRA · Roth IRA · Cash / savings · Inheritance · 401k rollover</td>
+      </tr>
+      <tr>
+        <td><strong>2</strong></td>
+        <td>"Are there surrender charges on the incoming money?"</td>
+        <td><code>has_surrender</code> + <code>surrender_pct</code></td>
+        <td>No (liquid) · Yes, under 3% · Yes, 3-5% · Yes, over 5% · Not sure (flag for verification)</td>
+      </tr>
+      <tr>
+        <td><strong>3</strong></td>
+        <td>"What's the goal — grow it, generate income soon, or generate income later?"</td>
+        <td><code>horizon</code></td>
+        <td>Accumulation · Income soon (1-5 yr) · Income later (5-10+ yr) · Both (accumulation that converts to income)</td>
+      </tr>
+      <tr>
+        <td><strong>4</strong></td>
+        <td>"Does the client need spousal coverage — should income continue to the surviving spouse?"</td>
+        <td><code>spouse_coverage</code></td>
+        <td>Yes (joint life) · No (single life) · Not applicable (no spouse)</td>
+      </tr>
+      <tr>
+        <td><strong>5</strong></td>
+        <td>"How old is the client? (or age range)"</td>
+        <td><code>age_band</code></td>
+        <td>Under 60 · 60-70 · 71-80 · 81-85 · Over 85</td>
+      </tr>
+    </table>
+
+    <h3>Shortcut Detection</h3>
+    <p>If the team member's initial message contains enough info to skip rounds, the Lion skips. Example: "Client is 67, CDs just matured, $400K, wants accumulation, married" → all 5 params are extractable → Lion calls the tool directly, no Q&amp;A needed. The state machine is for partial-info cases.</p>
+  </div>
+
+  <div class="card">
+    <h2>Decision Tree Walk — Deterministic Output</h2>
+    <p>Once all params are collected, <code>recommend_product()</code> walks the tree:</p>
+    <div class="diagram">INPUT: { source_type, has_surrender, surrender_pct, horizon, spouse_coverage, age_band }
+
+STEP 1: Age gate
+  → age_band == "81-85" → Ameritas GMIB / NAC GA 5/7 (narrow niche)
+  → age_band == "over_85" → "Manual review — outside standard product menu"
+  → else → continue
+
+STEP 2: Horizon filter
+  → horizon == "income_later" → income products path
+  → horizon == "income_soon" → income products path (shorter deferral)
+  → horizon == "accumulation" → accumulation products path
+  → horizon == "both" → accumulation w/ income rider option
+
+STEP 3: Bonus need (accumulation path only)
+  → has_surrender == true AND surrender_pct > 5% → CP10 + EBR (narrow case)
+  → has_surrender == true AND surrender_pct <= 5% → CP10 base (12% covers it)
+  → has_surrender == false → CP10 base OR VC10 OR Control X (rate-driven pick)
+
+STEP 4: Income products path
+  → spouse_coverage == true → Joint Life factor (Nassau IA or NAC BenSol)
+  → spouse_coverage == false → Single Life factor
+  → preferred carrier logic (Nassau IA for income flagship, BenSol for GMIB stack)
+
+STEP 5: Source-type modifiers
+  → source_type == "roth" → Nassau Growth 10-yr (tax-free growth chassis)
+  → source_type == "cd_matured" → emphasize "no bonus needed" message
+  → source_type == "existing_annuity_in_surrender" → flag anniversary-before-1035
+
+OUTPUT: {
+  lead_product, alt_product,
+  default_allocation,
+  doctrine_flags: ["EBR_OFF", "NO_MYGA", etc.],
+  brochure_urls, rate_spotlight_urls,
+  illustration_spec: { carrier, product, premium, allocation_split, rider_elections },
+  caveats: ["Verify anniversary date before 1035", etc.]
+}</div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- TAB 4: DATA MODEL                            -->
+<!-- ============================================ -->
+<div class="tab-panel" id="data">
+
+  <div class="card">
+    <h2><code>matrix.json</code> — Schema</h2>
+    <p>The machine-readable mirror of the Preferred Provider Matrix. Lives at <code>~/mdj-agent/data/matrix.json</code> on MDJ_SERVER. Updated whenever the HTML matrix changes (initially manual, later VP of Product Doctrine owns the sync).</p>
+
+    <div class="diagram">{
+  "version": "1.0.0",
+  "last_updated": "2026-04-17",
+  "updated_by": "VOLTRON",
+
+  "carriers": [
+    {
+      "id": "nac",
+      "name": "North American (NAC)",
+      "tier": 1,
+      "am_best": "A+",
+      "products": ["cp10", "cp14", "vc10", "cx", "pc8", "bs10", "ipp10", "ga5", "ga7"],
+      "resources": {
+        "company_strength": "nac-company-strength.pdf",
+        "rate_spotlights": ["nac-charter-plus-rates.pdf", "nac-versachoice-10-rates.pdf"]
+      }
+    },
+    {
+      "id": "nassau",
+      "name": "Nassau",
+      "tier": 1,
+      "am_best": "A-",
+      "products": ["nassau_ia", "nassau_growth_10", "nassau_growth_7", "nassau_bonus"],
+      "resources": {
+        "company_strength": "nassau-corporate-profile.pdf",
+        "brochures": ["nassau-income-accelerator-brochure.pdf", "nassau-growth-annuity-brochure.pdf"]
+      }
+    }
+  ],
+
+  "products": [
+    {
+      "id": "cp10",
+      "carrier": "nac",
+      "name": "NAC Charter Plus 10",
+      "surrender_years": 10,
+      "lanes": ["accumulation", "bonus"],
+      "base_bonus_pct": 12,
+      "ebr_bonus_pct": 9,
+      "ebr_fee_pct": 0.95,
+      "ebr_default": "OFF",
+      "default_allocation": {
+        "strategy_1": { "name": "S&P 500 Annual PTP Cap", "weight": 0.50 },
+        "strategy_2": { "name": "S&P MARC 5% ER Participation", "weight": 0.50 }
+      },
+      "current_rates": {
+        "fixed": "3.00%",
+        "sp500_cap": "6.00%",
+        "as_of": "2026-04-02"
+      },
+      "doctrine_flags": ["EBR_OFF_DEFAULT", "50_50_ALLOCATION_LOCKED"],
+      "pitch": "Your CDs just matured — liquid, no penalties. Charter Plus picks up a 12% bonus..."
+    }
+    // ... remaining products follow same schema
+  ],
+
+  "decision_tree": [
+    {
+      "id": "cd_matured_accumulation",
+      "client_shape": "CDs at maturity, no surrender charges",
+      "conditions": {
+        "source_type": ["cd_matured", "cash", "savings"],
+        "has_surrender": false,
+        "horizon": "accumulation"
+      },
+      "lead": { "product_id": "cp10", "note": "Base 12% bonus, NO EBR" },
+      "alt": { "product_id": "nassau_growth_10", "note": "Clean, no bonus" }
+    }
+    // ... remaining decision rows
+  ],
+
+  "doctrine_rules": [
+    {
+      "id": "NO_MYGA",
+      "rule": "RPI does not sell MYGAs. Category is closed.",
+      "severity": "BLOCK"
+    },
+    {
+      "id": "EBR_OFF_DEFAULT",
+      "rule": "EBR never elected unless incoming surrender > 5%",
+      "severity": "BLOCK"
+    },
+    {
+      "id": "ALLOCATION_50_50",
+      "rule": "VC10/CP10/BenSol/IPP default = 50% S&P Cap + 50% MARC 5 ER",
+      "severity": "BLOCK"
+    }
+    // ... remaining rules
+  ],
+
+  "resource_base_url": "https://retirementprotectors.github.io/toMachina/docs/products/resources/"
+}</div>
+  </div>
+
+  <div class="gate-callout gold">
+    <h4>Sync Contract — JSON ↔ HTML</h4>
+    <p>The HTML matrix at <code>docs/products/rpi-preferred-provider-matrix.html</code> is the human-readable view. <code>matrix.json</code> is the machine-readable mirror. When either changes, the other must update. Phase 1 (this sprint): manual sync. Phase 2 (VP layer): the VP of Product Doctrine owns both and keeps them in lockstep. Phase 3: generate HTML from JSON (single source).</p>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- TAB 5: INTEGRATION                           -->
+<!-- ============================================ -->
+<div class="tab-panel" id="integration">
+
+  <div class="card">
+    <h2>Integration Points — What Touches What</h2>
+    <table>
+      <tr><th>System</th><th>Change</th><th>Scope</th></tr>
+      <tr>
+        <td><strong>MDJ Agent tool registry</strong></td>
+        <td>Register <code>recommend_product</code> tool with JSON schema definition + handler</td>
+        <td>New file: <code>~/mdj-agent/tools/recommend-product.js</code></td>
+      </tr>
+      <tr>
+        <td><strong>MDJ Agent data</strong></td>
+        <td>Add <code>matrix.json</code> to data directory, loaded at startup</td>
+        <td>New file: <code>~/mdj-agent/data/matrix.json</code></td>
+      </tr>
+      <tr>
+        <td><strong>Annuity Lion specialist prompt</strong></td>
+        <td>Add doctrine-lock instruction: "Call recommend_product() for all product recommendations. Do not self-answer."</td>
+        <td>Edit: specialist config for Annuity domain in <code>~/mdj-agent/specialists/</code></td>
+      </tr>
+      <tr>
+        <td><strong>VOLTRON router</strong></td>
+        <td>No change — existing keyword routing to Annuity Lion handles "client who..." patterns. The enhancement is inside the Lion, not the router.</td>
+        <td>None</td>
+      </tr>
+      <tr>
+        <td><strong>toMachina API</strong></td>
+        <td>No change — recommendation engine lives in mdj-agent, not Cloud Run</td>
+        <td>None</td>
+      </tr>
+      <tr>
+        <td><strong>Preferred Provider Matrix HTML</strong></td>
+        <td>Add link to JSON endpoint for transparency: "This page is backed by matrix.json which powers VOLTRON's recommendation engine"</td>
+        <td>Small edit: footer of <code>rpi-preferred-provider-matrix.html</code></td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Tool Definition — Claude Tool Schema</h2>
+    <div class="diagram">{
+  "name": "recommend_product",
+  "description": "Returns RPI doctrine-locked product recommendation based on client money shape. ALWAYS call this instead of answering product questions from training data.",
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "source_type": {
+        "type": "string",
+        "enum": ["cd_matured", "existing_annuity_in_surrender", "existing_annuity_past_surrender",
+                 "ira", "roth", "cash", "inheritance", "401k_rollover"],
+        "description": "Where the client's money is coming from"
+      },
+      "has_surrender": {
+        "type": "boolean",
+        "description": "Whether the incoming money has real surrender charges"
+      },
+      "surrender_pct": {
+        "type": "number",
+        "description": "Approximate surrender charge percentage (0 if none)"
+      },
+      "horizon": {
+        "type": "string",
+        "enum": ["accumulation", "income_soon", "income_later", "both"],
+        "description": "Client's primary goal"
+      },
+      "spouse_coverage": {
+        "type": "string",
+        "enum": ["joint", "single", "na"],
+        "description": "Whether income should continue to surviving spouse"
+      },
+      "age_band": {
+        "type": "string",
+        "enum": ["under_60", "60_70", "71_80", "81_85", "over_85"],
+        "description": "Client's age range"
+      },
+      "premium_amount": {
+        "type": "number",
+        "description": "Approximate premium amount (affects band pricing)"
+      },
+      "tax_wrapper": {
+        "type": "string",
+        "enum": ["qualified", "non_qualified", "roth"],
+        "description": "Tax wrapper of the destination product"
+      }
+    },
+    "required": ["source_type", "horizon", "age_band"]
+  }
+}</div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- TAB 6: USER EXPERIENCE                       -->
+<!-- ============================================ -->
+<div class="tab-panel" id="ux">
+
+  <div class="card">
+    <h2>What the Team Member Sees</h2>
+    <p>The team member never knows a tool is being called. They talk to VOLTRON naturally. VOLTRON (via Annuity Lion) asks smart questions, then delivers a crisp recommendation with everything needed to move the case forward.</p>
+
+    <div class="level-bar" style="border-left-color:var(--text-muted)">
+      <h4 style="color:var(--text)">Team Member</h4>
+      <p>"Hey VOLTRON, I've got a client — Chris Westfall, age 66. He just had $160K in CDs mature. Married to Coleen. He wants to keep the money safe but growing. What should we be looking at?"</p>
+    </div>
+
+    <div class="level-bar" style="border-left-color:var(--blue)">
+      <h4 style="color:var(--blue)">VOLTRON (Annuity Lion)</h4>
+      <p>"Great — liquid CDs, no surrender charges, accumulation goal, married, age 66. Let me pull the recommendation."</p>
+      <p style="font-size:0.75rem;color:var(--cyan);font-style:italic">[calls recommend_product({ source_type: "cd_matured", has_surrender: false, horizon: "accumulation", spouse_coverage: "joint", age_band: "60_70", premium_amount: 160000, tax_wrapper: "non_qualified" })]</p>
+    </div>
+
+    <div class="level-bar green">
+      <h4>VOLTRON Response</h4>
+      <p><strong>Lead recommendation: NAC Charter Plus 10</strong> — 12% base premium bonus (NO EBR rider). $160K premium → $179,200 Day-1 accumulation value. Default allocation: 50% S&amp;P 500 Annual Cap (6.00%) + 50% S&amp;P MARC 5% ER Participation. 10% annual free withdrawal starting year 2.<br><br>
+      <strong>Alternative: NAC VersaChoice 10 (High Band)</strong> — no bonus, but 9.20% S&amp;P cap (vs 6.00% on CP10). At $160K, qualifies for high band. Default allocation: same 50/50 S&amp;P/MARC. Typically outperforms CP10 by year 7-8 despite no bonus head-start.<br><br>
+      <strong>Doctrinal flags:</strong> EBR OFF (CDs are liquid, no surrender to offset). No MYGA framing. Anniversary check N/A (no incoming annuity).<br><br>
+      📎 <a href="#">NAC Charter Plus Rate Spotlight</a> · <a href="#">NAC Company Strength</a> · <a href="#">VC10 Kit</a> · <a href="#">VC10 Rates</a></p>
+    </div>
+
+    <div class="level-bar" style="border-left-color:var(--text-muted)">
+      <h4 style="color:var(--text)">Team Member</h4>
+      <p>"Perfect. Can you run an illustration for the CP10 at those specs?"</p>
+    </div>
+
+    <div class="level-bar" style="border-left-color:var(--blue)">
+      <h4 style="color:var(--blue)">VOLTRON</h4>
+      <p>"Illustration spec locked: NAC CP10, $160K NQ premium, 12% base bonus (no EBR), 50% S&amp;P 500 Cap / 50% MARC 5% ER. I'll prepare the roadmap section with these specs and link the brochures. JDM runs the illustration from the factor feed — I've got the request queued."</p>
+    </div>
+  </div>
+
+  <div class="gate-callout green">
+    <h4>What Changed vs. Tonight (Westfall)</h4>
+    <p>Tonight VOLTRON recommended EBR, MS DGI 260%, and MYGA framing. With the recommendation engine, none of those are possible — the tool's output is locked to doctrine. The Lion can't hallucinate product recommendations because it's not allowed to generate them. The tool generates them. The tool reads the matrix. The matrix is doctrine.</p>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- TAB 7: FILES                                 -->
+<!-- ============================================ -->
+<div class="tab-panel" id="files">
+
+  <div class="card">
+    <h2>Critical Files — Create / Modify</h2>
+    <table>
+      <tr><th>Action</th><th>File</th><th>Description</th></tr>
+      <tr><td><span class="pill tool">CREATE</span></td><td><code>~/mdj-agent/data/matrix.json</code></td><td>Structured mirror of the Preferred Provider Matrix — carriers, products, decision tree, allocations, doctrine rules, resource links</td></tr>
+      <tr><td><span class="pill tool">CREATE</span></td><td><code>~/mdj-agent/tools/recommend-product.js</code></td><td>Tool handler: reads matrix.json, walks decision tree, returns recommendation object</td></tr>
+      <tr><td><span class="pill tool">CREATE</span></td><td><code>~/mdj-agent/tools/recommend-product.test.js</code></td><td>Unit tests: 10+ scenarios (CD matured, IRA 1035, Roth reposition, aged-out, income-later, spousal, etc.)</td></tr>
+      <tr><td><span class="pill feat">MODIFY</span></td><td><code>~/mdj-agent/specialists/annuity.js</code></td><td>Add doctrine-lock instruction to Annuity Lion system prompt + register recommend_product tool</td></tr>
+      <tr><td><span class="pill feat">MODIFY</span></td><td><code>~/mdj-agent/tools/index.js</code></td><td>Register recommend_product in tool registry</td></tr>
+      <tr><td><span class="pill chore">MODIFY</span></td><td><code>docs/products/rpi-preferred-provider-matrix.html</code></td><td>Add footer link: "Powered by matrix.json — VOLTRON's recommendation engine"</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Files NOT Touched</h2>
+    <table>
+      <tr><th>File</th><th>Why Not</th></tr>
+      <tr><td><code>services/api/</code></td><td>Recommendation engine is MDJ-agent-side only — not a Cloud Run route</td></tr>
+      <tr><td><code>apps/prodash/</code></td><td>No portal UI change — the recommendation flows through VOLTRON conversation</td></tr>
+      <tr><td><code>packages/core/</code></td><td>No shared business logic change — the tool is self-contained in mdj-agent</td></tr>
+      <tr><td>VOLTRON router / other Lions</td><td>Only the Annuity Lion gets the enhancement — other Lions unaffected</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- TAB 8: SPRINT PLAN                           -->
+<!-- ============================================ -->
+<div class="tab-panel" id="sprint">
+
+  <div class="gate-callout gold">
+    <h4>RONIN Sprint Contract</h4>
+    <p>~12 tickets. Estimated 3-4 hours of RONIN execution time. All work on MDJ_SERVER in <code>~/mdj-agent/</code>. No toMachina monorepo changes except the HTML footer link. RONIN must SSH to MDJ_SERVER for all file operations. Test by talking to VOLTRON through the MDJ Panel after deploy.</p>
+  </div>
+
+  <div class="card">
+    <h2>Tickets</h2>
+    <table>
+      <tr><th>#</th><th>Type</th><th>Title</th><th>Est</th></tr>
+      <tr><td>VOL-020</td><td><span class="pill data">DATA</span></td><td>Create <code>matrix.json</code> — full structured mirror of Preferred Provider Matrix (carriers, products, decision tree, allocations, doctrine, resources)</td><td>45m</td></tr>
+      <tr><td>VOL-021</td><td><span class="pill tool">TOOL</span></td><td>Create <code>recommend-product.js</code> — tool handler that reads matrix.json + walks decision tree + returns structured recommendation</td><td>60m</td></tr>
+      <tr><td>VOL-022</td><td><span class="pill test">TEST</span></td><td>Unit tests for recommend-product — 10+ scenarios covering all decision tree rows (CD matured, IRA 1035, Roth reposition, income-later spousal, aged-out 81+, surrender-offset EBR case, MYGA-redirect, etc.)</td><td>30m</td></tr>
+      <tr><td>VOL-023</td><td><span class="pill feat">FEAT</span></td><td>Register <code>recommend_product</code> in MDJ agent tool registry — tool definition with JSON schema + handler wiring</td><td>15m</td></tr>
+      <tr><td>VOL-024</td><td><span class="pill feat">FEAT</span></td><td>Enhance Annuity Lion specialist prompt — add doctrine-lock instruction ("call recommend_product() for all product recommendations, never self-answer"), add intake Q&amp;A template for missing params</td><td>20m</td></tr>
+      <tr><td>VOL-025</td><td><span class="pill test">TEST</span></td><td>Integration test — send "I've got a client who just had CDs mature, $400K, wants accumulation" through MDJ Panel → verify recommend_product is called → verify CP10 base (no EBR) returned</td><td>20m</td></tr>
+      <tr><td>VOL-026</td><td><span class="pill test">TEST</span></td><td>Integration test — send "Client has an old annuity with Fidelity, wants better income rider, married, age 72" → verify Nassau IA Horizon Later Joint recommended</td><td>15m</td></tr>
+      <tr><td>VOL-027</td><td><span class="pill test">TEST</span></td><td>Negative test — send "Can you recommend a good MYGA?" → verify MYGA is blocked + redirect to Nassau Growth Annuity fixed or NAC Control X</td><td>15m</td></tr>
+      <tr><td>VOL-028</td><td><span class="pill test">TEST</span></td><td>Negative test — verify Annuity Lion cannot answer "what's the default allocation for VC10?" from training data — must call tool</td><td>15m</td></tr>
+      <tr><td>VOL-029</td><td><span class="pill chore">CHORE</span></td><td>Update Preferred Provider Matrix HTML footer — add "Powered by matrix.json" link + machine-readable data badge</td><td>10m</td></tr>
+      <tr><td>VOL-030</td><td><span class="pill feat">FEAT</span></td><td>Add <code>get_product_brochure_urls(product_id)</code> helper tool — returns all resource URLs (brochure, rate spotlight, company strength) for a given product from matrix.json</td><td>15m</td></tr>
+      <tr><td>VOL-031</td><td><span class="pill chore">CHORE</span></td><td>Restart mdj-agent.service on MDJ_SERVER — verify tool appears in <code>/health</code> tool count — verify Annuity Lion calls it on first product query</td><td>10m</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Phase Gates</h2>
+    <div class="spec-grid">
+      <div class="spec-card green">
+        <div class="label" style="color:var(--green)">Phase 1 — Data</div>
+        <h4>VOL-020</h4>
+        <p>matrix.json exists, validates against schema, contains all 9 products + 10 decision tree rows + 8 doctrine rules. Gate: JSON parse succeeds, all product_ids resolve, all resource URLs resolve to real files.</p>
+      </div>
+      <div class="spec-card cyan">
+        <div class="label" style="color:var(--cyan)">Phase 2 — Tool</div>
+        <h4>VOL-021 → VOL-023</h4>
+        <p>recommend_product tool exists, registered, unit-tested. Gate: 10+ test scenarios pass. Tool returns deterministic output for each decision tree row.</p>
+      </div>
+      <div class="spec-card purple">
+        <div class="label" style="color:var(--purple)">Phase 3 — Integration</div>
+        <h4>VOL-024 → VOL-028</h4>
+        <p>Annuity Lion calls tool on product queries. Integration + negative tests pass. Model inference locked out of product-selection path. Gate: send 5 different client shapes through MDJ Panel, all 5 return doctrine-correct recommendations.</p>
+      </div>
+      <div class="spec-card gold">
+        <div class="label" style="color:var(--gold)">Phase 4 — Ship</div>
+        <h4>VOL-029 → VOL-031</h4>
+        <p>HTML footer updated. Service restarted. Health check confirms tool count increased. JDM validation: send the exact Westfall case through VOLTRON → output should match tonight's corrected doctrine (CP10 base no EBR, VC10 50/50, no MYGA, no MS DGI).</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="gate-callout green">
+    <h4>Definition of Done</h4>
+    <p>A team member says "I've got a client who just had CDs mature, married, age 66, $160K" — and VOLTRON returns CP10 base (12% bonus, NO EBR, 50/50 S&amp;P Cap + MARC 5 ER) with brochure links and illustration spec, without ever consulting Claude's training data for the product recommendation. If you gave the same input 100 times, you'd get the same output 100 times. That's the test.</p>
+  </div>
+</div>
+
+</div>
+
+<div class="footer">
+  VOL-MATRIX-002 — Product Recommendation Engine<br>
+  FORGE Discovery Document · VOLTRON CSO · 2026-04-17<br>
+  Assigned: RONIN · Estimated: ~12 tickets, 3-4 hours<br>
+  Prerequisite: VOL-MATRIX-001 (Preferred Provider Matrix v1) ✅ Shipped 2026-04-15<br>
+  🦁 — VOLTRON, The BFF 🔋
+</div>
+
+<script>
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', function() {
+      const tabName = this.getAttribute('data-tab');
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.getElementById(tabName).classList.add('active');
+      this.classList.add('active');
+    });
+  });
+</script>
+
+</body>
+</html>
