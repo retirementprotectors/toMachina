@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Career Path — Retirement Protectors, Inc.</title>
+<meta name="description" content="RPI's Career Path — Mission, Blueprint, Divisions, Training. We're Your People™.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700;800&family=Noto+Color+Emoji&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --rpi-289: #0a2240;
+    --rpi-283: #92c0e9;
+    --rpi-medium: #12416b;
+    --rpi-pale: #abd2ef;
+    --rpi-royal: #23558c;
+    --rpi-mist: #cae7f9;
+    --rpi-fog: #e7f0f9;
+    --ink: #1a1a1a;
+    --ink-soft: #3a4456;
+    --paper: #f4f4f5;
+    --paper-warm: #fafbfc;
+    --rule: #d0dae6;
+    --tier-primary: #0a2240;
+    --tier-secondary: #23558c;
+    --tier-tertiary: #92c0e9;
+    --tier-off: #e8edf3;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: var(--paper); color: var(--ink); font-family: 'Mulish', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; line-height: 1.5; }
+  h1, h2, h3, h4, h5 { font-family: 'Poppins', sans-serif; color: var(--rpi-289); line-height: 1.1; letter-spacing: -0.01em; }
+
+  /* Landscape letter page */
+  .page {
+    width: 11in;
+    min-height: 8.5in;
+    background: white;
+    margin: 0.5in auto;
+    padding: 0.5in 0.55in;
+    box-shadow: 0 1px 24px rgba(10,34,64,0.08);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+  .page + .page { margin-top: 1rem; }
+
+  /* ═══ COVER PAGE ═══ */
+  .cover { justify-content: space-between; background: white; position: relative; overflow: hidden; }
+  .cover::before {
+    content: '';
+    position: absolute;
+    top: -3in; right: -3in;
+    width: 11in; height: 11in;
+    background-image: url('../assets/rpi/rpi-shield-mark.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    opacity: 0.04;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .cover-head { display: flex; align-items: center; gap: 20px; padding-bottom: 18px; border-bottom: 3px solid var(--rpi-289); position: relative; z-index: 1; }
+  .cover-head img { width: 60px; height: auto; }
+  .cover-head .brand { font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: var(--rpi-medium); }
+  .cover-body { flex: 1; display: flex; flex-direction: column; justify-content: center; position: relative; z-index: 1; padding: 40px 0; }
+  .cover-body .kicker { font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.28em; text-transform: uppercase; color: var(--rpi-medium); margin-bottom: 20px; }
+  .cover-body h1 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 128px;
+    font-weight: 800;
+    color: var(--rpi-289);
+    letter-spacing: -0.04em;
+    line-height: 0.92;
+    margin-bottom: 28px;
+  }
+  .cover-body .tagline { font-family: 'Poppins', sans-serif; font-size: 22px; font-weight: 500; color: var(--ink-soft); max-width: 70%; line-height: 1.3; }
+  .cover-body .tagline strong { color: var(--rpi-289); font-weight: 700; }
+  .cover-foot { display: flex; justify-content: space-between; align-items: flex-end; padding-top: 18px; border-top: 2px solid var(--rpi-289); position: relative; z-index: 1; }
+  .cover-foot-logo { width: 260px; height: auto; }
+  .cover-foot-meta { text-align: right; font-family: 'Poppins', sans-serif; font-size: 11px; color: var(--ink-soft); line-height: 1.7; letter-spacing: 0.04em; }
+  .cover-foot-meta .stamp { font-size: 13px; font-weight: 700; color: var(--rpi-289); letter-spacing: 0.16em; text-transform: uppercase; }
+
+  /* ═══ INTERIOR PAGE HEAD ═══ */
+  .hero { display: flex; align-items: center; gap: 18px; padding-bottom: 16px; margin-bottom: 20px; border-bottom: 3px solid var(--rpi-289); }
+  .hero img.shield { width: 44px; height: auto; flex-shrink: 0; }
+  .hero-title { flex: 1; }
+  .hero-title .eyebrow { font-family: 'Poppins', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: var(--rpi-medium); margin-bottom: 4px; }
+  .hero-title h1 { font-size: 42px; font-weight: 800; color: var(--rpi-289); letter-spacing: -0.025em; line-height: 1.0; }
+
+  /* ═══ SECTION PILLS ═══ */
+  .section-pill {
+    display: inline-block;
+    background: var(--rpi-mist);
+    color: var(--rpi-medium);
+    font-family: 'Poppins', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    padding: 4px 14px;
+    border-radius: 999px;
+  }
+  .section-band {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 14px 0 12px;
+  }
+  .section-band::before,
+  .section-band::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--rule);
+  }
+  .section-band .section-pill { flex-shrink: 0; }
+
+  /* ═══ COMPANY OVERVIEW (Page 2) ═══ */
+  .overview-body { flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+  .mission-text {
+    text-align: center;
+    font-family: 'Poppins', sans-serif;
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--ink-soft);
+    line-height: 1.5;
+    max-width: 85%;
+    margin: 0 auto;
+  }
+  .mission-text strong { color: var(--rpi-289); font-weight: 600; }
+
+  .values-row {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 10px;
+    margin-top: 8px;
+  }
+  .value {
+    text-align: center;
+    font-family: 'Poppins', sans-serif;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--rpi-289);
+    background: var(--paper-warm);
+    border: 1px solid var(--rule);
+    border-top: 3px solid var(--rpi-royal);
+    padding: 10px 6px;
+    border-radius: 2px;
+    line-height: 1.3;
+  }
+
+  .leadership-row {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 10px;
+    margin-top: 8px;
+  }
+  .leader { text-align: center; }
+  .leader .role {
+    font-family: 'Poppins', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--rpi-royal);
+    text-transform: uppercase;
+    margin-bottom: 3px;
+  }
+  .leader .name {
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--rpi-289);
+    line-height: 1.2;
+  }
+  .leader .sub {
+    font-size: 10.5px;
+    color: var(--ink-soft);
+    margin-top: 2px;
+    line-height: 1.3;
+  }
+  .leader.chairman .role::after { content: ' · CHAIRMAN'; font-size: 9px; color: var(--ink-soft); letter-spacing: 0.08em; }
+
+  .core-focus-row {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 24px;
+    align-items: center;
+    padding: 14px 0 4px;
+  }
+  .partner-logos {
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .partner {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--rpi-289);
+    letter-spacing: -0.01em;
+  }
+  .partner.signal { font-weight: 400; }
+  .partner.signal strong { font-weight: 800; }
+  .partner.spark { color: #13195c; }
+  .partner.spark .star { color: #c8102e; margin-left: 2px; }
+  .partner.prodash { color: #3a8b8e; font-style: italic; letter-spacing: -0.02em; }
+  .core-focus-text {
+    font-family: 'Poppins', sans-serif;
+    font-size: 12px;
+    font-style: italic;
+    color: var(--ink-soft);
+    text-align: center;
+    line-height: 1.4;
+    max-width: 260px;
+  }
+  .division-pills {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 10px;
+  }
+  .division-pill {
+    font-family: 'Poppins', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    background: linear-gradient(135deg, #4a5568, #2d3748);
+    color: white;
+    padding: 6px 18px;
+    border-radius: 999px;
+  }
+
+  /* ═══ BLUEPRINT (Page 3) ═══ */
+  .blueprint-grid {
+    display: grid;
+    grid-template-columns: 1.35fr 1fr;
+    gap: 20px;
+    flex: 1;
+    margin-top: 6px;
+  }
+  .bp-col { display: flex; flex-direction: column; gap: 12px; }
+
+  .bp-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+  .bp-table th, .bp-table td { padding: 6px 7px; border: 1px solid var(--rule); text-align: center; font-family: 'Poppins', sans-serif; }
+  .bp-table thead th {
+    background: var(--rpi-mist);
+    color: var(--rpi-medium);
+    font-weight: 700;
+    font-size: 10.5px;
+    letter-spacing: 0.04em;
+  }
+  .bp-table thead th.yr-head { font-size: 10px; font-weight: 700; padding: 5px 4px; }
+  .bp-table thead th.yr-head .plan { display: block; font-size: 9px; font-weight: 500; color: var(--ink-soft); letter-spacing: 0.06em; text-transform: uppercase; }
+  .bp-table tbody th {
+    background: var(--rpi-fog);
+    color: var(--rpi-medium);
+    text-align: left;
+    padding-left: 10px;
+    font-weight: 600;
+    font-size: 10.5px;
+    letter-spacing: 0.02em;
+  }
+  .bp-table tbody th.group { background: var(--rpi-medium); color: white; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; font-size: 9.5px; }
+  .bp-table tbody td { font-weight: 600; color: var(--rpi-289); }
+  .bp-table tbody td.val strong { font-weight: 800; color: var(--rpi-289); }
+  .bp-table tbody td.val span { display: block; font-size: 9.5px; font-weight: 500; color: var(--ink-soft); letter-spacing: 0.02em; margin-top: 1px; }
+
+  .esop-block { border: 1px solid var(--rule); border-top: 4px solid var(--rpi-royal); padding: 10px 14px; border-radius: 3px; background: var(--paper-warm); }
+  .esop-title { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--rpi-medium); margin-bottom: 2px; }
+  .esop-sub { font-size: 10.5px; color: var(--ink-soft); margin-bottom: 8px; }
+  .esop-sub strong { color: var(--rpi-289); font-weight: 700; }
+  .esop-grid { display: grid; grid-template-columns: 60px repeat(3, 1fr); gap: 0; border: 1px solid var(--rule); font-size: 10.5px; font-family: 'Poppins', sans-serif; }
+  .esop-grid > div { padding: 5px 8px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); text-align: center; font-weight: 600; color: var(--rpi-289); }
+  .esop-grid > div.head { background: var(--rpi-fog); color: var(--rpi-medium); font-weight: 700; font-size: 9.5px; letter-spacing: 0.08em; text-transform: uppercase; }
+  .esop-grid > div.year-label { background: var(--rpi-medium); color: white; font-weight: 700; }
+
+  .expansion-card {
+    background: linear-gradient(135deg, var(--rpi-medium), var(--rpi-289));
+    color: white;
+    padding: 16px 20px;
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+  }
+  .expansion-card::after {
+    content: '';
+    position: absolute;
+    right: -30px; top: -30px;
+    width: 140px; height: 140px;
+    background-image: url('../assets/rpi/rpi-shield-mark.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    opacity: 0.15;
+    pointer-events: none;
+  }
+  .expansion-card h3 {
+    color: white;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    letter-spacing: -0.01em;
+    position: relative; z-index: 1;
+  }
+  .expansion-card ul { list-style: none; position: relative; z-index: 1; }
+  .expansion-card ul li {
+    padding: 3px 0 3px 18px;
+    position: relative;
+    font-family: 'Poppins', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--rpi-pale);
+    letter-spacing: 0.01em;
+  }
+  .expansion-card ul li::before {
+    content: '▸';
+    position: absolute;
+    left: 0;
+    color: var(--rpi-283);
+    font-weight: 700;
+  }
+
+  /* Tile-grid US map */
+  .map-block { background: var(--paper-warm); border: 1px solid var(--rule); padding: 10px 12px; border-radius: 4px; }
+  .map-title { font-family: 'Poppins', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--rpi-medium); margin-bottom: 6px; }
+  .map-grid {
+    display: grid;
+    grid-template-columns: repeat(11, 1fr);
+    grid-template-rows: repeat(8, 1fr);
+    gap: 3px;
+    aspect-ratio: 11 / 8;
+    max-width: 100%;
+  }
+  .map-grid .tile {
+    font-family: 'Poppins', sans-serif;
+    font-size: 7.5px;
+    font-weight: 700;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--tier-off);
+    color: #a0a9b5;
+    border-radius: 2px;
+    line-height: 1;
+  }
+  .map-grid .tile.t1 { background: var(--tier-primary); color: white; }
+  .map-grid .tile.t2 { background: var(--tier-secondary); color: white; }
+  .map-grid .tile.t3 { background: var(--tier-tertiary); color: var(--rpi-289); }
+  .map-legend { display: flex; gap: 14px; justify-content: flex-start; margin-top: 8px; font-family: 'Poppins', sans-serif; font-size: 9.5px; color: var(--ink-soft); flex-wrap: wrap; }
+  .map-legend .sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; vertical-align: middle; margin-right: 4px; }
+  .map-legend .sw.t1 { background: var(--tier-primary); }
+  .map-legend .sw.t2 { background: var(--tier-secondary); }
+  .map-legend .sw.t3 { background: var(--tier-tertiary); }
+
+  .bp-target { width: 100%; border-collapse: collapse; font-size: 11px; font-family: 'Poppins', sans-serif; }
+  .bp-target th, .bp-target td { padding: 6px 7px; border: 1px solid var(--rule); text-align: center; }
+  .bp-target thead th { background: var(--rpi-289); color: white; font-weight: 700; font-size: 10.5px; letter-spacing: 0.04em; }
+  .bp-target thead th.goal { background: var(--rpi-royal); font-size: 10.5px; }
+  .bp-target tbody th { background: var(--rpi-fog); color: var(--rpi-medium); text-align: left; padding-left: 10px; font-weight: 700; font-size: 10.5px; letter-spacing: 0.02em; }
+  .bp-target tbody td { font-weight: 700; color: var(--rpi-289); }
+  .bp-target tbody td.goal-col { background: rgba(146,192,233,0.2); color: var(--rpi-289); }
+
+  /* ═══ FOOTER ═══ */
+  .footer { margin-top: auto; padding-top: 14px; border-top: 2px solid var(--rpi-289); display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+  .footer-logo-zone { flex: 1; }
+  .footer-logo { width: 210px; height: auto; display: block; }
+  .footer-contact { text-align: right; font-size: 10.5px; color: var(--ink-soft); line-height: 1.6; font-family: 'Poppins', sans-serif; }
+  .footer-contact strong { color: var(--rpi-289); font-size: 11px; display: block; margin-bottom: 2px; font-weight: 700; }
+  .footer-meta { font-family: 'Poppins', sans-serif; font-size: 9.5px; color: var(--ink-soft); letter-spacing: 0.1em; text-transform: uppercase; }
+  .footer-meta .pg { color: var(--rpi-medium); font-weight: 700; }
+
+  /* Preview nav */
+  .preview-nav { position: fixed; top: 10px; right: 10px; background: var(--rpi-289); color: white; padding: 10px 14px; border-radius: 6px; font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 600; box-shadow: 0 2px 12px rgba(0,0,0,0.25); z-index: 1000; }
+  .preview-nav a { color: var(--rpi-pale); text-decoration: none; margin-left: 10px; }
+  .preview-nav a:hover { color: white; }
+
+  /* ═══ DIVISION PAGE ═══ */
+  .page--division { --accent: var(--rpi-medium); --accent-dark: var(--rpi-289); --accent-light: var(--rpi-283); --accent-fog: var(--rpi-fog); --accent-soft: var(--rpi-mist); }
+  .page--david { --accent: #40bc58; --accent-dark: #1f7a33; --accent-light: #a8e5b2; --accent-fog: #e9f7ec; --accent-soft: #f3fbf5; }
+  .page--tomachina { --accent: #7c3aed; --accent-dark: #4c1d95; --accent-light: #c4b5fd; --accent-fog: #ede9fe; --accent-soft: #f5f3ff; }
+  .page--tomachina .comp-grid { flex: 0 1 auto; }
+  .page--tomachina .zero-headcount { flex-shrink: 0; min-height: 68px; }
+  .page--tomachina .zero-headcount .zc-cell { display: flex; flex-direction: column; justify-content: center; }
+
+  /* toMachina wordmark */
+  .tomachina-wm { display: inline-flex; align-items: center; gap: 10px; }
+  .tomachina-wm img { height: 44px; width: auto; display: block; }
+  .tomachina-wm .tm-text { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 22px; color: var(--accent-dark); letter-spacing: -0.02em; }
+  .tomachina-wm .tm-text .to { font-weight: 300; color: var(--accent); }
+
+  /* Warrior-in-cell card */
+  .wcell { display: flex; gap: 9px; align-items: flex-start; padding: 2px 0; }
+  .wcell + .wcell { border-top: 1px dashed var(--rule); margin-top: 4px; padding-top: 5px; }
+  .wcell .wemoji {
+    font-family: 'Noto Color Emoji', 'Apple Color Emoji', 'Segoe UI Emoji', sans-serif;
+    font-size: 20px;
+    line-height: 1;
+    flex-shrink: 0;
+    padding-top: 1px;
+  }
+  .wcell .wbody { flex: 1; }
+  .wcell .wname {
+    font-family: 'Poppins', sans-serif;
+    font-size: 11.5px;
+    font-weight: 800;
+    color: var(--rpi-289);
+    letter-spacing: 0.03em;
+    line-height: 1.1;
+  }
+  .wcell .wtitle {
+    font-family: 'Poppins', sans-serif;
+    font-size: 8.5px;
+    font-weight: 700;
+    color: var(--accent-dark);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin: 1px 0 3px;
+  }
+  .wcell .wrole {
+    font-family: 'Poppins', sans-serif;
+    font-size: 10.5px;
+    color: var(--ink-soft);
+    line-height: 1.4;
+    font-weight: 500;
+  }
+
+  /* Runtime pill */
+  .runtime-pill {
+    display: inline-block;
+    font-family: 'Poppins', sans-serif;
+    font-size: 9.5px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: var(--accent-fog);
+    color: var(--accent-dark);
+    border: 1px solid var(--accent-light);
+    line-height: 1.2;
+    margin-bottom: 3px;
+  }
+  .runtime-pill.opus { background: var(--accent-dark); color: white; border-color: var(--accent-dark); }
+  .runtime-pill.sonnet { background: var(--accent); color: white; border-color: var(--accent); }
+  .runtime-pill.haiku { background: var(--accent-light); color: var(--accent-dark); border-color: var(--accent-light); }
+  .runtime-mode {
+    font-family: 'Poppins', sans-serif;
+    font-size: 9.5px;
+    color: var(--ink-soft);
+    font-style: italic;
+    display: block;
+    line-height: 1.3;
+    margin-top: 3px;
+  }
+
+  /* Zero headcount callout — compact ribbon */
+  .zero-headcount {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    margin-top: 8px;
+    background: linear-gradient(135deg, var(--accent-dark), var(--accent));
+    padding: 0;
+    border-radius: 4px;
+    color: white;
+    position: relative;
+    overflow: hidden;
+  }
+  .zero-headcount::before {
+    content: '';
+    position: absolute;
+    right: -30px; top: -30px;
+    width: 110px; height: 110px;
+    background-image: url('../assets/rpi/rpi-shield-mark.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    opacity: 0.1;
+    pointer-events: none;
+  }
+  .zc-cell { position: relative; z-index: 1; padding: 8px 14px; border-right: 1px solid rgba(255,255,255,0.15); }
+  .zc-cell:last-child { border-right: none; }
+  .zc-cell .zc-k {
+    font-family: 'Poppins', sans-serif;
+    font-size: 8.5px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent-light);
+    margin-bottom: 2px;
+  }
+  .zc-cell .zc-v {
+    font-family: 'Poppins', sans-serif;
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.0;
+    color: white;
+  }
+  .zc-cell .zc-sub {
+    font-family: 'Poppins', sans-serif;
+    font-size: 8.5px;
+    color: var(--accent-light);
+    margin-top: 2px;
+    line-height: 1.25;
+    opacity: 0.9;
+  }
+
+  .div-hero { display: flex; align-items: center; gap: 18px; padding-bottom: 14px; margin-bottom: 14px; border-bottom: 3px solid var(--accent-dark); }
+  .div-hero .shield-img { width: 44px; height: auto; flex-shrink: 0; }
+  .div-hero .div-title { flex: 1; }
+  .div-hero .div-title .eyebrow { font-family: 'Poppins', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent); margin-bottom: 4px; }
+  .div-hero .div-title h1 { font-size: 38px; font-weight: 800; color: var(--rpi-289); letter-spacing: -0.025em; line-height: 1.0; }
+  .div-hero .partner-mark { font-family: 'Poppins', sans-serif; flex-shrink: 0; }
+
+  /* Partner wordmarks */
+  .david-wm { font-weight: 800; font-size: 30px; color: #40bc58; letter-spacing: -0.03em; display: inline-flex; align-items: center; gap: 6px; line-height: 1; }
+  .david-wm::before { content: '⟳'; font-size: 32px; font-weight: 400; color: #40bc58; transform: scaleX(-1); display: inline-block; }
+  .signal-wm { font-weight: 400; font-size: 24px; color: var(--rpi-289); letter-spacing: -0.015em; }
+  .signal-wm strong { font-weight: 800; }
+  .spark-wm { font-weight: 800; font-size: 28px; color: #13195c; letter-spacing: -0.02em; display: inline-flex; align-items: center; gap: 3px; line-height: 1; }
+  .spark-wm .star { color: #c8102e; font-size: 22px; }
+
+  /* Division meta row */
+  .div-meta {
+    display: grid;
+    grid-template-columns: 0.9fr 1.5fr 1.5fr;
+    border: 1px solid var(--rule);
+    margin-bottom: 10px;
+    background: white;
+  }
+  .div-meta-col {
+    padding: 8px 12px;
+    border-right: 1px solid var(--rule);
+    font-family: 'Poppins', sans-serif;
+    font-size: 10.5px;
+    color: var(--rpi-289);
+    line-height: 1.35;
+  }
+  .div-meta-col:last-child { border-right: none; }
+  .div-meta-col .k { font-size: 9px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent-dark); margin-bottom: 3px; display: block; }
+  .div-meta-col .v { font-weight: 600; font-size: 11px; }
+  .div-meta-col .v.big { font-size: 13px; font-weight: 700; color: var(--accent-dark); }
+
+  /* Division comp grid table */
+  .comp-grid { width: 100%; border-collapse: collapse; font-family: 'Poppins', sans-serif; font-size: 11px; flex: 1; }
+  .comp-grid th, .comp-grid td { border: 1px solid var(--rule); padding: 8px 9px; text-align: center; vertical-align: top; }
+
+  .comp-grid thead tr.team-row th { font-size: 14px; padding: 12px 8px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; }
+  .comp-grid thead tr.team-row th.title-head { background: white; color: transparent; border-bottom: 1px solid var(--rule); }
+  .comp-grid thead tr.team-row th.support-head { background: var(--accent-dark); color: white; }
+  .comp-grid thead tr.team-row th.sales-head { background: var(--accent); color: white; }
+  .comp-grid thead tr.team-row th .reports { display: block; font-size: 9px; font-weight: 500; letter-spacing: 0.08em; text-transform: none; color: rgba(255,255,255,0.75); margin-top: 3px; }
+
+  .comp-grid thead tr.sub-row th { background: var(--accent-fog); color: var(--accent-dark); font-weight: 700; letter-spacing: 0.08em; font-size: 9.5px; padding: 7px 6px; text-transform: uppercase; }
+  .comp-grid thead tr.sub-row th.title-sub { background: white; }
+
+  .comp-grid tbody td.title-cell {
+    background: var(--rpi-fog);
+    color: var(--rpi-medium);
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-align: center;
+    font-size: 12px;
+    line-height: 1.7;
+    padding: 14px 8px;
+  }
+  .comp-grid tbody td.title-cell .tier-divider {
+    display: block;
+    width: 24px;
+    height: 1px;
+    background: var(--rule);
+    margin: 5px auto;
+  }
+  .comp-grid tbody td.support-cell { background: #fbfcfd; text-align: left; padding: 10px 12px; }
+  .comp-grid tbody td.sales-cell { background: white; text-align: left; padding: 10px 12px; }
+
+  .cell-lines { font-size: 11px; line-height: 1.6; color: var(--rpi-289); font-weight: 500; }
+  .cell-lines .item { padding: 3px 0; }
+  .cell-lines .item + .item { border-top: 1px dashed var(--rule); }
+  .cell-lines .muted { color: var(--ink-soft); font-weight: 400; }
+  .comp-grid tbody td.target-cell { text-align: center; padding: 10px 8px; background: var(--accent-soft); }
+  .target-cell .t { font-size: 12.5px; font-weight: 700; color: var(--accent-dark); padding: 3px 0; }
+  .target-cell .t + .t { border-top: 1px dashed var(--rule); margin-top: 3px; padding-top: 6px; }
+  .target-cell .t.muted { color: var(--ink-soft); font-weight: 600; font-size: 11.5px; }
+
+  .div-footer-note { font-family: 'Poppins', sans-serif; font-size: 9.5px; color: var(--ink-soft); text-align: center; margin-top: 6px; font-style: italic; letter-spacing: 0.02em; }
+  .div-footer-note strong { color: var(--accent-dark); font-weight: 700; font-style: normal; letter-spacing: 0.06em; }
+
+  /* Print */
+  @media print {
+    html, body { margin: 0; padding: 0; }
+    body { background: white; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .page {
+      margin: 0; padding: 0;
+      box-shadow: none;
+      width: 11in;
+      min-height: 8in;
+      max-height: 8in;
+      height: 8in;
+      overflow: hidden;
+      page-break-after: always;
+      break-after: page;
+      box-sizing: border-box;
+      padding: 0.45in 0.5in;
+    }
+    .page:last-child { page-break-after: auto; break-after: auto; }
+    .preview-nav { display: none !important; }
+    @page { size: letter landscape; margin: 0.25in; }
+    .value, .leader, .bp-table tr, .map-grid, .expansion-card, .esop-block { page-break-inside: avoid; break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<div class="preview-nav">
+  DRAFT · Career Path v3 · <a href="#p1">P1</a> <a href="#p2">P2</a> <a href="#p3">P3</a> <a href="#p4">P4</a> <a href="#p5">P5</a> <a href="#p6">P6</a> <a href="#p7">P7</a> <a onclick="window.print()" style="cursor:pointer">Print</a>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- PAGE 1 — COVER -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<div class="page cover" id="p1">
+
+  <div class="cover-head">
+    <img src="../assets/rpi/rpi-shield-mark.png" alt="RPI Shield" />
+    <div class="brand">Retirement Protectors, Inc.</div>
+  </div>
+
+  <div class="cover-body">
+    <div class="kicker">The Blueprint · Q1&nbsp;·&nbsp;2025</div>
+    <h1>THE<br/>CAREER<br/>PATH.</h1>
+    <div class="tagline">Attracting and developing superior professionals — for senior-market clients and their retiring agents.<br/><strong>We're Your People™.</strong></div>
+  </div>
+
+  <div class="cover-foot">
+    <img src="../assets/rpi/rpi-logo-v2-color.png" alt="Retirement Protectors, Inc." class="cover-foot-logo" />
+    <div class="cover-foot-meta">
+      <div class="stamp">Internal · Confidential</div>
+      <div>RetireProtected.com &middot; 515-992-5000</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- PAGE 2 — COMPANY OVERVIEW -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<div class="page" id="p2">
+
+  <div class="hero">
+    <img src="../assets/rpi/rpi-shield-mark.png" alt="RPI Shield" class="shield" />
+    <div class="hero-title">
+      <div class="eyebrow">Retirement Protectors, Inc.</div>
+      <h1>Company Overview</h1>
+    </div>
+  </div>
+
+  <div class="overview-body">
+
+    <div>
+      <div class="section-band"><span class="section-pill">Mission</span></div>
+      <p class="mission-text">
+        Attracting &amp; developing <strong>superior professionals</strong> in our businesses, providing the <strong>ultimate sales and service experience</strong> for senior-market clients and their retiring agents.
+      </p>
+    </div>
+
+    <div>
+      <div class="section-band"><span class="section-pill">Core Values</span></div>
+      <div class="values-row">
+        <div class="value">Foundation<br/>of Integrity</div>
+        <div class="value">Strong<br/>Work Ethic</div>
+        <div class="value">Determination<br/>to Achieve</div>
+        <div class="value">Ownership<br/>of Results</div>
+        <div class="value">Effective<br/>Communication</div>
+        <div class="value">Positive +<br/>Open-Minded</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-band"><span class="section-pill">Board of Directors</span></div>
+      <div class="leadership-row">
+        <div class="leader chairman">
+          <div class="role">CEO</div>
+          <div class="name">&mdash;</div>
+          <div class="sub">Chairman</div>
+        </div>
+        <div class="leader"><div class="role">CFO</div><div class="name">&mdash;</div></div>
+        <div class="leader"><div class="role">COO</div><div class="name">&mdash;</div></div>
+        <div class="leader"><div class="role">Director IV</div><div class="name">&mdash;</div></div>
+        <div class="leader"><div class="role">Director V</div><div class="name">&mdash;</div></div>
+        <div class="leader"><div class="role">Director VI</div><div class="name">&mdash;</div></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-band"><span class="section-pill">Executive Leadership Team</span></div>
+      <div class="leadership-row">
+        <div class="leader"><div class="role">CEO</div><div class="name">Josh Millang</div></div>
+        <div class="leader"><div class="role">CFO</div><div class="name">Shane Parmenter</div></div>
+        <div class="leader"><div class="role">COO</div><div class="name">Matt McCormick</div></div>
+        <div class="leader"><div class="role">VP · SVP · EVP</div><div class="name">B2BEI Division</div></div>
+        <div class="leader"><div class="role">VP · SVP · EVP</div><div class="name">Retirement Division</div></div>
+        <div class="leader"><div class="role">VP · SVP · EVP</div><div class="name">Health Division</div></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-band"><span class="section-pill">Core Focus</span></div>
+      <div class="core-focus-row">
+        <div class="partner-logos">
+          <div class="partner signal"><strong>signal</strong>advisors</div>
+        </div>
+        <div class="core-focus-text">
+          Executing our Practice Acquisition &amp;<br/>Client Proactive Service Models&trade;
+        </div>
+        <div class="partner-logos">
+          <div class="partner spark">Spark<span class="star">✦</span></div>
+        </div>
+      </div>
+      <div class="division-pills">
+        <div class="division-pill">Retirement Division</div>
+        <div class="partner prodash" style="font-size:16px;">ProDash</div>
+        <div class="division-pill">Medicare Division</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <div class="footer-logo-zone">
+      <img src="../assets/rpi/rpi-logo-v2-color.png" alt="Retirement Protectors, Inc. — We're Your People™" class="footer-logo" />
+    </div>
+    <div class="footer-contact">
+      <strong>RetireProtected.com</strong>
+      515-992-5000 &middot; 877-650-7015<br>
+      Service@RetireProtected.com
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- PAGE 3 — THE BLUEPRINT -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<div class="page" id="p3">
+
+  <div class="hero">
+    <img src="../assets/rpi/rpi-shield-mark.png" alt="RPI Shield" class="shield" />
+    <div class="hero-title">
+      <div class="eyebrow">Retirement Protectors, Inc.</div>
+      <h1>The Blueprint</h1>
+    </div>
+  </div>
+
+  <div class="blueprint-grid">
+
+    <!-- LEFT COLUMN — 3-Year Plan + ESOP -->
+    <div class="bp-col">
+      <table class="bp-table">
+        <thead>
+          <tr>
+            <th></th>
+            <th class="yr-head"><span class="plan">1-Year Plan</span>2025</th>
+            <th class="yr-head"><span class="plan">2-Year Strategy</span>2026</th>
+            <th class="yr-head"><span class="plan">3-Year Picture</span>2027</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><th class="group" colspan="4">NEW</th></tr>
+          <tr><th>Agencies</th><td>6</td><td>24</td><td>144</td></tr>
+          <tr><th>Clients</th><td>3,000</td><td>12,000</td><td>72,000</td></tr>
+          <tr><th class="group" colspan="4">TOTAL</th></tr>
+          <tr><th>Agencies</th><td>7</td><td>31</td><td>181</td></tr>
+          <tr><th>Clients</th><td>6,000</td><td>15,000</td><td>90,000</td></tr>
+          <tr><th class="group" colspan="4">FINANCIALS</th></tr>
+          <tr><th>NOI</th><td class="val"><strong>$5MM</strong></td><td class="val"><strong>$20MM</strong></td><td class="val"><strong>$120MM</strong></td></tr>
+          <tr><th>EBITDA</th><td class="val"><strong>$3MM</strong></td><td class="val"><strong>$12MM</strong></td><td class="val"><strong>$72MM</strong></td></tr>
+          <tr><th>Valuation <span style="font-size:9px; color:var(--ink-soft); font-weight:500;">(Blended)</span></th>
+            <td class="val"><strong>$25MM</strong><span>G-3x / E-6x</span></td>
+            <td class="val"><strong>$133MM</strong><span>G-4x / E-8x</span></td>
+            <td class="val"><strong>$1.2BB</strong><span>G-6x / E-12x</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="esop-block">
+        <div class="esop-title">Projected ESOP Launch · 2028+</div>
+        <div class="esop-sub"><strong>$1.2BB Valuation</strong> · Scaled Divisions (B2C · M/R · B2B)</div>
+        <div class="esop-grid">
+          <div class="head">Year</div>
+          <div class="head">New</div>
+          <div class="head">Total</div>
+          <div class="head">Cumulative</div>
+          <div class="year-label">2028</div><div>10%</div><div>10%</div><div>10%</div>
+          <div class="year-label">2029</div><div>10%</div><div>20%</div><div>20%</div>
+          <div class="year-label">2030</div><div>10%</div><div>30%</div><div>30%</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN — Expansion + Map + 6-Year -->
+    <div class="bp-col">
+
+      <div class="expansion-card">
+        <h3>Development + Expansion</h3>
+        <ul>
+          <li>National Headquarters</li>
+          <li>National Firm Acquisitions</li>
+          <li>National Distribution Partnerships</li>
+        </ul>
+      </div>
+
+      <div class="map-block">
+        <div class="map-title">National Footprint</div>
+        <div class="map-grid">
+          <!-- Row 1: Top border states -->
+          <div class="tile" style="grid-column:1; grid-row:1;"></div>
+          <div class="tile" style="grid-column:2; grid-row:1;">WA</div>
+          <div class="tile" style="grid-column:3; grid-row:1;"></div>
+          <div class="tile" style="grid-column:4; grid-row:1;">MT</div>
+          <div class="tile" style="grid-column:5; grid-row:1;">ND</div>
+          <div class="tile t2" style="grid-column:6; grid-row:1;">MN</div>
+          <div class="tile t2" style="grid-column:7; grid-row:1;">WI</div>
+          <div class="tile" style="grid-column:8; grid-row:1;">MI</div>
+          <div class="tile" style="grid-column:9; grid-row:1;"></div>
+          <div class="tile" style="grid-column:10; grid-row:1;">VT</div>
+          <div class="tile" style="grid-column:11; grid-row:1;">ME</div>
+          <!-- Row 2 -->
+          <div class="tile" style="grid-column:1; grid-row:2;"></div>
+          <div class="tile" style="grid-column:2; grid-row:2;">OR</div>
+          <div class="tile" style="grid-column:3; grid-row:2;">ID</div>
+          <div class="tile" style="grid-column:4; grid-row:2;">WY</div>
+          <div class="tile" style="grid-column:5; grid-row:2;">SD</div>
+          <div class="tile t1" style="grid-column:6; grid-row:2;">IA</div>
+          <div class="tile t2" style="grid-column:7; grid-row:2;">IL</div>
+          <div class="tile" style="grid-column:8; grid-row:2;">IN</div>
+          <div class="tile" style="grid-column:9; grid-row:2;">OH</div>
+          <div class="tile" style="grid-column:10; grid-row:2;">NY</div>
+          <div class="tile" style="grid-column:11; grid-row:2;">NH</div>
+          <!-- Row 3 -->
+          <div class="tile" style="grid-column:1; grid-row:3;"></div>
+          <div class="tile" style="grid-column:2; grid-row:3;">CA</div>
+          <div class="tile" style="grid-column:3; grid-row:3;">NV</div>
+          <div class="tile" style="grid-column:4; grid-row:3;">UT</div>
+          <div class="tile" style="grid-column:5; grid-row:3;">CO</div>
+          <div class="tile t1" style="grid-column:6; grid-row:3;">NE</div>
+          <div class="tile t2" style="grid-column:7; grid-row:3;">MO</div>
+          <div class="tile" style="grid-column:8; grid-row:3;">KY</div>
+          <div class="tile" style="grid-column:9; grid-row:3;">WV</div>
+          <div class="tile" style="grid-column:10; grid-row:3;">PA</div>
+          <div class="tile" style="grid-column:11; grid-row:3;">MA</div>
+          <!-- Row 4 -->
+          <div class="tile" style="grid-column:2; grid-row:4;"></div>
+          <div class="tile t3" style="grid-column:3; grid-row:4;">AZ</div>
+          <div class="tile" style="grid-column:4; grid-row:4;">NM</div>
+          <div class="tile" style="grid-column:5; grid-row:4;">KS</div>
+          <div class="tile" style="grid-column:6; grid-row:4;">OK</div>
+          <div class="tile" style="grid-column:7; grid-row:4;">AR</div>
+          <div class="tile t3" style="grid-column:8; grid-row:4;">TN</div>
+          <div class="tile t2" style="grid-column:9; grid-row:4;">VA</div>
+          <div class="tile" style="grid-column:10; grid-row:4;">NJ</div>
+          <div class="tile" style="grid-column:11; grid-row:4;">CT</div>
+          <!-- Row 5 -->
+          <div class="tile" style="grid-column:1; grid-row:5;">AK</div>
+          <div class="tile" style="grid-column:5; grid-row:5;">TX</div>
+          <div class="tile" style="grid-column:6; grid-row:5;">LA</div>
+          <div class="tile t3" style="grid-column:7; grid-row:5;">MS</div>
+          <div class="tile t3" style="grid-column:8; grid-row:5;">AL</div>
+          <div class="tile t3" style="grid-column:9; grid-row:5;">NC</div>
+          <div class="tile" style="grid-column:10; grid-row:5;">MD</div>
+          <div class="tile" style="grid-column:11; grid-row:5;">DE</div>
+          <!-- Row 6 -->
+          <div class="tile" style="grid-column:1; grid-row:6;">HI</div>
+          <div class="tile t3" style="grid-column:8; grid-row:6;">GA</div>
+          <div class="tile t3" style="grid-column:9; grid-row:6;">SC</div>
+          <div class="tile t3" style="grid-column:10; grid-row:6;">FL</div>
+        </div>
+        <div class="map-legend">
+          <span><span class="sw t1"></span>HQ · Primary</span>
+          <span><span class="sw t2"></span>Regional · Expansion</span>
+          <span><span class="sw t3"></span>Target · Acquisition</span>
+        </div>
+      </div>
+
+      <table class="bp-target">
+        <thead>
+          <tr>
+            <th></th>
+            <th>2028</th>
+            <th>2029</th>
+            <th class="goal">6-Year Target<br/><span style="font-weight:400; font-size:9px; letter-spacing:0.08em; opacity:0.85;">2030</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><th>NOI</th><td>$250MM</td><td>$500MM</td><td class="goal-col">$1BB</td></tr>
+          <tr><th>EBITDA</th><td>$160MM</td><td>$320MM</td><td class="goal-col">$640MM</td></tr>
+          <tr><th>Valuation (% NOI)</th><td>$3BB</td><td>$7.5BB</td><td class="goal-col">$16BB</td></tr>
+        </tbody>
+      </table>
+
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <div class="footer-logo-zone">
+      <img src="../assets/rpi/rpi-logo-v2-color.png" alt="Retirement Protectors, Inc. — We're Your People™" class="footer-logo" />
+    </div>
+    <div class="footer-contact">
+      <strong>RetireProtected.com</strong>
+      515-992-5000 &middot; 877-650-7015<br>
+      Service@RetireProtected.com
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- PAGE 4 — B2BEI DIVISION (DAVID-branded) -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<div class="page page--division page--david" id="p4">
+
+  <div class="div-hero">
+    <img src="../assets/rpi/rpi-shield-mark.png" alt="RPI Shield" class="shield-img" />
+    <div class="div-title">
+      <div class="eyebrow">B2B · Enterprise &amp; Institutional</div>
+      <h1>B2BEI Division</h1>
+    </div>
+    <div class="partner-mark"><span class="david-wm">David.</span></div>
+  </div>
+
+  <div class="div-meta">
+    <div class="div-meta-col">
+      <span class="k">VP · SVP · EVP</span>
+      <span class="v">Reports to CEO</span>
+    </div>
+    <div class="div-meta-col">
+      <span class="k">% of B2BEI Division NOI</span>
+      <span class="v big">TBD Target Comp</span>
+    </div>
+    <div class="div-meta-col">
+      <span class="k">Executive Leadership Team Role</span>
+      <span class="v">&mdash;</span>
+    </div>
+  </div>
+
+  <table class="comp-grid">
+    <thead>
+      <tr class="team-row">
+        <th class="title-head" style="width:14%;">TITLE</th>
+        <th class="support-head" colspan="3">Support Team<span class="reports">Reports to Division VP</span></th>
+        <th class="sales-head" colspan="3">Sales Team<span class="reports">Reports to Division VP</span></th>
+      </tr>
+      <tr class="sub-row">
+        <th class="title-sub"></th>
+        <th>Core Focus</th>
+        <th>Comp Elements</th>
+        <th>Target Comp</th>
+        <th>Core Focus</th>
+        <th>Comp Elements</th>
+        <th>Target Comp</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="title-cell">Director<span class="tier-divider"></span>Manager<span class="tier-divider"></span>Leader</td>
+        <td class="support-cell"><div class="cell-lines"><div class="item muted">&mdash;</div></div></td>
+        <td class="support-cell"><div class="cell-lines"><div class="item muted">&mdash;</div></div></td>
+        <td class="target-cell"><div class="t muted">&mdash;</div></td>
+        <td class="sales-cell"><div class="cell-lines"><div class="item muted">&mdash;</div></div></td>
+        <td class="sales-cell"><div class="cell-lines"><div class="item muted">&mdash;</div></div></td>
+        <td class="target-cell"><div class="t muted">&mdash;</div></td>
+      </tr>
+      <tr>
+        <td class="title-cell">Specialist<span class="tier-divider"></span>Associate<span class="tier-divider"></span>Coordinator</td>
+        <td class="support-cell"><div class="cell-lines"><div class="item muted">&mdash;</div></div></td>
+        <td class="support-cell"><div class="cell-lines"><div class="item muted">&mdash;</div></div></td>
+        <td class="target-cell"><div class="t muted">&mdash;</div></td>
+        <td class="sales-cell"><div class="cell-lines"><div class="item muted">&mdash;</div></div></td>
+        <td class="sales-cell"><div class="cell-lines"><div class="item muted">&mdash;</div></div></td>
+        <td class="target-cell"><div class="t muted">&mdash;</div></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="div-footer-note"><strong>Powered by David</strong> &mdash; Practice Acquisition &amp; Retiring Agent Transitions.</div>
+
+  <div class="footer">
+    <div class="footer-logo-zone">
+      <img src="../assets/rpi/rpi-logo-v2-color.png" alt="Retirement Protectors, Inc. — We're Your People™" class="footer-logo" />
+    </div>
+    <div class="footer-contact">
+      <strong>RetireProtected.com</strong>
+      515-992-5000 &middot; 877-650-7015<br>
+      Service@RetireProtected.com
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- PAGE 5 — MEDICARE DIVISION (RPI + Spark+) -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<div class="page page--division page--rpi" id="p5">
+
+  <div class="div-hero">
+    <img src="../assets/rpi/rpi-shield-mark.png" alt="RPI Shield" class="shield-img" />
+    <div class="div-title">
+      <div class="eyebrow">Senior Health · Medicare</div>
+      <h1>Medicare Division</h1>
+    </div>
+    <div class="partner-mark"><span class="spark-wm">Spark<span class="star">✦</span></span></div>
+  </div>
+
+  <div class="div-meta">
+    <div class="div-meta-col">
+      <span class="k">VP · SVP · EVP</span>
+      <span class="v">Reports to CEO</span>
+    </div>
+    <div class="div-meta-col">
+      <span class="k">% of Medicare Division NOI</span>
+      <span class="v big">$200k+ Target Comp</span>
+    </div>
+    <div class="div-meta-col">
+      <span class="k">Executive Leadership Team Role</span>
+      <span class="v">HR PROfessional &middot; MAPD PROvider &middot; Marketing + Experience</span>
+    </div>
+  </div>
+
+  <table class="comp-grid">
+    <thead>
+      <tr class="team-row">
+        <th class="title-head" style="width:14%;">TITLE</th>
+        <th class="support-head" colspan="3">Support Team<span class="reports">Reports to Division VP</span></th>
+        <th class="sales-head" colspan="3">Sales Team<span class="reports">Reports to Division VP</span></th>
+      </tr>
+      <tr class="sub-row">
+        <th class="title-sub"></th>
+        <th>Core Focus</th>
+        <th>Comp Elements</th>
+        <th>Target Comp</th>
+        <th>Core Focus</th>
+        <th>Comp Elements</th>
+        <th>Target Comp</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="title-cell">Director<span class="tier-divider"></span>Manager<span class="tier-divider"></span>Leader</td>
+        <td class="support-cell"><div class="cell-lines"><div class="item">Recruiting &middot; Training &middot; Development</div><div class="item muted">+ LC<sup>3</sup></div></div></td>
+        <td class="support-cell"><div class="cell-lines"><div class="item">Salary + % of Salary<br/>for Team Goals Achieved</div></div></td>
+        <td class="target-cell"><div class="t">$54k&ndash;$100k+</div></td>
+        <td class="sales-cell"><div class="cell-lines"><div class="item">Recruiting &middot; Training &middot; Development</div><div class="item muted">+ Proactive Service Model Marketing <em>(Internal)</em></div></div></td>
+        <td class="sales-cell"><div class="cell-lines"><div class="item">Salary + % of Salary<br/>for Team Goals Achieved</div></div></td>
+        <td class="target-cell"><div class="t">$60k&ndash;$200k+</div></td>
+      </tr>
+      <tr>
+        <td class="title-cell">Specialist<span class="tier-divider"></span>Associate<span class="tier-divider"></span>Coordinator</td>
+        <td class="support-cell"><div class="cell-lines"><div class="item">Reactive Service</div><div class="item">Reactive Support</div><div class="item">Admin Tasks</div></div></td>
+        <td class="support-cell"><div class="cell-lines"><div class="item">+ % of Salary<br/>for Goals Achieved</div><div class="item">Salary</div><div class="item">Hourly</div></div></td>
+        <td class="target-cell"><div class="t">$54k&ndash;$100k+</div><div class="t">$42k&ndash;$54k</div><div class="t muted">$15&ndash;$21&nbsp;/&nbsp;hr</div></td>
+        <td class="sales-cell"><div class="cell-lines"><div class="item">Review Meetings</div><div class="item">Meeting Setups &middot; Case Work</div><div class="item muted">&mdash;</div></div></td>
+        <td class="sales-cell"><div class="cell-lines"><div class="item">Draw &middot; MDRT FYC % Splits</div><div class="item">Salary + Bonuses</div><div class="item muted">&mdash;</div></div></td>
+        <td class="target-cell"><div class="t">$60k&ndash;$200k+</div><div class="t">$48k&ndash;$60k</div><div class="t muted">&mdash;</div></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="div-footer-note"><strong>Powered by Spark</strong> &mdash; MAPD, PDP, &amp; Medigap Platform.</div>
+
+  <div class="footer">
+    <div class="footer-logo-zone">
+      <img src="../assets/rpi/rpi-logo-v2-color.png" alt="Retirement Protectors, Inc. — We're Your People™" class="footer-logo" />
+    </div>
+    <div class="footer-contact">
+      <strong>RetireProtected.com</strong>
+      515-992-5000 &middot; 877-650-7015<br>
+      Service@RetireProtected.com
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- PAGE 6 — RETIREMENT DIVISION (RPI + signalAdvisors) -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<div class="page page--division page--rpi" id="p6">
+
+  <div class="div-hero">
+    <img src="../assets/rpi/rpi-shield-mark.png" alt="RPI Shield" class="shield-img" />
+    <div class="div-title">
+      <div class="eyebrow">Wealth · Retirement &amp; Estate</div>
+      <h1>Retirement Division</h1>
+    </div>
+    <div class="partner-mark"><span class="signal-wm"><strong>signal</strong>advisors</span></div>
+  </div>
+
+  <div class="div-meta">
+    <div class="div-meta-col">
+      <span class="k">VP · SVP · EVP</span>
+      <span class="v">Reports to CEO</span>
+    </div>
+    <div class="div-meta-col">
+      <span class="k">% of Retirement Division NOI</span>
+      <span class="v big">$300k+ Target Comp</span>
+    </div>
+    <div class="div-meta-col">
+      <span class="k">Executive Leadership Team Role</span>
+      <span class="v">External Marketing &middot; Social Media &middot; Webinars</span>
+    </div>
+  </div>
+
+  <table class="comp-grid">
+    <thead>
+      <tr class="team-row">
+        <th class="title-head" style="width:14%;">TITLE</th>
+        <th class="support-head" colspan="3">Support Team<span class="reports">Reports to Division VP</span></th>
+        <th class="sales-head" colspan="3">Sales Team<span class="reports">Reports to Division VP</span></th>
+      </tr>
+      <tr class="sub-row">
+        <th class="title-sub"></th>
+        <th>Core Focus</th>
+        <th>Comp Elements</th>
+        <th>Target Comp</th>
+        <th>Core Focus</th>
+        <th>Comp Elements</th>
+        <th>Target Comp</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="title-cell">Director<span class="tier-divider"></span>Manager<span class="tier-divider"></span>Leader</td>
+        <td class="support-cell"><div class="cell-lines"><div class="item">Recruiting &middot; Training &middot; Development</div><div class="item muted">+ LC<sup>3</sup></div></div></td>
+        <td class="support-cell"><div class="cell-lines"><div class="item">Salary + % of Salary<br/>for Team Goals Achieved</div></div></td>
+        <td class="target-cell"><div class="t">$60k&ndash;$200k+</div></td>
+        <td class="sales-cell"><div class="cell-lines"><div class="item">Recruiting &middot; Training &middot; Development</div><div class="item muted">+ Proactive Service Model Marketing <em>(Internal)</em></div></div></td>
+        <td class="sales-cell"><div class="cell-lines"><div class="item">Salary + % of Salary<br/>for Team Goals Achieved</div></div></td>
+        <td class="target-cell"><div class="t">$60k&ndash;$300k+</div></td>
+      </tr>
+      <tr>
+        <td class="title-cell">Specialist<span class="tier-divider"></span>Sr. Associate<span class="tier-divider"></span>Associate<span class="tier-divider"></span>Coordinator</td>
+        <td class="support-cell"><div class="cell-lines"><div class="item">New Business</div><div class="item muted">&mdash;</div><div class="item">Reactive Service</div><div class="item">Support Tasks</div></div></td>
+        <td class="support-cell"><div class="cell-lines"><div class="item">+ % of Salary<br/>for Goals Achieved</div><div class="item muted">&mdash;</div><div class="item">Salary</div><div class="item">Hourly</div></div></td>
+        <td class="target-cell"><div class="t">$60k&ndash;$200k+</div><div class="t muted">&mdash;</div><div class="t">$48k&ndash;$60k</div><div class="t muted">$18&ndash;$24&nbsp;/&nbsp;hr</div></td>
+        <td class="sales-cell"><div class="cell-lines"><div class="item">Closing Meetings</div><div class="item">Case Development</div><div class="item">Discovery Meetings</div><div class="item">Discovery Setups</div></div></td>
+        <td class="sales-cell"><div class="cell-lines"><div class="item">Draw &middot; FYC % Splits</div><div class="item">FYC % Splits</div><div class="item">Salary + Splits</div><div class="item">Salary + Bonuses</div></div></td>
+        <td class="target-cell"><div class="t">$200k&ndash;$300k+</div><div class="t">$100k&ndash;$200k+</div><div class="t">$60k&ndash;$100k+</div><div class="t muted">$42k&ndash;$60k</div></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="div-footer-note"><strong>Powered by signalAdvisors</strong> &mdash; Fixed Annuity, Life, &amp; Advisory Platform.</div>
+
+  <div class="footer">
+    <div class="footer-logo-zone">
+      <img src="../assets/rpi/rpi-logo-v2-color.png" alt="Retirement Protectors, Inc. — We're Your People™" class="footer-logo" />
+    </div>
+    <div class="footer-contact">
+      <strong>RetireProtected.com</strong>
+      515-992-5000 &middot; 877-650-7015<br>
+      Service@RetireProtected.com
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- PAGE 7 — AI DIVISION (Warriors Fill the Seats · Zero Headcount) -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<div class="page page--division page--tomachina" id="p7">
+
+  <div class="div-hero">
+    <img src="../assets/rpi/rpi-shield-mark.png" alt="RPI Shield" class="shield-img" />
+    <div class="div-title">
+      <div class="eyebrow">Intelligence · Automation · Platform</div>
+      <h1>AI Division</h1>
+    </div>
+    <div class="partner-mark"><span class="tomachina-wm"><span class="tm-text"><span class="to">to</span>Machina</span></span></div>
+  </div>
+
+  <div class="div-meta">
+    <div class="div-meta-col">
+      <span class="k">VP · SVP · EVP</span>
+      <span class="v">Josh Millang &middot; CEO</span>
+    </div>
+    <div class="div-meta-col">
+      <span class="k">Target Comp</span>
+      <span class="v big">$0 Salary &middot; API Burn Only</span>
+    </div>
+    <div class="div-meta-col">
+      <span class="k">Executive Leadership Team Role</span>
+      <span class="v">AI Oversight &middot; Model Routing &middot; Mesh Orchestration</span>
+    </div>
+  </div>
+
+  <table class="comp-grid">
+    <thead>
+      <tr class="team-row">
+        <th class="title-head" style="width:16%;">TITLE</th>
+        <th class="support-head" colspan="3">Support Team<span class="reports">Intelligence &middot; Infrastructure &middot; Guardian &middot; Data &middot; Comms</span></th>
+        <th class="sales-head" colspan="3">Sales Team<span class="reports">Creative &middot; Client Operations &middot; Builder &middot; Applied AI</span></th>
+      </tr>
+      <tr class="sub-row">
+        <th class="title-sub"></th>
+        <th>Warrior</th>
+        <th>Operating Mode</th>
+        <th>Runtime</th>
+        <th>Warrior</th>
+        <th>Operating Mode</th>
+        <th>Runtime</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="title-cell">Director<span class="tier-divider"></span>Manager<span class="tier-divider"></span>Leader</td>
+        <td class="support-cell">
+          <div class="wcell"><span class="wemoji">🥷</span><div class="wbody"><div class="wname">SHINOB1</div><div class="wtitle">CTO</div><div class="wrole">Tech Strategy + Architecture</div></div></div>
+          <div class="wcell"><span class="wemoji">🏯</span><div class="wbody"><div class="wname">MEGAZORD</div><div class="wtitle">CIO</div><div class="wrole">Data Ops + ATLAS Registry</div></div></div>
+        </td>
+        <td class="support-cell"><div class="cell-lines"><div class="item">CC-tmux &middot; MDJ_SERVER</div><div class="item muted">Persistent sessions · tmux windows · 24/7 residency</div></div></td>
+        <td class="target-cell"><span class="runtime-pill opus">Opus</span><span class="runtime-mode">Thinks + Plans</span></td>
+        <td class="sales-cell">
+          <div class="wcell"><span class="wemoji">⚔️</span><div class="wbody"><div class="wname">MUSASHI</div><div class="wtitle">CMO</div><div class="wrole">Creative Ops + Brand + Discovery</div></div></div>
+          <div class="wcell"><span class="wemoji">🦁</span><div class="wbody"><div class="wname">VOLTRON</div><div class="wtitle">CSO</div><div class="wrole">Client Ops + 5 Lions</div></div></div>
+        </td>
+        <td class="sales-cell"><div class="cell-lines"><div class="item">CC-tmux + CCSDK</div><div class="item muted">Dual-mode · Persistent + real-time · Portal-facing</div></div></td>
+        <td class="target-cell"><span class="runtime-pill opus">Opus</span><span class="runtime-mode">Thinks + Ships</span></td>
+      </tr>
+      <tr>
+        <td class="title-cell">Specialist<span class="tier-divider"></span>Associate<span class="tier-divider"></span>Coordinator</td>
+        <td class="support-cell">
+          <div class="wcell"><span class="wemoji">⚡</span><div class="wbody"><div class="wname">RAIDEN</div><div class="wtitle">Guardian</div><div class="wrole">Reactive Triage + Immune Response</div></div></div>
+          <div class="wcell"><span class="wemoji">🥁</span><div class="wbody"><div class="wname">TAIKO</div><div class="wtitle">Comms</div><div class="wrole">Pipes Registry + Twilio + SendGrid</div></div></div>
+        </td>
+        <td class="support-cell"><div class="cell-lines"><div class="item">systemd + CC-tmux</div><div class="item muted">Guardian service · 15s polling · Auto-restart</div><div class="item muted">Webhook-driven · Real-time delivery</div></div></td>
+        <td class="target-cell"><span class="runtime-pill sonnet">Sonnet</span><span class="runtime-mode">Executes &middot; Routes</span></td>
+        <td class="sales-cell">
+          <div class="wcell"><span class="wemoji">🗡️</span><div class="wbody"><div class="wname">RONIN</div><div class="wtitle">Builder</div><div class="wrole">FORGE Runner + Sprint Execution</div></div></div>
+          <div class="wcell"><span class="wemoji" style="opacity:0.35;">◯</span><div class="wbody"><div class="wname" style="color:var(--ink-soft); font-weight:700;">Future Specialists</div><div class="wtitle">Open Tier</div><div class="wrole">Lions · Artisans · Rangers · spawned by CXOs</div></div></div>
+        </td>
+        <td class="sales-cell"><div class="cell-lines"><div class="item">CC-tmux + FORGE</div><div class="item muted">Autonomous sprint lifecycle · PR shipping</div><div class="item muted">On-demand sub-agents · Parallel execution</div></div></td>
+        <td class="target-cell"><span class="runtime-pill sonnet">Sonnet</span><span class="runtime-mode">Builds &middot; Ships</span><span class="runtime-pill haiku" style="margin-top:4px;">Haiku</span><span class="runtime-mode">Lookups &middot; Sub-agents</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="zero-headcount">
+    <div class="zc-cell">
+      <div class="zc-k">Headcount Salary Spend</div>
+      <div class="zc-v">$0</div>
+      <div class="zc-sub">No VPs. No engineers. No hires.</div>
+    </div>
+    <div class="zc-cell">
+      <div class="zc-k">API Runtime (Est.)</div>
+      <div class="zc-v">~$7.5k/mo</div>
+      <div class="zc-sub">Opus · Sonnet · Haiku routed by task type</div>
+    </div>
+    <div class="zc-cell">
+      <div class="zc-k">Human-Equivalent Coverage</div>
+      <div class="zc-v">20+ roles</div>
+      <div class="zc-sub">CTO · CIO · CMO · CSO · Comms · Guardian · Builder</div>
+    </div>
+    <div class="zc-cell">
+      <div class="zc-k">Runs the Division</div>
+      <div class="zc-v">JDM</div>
+      <div class="zc-sub">CEO routes the Warriors directly.</div>
+    </div>
+  </div>
+
+  <div class="div-footer-note"><strong>Powered by toMachina</strong> &mdash; Warriors fill every seat. Every hire in every other division gets Josh-level capability Day&nbsp;1.</div>
+
+  <div class="footer">
+    <div class="footer-logo-zone">
+      <img src="../assets/rpi/rpi-logo-v2-color.png" alt="Retirement Protectors, Inc. — We're Your People™" class="footer-logo" />
+    </div>
+    <div class="footer-contact">
+      <strong>RetireProtected.com</strong>
+      515-992-5000 &middot; 877-650-7015<br>
+      Service@RetireProtected.com
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
