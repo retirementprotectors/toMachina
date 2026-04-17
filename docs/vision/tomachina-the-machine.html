@@ -474,6 +474,22 @@
   .sprint-item .sprint-status.wip { background: rgba(251, 191, 36, 0.12); color: var(--amber); }
   .sprint-item p { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
 
+  /* ── DOJO EMBED ── */
+  .dojo-embed {
+    padding: 0;
+    border-top: 3px solid var(--machine-border, rgba(96,165,250,0.25));
+    margin-top: 60px;
+  }
+  .dojo-embed .container { padding-top: 48px; padding-bottom: 16px; }
+  .dojo-embed h2 { text-align: center; }
+  .dojo-embed .section-sub { text-align: center; margin-left: auto; margin-right: auto; }
+  .dojo-frame {
+    width: 100%;
+    min-height: 2400px;
+    border: none;
+    background: #08080c;
+  }
+
   /* ── FOOTER ── */
   .footer {
     padding: 48px 40px; text-align: center; border-top: 1px solid var(--border);
@@ -533,9 +549,9 @@
 <!-- CROSS-NAV -->
 <div class="cross-nav">
   <a href="../warriors/shinob1/reference/agentx-framework.html" class="nav-gold">AgentX</a>
-  <a href="david-the-money.html" class="nav-green">DAVID.</a>
+  <a href="david-the-money.html" class="nav-green">David.</a>
   <a href="tomachina-the-machine.html" class="nav-blue active">toMachina</a>
-  <a href="the-machine-layers.html" class="nav-purple">The Dojo</a>
+  <a href="rpi-the-mission.html" class="nav-purple">RPI</a>
 </div>
 
 <!-- ════════════════════════════════════════════════════════════════ -->
@@ -967,8 +983,16 @@
 <!-- ════════════════════════════════════════════════════════════════ -->
 <!-- FOOTER                                                          -->
 <!-- ════════════════════════════════════════════════════════════════ -->
+<section class="dojo-embed">
+  <div class="container">
+    <h2>The <span class="accent">Dojo</span></h2>
+    <p class="section-sub">The AI Division lives inside toMachina. 7 Warriors. $0 headcount. 24/7 operations.</p>
+  </div>
+  <iframe src="the-machine-layers.html" class="dojo-frame" title="The Dojo"></iframe>
+</section>
+
 <div class="footer">
-  <div class="sig">Agent<span style="color: var(--gold);">X</span> &mdash; toMachina (The Machine) &mdash; #WeAreAgentX</div>
+  <div class="sig">Agent<span style="color: var(--gold);">X</span> &mdash; toMachina + The Dojo &mdash; #WeAreAgentX</div>
   <div class="sub">Confidential &middot; April 2026 &middot; #RunningOurOwnRACE</div>
 </div>
 
