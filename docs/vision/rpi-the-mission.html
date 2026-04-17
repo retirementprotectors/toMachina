@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RPI — The Mission</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+  :root {
+    --bg: #08080c; --bg-card: #0f0f16; --border: #1a1a28; --border-accent: #252536;
+    --text: #e8e8f2; --text-muted: #8a8aa2; --text-dim: #4a4a62;
+    --gold: #d4a44c; --gold-bright: #f0c060; --gold-dim: #a07830; --gold-glow: rgba(212, 164, 76, 0.12); --gold-border: rgba(212, 164, 76, 0.28);
+    --money: #4ade80; --machine: #60a5fa;
+    --mission: #c084fc; --mission-glow: rgba(192, 132, 252, 0.10); --mission-border: rgba(192, 132, 252, 0.25);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.65; -webkit-font-smoothing: antialiased; }
+  .container { max-width: 1000px; margin: 0 auto; padding: 0 40px; }
+  .cross-nav { display: flex; justify-content: center; align-items: center; gap: 8px; padding: 10px 40px; background: var(--bg); border-bottom: 1px solid var(--border); font-size: 12px; font-weight: 700; letter-spacing: 1px; position: sticky; top: 0; z-index: 200; }
+  .cross-nav a { padding: 6px 16px; border-radius: 6px; text-decoration: none; border: 1px solid transparent; transition: background 0.2s; }
+  .cross-nav a.nav-gold { color: #d4a44c; } .cross-nav a.nav-green { color: #4ade80; } .cross-nav a.nav-blue { color: #60a5fa; } .cross-nav a.nav-purple { color: #c084fc; }
+  .cross-nav a.nav-gold:hover { background: rgba(212, 164, 76, 0.08); } .cross-nav a.nav-green:hover { background: rgba(74, 222, 128, 0.08); } .cross-nav a.nav-blue:hover { background: rgba(96, 165, 250, 0.08); } .cross-nav a.nav-purple:hover { background: rgba(192, 132, 252, 0.08); }
+  .cross-nav a.active { background: rgba(192, 132, 252, 0.12); border-color: rgba(192, 132, 252, 0.25); }
+
+  .hero { padding: 100px 40px 80px; text-align: center; position: relative; overflow: hidden; }
+  .hero::before { content: ''; position: absolute; top: -150px; left: 50%; transform: translateX(-50%); width: 800px; height: 800px; background: radial-gradient(circle, rgba(192, 132, 252, 0.08) 0%, rgba(192, 132, 252, 0.03) 40%, transparent 70%); pointer-events: none; }
+  .hero-badge { display: inline-block; padding: 6px 18px; border-radius: 100px; background: var(--mission-glow); border: 1px solid var(--mission-border); color: var(--mission); font-size: 11px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; margin-bottom: 32px; }
+  .hero h1 { font-size: 72px; font-weight: 900; letter-spacing: -3px; line-height: 1; margin-bottom: 20px; color: var(--text); }
+  .hero h1 .accent { color: var(--mission); }
+  .hero-tagline { font-size: 22px; font-weight: 300; letter-spacing: 6px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 24px; }
+  .hero-sub { font-size: 18px; color: var(--text-muted); max-width: 600px; margin: 0 auto; line-height: 1.7; }
+  .hero-sub strong { color: var(--mission); font-weight: 700; }
+
+  section { padding: 80px 0; } section + section { border-top: 1px solid var(--border); }
+  h2 { font-size: 36px; font-weight: 800; letter-spacing: -1.5px; margin-bottom: 16px; } h2 .accent { color: var(--mission); }
+  .section-sub { font-size: 17px; color: var(--text-muted); margin-bottom: 48px; max-width: 660px; line-height: 1.8; }
+
+  .divisions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 40px; }
+  .division { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 32px; position: relative; overflow: hidden; }
+  .division::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--mission); }
+  .division h3 { font-size: 20px; font-weight: 800; color: var(--mission); margin-bottom: 8px; }
+  .division .partner { font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 16px; }
+  .division p { font-size: 14px; color: var(--text-muted); line-height: 1.7; }
+
+  .mission-block { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 48px; text-align: center; margin-top: 40px; position: relative; overflow: hidden; }
+  .mission-block::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--money), var(--machine), var(--mission)); }
+  .mission-block .tagline { font-size: 32px; font-weight: 900; color: var(--mission); letter-spacing: -1px; margin-bottom: 16px; }
+  .mission-block p { font-size: 17px; color: var(--text-muted); max-width: 600px; margin: 0 auto; line-height: 1.8; }
+
+  .footer { padding: 48px 40px; text-align: center; border-top: 1px solid var(--border); }
+  .footer .sig { font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 4px; }
+  .footer .sub { font-size: 12px; color: var(--text-dim); }
+  @media (max-width: 768px) { .hero h1 { font-size: 48px; } .divisions { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<div class="cross-nav">
+  <a href="warriors/shinob1/reference/agentx-framework.html" class="nav-gold">AgentX</a>
+  <a href="david-the-money.html" class="nav-green">David.</a>
+  <a href="tomachina-the-machine.html" class="nav-blue">toMachina</a>
+  <a href="rpi-the-mission.html" class="nav-purple active">RPI</a>
+</div>
+
+<div class="hero">
+  <div class="hero-badge">The Mission &middot; B2C</div>
+  <h1>Retirement <span class="accent">Protectors</span></h1>
+  <div class="hero-tagline">The Mission</div>
+  <p class="hero-sub">The ultimate sales and service experience for <strong>senior-market clients</strong> and their <strong>retiring agents</strong>. Three divisions. One promise.</p>
+</div>
+
+<section>
+  <div class="container">
+    <div class="mission-block">
+      <div class="tagline">We're Your People&trade;.</div>
+      <p>Attracting and developing superior professionals in our businesses, providing the ultimate sales and service experience for senior-market clients and their retiring agents.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2>Three <span class="accent">Divisions</span></h2>
+    <p class="section-sub">Health. Retirement. Investments. Every client touchpoint, every product line, every revenue stream &mdash; organized and protected.</p>
+
+    <div class="divisions">
+      <div class="division">
+        <h3>Health</h3>
+        <div class="partner">Medicare Division &middot; Spark+</div>
+        <p>MAPD, PDP, Medigap, and Ancillary. Full Medicare coverage from initial enrollment through ongoing annual reviews. The Proactive Service Model keeps clients protected year after year.</p>
+      </div>
+      <div class="division">
+        <h3>Retirement</h3>
+        <div class="partner">Retirement Division &middot; signalAdvisors</div>
+        <p>Fixed Annuity, Life Insurance, and Fee-Based Advisory. Accumulation, income, protection, and legacy planning &mdash; every stage of the retirement journey under one roof.</p>
+      </div>
+      <div class="division">
+        <h3>Investments</h3>
+        <div class="partner">Advisory Division &middot; Gradient</div>
+        <p>RIA and Broker-Dealer services via Gradient. Securities, managed accounts, and institutional product partnerships &mdash; the third pillar of comprehensive wealth management.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2>The <span class="accent">Ignition</span></h2>
+    <p class="section-sub">RPI is the reason everything else exists. David forges the deals. toMachina arms the team. RPI ignites the client experience &mdash; and the flywheel never stops.</p>
+
+    <div class="mission-block" style="border-top: none;">
+      <div class="tagline" style="font-size: 24px;">Forge &middot; Arm &middot; Ignite</div>
+      <p>Every client interaction generates data. Every data point sharpens The Machine. Every improvement to The Machine makes the next client experience better. RPI is both the mission and the fuel. More clients = more data = smarter Machine = better protection.</p>
+    </div>
+  </div>
+</section>
+
+<div class="footer">
+  <div class="sig">RPI &mdash; The Mission &middot; AgentX Enterprise</div>
+  <div class="sub">Confidential &middot; April 2026 &middot; #RunningOurOwnRACE</div>
+</div>
+
+</body>
+</html>
