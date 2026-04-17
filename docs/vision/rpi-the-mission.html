@@ -13,8 +13,8 @@
     --gold: #d4a44c; --gold-bright: #f0c060; --gold-dim: #a07830;
     --gold-glow: rgba(212, 164, 76, 0.12); --gold-border: rgba(212, 164, 76, 0.28);
     --money: #4ade80; --machine: #60a5fa;
-    --rpi: #4a7ab5; --rpi-bright: #6b9fd4; --rpi-dim: #2e5a8a;
-    --rpi-glow: rgba(74, 122, 181, 0.10); --rpi-border: rgba(74, 122, 181, 0.25);
+    --rpi: #7ba8d4; --rpi-bright: #9fc4e8; --rpi-dim: #4a7ab5;
+    --rpi-glow: rgba(123, 168, 212, 0.10); --rpi-border: rgba(123, 168, 212, 0.25);
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.65; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
@@ -23,13 +23,13 @@
   /* Cross-nav */
   .cross-nav { display: flex; justify-content: center; align-items: center; gap: 8px; padding: 10px 40px; background: var(--bg); border-bottom: 1px solid var(--border); font-size: 12px; font-weight: 700; letter-spacing: 1px; position: sticky; top: 0; z-index: 200; }
   .cross-nav a { padding: 6px 16px; border-radius: 6px; text-decoration: none; border: 1px solid transparent; transition: background 0.2s; }
-  .cross-nav a.nav-gold { color: #d4a44c; } .cross-nav a.nav-green { color: #4ade80; } .cross-nav a.nav-blue { color: #60a5fa; } .cross-nav a.nav-rpi { color: #4a7ab5; }
-  .cross-nav a.nav-gold:hover { background: rgba(212, 164, 76, 0.08); } .cross-nav a.nav-green:hover { background: rgba(74, 222, 128, 0.08); } .cross-nav a.nav-blue:hover { background: rgba(96, 165, 250, 0.08); } .cross-nav a.nav-rpi:hover { background: rgba(74, 122, 181, 0.08); }
-  .cross-nav a.active { background: rgba(74, 122, 181, 0.12); border-color: var(--rpi-border); }
+  .cross-nav a.nav-gold { color: #d4a44c; } .cross-nav a.nav-green { color: #4ade80; } .cross-nav a.nav-blue { color: #60a5fa; } .cross-nav a.nav-rpi { color: #7ba8d4; }
+  .cross-nav a.nav-gold:hover { background: rgba(212, 164, 76, 0.08); } .cross-nav a.nav-green:hover { background: rgba(74, 222, 128, 0.08); } .cross-nav a.nav-blue:hover { background: rgba(96, 165, 250, 0.08); } .cross-nav a.nav-rpi:hover { background: rgba(123, 168, 212, 0.08); }
+  .cross-nav a.active { background: rgba(123, 168, 212, 0.12); border-color: var(--rpi-border); }
 
   /* Hero */
   .hero { padding: 80px 0 60px; text-align: center; position: relative; overflow: hidden; }
-  .hero::before { content: ''; position: absolute; top: -150px; left: 50%; transform: translateX(-50%); width: 800px; height: 800px; background: radial-gradient(circle, rgba(74, 122, 181, 0.08) 0%, rgba(74, 122, 181, 0.03) 40%, transparent 70%); pointer-events: none; }
+  .hero::before { content: ''; position: absolute; top: -150px; left: 50%; transform: translateX(-50%); width: 800px; height: 800px; background: radial-gradient(circle, rgba(123, 168, 212, 0.08) 0%, rgba(123, 168, 212, 0.03) 40%, transparent 70%); pointer-events: none; }
   .hero-tagline { font-size: 22px; font-weight: 300; letter-spacing: 6px; text-transform: uppercase; color: var(--text-dim); margin-top: 20px; margin-bottom: 24px; }
   .hero-sub { font-size: 18px; color: var(--text-muted); max-width: 640px; margin: 0 auto; line-height: 1.7; }
   .hero-sub strong { color: var(--rpi); font-weight: 700; }
@@ -105,7 +105,7 @@
 
 <div class="hero">
   <div class="container">
-    <img src="rpi-logo-v2-white.png" alt="Retirement Protectors, Inc." style="height: 100px; width: auto; margin-bottom: 16px; filter: drop-shadow(0 0 30px rgba(74, 122, 181, 0.25));">
+    <img src="rpi-logo-v2-white.png" alt="Retirement Protectors, Inc." style="height: 100px; width: auto; margin-bottom: 16px; filter: drop-shadow(0 0 30px rgba(123, 168, 212, 0.25));">
     <div class="hero-tagline">The Mission</div>
     <p class="hero-sub">The ultimate sales and service experience for <strong>senior-market clients</strong> and their <strong>retiring agents</strong>. Three divisions. One promise. Every hire, every client, every interaction &mdash; protected.</p>
   </div>
