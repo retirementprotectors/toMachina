@@ -22,8 +22,8 @@
     --money-dim: #16a34a;
     --money-glow: rgba(74, 222, 128, 0.12);
     --money-border: rgba(74, 222, 128, 0.28);
-    --machine: #60a5fa;
-    --machine-glow: rgba(96, 165, 250, 0.10);
+    --machine: #a78bfa;
+    --machine-glow: rgba(167, 139, 250, 0.10);
     --magic: #c084fc;
     --magic-glow: rgba(192, 132, 252, 0.10);
     --gold: #d4a44c;
@@ -332,13 +332,13 @@
   }
   .cross-nav a.nav-gold { color: #d4a44c; }
   .cross-nav a.nav-green { color: #4ade80; }
-  .cross-nav a.nav-blue { color: #60a5fa; }
+  .cross-nav a.nav-blue { color: #a78bfa; }
   .cross-nav a.nav-purple { color: #c084fc; }
-  .cross-nav a.nav-rpi { color: #7ba8d4; }
-  .cross-nav a.nav-rpi:hover { background: rgba(123, 168, 212, 0.08); }
+  .cross-nav a.nav-rpi { color: #3b82f6; }
+  .cross-nav a.nav-rpi:hover { background: rgba(59, 130, 246, 0.08); }
   .cross-nav a.nav-gold:hover { background: rgba(212, 164, 76, 0.08); }
   .cross-nav a.nav-green:hover { background: rgba(74, 222, 128, 0.08); }
-  .cross-nav a.nav-blue:hover { background: rgba(96, 165, 250, 0.08); }
+  .cross-nav a.nav-blue:hover { background: rgba(167, 139, 250, 0.08); }
   .cross-nav a.nav-purple:hover { background: rgba(192, 132, 252, 0.08); }
   .cross-nav a.active { background: rgba(74, 222, 128, 0.12); border-color: rgba(74, 222, 128, 0.25); }
 </style>
@@ -364,8 +364,7 @@
 
 <!-- TABS -->
 <div class="tab-bar">
-  <div class="tab-btn active" onclick="switchTab('prospects')">Prospects</div>
-  <div class="tab-btn" onclick="switchTab('owners')">Owners</div>
+  <div class="tab-btn active" onclick="switchTab('prospects')">The Opportunities</div>
 </div>
 
 <!-- ════════════════════════════════════════════════════════════════ -->
@@ -436,7 +435,7 @@
         <h3>The Retiring Agent</h3>
         <p class="story-scenario">30 years in the business. 500 clients. ~$100K recurring. Mostly Medicare + life. Ready to retire but can't stomach selling to a stranger who'll churn the book. They want someone who'll actually take care of their people.</p>
         <div class="story-outcome">
-          <p>DAVID. shows up: "We acquire your book. Your clients get an MDJ on day one &mdash; they'll get BETTER service than they're getting now. You get a clean exit with a fair multiple. And you can walk away knowing your life's work is protected."</p>
+          <p>DAVID. shows up: "We acquire your book. Your clients get an MDJ on day one &mdash; they&rsquo;ll get BETTER service than they&rsquo;re getting now. You get a clean exit with a fair multiple. And you can walk away knowing your life&rsquo;s work is protected."</p>
         </div>
         <div class="impact">
           <div class="impact-label">Their Impact &mdash; At Close</div>
@@ -452,7 +451,7 @@
       <div class="story-card">
         <div class="story-type">Acquisition Prospect</div>
         <h3>The Surviving Spouse</h3>
-        <p class="story-scenario">Your husband died. Yesterday you had $100K in recurring revenue. Today you have $0. The book is orphaned. Carriers are sending retention letters. Clients are confused. You don't have the licenses or relationships to hold it together. The clock is ticking on every policy. And nobody can sign an AOR or assign revenue from the grave.</p>
+        <p class="story-scenario">Your husband passes away unexpectedly. Yesterday you had $100K in recurring revenue. Today you have $0. The book is orphaned. Carriers are sending retention letters. Clients are confused. You don&rsquo;t have the licenses or relationships to hold it together.</p>
         <div class="story-outcome">
           <p>DAVID. shows up &mdash; but this conversation should have happened while he was still alive. A succession plan with RPI means the book transfers seamlessly, the family gets a fair exit, and every client is taken care of before anyone even knows what happened. Without that plan in place? There's very little anyone can do. The revenue disappears and it doesn't come back.</p>
         </div>
@@ -529,9 +528,8 @@
 
 </div><!-- /tab-prospects -->
 
-<!-- ════════════════════════════════════════════════════════════════ -->
-<!-- ECONOMICS TAB                                                   -->
-<!-- ════════════════════════════════════════════════════════════════ -->
+<!-- WAVE 2: Owners content moves to new Agent X · Vision tab -->
+<!--
 <div id="tab-owners" class="tab-content">
 
 <!-- THE THESIS -->
@@ -620,7 +618,8 @@
   </div>
 </section>
 
-</div><!-- /tab-owners -->
+</div>
+-->
 
 <!-- FOOTER -->
 <div class="footer">
@@ -632,8 +631,10 @@
 function switchTab(tab) {
   document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
   document.querySelectorAll('.tab-bar .tab-btn').forEach(el => el.classList.remove('active'));
-  document.getElementById('tab-' + tab).classList.add('active');
-  document.querySelector('.tab-bar .tab-btn[onclick*="' + tab + '"]').classList.add('active');
+  var el = document.getElementById('tab-' + tab);
+  if (el) el.classList.add('active');
+  var btn = document.querySelector('.tab-bar .tab-btn[onclick*="' + tab + '"]');
+  if (btn) btn.classList.add('active');
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 

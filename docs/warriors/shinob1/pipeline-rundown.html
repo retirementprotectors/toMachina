@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pipeline Rundown — 2026-04-18</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+  :root {
+    --bg: #08080c;
+    --bg-card: #0f0f16;
+    --bg-card-hover: #161620;
+    --bg-accent: #121219;
+    --border: #1a1a28;
+    --border-accent: #252536;
+    --text: #e8e8f2;
+    --text-muted: #8a8aa2;
+    --text-dim: #4a4a62;
+
+    --gold: #d4a44c;
+    --gold-bright: #f0c060;
+    --gold-dim: #a07830;
+    --gold-glow: rgba(212, 164, 76, 0.12);
+    --gold-border: rgba(212, 164, 76, 0.28);
+
+    --money: #4ade80;
+    --money-glow: rgba(74, 222, 128, 0.10);
+    --money-border: rgba(74, 222, 128, 0.25);
+
+    --machine: #a78bfa;
+    --machine-glow: rgba(167, 139, 250, 0.10);
+    --machine-border: rgba(167, 139, 250, 0.25);
+
+    --magic: #c084fc;
+    --magic-glow: rgba(192, 132, 252, 0.10);
+    --magic-border: rgba(192, 132, 252, 0.25);
+
+    --fire: #f97316;
+    --fire-glow: rgba(249, 115, 22, 0.12);
+    --fire-border: rgba(249, 115, 22, 0.30);
+
+    --red: #f87171;
+    --red-glow: rgba(248, 113, 113, 0.12);
+    --red-border: rgba(248, 113, 113, 0.30);
+
+    --yellow: #facc15;
+    --yellow-glow: rgba(250, 204, 21, 0.10);
+    --yellow-border: rgba(250, 204, 21, 0.25);
+
+    --blue: #60a5fa;
+    --blue-glow: rgba(96, 165, 250, 0.10);
+    --blue-border: rgba(96, 165, 250, 0.25);
+
+    --teal: #2dd4bf;
+    --teal-glow: rgba(45, 212, 191, 0.10);
+    --teal-border: rgba(45, 212, 191, 0.25);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  /* ── HEADER ── */
+  .page-header {
+    padding: 56px 24px 40px;
+    max-width: 900px;
+    margin: 0 auto;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    margin-bottom: 28px;
+    transition: color 0.15s;
+  }
+  .nav-back:hover { color: var(--gold); }
+  .nav-back::before { content: '←'; font-size: 14px; }
+
+  .header-badge {
+    display: inline-block;
+    padding: 5px 14px;
+    border-radius: 100px;
+    background: var(--machine-glow);
+    border: 1px solid var(--machine-border);
+    color: var(--machine);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .page-header h1 {
+    font-size: clamp(28px, 6vw, 48px);
+    font-weight: 900;
+    letter-spacing: -1.5px;
+    line-height: 1.1;
+    margin-bottom: 10px;
+  }
+
+  .page-header h1 .accent { color: var(--gold); }
+
+  .header-sub {
+    font-size: 15px;
+    color: var(--text-muted);
+    font-weight: 400;
+  }
+
+  /* ── SECTIONS ── */
+  .section {
+    padding: 40px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+
+  .section-num {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    min-width: 28px;
+  }
+
+  .section-title {
+    font-size: clamp(20px, 4vw, 28px);
+    font-weight: 800;
+    letter-spacing: -0.75px;
+    color: var(--text);
+  }
+
+  /* ── P0 BLOCK ── */
+  .p0-block {
+    background: var(--red-glow);
+    border: 1px solid var(--red-border);
+    border-left: 4px solid var(--red);
+    border-radius: 14px;
+    padding: 28px 32px;
+    margin-bottom: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .p0-block::before {
+    content: 'P0 — CRITICAL';
+    position: absolute;
+    top: 16px;
+    right: 20px;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 2.5px;
+    color: var(--red);
+    opacity: 0.7;
+  }
+  .p0-title {
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--red);
+    font-family: 'Courier New', monospace;
+    margin-bottom: 12px;
+    word-break: break-all;
+  }
+  .p0-detail {
+    font-size: 15px;
+    color: var(--text-muted);
+    line-height: 1.7;
+  }
+  .p0-detail strong { color: var(--text); font-weight: 700; }
+  .p0-detail .red { color: var(--red); font-weight: 700; }
+
+  /* ── PILLS ── */
+  .pill {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    vertical-align: middle;
+    white-space: nowrap;
+  }
+  .pill-done    { background: var(--money-glow); color: var(--money); border: 1px solid var(--money-border); }
+  .pill-inprog  { background: var(--yellow-glow); color: var(--yellow); border: 1px solid var(--yellow-border); }
+  .pill-p0      { background: var(--red-glow); color: var(--red); border: 1px solid var(--red-border); }
+  .pill-blocked { background: var(--fire-glow); color: var(--fire); border: 1px solid var(--fire-border); }
+  .pill-waiting { background: var(--blue-glow); color: var(--blue); border: 1px solid var(--blue-border); }
+  .pill-needs   { background: var(--gold-glow); color: var(--gold); border: 1px solid var(--gold-border); }
+  .pill-ticketed { background: var(--machine-glow); color: var(--machine); border: 1px solid var(--machine-border); }
+  .pill-ci-fail { background: var(--red-glow); color: var(--red); border: 1px solid var(--red-border); }
+  .pill-discovery { background: var(--teal-glow); color: var(--teal); border: 1px solid var(--teal-border); }
+
+  /* ── ITEM ROWS ── */
+  .item-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .item-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px 20px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+  .item-row:first-child { border-radius: 12px 12px 0 0; }
+  .item-row:last-child  { border-radius: 0 0 12px 12px; }
+  .item-row + .item-row { border-top: none; }
+  .item-row:hover { background: var(--bg-card-hover); }
+
+  .item-row.p0-row {
+    border-left: 3px solid var(--red);
+    background: var(--red-glow);
+  }
+  .item-row.warn-row {
+    border-left: 3px solid var(--fire);
+  }
+  .item-row.blocked-row {
+    border-left: 3px solid var(--yellow);
+  }
+
+  .item-meta {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .item-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.5;
+    word-break: break-word;
+  }
+  .item-label a {
+    color: var(--blue);
+    text-decoration: none;
+  }
+  .item-label a:hover {
+    text-decoration: underline;
+    color: var(--gold);
+  }
+
+  .item-sub {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 4px;
+    line-height: 1.5;
+  }
+  .item-sub code {
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    color: var(--text-dim);
+    background: var(--bg-accent);
+    padding: 1px 5px;
+    border-radius: 4px;
+  }
+
+  .item-pills {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+    padding-top: 2px;
+  }
+
+  /* ── SUBSECTION HEADERS inside item lists ── */
+  .item-group-label {
+    padding: 10px 20px 6px;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-top: none;
+  }
+  .item-group-label:first-child {
+    border-top: 1px solid var(--border);
+    border-radius: 12px 12px 0 0;
+  }
+
+  /* ── COLLAPSIBLE ── */
+  details {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  details + details { margin-top: 12px; }
+
+  summary {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    list-style: none;
+    user-select: none;
+    transition: background 0.15s;
+  }
+  summary::-webkit-details-marker { display: none; }
+  summary:hover { background: var(--bg-card-hover); }
+
+  .summary-arrow {
+    font-size: 12px;
+    color: var(--text-dim);
+    transition: transform 0.2s;
+    flex-shrink: 0;
+  }
+  details[open] .summary-arrow { transform: rotate(90deg); }
+
+  .summary-title { flex: 1; }
+  .summary-count {
+    font-size: 12px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 6px;
+    background: var(--bg-accent);
+    color: var(--text-muted);
+    border: 1px solid var(--border-accent);
+  }
+
+  .details-body {
+    padding: 4px 20px 20px;
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.75;
+    border-top: 1px solid var(--border);
+  }
+  .details-body p { margin-bottom: 10px; }
+  .details-body p:last-child { margin-bottom: 0; }
+  .details-body strong { color: var(--text); font-weight: 700; }
+  .details-body .quote-block {
+    margin: 16px 0;
+    padding: 16px 20px;
+    background: var(--bg-accent);
+    border-left: 3px solid var(--machine);
+    border-radius: 0 8px 8px 0;
+    font-size: 13px;
+    color: var(--text-muted);
+    white-space: pre-wrap;
+    font-family: inherit;
+    line-height: 1.8;
+  }
+  .details-body .quote-sig {
+    display: block;
+    margin-top: 12px;
+    font-weight: 700;
+    color: var(--text-dim);
+    font-size: 13px;
+  }
+  .details-body ul {
+    margin: 8px 0 8px 20px;
+  }
+  .details-body ul li {
+    margin-bottom: 6px;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  /* ── TRACKER TOTALS ── */
+  .totals-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 12px;
+    margin-top: 8px;
+  }
+
+  .total-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 12px;
+    text-align: center;
+  }
+
+  .total-num {
+    font-size: 28px;
+    font-weight: 900;
+    letter-spacing: -1px;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .total-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+  .total-card.confirmed .total-num { color: var(--text); }
+  .total-card.closed    .total-num { color: var(--money); }
+  .total-card.audited   .total-num { color: var(--gold); }
+  .total-card.new       .total-num { color: var(--yellow); }
+  .total-card.planned   .total-num { color: var(--machine); }
+  .total-card.seeded    .total-num { color: var(--blue); }
+  .total-card.wont      .total-num { color: var(--text-dim); }
+
+  .tracker-note {
+    margin-top: 14px;
+    font-size: 13px;
+    color: var(--text-dim);
+    font-style: italic;
+  }
+
+  /* ── FOOTER ── */
+  .page-footer {
+    padding: 40px 24px;
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .footer-sig {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-muted);
+  }
+
+  .footer-date {
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+
+  /* ── SPACING HELPERS ── */
+  .mt8  { margin-top: 8px; }
+  .mt16 { margin-top: 16px; }
+  .mt24 { margin-top: 24px; }
+
+  /* ── MOBILE ── */
+  @media (max-width: 600px) {
+    .container { padding: 0 16px; }
+    .page-header { padding: 36px 16px 28px; }
+    .page-footer { padding: 28px 16px; }
+    .item-row { padding: 12px 14px; }
+    .item-pills { flex-direction: column; gap: 4px; }
+    .p0-block { padding: 20px 20px 24px; }
+    .p0-block::before { position: static; display: block; margin-bottom: 8px; }
+    .totals-grid { grid-template-columns: repeat(3, 1fr); }
+    summary { padding: 14px 16px; }
+    .details-body { padding: 4px 16px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── PAGE HEADER ── -->
+<header class="page-header">
+  <a class="nav-back" href="./reference/cto-ownership-grid.html">CTO Ownership Grid</a>
+  <div class="header-badge">SHINOB1 (OG) · CTO Ownership</div>
+  <h1>Pipeline Rundown — <span class="accent">2026-04-18</span></h1>
+  <p class="header-sub">Compiled by SHINOB1 (OG) · CTO Ownership</p>
+</header>
+
+<main class="container">
+
+  <!-- ── SECTION 0 — P0 LEAD ── -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">P0</span>
+      <span class="section-title" style="color: var(--red);">Critical — Top Priority</span>
+    </div>
+
+    <div class="p0-block">
+      <div class="p0-title">ZRD-INTAKE-WIRE-TRIGGER-PROD-BROKEN</div>
+      <div class="p0-detail">
+        <strong>Intake Cloud Function erroring 5+ days.</strong> Nothing in <code>intake_queue</code> is processing.
+        PR <a href="https://github.com/retirementprotectors/toMachina/pull/470" style="color: var(--red); font-weight: 700;">#470</a> is open but
+        <span class="red">CI failing on the <code>check</code> job</span> — needs root-cause before we can merge.
+        This is blocking all incoming document processing.
+      </div>
+      <div class="mt16">
+        <span class="pill pill-p0">P0 Active</span>
+        <span class="pill pill-ci-fail" style="margin-left: 6px;">CI Failing</span>
+        <span class="pill pill-blocked" style="margin-left: 6px;">PR #470 Open</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 1 — JUST FINISHED ── -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <span class="section-title">✅ Just Finished <span style="font-size: 16px; font-weight: 400; color: var(--text-dim);">(last 72h, merged to main)</span></span>
+    </div>
+
+    <div class="item-list">
+      <div class="item-group-label">Code &amp; Fixes — 3 PRs</div>
+
+      <div class="item-row">
+        <div class="item-meta">
+          <div class="item-label"><a href="https://github.com/retirementprotectors/toMachina/pull/540">#540</a> — AgentX site fixes</div>
+          <div class="item-sub">toMachina purple restored · pills removed from layout</div>
+        </div>
+        <div class="item-pills"><span class="pill pill-done">Merged</span></div>
+      </div>
+
+      <div class="item-row">
+        <div class="item-meta">
+          <div class="item-label"><a href="https://github.com/retirementprotectors/toMachina/pull/519">#519</a> — RAIDEN emoji-aware classifier</div>
+          <div class="item-sub">Classifier correctly handles emoji-prefixed Slack messages</div>
+        </div>
+        <div class="item-pills"><span class="pill pill-done">Merged</span></div>
+      </div>
+
+      <div class="item-row">
+        <div class="item-meta">
+          <div class="item-label"><a href="https://github.com/retirementprotectors/toMachina/pull/516">#516</a> — MUSASHI MYGA scrub</div>
+          <div class="item-sub">MYGA references removed per doctrine lock — product category ban applied platform-wide</div>
+        </div>
+        <div class="item-pills"><span class="pill pill-done">Merged</span></div>
+      </div>
+
+      <div class="item-group-label">Docs Sprint — 14 PRs (AgentX site + cases)</div>
+
+      <div class="item-row">
+        <div class="item-meta">
+          <div class="item-label">
+            <a href="https://github.com/retirementprotectors/toMachina/pull/520">#520</a> Westfall roadmap rebuild ·
+            <a href="https://github.com/retirementprotectors/toMachina/pull/521">#521</a> Westfall FARMLAND tab ·
+            <a href="https://github.com/retirementprotectors/toMachina/pull/522">#522</a> Westfall illustrations + carrier-strength links
+          </div>
+        </div>
+        <div class="item-pills"><span class="pill pill-done">Merged</span></div>
+      </div>
+
+      <div class="item-row">
+        <div class="item-meta">
+          <div class="item-label">
+            <a href="https://github.com/retirementprotectors/toMachina/pull/523">#523</a> RPI Preferred Provider Matrix ·
+            <a href="https://github.com/retirementprotectors/toMachina/pull/524">#524</a> +
+            <a href="https://github.com/retirementprotectors/toMachina/pull/525">#525</a> VOL-MATRIX-002 (Recommendation Engine + CXO Scaling v2)
+          </div>
+        </div>
+        <div class="item-pills"><span class="pill pill-done">Merged</span></div>
+      </div>
+
+      <div class="item-row">
+        <div class="item-meta">
+          <div class="item-label">
+            <a href="https://github.com/retirementprotectors/toMachina/pull/526">#526</a>–<a href="https://github.com/retirementprotectors/toMachina/pull/539">#539</a> AgentX site full consistency pass (14 PRs)
+          </div>
+          <div class="item-sub">Includes <a href="https://github.com/retirementprotectors/toMachina/pull/537">#537</a> JDM Doctrines — capstone doc, 13 tabs, 159KB</div>
+        </div>
+        <div class="item-pills"><span class="pill pill-done">Merged</span></div>
+      </div>
+
+      <div class="item-row">
+        <div class="item-meta">
+          <div class="item-label">
+            <a href="https://github.com/retirementprotectors/toMachina/pull/509">#509</a>–<a href="https://github.com/retirementprotectors/toMachina/pull/515">#515</a> Case docs — Thurman, Westfall, Ruth
+          </div>
+        </div>
+        <div class="item-pills"><span class="pill pill-done">Merged</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 2 — IN-PROCESS ── -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <span class="section-title">🔄 In-Process</span>
+    </div>
+
+    <div class="item-list">
+      <div class="item-row">
+        <div class="item-meta">
+          <div class="item-label"><code>COMMS_LIVE</code> FORGE sprint — Twilio Client SDK + Round-Trip Comms</div>
+          <div class="item-sub">20 tickets · Phase: Built</div>
+        </div>
+        <div class="item-pills"><span class="pill pill-inprog">Built</span></div>
+      </div>
+
+      <div class="item-row">
+        <div class="item-meta">
+          <div class="item-label"><code>SPRINT-CONFIG-1774221002057</code> — Admin Config Registry</div>
+          <div class="item-sub">Phase: In Sprint</div>
+        </div>
+        <div class="item-pills"><span class="pill pill-inprog">In Sprint</span></div>
+      </div>
+
+      <div class="item-row">
+        <div class="item-meta">
+          <div class="item-label"><code>ACF_HYGIENE</code> — ACF Data Hygiene &amp; Enrichment</div>
+          <div class="item-sub">Phase: Built · Status: Discovery</div>
+        </div>
+        <div class="item-pills">
+          <span class="pill pill-inprog">Built</span>
+          <span class="pill pill-discovery">Discovery</span>
+        </div>
+      </div>
+
+      <div class="item-row">
+        <div class="item-meta">
+          <div class="item-label">MUSASHI-2 writing Discovery Docs for RDN-006 / 007 / 008</div>
+          <div class="item-sub">Vince's 3 epics — Dialer &amp; List Mgmt, Appointment Booking, Opportunity Workflow</div>
+        </div>
+        <div class="item-pills"><span class="pill pill-inprog">Writing</span></div>
+      </div>
+
+      <div class="item-row">
+        <div class="item-meta">
+          <div class="item-label">AgentX site polish — active this session</div>
+          <div class="item-sub">JDM + SHINOB1 (OG) working direct</div>
+        </div>
+        <div class="item-pills"><span class="pill pill-inprog">Active</span></div>
+      </div>
+
+      <div class="item-row">
+        <div class="item-meta">
+          <div class="item-label">Warrior brain export — memory sync</div>
+          <div class="item-sub">300+ commits today across all 7 warriors · running on schedule</div>
+        </div>
+        <div class="item-pills"><span class="pill pill-inprog">Running</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 3 — NEED APPROVAL ── -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <span class="section-title">⚖️ Need Approval <span style="font-size: 16px; font-weight: 400; color: var(--text-dim);">(open PRs)</span></span>
+    </div>
+
+    <div class="item-list">
+      <div class="item-row">
+        <div class="item-meta">
+          <div class="item-label"><a href="https://github.com/retirementprotectors/toMachina/pull/518">#518</a> — Dojo reporter feature</div>
+          <div class="item-sub">Posts to #the-dojo with media · 3 days old</div>
+        </div>
+        <div class="item-pills"><span class="pill pill-needs">Ready · Needs Merge</span></div>
+      </div>
+
+      <div class="item-row">
+        <div class="item-meta">
+          <div class="item-label"><a href="https://github.com/retirementprotectors/toMachina/pull/517">#517</a> — RAIDEN: surface backend 409 dedup payload in quick-submit dialog</div>
+          <div class="item-sub">3 days old · all checks green</div>
+        </div>
+        <div class="item-pills"><span class="pill pill-needs">Ready · Needs Merge</span></div>
+      </div>
+
+      <div class="item-row">
+        <div class="item-meta">
+          <div class="item-label"><a href="https://github.com/retirementprotectors/toMachina/pull/424">#424</a> — Docs: SHINOB1 AI computing guide (P40 LIVE benchmarks + revised ROI)</div>
+          <div class="item-sub">5 days old · all checks green</div>
+        </div>
+        <div class="item-pills"><span class="pill pill-needs">Ready · Needs Merge</span></div>
+      </div>
+
+      <div class="item-row p0-row">
+        <div class="item-meta">
+          <div class="item-label"><a href="https://github.com/retirementprotectors/toMachina/pull/470" style="color: var(--red);">#470</a> — P0 intake fix</div>
+          <div class="item-sub" style="color: var(--red); opacity: 0.8;">CI failing on <code>check</code> job — needs root-cause diagnosis before merge</div>
+        </div>
+        <div class="item-pills">
+          <span class="pill pill-p0">P0</span>
+          <span class="pill pill-ci-fail">CI Failing</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 4 — SCOPED ── -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <span class="section-title">📐 Scoped <span style="font-size: 16px; font-weight: 400; color: var(--text-dim);">(Discovery Doc exists, no ticket yet)</span></span>
+    </div>
+
+    <div class="item-list">
+      <div class="item-group-label">TAIKO docs</div>
+
+      <div class="item-row">
+        <div class="item-meta">
+          <div class="item-label">Omni UX Rebuild Discovery</div>
+          <div class="item-sub"><code>taiko/connect-omni-ux-rebuild-discovery.html</code></div>
+        </div>
+        <div class="item-pills"><span class="pill pill-ticketed">Scoped</span></div>
+      </div>
+
+      <div class="item-row">
+        <div class="item-meta">
+          <div class="item-label">Comms Infrastructure Discovery</div>
+          <div class="item-sub"><code>taiko/comms-infrastructure-discovery.html</code></div>
+        </div>
+        <div class="item-pills"><span class="pill pill-ticketed">Scoped</span></div>
+      </div>
+
+      <div class="item-group-label">MUSASHI tracks</div>
+
+      <div class="item-row">
+        <div class="item-meta">
+          <div class="item-label">Track 2 — OPERATE</div>
+          <div class="item-sub"><code>musashi/tracks/track2-operate.html</code></div>
+        </div>
+        <div class="item-pills"><span class="pill pill-ticketed">Scoped</span></div>
+      </div>
+
+      <div class="item-row">
+        <div class="item-meta">
+          <div class="item-label">Track 3 — DEVOUR</div>
+          <div class="item-sub"><code>musashi/tracks/track3-devour.html</code></div>
+        </div>
+        <div class="item-pills"><span class="pill pill-ticketed">Scoped</span></div>
+      </div>
+
+      <div class="item-group-label">Architecture &amp; Vision</div>
+
+      <div class="item-row">
+        <div class="item-meta">
+          <div class="item-label">CXO Scaling Concept</div>
+          <div class="item-sub"><code>architecture/cxo-scaling-concept.html</code></div>
+        </div>
+        <div class="item-pills"><span class="pill pill-ticketed">Scoped</span></div>
+      </div>
+
+      <div class="item-row">
+        <div class="item-meta">
+          <div class="item-label">Vision docs — 3 documents</div>
+          <div class="item-sub"><code>vision/*</code> — awaiting ticketing</div>
+        </div>
+        <div class="item-pills"><span class="pill pill-ticketed">Scoped</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 5 — TICKETED ── -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">05</span>
+      <span class="section-title">🎫 Ticketed <span style="font-size: 16px; font-weight: 400; color: var(--text-dim);">(in tracker · status: INT-new)</span></span>
+    </div>
+
+    <div class="item-list">
+      <div class="item-group-label">GAP Series — 10 open</div>
+
+      <div class="item-row">
+        <div class="item-meta">
+          <div class="item-label">GAP-07 — Delete / close-win / close-lose on opportunities</div>
+          <div class="item-sub">Assigned → RONIN</div>
+        </div>
+        <div class="item-pills"><span class="pill pill-ticketed">RONIN</span></div>
+      </div>
+
+      <div class="item-row blocked-row">
+        <div class="item-meta">
+          <div class="item-label">GAP-08 — Pipeline stages</div>
+          <div class="item-sub">Already built in <code>packages/core/src/flow/configs/index.ts</code> (15 configs) — awaiting Vince + Nikki business validation</div>
+        </div>
+        <div class="item-pills"><span class="pill pill-blocked">Awaiting Vince</span></div>
+      </div>
+
+      <div class="item-row">
+        <div class="item-meta">
+          <div class="item-label">GAP-11 — Notify rep on inbound calls/texts</div>
+          <div class="item-sub">Assigned → TAIKO</div>
+        </div>
+        <div class="item-pills"><span class="pill pill-ticketed">TAIKO</span></div>
+      </div>
+
+      <div class="item-row">
+        <div class="item-meta">
+          <div class="item-label">GAP-12 — Post-call disposition + auto follow-up</div>
+          <div class="item-sub">Assigned → TAIKO</div>
+        </div>
+        <div class="item-pills"><span class="pill pill-ticketed">TAIKO</span></div>
+      </div>
+
+      <div class="item-row">
+        <div class="item-meta">
+          <div class="item-label">GAP-14 — Phone minimize during active calls</div>
+          <div class="item-sub">Assigned → TAIKO</div>
+        </div>
+        <div class="item-pills"><span class="pill pill-ticketed">TAIKO</span></div>
+      </div>
+
+      <div class="item-row">
+        <div class="item-meta">
+          <div class="item-label">GAP-16 — Income Card on account detail</div>
+          <div class="item-sub">Assigned → RONIN</div>
+        </div>
+        <div class="item-pills"><span class="pill pill-ticketed">RONIN</span></div>
+      </div>
+
+      <div class="item-row">
+        <div class="item-meta">
+          <div class="item-label">GAP-18 — Filter ProZone targets by carrier</div>
+          <div class="item-sub">Assigned → RONIN</div>
+        </div>
+        <div class="item-pills"><span class="pill pill-ticketed">RONIN</span></div>
+      </div>
+
+      <div class="item-row">
+        <div class="item-meta">
+          <div class="item-label">GAP-19 — Auto-dial / power dialer</div>
+          <div class="item-sub">Assigned → TAIKO</div>
+        </div>
+        <div class="item-pills"><span class="pill pill-ticketed">TAIKO</span></div>
+      </div>
+
+      <div class="item-row">
+        <div class="item-meta">
+          <div class="item-label">GAP-20 — Ai3 download broken + spacing + insurance summary</div>
+          <div class="item-sub">Assigned → RONIN</div>
+        </div>
+        <div class="item-pills"><span class="pill pill-ticketed">RONIN</span></div>
+      </div>
+
+      <div class="item-row">
+        <div class="item-meta">
+          <div class="item-label">GAP-21 — Redundant action surfaces (Quick Actions overlap)</div>
+        </div>
+        <div class="item-pills"><span class="pill pill-ticketed">Queued</span></div>
+      </div>
+
+      <div class="item-group-label">ZRD Series — 5 open</div>
+
+      <div class="item-row p0-row">
+        <div class="item-meta">
+          <div class="item-label" style="color: var(--red);">ZRD-INTAKE-WIRE-TRIGGER-PROD-BROKEN</div>
+          <div class="item-sub" style="color: var(--red); opacity: 0.8;">P0 — PR <a href="https://github.com/retirementprotectors/toMachina/pull/470" style="color: var(--red);">#470</a> open, CI failing</div>
+        </div>
+        <div class="item-pills">
+          <span class="pill pill-p0">P0</span>
+          <span class="pill pill-ci-fail">CI Failing</span>
+        </div>
+      </div>
+
+      <div class="item-row">
+        <div class="item-meta">
+          <div class="item-label">ZRD-INBOX-ATLAS-INGEST-BACKLOG</div>
+          <div class="item-sub">Ruth + Thurman + Mitchell CSV pending ingest</div>
+        </div>
+        <div class="item-pills"><span class="pill pill-ticketed">MEGAZORD</span></div>
+      </div>
+
+      <div class="item-row">
+        <div class="item-meta">
+          <div class="item-label">ZRD-MCP-WORKSPACE-GMAIL-SEND</div>
+        </div>
+        <div class="item-pills"><span class="pill pill-ticketed">Queued</span></div>
+      </div>
+
+      <div class="item-row">
+        <div class="item-meta">
+          <div class="item-label">ZRD-SUPER-EXTRACT-PHI-MASK</div>
+        </div>
+        <div class="item-pills"><span class="pill pill-ticketed">Queued</span></div>
+      </div>
+
+      <div class="item-row">
+        <div class="item-meta">
+          <div class="item-label">ZRD-SUPER-WRITE-DECEDENT-MODE</div>
+        </div>
+        <div class="item-pills"><span class="pill pill-ticketed">Queued</span></div>
+      </div>
+
+      <div class="item-group-label">RDN Epics — in MUSASHI's Discovery queue</div>
+
+      <div class="item-row">
+        <div class="item-meta">
+          <div class="item-label">RDN-006 — Dialer &amp; List Management</div>
+          <div class="item-sub">MUSASHI writing Discovery Doc</div>
+        </div>
+        <div class="item-pills"><span class="pill pill-discovery">In Disco</span></div>
+      </div>
+
+      <div class="item-row">
+        <div class="item-meta">
+          <div class="item-label">RDN-007 — Appointment Booking + GCal sync</div>
+          <div class="item-sub">MUSASHI writing Discovery Doc</div>
+        </div>
+        <div class="item-pills"><span class="pill pill-discovery">In Disco</span></div>
+      </div>
+
+      <div class="item-row">
+        <div class="item-meta">
+          <div class="item-label">RDN-008 — Opportunity Workflow Automation</div>
+          <div class="item-sub">MUSASHI writing Discovery Doc</div>
+        </div>
+        <div class="item-pills"><span class="pill pill-discovery">In Disco</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 6 — NEEDS TICKETED ── -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">06</span>
+      <span class="section-title">📝 Needs Ticketing <span style="font-size: 16px; font-weight: 400; color: var(--text-dim);">(raised, no ticket yet)</span></span>
+    </div>
+
+    <details>
+      <summary>
+        <span class="summary-arrow">▶</span>
+        <span class="summary-title">From #the-dojo — last 7 days (RAIDEN missed or deferred)</span>
+        <span class="summary-count">4 items</span>
+      </summary>
+      <div class="details-body">
+        <ul>
+          <li><strong>Angelique 04-15</strong> — HTTP 409 error on bug submit — <span style="color: var(--red);">never acknowledged</span></li>
+          <li><strong>Angelique 04-15</strong> — Full SSN visible with eye-toggle on contact profile — <span style="color: var(--yellow);">compliance gate, JDM deferred</span></li>
+          <li><strong>Angelique 04-15</strong> — Light mode preference — no ticket filed</li>
+          <li><strong>Nikki 04-17</strong> — 2nd ask on delete-opportunities (GAP-07 exists but no response given)</li>
+        </ul>
+      </div>
+    </details>
+
+    <div class="mt16">
+      <details>
+        <summary>
+          <span class="summary-arrow">▶</span>
+          <span class="summary-title">Orphan branches with no PR</span>
+          <span class="summary-count">3 branches</span>
+        </summary>
+        <div class="details-body">
+          <ul>
+            <li><code>vol-n05-command-center-promote</code> — VOLTRON Command Center promote</li>
+            <li><code>raiden-modal-scroll-fix</code> — RAIDEN modal scroll fix</li>
+            <li><code>zrd-megazord-ui-subdir-scaffold</code> — MEGAZORD UI scaffold</li>
+          </ul>
+          <p>Each needs either a PR opened or the branch closed out.</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="mt16">
+      <details>
+        <summary>
+          <span class="summary-arrow">▶</span>
+          <span class="summary-title">Infrastructure debt</span>
+          <span class="summary-count">3 items</span>
+        </summary>
+        <div class="details-body">
+          <ul>
+            <li>TAIKO not registered as a warrior in dispatcher — logs <code>Unknown warrior: TAIKO</code> — needs warrior onboarding</li>
+            <li><code>warrior_queue</code> has 3 stale items from Apr 9 — clearing logic stalled</li>
+            <li>Correspondence Ranger — only failed runs in <code>ranger_runs</code>, zero successful wires</li>
+          </ul>
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <!-- ── SECTION 7 — VINCE / GAP-08 ── -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">07</span>
+      <span class="section-title">Vince / GAP-08 Detail</span>
+    </div>
+
+    <div class="item-list">
+      <div class="item-row blocked-row">
+        <div class="item-meta">
+          <div class="item-label">GAP-08 — Pipeline stages <span class="pill pill-blocked" style="margin-left: 8px;">Already Built</span></div>
+          <div class="item-sub">
+            <code>packages/core/src/flow/configs/index.ts</code> — 15 pipeline configs: NBX_LIFE, NBX_ANNUITY, NBX_INVESTMENTS, NBX_MEDICARE_MAPD, NBX_MEDICARE_MEDSUP, SALES_RETIREMENT, SALES_MEDICARE, SALES_LEGACY, PROSPECT_RETIREMENT, PROSPECT_MEDICARE, PROSPECT_LEGACY, PROSPECT_HOUSEHOLD, REACTIVE_RETIREMENT, REACTIVE_MEDICARE, DELIVERY
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <details class="mt16">
+      <summary>
+        <span class="summary-arrow">▶</span>
+        <span class="summary-title">Comms history note — what we actually know about Vince DM</span>
+      </summary>
+      <div class="details-body">
+        <p>When SHINOB1 scraped bot message history, the only confirmed bot→Vince traffic in the last 14 days was a <strong>public reply in #the-dojo</strong> (RAIDEN routing his 3-epic spec drop) — not a private DM. True DM history would require <code>conversations.open</code> + <code>conversations.history</code>, which isn't in current MCP scope.</p>
+        <p>The session handoff note "Vince DM'd about pipeline stages (GAP-08) — awaiting his response" reads as <strong>Vince DMing inbound to the bot</strong>, not the other way around.</p>
+        <p><strong>The code is done. This is a business validation ask, not a dev gap.</strong> Whether the 15 configs match what Vince/Nikki expect operationally requires their sign-off.</p>
+      </div>
+    </details>
+
+    <details class="mt16">
+      <summary>
+        <span class="summary-arrow">▶</span>
+        <span class="summary-title">RAIDEN's confirmed public reply to Vince (Apr 14, #the-dojo — verbatim)</span>
+      </summary>
+      <div class="details-body">
+        <div class="quote-block">@vince — huge, thank you. This is a 3-epic spec, not a bug drop, so I'm routing it through the Discovery Doc pipeline rather than straight to a dev queue:
+
+• Epic 1 — Dialer &amp; List Management (global autodialer + ProZone custom lists + call-session UX) → RDN-006
+• Epic 2 — Integrated Appointment Booking + Google Calendar sync → RDN-007
+• Epic 3 — Opportunity Board Workflow Automation (auto-create, link, advance) → RDN-008
+
+All 3 persisted to tracker, targeted at MUSASHI (our CMO who owns Discovery Docs). She'll turn each into a signed-off contract before RONIN picks them up to build. That's the Dojo factory pattern — no code gets written on specs this big until everyone agrees on the 8 tabs first.
+
+Expectation: these are sprint-to-epic scope, not same-day fixes. But nothing gets lost, and I'll cross-link the overlaps with the existing smaller tickets already in motion (RDN-DOJO-GAP-18 ProZone filter by carrier, RDN-DOJO-GAP-19 power dialer, RDN-DOJO-GAP-11 inbound-call rep notifications) so MUSASHI sees the full picture when she writes them.
+
+Keep feeding the machine.<span class="quote-sig">⚡ — RAIDEN, The Guardian</span></div>
+      </div>
+    </details>
+
+    <!-- ── TRACKER TOTALS (within Section 7 block, last) ── -->
+    <div class="mt24">
+      <div style="font-size: 11px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 14px;">Tracker Totals</div>
+      <div class="totals-grid">
+        <div class="total-card confirmed">
+          <div class="total-num">706</div>
+          <div class="total-label">Confirmed</div>
+        </div>
+        <div class="total-card seeded">
+          <div class="total-num">152</div>
+          <div class="total-label">RON-Seeded</div>
+        </div>
+        <div class="total-card planned">
+          <div class="total-num">110</div>
+          <div class="total-label">RON-Planned</div>
+        </div>
+        <div class="total-card new">
+          <div class="total-num">113</div>
+          <div class="total-label">INT-new</div>
+        </div>
+        <div class="total-card closed">
+          <div class="total-num">283</div>
+          <div class="total-label">Closed</div>
+        </div>
+        <div class="total-card audited">
+          <div class="total-num">262</div>
+          <div class="total-label">Audited</div>
+        </div>
+        <div class="total-card wont">
+          <div class="total-num">56</div>
+          <div class="total-label">Won't Fix</div>
+        </div>
+      </div>
+      <p class="tracker-note">No items created in last 72h — tracker write activity has been quiet.</p>
+    </div>
+  </div>
+
+</main>
+
+<!-- ── FOOTER ── -->
+<footer class="page-footer">
+  <span class="footer-sig">🥷 — SHINOB1 (OG)</span>
+  <span class="footer-date">2026-04-18</span>
+</footer>
+
+</body>
+</html>

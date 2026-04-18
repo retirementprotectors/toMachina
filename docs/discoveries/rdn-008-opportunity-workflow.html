@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RDN-008 — Opportunity Board Workflow Automation</title>
+<style>
+  :root {
+    --bg: #0a0e17;
+    --card: #111827;
+    --card-hover: #1a2236;
+    --border: #1e293b;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --accent: #d4a44c;
+    --green: #22c55e;
+    --blue: #3b82f6;
+    --red: #ef4444;
+    --orange: #f59e0b;
+    --purple: #a855f7;
+    --teal: #14b8a6;
+    --cyan: #06b6d4;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; line-height: 1.6; }
+  .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-bottom: 3px solid var(--accent); padding: 32px 40px; }
+  .header h1 { font-size: 2rem; font-weight: 800; background: linear-gradient(135deg, var(--accent), #f0d78c); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .header .subtitle { color: var(--muted); font-size: 0.95rem; margin-top: 4px; }
+  .header .meta { display: flex; gap: 24px; margin-top: 16px; flex-wrap: wrap; }
+  .header .meta span { font-size: 0.82rem; color: var(--muted); }
+  .header .meta span strong { color: var(--text); }
+  .tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); background: var(--card); overflow-x: auto; }
+  .tab { padding: 14px 22px; font-size: 0.82rem; font-weight: 600; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; transition: all 0.2s; }
+  .tab:hover { color: var(--text); background: var(--card-hover); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); background: rgba(212,164,76,0.08); }
+  .content { max-width: 960px; margin: 0 auto; padding: 32px 40px; }
+  .section { display: none; }
+  .section.active { display: block; }
+  h2 { font-size: 1.3rem; font-weight: 700; margin: 24px 0 12px; color: var(--text); }
+  h3 { font-size: 1.05rem; font-weight: 600; margin: 20px 0 8px; color: var(--accent); }
+  p, li { font-size: 0.9rem; color: var(--muted); margin-bottom: 8px; }
+  ul, ol { padding-left: 20px; }
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+  th { background: var(--card-hover); color: var(--accent); font-size: 0.72rem; text-transform: uppercase; font-weight: 700; padding: 10px 12px; text-align: left; }
+  td { padding: 10px 12px; border-bottom: 1px solid var(--border); font-size: 0.88rem; color: var(--muted); }
+  td:first-child { color: var(--text); font-weight: 500; }
+  code { background: var(--card-hover); padding: 2px 6px; border-radius: 4px; font-size: 0.82rem; font-family: 'SF Mono', monospace; color: var(--cyan); }
+  pre { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 16px; overflow-x: auto; margin: 12px 0; }
+  pre code { background: none; padding: 0; color: var(--text); }
+  .pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; }
+  .pill-green { background: rgba(34,197,94,0.12); color: var(--green); }
+  .pill-blue { background: rgba(59,130,246,0.12); color: var(--blue); }
+  .pill-orange { background: rgba(245,158,11,0.12); color: var(--orange); }
+  .pill-red { background: rgba(239,68,68,0.12); color: var(--red); }
+  .pill-purple { background: rgba(168,85,247,0.12); color: var(--purple); }
+  .pill-teal { background: rgba(20,184,166,0.12); color: var(--teal); }
+  .callout { background: var(--card); border-left: 3px solid var(--accent); padding: 16px 20px; border-radius: 0 8px 8px 0; margin: 16px 0; }
+  .callout p { margin: 0; }
+  .callout-red { background: rgba(239,68,68,0.07); border-left-color: var(--red); }
+  .callout-red p { color: var(--text); }
+  .callout-orange { background: rgba(245,158,11,0.07); border-left-color: var(--orange); }
+  .callout-orange p { color: var(--text); }
+  .callout-blue { background: rgba(59,130,246,0.07); border-left-color: var(--blue); }
+  .callout-blue p { color: var(--text); }
+  .ticket { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin: 12px 0; }
+  .ticket-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .ticket-id { font-weight: 700; color: var(--accent); font-size: 0.88rem; }
+  .ticket-title { font-weight: 600; color: var(--text); font-size: 0.95rem; margin-bottom: 8px; }
+  .ac { margin-top: 8px; }
+  .ac li { font-size: 0.82rem; color: var(--muted); }
+  .ac li code { font-size: 0.78rem; }
+  .decision-block { background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.3); border-radius: 8px; padding: 16px 20px; margin: 16px 0; }
+  .decision-block h4 { color: var(--orange); font-size: 0.9rem; font-weight: 700; margin-bottom: 8px; }
+  .decision-block p, .decision-block li { font-size: 0.88rem; color: var(--muted); }
+  .dep-block { background: rgba(239,68,68,0.08); border: 2px solid rgba(239,68,68,0.4); border-radius: 8px; padding: 20px; margin: 16px 0; text-align: center; }
+  .dep-block h3 { color: var(--red); font-size: 1.1rem; margin-bottom: 8px; }
+  .dep-block p { color: var(--muted); font-size: 0.88rem; margin: 0; }
+  .dod { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin: 20px 0; }
+  .dod p { color: var(--text); font-style: italic; font-size: 0.95rem; }
+  .phase-header { background: var(--card-hover); border-left: 3px solid var(--accent); padding: 12px 16px; border-radius: 0 6px 6px 0; margin: 24px 0 8px; }
+  .phase-header h3 { margin: 0; color: var(--text); font-size: 1rem; }
+  .phase-header .loe { color: var(--muted); font-size: 0.82rem; margin-top: 2px; }
+  .state-box { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 12px 14px; margin: 6px 0; }
+  .state-box .state-label { font-weight: 700; color: var(--accent); font-size: 0.82rem; margin-bottom: 4px; }
+  .state-box .state-desc { color: var(--muted); font-size: 0.85rem; }
+  .arrow { text-align: center; color: var(--muted); padding: 4px 0; font-size: 1.2rem; }
+  .branch { display: flex; gap: 12px; margin: 8px 0; }
+  .branch-box { flex: 1; background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 12px; }
+  .branch-box .branch-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; margin-bottom: 6px; }
+  .branch-no .branch-label { color: var(--green); }
+  .branch-yes .branch-label { color: var(--blue); }
+  .branch-box li { font-size: 0.82rem; }
+  .field-new { color: var(--orange); font-size: 0.75rem; font-weight: 700; margin-left: 6px; }
+  .field-exists { color: var(--green); font-size: 0.75rem; font-weight: 700; margin-left: 6px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>RDN-008 — OPPORTUNITY BOARD WORKFLOW AUTOMATION</h1>
+  <div class="subtitle">Epic 3: Booking events auto-create and auto-advance Opportunity cards — zero manual pipeline touches for staff</div>
+  <div class="meta">
+    <span><strong>Sprint:</strong> 013-OPP-AUTOMATION</span>
+    <span><strong>Author:</strong> MUSASHI, ARTxBLADE (CMO)</span>
+    <span><strong>Approved:</strong> SHINOB1, CTO</span>
+    <span><strong>Builder:</strong> RONIN</span>
+    <span><strong>Created:</strong> 2026-04-17</span>
+    <span><strong>Tickets:</strong> 17</span>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab('overview')">Overview</div>
+  <div class="tab" onclick="showTab('architecture')">Architecture</div>
+  <div class="tab" onclick="showTab('statemachine')">State Machine</div>
+  <div class="tab" onclick="showTab('api')">API Contract</div>
+  <div class="tab" onclick="showTab('flowengine')">Flow Engine</div>
+  <div class="tab" onclick="showTab('pipelineboards')">Pipeline Boards</div>
+  <div class="tab" onclick="showTab('tickets')">Tickets</div>
+  <div class="tab" onclick="showTab('files')">Files</div>
+</div>
+
+<div class="content">
+
+<!-- ============================================================ -->
+<!-- TAB 1: OVERVIEW -->
+<!-- ============================================================ -->
+<div class="section active" id="overview">
+
+<div class="dep-block">
+  <h3>BLOCKED — DEPENDS ON RDN-007 (Epic 2)</h3>
+  <p>Cannot start until RDN-007 (Appointment Booking with Client ID linkage) ships and is live on main.<br>
+  The booking event contract — specifically <code>client_id</code> on the booking record — is the trigger input for everything below.</p>
+</div>
+
+<h2>Why This Exists</h2>
+
+<p>Vince's team books appointments. After every booking, a coordinator manually opens Pipeline Studio, finds the right board, creates an Opportunity card, fills in the meeting reason, and sets the stage. For follow-ups, they also manually advance the existing card and pull notes from memory or Slack history.</p>
+
+<p>This is dominoes waiting to fall. The first booking tips the domino — every card after it should cascade automatically: create, link, advance, pull forward, generate the next-steps list. The rep closes the booking and walks away. The pipeline is already updated.</p>
+
+<div class="callout">
+  <p><strong>Definition of Done.</strong> A service rep books a follow-up for a client who already has an active Opportunity card. The booking: links to that opportunity via dropdown, advances its stage per the pipeline's workflow rules, surfaces the prior meeting's summary at the top of the card, and auto-generates the new stage's required to-do list — all without the rep manually touching the pipeline board.</p>
+</div>
+
+<h2>Coupling and Parallel Safety</h2>
+<table>
+  <tr><th>Dependency</th><th>Type</th><th>Status</th></tr>
+  <tr><td>RDN-007 (Epic 2 — Appointment Booking)</td><td>Hard prerequisite</td><td><span class="pill pill-red">BLOCKED UNTIL SHIPS</span></td></tr>
+  <tr><td>OPP-FIELDS sprint (Sprint 012 custom fields)</td><td>Extends existing work</td><td><span class="pill pill-green">COMPLETE — use as-is</span></td></tr>
+  <tr><td>Flow Engine (<code>flow_instances</code>, <code>flow_task_templates</code>)</td><td>Core integration surface</td><td><span class="pill pill-green">LIVE — extend, don't fork</span></td></tr>
+  <tr><td>RDN-006 (Epic 1 — Dialer)</td><td>Parallel, no shared surface</td><td><span class="pill pill-blue">PARALLEL SAFE</span></td></tr>
+</table>
+
+<h2>Scope Summary</h2>
+<table>
+  <tr><th>Phase</th><th>What</th><th>Tickets</th><th>LOE</th></tr>
+  <tr><td>1 — Schema + Auto-Create</td><td>New fields on <code>opportunities</code> + <code>booking_log</code>; <code>POST /api/booking</code> auto-creates Opportunity card on first booking</td><td>OPP-01 – OPP-05</td><td>1.5 days</td></tr>
+  <tr><td>2 — Stage Advancement</td><td>Follow-up booking resolves existing Opportunity via dropdown; triggers flow_instance advance per workflow rules</td><td>OPP-06 – OPP-09</td><td>1 day</td></tr>
+  <tr><td>3 — Pull-Forward + Todos</td><td>Prior meeting summary surfaced on card; new stage's task templates auto-generated on advance</td><td>OPP-10 – OPP-13</td><td>1 day</td></tr>
+  <tr><td>4 — UI Polish + Mapping Admin</td><td>Meeting-type-to-pipeline mapping config UI; pull-forward summary panel; pipeline board booking history tab</td><td>OPP-14 – OPP-17</td><td>0.75 day</td></tr>
+</table>
+
+<h2>Decisions Needed from JDM</h2>
+
+<div class="decision-block">
+  <h4>DECISION 1 — Auto-advance gating behavior when prior stage has incomplete required tasks</h4>
+  <p>When a follow-up booking arrives but the current stage has incomplete required tasks (gate_enforced = true), should the system:</p>
+  <ul>
+    <li><strong>(a) Block</strong> — refuse to advance; return an error to the booking UI; staff must close tasks first</li>
+    <li><strong>(b) Warn and advance</strong> — advance the stage, but flag a warning on the new opportunity card ("Prior stage tasks incomplete")</li>
+    <li><strong>(c) Silent advance</strong> — advance without warning; tasks remain open on the prior stage record</li>
+  </ul>
+  <p>Recommendation: <strong>(b)</strong> — matches the existing flow engine's non-blocking advance pattern (see <code>FlowInstanceAdvanceResult.warning</code> in <code>packages/core/src/api-types/flow.ts</code> line 86).</p>
+</div>
+
+<div class="decision-block">
+  <h4>DECISION 2 — Default pipeline-to-meeting-type mapping</h4>
+  <p>What pipeline board does a "Discovery Call" auto-resolve to? Proposed defaults below — confirm or override:</p>
+  <ul>
+    <li><code>Discovery Call</code> → pipeline: SALES_RETIREMENT or SALES_MEDICARE (needs sub-type or team context)</li>
+    <li><code>Follow-Up</code> → link to existing Opportunity (no new card)</li>
+    <li><code>Consultation</code> → same board resolution as Discovery Call</li>
+    <li><code>Quick Question</code> → no auto-create (informational, no pipeline intent)</li>
+  </ul>
+  <p>The team slug from the booking (e.g. <code>retirement-sales</code>) is available on <code>booking_log.agent_slug</code> — this can drive the mapping resolution. Confirm whether team slug is the correct resolver or if we need an explicit dropdown on the booking form.</p>
+</div>
+
+<div class="decision-block">
+  <h4>DECISION 3 — Prior meeting summary edit permissions</h4>
+  <p>The pull-forward summary shows the previous meeting's notes at the top of the Opportunity card. Should it be:</p>
+  <ul>
+    <li><strong>Read-only</strong> — historical record; staff writes new notes in the current stage's task fields</li>
+    <li><strong>Editable</strong> — staff can amend prior summary before saving the new stage</li>
+  </ul>
+  <p>Recommendation: <strong>Read-only</strong> — the prior summary is a receipt, not a draft. Editable opens integrity questions.</p>
+</div>
+
+<div class="decision-block">
+  <h4>DECISION 4 — Coordinator role pipeline sharing</h4>
+  <p>Does the Coordinator role (Nikki's team) share the same pipeline boards as Sales (Vince's team), or do reactive service calls create Opportunities on a separate Coordinator board? Currently <code>REACTIVE_MEDICARE</code> and <code>REACTIVE_RETIREMENT</code> pipeline keys exist in <code>custom-fields.ts</code>. Confirm whether reactive/service bookings should auto-create on those boards or on the NBX sales boards.</p>
+</div>
+
+</div>
+
+<!-- ============================================================ -->
+<!-- TAB 2: ARCHITECTURE -->
+<!-- ============================================================ -->
+<div class="section" id="architecture">
+
+<h2>System Architecture</h2>
+<pre><code>POST /api/booking  (booking.ts)
+  |
+  |— 1. Write booking_log (existing)
+  |— 2. NEW: resolve meeting_type → pipeline_key via meeting_type_pipeline_map (Firestore)
+  |— 3. NEW: query opportunities where client_id = booking.client_id AND status = 'active'
+  |
+  BRANCH: open opportunities found?
+  |
+  YES (follow-up path):
+  |   |— booking_log gains: opportunity_id (staff picks via dropdown in booking UI)
+  |   |— PATCH /api/flow/instances/:id  action=advance
+  |   |   |— flow engine gate check (per DECISION 1)
+  |   |   |— new stage task templates auto-generated
+  |   |— opportunity.booking_history[] += booking_id
+  |   |— opportunity.last_booking_summary = prior summary text
+  |   |— opportunity.updated_at = now
+  |
+  NO (first booking path):
+  |   |— POST /api/opportunities  (auto-create)
+  |   |   meeting_reason  = booking.reason
+  |   |   pipeline        = resolved pipeline_key
+  |   |   stage           = first stage of that pipeline
+  |   |   client_id       = booking.client_id
+  |   |   assigned_to     = booking.agent_email
+  |   |   created_from    = 'auto-booking'
+  |   |   first_booking_id = booking.id
+  |   |— POST /api/flow/instances  (create flow instance for the new opp)
+  |   |— booking_log.opportunity_id = new opp id
+  |
+  v
+Firestore: opportunities, flow_instances, flow_task_instances, booking_log
+</code></pre>
+
+<h2>Key Architectural Decision — Extend Flow Engine, Don't Fork</h2>
+<p>The flow engine already knows how to advance stages and generate tasks (<code>PATCH /api/flow/instances/:id action=advance</code>). This sprint EXTENDS that existing path by wiring booking events as its trigger. We do not build a parallel advancement system. Booking becomes a first-class trigger event for flow_instance advancement — the same gates, same task template generation, same activity log write.</p>
+
+<h2>New Collections</h2>
+<table>
+  <tr><th>Collection</th><th>Status</th><th>Purpose</th></tr>
+  <tr><td><code>meeting_type_pipeline_map</code></td><td><span class="pill pill-orange">NEW COLLECTION</span></td><td>Maps booking meeting_type strings to pipeline_key + first_stage. Config-driven, admin-editable.</td></tr>
+  <tr><td><code>opportunities/{id}/meeting_summaries</code></td><td><span class="pill pill-orange">NEW SUBCOLLECTION</span></td><td>Per-booking meeting notes appended on each advance. Enables the pull-forward pattern.</td></tr>
+</table>
+
+<h2>New Fields on Existing Collections</h2>
+<table>
+  <tr><th>Collection</th><th>Field</th><th>Type</th><th>Notes</th></tr>
+  <tr><td><code>booking_log</code></td><td><code>opportunity_id</code></td><td>string?</td><td>Set post-create. May be null if no pipeline mapping exists for the meeting_type.</td></tr>
+  <tr><td><code>booking_log</code></td><td><code>client_id</code></td><td>string</td><td>NEW — RDN-007 prerequisite. Already on booking payload; must be persisted to Firestore.</td></tr>
+  <tr><td><code>opportunities</code></td><td><code>booking_history</code></td><td>string[]</td><td>Array of booking_id values linked to this opp, chronological.</td></tr>
+  <tr><td><code>opportunities</code></td><td><code>created_from</code></td><td>string?</td><td>'auto-booking' | 'manual'. Enables audit filtering.</td></tr>
+  <tr><td><code>opportunities</code></td><td><code>first_booking_id</code></td><td>string?</td><td>The booking that spawned this card.</td></tr>
+  <tr><td><code>opportunities</code></td><td><code>meeting_reason</code></td><td>string?</td><td>Copied from <code>booking_log.reason</code> at creation.</td></tr>
+  <tr><td><code>opportunities</code></td><td><code>last_booking_summary</code></td><td>string?</td><td>Latest meeting summary text. Denormalized for fast card render. Source of truth is the subcollection.</td></tr>
+  <tr><td><code>flow_instances</code></td><td><code>opportunity_id</code></td><td>string?</td><td>ALREADY EXISTS per <code>packages/core/src/flow/types.ts</code> line 145. Use as-is.</td></tr>
+</table>
+
+<h2>File Structure — New Files</h2>
+<pre><code>services/api/src/routes/
+  booking.ts                        # MODIFY: add opportunity auto-create logic post-write
+  opportunities.ts                  # MODIFY: add /auto-create and /resolve-for-client endpoints
+
+services/api/src/lib/
+  opportunity-automation.ts         # NEW: auto-create + advance logic (extracted from booking.ts)
+
+packages/core/src/api-types/
+  booking.ts                        # MODIFY: add opportunity_id + client_id to BookingCreateResult
+
+apps/prodash/app/(portal)/pipelines/
+  [key]/[instanceId]/
+    meeting-summary-panel.tsx       # NEW: pull-forward summary UI component
+  _components/
+    opportunity-selector.tsx        # NEW: dropdown for linking follow-up booking to existing opp
+</code></pre>
+
+</div>
+
+<!-- ============================================================ -->
+<!-- TAB 3: STATE MACHINE -->
+<!-- ============================================================ -->
+<div class="section" id="statemachine">
+
+<h2>Core State Machine</h2>
+<p>Every <code>POST /api/booking</code> runs this decision tree. Steps 1–2 are new. Step 3 is the existing booking write.</p>
+
+<div class="state-box">
+  <div class="state-label">TRIGGER</div>
+  <div class="state-desc">POST /api/booking receives: <code>agentEmail</code>, <code>slot</code>, <code>meetingType</code>, <code>client</code> (with <code>client_id</code> from RDN-007)</div>
+</div>
+
+<div class="arrow">↓</div>
+
+<div class="state-box">
+  <div class="state-label">STEP 1 — Resolve pipeline</div>
+  <div class="state-desc">Look up <code>meeting_type_pipeline_map</code> where <code>meeting_type == booking.meetingType</code>.<br>
+  If no mapping found: skip auto-create, log warning, write booking_log as normal. Staff creates card manually.</div>
+</div>
+
+<div class="arrow">↓</div>
+
+<div class="state-box">
+  <div class="state-label">STEP 2 — Check for existing active Opportunity</div>
+  <div class="state-desc">Query <code>opportunities</code> where <code>client_id = booking.client_id</code> AND <code>status != 'closed_lost'</code>.<br>
+  If multiple found: surface all in dropdown — staff picks one (or selects "New Opportunity").</div>
+</div>
+
+<div class="arrow">↓ Branch on result</div>
+
+<div class="branch">
+  <div class="branch-box branch-no">
+    <div class="branch-label">NO active opportunity found → FIRST BOOKING PATH</div>
+    <ul>
+      <li>POST /api/opportunities with resolved pipeline_key, first stage, client_id, meeting_reason, assigned_to, created_from='auto-booking', first_booking_id</li>
+      <li>POST /api/flow/instances — creates flow instance for new opportunity (opportunity_id linked)</li>
+      <li>PATCH booking_log: set opportunity_id = new opp id</li>
+      <li>Write meeting_summaries subcollection entry (empty — first meeting, no prior summary)</li>
+    </ul>
+  </div>
+  <div class="branch-box branch-yes">
+    <div class="branch-label">YES active opportunity found → FOLLOW-UP PATH</div>
+    <ul>
+      <li>Staff selects opportunity from dropdown in booking UI (or auto-selects if only one)</li>
+      <li>Write prior meeting notes to <code>opportunities/{id}/meeting_summaries</code></li>
+      <li>PATCH /api/flow/instances/:instanceId action=advance — gate check per DECISION 1</li>
+      <li>New stage tasks auto-generated by existing flow engine task template logic</li>
+      <li>PATCH opportunity: booking_history[] += booking_id, last_booking_summary = summary text, updated_at = now</li>
+      <li>PATCH booking_log: opportunity_id = selected opp id</li>
+    </ul>
+  </div>
+</div>
+
+<div class="arrow">↓</div>
+
+<div class="state-box">
+  <div class="state-label">STEP 3 — Existing booking write (unchanged)</div>
+  <div class="state-desc">booking_log written to Firestore + bridge sync. Response returned to client. Steps 1–2 are pre-write async ops; if they fail they log a warning but do NOT block the booking confirmation.</div>
+</div>
+
+<h2>Gate Behavior — DECISION 1 Mapping</h2>
+<table>
+  <tr><th>Decision</th><th>Advance behavior</th><th>API response</th><th>UI behavior</th></tr>
+  <tr><td>(a) Block</td><td>PATCH returns 409 Conflict</td><td><code>{ success: false, error: "Prior stage tasks incomplete" }</code></td><td>Booking completes; card shows "Advance blocked — close prior tasks first" banner</td></tr>
+  <tr><td>(b) Warn + advance <em>(recommended)</em></td><td>PATCH advances, returns <code>warning</code> field</td><td><code>{ success: true, data: { new_stage, tasks_generated, warning: "..." } }</code></td><td>Card shows amber warning badge; tasks on prior stage remain open</td></tr>
+  <tr><td>(c) Silent</td><td>PATCH advances, no warning</td><td>Standard advance response</td><td>No indication; prior tasks remain open silently</td></tr>
+</table>
+
+<h2>Meeting Type → Pipeline Resolution</h2>
+<p>The <code>meeting_type_pipeline_map</code> collection (new) stores documents keyed by a composite of team slug + meeting_type. Resolution logic:</p>
+<pre><code>// Resolution order:
+// 1. Exact match: agent_slug + meeting_type  (e.g. "retirement-sales:discovery-call")
+// 2. Team-level match: team_category + meeting_type  (e.g. "retirement:discovery-call")
+// 3. Meeting-type-only match  (e.g. "discovery-call")
+// 4. No match → skip auto-create, log WARN
+
+// Example documents in meeting_type_pipeline_map:
+{
+  id: "retirement-sales:discovery-call",
+  team_slug: "retirement-sales",
+  meeting_type: "Discovery Call",
+  pipeline_key: "SALES_RETIREMENT",
+  first_stage: "prospect"   // stage_id of first stage on that pipeline
+}
+{
+  id: "discovery-call:default",
+  meeting_type: "Discovery Call",
+  pipeline_key: "SALES_RETIREMENT",
+  first_stage: "prospect"
+}
+</code></pre>
+
+<h2>Pull-Forward Summary Flow</h2>
+<pre><code>Follow-up booking confirmed
+  |
+  |— Query opportunities/{id}/meeting_summaries ORDER BY created_at DESC LIMIT 1
+  |   → prior_summary = doc.notes || '' (null-safe)
+  |
+  |— On new stage load in Pipeline Board UI:
+  |   → GET /api/opportunities/:id → data includes last_booking_summary (denormalized)
+  |   → Render &lt;MeetingSummaryPanel&gt; at top of card: collapsed by default
+  |   → Panel shows: date of prior meeting, summary text, linked booking_id
+  |
+  |— On advance:
+  |   → Staff writes current meeting notes in task fields (normal flow task UX)
+  |   → On stage advance: current notes captured to meeting_summaries subcollection
+  |   → opportunity.last_booking_summary updated to current notes text
+</code></pre>
+
+</div>
+
+<!-- ============================================================ -->
+<!-- TAB 4: API CONTRACT -->
+<!-- ============================================================ -->
+<div class="section" id="api">
+
+<h2>Modified Endpoints</h2>
+
+<h3>POST /api/booking — MODIFIED</h3>
+<p>Existing file: <code>services/api/src/routes/booking.ts</code></p>
+<p>New behavior: after writing <code>booking_log</code>, invoke <code>opportunityAutomation(booking)</code> from <code>services/api/src/lib/opportunity-automation.ts</code>. Non-blocking — failure logs warning, does not fail the booking response.</p>
+
+<table>
+  <tr><th>Field</th><th>Change</th></tr>
+  <tr><td><code>req.body.client_id</code></td><td>NEW required field (from RDN-007). Must be present for automation to run.</td></tr>
+  <tr><td><code>req.body.opportunity_id</code></td><td>NEW optional. If staff selects existing opp in booking UI, passed here. Bypasses auto-resolution.</td></tr>
+  <tr><td><code>BookingCreateResult.opportunity_id</code></td><td>NEW field on response. The opp id created or linked. Null if no mapping.</td></tr>
+  <tr><td><code>BookingCreateResult.opportunity_action</code></td><td>NEW field: <code>'created' | 'linked' | 'none'</code>. UX hint for confirmation screen.</td></tr>
+</table>
+
+<h3>GET /api/opportunities/resolve-for-client — NEW ENDPOINT</h3>
+<p>New file: added to <code>services/api/src/routes/opportunities.ts</code></p>
+<pre><code>GET /api/opportunities/resolve-for-client?client_id=:id&amp;pipeline_key=:key
+
+Response: {
+  success: true,
+  data: {
+    opportunities: OpportunityDTO[],   // active opps for this client on this pipeline
+    count: number
+  }
+}
+</code></pre>
+<p>Used by the booking form's opportunity selector dropdown. Returns only active (non-closed) opportunities for the client on the resolved pipeline. Scoped by pipeline_key to avoid showing unrelated pipeline opps.</p>
+
+<h3>POST /api/opportunities/auto-create — NEW ENDPOINT</h3>
+<p>Called internally by <code>opportunity-automation.ts</code>. Not a public UI endpoint.</p>
+<pre><code>POST /api/opportunities/auto-create
+
+Body: {
+  pipeline_key: string,
+  stage: string,                    // first_stage from meeting_type_pipeline_map
+  client_id: string,
+  meeting_reason: string,
+  assigned_to: string,              // agent_email from booking
+  created_from: 'auto-booking',
+  first_booking_id: string
+}
+
+Response: { success: true, data: OpportunityDTO &amp; { flow_instance_id: string } }
+</code></pre>
+
+<h3>POST /api/opportunities/:id/meeting-summary — NEW ENDPOINT</h3>
+<pre><code>POST /api/opportunities/:id/meeting-summary
+
+Body: {
+  booking_id: string,
+  notes: string,
+  meeting_date: string              // ISO8601
+}
+
+Response: { success: true, data: { summary_id: string } }
+</code></pre>
+
+<h3>GET /api/opportunities/:id/meeting-summaries — NEW ENDPOINT</h3>
+<pre><code>GET /api/opportunities/:id/meeting-summaries?limit=5
+
+Response: {
+  success: true,
+  data: MeetingSummaryDTO[]
+}
+
+MeetingSummaryDTO: {
+  id: string,
+  booking_id: string,
+  notes: string,
+  meeting_date: string,
+  created_at: string,
+  created_by: string
+}
+</code></pre>
+
+<h3>GET /api/meeting-type-pipeline-map — NEW ENDPOINT</h3>
+<pre><code>GET /api/meeting-type-pipeline-map
+
+Response: { success: true, data: MeetingTypePipelineMapDTO[] }
+
+MeetingTypePipelineMapDTO: {
+  id: string,
+  team_slug?: string,
+  meeting_type: string,
+  pipeline_key: string,
+  first_stage: string,
+  created_at: string
+}
+</code></pre>
+
+<h2>Type Changes Required</h2>
+<p>New types to add to <code>packages/core/src/api-types/</code>:</p>
+<ul>
+  <li><code>MeetingSummaryDTO</code> — meeting summary record shape</li>
+  <li><code>MeetingTypePipelineMapDTO</code> — pipeline mapping config record</li>
+  <li>Extend <code>BookingCreateResult</code> with <code>opportunity_id</code> and <code>opportunity_action</code></li>
+</ul>
+
+</div>
+
+<!-- ============================================================ -->
+<!-- TAB 5: FLOW ENGINE INTEGRATION -->
+<!-- ============================================================ -->
+<div class="section" id="flowengine">
+
+<h2>Flow Engine — What Already Exists</h2>
+<p>Per <code>packages/core/src/flow/types.ts</code> and <code>packages/core/src/api-types/flow.ts</code>, the following are live and production-hardened:</p>
+
+<table>
+  <tr><th>Capability</th><th>Entry Point</th><th>Notes</th></tr>
+  <tr><td>Create flow instance</td><td>POST /api/flow/instances</td><td><code>FlowInstanceCreateResult</code> returns instance_id + tasks_generated</td></tr>
+  <tr><td>Advance stage</td><td>PATCH /api/flow/instances/:id action=advance</td><td>Gate check, task generation, activity log — all built-in</td></tr>
+  <tr><td>Task template generation</td><td>Auto-runs on advance</td><td>Templates in <code>flow_task_templates</code> collection; generated into <code>flow_task_instances</code></td></tr>
+  <tr><td>Gate enforcement</td><td><code>FlowStageDef.gate_enforced</code></td><td>Per-stage flag. If true, advance checks all required tasks complete.</td></tr>
+  <tr><td>opportunity_id on instance</td><td><code>FlowInstanceData.opportunity_id</code></td><td>ALREADY EXISTS (types.ts line 145). This sprint uses it — do not re-add.</td></tr>
+  <tr><td>Warning field on advance</td><td><code>FlowInstanceAdvanceResult.warning</code></td><td>Already supports non-fatal warnings on advance (api-types/flow.ts line 86). Maps to DECISION 1 option (b).</td></tr>
+</table>
+
+<h2>What This Sprint Adds to Flow Engine</h2>
+
+<div class="callout callout-blue">
+  <p><strong>The extension rule:</strong> Booking is a new trigger for existing flow instance operations. This sprint wires that trigger. It does not modify the flow engine itself (<code>services/api/src/routes/flow.ts</code>) — it calls the existing advance endpoint from the new <code>opportunity-automation.ts</code> library.</p>
+</div>
+
+<h3>STEP 0 Audit — Verify gate_enforced behavior</h3>
+<p>RONIN must read <code>services/api/src/routes/flow.ts</code> PATCH handler (action=advance) before writing the automation library. Verify:</p>
+<ol>
+  <li>Current gate check behavior when <code>gate_enforced = true</code> and tasks are incomplete — does it return 409 or 200+warning?</li>
+  <li>Where task templates are queried for generation — confirm the collection and index</li>
+  <li>Whether <code>opportunity_id</code> is currently written to new instances or must be added to the POST body handler</li>
+</ol>
+
+<h3>flow_instance ↔ opportunity linkage</h3>
+<p>The 1:1 relationship between <code>flow_instances</code> and <code>opportunities</code> is via <code>flow_instances.opportunity_id</code> (existing field) and the corresponding query. For auto-created opportunities, this sprint creates both records in sequence:</p>
+<ol>
+  <li>POST /api/opportunities → returns <code>opportunity_id</code></li>
+  <li>POST /api/flow/instances with <code>opportunity_id</code> in body → links the instance</li>
+</ol>
+
+<h3>Task template generation on follow-up advance</h3>
+<p>When a follow-up booking triggers a stage advance, the flow engine's existing task template generation runs automatically. No new logic needed — the templates in <code>flow_task_templates</code> for the new stage are already seeded by the Pipeline Studio admin flow. This sprint assumes those templates exist for each pipeline stage. If they do not, the advance returns a <code>warning</code> (existing behavior, RDN-DOJO-GAP-05 pattern).</p>
+
+<h3>Activity log entry on booking-triggered advance</h3>
+<p>The existing advance handler writes a <code>ADVANCE_STAGE</code> activity log entry. For booking-triggered advances, append metadata to the <code>notes</code> field: <code>"Triggered by booking: {booking_id}"</code>. This requires passing <code>notes</code> in the advance PATCH body — verify the existing handler accepts this field.</p>
+
+</div>
+
+<!-- ============================================================ -->
+<!-- TAB 6: PIPELINE BOARDS -->
+<!-- ============================================================ -->
+<div class="section" id="pipelineboards">
+
+<h2>Existing Pipeline Keys</h2>
+<p>From <code>apps/prodash/app/(portal)/pipelines/pipeline-keys.ts</code> and <code>packages/core/src/opportunities/custom-fields.ts</code>:</p>
+
+<table>
+  <tr><th>Pipeline Key</th><th>URL Slug</th><th>Custom Fields</th><th>Auto-Create Candidate</th></tr>
+  <tr><td>SALES_RETIREMENT</td><td>sales-retirement</td><td>None defined yet</td><td>Yes — discovery/consultation bookings</td></tr>
+  <tr><td>SALES_MEDICARE</td><td>sales-medicare</td><td>None defined yet</td><td>Yes — discovery/consultation bookings</td></tr>
+  <tr><td>SALES_LEGACY</td><td>sales-legacy</td><td>None defined yet</td><td>Yes — discovery/consultation bookings</td></tr>
+  <tr><td>NBX_LIFE</td><td>nbx-life</td><td>13 fields (LIFE_FIELDS)</td><td>No — NBX boards are post-sale processing</td></tr>
+  <tr><td>NBX_ANNUITY</td><td>nbx-annuity</td><td>8 fields (ANNUITY_FIELDS)</td><td>No — NBX boards are post-sale processing</td></tr>
+  <tr><td>NBX_INVESTMENTS</td><td>nbx-investments</td><td>10 fields (INVESTMENTS_FIELDS)</td><td>No — NBX boards are post-sale processing</td></tr>
+  <tr><td>REACTIVE_MEDICARE</td><td>reactive-medicare</td><td>5 fields (REACTIVE_MEDICARE_FIELDS)</td><td>Maybe — per DECISION 4</td></tr>
+  <tr><td>REACTIVE_RETIREMENT</td><td>reactive-retirement</td><td>5 fields (REACTIVE_RETIREMENT_FIELDS)</td><td>Maybe — per DECISION 4</td></tr>
+</table>
+
+<h2>Booking History Tab on Pipeline Board Card</h2>
+<p>Phase 4 adds a "Bookings" tab on the opportunity card detail view at <code>apps/prodash/app/(portal)/pipelines/[key]/[instanceId]/page.tsx</code>. Displays:</p>
+<ul>
+  <li>Linked booking history (from <code>opportunity.booking_history[]</code>) — date, type, agent</li>
+  <li>Meeting summary for each booking (from <code>meeting_summaries</code> subcollection)</li>
+  <li>Current stage's auto-generated task list (existing flow task UI)</li>
+</ul>
+
+<h2>Meeting Summary Panel — UI Spec</h2>
+<p>New component: <code>apps/prodash/app/(portal)/pipelines/[key]/[instanceId]/meeting-summary-panel.tsx</code></p>
+<ul>
+  <li>Collapsed by default. Shows: "Last meeting: [relative date]" with expand chevron</li>
+  <li>Expanded: full summary text, meeting type, agent name, booking date</li>
+  <li>Read-only per DECISION 3 recommendation</li>
+  <li>Amber border if DECISION 1(b) — prior stage tasks still open</li>
+  <li>Empty state: "No prior meeting notes" (first booking, no summary yet)</li>
+</ul>
+
+<h2>Opportunity Selector in Booking UI</h2>
+<p>When a staff member books a follow-up and an active opportunity exists for the client, the booking form (from RDN-007) surfaces a dropdown:</p>
+<ul>
+  <li>Component: <code>apps/prodash/app/(portal)/pipelines/_components/opportunity-selector.tsx</code></li>
+  <li>Data source: GET /api/opportunities/resolve-for-client?client_id=&amp;pipeline_key=</li>
+  <li>Shows: opportunity title or client name + current stage + date created</li>
+  <li>Options: existing active opps + "Create New Opportunity"</li>
+  <li>If zero opps found: field hidden; auto-create path runs silently</li>
+  <li>If one opp found: auto-selected; staff can deselect to force new</li>
+  <li>If multiple: required selection; no default</li>
+</ul>
+
+<h2>Meeting-Type-to-Pipeline Admin UI — Phase 4</h2>
+<p>Lightweight admin table at a new route: <code>apps/prodash/app/(portal)/admin/meeting-type-mapping/page.tsx</code></p>
+<ul>
+  <li>Lists all documents in <code>meeting_type_pipeline_map</code></li>
+  <li>Inline edit: team_slug, meeting_type, pipeline_key, first_stage dropdowns</li>
+  <li>Add/remove rows</li>
+  <li>Auth-gated to admin role (existing entitlement system)</li>
+</ul>
+
+</div>
+
+<!-- ============================================================ -->
+<!-- TAB 7: TICKETS -->
+<!-- ============================================================ -->
+<div class="section" id="tickets">
+
+<div class="callout callout-red">
+  <p><strong>All tickets depend on RDN-007 shipping first.</strong> Do not begin Phase 1 until the Epic 2 booking flow is live on main and <code>client_id</code> is confirmed present on <code>booking_log</code> writes.</p>
+</div>
+
+<!-- PHASE 1 -->
+<div class="phase-header">
+  <h3>Phase 1 — Opportunity Schema + Auto-Create</h3>
+  <div class="loe">LOE: ~1.5 days</div>
+</div>
+
+<div class="ticket">
+  <div class="ticket-header">
+    <span class="ticket-id">OPP-01</span>
+    <span class="pill pill-orange">Phase 1</span>
+  </div>
+  <div class="ticket-title">STEP 0 Audit — Verify all file references before building</div>
+  <ul class="ac">
+    <li>Read <code>services/api/src/routes/flow.ts</code> PATCH action=advance handler — document gate behavior and warning return path</li>
+    <li>Read <code>services/api/src/routes/booking.ts</code> POST handler — confirm <code>client_id</code> is in body and persisted to Firestore after RDN-007</li>
+    <li>Read <code>apps/prodash/app/(portal)/pipelines/[key]/[instanceId]/page.tsx</code> — understand current card layout before adding tabs</li>
+    <li>Confirm <code>FlowInstanceData.opportunity_id</code> is accepted in POST /api/flow/instances body handler</li>
+    <li>Post audit findings as PR comment before proceeding</li>
+  </ul>
+</div>
+
+<div class="ticket">
+  <div class="ticket-header">
+    <span class="ticket-id">OPP-02</span>
+    <span class="pill pill-orange">Phase 1</span>
+  </div>
+  <div class="ticket-title">Create meeting_type_pipeline_map Firestore collection + seed defaults</div>
+  <ul class="ac">
+    <li>Create <code>meeting_type_pipeline_map</code> collection (new) in Firestore</li>
+    <li>Seed default documents per DECISION 2 resolution (JDM must answer before this runs)</li>
+    <li>Add collection to <code>firestore.rules</code> — gated to <code>isRPIUser()</code></li>
+    <li>Create <code>GET /api/meeting-type-pipeline-map</code> route (read-only, no CRUD yet)</li>
+    <li><code>npm run build</code> passes</li>
+  </ul>
+</div>
+
+<div class="ticket">
+  <div class="ticket-header">
+    <span class="ticket-id">OPP-03</span>
+    <span class="pill pill-orange">Phase 1</span>
+  </div>
+  <div class="ticket-title">Extend opportunities collection schema + API types</div>
+  <ul class="ac">
+    <li>Add <code>booking_history: string[]</code>, <code>created_from</code>, <code>first_booking_id</code>, <code>meeting_reason</code>, <code>last_booking_summary</code> fields to <code>OpportunityDTO</code> in <code>packages/core/src/api-types/</code></li>
+    <li>Add <code>MeetingSummaryDTO</code> and <code>MeetingTypePipelineMapDTO</code> types</li>
+    <li>Extend <code>BookingCreateResult</code> with <code>opportunity_id</code> and <code>opportunity_action</code></li>
+    <li>No breaking changes — all new fields optional</li>
+    <li><code>npm run build</code> passes</li>
+  </ul>
+</div>
+
+<div class="ticket">
+  <div class="ticket-header">
+    <span class="ticket-id">OPP-04</span>
+    <span class="pill pill-orange">Phase 1</span>
+  </div>
+  <div class="ticket-title">Build opportunity-automation.ts library</div>
+  <ul class="ac">
+    <li>Create <code>services/api/src/lib/opportunity-automation.ts</code></li>
+    <li>Export <code>runOpportunityAutomation(booking: BookingLogRecord): Promise&lt;OpportunityAutomationResult&gt;</code></li>
+    <li>Implement: pipeline resolution → active opportunity query → branch (create vs link)</li>
+    <li>Non-blocking: all errors caught and returned as <code>{ success: false, warning: string }</code> — never throws</li>
+    <li>Unit tests for resolution logic (mock Firestore)</li>
+    <li><code>npm run build</code> passes</li>
+  </ul>
+</div>
+
+<div class="ticket">
+  <div class="ticket-header">
+    <span class="ticket-id">OPP-05</span>
+    <span class="pill pill-orange">Phase 1</span>
+  </div>
+  <div class="ticket-title">Wire opportunity-automation into POST /api/booking</div>
+  <ul class="ac">
+    <li>Import and call <code>runOpportunityAutomation()</code> after successful <code>booking_log</code> write in <code>booking.ts</code></li>
+    <li>Add <code>client_id</code> and optional <code>opportunity_id</code> to booking validation schema</li>
+    <li>Return <code>opportunity_id</code> and <code>opportunity_action</code> in <code>BookingCreateResult</code></li>
+    <li>End-to-end test: POST booking with client_id → verify opportunity created in Firestore</li>
+    <li><code>npm run build</code> passes</li>
+  </ul>
+</div>
+
+<!-- PHASE 2 -->
+<div class="phase-header">
+  <h3>Phase 2 — Stage Advancement</h3>
+  <div class="loe">LOE: ~1 day</div>
+</div>
+
+<div class="ticket">
+  <div class="ticket-header">
+    <span class="ticket-id">OPP-06</span>
+    <span class="pill pill-blue">Phase 2</span>
+  </div>
+  <div class="ticket-title">Add GET /api/opportunities/resolve-for-client endpoint</div>
+  <ul class="ac">
+    <li>Route: <code>GET /api/opportunities/resolve-for-client?client_id=:id&amp;pipeline_key=:key</code></li>
+    <li>Query <code>opportunities</code> where <code>client_id == :id</code> AND <code>stage != 'closed_lost'</code></li>
+    <li>Optional filter by <code>pipeline_key</code> if param present</li>
+    <li>Return <code>{ opportunities: OpportunityDTO[], count: number }</code></li>
+    <li><code>npm run build</code> passes</li>
+  </ul>
+</div>
+
+<div class="ticket">
+  <div class="ticket-header">
+    <span class="ticket-id">OPP-07</span>
+    <span class="pill pill-blue">Phase 2</span>
+  </div>
+  <div class="ticket-title">Implement opportunity selector component in booking flow</div>
+  <ul class="ac">
+    <li>Create <code>apps/prodash/app/(portal)/pipelines/_components/opportunity-selector.tsx</code></li>
+    <li>Calls GET /api/opportunities/resolve-for-client on mount (when client_id and pipeline_key known)</li>
+    <li>0 results: hidden (first booking path — no UI noise)</li>
+    <li>1 result: auto-selected, dismissible</li>
+    <li>2+ results: required dropdown, no default</li>
+    <li>Selection passes <code>opportunity_id</code> to booking form POST body</li>
+    <li>Wire into RDN-007 booking UI at the confirmation step (before POST)</li>
+    <li><code>npm run build</code> passes</li>
+  </ul>
+</div>
+
+<div class="ticket">
+  <div class="ticket-header">
+    <span class="ticket-id">OPP-08</span>
+    <span class="pill pill-blue">Phase 2</span>
+  </div>
+  <div class="ticket-title">Implement flow instance advance in opportunity-automation.ts (follow-up path)</div>
+  <ul class="ac">
+    <li>In follow-up branch of <code>runOpportunityAutomation()</code>: call PATCH /api/flow/instances/:id action=advance</li>
+    <li>Pass <code>notes: "Triggered by booking: {booking_id}"</code> in advance body</li>
+    <li>Handle advance response per DECISION 1 (block / warn / silent)</li>
+    <li>On advance success: PATCH opportunity — append booking_id to booking_history[], set updated_at</li>
+    <li>On gate block (if DECISION 1a chosen): set opportunity flag <code>advance_blocked: true</code>, return warning</li>
+    <li><code>npm run build</code> passes</li>
+  </ul>
+</div>
+
+<div class="ticket">
+  <div class="ticket-header">
+    <span class="ticket-id">OPP-09</span>
+    <span class="pill pill-blue">Phase 2</span>
+  </div>
+  <div class="ticket-title">Add meeting_summaries subcollection + write endpoints</div>
+  <ul class="ac">
+    <li>Add Firestore rule for <code>opportunities/{id}/meeting_summaries</code> — gated to <code>isRPIUser()</code></li>
+    <li>Create POST /api/opportunities/:id/meeting-summary endpoint</li>
+    <li>Create GET /api/opportunities/:id/meeting-summaries?limit=5 endpoint</li>
+    <li>Wire POST into opportunity-automation.ts: write summary entry on every booking (empty text for first booking)</li>
+    <li>On follow-up advance: capture current stage notes as summary before advancing</li>
+    <li><code>npm run build</code> passes</li>
+  </ul>
+</div>
+
+<!-- PHASE 3 -->
+<div class="phase-header">
+  <h3>Phase 3 — Pull-Forward + Todos</h3>
+  <div class="loe">LOE: ~1 day</div>
+</div>
+
+<div class="ticket">
+  <div class="ticket-header">
+    <span class="ticket-id">OPP-10</span>
+    <span class="pill pill-purple">Phase 3</span>
+  </div>
+  <div class="ticket-title">Denormalize last_booking_summary onto opportunity doc</div>
+  <ul class="ac">
+    <li>On every meeting_summaries write: also PATCH opportunity.last_booking_summary = notes text</li>
+    <li>Handles null/empty gracefully (first booking = no prior summary)</li>
+    <li>No client reads the subcollection for the "last summary" use case — always use the denormalized field</li>
+    <li><code>npm run build</code> passes</li>
+  </ul>
+</div>
+
+<div class="ticket">
+  <div class="ticket-header">
+    <span class="ticket-id">OPP-11</span>
+    <span class="pill pill-purple">Phase 3</span>
+  </div>
+  <div class="ticket-title">Build MeetingSummaryPanel component</div>
+  <ul class="ac">
+    <li>Create <code>apps/prodash/app/(portal)/pipelines/[key]/[instanceId]/meeting-summary-panel.tsx</code></li>
+    <li>Props: <code>summary: string | null, meeting_date: string | null, agent_name: string | null</code></li>
+    <li>Collapsed default state with relative-date label</li>
+    <li>Expanded: full text, formatted date, agent</li>
+    <li>Read-only (no edit controls) per DECISION 3 recommendation</li>
+    <li>Empty state: neutral text "No prior meeting notes"</li>
+    <li>Amber variant when <code>prior_tasks_incomplete</code> flag is true (DECISION 1b)</li>
+    <li><code>npm run build</code> passes</li>
+  </ul>
+</div>
+
+<div class="ticket">
+  <div class="ticket-header">
+    <span class="ticket-id">OPP-12</span>
+    <span class="pill pill-purple">Phase 3</span>
+  </div>
+  <div class="ticket-title">Surface MeetingSummaryPanel on pipeline board instance page</div>
+  <ul class="ac">
+    <li>Read <code>apps/prodash/app/(portal)/pipelines/[key]/[instanceId]/page.tsx</code> before modifying</li>
+    <li>Insert <code>&lt;MeetingSummaryPanel&gt;</code> above the existing stage task list</li>
+    <li>Data: GET /api/opportunities/:id → <code>last_booking_summary</code> field (if opportunity_id on instance)</li>
+    <li>Only renders if <code>flow_instance.opportunity_id</code> is present</li>
+    <li><code>npm run build</code> passes</li>
+  </ul>
+</div>
+
+<div class="ticket">
+  <div class="ticket-header">
+    <span class="ticket-id">OPP-13</span>
+    <span class="pill pill-purple">Phase 3</span>
+  </div>
+  <div class="ticket-title">Verify auto-task generation on booking-triggered advance</div>
+  <ul class="ac">
+    <li>E2E test: POST follow-up booking → confirm flow instance advanced → confirm new stage tasks generated</li>
+    <li>Verify tasks come from the correct stage's <code>flow_task_templates</code></li>
+    <li>Verify <code>tasks_generated</code> count in advance response is non-zero for a pipeline with templates</li>
+    <li>Document which pipeline boards currently have task templates seeded vs which are empty (risk to flag)</li>
+    <li><code>npm run build</code> passes</li>
+  </ul>
+</div>
+
+<!-- PHASE 4 -->
+<div class="phase-header">
+  <h3>Phase 4 — UI Polish + Mapping Admin</h3>
+  <div class="loe">LOE: ~0.75 day</div>
+</div>
+
+<div class="ticket">
+  <div class="ticket-header">
+    <span class="ticket-id">OPP-14</span>
+    <span class="pill pill-teal">Phase 4</span>
+  </div>
+  <div class="ticket-title">Booking history tab on pipeline instance page</div>
+  <ul class="ac">
+    <li>Add "Bookings" tab to the instance detail page tabs list</li>
+    <li>Fetch: GET /api/opportunities/:id/meeting-summaries + opportunity.booking_history[]</li>
+    <li>Render: date, meeting type, agent, summary snippet per linked booking</li>
+    <li>Only renders if opportunity_id is present on the flow instance</li>
+    <li><code>npm run build</code> passes</li>
+  </ul>
+</div>
+
+<div class="ticket">
+  <div class="ticket-header">
+    <span class="ticket-id">OPP-15</span>
+    <span class="pill pill-teal">Phase 4</span>
+  </div>
+  <div class="ticket-title">CRUD endpoints for meeting_type_pipeline_map</div>
+  <ul class="ac">
+    <li>Add POST, PATCH, DELETE to <code>GET /api/meeting-type-pipeline-map</code> route</li>
+    <li>Auth-gated to admin entitlement (read existing entitlement check pattern)</li>
+    <li>Validate: <code>meeting_type</code> and <code>pipeline_key</code> required on write</li>
+    <li><code>npm run build</code> passes</li>
+  </ul>
+</div>
+
+<div class="ticket">
+  <div class="ticket-header">
+    <span class="ticket-id">OPP-16</span>
+    <span class="pill pill-teal">Phase 4</span>
+  </div>
+  <div class="ticket-title">Meeting-type-to-pipeline admin UI page</div>
+  <ul class="ac">
+    <li>New route: <code>apps/prodash/app/(portal)/admin/meeting-type-mapping/page.tsx</code></li>
+    <li>Table: meeting_type | team_slug (optional) | pipeline_key | first_stage | actions</li>
+    <li>Inline edit per row via PATCH endpoint</li>
+    <li>Add row button → POST endpoint</li>
+    <li>Delete confirmation → DELETE endpoint</li>
+    <li>Admin entitlement gate on mount</li>
+    <li><code>npm run build</code> passes</li>
+  </ul>
+</div>
+
+<div class="ticket">
+  <div class="ticket-header">
+    <span class="ticket-id">OPP-17</span>
+    <span class="pill pill-teal">Phase 4</span>
+  </div>
+  <div class="ticket-title">Booking confirmation screen — show opportunity action</div>
+  <ul class="ac">
+    <li>The RDN-007 booking confirmation step (final screen after POST) reads <code>BookingCreateResult.opportunity_action</code></li>
+    <li>If <code>'created'</code>: show green badge "Opportunity created on [Pipeline Name]"</li>
+    <li>If <code>'linked'</code>: show blue badge "Opportunity updated — [Pipeline Name] advanced to [stage]"</li>
+    <li>If <code>'none'</code>: no badge (no pipeline mapping exists — silent)</li>
+    <li><code>npm run build</code> passes</li>
+  </ul>
+</div>
+
+</div>
+
+<!-- ============================================================ -->
+<!-- TAB 8: FILES -->
+<!-- ============================================================ -->
+<div class="section" id="files">
+
+<h2>STEP 0 — Verify These References Before Building</h2>
+<p>RONIN must confirm these paths and fields exist at build time. Mark any discrepancies as blockers in OPP-01.</p>
+
+<table>
+  <tr><th>File / Collection</th><th>Status</th><th>What to Verify</th></tr>
+  <tr><td><code>services/api/src/routes/booking.ts</code></td><td><span class="pill pill-green">EXISTS — verified</span></td><td>POST handler at line 201; <code>client</code> object persisted; confirm <code>client_id</code> field added by RDN-007</td></tr>
+  <tr><td><code>services/api/src/routes/opportunities.ts</code></td><td><span class="pill pill-green">EXISTS — verified</span></td><td>Full CRUD routes present; collection name: <code>opportunities</code>; POST requires <code>pipeline</code> + <code>stage</code></td></tr>
+  <tr><td><code>services/api/src/routes/flow.ts</code></td><td><span class="pill pill-orange">EXISTS — must read before OPP-01</span></td><td>PATCH action=advance: does it accept <code>notes</code> field? Does it return 409 or 200+warning on gate fail?</td></tr>
+  <tr><td><code>packages/core/src/flow/types.ts</code></td><td><span class="pill pill-green">EXISTS — verified</span></td><td><code>FlowInstanceData.opportunity_id</code> at line 145 — use as-is</td></tr>
+  <tr><td><code>packages/core/src/api-types/flow.ts</code></td><td><span class="pill pill-green">EXISTS — verified</span></td><td><code>FlowInstanceAdvanceResult.warning</code> at line 86 — already supports non-fatal warnings</td></tr>
+  <tr><td><code>packages/core/src/opportunities/custom-fields.ts</code></td><td><span class="pill pill-green">EXISTS — verified</span></td><td>8 pipeline schemas defined; pipeline_key constants match pipeline-keys.ts slugs</td></tr>
+  <tr><td><code>apps/prodash/app/(portal)/pipelines/pipeline-keys.ts</code></td><td><span class="pill pill-green">EXISTS — verified</span></td><td>14 pipeline keys + slug mapping; use <code>toSlug()</code> / <code>toPipelineKey()</code></td></tr>
+  <tr><td><code>apps/prodash/app/(portal)/pipelines/[key]/[instanceId]/page.tsx</code></td><td><span class="pill pill-orange">EXISTS — must read before OPP-12</span></td><td>Current layout of instance detail page before adding MeetingSummaryPanel and Bookings tab</td></tr>
+  <tr><td><code>Firestore: opportunities</code></td><td><span class="pill pill-green">EXISTS — live collection</span></td><td>Queried by <code>pipeline</code>, <code>stage</code>, <code>client_id</code>, <code>agent_id</code></td></tr>
+  <tr><td><code>Firestore: booking_log</code></td><td><span class="pill pill-green">EXISTS — live collection</span></td><td>Written by POST /api/booking; confirm <code>client_id</code> field added by RDN-007 (not present in current schema)</td></tr>
+  <tr><td><code>Firestore: flow_instances</code></td><td><span class="pill pill-green">EXISTS — live collection</span></td><td>Gated in firestore.rules; <code>opportunity_id</code> field exists in schema (types.ts)</td></tr>
+  <tr><td><code>Firestore: flow_task_templates</code></td><td><span class="pill pill-green">EXISTS — live collection</span></td><td>Confirm templates exist for SALES_RETIREMENT + SALES_MEDICARE pipeline stages (task generation depends on this)</td></tr>
+  <tr><td><code>Firestore: meeting_type_pipeline_map</code></td><td><span class="pill pill-red">NEW COLLECTION — create in OPP-02</span></td><td>Does not exist. Create + seed + rules in Phase 1.</td></tr>
+  <tr><td><code>Firestore: opportunities/{id}/meeting_summaries</code></td><td><span class="pill pill-red">NEW SUBCOLLECTION — create in OPP-09</span></td><td>Does not exist. Add Firestore rule + write endpoints in Phase 2.</td></tr>
+</table>
+
+<h2>New Files to Create</h2>
+<table>
+  <tr><th>Path</th><th>Phase</th><th>Purpose</th></tr>
+  <tr><td><code>services/api/src/lib/opportunity-automation.ts</code></td><td>1</td><td>Core automation logic — pipeline resolution, branch, create/advance</td></tr>
+  <tr><td><code>apps/prodash/app/(portal)/pipelines/_components/opportunity-selector.tsx</code></td><td>2</td><td>Follow-up booking opportunity dropdown</td></tr>
+  <tr><td><code>apps/prodash/app/(portal)/pipelines/[key]/[instanceId]/meeting-summary-panel.tsx</code></td><td>3</td><td>Pull-forward summary UI</td></tr>
+  <tr><td><code>apps/prodash/app/(portal)/admin/meeting-type-mapping/page.tsx</code></td><td>4</td><td>Admin UI for pipeline mapping config</td></tr>
+</table>
+
+<h2>Files to Modify</h2>
+<table>
+  <tr><th>Path</th><th>Change</th></tr>
+  <tr><td><code>services/api/src/routes/booking.ts</code></td><td>Wire opportunity-automation post-write; add client_id + opportunity_id to validation</td></tr>
+  <tr><td><code>services/api/src/routes/opportunities.ts</code></td><td>Add /resolve-for-client, /auto-create, /:id/meeting-summary, /:id/meeting-summaries endpoints</td></tr>
+  <tr><td><code>packages/core/src/api-types/</code> (booking + flow files)</td><td>Extend BookingCreateResult; add MeetingSummaryDTO + MeetingTypePipelineMapDTO</td></tr>
+  <tr><td><code>firestore.rules</code></td><td>Add rules for meeting_type_pipeline_map + opportunities subcollection meeting_summaries</td></tr>
+  <tr><td><code>apps/prodash/app/(portal)/pipelines/[key]/[instanceId]/page.tsx</code></td><td>Add MeetingSummaryPanel + Bookings tab</td></tr>
+</table>
+
+<h2>Fields Not Verifiable Without Running Code</h2>
+<p>The following could not be confirmed via static analysis alone — RONIN must verify in OPP-01:</p>
+<ul>
+  <li><code>services/api/src/routes/flow.ts</code> PATCH advance handler — exact gate behavior and warning return format</li>
+  <li>Whether <code>flow_task_templates</code> documents exist for SALES_RETIREMENT and SALES_MEDICARE stages (auto-task generation silently no-ops if templates are missing)</li>
+  <li>Whether <code>client_id</code> has been added to <code>booking_log</code> writes by RDN-007 (sprint dependency)</li>
+  <li><code>OpportunityDTO</code> type shape in <code>packages/core/src/api-types/</code> — the DTOs file was not found during research; only the Valibot schema in <code>packages/core/src/schemas/</code> was confirmed</li>
+</ul>
+
+</div>
+
+</div><!-- .content -->
+
+<script>
+function showTab(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'))
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'))
+  document.getElementById(id).classList.add('active')
+  event.target.classList.add('active')
+}
+</script>
+
+</body>
+</html>

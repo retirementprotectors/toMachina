@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RDN-007 — Internal Appointment Booking | Discovery Doc</title>
+<style>
+  :root {
+    --bg: #0a0e17;
+    --card: #111827;
+    --card2: #1a2235;
+    --accent: #d4a44c;
+    --accent2: #b8863a;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --border: #1e293b;
+    --danger: #ef4444;
+    --warn: #f59e0b;
+    --success: #10b981;
+    --info: #3b82f6;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, sans-serif; font-size: 14px; line-height: 1.6; }
+
+  /* ── Header ── */
+  .doc-header { background: var(--card); border-bottom: 2px solid var(--accent); padding: 28px 40px 20px; }
+  .doc-header h1 { font-size: 22px; font-weight: 700; color: var(--accent); letter-spacing: .02em; margin-bottom: 6px; }
+  .doc-header .subtitle { font-size: 14px; color: var(--muted); margin-bottom: 16px; }
+  .meta-row { display: flex; flex-wrap: wrap; gap: 24px; font-size: 12px; }
+  .meta-item { display: flex; flex-direction: column; gap: 2px; }
+  .meta-item .label { color: var(--muted); text-transform: uppercase; letter-spacing: .08em; font-size: 10px; }
+  .meta-item .value { color: var(--text); font-weight: 600; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+  .badge-gold { background: rgba(212,164,76,.15); color: var(--accent); border: 1px solid rgba(212,164,76,.3); }
+  .badge-blue { background: rgba(59,130,246,.15); color: #60a5fa; border: 1px solid rgba(59,130,246,.3); }
+  .badge-green { background: rgba(16,185,129,.15); color: #34d399; border: 1px solid rgba(16,185,129,.3); }
+  .badge-red { background: rgba(239,68,68,.15); color: #f87171; border: 1px solid rgba(239,68,68,.3); }
+  .badge-warn { background: rgba(245,158,11,.15); color: #fbbf24; border: 1px solid rgba(245,158,11,.3); }
+
+  /* ── Nav ── */
+  .tab-nav { background: var(--card); border-bottom: 1px solid var(--border); display: flex; overflow-x: auto; padding: 0 40px; gap: 0; }
+  .tab-btn { background: none; border: none; border-bottom: 2px solid transparent; color: var(--muted); cursor: pointer; font-size: 13px; font-weight: 500; padding: 14px 18px; white-space: nowrap; transition: color .15s, border-color .15s; }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active { border-bottom-color: var(--accent); color: var(--accent); font-weight: 600; }
+
+  /* ── Layout ── */
+  .tab-content { display: none; padding: 36px 40px; max-width: 1100px; }
+  .tab-content.active { display: block; }
+
+  /* ── Typography ── */
+  h2 { font-size: 18px; font-weight: 700; color: var(--accent); margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+  h3 { font-size: 15px; font-weight: 600; color: var(--text); margin: 24px 0 12px; }
+  h4 { font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin: 16px 0 8px; }
+  p { color: var(--muted); margin-bottom: 12px; }
+  ul, ol { color: var(--muted); padding-left: 20px; margin-bottom: 12px; }
+  li { margin-bottom: 4px; }
+  strong { color: var(--text); }
+
+  /* ── Cards ── */
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 16px; }
+  .card2 { background: var(--card2); border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 16px; }
+
+  /* ── Callouts ── */
+  .callout { border-radius: 6px; padding: 14px 16px; margin-bottom: 16px; border-left: 3px solid; }
+  .callout-gold { background: rgba(212,164,76,.08); border-color: var(--accent); }
+  .callout-blue { background: rgba(59,130,246,.08); border-color: var(--info); }
+  .callout-red { background: rgba(239,68,68,.08); border-color: var(--danger); }
+  .callout-green { background: rgba(16,185,129,.08); border-color: var(--success); }
+  .callout-warn { background: rgba(245,158,11,.08); border-color: var(--warn); }
+  .callout .title { font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 6px; }
+  .callout-gold .title { color: var(--accent); }
+  .callout-blue .title { color: var(--info); }
+  .callout-red .title { color: var(--danger); }
+  .callout-green .title { color: var(--success); }
+  .callout-warn .title { color: var(--warn); }
+
+  /* ── Tables ── */
+  table { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
+  th { background: var(--card2); color: var(--muted); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+  td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--muted); vertical-align: top; }
+  td strong, td code { color: var(--text); }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,.02); }
+
+  /* ── Code ── */
+  pre { background: #0d1117; border: 1px solid var(--border); border-radius: 6px; padding: 16px; overflow-x: auto; margin-bottom: 16px; font-size: 12px; line-height: 1.7; }
+  code { font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 12px; }
+  pre code { color: #e2e8f0; }
+  :not(pre) > code { background: rgba(255,255,255,.07); border-radius: 3px; padding: 1px 5px; color: var(--accent); font-size: 12px; }
+
+  /* ── Pills ── */
+  .pill { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; margin-right: 4px; }
+  .pill-gold { background: rgba(212,164,76,.2); color: var(--accent); }
+  .pill-blue { background: rgba(59,130,246,.2); color: #60a5fa; }
+  .pill-green { background: rgba(16,185,129,.2); color: #34d399; }
+  .pill-red { background: rgba(239,68,68,.2); color: #f87171; }
+  .pill-gray { background: rgba(148,163,184,.12); color: var(--muted); }
+
+  /* ── Tickets ── */
+  .phase-header { background: linear-gradient(90deg, rgba(212,164,76,.12), transparent); border-left: 3px solid var(--accent); border-radius: 0 6px 6px 0; padding: 10px 16px; margin: 28px 0 16px; }
+  .phase-header h3 { margin: 0; font-size: 14px; color: var(--accent); }
+  .ticket { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 12px; }
+  .ticket-header { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 10px; }
+  .ticket-id { background: var(--card2); border: 1px solid var(--border); border-radius: 4px; padding: 3px 8px; font-size: 11px; font-weight: 700; color: var(--accent); white-space: nowrap; font-family: monospace; }
+  .ticket-title { font-size: 14px; font-weight: 600; color: var(--text); flex: 1; }
+  .ticket-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+  .ac { background: var(--card2); border-radius: 6px; padding: 10px 12px; margin-top: 10px; }
+  .ac-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 6px; }
+  .ac ul { margin: 0; padding-left: 16px; }
+  .ac li { font-size: 12px; color: var(--muted); margin-bottom: 3px; }
+
+  /* ── Two-col layout ── */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 700px) { .two-col { grid-template-columns: 1fr; } }
+
+  /* ── Decision flag ── */
+  .decision { background: rgba(245,158,11,.08); border: 1px solid rgba(245,158,11,.3); border-radius: 6px; padding: 14px 16px; margin-bottom: 12px; }
+  .decision-title { font-weight: 700; font-size: 12px; color: var(--warn); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 6px; }
+
+  /* ── Gate / dependency ── */
+  .dep-row { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+  .dep-row:last-child { border-bottom: none; }
+  .dep-arrow { color: var(--accent); font-weight: 700; }
+
+  /* ── Step flow ── */
+  .steps { display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; }
+  .step { display: flex; gap: 14px; align-items: flex-start; }
+  .step-num { background: var(--accent); color: var(--bg); font-weight: 800; font-size: 12px; min-width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+  .step-body strong { display: block; color: var(--text); font-size: 13px; }
+  .step-body p { margin: 0; font-size: 12px; }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════ HEADER ══════════════════════════ -->
+<div class="doc-header">
+  <h1>RDN-007 — Internal Appointment Booking</h1>
+  <div class="subtitle">Staff-to-client booking with per-user Google Calendar OAuth, department routing, and two-way sync</div>
+  <div class="meta-row">
+    <div class="meta-item"><span class="label">Author</span><span class="value">MUSASHI — ARTxBLADE, CMO</span></div>
+    <div class="meta-item"><span class="label">Approved</span><span class="value">SHINOB1 — CTO</span></div>
+    <div class="meta-item"><span class="label">Builder</span><span class="value">RONIN</span></div>
+    <div class="meta-item"><span class="label">Created</span><span class="value">2026-04-17</span></div>
+    <div class="meta-item"><span class="label">Sprint</span><span class="value">012-BOOKING-INTERNAL</span></div>
+    <div class="meta-item"><span class="label">Ticket Prefix</span><span class="value">BKI-</span></div>
+    <div class="meta-item"><span class="label">Status</span><span class="badge badge-gold">Ready for RONIN</span></div>
+    <div class="meta-item"><span class="label">Gates</span><span class="badge badge-red">BLOCKS RDN-008</span></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ TAB NAV ══════════════════════════ -->
+<div class="tab-nav">
+  <button class="tab-btn active" onclick="showTab('overview')">Overview</button>
+  <button class="tab-btn" onclick="showTab('architecture')">Architecture</button>
+  <button class="tab-btn" onclick="showTab('ux')">UX Spec</button>
+  <button class="tab-btn" onclick="showTab('api')">API Contract</button>
+  <button class="tab-btn" onclick="showTab('oauth')">Calendar OAuth</button>
+  <button class="tab-btn" onclick="showTab('routing')">Staff Routing</button>
+  <button class="tab-btn" onclick="showTab('tickets')">Tickets</button>
+  <button class="tab-btn" onclick="showTab('files')">Files</button>
+</div>
+
+<!-- ══════════════════════════ OVERVIEW ══════════════════════════ -->
+<div id="tab-overview" class="tab-content active">
+  <h2>Overview</h2>
+
+  <div class="callout callout-gold">
+    <div class="title">What This Sprint Delivers</div>
+    <p>A staff-initiated appointment booking flow embedded in ProDashX. Any RPI team member opens a client contact page or a past call row, clicks <strong>Book Appointment</strong>, picks a staff member, selects an available slot, and confirms. The event lands on both the staff member's Google Calendar and the client's communications timeline.</p>
+  </div>
+
+  <div class="callout callout-red">
+    <div class="title">⛔ GATES RDN-008 — Do Not Start RDN-008 Until BKI-01 Through BKI-07 Are Merged</div>
+    <p>RDN-008 (Opportunity Workflow) includes appointment scheduling steps. Those steps cannot be wired until the internal booking API endpoints from this sprint exist on <code>main</code>. RDN-006 (Phone/Dialer) is parallel-safe and may proceed concurrently.</p>
+  </div>
+
+  <h3>Why This Exists</h3>
+  <p>Vince backlogged this request 3 days ago. The team currently books appointments by texting or calling each other, then manually entering calendar events. There is no record of who booked what on behalf of which client. This sprint fixes that gap with a lightweight modal that is data-driven, auditable, and connected to Google Calendar.</p>
+
+  <h3>Scope Summary</h3>
+  <table>
+    <tr><th>In Scope</th><th>Out of Scope</th></tr>
+    <tr>
+      <td>
+        <ul>
+          <li>Book appointment modal on client contact page</li>
+          <li>Book appointment from CommsTimeline call rows</li>
+          <li>Per-user Google OAuth connect flow in MyRPI</li>
+          <li>Staff availability reading via Google Calendar free/busy</li>
+          <li>Calendar event creation with client name in title</li>
+          <li>Two-way sync via push notifications (webhooks)</li>
+          <li><code>booking_log</code> record for every internal booking</li>
+          <li>Department-grouped staff dropdown (data-driven)</li>
+        </ul>
+      </td>
+      <td>
+        <ul>
+          <li>Client self-booking (public booking page — Sprint 010)</li>
+          <li>Google Meet auto-provisioning (Sprint 010 BKG-04 done)</li>
+          <li>SMS/email confirmation to client (RDN-006 / TAIKO)</li>
+          <li>Cancellation / rescheduling UI</li>
+          <li>Multi-staff (round-robin) booking</li>
+          <li>SENTINEL booking (B2B partner requests)</li>
+          <li>RDN-008 opportunity pipeline steps</li>
+        </ul>
+      </td>
+    </tr>
+  </table>
+
+  <h3>Dependency Map</h3>
+  <div class="card">
+    <div class="dep-row"><span class="badge badge-blue">RDN-006 Phone/Dialer</span><span class="dep-arrow">→</span><span style="color:var(--muted);font-size:13px">Parallel-safe. Book button surfaces on CommsTimeline call rows after BKI-12.</span></div>
+    <div class="dep-row"><span class="badge badge-gold">RDN-007 (THIS)</span><span class="dep-arrow">→</span><span style="color:var(--muted);font-size:13px">Must merge BKI-01 → BKI-07 before RDN-008 may start.</span></div>
+    <div class="dep-row"><span class="badge badge-red">RDN-008 Opportunity Workflow</span><span class="dep-arrow">→</span><span style="color:var(--muted);font-size:13px">Blocked until BKI-07 is on main. Appointment step in pipeline uses POST /api/booking/internal.</span></div>
+    <div class="dep-row"><span class="badge badge-green">Sprint 010 BKG-*</span><span class="dep-arrow">→</span><span style="color:var(--muted);font-size:13px">Existing booking.ts route is read-only dependency. This sprint adds /internal routes — does not modify Sprint 010 routes.</span></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ ARCHITECTURE ══════════════════════════ -->
+<div id="tab-architecture" class="tab-content">
+  <h2>Architecture</h2>
+
+  <h3>System Diagram (prose)</h3>
+  <div class="card">
+    <p><strong>Staff action:</strong> Staff member clicks "Book Appointment" in ProDashX. Modal opens. React component calls <code>GET /api/booking/internal/staff</code> (returns department-grouped staff list), then <code>GET /api/booking/internal/availability?email=&amp;date=</code> (returns free/busy slots), then <code>POST /api/booking/internal</code> (creates booking).</p>
+    <p><strong>API layer:</strong> New route file <code>services/api/src/routes/booking-internal.ts</code>. Mounts at <code>/api/booking/internal</code>. Reads <code>users</code> collection to build staff list. Calls Google Calendar API using per-user OAuth tokens fetched from <code>users/{email}/calendar_oauth/primary</code> subcollection. Writes booking record to <code>booking_log</code> collection.</p>
+    <p><strong>Calendar sync:</strong> On first connect, the API registers a push notification channel via <code>calendarClient.events.watch()</code>. Google sends webhook POST to <code>/api/calendar/webhook</code> when events change. Handler verifies HMAC token, reads updated event, updates <code>booking_log.status</code> if event was deleted or moved. Channel expiry renews on each token refresh cycle.</p>
+    <p><strong>Token store:</strong> Each staff member's OAuth tokens live in the <code>users/{email}/calendar_oauth/primary</code> subcollection document. Values are AES-256-GCM encrypted before write. The route layer decrypts on read using <code>CALENDAR_ENCRYPTION_KEY</code> env var. <code>google-auth-library</code> auto-refresh rotates the refresh token via <code>oauth2.on('tokens', handler)</code>.</p>
+  </div>
+
+  <h3>Calendar Auth Decision: Per-User OAuth vs Domain-Wide Delegation (DWD)</h3>
+  <div class="callout callout-gold">
+    <div class="title">Decision: Per-User OAuth</div>
+    <p>Per-user OAuth is the correct choice for this sprint. DWD was evaluated and rejected for the reasons below.</p>
+  </div>
+
+  <table>
+    <tr><th>Dimension</th><th>Per-User OAuth (chosen)</th><th>DWD — Service Account Impersonation</th></tr>
+    <tr><td><strong>Event organizer</strong></td><td>Staff member. Attendees see the correct organizer in Google Calendar invites.</td><td>Service account. Attendees see a system email as organizer. Confusing and unprofessional.</td></tr>
+    <tr><td><strong>Push notifications (two-way sync)</strong></td><td>Works correctly. Google sends webhooks when the actual owner's calendar changes.</td><td>Unreliable. Webhook delivery for impersonated events has documented edge cases and is not recommended by Google for production two-way sync.</td></tr>
+    <tr><td><strong>Refresh token management</strong></td><td>Each user grants once. Token auto-refreshes silently. User re-grants only if revoked.</td><td>No refresh needed — service account JWT is long-lived. Simpler operationally but sacrifices organizer identity.</td></tr>
+    <tr><td><strong>Scope required</strong></td><td><code>calendar.events</code> per user.</td><td>Domain-wide delegation with impersonation — Admin SDK setup, broader attack surface.</td></tr>
+    <tr><td><strong>Onboarding friction</strong></td><td>Staff clicks "Connect Google Calendar" once in MyRPI. ~10 seconds.</td><td>Zero user friction. Admin configures once.</td></tr>
+    <tr><td><strong>Setup complexity</strong></td><td>GCP OAuth client + consent screen. OAuth redirect URI must be registered. <em>(DECISION NEEDED — see Files tab)</em></td><td>Admin SDK + service account DWD grant in Google Admin Console. Already configured for DWD use in calendar-client.ts.</td></tr>
+    <tr><td><strong>Verdict</strong></td><td><span class="badge badge-green">CHOSEN — correct for two-way sync + organizer identity</span></td><td><span class="badge badge-red">Rejected — organizer identity wrong, push sync unreliable</span></td></tr>
+  </table>
+
+  <h3>Firestore Collections Affected</h3>
+  <table>
+    <tr><th>Collection / Path</th><th>Change</th><th>Notes</th></tr>
+    <tr><td><code>users/{email}</code></td><td>Add fields: <code>department</code>, <code>calendar_connected</code></td><td>BKI-01 audit confirms existing values before any write. See Staff Routing tab.</td></tr>
+    <tr><td><code>users/{email}/calendar_oauth/primary</code></td><td>New subcollection. Token store.</td><td>AES-256-GCM encrypted. Written by <code>POST /api/calendar/connect/callback</code>.</td></tr>
+    <tr><td><code>booking_log/{bookingId}</code></td><td>Add fields: <code>internal</code>, <code>booked_by</code>, <code>client_id</code>, <code>calendar_event_id</code>, <code>calendar_event_url</code>, <code>notes</code>, extended <code>status</code></td><td>Existing Sprint 010 public bookings are unaffected. <code>internal: true</code> discriminates internal records.</td></tr>
+    <tr><td><code>calendar_busy</code></td><td>Read-only (existing)</td><td>BKI-05 reads this collection for fast slot rendering. Calendar API is the authoritative source for internal bookings.</td></tr>
+  </table>
+
+  <h3>Key Invariants</h3>
+  <div class="callout callout-blue">
+    <div class="title">Booking-Before-Calendar Invariant</div>
+    <p><strong>Always write to <code>booking_log</code> before calling Google Calendar API.</strong> If the Calendar API fails, the booking record exists and the staff member can manually create the event. Calendar failure must never roll back the booking write. Calendar success is idempotent — <code>calendar_event_id</code> is updated after successful Calendar call.</p>
+  </div>
+  <div class="callout callout-blue">
+    <div class="title">Encrypt-Before-Write Invariant</div>
+    <p>OAuth tokens must be encrypted with AES-256-GCM using <code>CALENDAR_ENCRYPTION_KEY</code> before any Firestore write. The raw token string must never appear in Firestore, logs, or API responses. Decryption happens only inside <code>booking-internal.ts</code> route handlers, never in shared packages.</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════ UX SPEC ══════════════════════════ -->
+<div id="tab-ux" class="tab-content">
+  <h2>UX Spec</h2>
+
+  <h3>Entry Point 1 — Client Contact Page (ClientHeader action row)</h3>
+  <div class="card">
+    <p>Location: <code>apps/prodash/app/(portal)/contacts/[id]/components/ClientHeader.tsx</code></p>
+    <p>A <strong>"Book Appt"</strong> button is added to the existing action row alongside "Generate Kit", "AI3", and "New Account". Same button style as existing action buttons. Clicking it opens <code>BookAppointmentModal</code> with <code>clientId</code> pre-filled. Pattern mirrors the "Generate Kit" dialog at line 410 of ClientHeader.tsx.</p>
+    <pre><code>// Button style (matches existing action row pattern)
+className="inline-flex items-center gap-1.5 rounded border border-[var(--portal)]
+  bg-transparent px-4 py-1.5 text-sm font-medium transition-all
+  hover:bg-[var(--portal)] hover:text-white"</code></pre>
+    <p>Modal state: <code>const [showBookModal, setShowBookModal] = useState(false)</code> — same pattern as <code>showKitDialog</code>.</p>
+  </div>
+
+  <h3>Entry Point 2 — CommsTimeline Call Rows (after RDN-006 merge)</h3>
+  <div class="card">
+    <p>Location: <code>packages/ui/src/modules/comms/CommsTimeline.tsx</code></p>
+    <p>Voice/call log rows get a small <strong>"Book"</strong> action link aligned right, similar to how "Redial" appears in the OmniCallTab recent calls list. BKI-12 adds this. Blocked until RDN-006 lands on main (parallel-safe — RDN-006 does not block this sprint, but BKI-12 itself should be merged after RDN-006).</p>
+  </div>
+
+  <h3>BookAppointmentModal — 4-Step Flow</h3>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <strong>Staff Selection</strong>
+        <p>Department-grouped <code>&lt;optgroup&gt;</code> dropdown. Loads from <code>GET /api/booking/internal/staff</code>. Shows only staff with <code>calendar_connected: true</code>. If no staff are connected, shows an inline message: "No staff have connected Google Calendar yet. Connect in MyRPI → Calendar Settings."</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <strong>Appointment Type</strong>
+        <p>Radio button list using <code>STANDARD_BOOKING_TYPES</code> from existing booking.ts (Discovery Call 60m, Follow-Up 30m, Consultation 45m, Quick Question 15m). Duration shown next to each type. Optional free-text Notes field (maps to <code>booking_log.notes</code>).</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <strong>Slot Selection (SlotPicker)</strong>
+        <p><code>SlotPicker</code> sub-component extracted from <code>BookingConfig.tsx</code>. Calls <code>GET /api/booking/internal/availability?staffEmail=&amp;date=&amp;duration=</code>. Renders available 30-min slots for the selected date. Date picker defaults to today, allows forward navigation. Unavailable slots (busy) are grayed and non-clickable.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-body">
+        <strong>Confirm</strong>
+        <p>Summary card: Staff name, appointment type, date/time, client name, notes preview. "Confirm Booking" button calls <code>POST /api/booking/internal</code>. On success: modal closes, toast "Appointment booked — [Staff name] on [date] at [time]". On calendar error: modal closes with toast "Booking saved. Calendar event failed — [staff] will need to create manually." Booking record always saved regardless of Calendar outcome.</p>
+      </div>
+    </div>
+  </div>
+
+  <h3>Calendar Connect Flow (MyRPI)</h3>
+  <div class="card">
+    <p>Location: New settings panel in MyRPI (<code>apps/prodash/app/(portal)/my-rpi/calendar/page.tsx</code>)</p>
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><div class="step-body"><strong>MyRPI → Calendar Settings</strong><p>Shows connection status. If disconnected: "Connect Google Calendar" button.</p></div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-body"><strong>OAuth Redirect</strong><p>Calls <code>GET /api/calendar/connect/start</code>. API generates Google OAuth URL with <code>calendar.events</code> scope + <code>access_type=offline</code> + <code>prompt=consent</code>. Browser redirects to Google consent screen.</p></div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-body"><strong>Callback</strong><p>Google redirects to <code>GET /api/calendar/connect/callback?code=</code>. API exchanges code for access+refresh tokens. Tokens encrypted and stored in user's calendar_oauth subcollection. <code>users/{email}.calendar_connected</code> set to <code>true</code>. Browser redirected back to MyRPI calendar settings with success state.</p></div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-body"><strong>Push Notification Registration</strong><p>After token store, API calls <code>events.watch()</code> to register webhook channel for the user's primary calendar. Channel ID and expiry stored in token doc. Push notifications route to <code>/api/calendar/webhook</code>.</p></div></div>
+    </div>
+  </div>
+
+  <h3>Error States</h3>
+  <table>
+    <tr><th>Scenario</th><th>UX Response</th></tr>
+    <tr><td>No staff have calendar connected</td><td>Step 1 shows inline message. No dropdown rendered.</td></tr>
+    <tr><td>Selected staff has no availability for chosen day</td><td>SlotPicker shows "No available slots for this day — try another date."</td></tr>
+    <tr><td>Google Calendar API fails at booking time</td><td>Booking saved to Firestore. Toast: "Booking saved. Calendar event failed — [staff] will create manually."</td></tr>
+    <tr><td>OAuth token expired and refresh fails</td><td><code>calendar_connected</code> set to false. Staff sees "Reconnect Calendar" prompt in MyRPI.</td></tr>
+    <tr><td>Client not found (bad clientId)</td><td>Step 1 shows "Client not found" error. Booking blocked.</td></tr>
+  </table>
+</div>
+
+<!-- ══════════════════════════ API CONTRACT ══════════════════════════ -->
+<div id="tab-api" class="tab-content">
+  <h2>API Contract</h2>
+
+  <div class="callout callout-gold">
+    <div class="title">Contract Verification Rule</div>
+    <p>RONIN must read <code>BookAppointmentModal.tsx</code> before writing any route handler. Read the frontend fetch calls first, match field names exactly. No guessing. Field name mismatches are the #1 cause of silent runtime failures (see ForgeAudit crash 2026-03-20).</p>
+  </div>
+
+  <h3>New Endpoints — Mount at <code>/api/booking/internal</code></h3>
+
+  <div class="card">
+    <h4>GET /api/booking/internal/staff</h4>
+    <p>Returns staff members grouped by department. Only users with <code>calendar_connected: true</code>. Used to populate Step 1 dropdown.</p>
+    <pre><code>// Response shape
+{
+  success: true,
+  data: {
+    sales: InternalStaffDTO[],
+    service: InternalStaffDTO[],
+    coordinator: InternalStaffDTO[]
+  }
+}
+
+// InternalStaffDTO (add to @tomachina/core/api-types/booking-internal.ts)
+interface InternalStaffDTO {
+  email: string            // Firestore doc key
+  display_name: string     // first_name + ' ' + last_name
+  department: 'sales' | 'service' | 'coordinator'
+  calendar_connected: boolean
+  sort_order?: number      // employee_profile.sort_order
+}</code></pre>
+  </div>
+
+  <div class="card">
+    <h4>GET /api/booking/internal/availability</h4>
+    <p>Returns available time slots for a staff member on a given date. Reads Google Calendar free/busy for the date range. Overlays <code>DEFAULT_AVAILABILITY</code> business hours to filter out-of-hours slots.</p>
+    <pre><code>// Query params
+?staffEmail=vince@retireprotected.com&amp;date=2026-04-20&amp;duration=60
+
+// Response shape
+{
+  success: true,
+  data: {
+    date: '2026-04-20',
+    slots: Array&lt;{
+      start: string   // ISO 8601
+      end: string     // ISO 8601
+      available: boolean
+    }&gt;
+  }
+}</code></pre>
+  </div>
+
+  <div class="card">
+    <h4>POST /api/booking/internal</h4>
+    <p>Creates an internal booking. Writes to <code>booking_log</code> FIRST, then calls Google Calendar API. Returns booking ID and calendar event URL (may be null if Calendar failed).</p>
+    <pre><code>// Request body — InternalBookingRequest
+{
+  staffEmail: string        // Required. Must be calendar_connected user.
+  clientId: string          // Required. Firestore client doc ID.
+  slot: { start: string; end: string }  // ISO 8601
+  meetingType: string       // 'Discovery Call' | 'Follow-Up' | 'Consultation' | 'Quick Question'
+  mode?: 'call' | 'meet'   // Default: 'meet'
+  notes?: string
+}
+
+// Response — InternalBookingResult
+{
+  success: true,
+  data: {
+    booking_id: string
+    calendar_event_id: string | null   // null if Calendar API failed
+    calendar_event_url: string | null
+    calendar_failed: boolean           // true = booking saved, calendar needs manual fix
+    start: string
+    end: string
+  }
+}</code></pre>
+  </div>
+
+  <div class="card">
+    <h4>GET /api/calendar/connect/start</h4>
+    <p>Generates Google OAuth URL and redirects browser. Requires Firebase Auth session. Encodes current user email in OAuth state param to match callback.</p>
+    <pre><code>// No request body. Authenticated endpoint.
+// Redirects to: accounts.google.com/o/oauth2/v2/auth?...
+// Scopes: https://www.googleapis.com/auth/calendar.events
+// access_type: offline
+// prompt: consent  (forces refresh token on every grant)</code></pre>
+  </div>
+
+  <div class="card">
+    <h4>GET /api/calendar/connect/callback</h4>
+    <p>OAuth callback. Exchanges code for tokens. Stores encrypted tokens. Sets <code>calendar_connected: true</code>. Registers push notification channel. Redirects to <code>/my-rpi/calendar?connected=true</code>.</p>
+    <pre><code>// Query params: ?code=&state=&scope=
+// No response body — browser redirect after token exchange</code></pre>
+  </div>
+
+  <div class="card">
+    <h4>POST /api/calendar/webhook</h4>
+    <p>Receives Google Calendar push notification. Verifies <code>X-Goog-Channel-Token</code> HMAC. Reads changed event. Updates <code>booking_log</code> status if associated event was deleted or moved.</p>
+    <pre><code>// Headers from Google:
+// X-Goog-Channel-ID: {channelId}
+// X-Goog-Resource-State: sync | exists | not_exists
+// X-Goog-Channel-Token: {hmac}
+
+// Response: 200 OK (no body needed — Google ignores body)</code></pre>
+  </div>
+
+  <h3>New Types to Add to <code>@tomachina/core</code></h3>
+  <p>File: <code>packages/core/src/api-types/booking-internal.ts</code> (new file)</p>
+  <ul>
+    <li><code>InternalStaffDTO</code></li>
+    <li><code>InternalBookingRequest</code></li>
+    <li><code>InternalBookingResult</code></li>
+    <li><code>InternalAvailabilityDTO</code></li>
+  </ul>
+  <p>Export from <code>packages/core/src/api-types/index.ts</code>.</p>
+</div>
+
+<!-- ══════════════════════════ CALENDAR OAUTH ══════════════════════════ -->
+<div id="tab-oauth" class="tab-content">
+  <h2>Calendar OAuth</h2>
+
+  <div class="decision">
+    <div class="decision-title">⚠ Decision Needed — GCP OAuth Client Redirect URI</div>
+    <p>Before RONIN can implement the OAuth flow, JDM or SHINOB1 must register the OAuth redirect URI in the GCP Console for project <code>claude-mcp-484718</code>. The redirect URI will be:</p>
+    <ul>
+      <li>Production: <code>https://prodash.tomachina.com/api/calendar/connect/callback</code></li>
+      <li>Local dev: <code>http://localhost:3001/api/calendar/connect/callback</code></li>
+    </ul>
+    <p>Path: GCP Console → APIs &amp; Services → Credentials → OAuth 2.0 Client IDs → Add authorized redirect URIs.</p>
+    <p>The resulting <code>CLIENT_ID</code> and <code>CLIENT_SECRET</code> become env vars on the Cloud Run API service.</p>
+  </div>
+
+  <h3>Token Storage Schema</h3>
+  <p>Firestore path: <code>users/{email}/calendar_oauth/primary</code></p>
+  <pre><code>// calendar_oauth/primary document fields
+{
+  access_token_enc: string     // AES-256-GCM encrypted access token
+  refresh_token_enc: string    // AES-256-GCM encrypted refresh token
+  expiry_date: number          // Unix ms — not encrypted, used for expiry check
+  scope: string                // 'https://www.googleapis.com/auth/calendar.events'
+  push_channel_id: string      // UUID for push notification channel
+  push_channel_expiry: number  // Unix ms — channel renewal threshold
+  connected_at: string         // ISO timestamp of initial grant
+  updated_at: string           // ISO timestamp of last token refresh
+}</code></pre>
+
+  <h3>Encryption Spec</h3>
+  <div class="card">
+    <p><strong>Algorithm:</strong> AES-256-GCM</p>
+    <p><strong>Key source:</strong> <code>CALENDAR_ENCRYPTION_KEY</code> env var on Cloud Run API (32-byte hex string, stored in Secret Manager)</p>
+    <p><strong>IV:</strong> Random 16 bytes per encryption, prepended to ciphertext as hex</p>
+    <p><strong>Auth tag:</strong> Appended after ciphertext (GCM guarantees integrity)</p>
+    <p><strong>Implementation:</strong> <code>services/api/src/lib/token-crypto.ts</code> (new file) — <code>encryptToken(plaintext: string): string</code> and <code>decryptToken(ciphertext: string): string</code></p>
+    <p><strong>Never:</strong> Log the key, log decrypted token values, return tokens in API responses, store unencrypted tokens.</p>
+  </div>
+
+  <h3>New File: <code>services/api/src/lib/calendar-internal.ts</code></h3>
+  <p>Separate from existing <code>calendar-client.ts</code> (which uses DWD). This new file handles per-user OAuth token management.</p>
+  <pre><code>// calendar-internal.ts responsibilities:
+// 1. getOAuth2Client(staffEmail) — reads token doc, decrypts, builds OAuth2Client
+// 2. refreshIfNeeded(oauth2Client, staffEmail) — checks expiry, refreshes, re-encrypts
+// 3. getStaffCalendarClient(staffEmail) — returns googleapis calendar instance
+// 4. registerPushChannel(staffEmail, calendarId) — calls events.watch(), stores channel
+// 5. renewExpiredChannels() — called by cron, re-registers channels nearing expiry
+
+// Auto-refresh pattern using google-auth-library:
+// oauth2.on('tokens', async (tokens) => {
+//   if (tokens.refresh_token) {
+//     // Re-encrypt and write updated tokens back to subcollection
+//     // oauth2.on fires automatically when googleapis refreshes the token
+//   }
+// })</code></pre>
+
+  <h3>Push Notification (Two-Way Sync) Spec</h3>
+  <div class="card">
+    <p><strong>Register channel:</strong> After storing tokens, call <code>calendar.events.watch()</code> with a UUID channel ID, HMAC token, and webhook address <code>https://prodash.tomachina.com/api/calendar/webhook</code>.</p>
+    <p><strong>Webhook handler:</strong> On POST to <code>/api/calendar/webhook</code>: (1) verify <code>X-Goog-Channel-Token</code> HMAC, (2) read <code>X-Goog-Resource-State</code>, (3) if <code>not_exists</code> — find matching <code>booking_log</code> by <code>calendar_event_id</code> and set <code>status: 'cancelled_by_calendar'</code>, (4) if <code>exists</code> — optionally sync updated time back to booking_log.</p>
+    <p><strong>Channel expiry:</strong> Google push channels expire in 7 days maximum. The <code>renewExpiredChannels()</code> function runs daily via cron. It reads all users with <code>calendar_connected: true</code> where <code>push_channel_expiry</code> is within 24 hours, stops the old channel, registers a new one, updates the token doc.</p>
+  </div>
+
+  <h3>DWD vs Per-User OAuth — Comparison Table</h3>
+  <table>
+    <tr><th>Factor</th><th>Per-User OAuth (BKI-*)</th><th>DWD (existing calendar-client.ts)</th></tr>
+    <tr><td>Used for</td><td>Internal appointment booking (this sprint)</td><td>Public booking page slot reading (Sprint 010)</td></tr>
+    <tr><td>Event organizer</td><td>Staff member's real email ✅</td><td>Service account email ❌</td></tr>
+    <tr><td>Two-way push sync</td><td>Reliable via events.watch() ✅</td><td>Documented reliability issues ❌</td></tr>
+    <tr><td>User consent required</td><td>Yes — one-time connect in MyRPI</td><td>No — admin configured once</td></tr>
+    <tr><td>Token refresh</td><td>Automatic via oauth2.on('tokens')</td><td>N/A — SA key is permanent</td></tr>
+    <tr><td>Scope</td><td>calendar.events per user</td><td>Domain-wide impersonation</td></tr>
+    <tr><td>These two coexist?</td><td colspan="2">Yes. DWD stays in calendar-client.ts for public slot reading. Per-user OAuth in calendar-internal.ts for internal bookings. No conflict.</td></tr>
+  </table>
+</div>
+
+<!-- ══════════════════════════ STAFF ROUTING ══════════════════════════ -->
+<div id="tab-routing" class="tab-content">
+  <h2>Staff Routing</h2>
+
+  <div class="callout callout-red">
+    <div class="title">STEP 0 — BKI-01 Must Run First</div>
+    <p>Before RONIN writes a single field to Firestore, BKI-01 must audit the <code>users</code> collection and produce a report of actual email addresses and display names for all active staff. The name-to-email mapping below is based on JDM's briefing and may contain unverified first/last name spellings. <strong>Do not fabricate email addresses. Do not assume first names.</strong></p>
+    <p>BKI-01 acceptance criteria: Run <code>GET /api/users</code> or read <code>users</code> collection, output a table of <code>email → first_name → last_name → current department field (if any)</code>. Attach output to PR description.</p>
+  </div>
+
+  <h3>Staff Roster (Pending BKI-01 Verification)</h3>
+  <table>
+    <tr><th>Department</th><th>Name (from JDM briefing)</th><th>Email (TBD — verify in BKI-01)</th><th>Sort Order</th></tr>
+    <tr><td rowspan="5"><strong>Sales</strong></td><td>Archer (last name unknown)</td><td class="badge badge-warn">TBD — BKI-01</td><td>1</td></tr>
+    <tr><td>Shane Parmenter</td><td class="badge badge-warn">TBD — BKI-01</td><td>2</td></tr>
+    <tr><td>Josh Millang (JDM)</td><td>josh@retireprotected.com (assumed)</td><td>3</td></tr>
+    <tr><td>Dexter (last name unknown)</td><td class="badge badge-warn">TBD — BKI-01</td><td>4</td></tr>
+    <tr><td>Dr. Aprille Trupiano</td><td>aprille@retireprotected.com (from TEAM_BOOKING_CONFIG)</td><td>5</td></tr>
+    <tr><td rowspan="3"><strong>Service</strong></td><td>Kaelin (last name unknown)</td><td class="badge badge-warn">TBD — BKI-01</td><td>1</td></tr>
+    <tr><td>Nikki Gray</td><td>nikki@retireprotected.com (from TEAM_BOOKING_CONFIG)</td><td>2</td></tr>
+    <tr><td>Bonilla (first name unknown)</td><td class="badge badge-warn">TBD — BKI-01</td><td>3</td></tr>
+    <tr><td><strong>Coordinator</strong></td><td>TBD</td><td class="badge badge-warn">TBD — DECISION NEEDED</td><td>1</td></tr>
+  </table>
+
+  <div class="decision">
+    <div class="decision-title">⚠ Decision Needed — Coordinator Department Members</div>
+    <p>JDM did not specify which staff members belong to the Coordinator department. BKI-01 will surface all users. After BKI-01 runs, JDM or SHINOB1 must confirm who gets <code>department: 'coordinator'</code> before BKI-02 writes any field values.</p>
+  </div>
+
+  <div class="decision">
+    <div class="decision-title">⚠ Decision Needed — Unverified Staff Names</div>
+    <p>The names "Archer", "Dexter", "Kaelin", and "Bonilla" were given by JDM with partial names only. BKI-01 will resolve actual email addresses and full names from the live <code>users</code> collection. RONIN must NOT guess email formats or fill in plausible-sounding names.</p>
+  </div>
+
+  <h3>Schema Fields to Add to <code>users/{email}</code></h3>
+  <table>
+    <tr><th>Field</th><th>Type</th><th>Values</th><th>Default if absent</th></tr>
+    <tr><td><code>department</code></td><td><code>string</code></td><td><code>'sales' | 'service' | 'coordinator'</code></td><td>User excluded from staff dropdown</td></tr>
+    <tr><td><code>calendar_connected</code></td><td><code>boolean</code></td><td><code>true | false</code></td><td><code>false</code> (inferred if field missing)</td></tr>
+    <tr><td><code>employee_profile.sort_order</code></td><td><code>number</code></td><td>1-based integer within department</td><td>Alphabetical fallback</td></tr>
+  </table>
+
+  <h3>Booking Slug Convention</h3>
+  <p>The existing <code>employee_profile.booking_slug</code> field is used by Sprint 010 public booking. Internal booking uses the staff's email directly as the lookup key — no slug required for internal flows. Slugs remain intact for public booking page compatibility.</p>
+
+  <h3>Department-Grouped Dropdown (Data-Driven)</h3>
+  <pre><code>// BookAppointmentModal — Step 1 staff select
+// Populated from GET /api/booking/internal/staff response
+// ZERO hardcoded names. All values from Firestore users collection.
+
+&lt;select name="staffEmail" required&gt;
+  &lt;option value=""&gt;-- Select staff member --&lt;/option&gt;
+
+  {data.sales.length > 0 &amp;&amp; (
+    &lt;optgroup label="Sales"&gt;
+      {data.sales.map(s =&gt; (
+        &lt;option key={s.email} value={s.email}&gt;{s.display_name}&lt;/option&gt;
+      ))}
+    &lt;/optgroup&gt;
+  )}
+
+  {data.service.length > 0 &amp;&amp; (
+    &lt;optgroup label="Service"&gt;
+      {data.service.map(s =&gt; (
+        &lt;option key={s.email} value={s.email}&gt;{s.display_name}&lt;/option&gt;
+      ))}
+    &lt;/optgroup&gt;
+  )}
+
+  {data.coordinator.length > 0 &amp;&amp; (
+    &lt;optgroup label="Coordinator"&gt;
+      {data.coordinator.map(s =&gt; (
+        &lt;option key={s.email} value={s.email}&gt;{s.display_name}&lt;/option&gt;
+      ))}
+    &lt;/optgroup&gt;
+  )}
+&lt;/select&gt;</code></pre>
+</div>
+
+<!-- ══════════════════════════ TICKETS ══════════════════════════ -->
+<div id="tab-tickets" class="tab-content">
+  <h2>Tickets — 18 tickets · 4 phases</h2>
+
+  <div class="callout callout-gold">
+    <div class="title">Every ticket includes: npm run build passes as final AC</div>
+    <p>No ticket closes without a passing <code>npm run build</code> output attached to the PR. Type-check alone is insufficient — build catches webpack/bundler issues. This is non-negotiable per FORGE standards.</p>
+  </div>
+
+  <!-- Phase 1 -->
+  <div class="phase-header"><h3>Phase 1 — Foundation &amp; Schema</h3></div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">BKI-01</span>
+      <span class="ticket-title">STEP 0 Audit — Read users collection, produce staff roster report</span>
+    </div>
+    <div class="ticket-meta">
+      <span class="pill pill-red">BLOCKER — run before any write</span>
+      <span class="pill pill-gray">Script / one-time</span>
+    </div>
+    <p style="color:var(--muted);font-size:13px">Read all documents from the <code>users</code> Firestore collection. For each active user, output: email, first_name, last_name, status, any existing <code>department</code> field. Attach report as table in PR description. Do not write any data. This ticket exists solely to verify the actual roster before any schema writes.</p>
+    <div class="ac">
+      <div class="ac-title">Acceptance Criteria</div>
+      <ul>
+        <li>PR description contains a table: email | first_name | last_name | status | existing_department</li>
+        <li>All active users included (status = 'active' or 'Active')</li>
+        <li>No Firestore writes performed in this ticket</li>
+        <li>npm run build passes</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">BKI-02</span>
+      <span class="ticket-title">Add department + calendar_connected + sort_order fields to users collection</span>
+    </div>
+    <div class="ticket-meta">
+      <span class="pill pill-warn">Requires BKI-01 report + JDM/SHINOB1 sign-off on roster</span>
+      <span class="pill pill-gray">Data migration</span>
+    </div>
+    <p style="color:var(--muted);font-size:13px">Write <code>department</code>, <code>calendar_connected: false</code>, and <code>employee_profile.sort_order</code> to each confirmed staff user document. Values verified against BKI-01 report. No guessed names or emails.</p>
+    <div class="ac">
+      <div class="ac-title">Acceptance Criteria</div>
+      <ul>
+        <li>All Sales/Service/Coordinator staff have <code>department</code> field set</li>
+        <li>All staff have <code>calendar_connected: false</code> as starting state</li>
+        <li>Users not on roster left untouched</li>
+        <li>Migration script does not hardcode any email strings — reads from verified list in PR</li>
+        <li>npm run build passes</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">BKI-03</span>
+      <span class="ticket-title">Add InternalStaffDTO + InternalBookingRequest + InternalBookingResult types to @tomachina/core</span>
+    </div>
+    <div class="ticket-meta">
+      <span class="pill pill-blue">packages/core</span>
+    </div>
+    <p style="color:var(--muted);font-size:13px">Create <code>packages/core/src/api-types/booking-internal.ts</code>. Export all types from the core api-types barrel. These types must be imported by both the API route and the React modal — no type drift across the HTTP boundary.</p>
+    <div class="ac">
+      <div class="ac-title">Acceptance Criteria</div>
+      <ul>
+        <li><code>InternalStaffDTO</code>, <code>InternalBookingRequest</code>, <code>InternalBookingResult</code>, <code>InternalAvailabilityDTO</code> exported from core</li>
+        <li>Both API route and frontend import from <code>@tomachina/core</code> (not local files)</li>
+        <li>No <code>any</code> types</li>
+        <li>npm run build passes (13/13 type-check + 11/11 build)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">BKI-04</span>
+      <span class="ticket-title">Create token-crypto.ts — AES-256-GCM encrypt/decrypt utility</span>
+    </div>
+    <div class="ticket-meta">
+      <span class="pill pill-blue">services/api/src/lib</span>
+    </div>
+    <p style="color:var(--muted);font-size:13px">New file <code>services/api/src/lib/token-crypto.ts</code>. Exports <code>encryptToken(plain: string): string</code> and <code>decryptToken(cipher: string): string</code>. Uses Node.js built-in <code>crypto</code> module — no new npm dependency. Key from <code>process.env.CALENDAR_ENCRYPTION_KEY</code>.</p>
+    <div class="ac">
+      <div class="ac-title">Acceptance Criteria</div>
+      <ul>
+        <li>Round-trip test: <code>decryptToken(encryptToken(x)) === x</code> for arbitrary strings</li>
+        <li>IV is random per encryption call (not static)</li>
+        <li>Function throws (does not return null) on decryption failure</li>
+        <li>No raw token logged at any log level</li>
+        <li>npm run build passes</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Phase 2 -->
+  <div class="phase-header"><h3>Phase 2 — OAuth &amp; Calendar Infrastructure</h3></div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">BKI-05</span>
+      <span class="ticket-title">Create calendar-internal.ts — per-user OAuth client builder</span>
+    </div>
+    <div class="ticket-meta">
+      <span class="pill pill-blue">services/api/src/lib</span>
+      <span class="pill pill-warn">Requires GCP OAuth client redirect URI decision</span>
+    </div>
+    <p style="color:var(--muted);font-size:13px">New file <code>services/api/src/lib/calendar-internal.ts</code>. Implements: <code>getOAuth2Client(email)</code>, <code>getStaffCalendarClient(email)</code>, <code>registerPushChannel(email)</code>, <code>renewExpiredChannels()</code>. Uses <code>google-auth-library</code> OAuth2Client. Token auto-refresh via <code>oauth2.on('tokens', handler)</code> — handler re-encrypts and writes updated tokens back to subcollection.</p>
+    <div class="ac">
+      <div class="ac-title">Acceptance Criteria</div>
+      <ul>
+        <li>Token read → decrypt → build OAuth2Client → Calendar API call succeeds in local test</li>
+        <li>Token refresh fires correctly when token is expired (mock test with past expiry_date)</li>
+        <li>Updated refresh token re-encrypted and written back on rotation</li>
+        <li>Function throws descriptive error (not swallows) if user has no token doc</li>
+        <li>npm run build passes</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">BKI-06</span>
+      <span class="ticket-title">GET /api/calendar/connect/start — OAuth redirect endpoint</span>
+    </div>
+    <div class="ticket-meta">
+      <span class="pill pill-blue">services/api/src/routes</span>
+    </div>
+    <p style="color:var(--muted);font-size:13px">New route file <code>services/api/src/routes/calendar-connect.ts</code>. GET handler generates Google OAuth URL using OAuth2Client from <code>calendar-internal.ts</code>. Encodes authenticated user's email in state param. Redirects browser. Requires Firebase Auth middleware.</p>
+    <div class="ac">
+      <div class="ac-title">Acceptance Criteria</div>
+      <ul>
+        <li>Endpoint requires auth — unauthenticated request returns 401</li>
+        <li>Redirect URL contains correct scopes, access_type=offline, prompt=consent</li>
+        <li>State param encodes user email (for callback validation)</li>
+        <li>Mounted in server.ts and included in CI build</li>
+        <li>npm run build passes</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">BKI-07</span>
+      <span class="ticket-title">GET /api/calendar/connect/callback — token exchange + store + push channel register</span>
+    </div>
+    <div class="ticket-meta">
+      <span class="pill pill-blue">services/api/src/routes</span>
+      <span class="badge badge-gold" style="font-size:11px">GATE: RDN-008 unblocks after this merges</span>
+    </div>
+    <p style="color:var(--muted);font-size:13px">Callback handler in <code>calendar-connect.ts</code>. Exchanges code for tokens. Encrypts tokens via token-crypto.ts. Writes encrypted tokens to <code>users/{email}/calendar_oauth/primary</code> subcollection. Sets <code>calendar_connected: true</code> on user doc. Calls <code>registerPushChannel(email)</code>. Redirects to <code>/my-rpi/calendar?connected=true</code>.</p>
+    <div class="ac">
+      <div class="ac-title">Acceptance Criteria</div>
+      <ul>
+        <li>Token doc created at correct subcollection path after successful OAuth</li>
+        <li>Access token and refresh token stored encrypted (verify no plaintext in Firestore)</li>
+        <li>calendar_connected field on user doc updated to true</li>
+        <li>Push channel registered (push_channel_id and push_channel_expiry stored in token doc)</li>
+        <li>Redirect lands on MyRPI calendar settings page with connected=true query param</li>
+        <li>npm run build passes</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">BKI-08</span>
+      <span class="ticket-title">POST /api/calendar/webhook — push notification handler</span>
+    </div>
+    <div class="ticket-meta">
+      <span class="pill pill-blue">services/api/src/routes</span>
+    </div>
+    <p style="color:var(--muted);font-size:13px">Webhook handler. Verifies X-Goog-Channel-Token HMAC. Reads X-Goog-Resource-State. If <code>not_exists</code>: queries <code>booking_log</code> by <code>calendar_event_id</code>, sets <code>status: 'cancelled_by_calendar'</code>. Always responds 200 immediately (Google retries on non-200).</p>
+    <div class="ac">
+      <div class="ac-title">Acceptance Criteria</div>
+      <ul>
+        <li>Invalid HMAC returns 200 but logs warning (do not return non-200 to Google)</li>
+        <li>sync resource state ignored (no-op + 200)</li>
+        <li>not_exists state updates booking_log status correctly</li>
+        <li>Webhook route is NOT behind Firebase Auth middleware (Google cannot authenticate)</li>
+        <li>npm run build passes</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">BKI-09</span>
+      <span class="ticket-title">GET /api/booking/internal/staff — department-grouped staff list</span>
+    </div>
+    <div class="ticket-meta">
+      <span class="pill pill-blue">services/api/src/routes/booking-internal.ts</span>
+    </div>
+    <p style="color:var(--muted);font-size:13px">New route file <code>booking-internal.ts</code>. GET /staff handler reads <code>users</code> collection, filters on <code>department</code> field exists AND <code>calendar_connected: true</code>. Returns grouped response matching <code>InternalStaffDTO</code>. Never hardcodes names.</p>
+    <div class="ac">
+      <div class="ac-title">Acceptance Criteria</div>
+      <ul>
+        <li>Response shape matches InternalStaffDTO exactly (field names verified against modal fetch)</li>
+        <li>Users without department field excluded from response</li>
+        <li>Users with calendar_connected: false excluded from response</li>
+        <li>Sorted by sort_order within each department, alphabetical fallback</li>
+        <li>Requires Firebase Auth middleware</li>
+        <li>npm run build passes</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">BKI-10</span>
+      <span class="ticket-title">GET /api/booking/internal/availability — free/busy slot calculator</span>
+    </div>
+    <div class="ticket-meta">
+      <span class="pill pill-blue">services/api/src/routes/booking-internal.ts</span>
+    </div>
+    <p style="color:var(--muted);font-size:13px">GET handler queries Google Calendar freebusy API for staff member's calendar on the requested date. Overlays <code>DEFAULT_AVAILABILITY</code> business hours. Returns slot array with <code>available: boolean</code>. Uses <code>getStaffCalendarClient(email)</code>.</p>
+    <div class="ac">
+      <div class="ac-title">Acceptance Criteria</div>
+      <ul>
+        <li>Slots outside business hours marked available: false (not excluded)</li>
+        <li>Calendar busy periods marked available: false</li>
+        <li>Slot duration matches requested duration param</li>
+        <li>Returns empty slots array (not error) if staff has no availability for the day</li>
+        <li>Returns 400 if staffEmail not found or calendar_connected: false</li>
+        <li>npm run build passes</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">BKI-11</span>
+      <span class="ticket-title">POST /api/booking/internal — create internal booking + calendar event</span>
+    </div>
+    <div class="ticket-meta">
+      <span class="pill pill-blue">services/api/src/routes/booking-internal.ts</span>
+    </div>
+    <p style="color:var(--muted);font-size:13px">POST handler. (1) Validates request body against InternalBookingRequest. (2) Looks up client name from <code>clients</code> collection. (3) Writes to <code>booking_log</code> with <code>internal: true</code>, <code>booked_by: req.user.email</code>, <code>status: 'pending_calendar'</code>. (4) Calls Google Calendar to create event. (5) Updates booking_log with <code>calendar_event_id</code> and <code>status: 'confirmed'</code>. If Calendar fails, booking_log remains with <code>status: 'calendar_failed'</code>. Returns InternalBookingResult.</p>
+    <div class="ac">
+      <div class="ac-title">Acceptance Criteria</div>
+      <ul>
+        <li>booking_log write happens BEFORE Calendar API call (invariant)</li>
+        <li>Calendar failure does NOT return error to client — returns success with calendar_failed: true</li>
+        <li>Calendar event title: "[Client Name] — [Meeting Type]"</li>
+        <li>Calendar event includes attendees: staff email + client email (if available)</li>
+        <li>booked_by field set to authenticated user's email</li>
+        <li>internal: true field set on all records from this endpoint</li>
+        <li>npm run build passes</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Phase 3 -->
+  <div class="phase-header"><h3>Phase 3 — Book Appointment UI</h3></div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">BKI-12</span>
+      <span class="ticket-title">Create BookAppointmentModal component — 4-step flow</span>
+    </div>
+    <div class="ticket-meta">
+      <span class="pill pill-blue">packages/ui/src/modules/booking/</span>
+    </div>
+    <p style="color:var(--muted);font-size:13px">New component <code>BookAppointmentModal.tsx</code>. Props: <code>clientId: string</code>, <code>onClose: () => void</code>. 4-step flow: Staff selection → Appointment type → Slot picker → Confirm. Uses portal CSS vars for theming. Imports <code>InternalStaffDTO</code> and <code>InternalBookingRequest</code> from <code>@tomachina/core</code>.</p>
+    <div class="ac">
+      <div class="ac-title">Acceptance Criteria</div>
+      <ul>
+        <li>Step 1: department-grouped optgroup dropdown, no hardcoded names</li>
+        <li>Step 2: radio buttons for meeting type + optional notes field</li>
+        <li>Step 3: SlotPicker sub-component renders available slots, grays unavailable</li>
+        <li>Step 4: confirmation summary card before final POST</li>
+        <li>On success: calls onClose() + dispatches toast notification</li>
+        <li>On calendar_failed: shows toast with calendar failure message, still closes modal</li>
+        <li>No inline color styles — CSS variables only</li>
+        <li>npm run build passes</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">BKI-13</span>
+      <span class="ticket-title">Extract SlotPicker sub-component from BookingConfig.tsx</span>
+    </div>
+    <div class="ticket-meta">
+      <span class="pill pill-blue">packages/ui/src/modules/booking/</span>
+    </div>
+    <p style="color:var(--muted);font-size:13px">The slot picker logic in <code>BookingConfig.tsx</code> is duplicated if not extracted. Extract as <code>SlotPicker.tsx</code> with props: <code>staffEmail: string</code>, <code>date: string</code>, <code>duration: number</code>, <code>onSelect: (slot) => void</code>. Used by both public <code>BookingConfig.tsx</code> and the new <code>BookAppointmentModal.tsx</code>. No behavior change to existing public booking flow.</p>
+    <div class="ac">
+      <div class="ac-title">Acceptance Criteria</div>
+      <ul>
+        <li>Existing public booking page still works after extraction (no regression)</li>
+        <li>BookAppointmentModal uses extracted SlotPicker</li>
+        <li>SlotPicker calls GET /api/booking/internal/availability for internal modal context</li>
+        <li>Date picker navigates forward only (no past date booking)</li>
+        <li>npm run build passes</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">BKI-14</span>
+      <span class="ticket-title">Add "Book Appt" button to ClientHeader action row</span>
+    </div>
+    <div class="ticket-meta">
+      <span class="pill pill-blue">apps/prodash</span>
+    </div>
+    <p style="color:var(--muted);font-size:13px">Add "Book Appt" button to the action row in <code>ClientHeader.tsx</code>. Opens <code>BookAppointmentModal</code> with <code>clientId</code> pre-filled. Modal state managed with <code>useState</code> following the existing <code>showKitDialog</code> pattern at line 410. Button style matches existing action buttons.</p>
+    <div class="ac">
+      <div class="ac-title">Acceptance Criteria</div>
+      <ul>
+        <li>Button appears in action row alongside existing buttons</li>
+        <li>Clicking opens BookAppointmentModal with correct clientId</li>
+        <li>Modal closes on success or cancel without page reload</li>
+        <li>Existing action row buttons unaffected</li>
+        <li>npm run build passes</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">BKI-15</span>
+      <span class="ticket-title">MyRPI Calendar Settings page — connect/disconnect UI</span>
+    </div>
+    <div class="ticket-meta">
+      <span class="pill pill-blue">apps/prodash</span>
+    </div>
+    <p style="color:var(--muted);font-size:13px">New page at <code>apps/prodash/app/(portal)/my-rpi/calendar/page.tsx</code>. Shows connection status: connected (green indicator, connected date, "Disconnect" button) or disconnected ("Connect Google Calendar" button that calls GET /api/calendar/connect/start). Handles <code>?connected=true</code> query param from callback redirect with success toast.</p>
+    <div class="ac">
+      <div class="ac-title">Acceptance Criteria</div>
+      <ul>
+        <li>Page shows real calendar_connected status from /api/users/me</li>
+        <li>Connect button redirects to Google consent screen</li>
+        <li>After returning from callback with ?connected=true: shows connected state + success toast</li>
+        <li>Connected state shows connected_at date from token doc</li>
+        <li>npm run build passes</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Phase 4 -->
+  <div class="phase-header"><h3>Phase 4 — Cutover &amp; Integration</h3></div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">BKI-16</span>
+      <span class="ticket-title">Add "Book" action link to CommsTimeline call rows</span>
+    </div>
+    <div class="ticket-meta">
+      <span class="pill pill-blue">packages/ui/src/modules/comms</span>
+      <span class="pill pill-warn">Merge after RDN-006 lands on main</span>
+    </div>
+    <p style="color:var(--muted);font-size:13px">Add a small "Book" link/button to voice/call rows in <code>CommsTimeline.tsx</code>. Clicking opens <code>BookAppointmentModal</code> with <code>clientId</code> from the call log row. Mirrors the "Redial" pattern in OmniCallTab recent calls list.</p>
+    <div class="ac">
+      <div class="ac-title">Acceptance Criteria</div>
+      <ul>
+        <li>"Book" link appears on voice/call type rows only (not SMS or email rows)</li>
+        <li>Modal opens with correct clientId from call row</li>
+        <li>Existing CommsTimeline rendering unaffected for SMS/email rows</li>
+        <li>npm run build passes</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">BKI-17</span>
+      <span class="ticket-title">Channel renewal cron — re-register expired push notification channels</span>
+    </div>
+    <div class="ticket-meta">
+      <span class="pill pill-blue">services/api</span>
+      <span class="pill pill-gray">Cloud Scheduler</span>
+    </div>
+    <p style="color:var(--muted);font-size:13px">Add a daily cron endpoint <code>POST /api/calendar/cron/renew-channels</code>. Secured by <code>X-Cron-Secret</code> header. Calls <code>renewExpiredChannels()</code> from calendar-internal.ts. Reads all users with <code>calendar_connected: true</code> where <code>push_channel_expiry</code> is within 24 hours. Stops old channel, registers new one, updates token doc. Add Cloud Scheduler job via Terraform or manual GCP console setup.</p>
+    <div class="ac">
+      <div class="ac-title">Acceptance Criteria</div>
+      <ul>
+        <li>Cron endpoint rejects requests without correct X-Cron-Secret header</li>
+        <li>Channels within 24h of expiry are renewed (not only already-expired)</li>
+        <li>Token doc updated with new push_channel_id and push_channel_expiry</li>
+        <li>Errors per-user are logged but do not abort processing of remaining users</li>
+        <li>npm run build passes</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">BKI-18</span>
+      <span class="ticket-title">E2E smoke test — full booking flow from ClientHeader to booking_log</span>
+    </div>
+    <div class="ticket-meta">
+      <span class="pill pill-blue">e2e/</span>
+      <span class="pill pill-gray">Playwright</span>
+    </div>
+    <p style="color:var(--muted);font-size:13px">Playwright test covering: (1) Staff connect calendar (mock OAuth in test env), (2) Navigate to test client contact page, (3) Click "Book Appt", (4) Select staff member, (5) Select meeting type, (6) Select first available slot, (7) Confirm booking, (8) Assert success toast appears, (9) Assert booking_log record exists with correct fields. Uses <code>e2e-test-</code> prefix for test data, cleaned up post-run.</p>
+    <div class="ac">
+      <div class="ac-title">Acceptance Criteria</div>
+      <ul>
+        <li>Test runs in CI without requiring real Google OAuth (mock Calendar API in test mode)</li>
+        <li>booking_log record verified: internal: true, booked_by, client_id, staffEmail</li>
+        <li>Test cleans up created booking_log records after run</li>
+        <li>npm run build passes + e2e suite passes</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ FILES ══════════════════════════ -->
+<div id="tab-files" class="tab-content">
+  <h2>Files</h2>
+
+  <h3>Existing Files to Read Before Writing</h3>
+  <table>
+    <tr><th>File</th><th>Why RONIN Must Read It</th></tr>
+    <tr><td><code>services/api/src/routes/booking.ts</code></td><td>Understand existing <code>booking_log</code> schema, <code>DEFAULT_AVAILABILITY</code>, <code>STANDARD_BOOKING_TYPES</code>. BKI-11 extends this collection — must not break existing public booking records.</td></tr>
+    <tr><td><code>services/api/src/lib/calendar-client.ts</code></td><td>Understand DWD pattern to avoid — new calendar-internal.ts must NOT use DWD. See the contrast documented in Architecture tab.</td></tr>
+    <tr><td><code>services/api/src/server.ts</code></td><td>Find the correct mount point for new <code>bookingInternalRoutes</code> and <code>calendarConnectRoutes</code>. Read the existing pattern before editing.</td></tr>
+    <tr><td><code>apps/prodash/app/(portal)/contacts/[id]/components/ClientHeader.tsx</code></td><td>Action row pattern (line 289). Generate Kit dialog pattern (line 410). Button CSS class. Modal state pattern. BKI-14 must match exactly.</td></tr>
+    <tr><td><code>packages/ui/src/modules/BookingConfig.tsx</code></td><td>Slot picker logic to extract for BKI-13. Read before touching — must not regress public booking flow.</td></tr>
+    <tr><td><code>packages/ui/src/modules/comms/CommsTimeline.tsx</code></td><td>Row structure for BKI-16. Voice row shape. Where to inject "Book" link without breaking SMS/email rows.</td></tr>
+    <tr><td><code>packages/core/src/api-types/index.ts</code></td><td>Barrel export pattern. BKI-03 must follow existing export structure.</td></tr>
+    <tr><td><code>services/api/src/routes/users.ts</code></td><td>User doc schema. PATCH pattern for updating user fields in BKI-02 and BKI-07.</td></tr>
+  </table>
+
+  <h3>New Files to Create</h3>
+  <table>
+    <tr><th>File</th><th>Ticket</th><th>Purpose</th></tr>
+    <tr><td><code>packages/core/src/api-types/booking-internal.ts</code></td><td>BKI-03</td><td>Shared TypeScript types for internal booking API</td></tr>
+    <tr><td><code>services/api/src/lib/token-crypto.ts</code></td><td>BKI-04</td><td>AES-256-GCM encrypt/decrypt for OAuth tokens</td></tr>
+    <tr><td><code>services/api/src/lib/calendar-internal.ts</code></td><td>BKI-05</td><td>Per-user OAuth client builder, push channel management</td></tr>
+    <tr><td><code>services/api/src/routes/calendar-connect.ts</code></td><td>BKI-06, BKI-07, BKI-08</td><td>OAuth connect flow + webhook handler</td></tr>
+    <tr><td><code>services/api/src/routes/booking-internal.ts</code></td><td>BKI-09, BKI-10, BKI-11, BKI-17</td><td>Internal booking API endpoints</td></tr>
+    <tr><td><code>packages/ui/src/modules/booking/SlotPicker.tsx</code></td><td>BKI-13</td><td>Extracted slot picker sub-component</td></tr>
+    <tr><td><code>packages/ui/src/modules/booking/BookAppointmentModal.tsx</code></td><td>BKI-12</td><td>4-step booking modal</td></tr>
+    <tr><td><code>apps/prodash/app/(portal)/my-rpi/calendar/page.tsx</code></td><td>BKI-15</td><td>Calendar connect/disconnect settings page</td></tr>
+    <tr><td><code>e2e/booking-internal.spec.ts</code></td><td>BKI-18</td><td>E2E smoke test for full booking flow</td></tr>
+  </table>
+
+  <h3>New Fields Added to Existing Collections</h3>
+  <table>
+    <tr><th>Collection</th><th>Field</th><th>Type</th><th>Added by</th></tr>
+    <tr><td><code>users/{email}</code></td><td><code>department</code></td><td><code>'sales' | 'service' | 'coordinator'</code></td><td>BKI-02</td></tr>
+    <tr><td><code>users/{email}</code></td><td><code>calendar_connected</code></td><td><code>boolean</code></td><td>BKI-02 + BKI-07</td></tr>
+    <tr><td><code>users/{email}/employee_profile</code></td><td><code>sort_order</code></td><td><code>number</code></td><td>BKI-02</td></tr>
+    <tr><td><code>users/{email}/calendar_oauth/primary</code></td><td>All fields (new subcollection)</td><td>See OAuth tab schema</td><td>BKI-07</td></tr>
+    <tr><td><code>booking_log/{id}</code></td><td><code>internal</code></td><td><code>boolean</code></td><td>BKI-11</td></tr>
+    <tr><td><code>booking_log/{id}</code></td><td><code>booked_by</code></td><td><code>string (email)</code></td><td>BKI-11</td></tr>
+    <tr><td><code>booking_log/{id}</code></td><td><code>client_id</code></td><td><code>string</code></td><td>BKI-11</td></tr>
+    <tr><td><code>booking_log/{id}</code></td><td><code>calendar_event_id</code></td><td><code>string | null</code></td><td>BKI-11</td></tr>
+    <tr><td><code>booking_log/{id}</code></td><td><code>calendar_event_url</code></td><td><code>string | null</code></td><td>BKI-11</td></tr>
+    <tr><td><code>booking_log/{id}</code></td><td><code>notes</code></td><td><code>string</code></td><td>BKI-11</td></tr>
+    <tr><td><code>booking_log/{id}</code></td><td><code>status</code> (extended)</td><td>adds <code>'pending_calendar' | 'calendar_failed' | 'cancelled_by_calendar'</code></td><td>BKI-11, BKI-08</td></tr>
+  </table>
+
+  <h3>New Environment Variables</h3>
+  <table>
+    <tr><th>Variable</th><th>Where</th><th>Value format</th></tr>
+    <tr><td><code>CALENDAR_ENCRYPTION_KEY</code></td><td>Cloud Run API + local .env</td><td>32-byte hex string (64 chars). Generate: <code>openssl rand -hex 32</code>. Store in GCP Secret Manager.</td></tr>
+    <tr><td><code>GOOGLE_OAUTH_CLIENT_ID</code></td><td>Cloud Run API + local .env</td><td>GCP OAuth 2.0 Client ID. From GCP Console → APIs &amp; Services → Credentials.</td></tr>
+    <tr><td><code>GOOGLE_OAUTH_CLIENT_SECRET</code></td><td>Cloud Run API + local .env</td><td>GCP OAuth 2.0 Client Secret. Store in GCP Secret Manager.</td></tr>
+    <tr><td><code>CALENDAR_WEBHOOK_SECRET</code></td><td>Cloud Run API + local .env</td><td>HMAC secret for X-Goog-Channel-Token verification. Generate: <code>openssl rand -hex 32</code>.</td></tr>
+    <tr><td><code>CRON_SECRET</code></td><td>Cloud Run API + local .env</td><td>Shared secret for Cloud Scheduler → cron endpoint auth.</td></tr>
+  </table>
+
+  <h3>Open Decisions — Summary</h3>
+  <div class="decision">
+    <div class="decision-title">⚠ Decision 1 — GCP OAuth Client Redirect URI</div>
+    <p>Register redirect URI at GCP Console → APIs &amp; Services → Credentials → OAuth 2.0 Client IDs. Production: <code>https://prodash.tomachina.com/api/calendar/connect/callback</code>. Local dev: <code>http://localhost:3001/api/calendar/connect/callback</code>. JDM or SHINOB1 must authorize before BKI-06 can merge.</p>
+  </div>
+  <div class="decision">
+    <div class="decision-title">⚠ Decision 2 — Coordinator Department Members</div>
+    <p>After BKI-01 runs and produces the user roster, JDM must confirm which staff get <code>department: 'coordinator'</code>. Currently unknown — do not guess.</p>
+  </div>
+  <div class="decision">
+    <div class="decision-title">⚠ Decision 3 — Unverified Staff Names</div>
+    <p>Archer, Dexter, Kaelin, Bonilla — only single names provided. BKI-01 resolves full names and emails from live Firestore. RONIN must not fabricate email addresses. BKI-02 blocked until BKI-01 report reviewed.</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════ SCRIPT ══════════════════════════ -->
+<script>
+function showTab(name) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  const target = document.getElementById('tab-' + name);
+  if (target) target.classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+</script>
+</body>
+</html>

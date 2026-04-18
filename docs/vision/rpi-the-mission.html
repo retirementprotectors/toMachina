@@ -12,9 +12,9 @@
     --text: #e8e8f2; --text-muted: #8a8aa2; --text-dim: #4a4a62;
     --gold: #d4a44c; --gold-bright: #f0c060; --gold-dim: #a07830;
     --gold-glow: rgba(212, 164, 76, 0.12); --gold-border: rgba(212, 164, 76, 0.28);
-    --money: #4ade80; --machine: #60a5fa;
-    --rpi: #7ba8d4; --rpi-bright: #9fc4e8; --rpi-dim: #4a7ab5;
-    --rpi-glow: rgba(123, 168, 212, 0.10); --rpi-border: rgba(123, 168, 212, 0.25);
+    --money: #4ade80; --machine: #a78bfa;
+    --rpi: #3b82f6; --rpi-bright: #60a5fa; --rpi-dim: #1d4ed8;
+    --rpi-glow: rgba(59, 130, 246, 0.10); --rpi-border: rgba(59, 130, 246, 0.25);
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.65; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
@@ -23,13 +23,13 @@
   /* Cross-nav */
   .cross-nav { display: flex; justify-content: center; align-items: center; gap: 8px; padding: 10px 40px; background: var(--bg); border-bottom: 1px solid var(--border); font-size: 12px; font-weight: 700; letter-spacing: 1px; position: sticky; top: 0; z-index: 200; }
   .cross-nav a { padding: 6px 16px; border-radius: 6px; text-decoration: none; border: 1px solid transparent; transition: background 0.2s; }
-  .cross-nav a.nav-gold { color: #d4a44c; } .cross-nav a.nav-green { color: #4ade80; } .cross-nav a.nav-blue { color: #60a5fa; } .cross-nav a.nav-rpi { color: #7ba8d4; }
-  .cross-nav a.nav-gold:hover { background: rgba(212, 164, 76, 0.08); } .cross-nav a.nav-green:hover { background: rgba(74, 222, 128, 0.08); } .cross-nav a.nav-blue:hover { background: rgba(96, 165, 250, 0.08); } .cross-nav a.nav-rpi:hover { background: rgba(123, 168, 212, 0.08); }
-  .cross-nav a.active { background: rgba(123, 168, 212, 0.12); border-color: var(--rpi-border); }
+  .cross-nav a.nav-gold { color: #d4a44c; } .cross-nav a.nav-green { color: #4ade80; } .cross-nav a.nav-blue { color: #60a5fa; } .cross-nav a.nav-rpi { color: #3b82f6; }
+  .cross-nav a.nav-gold:hover { background: rgba(212, 164, 76, 0.08); } .cross-nav a.nav-green:hover { background: rgba(74, 222, 128, 0.08); } .cross-nav a.nav-blue:hover { background: rgba(96, 165, 250, 0.08); } .cross-nav a.nav-rpi:hover { background: rgba(59, 130, 246, 0.08); }
+  .cross-nav a.active { background: rgba(59, 130, 246, 0.12); border-color: var(--rpi-border); }
 
   /* Hero */
   .hero { padding: 80px 40px 60px; text-align: center; position: relative; overflow: hidden; }
-  .hero::before { content: ''; position: absolute; top: -150px; left: 50%; transform: translateX(-50%); width: 800px; height: 800px; background: radial-gradient(circle, rgba(123, 168, 212, 0.08) 0%, rgba(123, 168, 212, 0.03) 40%, transparent 70%); pointer-events: none; max-width: 100vw; }
+  .hero::before { content: ''; position: absolute; top: -150px; left: 50%; transform: translateX(-50%); width: 800px; height: 800px; background: radial-gradient(circle, rgba(59, 130, 246, 0.08) 0%, rgba(59, 130, 246, 0.03) 40%, transparent 70%); pointer-events: none; max-width: 100vw; }
   .hero .container { position: relative; z-index: 1; }
   .hero-tagline { font-size: 22px; font-weight: 300; letter-spacing: 6px; text-transform: uppercase; color: var(--text-dim); margin-top: 20px; margin-bottom: 24px; }
   .hero-promise { font-size: 20px; font-weight: 400; color: var(--text); max-width: 720px; margin: 0 auto 24px; line-height: 1.6; font-style: italic; }
@@ -136,46 +136,25 @@
 <section>
   <div class="container">
     <h2>Three <span class="accent">Divisions</span></h2>
-    <p class="section-sub">Health. Retirement. Investments. Every client touchpoint, every product line, every revenue stream &mdash; organized and protected under one roof.</p>
+    <p class="section-sub">Health. Wealth. Legacy. Every client touchpoint, every product line, every revenue stream &mdash; organized and protected under one roof.</p>
 
     <div class="divisions">
       <div class="division">
         <h3>Health</h3>
-        <div class="div-sub">Medicare &amp; Ancillary</div>
-        <p>The most important decision you make regarding your Medicare isn&rsquo;t what carrier or plan you have &mdash; it&rsquo;s the firm you work with that matters most. Full Medicare coverage, annual reviews, and year-round service.</p>
-        <ul>
-          <li><strong>MAPD</strong> &mdash; Medicare Advantage Prescription Drug</li>
-          <li><strong>PDP</strong> &mdash; Standalone Part D</li>
-          <li><strong>Medigap</strong> &mdash; Plans A through N</li>
-          <li><strong>Ancillary</strong> &mdash; Dental, Vision, Hearing, Hospital Indemnity</li>
-        </ul>
+        <p>The most important decision you make regarding your Medicare isn&rsquo;t what carrier or plan you have; it&rsquo;s the firm you work with that matters most. Plans should change as your needs evolve. Your trusted advisor should remain constant.</p>
       </div>
       <div class="division">
         <h3>Wealth</h3>
-        <div class="div-sub">Retirement Income &amp; Investments</div>
-        <p>With a typical setup, you can pick two out of three &mdash; safety, liquidity, or growth. With our comprehensive strategies, you can have it all. Accumulation, income, and protection across every stage of the retirement journey.</p>
-        <ul>
-          <li><strong>Fixed Index Annuity</strong> &mdash; Principal protection + market-linked growth</li>
-          <li><strong>Life Insurance</strong> &mdash; Term, Whole, IUL, Final Expense</li>
-          <li><strong>Fee-Based Advisory</strong> &mdash; RIA &amp; BD managed accounts</li>
-          <li><strong>Institutional Partnerships</strong> &mdash; Carrier + product creation</li>
-        </ul>
+        <p>Safety, liquidity or growth? With a typical setup, you can pick two out of three. With our comprehensive strategies, you can have it all.</p>
       </div>
       <div class="division">
         <h3>Legacy</h3>
-        <div class="div-sub">Estate &amp; Wealth Transfer</div>
-        <p>Will it be your family, the government, or long-term care costs? We help you keep your hard-earned legacy where it belongs. Estate planning, LTC coverage, and wealth transfer strategies built around the people you love.</p>
-        <ul>
-          <li><strong>Estate Planning</strong> &mdash; Wills, trusts, beneficiary design</li>
-          <li><strong>Long-Term Care</strong> &mdash; Traditional &amp; hybrid coverage</li>
-          <li><strong>Wealth Transfer</strong> &mdash; Tax-efficient legacy strategies</li>
-          <li><strong>Final Expense</strong> &mdash; Protecting the family from the last bills</li>
-        </ul>
+        <p>Let&rsquo;s get real about who&rsquo;s going to inherit what you&rsquo;ve worked your entire life for. Will it be your family, the government or long-term care costs? We help you keep your hard-earned legacy where it belongs.</p>
       </div>
     </div>
 
     <div class="psm" style="margin-top: 32px;">
-      <div class="psm-tag">200+ Years Combined Expertise &middot; 15+ Professionals On Staff</div>
+      <div class="psm-tag">250+ Years Combined Expertise &middot; 15+ Professionals On Staff</div>
       <h3>A team for all your needs, across all your decisions.</h3>
       <p>Most firms hand you a product and a single point of contact. Your trusted advisor should remain constant &mdash; not the plan you picked last year. Every RPI client gets a full team spanning Health, Wealth, and Legacy &mdash; so every decision gets the right expertise, every time.</p>
     </div>
