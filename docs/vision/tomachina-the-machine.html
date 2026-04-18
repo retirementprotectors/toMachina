@@ -28,6 +28,10 @@
     --magic: #c084fc;
     --magic-glow: rgba(192, 132, 252, 0.10);
     --magic-border: rgba(192, 132, 252, 0.25);
+    /* RPI Electric Cobalt — for IGNITE/RPI references per JDM 2026-04-18 */
+    --rpi: #3b82f6;
+    --rpi-glow: rgba(59, 130, 246, 0.10);
+    --rpi-border: rgba(59, 130, 246, 0.25);
     --gold: #d4a44c;
     --gold-glow: rgba(212, 164, 76, 0.12);
     --gold-border: rgba(212, 164, 76, 0.25);
@@ -367,7 +371,7 @@
   .arch-box.app {
     border: 1px solid; min-width: 160px;
   }
-  .arch-box.app.prodash { background: rgba(74, 122, 181, 0.1); border-color: rgba(74, 122, 181, 0.3); color: var(--prodash); }
+  .arch-box.app.prodash { background: rgba(59, 130, 246, 0.1); border-color: rgba(59, 130, 246, 0.3); color: var(--rpi); }
   .arch-box.app.riimo { background: rgba(167, 139, 250, 0.1); border-color: rgba(167, 139, 250, 0.3); color: var(--riimo); }
   .arch-box.app.sentinel { background: rgba(64, 188, 88, 0.1); border-color: rgba(64, 188, 88, 0.3); color: var(--sentinel); }
   .arch-box.pkg {
@@ -433,14 +437,14 @@
   }
   .ignite-block::before {
     content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
-    background: linear-gradient(90deg, var(--money), var(--machine), var(--magic));
+    background: linear-gradient(90deg, var(--money), var(--machine), var(--rpi));
   }
   .ignite-block .verb {
     font-size: 14px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 16px;
   }
   .ignite-block .verb .f { color: var(--money); }
   .ignite-block .verb .a { color: var(--machine); }
-  .ignite-block .verb .i { color: var(--magic); }
+  .ignite-block .verb .i { color: var(--rpi); }
   .ignite-block .verb .dot { color: var(--text-dim); }
   .ignite-block .statement {
     font-size: 24px; font-weight: 800; letter-spacing: -0.5px;
@@ -822,7 +826,7 @@
 <!-- HERO                                                            -->
 <!-- ════════════════════════════════════════════════════════════════ -->
 <div class="hero">
-  <img src="tomachina-transparent.png" alt="toMachina" style="height: 160px; width: auto; margin-bottom: 32px; filter: drop-shadow(0 0 30px rgba(96, 165, 250, 0.2)); display: block; margin-left: auto; margin-right: auto;">
+  <img src="tomachina-transparent.png" alt="toMachina" style="height: 160px; width: auto; margin-bottom: 32px; filter: drop-shadow(0 0 30px rgba(167, 139, 250, 0.35)); display: block; margin-left: auto; margin-right: auto;">
   <p class="hero-statement">
     A <strong>Transcendent</strong> Tech Platform, which <strong>arms</strong> our Industry-Leading Team in providing <em>Unrivaled</em> Service.
   </p>
@@ -858,7 +862,7 @@
 
     <div class="portal-cards">
       <div class="portal-card prodash">
-        <img src="prodashx-tm-transparent.png" alt="ProDashX by toMachina" style="height: 70px; width: auto; margin-bottom: 16px; filter: drop-shadow(0 0 16px rgba(74, 122, 181, 0.25));">
+        <img src="prodashx-tm-transparent.png" alt="ProDashX by toMachina" style="height: 70px; width: auto; margin-bottom: 16px; filter: drop-shadow(0 0 16px rgba(59, 130, 246, 0.35));">
         <div class="portal-channel">B2C &mdash; Sales + Service</div>
         <p class="portal-desc">The team's daily driver. Clients, accounts, pipelines, communications, quoting &mdash; everything the Sales and Service teams touch, in one place.</p>
         <div class="portal-url">ProDash.toMachina.com</div>
@@ -1336,7 +1340,7 @@
       </div>
     </div>
 
-    <div style="margin-top: 24px; padding: 20px 24px; background: rgba(96, 165, 250, 0.05); border: 1px solid rgba(96, 165, 250, 0.2); border-radius: 12px;">
+    <div style="margin-top: 24px; padding: 20px 24px; background: rgba(167, 139, 250, 0.05); border: 1px solid rgba(167, 139, 250, 0.2); border-radius: 12px;">
       <p style="margin: 0; color: var(--text-muted); font-size: 14px; line-height: 1.7;">
         <strong style="color: var(--text);">The Dojo Mesh</strong> &mdash; 8 bilateral Slack channels (one per warrior + #exec + #warriors) wired through a real-time dispatcher (DISP-04 bot-loop firewall, signoff parsing, cross-warrior comms). JDM messages any warrior from anywhere on any device. Warriors reply in their own channels. Zero synthetic posts. Real signal only.
       </p>
