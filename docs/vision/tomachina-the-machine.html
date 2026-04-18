@@ -17,11 +17,11 @@
     --text: #e4e8f2;
     --text-muted: #8090a8;
     --text-dim: #445068;
-    --machine: #60a5fa;
-    --machine-bright: #93c5fd;
-    --machine-dim: #2563eb;
-    --machine-glow: rgba(96, 165, 250, 0.12);
-    --machine-border: rgba(96, 165, 250, 0.28);
+    --machine: #a78bfa;
+    --machine-bright: #c4b5fd;
+    --machine-dim: #7c3aed;
+    --machine-glow: rgba(167, 139, 250, 0.12);
+    --machine-border: rgba(167, 139, 250, 0.28);
     --money: #4ade80;
     --money-glow: rgba(74, 222, 128, 0.10);
     --money-border: rgba(74, 222, 128, 0.25);
@@ -69,8 +69,8 @@
     width: 800px;
     height: 800px;
     background: radial-gradient(circle,
-      rgba(96, 165, 250, 0.08) 0%,
-      rgba(37, 99, 235, 0.04) 40%,
+      rgba(167, 139, 250, 0.08) 0%,
+      rgba(124, 58, 237, 0.04) 40%,
       transparent 70%
     );
     pointer-events: none;
@@ -797,15 +797,15 @@
   }
   .cross-nav a.nav-gold { color: #d4a44c; }
   .cross-nav a.nav-green { color: #4ade80; }
-  .cross-nav a.nav-blue { color: #60a5fa; }
+  .cross-nav a.nav-blue { color: #a78bfa; }
   .cross-nav a.nav-purple { color: #c084fc; }
   .cross-nav a.nav-gold:hover { background: rgba(212, 164, 76, 0.08); }
   .cross-nav a.nav-green:hover { background: rgba(74, 222, 128, 0.08); }
-  .cross-nav a.nav-blue:hover { background: rgba(96, 165, 250, 0.08); }
+  .cross-nav a.nav-blue:hover { background: rgba(167, 139, 250, 0.08); }
   .cross-nav a.nav-purple:hover { background: rgba(192, 132, 252, 0.08); }
-  .cross-nav a.nav-rpi { color: #7ba8d4; }
-  .cross-nav a.nav-rpi:hover { background: rgba(123, 168, 212, 0.08); }
-  .cross-nav a.active { background: rgba(96, 165, 250, 0.12); border-color: rgba(96, 165, 250, 0.25); }
+  .cross-nav a.nav-rpi { color: #3b82f6; }
+  .cross-nav a.nav-rpi:hover { background: rgba(59, 130, 246, 0.08); }
+  .cross-nav a.active { background: rgba(167, 139, 250, 0.12); border-color: rgba(167, 139, 250, 0.25); }
 </style>
 </head>
 <body>
@@ -815,7 +815,7 @@
   <a href="../warriors/shinob1/reference/agentx-framework.html" class="nav-gold">AgentX</a>
   <a href="david-the-money.html" class="nav-green">David.</a>
   <a href="tomachina-the-machine.html" class="nav-blue active">toMachina</a>
-  <a href="rpi-the-mission.html" class="nav-purple">RPI</a>
+  <a href="rpi-the-mission.html" class="nav-rpi">RPI</a>
 </div>
 
 <!-- ════════════════════════════════════════════════════════════════ -->
@@ -847,33 +847,6 @@
     <h2>What <span class="accent">toMachina</span> Is</h2>
     <p class="section-sub">toMachina isn't a vendor product. It IS the business. Built from the inside by someone who lives every workflow, every data flow, every client touchpoint. Not purchased. Not configured. Forged.</p>
 
-    <div class="before-after">
-      <div class="ba-card before">
-        <h3>Before</h3>
-        <ul>
-          <li>GoHighLevel for CRM</li>
-          <li>Google Sheets for everything else</li>
-          <li>6 disconnected GAS engines</li>
-          <li>Manual data entry across systems</li>
-          <li>No pipeline visibility</li>
-          <li>No compliance automation</li>
-          <li>Josh is the bottleneck</li>
-        </ul>
-      </div>
-      <div class="ba-arrow">&rarr;</div>
-      <div class="ba-card after">
-        <h3>After</h3>
-        <ul>
-          <li><strong>3 purpose-built portals</strong> &mdash; one for each channel</li>
-          <li><strong>One unified database</strong> &mdash; 29K+ normalized docs</li>
-          <li><strong>88 API routes</strong> &mdash; every action is an endpoint</li>
-          <li><strong>14 automated pipelines</strong> &mdash; every workflow tracked</li>
-          <li><strong>Self-enforcing compliance</strong> &mdash; 43 immune system rules</li>
-          <li><strong>AI-ready infrastructure</strong> &mdash; MDJ plugs in, not bolts on</li>
-          <li><strong>The team is armed</strong> &mdash; no bottleneck</li>
-        </ul>
-      </div>
-    </div>
   </div>
 </section>
 
@@ -947,25 +920,11 @@
   </div>
 </section>
 
-<!-- PROVABLE -->
+<!-- WAVE 2: Re-use this title organically on /strategic or /we-are-david -->
+<!-- "Provable. Not Promised." stat block removed per JDM 2026-04-18 -->
+
 <section>
   <div class="container">
-    <h2 style="text-align:center;">Provable. Not <span class="accent">Promised.</span></h2>
-    <p class="section-sub" style="text-align:center; margin-left:auto; margin-right:auto;">
-      This isn't a pitch deck. Every number is live. Every claim can be demonstrated by logging in and watching it work.
-    </p>
-
-    <div class="stat-grid">
-      <div class="stat-card"><div class="number">3</div><div class="label">Portals &mdash; Live in Production</div></div>
-      <div class="stat-card"><div class="number">88</div><div class="label">API Routes &mdash; Cloud Run</div></div>
-      <div class="stat-card"><div class="number">29K+</div><div class="label">Firestore Docs &mdash; Normalized</div></div>
-      <div class="stat-card"><div class="number">14</div><div class="label">Pipelines &mdash; Pipeline Studio</div></div>
-      <div class="stat-card"><div class="number">9</div><div class="label">Integrations &mdash; MCP Hub</div></div>
-      <div class="stat-card"><div class="number">43</div><div class="label">Immune System Rules &mdash; Live</div></div>
-      <div class="stat-card"><div class="number">54</div><div class="label">Data Sources &mdash; ATLAS Mapped</div></div>
-      <div class="stat-card"><div class="number">10+</div><div class="label">Sprints + CXO Division &mdash; Shipped</div></div>
-    </div>
-
     <div class="ignite-block">
       <div class="verb">
         <span class="f">Forge</span>
@@ -976,7 +935,7 @@
       </div>
       <p class="statement">
         DAVID forges the deals. toMachina <em>arms the team</em>.<br>
-        MDJ ignites our Enterprise Value.
+        RPI ignites our Enterprise Value.
       </p>
     </div>
   </div>
@@ -1219,14 +1178,15 @@
 <section>
   <div class="container">
     <h2>The <span class="accent">Iron</span></h2>
-    <p class="section-sub">A Dell PowerEdge T440 on a shelf in Des Moines. Persistent tmux sessions. Standalone service account auth. Tailscale funnel. Warriors survive reboots. The factory never goes dark.</p>
+    <p class="section-sub">A Dell PowerEdge T440 on the Lanier MFD in Des Moines. Persistent tmux sessions. Standalone service account auth. Tailscale funnel. Warriors survive reboots. The factory never goes dark.</p>
 
     <div class="dojo-stats">
       <div class="dojo-stat"><div class="num">T440</div><div class="lbl">Dell PowerEdge</div></div>
-      <div class="dojo-stat"><div class="num">16</div><div class="lbl">Xeon Cores</div></div>
-      <div class="dojo-stat"><div class="num">30GB</div><div class="lbl">ECC RAM</div></div>
-      <div class="dojo-stat"><div class="num">:4200</div><div class="lbl">mdj-agent.service</div></div>
+      <div class="dojo-stat"><div class="num">16-core</div><div class="lbl">Xeon Silver 4110</div></div>
+      <div class="dojo-stat"><div class="num">30GB</div><div class="lbl">DDR4-2666 ECC</div></div>
+      <div class="dojo-stat"><div class="num">P40</div><div class="lbl">NVIDIA GPU &mdash; Local LLM</div></div>
     </div>
+    <p style="text-align:center; font-size:13px; color:var(--text-dim); margin-top:12px;">Dell PowerEdge T440 &middot; 16-core Xeon Silver 4110 (8 physical &times; 2 threads) &middot; 30GB DDR4-2666 ECC &middot; NVIDIA P40 GPU for Local LLM + Inference &middot; 1.1TB storage</p>
 
     <div class="mesh-callout">
       <h3>Why 7 Fresh Sessions &ne; 7 Warriors</h3>

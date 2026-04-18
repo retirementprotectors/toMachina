@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RDN-006 — Dialer &amp; List Management</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --bg-card: #16181f;
+    --bg-surface: #1c1f2a;
+    --border: #2a2d3a;
+    --border-accent: #3b4260;
+    --text-primary: #e8eaf0;
+    --text-secondary: #9ba3bb;
+    --text-muted: #636880;
+    --accent: #6366f1;
+    --accent-dim: #3730a3;
+    --green: #10b981;
+    --amber: #f59e0b;
+    --red: #ef4444;
+    --sky: #38bdf8;
+    --purple: #a78bfa;
+    --teal: #2dd4bf;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text-primary); font-family: 'Inter', -apple-system, sans-serif; font-size: 14px; line-height: 1.6; }
+
+  /* Header */
+  .header { background: var(--bg-card); border-bottom: 1px solid var(--border); padding: 28px 40px 24px; }
+  .header-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 16px; }
+  .sprint-badge { background: var(--accent-dim); border: 1px solid var(--accent); border-radius: 6px; padding: 4px 12px; font-size: 11px; font-weight: 700; letter-spacing: .08em; color: var(--accent); text-transform: uppercase; }
+  .header h1 { font-size: 28px; font-weight: 800; color: var(--text-primary); margin: 8px 0 4px; }
+  .header-subtitle { font-size: 14px; color: var(--text-secondary); margin-bottom: 16px; }
+  .meta-row { display: flex; flex-wrap: wrap; gap: 24px; }
+  .meta-item { font-size: 12px; }
+  .meta-item .label { color: var(--text-muted); text-transform: uppercase; letter-spacing: .06em; font-size: 10px; }
+  .meta-item .value { color: var(--text-secondary); margin-top: 2px; }
+
+  /* Tabs */
+  .tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); background: var(--bg-card); padding: 0 40px; overflow-x: auto; }
+  .tab { padding: 12px 18px; font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--text-muted); border-bottom: 2px solid transparent; cursor: pointer; white-space: nowrap; transition: color .15s, border-color .15s; }
+  .tab:hover { color: var(--text-secondary); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* Content */
+  .content { padding: 32px 40px; max-width: 1100px; margin: 0 auto; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* Cards + sections */
+  .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+  .card-title { font-size: 13px; font-weight: 700; color: var(--text-primary); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 12px; }
+  h2 { font-size: 18px; font-weight: 700; color: var(--text-primary); margin: 28px 0 12px; }
+  h2:first-child { margin-top: 0; }
+  h3 { font-size: 13px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: .06em; margin: 20px 0 8px; }
+  p { color: var(--text-secondary); margin-bottom: 12px; }
+  ul, ol { padding-left: 20px; color: var(--text-secondary); margin-bottom: 12px; }
+  li { margin-bottom: 4px; }
+
+  /* Callouts */
+  .callout { border-left: 3px solid var(--accent); background: var(--bg-surface); border-radius: 0 8px 8px 0; padding: 14px 18px; margin-bottom: 16px; }
+  .callout.warn { border-left-color: var(--amber); }
+  .callout.green { border-left-color: var(--green); }
+  .callout.red { border-left-color: var(--red); }
+  .callout-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--accent); margin-bottom: 6px; }
+  .callout.warn .callout-title { color: var(--amber); }
+  .callout.green .callout-title { color: var(--green); }
+  .callout.red .callout-title { color: var(--red); }
+
+  /* Pills */
+  .pill { display: inline-block; border-radius: 20px; padding: 2px 10px; font-size: 11px; font-weight: 600; margin-right: 4px; }
+  .pill-accent { background: var(--accent-dim); color: var(--accent); }
+  .pill-green { background: rgba(16,185,129,.12); color: var(--green); }
+  .pill-amber { background: rgba(245,158,11,.12); color: var(--amber); }
+  .pill-red { background: rgba(239,68,68,.12); color: var(--red); }
+  .pill-sky { background: rgba(56,189,248,.12); color: var(--sky); }
+  .pill-purple { background: rgba(167,139,250,.12); color: var(--purple); }
+  .pill-teal { background: rgba(45,212,191,.12); color: var(--teal); }
+
+  /* Phase header */
+  .phase-header { background: var(--bg-surface); border: 1px solid var(--border-accent); border-radius: 10px; padding: 14px 20px; margin: 28px 0 16px; display: flex; align-items: center; gap: 12px; }
+  .phase-number { width: 28px; height: 28px; border-radius: 50%; background: var(--accent-dim); border: 1px solid var(--accent); font-size: 12px; font-weight: 800; color: var(--accent); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .phase-title { font-size: 14px; font-weight: 700; color: var(--text-primary); }
+  .phase-meta { font-size: 11px; color: var(--text-muted); margin-left: auto; }
+
+  /* Tickets */
+  .ticket { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin-bottom: 12px; }
+  .ticket-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+  .ticket-id { font-size: 11px; font-weight: 700; color: var(--accent); font-family: 'JetBrains Mono', monospace; background: var(--accent-dim); padding: 2px 8px; border-radius: 4px; }
+  .ticket-title { font-size: 15px; font-weight: 700; color: var(--text-primary); }
+  .ticket-body { color: var(--text-secondary); font-size: 13px; }
+  .ticket-body p { margin-bottom: 8px; }
+  .ticket-file { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--sky); background: var(--bg-surface); padding: 2px 6px; border-radius: 4px; }
+  .ticket-meta { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+
+  /* Decision needed */
+  .decision { background: rgba(245,158,11,.06); border: 1px solid rgba(245,158,11,.3); border-radius: 10px; padding: 18px; margin-bottom: 16px; }
+  .decision-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .decision-icon { font-size: 16px; }
+  .decision-title { font-size: 13px; font-weight: 700; color: var(--amber); }
+  .decision-body { color: var(--text-secondary); font-size: 13px; }
+  .decision-opts { margin-top: 10px; border-top: 1px solid var(--border); padding-top: 10px; }
+  .decision-opt { padding: 8px 0; border-bottom: 1px solid var(--border); display: flex; gap: 8px; }
+  .decision-opt:last-child { border-bottom: none; }
+  .opt-label { font-size: 11px; font-weight: 700; color: var(--amber); min-width: 48px; }
+
+  /* AC table */
+  .ac { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 12px; }
+  .ac th { background: var(--bg-surface); color: var(--text-muted); text-transform: uppercase; font-size: 10px; letter-spacing: .06em; font-weight: 700; padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+  .ac td { padding: 8px 12px; border-bottom: 1px solid var(--border); color: var(--text-secondary); vertical-align: top; }
+  .ac tr:last-child td { border-bottom: none; }
+
+  /* Grid helpers */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+
+  /* Stat boxes */
+  .stat { text-align: center; background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 18px; }
+  .stat-value { font-size: 32px; font-weight: 800; color: var(--accent); }
+  .stat-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .06em; margin-top: 4px; }
+
+  /* Code blocks */
+  pre { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px; overflow-x: auto; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-secondary); margin-bottom: 12px; }
+  code { font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+
+  /* Risk table */
+  .risk-high { color: var(--red); font-weight: 600; }
+  .risk-med { color: var(--amber); font-weight: 600; }
+  .risk-low { color: var(--green); font-weight: 600; }
+
+  @media (max-width: 768px) {
+    .header, .content { padding: 20px; }
+    .tabs { padding: 0 20px; }
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-top">
+    <span class="sprint-badge">Sprint 011-DIALER</span>
+  </div>
+  <h1>RDN-006 — Dialer &amp; List Management</h1>
+  <p class="header-subtitle">Global autodialer, carrier mass-service filter, ProZone list management, and call-session UX hardening</p>
+  <div class="meta-row">
+    <div class="meta-item"><div class="label">Author</div><div class="value">MUSASHI, CMO</div></div>
+    <div class="meta-item"><div class="label">Approved</div><div class="value">Pending CTO review</div></div>
+    <div class="meta-item"><div class="label">Builder</div><div class="value">RONIN</div></div>
+    <div class="meta-item"><div class="label">Created</div><div class="value">2026-04-17</div></div>
+    <div class="meta-item"><div class="label">Tickets</div><div class="value">15</div></div>
+    <div class="meta-item"><div class="label">Phases</div><div class="value">3</div></div>
+    <div class="meta-item"><div class="label">Overlaps</div><div class="value">GAP-18, GAP-19</div></div>
+    <div class="meta-item"><div class="label">Triggered By</div><div class="value">#raiden-reactive — Vince (3 requests, 3 days backlogged)</div></div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <div class="tab active" onclick="switchTab(event, 'why')">Why</div>
+  <div class="tab" onclick="switchTab(event, 'what')">What</div>
+  <div class="tab" onclick="switchTab(event, 'arch')">Architecture</div>
+  <div class="tab" onclick="switchTab(event, 'tickets')">Tickets</div>
+  <div class="tab" onclick="switchTab(event, 'ac')">Acceptance</div>
+  <div class="tab" onclick="switchTab(event, 'decisions')">Decisions</div>
+  <div class="tab" onclick="switchTab(event, 'risks')">Risks</div>
+  <div class="tab" onclick="switchTab(event, 'files')">Files</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════ WHY -->
+<div class="content">
+<div class="tab-panel active" id="tab-why">
+  <h2>The Problem</h2>
+  <p>The dialer exists only inside ProZone. Vince's team runs calls from every surface — Contacts, client profiles, campaign views — and every one of those surfaces forces a manual phone copy-paste. That is an agent productivity tax we keep charging ourselves.</p>
+
+  <div class="callout">
+    <div class="callout-title">The Core Gap</div>
+    The autodialer is trapped in <code>ProZoneApp.tsx</code>. It cannot survive a route change. If an agent navigates away mid-session — intentionally or not — the session state is gone. Vince's team has learned to stay on the ProZone page like it is a paper form they cannot put down.
+  </div>
+
+  <h2>What Vince's Team Asked For</h2>
+  <div class="card">
+    <div class="card-title">Requests from #raiden-reactive</div>
+    <ul>
+      <li><strong>Request 1 — Global Dialer:</strong> "Can we launch call sessions from the main Contacts list, not just ProZone? We do carrier service calls from there and it would save a lot of time."</li>
+      <li><strong>Request 2 — Carrier Filter:</strong> "We need to pull a list of all clients on a specific carrier so we can run mass service calls when a carrier makes an update. Right now we do it manually in the Contacts page."</li>
+      <li><strong>Request 3 — ProZone Custom Lists:</strong> "Can we save a filtered list in ProZone as a named list and launch it as a session? We keep re-building the same filtered views."</li>
+    </ul>
+  </div>
+
+  <div class="callout warn">
+    <div class="callout-title">Also Found — Call Initiation Bug (P1)</div>
+    During discovery, a confirmed bug was found in <span class="ticket-file">CallPanel.tsx ~line 155</span>. When <code>useTwilioDevice().isReady === false</code>, the start-call function fires <code>POST /api/comms/send-voice</code> with TwiML that dials the prospect directly — without ever connecting the agent's browser. The prospect's phone rings. The agent hears nothing. The call is logged as if connected. This ships in Phase 1 as RDN6-04.
+  </div>
+
+  <h2>Business Impact</h2>
+  <div class="grid-3">
+    <div class="stat"><div class="stat-value">3</div><div class="stat-label">Days Backlogged</div></div>
+    <div class="stat"><div class="stat-value">15</div><div class="stat-label">Tickets</div></div>
+    <div class="stat"><div class="stat-value">4d</div><div class="stat-label">Estimated Build</div></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════ WHAT -->
+<div class="tab-panel" id="tab-what">
+  <h2>Scope</h2>
+
+  <div class="callout green">
+    <div class="callout-title">In Scope</div>
+    <ul>
+      <li>Extract dialer to a shared <code>Dialer/</code> module with <code>DialerProvider</code> at portal layout level</li>
+      <li><code>DialerOverlay</code> — fixed bottom panel that persists across route changes in ProDash App Router layout</li>
+      <li>Fix call initiation bug: guard <code>isReady === false</code>, show toast, do not fire voice REST endpoint</li>
+      <li>Multi-select + "Start Session" action bar on the ProDash Contacts page</li>
+      <li>Carrier filter on ProDash Contacts page (client-side, active accounts only)</li>
+      <li>Carrier filter on ProZone TARGET tab</li>
+      <li>"Save as List" from any filtered Contacts or ProZone view</li>
+      <li>Custom Lists CRUD: new <code>prozone_lists</code> Firestore collection</li>
+      <li><code>ListsPanel</code> UI in ProZone FLOW or a new LISTS tab</li>
+      <li>"Launch Session" from a saved list</li>
+      <li><code>goToPrevious()</code> on the call session state machine (back button)</li>
+    </ul>
+  </div>
+
+  <div class="callout red">
+    <div class="callout-title">Out of Scope</div>
+    <ul>
+      <li>Twilio STIR/SHAKEN upgrades (TAIKO lane)</li>
+      <li>Voicemail drop / auto-leave message feature</li>
+      <li>Outbound campaign dialing (C3 territory)</li>
+      <li>Call recording playback in the session UI</li>
+      <li>Carrier normalization / deduplication (separate data sprint)</li>
+      <li>SENTINEL or RIIMO dialer surface</li>
+    </ul>
+  </div>
+
+  <h2>User Stories</h2>
+  <ul>
+    <li>As Vince's team, I want to select clients on the Contacts page and launch a call session without going to ProZone.</li>
+    <li>As a service rep, I want to filter all clients on UnitedHealthcare and launch a mass service call session in one click.</li>
+    <li>As a ProZone user, I want to save a filtered TARGET view as "Medicare Follow-Up June" and launch it next week without rebuilding filters.</li>
+    <li>As an agent in an active session, I want to go back to a prospect I already passed if they call back.</li>
+    <li>As an agent, I want to navigate away from the current page mid-session and have the session survive.</li>
+  </ul>
+
+  <h2>Non-Goals</h2>
+  <p>This sprint does not normalize carrier name data. "UnitedHealthcare", "United Health", and "UHC" will all appear as separate filter values until a carrier normalization sprint runs. That is acceptable for Phase 2 — the carrier filter uses whatever <code>Account.carrier</code> string values exist in Firestore today.</p>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════ ARCHITECTURE -->
+<div class="tab-panel" id="tab-arch">
+  <h2>Current State</h2>
+
+  <div class="card">
+    <div class="card-title">Where the Dialer Lives Today</div>
+    <p>The dialer is fully contained inside <span class="ticket-file">packages/ui/src/modules/ProZone/</span>. Three files own the entire stack:</p>
+    <ul>
+      <li><span class="ticket-file">useCallSession.ts</span> — State machine hook: idle/active/paused/ended, stats accumulation, session lifecycle</li>
+      <li><span class="ticket-file">CallSession.tsx</span> — UI wrapper: stats bar, pause/resume/end controls, progress indicator</li>
+      <li><span class="ticket-file">CallPanel.tsx</span> — Individual call UI: pre_call → ringing → calling → disposition state machine</li>
+    </ul>
+    <p><span class="ticket-file">ProZoneApp.tsx</span> calls <code>useCallSession()</code> directly and renders <code>CallSession</code> at the bottom of its JSX. Session state is local to ProZoneApp — navigate away, state is gone.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">TwilioDeviceProvider (Already Correct)</div>
+    <p><span class="ticket-file">apps/prodash/app/(portal)/layout.tsx</span> already wraps the entire portal in <code>TwilioDeviceProvider</code>. The <code>useTwilioDevice()</code> hook is available everywhere in ProDash. This is the right architecture — we build on it, not around it.</p>
+  </div>
+
+  <h2>Target State</h2>
+
+  <div class="callout">
+    <div class="callout-title">DialerProvider at Layout Level</div>
+    A new <code>DialerProvider</code> wraps the ProDash portal layout alongside <code>TwilioDeviceProvider</code>. It holds session state in React Context. <code>DialerOverlay</code> renders as a fixed bottom panel from the layout — it survives Next.js App Router soft navigation because the layout does not unmount on route change.
+  </div>
+
+  <pre><code>// apps/prodash/app/(portal)/layout.tsx — target shape
+&lt;TwilioDeviceProvider&gt;
+  &lt;DialerProvider&gt;      {/* NEW — session state in context */}
+    &lt;OmniPanel ...&gt;
+      {children}
+    &lt;/OmniPanel&gt;
+    &lt;DialerOverlay /&gt;   {/* NEW — fixed bottom panel */}
+  &lt;/DialerProvider&gt;
+&lt;/TwilioDeviceProvider&gt;</code></pre>
+
+  <div class="card">
+    <div class="card-title">SessionProspect Shape</div>
+    <p>The shared interface used everywhere — Contacts, ProZone TARGET, custom lists — to start a session:</p>
+    <pre><code>interface SessionProspect {
+  client_id: string
+  first_name: string
+  last_name: string
+  phone: string
+  county: string
+  city: string
+}</code></pre>
+    <p>This already exists in <span class="ticket-file">ProZone/useCallSession.ts</span>. It moves to a shared location in Phase 1.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Carrier Filter — Backend Architecture</div>
+    <p>Carrier values live on <code>Account</code> documents in the <span class="ticket-file">clients/{id}/accounts</span> subcollection, not on the client document itself. There is no top-level field to filter by. Three approaches:</p>
+    <p><strong>Approach A — Denormalized field:</strong> Add <code>carrier_names: string[]</code> to the client document. Backfill via migration script. Filter client-side via array-contains. Requires bridge service to maintain in sync. Clean and fast once deployed.</p>
+    <p><strong>Approach B — Server-side aggregation:</strong> New API endpoint <code>GET /api/clients/carrier-options</code> aggregates distinct carrier values from accounts subcollection via Firestore collection group query. Returns carrier list + optional <code>client_ids</code> pre-filtered. No schema migration.</p>
+    <p><strong>Approach C — Client-side subcollection reads:</strong> For every client in the list, fetch their accounts subcollection and filter locally. N+1 problem. Unacceptable at scale.</p>
+    <p>Approach B is implemented in this sprint. Approach A is the long-term answer but requires a data migration sprint. SHINOB1 must choose — see Decisions tab.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">prozone_lists Collection</div>
+    <p>New top-level Firestore collection for custom saved lists:</p>
+    <pre><code>prozone_lists/{list_id} {
+  list_id: string
+  name: string
+  description?: string
+  owner_type: 'specialist' | 'agent'  // see Decision 1
+  owner_id: string
+  prospect_ids: string[]              // client_id array
+  created_at: Timestamp
+  updated_at: Timestamp
+  source_filters?: Record&lt;string, unknown&gt;  // snapshot of filter state
+}</code></pre>
+  </div>
+
+  <div class="card">
+    <div class="card-title">goToPrevious() — State Machine Addition</div>
+    <p>New action in <code>useCallSession.ts</code>. Decrements <code>currentIndex</code> if <code>currentIndex &gt; 0</code>. Does NOT modify stats (completed call counts are immutable once logged). Does NOT undo the disposition log entry written to Firestore — audit logs are append-only. Simply moves the cursor back so the agent can place another call to the same prospect.</p>
+  </div>
+
+  <h2>Module Structure After This Sprint</h2>
+  <pre><code>packages/ui/src/modules/
+  Dialer/                    (NEW — extracted from ProZone/)
+    DialerProvider.tsx       (context + session state)
+    DialerOverlay.tsx        (fixed bottom panel)
+    useDialer.ts             (consumer hook)
+    CallSession.tsx          (moved from ProZone/)
+    CallPanel.tsx            (moved from ProZone/)
+    useCallSession.ts        (moved from ProZone/)
+    types.ts                 (SessionProspect, SessionStats, etc.)
+    index.ts
+  ProZone/
+    ProZoneApp.tsx           (updated — uses useDialer() instead of useCallSession())
+    TargetTab.tsx            (updated — carrier filter, useDialer().startSession)
+    ListsPanel.tsx           (NEW — custom lists UI)
+    ... (rest unchanged)</code></pre>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════ TICKETS -->
+<div class="tab-panel" id="tab-tickets">
+
+  <div class="phase-header">
+    <div class="phase-number">1</div>
+    <div>
+      <div class="phase-title">Phase 1 — Foundation</div>
+      <div class="phase-meta">RDN6-01 → RDN6-05 &nbsp;|&nbsp; ~1.5 days</div>
+    </div>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">RDN6-01</span>
+      <span class="ticket-title">Extract Dialer to shared module</span>
+      <span class="pill pill-accent">refactor</span>
+    </div>
+    <div class="ticket-body">
+      <p>Create <span class="ticket-file">packages/ui/src/modules/Dialer/</span> directory. Move the following files from <span class="ticket-file">ProZone/</span> into it: <code>useCallSession.ts</code>, <code>CallSession.tsx</code>, <code>CallPanel.tsx</code>. Create <span class="ticket-file">Dialer/types.ts</span> with <code>SessionProspect</code>, <code>SessionStats</code>, <code>SessionStatus</code>, <code>CallDisposition</code> interfaces extracted from their current homes. Create <span class="ticket-file">Dialer/index.ts</span> barrel export. Update all ProZone imports. Run <code>npm run type-check</code> to verify zero regressions.</p>
+      <div class="ticket-meta">
+        <span class="pill pill-sky">packages/ui</span>
+        <span class="pill pill-purple">no behavior change</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">RDN6-02</span>
+      <span class="ticket-title">DialerProvider — session context at portal layout level</span>
+      <span class="pill pill-accent">feature</span>
+    </div>
+    <div class="ticket-body">
+      <p>Create <span class="ticket-file">packages/ui/src/modules/Dialer/DialerProvider.tsx</span>. Wraps children in React Context that exposes the full session state from <code>useCallSession()</code>. Create companion <span class="ticket-file">Dialer/useDialer.ts</span> consumer hook. Wire into <span class="ticket-file">apps/prodash/app/(portal)/layout.tsx</span> alongside the existing <code>TwilioDeviceProvider</code> — <code>DialerProvider</code> is a child of <code>TwilioDeviceProvider</code> so it can call <code>useTwilioDevice()</code> internally. Update <span class="ticket-file">ProZoneApp.tsx</span> to consume <code>useDialer()</code> instead of calling <code>useCallSession()</code> directly.</p>
+      <div class="ticket-meta">
+        <span class="pill pill-sky">packages/ui</span>
+        <span class="pill pill-sky">apps/prodash</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">RDN6-03</span>
+      <span class="ticket-title">DialerOverlay — persistent bottom panel</span>
+      <span class="pill pill-accent">feature</span>
+    </div>
+    <div class="ticket-body">
+      <p>Create <span class="ticket-file">packages/ui/src/modules/Dialer/DialerOverlay.tsx</span>. Fixed bottom panel rendered from the ProDash layout — it persists across route changes because the App Router layout does not unmount on soft navigation. Two states: <strong>collapsed</strong> (36px height, shows prospect name + session stats + expand button) and <strong>expanded</strong> (360px height, full <code>CallSession</code> + <code>CallPanel</code> UI). Only renders when session status is <code>active</code> or <code>paused</code>. Add <code>DialerOverlay</code> to <span class="ticket-file">apps/prodash/app/(portal)/layout.tsx</span> as a sibling to the <code>OmniPanel</code> children wrapper.</p>
+      <div class="ticket-meta">
+        <span class="pill pill-sky">packages/ui</span>
+        <span class="pill pill-sky">apps/prodash</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">RDN6-04</span>
+      <span class="ticket-title">Fix: call initiation fires when Twilio device not ready</span>
+      <span class="pill pill-red">bug fix</span>
+      <span class="pill pill-amber">P1</span>
+    </div>
+    <div class="ticket-body">
+      <p>In <span class="ticket-file">packages/ui/src/modules/Dialer/CallPanel.tsx</span> (~line 155, the <code>startCall()</code> function's else-branch): remove the fallback that fires <code>POST /api/comms/send-voice</code> when <code>isReady === false</code>. Replace with a <code>showToast('Dialer not ready. Please wait a moment and try again.', 'warning')</code> call. The Twilio device initializes within 2-3 seconds of portal load — the agent should simply wait. The REST voice endpoint remains in place for legitimate non-browser use cases; it is only the CallPanel's fallback that is wrong. Add a visual indicator in the CallPanel UI when <code>isReady === false</code> (e.g., a pulsing "Connecting dialer..." badge) so the agent knows why the button is disabled.</p>
+      <div class="ticket-meta">
+        <span class="pill pill-red">fixes silent fail</span>
+        <span class="pill pill-sky">packages/ui</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">RDN6-05</span>
+      <span class="ticket-title">Multi-select + "Start Session" on Contacts page</span>
+      <span class="pill pill-accent">feature</span>
+    </div>
+    <div class="ticket-body">
+      <p>In <span class="ticket-file">apps/prodash/app/(portal)/contacts/page.tsx</span>: add checkbox multi-select to each client row (currently no selection state exists). Track <code>selectedIds: Set&lt;string&gt;</code> in page state. Show a sticky action bar at the bottom of the viewport when selection count is greater than zero — "X clients selected · Start Call Session". On button click, fetch basic contact info for selected <code>client_id</code>s (name, phone, county, city) — these fields are already loaded in the contacts list — cast to <code>SessionProspect[]</code>, and call <code>useDialer().startSession(prospects)</code>. The <code>DialerOverlay</code> expands automatically when session becomes active.</p>
+      <div class="ticket-meta">
+        <span class="pill pill-sky">apps/prodash</span>
+        <span class="pill pill-purple">contacts page</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="phase-header">
+    <div class="phase-number">2</div>
+    <div>
+      <div class="phase-title">Phase 2 — Carrier Filter</div>
+      <div class="phase-meta">RDN6-06 → RDN6-09 &nbsp;|&nbsp; ~1 day</div>
+    </div>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">RDN6-06</span>
+      <span class="ticket-title">API: carrier filter options endpoint</span>
+      <span class="pill pill-accent">feature</span>
+    </div>
+    <div class="ticket-body">
+      <p>Add to <span class="ticket-file">services/api/src/routes/clients.ts</span>: <code>GET /api/clients/carrier-options</code>. Uses Firestore collection group query on <code>accounts</code> subcollection to aggregate distinct <code>carrier</code> string values across all active accounts (where <code>status !== 'terminated'</code> — see Decision 2 for scope). Returns <code>{ success: true, data: { carriers: string[] } }</code> sorted alphabetically. Response is suitable for caching — add a 5-minute <code>Cache-Control</code> header. This endpoint powers the carrier dropdown on both Contacts and ProZone TARGET tab.</p>
+      <div class="ticket-meta">
+        <span class="pill pill-sky">services/api</span>
+        <span class="pill pill-purple">new endpoint</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">RDN6-07</span>
+      <span class="ticket-title">Carrier filter UI on Contacts page</span>
+      <span class="pill pill-accent">feature</span>
+    </div>
+    <div class="ticket-body">
+      <p>In <span class="ticket-file">apps/prodash/app/(portal)/contacts/components/ClientFilters.tsx</span>: add <code>carrierFilter: string</code> and <code>onCarrierChange: (v: string) =&gt; void</code> props alongside existing filter props. Add a "Carrier" dropdown populated from <code>GET /api/clients/carrier-options</code> (fetched once on mount, cached). In <span class="ticket-file">contacts/page.tsx</span>: apply carrier filter client-side — when a carrier is selected, fetch accounts for all visible clients and filter to those that have at least one account matching the selected carrier. The "Start Session" action bar becomes "Start Session (filtered)" when carrier filter is active. This is a prerequisite for the "Save as List" flow in Phase 3.</p>
+      <div class="ticket-meta">
+        <span class="pill pill-sky">apps/prodash</span>
+        <span class="pill pill-amber">N+1 risk — see Risks tab</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">RDN6-08</span>
+      <span class="ticket-title">Carrier filter on ProZone TARGET tab</span>
+      <span class="pill pill-accent">feature</span>
+    </div>
+    <div class="ticket-body">
+      <p>In <span class="ticket-file">packages/ui/src/modules/ProZone/TargetTab.tsx</span>: add carrier filter to the existing filter bar (alongside tier, zone, flaggedOnly, meetingFilter, ageMin, ageMax). The ProZone TARGET tab fetches prospects from <code>GET /api/prozone/prospects/:specialist_id</code> — update this endpoint in <span class="ticket-file">services/api/src/routes/prozone.ts</span> (line 81) to accept an optional <code>?carrier=</code> query param. Server-side filtering is preferred here because the prospects list is already pre-scoped to a specialist's zone — the account lookup N+1 cost is bounded.</p>
+      <div class="ticket-meta">
+        <span class="pill pill-sky">packages/ui</span>
+        <span class="pill pill-sky">services/api</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">RDN6-09</span>
+      <span class="ticket-title">"Save as List" action from filtered Contacts view</span>
+      <span class="pill pill-accent">feature</span>
+    </div>
+    <div class="ticket-body">
+      <p>In the Contacts page sticky action bar (introduced in RDN6-05): add a secondary "Save as List" button next to "Start Session". Opens a small modal with a name input (required) and optional description. On confirm, calls <code>POST /api/prozone/lists</code> (new endpoint, RDN6-10) with the current <code>selectedIds</code> array and a snapshot of the active filter state. On success, shows a toast "List saved — find it in ProZone &gt; Lists". This is the bridge from the global Contacts surface back into ProZone list management.</p>
+      <div class="ticket-meta">
+        <span class="pill pill-sky">apps/prodash</span>
+        <span class="pill pill-purple">depends on RDN6-10</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="phase-header">
+    <div class="phase-number">3</div>
+    <div>
+      <div class="phase-title">Phase 3 — Call Session UX + Custom Lists</div>
+      <div class="phase-meta">RDN6-10 → RDN6-15 &nbsp;|&nbsp; ~1.5 days</div>
+    </div>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">RDN6-10</span>
+      <span class="ticket-title">API: prozone_lists CRUD endpoints</span>
+      <span class="pill pill-accent">feature</span>
+    </div>
+    <div class="ticket-body">
+      <p>Add to <span class="ticket-file">services/api/src/routes/prozone.ts</span>: four new endpoints against the new <code>prozone_lists</code> Firestore collection:</p>
+      <ul>
+        <li><code>GET /api/prozone/lists?owner_id=&lt;id&gt;</code> — list all lists for an owner, sorted by <code>updated_at</code> desc</li>
+        <li><code>POST /api/prozone/lists</code> — create list; body: <code>{ name, description?, owner_type, owner_id, prospect_ids, source_filters? }</code></li>
+        <li><code>PATCH /api/prozone/lists/:list_id</code> — update name, description, or prospect_ids</li>
+        <li><code>DELETE /api/prozone/lists/:list_id</code> — soft delete (set <code>deleted_at</code> field)</li>
+      </ul>
+      <p>All endpoints require Firebase Auth middleware (already global). Add Firestore security rules: owner can read/write their own lists; no cross-user access. Add <code>prozone_lists</code> to <span class="ticket-file">firestore.rules</span> collection gating block.</p>
+      <div class="ticket-meta">
+        <span class="pill pill-sky">services/api</span>
+        <span class="pill pill-purple">new collection</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">RDN6-11</span>
+      <span class="ticket-title">ListsPanel UI in ProZone</span>
+      <span class="pill pill-accent">feature</span>
+    </div>
+    <div class="ticket-body">
+      <p>Create <span class="ticket-file">packages/ui/src/modules/ProZone/ListsPanel.tsx</span>. Add a new "LISTS" tab to the <code>ProZoneTab</code> type in <span class="ticket-file">ProZone/types.ts</span> (currently: <code>'team' | 'market' | 'target' | 'flow' | 'inventory'</code>) and add the tab to <span class="ticket-file">ProZoneApp.tsx</span>'s tab bar. The LISTS panel shows a card grid of saved lists: list name, description, prospect count, last updated, and two action buttons: "Launch Session" and "Edit". Empty state: "No saved lists yet. Filter contacts and use Save as List to create one." Fetches via <code>GET /api/prozone/lists?owner_id=&lt;specialistId&gt;</code>.</p>
+      <div class="ticket-meta">
+        <span class="pill pill-sky">packages/ui</span>
+        <span class="pill pill-purple">new tab</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">RDN6-12</span>
+      <span class="ticket-title">Edit List modal</span>
+      <span class="pill pill-accent">feature</span>
+    </div>
+    <div class="ticket-body">
+      <p>In <span class="ticket-file">ProZone/ListsPanel.tsx</span>: the "Edit" button opens a modal showing the list name (editable), description (editable), and a prospect table with the current list members (name, county, city). Each row has a remove button. A "Save Changes" button calls <code>PATCH /api/prozone/lists/:list_id</code> with the updated <code>name</code>, <code>description</code>, and <code>prospect_ids</code>. Also show a "Delete List" destructive action at the bottom of the modal — calls <code>DELETE /api/prozone/lists/:list_id</code> with an <code>await showConfirmation()</code> gate.</p>
+      <div class="ticket-meta">
+        <span class="pill pill-sky">packages/ui</span>
+        <span class="pill pill-purple">depends on RDN6-10, RDN6-11</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">RDN6-13</span>
+      <span class="ticket-title">Launch Session from saved list</span>
+      <span class="pill pill-accent">feature</span>
+    </div>
+    <div class="ticket-body">
+      <p>In <span class="ticket-file">ProZone/ListsPanel.tsx</span>: the "Launch Session" button on each list card: fetch full prospect data for all <code>prospect_ids</code> in the list (batch Firestore read via <code>GET /api/clients/batch?ids=id1,id2,...</code> — verify this endpoint exists in <span class="ticket-file">services/api/src/routes/clients.ts</span>, add if missing), map to <code>SessionProspect[]</code>, call <code>useDialer().startSession(prospects)</code>. Show a loading state on the button during fetch. If the list is empty (all prospects deleted), show a toast "This list has no active members" and abort.</p>
+      <div class="ticket-meta">
+        <span class="pill pill-sky">packages/ui</span>
+        <span class="pill pill-purple">depends on RDN6-10, RDN6-11</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">RDN6-14</span>
+      <span class="ticket-title">goToPrevious() on call session state machine</span>
+      <span class="pill pill-accent">feature</span>
+    </div>
+    <div class="ticket-body">
+      <p>In <span class="ticket-file">packages/ui/src/modules/Dialer/useCallSession.ts</span>: add <code>goToPrevious: () =&gt; void</code> to the returned object. Implementation: if <code>currentIndex &gt; 0</code>, decrement <code>currentIndex</code> by 1 and set session status to <code>'active'</code> if paused. Does NOT modify any stat counters. Does NOT undo any Firestore log entries (disposition log is append-only — audit immutability). In <span class="ticket-file">Dialer/CallSession.tsx</span>: add a "Back" button to the session controls bar (between Skip and End Session), only visible when <code>currentIndex &gt; 0</code>. In <span class="ticket-file">Dialer/CallPanel.tsx</span>: the <code>onClose</code> prop signature already handles session-mode no-op — no change needed there. Update <code>CallSessionProps</code> interface to add <code>onPrevious: () =&gt; void</code>.</p>
+      <div class="ticket-meta">
+        <span class="pill pill-sky">packages/ui</span>
+        <span class="pill pill-amber">audit log note: does not undo</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">RDN6-15</span>
+      <span class="ticket-title">QA pass: type-check + build + E2E smoke</span>
+      <span class="pill pill-green">QA</span>
+    </div>
+    <div class="ticket-body">
+      <p>Run <code>npm run type-check</code> — must pass 13/13 workspaces. Run <code>npm run build</code> — must pass 11/11. Smoke test the critical happy path manually: (1) select 3 clients on Contacts page → Start Session → verify DialerOverlay appears → navigate to a different page → verify DialerOverlay persists → return to Contacts. (2) Filter by carrier on Contacts → verify list narrows → Save as List → verify appears in ProZone LISTS tab → Launch Session. (3) In an active session, reach prospect #2 → click Back → verify back on prospect #1 → verify stats unchanged. All passing is the gate for PR open.</p>
+      <div class="ticket-meta">
+        <span class="pill pill-green">gate for PR</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════ ACCEPTANCE -->
+<div class="tab-panel" id="tab-ac">
+  <h2>Acceptance Criteria</h2>
+  <table class="ac">
+    <thead>
+      <tr><th>ID</th><th>Scenario</th><th>Expected</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>AC-01</td><td>Agent selects 5 clients on Contacts page, clicks "Start Session"</td><td>DialerOverlay appears collapsed at bottom. Session is active with 5 in queue.</td></tr>
+      <tr><td>AC-02</td><td>Agent navigates from Contacts to a client profile mid-session</td><td>DialerOverlay remains visible. Session stats preserved. Expanding overlay shows current prospect.</td></tr>
+      <tr><td>AC-03</td><td>Agent navigates back to ProZone mid-session</td><td>ProZone no longer renders its own CallSession. DialerOverlay is the single session surface.</td></tr>
+      <tr><td>AC-04</td><td>Agent clicks Start Call when Twilio device not ready</td><td>Toast warning shown. No API call fired. Call button shows disabled state with "Connecting..." indicator.</td></tr>
+      <tr><td>AC-05</td><td>Agent selects "UnitedHealthcare" from Carrier dropdown on Contacts page</td><td>Client list narrows to clients with at least one active UnitedHealthcare account.</td></tr>
+      <tr><td>AC-06</td><td>Agent uses carrier filter + selects clients + clicks "Save as List"</td><td>Modal opens. Agent names list "UHC Service Call June". List created. Toast confirms. List appears in ProZone LISTS tab.</td></tr>
+      <tr><td>AC-07</td><td>Agent opens ProZone LISTS tab, sees saved lists</td><td>Card grid shows name, description, count, and last-updated for each list. Empty state shown when no lists exist.</td></tr>
+      <tr><td>AC-08</td><td>Agent clicks "Launch Session" on a saved list</td><td>Prospects loaded from list. DialerOverlay starts session. First prospect displayed in CallPanel.</td></tr>
+      <tr><td>AC-09</td><td>Agent clicks "Edit" on a list, removes 2 prospects, saves</td><td>List updates. Prospect count reflects removal. Next Launch Session uses updated list.</td></tr>
+      <tr><td>AC-10</td><td>Agent is on prospect #3, clicks "Back"</td><td>Session returns to prospect #2. Stats bar shows unchanged booked/callback counts (no undo).</td></tr>
+      <tr><td>AC-11</td><td>Agent is on prospect #1 in session</td><td>"Back" button is not visible (no previous prospect to go to).</td></tr>
+      <tr><td>AC-12</td><td>Agent launches session from ProZone TARGET tab with carrier filter active</td><td>Only carrier-filtered prospects enter session queue.</td></tr>
+      <tr><td>AC-13</td><td>Type-check</td><td>13/13 workspaces pass with zero type errors.</td></tr>
+      <tr><td>AC-14</td><td>Build</td><td>11/11 workspaces build cleanly with no webpack/bundler errors.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════ DECISIONS -->
+<div class="tab-panel" id="tab-decisions">
+  <h2>Decisions Needed</h2>
+  <p>Three decisions must be made before RONIN starts Phase 2. Phase 1 has no open decisions — RONIN can start immediately.</p>
+
+  <div class="decision">
+    <div class="decision-header">
+      <span class="decision-icon">&#9888;</span>
+      <span class="decision-title">Decision 1 — Custom list ownership: per-specialist or per-agent?</span>
+    </div>
+    <div class="decision-body">
+      The <code>prozone_lists</code> collection needs an owner model. ProZone currently has specialist configs (<code>SpecialistConfig.specialist_email</code>) but also relates to individual agent users. Should a list belong to a specialist config (shared across whoever holds that territory) or to the individual authenticated user (personal to the agent)?
+    </div>
+    <div class="decision-opts">
+      <div class="decision-opt">
+        <span class="opt-label">A</span>
+        <span>Per-authenticated-user (<code>owner_id = user.uid</code>). Lists are personal. If an agent leaves, their lists go with them. Simplest auth model — Firestore rule is just <code>request.auth.uid == resource.data.owner_id</code>.</span>
+      </div>
+      <div class="decision-opt">
+        <span class="opt-label">B</span>
+        <span>Per-specialist-config (<code>owner_id = config_id</code>). Lists travel with the territory. A new agent who inherits a territory gets the old agent's lists. More complex auth — need to check if user has a <code>SpecialistConfig</code> referencing that config_id.</span>
+      </div>
+      <div class="decision-opt">
+        <span class="opt-label">Rec</span>
+        <span>Option A. Simpler to build and audit. Agents curate their own lists. Territory-level list sharing can be added in a future sprint if Vince asks for it.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="decision">
+    <div class="decision-header">
+      <span class="decision-icon">&#9888;</span>
+      <span class="decision-title">Decision 2 — Carrier filter scope: active accounts only or all accounts?</span>
+    </div>
+    <div class="decision-body">
+      When filtering by carrier, should the system include clients who have an account with that carrier in any status (including terminated, lapsed, surrendered) — or only active/in-force accounts?
+    </div>
+    <div class="decision-opts">
+      <div class="decision-opt">
+        <span class="opt-label">A</span>
+        <span>Active accounts only (status not in ['terminated', 'lapsed', 'surrendered']). Vince's use case is service calls to current clients — terminated accounts are irrelevant noise.</span>
+      </div>
+      <div class="decision-opt">
+        <span class="opt-label">B</span>
+        <span>All accounts regardless of status. Allows filtering former-carrier clients (e.g., for win-back campaigns). Adds noise for service call use case.</span>
+      </div>
+      <div class="decision-opt">
+        <span class="opt-label">Rec</span>
+        <span>Option A for the initial filter. A "Include inactive" checkbox can be added later if the team asks for it.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="decision">
+    <div class="decision-header">
+      <span class="decision-icon">&#9888;</span>
+      <span class="decision-title">Decision 3 — SHINOB1: carrier filter backend architecture (Approach A vs B)</span>
+    </div>
+    <div class="decision-body">
+      See Architecture tab for full details. Short version: Approach A (denormalized <code>carrier_names[]</code> on the client doc) is fast and clean but requires a data migration sprint. Approach B (collection group aggregation endpoint returning pre-filtered client IDs) ships in this sprint with no migration. This sprint implements Approach B. SHINOB1 must confirm this is acceptable as the permanent approach OR flag that a migration sprint should be scheduled to implement Approach A before this code ships.
+    </div>
+    <div class="decision-opts">
+      <div class="decision-opt">
+        <span class="opt-label">B (default)</span>
+        <span>Ship Approach B in this sprint. Accept that carrier filtering has a 1-2 second latency for large client lists. Schedule Approach A migration as a separate ZRD- ticket.</span>
+      </div>
+      <div class="decision-opt">
+        <span class="opt-label">Block</span>
+        <span>Do not ship carrier filter until Approach A migration is complete. Phase 2 ships without carrier filter. Carrier filter added in a later sprint after migration.</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════ RISKS -->
+<div class="tab-panel" id="tab-risks">
+  <h2>Risk Register</h2>
+  <table class="ac">
+    <thead>
+      <tr><th>Risk</th><th>Likelihood</th><th>Impact</th><th>Mitigation</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Carrier filter N+1 on Contacts page — loading accounts for 300+ clients could be slow or hit Firestore quota</td>
+        <td class="risk-med">MED</td>
+        <td class="risk-high">HIGH</td>
+        <td>RDN6-06 implements a server-side endpoint that returns pre-filtered client IDs. The client-side filter only applies to already-visible clients, not all 29K. Initial implementation fetches accounts for visible page only. Pagination already limits Contacts page to ~50 visible rows.</td>
+      </tr>
+      <tr>
+        <td>DialerOverlay z-index conflicts with OmniPanel or other fixed overlays</td>
+        <td class="risk-med">MED</td>
+        <td class="risk-med">MED</td>
+        <td>Audit existing fixed elements in ProDash layout during RDN6-03. Set DialerOverlay z-index above the page content but below modals. Test with OmniPanel open simultaneously.</td>
+      </tr>
+      <tr>
+        <td>Carrier string values are inconsistent (e.g., "UHC", "United Health", "UnitedHealthcare") — filter will not group them</td>
+        <td class="risk-high">HIGH</td>
+        <td class="risk-low">LOW</td>
+        <td>This is explicitly out of scope (see What tab). Document as a known limitation. Normalization is a ZRD- data sprint. Users see the raw carrier strings; no incorrect grouping occurs.</td>
+      </tr>
+      <tr>
+        <td>goToPrevious() confusion — agents expect it to undo a disposition</td>
+        <td class="risk-low">LOW</td>
+        <td class="risk-med">MED</td>
+        <td>Add a tooltip on the Back button: "Go back to re-call this prospect. Previous disposition stays logged." Disposition history is visible in the session summary. No data is lost or hidden.</td>
+      </tr>
+      <tr>
+        <td>ProZoneApp.tsx currently renders CallSession at bottom — after migration, DialerOverlay must be the only session surface (no duplicate UI)</td>
+        <td class="risk-med">MED</td>
+        <td class="risk-med">MED</td>
+        <td>RDN6-02 explicitly updates ProZoneApp.tsx to remove its own CallSession render and delegate to useDialer() context. RDN6-15 QA pass includes verifying no duplicate session UI.</td>
+      </tr>
+      <tr>
+        <td>prozone_lists Firestore security rules — missing or overly permissive</td>
+        <td class="risk-low">LOW</td>
+        <td class="risk-high">HIGH</td>
+        <td>RDN6-10 includes explicit Firestore rules: owner-only read/write, no cross-user access. Rules ship in the same PR as the collection and endpoints.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Unverified Assumptions</h2>
+  <div class="callout warn">
+    <div class="callout-title">Needs Verification Before Build</div>
+    <ul>
+      <li><strong>GAP-18 and GAP-19</strong> are referenced in the ticket brief as overlapping with this sprint. Their exact ticket content was not found in the codebase during discovery. RONIN must locate these tickets (likely in <span class="ticket-file">docs/discoveries/</span> or a planning board) before starting Phase 1 to confirm there is no scope collision.</li>
+      <li><strong><code>GET /api/clients/batch</code></strong> endpoint — RDN6-13 assumes this exists in <span class="ticket-file">services/api/src/routes/clients.ts</span>. RONIN must verify. If it does not exist, add it in RDN6-10 before RDN6-13 depends on it.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════ FILES -->
+<div class="tab-panel" id="tab-files">
+  <h2>Files Touched</h2>
+  <div class="card">
+    <div class="card-title">New Files</div>
+    <ul>
+      <li><span class="ticket-file">packages/ui/src/modules/Dialer/DialerProvider.tsx</span></li>
+      <li><span class="ticket-file">packages/ui/src/modules/Dialer/DialerOverlay.tsx</span></li>
+      <li><span class="ticket-file">packages/ui/src/modules/Dialer/useDialer.ts</span></li>
+      <li><span class="ticket-file">packages/ui/src/modules/Dialer/types.ts</span></li>
+      <li><span class="ticket-file">packages/ui/src/modules/Dialer/index.ts</span></li>
+      <li><span class="ticket-file">packages/ui/src/modules/ProZone/ListsPanel.tsx</span></li>
+    </ul>
+  </div>
+  <div class="card">
+    <div class="card-title">Moved Files</div>
+    <ul>
+      <li><span class="ticket-file">ProZone/useCallSession.ts</span> → <span class="ticket-file">Dialer/useCallSession.ts</span></li>
+      <li><span class="ticket-file">ProZone/CallSession.tsx</span> → <span class="ticket-file">Dialer/CallSession.tsx</span></li>
+      <li><span class="ticket-file">ProZone/CallPanel.tsx</span> → <span class="ticket-file">Dialer/CallPanel.tsx</span></li>
+    </ul>
+  </div>
+  <div class="card">
+    <div class="card-title">Modified Files</div>
+    <ul>
+      <li><span class="ticket-file">packages/ui/src/modules/ProZone/ProZoneApp.tsx</span> — remove local session state, use useDialer()</li>
+      <li><span class="ticket-file">packages/ui/src/modules/ProZone/TargetTab.tsx</span> — add carrier filter</li>
+      <li><span class="ticket-file">packages/ui/src/modules/ProZone/types.ts</span> — add 'lists' to ProZoneTab union</li>
+      <li><span class="ticket-file">apps/prodash/app/(portal)/layout.tsx</span> — add DialerProvider + DialerOverlay</li>
+      <li><span class="ticket-file">apps/prodash/app/(portal)/contacts/page.tsx</span> — add multi-select, carrier filter, action bar</li>
+      <li><span class="ticket-file">apps/prodash/app/(portal)/contacts/components/ClientFilters.tsx</span> — add carrier filter props</li>
+      <li><span class="ticket-file">services/api/src/routes/prozone.ts</span> — add carrier param to prospects endpoint, add lists CRUD endpoints</li>
+      <li><span class="ticket-file">services/api/src/routes/clients.ts</span> — add carrier-options endpoint, verify/add batch endpoint</li>
+      <li><span class="ticket-file">firestore.rules</span> — add prozone_lists collection rules</li>
+    </ul>
+  </div>
+  <div class="card">
+    <div class="card-title">Read-Only Reference Files (Discovery)</div>
+    <ul>
+      <li><span class="ticket-file">packages/ui/src/modules/ProZone/CallPanel.tsx</span> — bug confirmed at ~line 155</li>
+      <li><span class="ticket-file">packages/ui/src/modules/ProZone/useCallSession.ts</span> — no goToPrevious() exists</li>
+      <li><span class="ticket-file">packages/ui/src/modules/ProZone/CallSession.tsx</span> — CallSessionProps interface</li>
+      <li><span class="ticket-file">packages/core/src/types/index.ts</span> — Account.carrier is plain string, not FK</li>
+      <li><span class="ticket-file">apps/prodash/app/(portal)/contacts/components/ClientFilters.tsx</span> — existing filter props confirmed</li>
+    </ul>
+  </div>
+</div>
+
+</div><!-- /content -->
+
+<script>
+  function switchTab(event, tabId) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+    document.getElementById('tab-' + tabId).classList.add('active');
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AgentX Site — URL Inventory v1</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Mulish:wght@300;400;500;600;700;800&display=swap');
+
+  :root {
+    --bg: #08080c;
+    --bg-card: #0f0f16;
+    --bg-card-hover: #161620;
+    --bg-accent: #121219;
+    --border: #1a1a28;
+    --border-accent: #252536;
+    --text: #e8e8f2;
+    --text-muted: #8a8aa2;
+    --text-dim: #4a4a62;
+    --gold: #d4a44c;
+    --gold-bright: #f0c060;
+    --gold-dim: #a07830;
+    --gold-glow: rgba(212, 164, 76, 0.10);
+    --gold-border: rgba(212, 164, 76, 0.28);
+    --david: #4ade80;
+    --david-glow: rgba(74, 222, 128, 0.08);
+    --david-border: rgba(74, 222, 128, 0.25);
+    --machina: #a78bfa;
+    --machina-glow: rgba(167, 139, 250, 0.08);
+    --machina-border: rgba(167, 139, 250, 0.25);
+    --rpi: #3b82f6;
+    --rpi-glow: rgba(59, 130, 246, 0.08);
+    --rpi-border: rgba(59, 130, 246, 0.25);
+    --ax: #d4a44c;
+    --ax-glow: rgba(212, 164, 76, 0.08);
+    --ax-border: rgba(212, 164, 76, 0.28);
+    --warn: #f87171;
+    --warn-glow: rgba(248, 113, 113, 0.08);
+    --carrier: #f97316;
+    --carrier-glow: rgba(249, 115, 22, 0.08);
+    --carrier-border: rgba(249, 115, 22, 0.25);
+    --yellow: #facc15;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Mulish', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4 { font-family: 'Poppins', sans-serif; }
+
+  .container { max-width: 960px; margin: 0 auto; padding: 0 24px; }
+
+  /* HERO */
+  .hero {
+    padding: 72px 24px 56px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -100px; left: 50%;
+    transform: translateX(-50%);
+    width: 700px; height: 700px;
+    background: radial-gradient(circle, rgba(212,164,76,0.07) 0%, rgba(212,164,76,0.02) 40%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-badge {
+    display: inline-block;
+    padding: 5px 16px;
+    border-radius: 100px;
+    background: var(--gold-glow);
+    border: 1px solid var(--gold-dim);
+    color: var(--gold);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    margin-bottom: 28px;
+    font-family: 'Poppins', sans-serif;
+  }
+  .hero h1 {
+    font-size: clamp(32px, 7vw, 60px);
+    font-weight: 900;
+    letter-spacing: -2px;
+    line-height: 1.05;
+    margin-bottom: 16px;
+  }
+  .hero h1 .x {
+    background: linear-gradient(135deg, var(--gold-bright) 0%, var(--gold) 50%, var(--gold-dim) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero-subtitle {
+    font-size: clamp(14px, 3vw, 18px);
+    font-weight: 400;
+    color: var(--text-muted);
+    margin-bottom: 28px;
+    line-height: 1.6;
+  }
+  .hero-meta {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .hero-meta span {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    font-family: 'Poppins', sans-serif;
+  }
+  .hero-meta span.highlight { color: var(--gold); }
+
+  /* SECTIONS */
+  section { padding: 64px 0; }
+  section + section { border-top: 1px solid var(--border); }
+
+  h2 {
+    font-size: clamp(22px, 4vw, 32px);
+    font-weight: 800;
+    letter-spacing: -1px;
+    margin-bottom: 12px;
+  }
+  .h2-accent { color: var(--gold); }
+  .section-num {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+    font-family: 'Poppins', sans-serif;
+  }
+  .section-sub {
+    font-size: 15px;
+    color: var(--text-muted);
+    margin-bottom: 40px;
+    max-width: 660px;
+    line-height: 1.8;
+  }
+  .section-sub strong { color: var(--david); }
+
+  /* PATTERN BLOCK */
+  .pattern-block {
+    background: var(--bg-card);
+    border: 1px solid var(--gold-border);
+    border-radius: 16px;
+    padding: 36px 32px;
+    margin-bottom: 32px;
+    position: relative;
+    overflow: hidden;
+  }
+  .pattern-block::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--gold-dim), var(--gold-bright), var(--gold-dim));
+  }
+  .url-display {
+    font-family: 'Courier New', monospace;
+    font-size: clamp(13px, 2.5vw, 17px);
+    font-weight: 700;
+    color: var(--gold-bright);
+    background: var(--gold-glow);
+    border: 1px solid var(--gold-border);
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin: 20px 0;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  .url-display .base { color: var(--text-muted); }
+  .brand-value {
+    background: var(--bg-accent);
+    border-left: 3px solid var(--gold);
+    border-radius: 0 10px 10px 0;
+    padding: 16px 20px;
+    margin: 20px 0;
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--text-muted);
+  }
+  .brand-value strong { color: var(--text); }
+  .brand-value .code-inline {
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    color: var(--gold);
+    background: var(--gold-glow);
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  .hood-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-top: 24px;
+  }
+  .hood-item {
+    background: var(--bg-accent);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .hood-item .hood-label {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 8px;
+    font-family: 'Poppins', sans-serif;
+  }
+  .hood-item p { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+  .stat-pill {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 16px;
+    font-family: 'Poppins', sans-serif;
+    background: var(--gold-glow);
+    color: var(--gold);
+    border: 1px solid var(--gold-dim);
+  }
+
+  /* TABLES */
+  .tab-group { margin-bottom: 48px; }
+  .tab-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .tab-label {
+    font-size: clamp(18px, 3.5vw, 24px);
+    font-weight: 900;
+    letter-spacing: -0.5px;
+    font-family: 'Poppins', sans-serif;
+  }
+  .tab-label.david { color: var(--david); }
+  .tab-label.machina { color: var(--machina); }
+  .tab-label.rpi { color: var(--rpi); }
+  .tab-label.ax { color: var(--ax); }
+  .tab-badge {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-family: 'Poppins', sans-serif;
+  }
+  .tab-badge.david { color: var(--david); background: var(--david-glow); border: 1px solid var(--david-border); }
+  .tab-badge.machina { color: var(--machina); background: var(--machina-glow); border: 1px solid var(--machina-border); }
+  .tab-badge.rpi { color: var(--rpi); background: var(--rpi-glow); border: 1px solid var(--rpi-border); }
+  .tab-badge.ax { color: var(--ax); background: var(--ax-glow); border: 1px solid var(--ax-border); }
+  .tab-note { font-size: 13px; color: var(--text-dim); font-style: italic; margin-bottom: 16px; }
+
+  .table-wrap {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+  }
+  .table-wrap.david { border-color: var(--david-border); }
+  .table-wrap.machina { border-color: var(--machina-border); }
+  .table-wrap.rpi { border-color: var(--rpi-border); }
+  .table-wrap.ax { border-color: var(--ax-border); }
+
+  table { width: 100%; border-collapse: collapse; min-width: 540px; }
+  thead tr { background: var(--bg-accent); }
+  thead th {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 14px 16px;
+    text-align: left;
+    color: var(--text-dim);
+    font-family: 'Poppins', sans-serif;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  .table-wrap.david thead th { color: var(--david); background: var(--david-glow); }
+  .table-wrap.machina thead th { color: var(--machina); background: var(--machina-glow); }
+  .table-wrap.rpi thead th { color: var(--rpi); background: var(--rpi-glow); }
+  .table-wrap.ax thead th { color: var(--ax); background: var(--ax-glow); }
+  tbody tr { border-bottom: 1px solid var(--border); transition: background 0.15s; }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--bg-card-hover); }
+  tbody td { padding: 14px 16px; font-size: 13px; color: var(--text-muted); vertical-align: top; line-height: 1.55; }
+
+  .url-cell { font-family: 'Courier New', monospace; font-size: 12px; font-weight: 700; white-space: nowrap; }
+  .url-cell .base-url { color: var(--text-dim); }
+  .url-cell.david .path-url { color: var(--david); }
+  .url-cell.machina .path-url { color: var(--machina); }
+  .url-cell.rpi .path-url { color: var(--rpi); }
+  .url-cell.ax .path-url { color: var(--ax); }
+
+  .page-name { color: var(--text); font-weight: 600; font-size: 13px; }
+  .page-sub { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+
+  .aud-badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 6px;
+    white-space: nowrap;
+    font-family: 'Poppins', sans-serif;
+    letter-spacing: 0.5px;
+  }
+  .aud-b2b { background: var(--david-glow); color: var(--david); border: 1px solid var(--david-border); }
+  .aud-b2e { background: var(--machina-glow); color: var(--machina); border: 1px solid var(--machina-border); }
+  .aud-b2i { background: var(--carrier-glow); color: var(--carrier); border: 1px solid var(--carrier-border); }
+  .aud-mixed { background: var(--gold-glow); color: var(--gold); border: 1px solid var(--gold-border); }
+  .aud-tech { background: var(--machina-glow); color: var(--machina); border: 1px solid var(--machina-border); }
+  .aud-strategic { background: var(--gold-glow); color: var(--gold); border: 1px solid var(--gold-border); }
+  .aud-b2bei { background: var(--rpi-glow); color: var(--rpi); border: 1px solid var(--rpi-border); }
+  .aud-anyone { background: var(--gold-glow); color: var(--gold); border: 1px solid var(--gold-border); }
+
+  .funnel-tag { font-family: 'Courier New', monospace; font-size: 11px; font-weight: 700; color: var(--gold); }
+  .funnel-none { color: var(--text-dim); font-size: 12px; font-style: italic; }
+
+  .new-badge {
+    display: inline-block;
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: var(--gold-glow);
+    color: var(--gold);
+    border: 1px solid var(--gold-dim);
+    margin-left: 6px;
+    vertical-align: middle;
+    font-family: 'Poppins', sans-serif;
+  }
+
+  /* FUNNEL DIAGRAM */
+  .flow-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    margin: 8px 0;
+  }
+  .flow-node {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 22px;
+  }
+  .flow-node .node-label {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+    font-family: 'Poppins', sans-serif;
+  }
+  .flow-node .node-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 4px; font-family: 'Poppins', sans-serif; }
+  .flow-node .node-desc { font-size: 12px; color: var(--text-muted); line-height: 1.55; }
+  .flow-node .node-code { font-family: 'Courier New', monospace; font-size: 12px; color: var(--machina); }
+  .flow-node.gold-node { border-color: var(--gold-border); background: var(--gold-glow); }
+  .flow-node.gold-node .node-label { color: var(--gold); }
+  .flow-node.david-node { border-color: var(--david-border); background: var(--david-glow); }
+  .flow-node.david-node .node-label { color: var(--david); }
+  .flow-node.machina-node { border-color: var(--machina-border); background: var(--machina-glow); }
+  .flow-node.machina-node .node-label { color: var(--machina); }
+  .flow-arrow { display: flex; align-items: center; justify-content: center; padding: 8px 0; color: var(--text-dim); font-size: 20px; }
+
+  .tag-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+  .tag-label { font-size: 12px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 12px; font-family: 'Poppins', sans-serif; }
+  .tag-chip {
+    font-size: 12px;
+    font-weight: 700;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-family: 'Poppins', sans-serif;
+    letter-spacing: 0.5px;
+  }
+  .tag-chip.david { background: var(--david-glow); color: var(--david); border: 1px solid var(--david-border); }
+  .tag-chip.machina { background: var(--machina-glow); color: var(--machina); border: 1px solid var(--machina-border); }
+  .tag-chip.rpi { background: var(--rpi-glow); color: var(--rpi); border: 1px solid var(--rpi-border); }
+  .tag-chip.gold { background: var(--gold-glow); color: var(--gold); border: 1px solid var(--gold-border); }
+  .tag-chip.carrier { background: var(--carrier-glow); color: var(--carrier); border: 1px solid var(--carrier-border); }
+  .tag-chip.neutral { background: var(--bg-accent); color: var(--text-muted); border: 1px solid var(--border); }
+
+  /* WAVES */
+  .wave-block {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+    margin-bottom: 20px;
+  }
+  .wave-header { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; flex-wrap: wrap; }
+  .wave-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+  .wave-dot.green { background: var(--david); box-shadow: 0 0 8px var(--david-glow); }
+  .wave-dot.yellow { background: var(--yellow); box-shadow: 0 0 8px rgba(250,204,21,0.4); }
+  .wave-dot.red { background: var(--warn); box-shadow: 0 0 8px var(--warn-glow); }
+  .wave-title { font-size: 18px; font-weight: 800; font-family: 'Poppins', sans-serif; letter-spacing: -0.3px; }
+  .wave-title.green { color: var(--david); }
+  .wave-title.yellow { color: var(--yellow); }
+  .wave-title.red { color: var(--warn); }
+  .wave-eta {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    padding: 4px 12px;
+    border-radius: 6px;
+    background: var(--bg-accent);
+    font-family: 'Poppins', sans-serif;
+  }
+  .wave-items { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .wave-items li { display: flex; gap: 10px; font-size: 14px; color: var(--text-muted); line-height: 1.55; }
+  .wave-items li::before { content: '→'; color: var(--text-dim); flex-shrink: 0; font-weight: 700; margin-top: 1px; }
+  .wave-items li strong { color: var(--text); font-weight: 700; }
+  .wave-items li .code-inline {
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    color: var(--warn);
+    background: var(--warn-glow);
+    padding: 1px 6px;
+    border-radius: 4px;
+  }
+
+  /* LOCKED DECISIONS */
+  .locked-block {
+    background: var(--bg-card);
+    border: 1px solid var(--gold-border);
+    border-radius: 16px;
+    padding: 36px 32px;
+    margin-top: 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  .locked-block::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--gold-dim), var(--gold-bright), var(--gold-dim));
+  }
+  .locked-title {
+    font-size: 14px;
+    font-weight: 900;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 20px;
+    font-family: 'Poppins', sans-serif;
+  }
+  .locked-items { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+  .locked-items li { display: flex; gap: 12px; font-size: 14px; color: var(--text-muted); line-height: 1.6; align-items: flex-start; }
+  .locked-items li .check { color: var(--david); font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+  .locked-items li strong { color: var(--text); font-weight: 700; }
+  .locked-items li .code-inline {
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    background: var(--gold-glow);
+    color: var(--gold);
+    padding: 1px 6px;
+    border-radius: 4px;
+  }
+  .locked-items li .code-blue {
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    background: var(--rpi-glow);
+    color: var(--rpi);
+    padding: 1px 6px;
+    border-radius: 4px;
+  }
+
+  /* FOOTER */
+  .footer {
+    padding: 48px 24px;
+    text-align: center;
+    border-top: 1px solid var(--border);
+  }
+  .footer-date { color: var(--text-dim); font-size: 13px; margin-bottom: 8px; }
+  .footer .signoff { font-size: 16px; font-weight: 800; color: var(--gold); font-family: 'Poppins', sans-serif; letter-spacing: 0.5px; }
+
+  @media (max-width: 640px) {
+    .hero { padding: 52px 20px 40px; }
+    .container { padding: 0 16px; }
+    section { padding: 48px 0; }
+    .pattern-block { padding: 24px 18px; }
+    .wave-block { padding: 22px 18px; }
+    .locked-block { padding: 24px 18px; }
+    .flow-row { grid-template-columns: 1fr; }
+    table { min-width: 460px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">AgentX · URL Inventory v1</div>
+  <h1>AgentX Site — <span class="x">URL Inventory</span></h1>
+  <div class="hero-subtitle">Sniper-Fire Deep Links &middot; Lead Funnels into DAVIDHUB</div>
+  <div class="hero-meta">
+    <span>2026-04-18</span>
+    <span>&middot;</span>
+    <span class="highlight">Compiled by SHINOB1 (OG) &middot; CTO + AgentX site lead</span>
+    <span>&middot;</span>
+    <span>23 sniper-fire URLs</span>
+  </div>
+</div>
+
+<!-- SECTION 1 — URL PATTERN -->
+<section>
+  <div class="container">
+    <div class="section-num">Section 01</div>
+    <h2>URL <span class="h2-accent">Pattern</span></h2>
+    <p class="section-sub">Every deep link on AgentX follows the same predictable pattern. Send a partner the exact URL — they land exactly where you want them. Correct tab, correct sub-tab, correct example.</p>
+
+    <div class="pattern-block">
+      <div class="url-display">
+        <span class="base">agentxstory.com/</span>&lt;tab&gt;/&lt;subtab&gt;/&lt;example&gt;
+      </div>
+
+      <div class="brand-value">
+        <strong>Why this matters:</strong> Forward this to a partner —
+        <span class="code-inline">agentxstory.com/david/agency-b2b/example-1</span>
+        — they land exactly where you sent them, no digging, no guessing. You control the conversation before it starts.
+      </div>
+
+      <div class="hood-grid">
+        <div class="hood-item">
+          <div class="hood-label">4 Tab Pages</div>
+          <p>Four full-page views stay exactly as-is. The URL tells the page which sub-tab to open on load.</p>
+        </div>
+        <div class="hood-item">
+          <div class="hood-label">How Deep Links Work</div>
+          <p>JS reads the URL path on load — opens the correct sub-tab, scrolls to the right example. Seamless on first visit.</p>
+        </div>
+        <div class="hood-item">
+          <div class="hood-label">GitHub Pages Trick</div>
+          <p>Direct deep links survive via a 404-fallback JS redirect. Share any of the 23 URLs — they always resolve.</p>
+        </div>
+        <div class="hood-item">
+          <div class="hood-label">Total Sniper URLs</div>
+          <p>23 individually addressable pages across 4 top-level tabs.</p>
+          <div class="stat-pill">23 live URLs</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 2 — INVENTORY TABLES -->
+<section>
+  <div class="container">
+    <div class="section-num">Section 02</div>
+    <h2>URL <span class="h2-accent">Inventory</span></h2>
+    <p class="section-sub">All 23 URLs organized by top-level tab. Tab order is locked: DAVID &rarr; toMachina &rarr; RPI &rarr; Agent X. <strong>All funnels route to DAVIDHUB.</strong> Site is B2BEI only — no consumer entry points.</p>
+
+    <!-- SUB-TABLE A — DAVID -->
+    <div class="tab-group">
+      <div class="tab-header">
+        <span class="tab-label david">DAVID</span>
+        <span class="tab-badge david">The Money / FORGE</span>
+      </div>
+      <p class="tab-note">&#126;Owners tab&#126; eliminated — content moved to new Agent X &middot; Vision tab.</p>
+      <div class="table-wrap david">
+        <table>
+          <thead>
+            <tr>
+              <th>URL</th>
+              <th>Page</th>
+              <th>Audience</th>
+              <th>Funnel Destination</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="url-cell david"><span class="base-url">agentxstory.com</span><span class="path-url">/david</span></td>
+              <td><div class="page-name">DAVID entry</div></td>
+              <td><span class="aud-badge aud-mixed">Mixed</span></td>
+              <td><span class="funnel-none">— no funnel on entry</span></td>
+            </tr>
+            <tr>
+              <td class="url-cell david"><span class="base-url">/david/</span><span class="path-url">opportunities</span></td>
+              <td><div class="page-name">DAVID &middot; The Opportunities</div><div class="page-sub">Renamed from "Prospects"</div></td>
+              <td><span class="aud-badge aud-mixed">Mixed</span></td>
+              <td><span class="funnel-tag">DAVIDHUB &middot; general</span></td>
+            </tr>
+            <tr>
+              <td class="url-cell david"><span class="base-url">/david/</span><span class="path-url">agency-b2b</span></td>
+              <td><div class="page-name">Partnership &middot; Agency (B2B) Overview</div></td>
+              <td><span class="aud-badge aud-b2b">Independent Advisors</span></td>
+              <td><span class="funnel-tag">DAVIDHUB &middot; agency</span></td>
+            </tr>
+            <tr>
+              <td class="url-cell david"><span class="base-url">/david/agency-b2b/</span><span class="path-url">example-1</span></td>
+              <td><div class="page-name">Agency &middot; Service Team Pitch</div><div class="page-sub">Cleaned-up MDJ-on-day-one line</div></td>
+              <td><span class="aud-badge aud-b2b">Independent Advisors</span></td>
+              <td><span class="funnel-tag">DAVIDHUB &middot; agency &middot; ex=1</span></td>
+            </tr>
+            <tr>
+              <td class="url-cell david"><span class="base-url">/david/agency-b2b/</span><span class="path-url">example-2</span></td>
+              <td><div class="page-name">Agency &middot; Widow/Survivor Story</div><div class="page-sub">Softened tone</div></td>
+              <td><span class="aud-badge aud-b2b">Independent Advisors</span></td>
+              <td><span class="funnel-tag">DAVIDHUB &middot; agency &middot; ex=2</span></td>
+            </tr>
+            <tr>
+              <td class="url-cell david"><span class="base-url">/david/</span><span class="path-url">firm-b2e</span></td>
+              <td><div class="page-name">Partnership &middot; Firm (B2E) Overview</div></td>
+              <td><span class="aud-badge aud-b2e">Scaled Retail Firms</span></td>
+              <td><span class="funnel-tag">DAVIDHUB &middot; firm</span></td>
+            </tr>
+            <tr>
+              <td class="url-cell david"><span class="base-url">/david/firm-b2e/</span><span class="path-url">wholesale</span></td>
+              <td><div class="page-name">Firm &middot; Wholesale Example</div></td>
+              <td><span class="aud-badge aud-b2e">Scaled Firms</span></td>
+              <td><span class="funnel-tag">DAVIDHUB &middot; firm &middot; ex=wholesale</span></td>
+            </tr>
+            <tr>
+              <td class="url-cell david"><span class="base-url">/david/firm-b2e/</span><span class="path-url">sales-service-center</span></td>
+              <td><div class="page-name">Firm &middot; Big Call Center Example <span class="new-badge">NEW</span></div></td>
+              <td><span class="aud-badge aud-b2e">Scaled Firms</span></td>
+              <td><span class="funnel-tag">DAVIDHUB &middot; firm &middot; ex=ssc</span></td>
+            </tr>
+            <tr>
+              <td class="url-cell david"><span class="base-url">/david/</span><span class="path-url">carrier-b2i</span></td>
+              <td><div class="page-name">Partnership &middot; Carrier (B2I) Overview</div></td>
+              <td><span class="aud-badge aud-b2i">Carriers</span></td>
+              <td><span class="funnel-tag">DAVIDHUB &middot; carrier</span></td>
+            </tr>
+            <tr>
+              <td class="url-cell david"><span class="base-url">/david/carrier-b2i/</span><span class="path-url">sales-pressure</span></td>
+              <td><div class="page-name">Carrier &middot; Sales Pressure Pitch</div></td>
+              <td><span class="aud-badge aud-b2i">Carriers</span></td>
+              <td><span class="funnel-tag">DAVIDHUB &middot; carrier &middot; ex=sales</span></td>
+            </tr>
+            <tr>
+              <td class="url-cell david"><span class="base-url">/david/carrier-b2i/</span><span class="path-url">in-force-servicing</span></td>
+              <td><div class="page-name">Carrier &middot; In-Force Servicing Pitch <span class="new-badge">NEW</span></div></td>
+              <td><span class="aud-badge aud-b2i">Carriers</span></td>
+              <td><span class="funnel-tag">DAVIDHUB &middot; carrier &middot; ex=inforce</span></td>
+            </tr>
+            <tr>
+              <td class="url-cell david"><span class="base-url">/david/</span><span class="path-url">we-are-david</span></td>
+              <td><div class="page-name">#WeAreDAVID Closing Pitch</div></td>
+              <td><span class="aud-badge aud-mixed">Mixed</span></td>
+              <td><span class="funnel-tag">DAVIDHUB &middot; general</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SUB-TABLE B — toMachina -->
+    <div class="tab-group">
+      <div class="tab-header">
+        <span class="tab-label machina">toMachina</span>
+        <span class="tab-badge machina">The Machine / ARM</span>
+      </div>
+      <div class="table-wrap machina">
+        <table>
+          <thead>
+            <tr>
+              <th>URL</th>
+              <th>Page</th>
+              <th>Audience</th>
+              <th>Funnel Destination</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="url-cell machina"><span class="base-url">agentxstory.com</span><span class="path-url">/tomachina</span></td>
+              <td><div class="page-name">toMachina entry</div></td>
+              <td><span class="aud-badge aud-tech">Tech / Platform</span></td>
+              <td><span class="funnel-none">—</span></td>
+            </tr>
+            <tr>
+              <td class="url-cell machina"><span class="base-url">/tomachina/</span><span class="path-url">platform</span></td>
+              <td><div class="page-name">toMachina &middot; Platform</div></td>
+              <td><span class="aud-badge aud-tech">Tech / Platform</span></td>
+              <td><span class="funnel-tag">DAVIDHUB &middot; platform</span></td>
+            </tr>
+            <tr>
+              <td class="url-cell machina"><span class="base-url">/tomachina/</span><span class="path-url">dojo</span></td>
+              <td><div class="page-name">toMachina &middot; Dojo</div></td>
+              <td><span class="aud-badge aud-tech">Tech / AI</span></td>
+              <td><span class="funnel-tag">DAVIDHUB &middot; platform</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SUB-TABLE C — RPI -->
+    <div class="tab-group">
+      <div class="tab-header">
+        <span class="tab-label rpi">RPI</span>
+        <span class="tab-badge rpi">The Mission / IGNITE</span>
+      </div>
+      <div class="table-wrap rpi">
+        <table>
+          <thead>
+            <tr>
+              <th>URL</th>
+              <th>Page</th>
+              <th>Audience</th>
+              <th>Funnel Destination</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="url-cell rpi"><span class="base-url">agentxstory.com</span><span class="path-url">/rpi</span></td>
+              <td><div class="page-name">RPI entry</div></td>
+              <td><span class="aud-badge aud-b2bei">B2BEI</span></td>
+              <td><span class="funnel-tag">DAVIDHUB &middot; rpi</span></td>
+            </tr>
+            <tr>
+              <td class="url-cell rpi"><span class="base-url">/rpi/</span><span class="path-url">health</span></td>
+              <td><div class="page-name">RPI &middot; Health</div></td>
+              <td><span class="aud-badge aud-b2bei">B2BEI</span></td>
+              <td><span class="funnel-tag">DAVIDHUB &middot; rpi</span></td>
+            </tr>
+            <tr>
+              <td class="url-cell rpi"><span class="base-url">/rpi/</span><span class="path-url">wealth</span></td>
+              <td><div class="page-name">RPI &middot; Wealth</div></td>
+              <td><span class="aud-badge aud-b2bei">B2BEI</span></td>
+              <td><span class="funnel-tag">DAVIDHUB &middot; rpi</span></td>
+            </tr>
+            <tr>
+              <td class="url-cell rpi"><span class="base-url">/rpi/</span><span class="path-url">legacy</span></td>
+              <td><div class="page-name">RPI &middot; Legacy</div></td>
+              <td><span class="aud-badge aud-b2bei">B2BEI</span></td>
+              <td><span class="funnel-tag">DAVIDHUB &middot; rpi</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SUB-TABLE D — Agent X -->
+    <div class="tab-group">
+      <div class="tab-header">
+        <span class="tab-label ax">Agent X</span>
+        <span class="tab-badge ax">Hero + Vision</span>
+      </div>
+      <p class="tab-note">&#126;JDM tab&#126; removed. Vision is now the first sub-tab under Agent X.</p>
+      <div class="table-wrap ax">
+        <table>
+          <thead>
+            <tr>
+              <th>URL</th>
+              <th>Page</th>
+              <th>Audience</th>
+              <th>Funnel Destination</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="url-cell ax"><span class="base-url">agentxstory.com</span><span class="path-url">/</span></td>
+              <td><div class="page-name">AgentX Hero (entry)</div></td>
+              <td><span class="aud-badge aud-anyone">Anyone</span></td>
+              <td><span class="funnel-none">—</span></td>
+            </tr>
+            <tr>
+              <td class="url-cell ax"><span class="base-url">/</span><span class="path-url">vision</span></td>
+              <td><div class="page-name">Agent X &middot; Vision <span class="new-badge">NEW</span></div><div class="page-sub">First sub-tab — replaces &#126;JDM tab&#126;</div></td>
+              <td><span class="aud-badge aud-strategic">Strategic</span></td>
+              <td><span class="funnel-tag">DAVIDHUB &middot; strategic</span></td>
+            </tr>
+            <tr>
+              <td class="url-cell ax"><span class="base-url">/</span><span class="path-url">strategic</span></td>
+              <td><div class="page-name">Agent X &middot; Strategic</div></td>
+              <td><span class="aud-badge aud-strategic">Strategic</span></td>
+              <td><span class="funnel-tag">DAVIDHUB &middot; strategic</span></td>
+            </tr>
+            <tr>
+              <td class="url-cell ax"><span class="base-url">/strategic/</span><span class="path-url">rpi</span></td>
+              <td><div class="page-name">Strategic &middot; RPI</div></td>
+              <td><span class="aud-badge aud-strategic">Strategic</span></td>
+              <td><span class="funnel-tag">DAVIDHUB &middot; strategic</span></td>
+            </tr>
+            <tr>
+              <td class="url-cell ax"><span class="base-url">/strategic/</span><span class="path-url">retirement</span></td>
+              <td><div class="page-name">Strategic &middot; Retirement</div><div class="page-sub">"Advisory" removed from label</div></td>
+              <td><span class="aud-badge aud-strategic">Strategic</span></td>
+              <td><span class="funnel-tag">DAVIDHUB &middot; strategic</span></td>
+            </tr>
+            <tr>
+              <td class="url-cell ax"><span class="base-url">/strategic/</span><span class="path-url">medicare</span></td>
+              <td><div class="page-name">Strategic &middot; Medicare</div></td>
+              <td><span class="aud-badge aud-strategic">Strategic</span></td>
+              <td><span class="funnel-tag">DAVIDHUB &middot; strategic</span></td>
+            </tr>
+            <tr>
+              <td class="url-cell ax"><span class="base-url">/</span><span class="path-url">tactical</span></td>
+              <td><div class="page-name">Agent X &middot; Tactical</div><div class="page-sub">The flywheel</div></td>
+              <td><span class="aud-badge aud-strategic">Strategic</span></td>
+              <td><span class="funnel-tag">DAVIDHUB &middot; strategic</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- SECTION 3 — FUNNEL ARCHITECTURE -->
+<section>
+  <div class="container">
+    <div class="section-num">Section 03</div>
+    <h2>Funnel <span class="h2-accent">Architecture</span></h2>
+    <p class="section-sub">Every CTA on every page follows the same one-way funnel into Sentinel. The audience tag is set at the URL level — never by user input. Zero friction, zero ambiguity.</p>
+
+    <div class="flow-row">
+      <div class="flow-node gold-node">
+        <div class="node-label">Step 1 — Entry</div>
+        <div class="node-title">Sniper-Fire URL</div>
+        <div class="node-desc">Partner receives a direct deep link. JS opens exact sub-tab and example on load.</div>
+      </div>
+    </div>
+    <div class="flow-arrow">&#8595;</div>
+    <div class="flow-row">
+      <div class="flow-node gold-node">
+        <div class="node-label">Step 2 — Engagement</div>
+        <div class="node-title">CTA on page</div>
+        <div class="node-desc">One CTA per sub-tab. No nav, no distractions. CTA triggers the lead form modal.</div>
+      </div>
+    </div>
+    <div class="flow-arrow">&#8595;</div>
+    <div class="flow-row">
+      <div class="flow-node gold-node">
+        <div class="node-label">Step 3 — Capture</div>
+        <div class="node-title">Lead form modal</div>
+        <div class="node-desc">Minimal fields. Audience tag is pre-set from the URL path — visitor never sees or touches it.</div>
+      </div>
+    </div>
+    <div class="flow-arrow">&#8595;</div>
+    <div class="flow-row">
+      <div class="flow-node machina-node">
+        <div class="node-label">Step 4 — Submit</div>
+        <div class="node-title">POST services/api/leads/&lt;audience&gt;</div>
+        <div class="node-desc">Form posts to the toMachina API lead intake route. Audience tag is in the endpoint path — tamper-proof.</div>
+      </div>
+    </div>
+    <div class="flow-arrow">&#8595;</div>
+    <div class="flow-row">
+      <div class="flow-node machina-node">
+        <div class="node-label">Step 5 — Storage</div>
+        <div class="node-title">Sentinel &middot; intake_queue</div>
+        <div class="node-desc">Lead writes to Sentinel's <span class="node-code">intake_queue</span> Firestore collection with: audience tag, source URL, timestamp, contact fields.</div>
+      </div>
+    </div>
+    <div class="flow-arrow">&#8595;</div>
+    <div class="flow-row">
+      <div class="flow-node david-node">
+        <div class="node-label">Step 6 — Routing</div>
+        <div class="node-title">DAVIDHUB — Routed by audience tag</div>
+        <div class="node-desc">Matt McCormick and team work leads from DAVIDHUB. Tag determines queue, template, and team member assignment.</div>
+      </div>
+    </div>
+
+    <div style="margin-top:32px">
+      <div class="tag-label">The 7 audience tags</div>
+      <div class="tag-grid">
+        <span class="tag-chip david">agency (B2B)</span>
+        <span class="tag-chip machina">firm (B2E)</span>
+        <span class="tag-chip carrier">carrier (B2I)</span>
+        <span class="tag-chip gold">strategic</span>
+        <span class="tag-chip machina">platform</span>
+        <span class="tag-chip rpi">rpi</span>
+        <span class="tag-chip neutral">general</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- SECTION 4 — EDIT WAVES -->
+<section>
+  <div class="container">
+    <div class="section-num">Section 04</div>
+    <h2>Edit <span class="h2-accent">Waves</span></h2>
+    <p class="section-sub">Three build waves in priority order. Wave 1 ships first — fastest win, unblocks live sharing immediately.</p>
+
+    <div class="wave-block">
+      <div class="wave-header">
+        <div class="wave-dot green"></div>
+        <div class="wave-title green">Wave 1 — Color + Copy + Cleanup</div>
+        <div class="wave-eta">~1 hr &middot; 1 PR</div>
+      </div>
+      <ul class="wave-items">
+        <li>Replace all <strong>3,600 clients</strong> references with <strong>10K clients</strong> (post-Midwest Medigap merger)</li>
+        <li>Replace all <strong>200+ years</strong> references with <strong>250+ years combined experience</strong></li>
+        <li>Update RPI brand color to <strong>Electric Cobalt</strong> everywhere it appears on the site</li>
+        <li>Remove <strong>Owners tab</strong> entirely from nav and site structure</li>
+        <li>Remove <strong>JDM tab</strong> from Agent X section nav</li>
+        <li>Add <strong>Agent X &middot; Vision</strong> as the new first sub-tab under Agent X</li>
+        <li>Rename <strong>Prospects &rarr; Opportunities</strong> in DAVID tab</li>
+        <li>Remove "Advisory" from <strong>Strategic &middot; Retirement</strong> label</li>
+        <li>Clean up <strong>Agency ex-1</strong> copy — tighten the MDJ-on-day-one line</li>
+        <li>Soften <strong>Agency ex-2</strong> tone — Widow/Survivor story currently too blunt</li>
+        <li>Audit and remove all remaining <strong>retireprotected.com</strong> outbound links — 100% DAVIDHUB now</li>
+        <li>Lock top-tab order: <strong>DAVID &rarr; toMachina &rarr; RPI &rarr; Agent X</strong></li>
+      </ul>
+    </div>
+
+    <div class="wave-block">
+      <div class="wave-header">
+        <div class="wave-dot yellow"></div>
+        <div class="wave-title yellow">Wave 2 — New Content + Sub-tabs</div>
+        <div class="wave-eta">~2 hr</div>
+      </div>
+      <ul class="wave-items">
+        <li>Build <strong>DAVID &middot; Firm B2E / sales-service-center</strong> sub-tab — Big Call Center example (NEW)</li>
+        <li>Build <strong>DAVID &middot; Carrier B2I / in-force-servicing</strong> sub-tab — In-Force Servicing pitch (NEW)</li>
+        <li>Write <strong>Agent X &middot; Vision</strong> page copy — full narrative, JDM voice, strategic framing</li>
+        <li>Write <strong>toMachina &middot; Dojo</strong> sub-tab — AI team, FORGE, the warrior layer</li>
+        <li>Confirm <strong>toMachina &middot; Platform</strong> copy reflects post-merger scale (10K clients / 250+ yrs)</li>
+        <li>RPI tab: verify <strong>Health / Wealth / Legacy</strong> sub-tabs use We're Your People&trade; tagline</li>
+        <li>Update <strong>#WeAreDAVID closing pitch</strong> to reflect post-Midwest Medigap partnership scale</li>
+        <li>Verify all CTA buttons have correct audience tag wired to the form submit path</li>
+      </ul>
+    </div>
+
+    <div class="wave-block">
+      <div class="wave-header">
+        <div class="wave-dot red"></div>
+        <div class="wave-title red">Wave 3 — URL Routing + Funnels</div>
+        <div class="wave-eta">~3 hr</div>
+      </div>
+      <ul class="wave-items">
+        <li>Implement <strong>JS deep-link router</strong> — reads URL path on load, opens correct sub-tab, scrolls to example</li>
+        <li>Implement <strong>GitHub Pages 404-fallback redirect</strong> — all 23 deep links survive direct navigation</li>
+        <li>Wire <strong>lead form modal</strong> to DAVIDHUB pattern — audience tag pre-set from URL, not user input</li>
+        <li>Build <strong>POST services/api/leads/:audience</strong> endpoint in tm-api</li>
+        <li>Wire endpoint to write to <strong>Sentinel intake_queue</strong> with: audience, source_url, timestamp, contact fields</li>
+        <li>Verify all 7 audience tags write correctly: <span class="code-inline">agency &middot; firm &middot; carrier &middot; strategic &middot; platform &middot; rpi &middot; general</span></li>
+        <li>End-to-end test: each of 23 URLs &rarr; correct sub-tab opens &rarr; CTA fires &rarr; lead in DAVIDHUB with correct tag</li>
+        <li>DNS verification via GoDaddy API — confirm agentxstory.com routing clean post-changes</li>
+      </ul>
+    </div>
+
+    <div class="locked-block">
+      <div class="locked-title">Locked Decisions</div>
+      <ul class="locked-items">
+        <li>
+          <span class="check">&#10003;</span>
+          <span><strong>Site is B2BEI only</strong> — no consumer entry points anywhere — 100% of leads route to DAVIDHUB &rarr; Sentinel <span class="code-inline">intake_queue</span></span>
+        </li>
+        <li>
+          <span class="check">&#10003;</span>
+          <span><strong>Portal tab order locked:</strong> DAVID &rarr; toMachina &rarr; RPI — does not change</span>
+        </li>
+        <li>
+          <span class="check">&#10003;</span>
+          <span><strong>Electric Cobalt</strong> <span class="code-blue">#3b82f6</span> for RPI + IGNITE branding everywhere — no other blue variant</span>
+        </li>
+        <li>
+          <span class="check">&#10003;</span>
+          <span><strong>Lead form follows DAVIDHUB pattern</strong> — audience tag is server-side from URL, never user-controlled</span>
+        </li>
+        <li>
+          <span class="check">&#10003;</span>
+          <span><strong>DNS managed via GoDaddy API</strong> — no manual dashboard changes without going through the API path</span>
+        </li>
+        <li>
+          <span class="check">&#10003;</span>
+          <span><strong>AgentX site lead: SHINOB1 (OG)</strong> — all architectural and content decisions on this site route through CTO</span>
+        </li>
+        <li>
+          <span class="check">&#10003;</span>
+          <span><strong>Post-merger stats locked:</strong> <span class="code-inline">10K clients</span> &middot; <span class="code-inline">250+ years combined experience</span> (post-Midwest Medigap / Matt Mitchell partnership)</span>
+        </li>
+        <li>
+          <span class="check">&#10003;</span>
+          <span><strong>Owners tab and JDM tab are permanently removed</strong> — content redistributed; neither returns</span>
+        </li>
+      </ul>
+    </div>
+
+  </div>
+</section>
+
+<!-- FOOTER -->
+<div class="footer">
+  <div class="footer-date">AgentX Site &middot; URL Inventory v1 &middot; 2026-04-18</div>
+  <div class="signoff">&#x1F977; &mdash; SHINOB1 (OG)</div>
+</div>
+
+</body>
+</html>

@@ -25,9 +25,9 @@
     --money: #4ade80;
     --money-glow: rgba(74, 222, 128, 0.10);
     --money-border: rgba(74, 222, 128, 0.25);
-    --machine: #a78bfa;
-    --machine-glow: rgba(167, 139, 250, 0.10);
-    --machine-border: rgba(167, 139, 250, 0.25);
+    --machine: #60a5fa;
+    --machine-glow: rgba(96, 165, 250, 0.10);
+    --machine-border: rgba(96, 165, 250, 0.25);
     --magic: #c084fc;
     --magic-glow: rgba(192, 132, 252, 0.10);
     --magic-border: rgba(192, 132, 252, 0.25);
@@ -832,13 +832,11 @@
   }
   .cross-nav a.nav-gold { color: #d4a44c; }
   .cross-nav a.nav-green { color: #4ade80; }
-  .cross-nav a.nav-blue { color: #a78bfa; }
+  .cross-nav a.nav-blue { color: #60a5fa; }
   .cross-nav a.nav-purple { color: #c084fc; }
-  .cross-nav a.nav-rpi { color: #3b82f6; }
-  .cross-nav a.nav-rpi:hover { background: rgba(59, 130, 246, 0.08); }
   .cross-nav a.nav-gold:hover { background: rgba(212, 164, 76, 0.08); }
   .cross-nav a.nav-green:hover { background: rgba(74, 222, 128, 0.08); }
-  .cross-nav a.nav-blue:hover { background: rgba(167, 139, 250, 0.08); }
+  .cross-nav a.nav-blue:hover { background: rgba(96, 165, 250, 0.08); }
   .cross-nav a.nav-purple:hover { background: rgba(192, 132, 252, 0.08); }
   .cross-nav a.active { background: rgba(212, 164, 76, 0.12); border-color: rgba(212, 164, 76, 0.25); }
 </style>
@@ -848,9 +846,9 @@
 <!-- CROSS-NAV -->
 <div class="cross-nav">
   <a href="agentx-framework.html" class="nav-gold active">AgentX</a>
-  <a href="../../../vision/david-the-money.html" class="nav-green">David.</a>
+  <a href="../../../vision/david-the-money.html" class="nav-green">DAVID.</a>
   <a href="../../../vision/tomachina-the-machine.html" class="nav-blue">toMachina</a>
-  <a href="../../../vision/rpi-the-mission.html" class="nav-rpi">RPI</a>
+  <a href="../../../vision/the-machine-layers.html" class="nav-purple">The Dojo</a>
 </div>
 
 <!-- ════════════════════════════════════════════════════════════════ -->
@@ -859,7 +857,7 @@
 <div class="hero">
   <div class="hero-badge">Brand Framework &middot; Confidential</div>
   <h1>Agent<span class="x">X</span></h1>
-  <div class="hero-tagline">The Money &middot; The Machine &middot; The Mission</div>
+  <div class="hero-tagline">The Money &middot; The Machine &middot; The Magic</div>
   <div class="hero-trinity">
     <span class="pillar-label money">Forge</span>
     <span class="divider">&middot;</span>
@@ -875,6 +873,7 @@
 <div class="tab-bar">
   <div class="tab-btn active" onclick="switchTab('strategic')">Strategic</div>
   <div class="tab-btn" onclick="switchTab('tactical')">Tactical</div>
+  <div class="tab-btn" onclick="switchTab('jdm')">JDM</div>
 </div>
 
 <!-- ════════════════════════════════════════════════════════════════ -->
@@ -921,14 +920,11 @@
     <div class="companies">
       <div class="company money">
         <div class="company-header">
-          <span class="company-name">David.</span>
-          <!-- pill removed per JDM -->
+          <span class="company-name">DAVID</span>
+          <span class="company-epithet">The Money</span>
         </div>
         <p class="company-statement">
           <strong>D</strong>isruptive and <strong>V</strong>ertically <strong>I</strong>ntegrated <strong>D</strong>istribution &mdash; which <strong>forges</strong> Mergers, Acquisitions, and Partnerships across the Health, Wealth, and Legacy Markets.
-        </p>
-        <p class="company-statement" style="font-size:14px; margin-top:12px; color:var(--text-muted);">
-          <strong>B2B</strong> &mdash; Agent &amp; Agency Acquisitions&nbsp;&nbsp;|&nbsp;&nbsp;<strong>B2E</strong> &mdash; Carrier Blocks &amp; Books of Business&nbsp;&nbsp;|&nbsp;&nbsp;<strong>B2I</strong> &mdash; Product Creation &amp; Distribution
         </p>
         <div class="company-verb">Forge</div>
       </div>
@@ -936,27 +932,21 @@
       <div class="company machine">
         <div class="company-header">
           <span class="company-name">toMachina</span>
-          <!-- pill removed per JDM -->
+          <span class="company-epithet">The Machine</span>
         </div>
         <p class="company-statement">
-          A <strong>Transcendent</strong> Tech &amp; AI Platform &mdash; which <strong>arms</strong> our Industry-Leading Team in providing <strong>Unrivaled</strong> Service &mdash; giving a shit, at scale. Home of <strong>The Dojo</strong> &mdash; 7 AI Warriors running CTO, CIO, CMO, CSO, Comms, Guardian, and Builder operations 24/7.
-        </p>
-        <p class="company-statement" style="font-size:14px; margin-top:12px; color:var(--text-muted);">
-          <strong>ProDashX</strong> (B2C)&nbsp;&nbsp;|&nbsp;&nbsp;<strong>RIIMO</strong> (B2E)&nbsp;&nbsp;|&nbsp;&nbsp;<strong>SENTINEL</strong> (B2B)&nbsp;&nbsp;|&nbsp;&nbsp;<strong>The Dojo</strong> (AI Division)
+          A <strong>Transcendent</strong> Tech Platform &mdash; which <strong>arms</strong> our Industry-Leading Team in providing <strong>Unrivaled</strong> Service.
         </p>
         <div class="company-verb">Arm</div>
       </div>
 
       <div class="company magic">
         <div class="company-header">
-          <span class="company-name">RPI</span>
-          <!-- pill removed per JDM -->
+          <span class="company-name">MDJ Ai</span>
+          <span class="company-epithet">The Magic</span>
         </div>
         <p class="company-statement">
-          <strong>Retirement Protectors, Inc.</strong> &mdash; which <strong>ignites</strong> the ultimate sales and service experience for senior-market clients and their retiring agents. <em>We're Your People&trade;.</em>
-        </p>
-        <p class="company-statement" style="font-size:14px; margin-top:12px; color:var(--text-muted);">
-          <strong>Health</strong> (Medicare Division)&nbsp;&nbsp;|&nbsp;&nbsp;<strong>Wealth</strong> (Annuity, Life)&nbsp;&nbsp;|&nbsp;&nbsp;<strong>Legacy</strong> (Estate, LTC, Wealth Transfer)
+          Which <strong>ignites</strong> our Enterprise Value.
         </p>
         <div class="company-verb">Ignite</div>
       </div>
@@ -975,7 +965,7 @@
       <div class="verb-divider">/</div>
       <div class="verb-item magic">
         <div class="verb-word">Ignite.</div>
-        <div class="verb-sub">The Mission</div>
+        <div class="verb-sub">The Magic</div>
       </div>
     </div>
   </div>
@@ -1019,17 +1009,17 @@
       </div>
 
       <div class="word-card magic">
-        <h3>What RPI Does</h3>
+        <h3>What The Magic Does</h3>
         <div class="rejected">Not "compounds." Not "catalyzes." Not "unleashes."</div>
         <div class="winner">Ignites</div>
-        <p>The money is fuel. The machine is the engine. The mission is the ignition. Without RPI, everything just sits there &mdash; deals, portals, Warriors. With it, the flywheel starts burning and never stops. RPI ignites the enterprise value.</p>
+        <p>The money is fuel. The machine is the engine. The magic is the ignition. Without it, everything just sits there. With it, the flywheel starts burning &mdash; and it never stops.</p>
       </div>
 
       <div class="word-card gold">
         <h3>The Hidden Pattern</h3>
         <div class="rejected">&nbsp;</div>
         <div class="winner">Forge &rarr; Arm &rarr; Ignite</div>
-        <p>A war sequence. The blacksmith forges the alliance. The armorer arms the warriors. The mission ignites the battlefield. DAVID opens the door. toMachina makes you dangerous. RPI makes it unstoppable.</p>
+        <p>A war sequence. The blacksmith forges the weapons. The armorer arms the warriors. The mage ignites the battlefield. And the two AI verbs &mdash; Arms + Ignites &mdash; sit together. Subtle, but not an accident.</p>
       </div>
     </div>
   </div>
@@ -1139,7 +1129,7 @@
       <div class="door b">
         <div class="door-label">Door B</div>
         <h3>LIFO? FIFO? FAFO.</h3>
-        <p>Stand against The Money, The Machine, and The Mission &mdash; and better outcomes for you and your clients. SRSLY?</p>
+        <p>Stand against The Money, The Machine, and The Magic &mdash; and better outcomes for you and your clients. SRSLY?</p>
       </div>
     </div>
 
@@ -1178,9 +1168,9 @@
         </div>
 
         <div class="node magic-node">
-          <div class="node-circle">&#x1F6E1;</div>
-          <div class="node-label">The Mission</div>
-          <div class="node-sub">RPI &mdash; Ignite</div>
+          <div class="node-circle">&#x1F9E0;</div>
+          <div class="node-label">The Magic</div>
+          <div class="node-sub">MDJ Ai &mdash; Ignite</div>
         </div>
 
         <div class="flywheel-center">
@@ -1189,9 +1179,9 @@
         </div>
 
         <div class="flow-labels">
-          <div class="flow-label money-to-machine">Deals feed tech &rarr;</div>
-          <div class="flow-label machine-to-magic">&larr; Tech arms mission &rarr;</div>
-          <div class="flow-label magic-to-money">&larr; Mission grows deals</div>
+          <div class="flow-label money-to-machine">Data feeds tech &rarr;</div>
+          <div class="flow-label machine-to-magic">&larr; Tech trains AI &rarr;</div>
+          <div class="flow-label magic-to-money">&larr; AI amplifies people</div>
         </div>
       </div>
     </div>
@@ -1214,33 +1204,33 @@
           <li><strong>Full value chain</strong> &mdash; sales, service, client relationship</li>
           <li><strong>Inorganic growth</strong> &mdash; M&amp;A via DAVID/SENTINEL</li>
           <li><strong>Employees, not contractors</strong> &mdash; 100% control</li>
-          <li><strong>Cross-industry</strong> &mdash; Medicare, life, annuity, legacy</li>
+          <li><strong>Cross-industry</strong> &mdash; Medicare, life, annuity, advisory, legacy</li>
         </ul>
       </div>
 
       <div class="pillar machine">
         <div class="pillar-icon">&#x26A1;</div>
         <h3>The Machine</h3>
-        <p>toMachina &mdash; a Transcendent Tech &amp; AI Platform. Not a vendor product. It IS the business. Built from the inside by someone who lives every workflow. Home of <strong>The Dojo</strong> &mdash; 7 AI Warriors with $0 headcount and 20+ role coverage.</p>
+        <p>toMachina &mdash; a Transcendent Tech Platform. Not a vendor product. It IS the business. Built from the inside by someone who lives every workflow, every data flow, every client touchpoint.</p>
         <ul class="pillar-list">
           <li><strong>3 portals</strong> &mdash; ProDashX, RIIMO, SENTINEL &mdash; all live</li>
-          <li><strong>87+ API routes</strong> &mdash; every business action as an endpoint</li>
-          <li><strong>The Dojo</strong> &mdash; 7 Warriors: CTO, CIO, CMO, CSO, Comms, Guardian, Builder</li>
+          <li><strong>38+ API routes</strong> &mdash; every business action as an endpoint</li>
+          <li><strong>14 pipelines</strong> &mdash; every workflow codified and trackable</li>
           <li><strong>29K+ Firestore docs</strong> &mdash; normalized, FK-validated</li>
-          <li><strong>35 Immune System rules</strong> &mdash; self-enforcing compliance, closed-loop learning</li>
+          <li><strong>9 integrations</strong> &mdash; Gmail, Slack, Calendar, Drive, Twilio, healthcare</li>
         </ul>
       </div>
 
       <div class="pillar magic">
-        <div class="pillar-icon">&#x1F6E1;</div>
-        <h3>The Mission</h3>
-        <p>RPI &mdash; Retirement Protectors, Inc. The operating business that protects senior-market clients with the ultimate sales and service experience. Three divisions. One promise: <em>We're Your People&trade;.</em></p>
+        <div class="pillar-icon">&#x1F9E0;</div>
+        <h3>The Magic</h3>
+        <p>MDJ Ai &mdash; not a chatbot. Not a wrapper. A closed-loop learning system across the entire enterprise. The system teaches itself &mdash; and teaches every person in it.</p>
         <ul class="pillar-list">
-          <li><strong>Health Division</strong> &mdash; Medicare (MAPD, PDP, Medigap) + Ancillary</li>
-          <li><strong>Wealth Division</strong> &mdash; Fixed Annuity, Life Insurance</li>
-          <li><strong>Legacy Division</strong> &mdash; Estate Planning, LTC, Wealth Transfer</li>
-          <li><strong>Proactive Service Models&trade;</strong> &mdash; the reason clients stay</li>
-          <li><strong>Employees, not contractors</strong> &mdash; 100% W-2 team</li>
+          <li><strong>MDJ</strong> &mdash; "My Digital Josh" co-pilot in every portal</li>
+          <li><strong>Knowledge Pipeline</strong> &mdash; daily promotion from sessions to institutional knowledge</li>
+          <li><strong>Immune System</strong> &mdash; 22 rules, self-enforcing compliance</li>
+          <li><strong>ATLAS</strong> &mdash; data lineage across 54 sources</li>
+          <li><strong>Closed loop</strong> &mdash; one person learns, everybody learns</li>
         </ul>
       </div>
     </div>
@@ -1266,17 +1256,17 @@
       <div class="cycle">
         <div class="cycle-from machine">Machine</div>
         <div class="cycle-body">
-          <h4>Platform activity feeds the business. Every click, every workflow, every decision.</h4>
-          <p>The knowledge pipeline captures what works, what breaks, what gets corrected. ATLAS maps every data source. The Immune System logs every violation. All of it feeds back into operations. More platform activity = smarter service.</p>
+          <h4>Platform activity trains the AI. Every click, every workflow, every decision.</h4>
+          <p>The knowledge pipeline captures what works, what breaks, what gets corrected. ATLAS maps every data source. The Immune System logs every violation. All of it feeds into the AI's brain. More platform activity = smarter AI.</p>
         </div>
-        <div class="cycle-to magic">Mission</div>
+        <div class="cycle-to magic">Magic</div>
       </div>
 
       <div class="cycle">
-        <div class="cycle-from magic">Mission</div>
+        <div class="cycle-from magic">Magic</div>
         <div class="cycle-body">
-          <h4>RPI protects the clients. The clients feed the machine.</h4>
-          <p>Every client interaction generates data. Every service touchpoint trains the AI. Every acquisition through David brings new edge cases. RPI is both the mission and the fuel &mdash; more clients = more data = smarter Machine = better protection.</p>
+          <h4>AI amplifies every person. Every person accelerates the model.</h4>
+          <p>MDJ gives every employee Josh-level tactical knowledge from day one. No training. No ramp-up. New hire? Dangerous immediately. Acquisition? Onboarded instantly. The AI removes the bottleneck, which lets the model scale without limits.</p>
         </div>
         <div class="cycle-to money">Money</div>
       </div>
@@ -1291,10 +1281,10 @@
       </div>
 
       <div class="cycle">
-        <div class="cycle-from magic">Mission</div>
+        <div class="cycle-from magic">Magic</div>
         <div class="cycle-body">
-          <h4>Client experience reveals gaps. Gaps become features. Features become competitive advantages.</h4>
-          <p>Every client complaint, every edge case, every market shift flows back through RPI into the Machine. The Immune System catches violations. ATLAS maps data gaps. The Dojo builds the fixes. The mission doesn't just USE the tech &mdash; it continuously improves it.</p>
+          <h4>AI identifies gaps. Gaps become features. Features become institutional knowledge.</h4>
+          <p>The Immune System catches violations before they ship. ATLAS maps data gaps before they break. The knowledge pipeline promotes fixes into permanent rules. The AI doesn't just use the tech &mdash; it improves it continuously.</p>
         </div>
         <div class="cycle-to machine">Machine</div>
       </div>
@@ -1302,10 +1292,10 @@
       <div class="cycle">
         <div class="cycle-from money">Money</div>
         <div class="cycle-body">
-          <h4>More acquisitions = more clients = stronger mission.</h4>
-          <p>Every new book of business through David brings new clients to RPI. New carriers, new products, new workflows. The mission grows &mdash; more families protected, more revenue, more data feeding back into The Machine. David forges the deal. RPI delivers the promise.</p>
+          <h4>More acquisitions = more edge cases = smarter AI.</h4>
+          <p>Every new book of business through DAVID brings new carriers, new products, new workflows. The AI absorbs all of it &mdash; new patterns, new exceptions, new tactical knowledge. The model's growth literally makes the AI smarter.</p>
         </div>
-        <div class="cycle-to magic">Mission</div>
+        <div class="cycle-to magic">Magic</div>
       </div>
     </div>
   </div>
@@ -1334,7 +1324,7 @@
         <div class="vs-item new">One system where all three are the same thing</div>
       </div>
       <p>
-        The Mission feeds the Machine. The Machine creates a better Money model. The data from the Money makes the Machine better. The Machine makes the Mission unstoppable. The people in RPI make the Machine smarter. The Money grows the Mission. It's not an AI company, a tech company, or a sales company. It's the thing that happens when all three become inseparable.
+        The Magic improves the Machine. The Machine creates a better Money model. The data from the Money makes the Machine better. The Machine makes the Magic smarter. The people in the Money model make the Magic smarter. The Magic makes the people unstoppable. It's not an AI company, a tech company, or a sales company. It's the thing that happens when all three become inseparable.
       </p>
     </div>
   </div>
@@ -1350,13 +1340,13 @@
 
     <div class="proof-grid">
       <div class="proof-stat"><div class="number">3</div><div class="label">Portals &mdash; Live in Production</div></div>
-      <div class="proof-stat"><div class="number">87+</div><div class="label">API Routes &mdash; Cloud Run</div></div>
+      <div class="proof-stat"><div class="number">38+</div><div class="label">API Routes &mdash; Cloud Run</div></div>
       <div class="proof-stat"><div class="number">29K+</div><div class="label">Firestore Docs &mdash; Normalized</div></div>
-      <div class="proof-stat"><div class="number">7</div><div class="label">AI Warriors &mdash; The Dojo</div></div>
-      <div class="proof-stat"><div class="number">82</div><div class="label">Wired Tools &mdash; VOLTRON CSO</div></div>
-      <div class="proof-stat"><div class="number">35</div><div class="label">Immune System Rules &mdash; Live</div></div>
-      <div class="proof-stat"><div class="number">$0</div><div class="label">AI Division Headcount &mdash; Zero Salary</div></div>
-      <div class="proof-stat"><div class="number">24/7</div><div class="label">Warrior Operations &mdash; MDJ_SERVER</div></div>
+      <div class="proof-stat"><div class="number">14</div><div class="label">Pipelines &mdash; Pipeline Studio</div></div>
+      <div class="proof-stat"><div class="number">9</div><div class="label">Integrations &mdash; MCP Hub</div></div>
+      <div class="proof-stat"><div class="number">22</div><div class="label">Immune System Rules &mdash; Live</div></div>
+      <div class="proof-stat"><div class="number">54</div><div class="label">Data Sources &mdash; ATLAS Mapped</div></div>
+      <div class="proof-stat"><div class="number">24/7</div><div class="label">Knowledge Pipeline &mdash; Closed Loop</div></div>
     </div>
   </div>
 </section>
@@ -1368,7 +1358,7 @@
       The flywheel can't be bought off the shelf. It can't be assembled by committee. It can't be replicated by competitors. Because the <em>knowledge inside it</em> doesn't exist anywhere else.
     </div>
     <p class="moat-sub">
-      The Money generates the deals. The Machine structures the data. The Mission protects the clients. The clients feed the Machine. The Machine arms the people. The people grow the Money. It never stops. It never slows down. And every revolution makes the next one faster.
+      The Money generates the data. The Machine structures the data. The Magic learns from the data. The Magic amplifies the people. The people grow the Money. The Money generates more data. It never stops. It never slows down. And every revolution makes the next one faster.
     </p>
   </div>
 </div>
@@ -1376,10 +1366,9 @@
 </div><!-- /tab-tactical -->
 
 <!-- ════════════════════════════════════════════════════════════════ -->
-<!-- JDM TAB — REMOVED per JDM 2026-04-18                           -->
-<!-- Content preserved in agentx-framework-v1-backup.html           -->
+<!-- JDM TAB                                                         -->
 <!-- ════════════════════════════════════════════════════════════════ -->
-<div id="tab-jdm" class="tab-content" style="display:none!important">
+<div id="tab-jdm" class="tab-content">
 
 <!-- THE ORIGIN -->
 <section>
@@ -1397,7 +1386,7 @@
       <div class="jdm-era">
         <div class="era-date">2002 &mdash; Day 1</div>
         <h4>$1,000 on Day One</h4>
-        <p>First field day. Raining. Rode the borrowed Ninja. Got reassigned from the polished trainer to the office legend &mdash; a guy who drove a brown Oldsmobile fruit cart and gave hugs instead of closes. By end of day: 6 sales, $2K in commissions. His half = $1,000. Two weeks of waiting tables. He let the restaurant staff know that night.</p>
+        <p>First field day. Raining. Rode the borrowed Ninja. Trainer "Handsome Tim" got reassigned to "Dirty Dan the Donut Man" &mdash; a legend who drove a brown Oldsmobile fruit cart and gave hugs instead of closes. By end of day: 6 sales, $2K in commissions. Josh's half = $1,000. Two weeks of waiting tables. He let the restaurant staff know that night.</p>
       </div>
 
       <div class="jdm-era peak">
@@ -1463,19 +1452,7 @@
       <div class="jdm-era rise">
         <div class="era-date">March 2026</div>
         <h4>The Re-Platform. 400K &rarr; 80K.</h4>
-        <p>400,000 lines of GAS re-platformed into an 80,000-line fighter jet. 5x less code. Infinitely more capable. The toMachina Platform &mdash; RIIMO, SENTINEL, ProDashX &mdash; three Portals, each with their own Apps, Modules, and Tools. 87+ API routes. 35 immune system rules. 29K+ Firestore docs normalized. 6 GAS engines retired. The Operating System. ATLAS. Everything that makes AgentX possible &mdash; re-platformed in one month. Hands BETAs to the team in time for March Madness. Gets the fuck out of the way.</p>
-      </div>
-
-      <div class="jdm-era rise">
-        <div class="era-date">April 2026</div>
-        <h4>The Dojo Goes Live.</h4>
-        <p>Seven AI Warriors &mdash; each with a CXO title, a registry, a mesh of specialists, and a persistent session on a Dell PowerEdge T440 in the closet. CTO. CIO. CMO. CSO. Comms. Guardian. Builder. Running 24/7. Total headcount salary: $0. Total API cost: ~$7,500/month. Human-equivalent coverage: 20+ roles. The FORGE Runner ships code autonomously &mdash; takes a Discovery Doc, runs the full sprint lifecycle, opens PRs, passes CI, merges to main. The Machine doesn't just run without the founder. The Machine builds itself.</p>
-      </div>
-
-      <div class="jdm-era rise">
-        <div class="era-date">April 2026</div>
-        <h4>AgentX Becomes Real.</h4>
-        <p>First DAVID acquisition candidate enters the pipeline. The Career Path gets an AI Division page &mdash; Warriors fill every seat. The enterprise reframes: RPI (The Mission), toMachina (The Machine), David (The Money). Three companies. One system. The boy on the purple Ninja didn't just build a business. He built the factory that builds the business &mdash; and the factory that protects the factory &mdash; and the loop that makes the immune system smarter. Meta-systems all the way down.</p>
+        <p>400,000 lines of GAS re-platformed into an 80,000-line fighter jet. 5x less code. Infinitely more capable. The toMachina Platform &mdash; RIIMO, SENTINEL, ProDashX &mdash; three Portals, each with their own Apps, Modules, and Tools. 38+ API routes. 14 pipelines. 22 immune system rules. 54 data sources mapped. 29K+ Firestore docs normalized. 6 GAS engines retired. The Operating System. ATLAS. MDJ Ai. Everything that makes AgentX possible &mdash; re-platformed in one month. Hands BETAs to the team in time for March Madness. Gets the fuck out of the way.</p>
       </div>
     </div>
   </div>
@@ -1535,7 +1512,7 @@
           <span class="company-epithet" style="color:var(--magic);background:var(--magic-glow);">Oct 2025 &mdash; ???</span>
         </div>
         <p class="company-statement" style="font-size:22px;font-weight:800;margin-bottom:8px;">AgentX</p>
-        <p class="company-statement">The Machine runs without Josh. The Money forges the deals. The Machine arms the team. The Mission protects the people. The boy on the purple Ninja built something that transcends him &mdash; and that's the whole point.</p>
+        <p class="company-statement">The Machine runs without Josh. The Money forges the deals. The Machine arms the team. The Magic ignites the enterprise value. The boy on the purple Ninja built something that transcends him &mdash; and that's the whole point.</p>
       </div>
     </div>
   </div>
@@ -1555,7 +1532,7 @@
     <span class="i">Ignite</span>
   </div>
   <h2>Agent<span class="x">X</span></h2>
-  <div class="trinity">The Money &middot; The Machine &middot; The Mission</div>
+  <div class="trinity">The Money &middot; The Machine &middot; The Magic</div>
   <div class="hashtag" style="line-height: 2.2;">#IAmAgentX &nbsp;&middot;&nbsp; #WeAreAgentX &nbsp;&middot;&nbsp; #AreYouAgentX<br>#AgentXGoneGiveItToYa</div>
 </div>
 
@@ -1564,7 +1541,7 @@
 <!-- ════════════════════════════════════════════════════════════════ -->
 <div class="footer">
   <div class="sig">AgentX &mdash; Retirement Protectors, Inc.</div>
-  <div class="sub">Confidential &middot; April 2026 &middot; #RunningOurOwnRACE</div>
+  <div class="sub">Confidential &middot; March 2026 &middot; #RunningOurOwnRACE</div>
 </div>
 
 <script>
