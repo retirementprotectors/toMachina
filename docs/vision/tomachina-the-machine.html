@@ -655,9 +655,15 @@
   /* Journey phases (purple-themed) */
   .journey-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: 12px;
     margin-top: 40px;
+  }
+  @media (max-width: 1024px) {
+    .journey-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+  @media (max-width: 640px) {
+    .journey-grid { grid-template-columns: 1fr; }
   }
   .journey-phase {
     background: var(--bg-card);
@@ -861,23 +867,23 @@
     <p class="section-sub">Each channel gets its own front door. Same data, same engine, same modules &mdash; different brand, different permissions, different mission. Change once, all three update.</p>
 
     <div class="portal-cards">
+      <div class="portal-card sentinel">
+        <img src="sentinel-tm-transparent.png" alt="SENTINEL" style="height: 70px; width: auto; margin-bottom: 16px; filter: drop-shadow(0 0 16px rgba(64, 188, 88, 0.35));">
+        <div class="portal-channel">B2B &mdash; M&amp;A + Partnerships</div>
+        <p class="portal-desc">DAVID's war room. Deal pipelines, book analysis, partnership proposals, acquisition onboarding &mdash; the DAVID Division's domain.</p>
+        <div class="portal-url">SENTINEL.toMachina.com</div>
+      </div>
+      <div class="portal-card riimo">
+        <img src="riimo-tm-transparent.png" alt="RIIMO" style="height: 70px; width: auto; margin-bottom: 16px; filter: drop-shadow(0 0 16px rgba(167, 139, 250, 0.35));">
+        <div class="portal-channel">B2E &mdash; Leadership + Operations</div>
+        <p class="portal-desc">The command center. Team performance, compliance oversight, analytics, pipeline health, and the Leadership Center &mdash; built for executive leadership.</p>
+        <div class="portal-url">RIIMO.toMachina.com</div>
+      </div>
       <div class="portal-card prodash">
         <img src="prodashx-tm-transparent.png" alt="ProDashX by toMachina" style="height: 70px; width: auto; margin-bottom: 16px; filter: drop-shadow(0 0 16px rgba(59, 130, 246, 0.35));">
         <div class="portal-channel">B2C &mdash; Sales + Service</div>
         <p class="portal-desc">The team's daily driver. Clients, accounts, pipelines, communications, quoting &mdash; everything the Sales and Service teams touch, in one place.</p>
         <div class="portal-url">ProDash.toMachina.com</div>
-      </div>
-      <div class="portal-card riimo">
-        <img src="riimo-tm-transparent.png" alt="RIIMO" style="height: 70px; width: auto; margin-bottom: 16px; filter: drop-shadow(0 0 16px rgba(167, 139, 250, 0.25));">
-        <div class="portal-channel">B2E &mdash; Leadership + Operations</div>
-        <p class="portal-desc">The command center. Team performance, compliance oversight, analytics, pipeline health, and the Leadership Center &mdash; built for executive leadership.</p>
-        <div class="portal-url">RIIMO.toMachina.com</div>
-      </div>
-      <div class="portal-card sentinel">
-        <img src="sentinel-tm-transparent.png" alt="SENTINEL" style="height: 70px; width: auto; margin-bottom: 16px; filter: drop-shadow(0 0 16px rgba(64, 188, 88, 0.25));">
-        <div class="portal-channel">B2B &mdash; M&amp;A + Partnerships</div>
-        <p class="portal-desc">DAVID's war room. Deal pipelines, book analysis, partnership proposals, acquisition onboarding &mdash; the DAVID Division's domain.</p>
-        <div class="portal-url">SENTINEL.toMachina.com</div>
       </div>
     </div>
   </div>
