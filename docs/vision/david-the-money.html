@@ -26,6 +26,9 @@
     --machine-glow: rgba(167, 139, 250, 0.10);
     --magic: #c084fc;
     --magic-glow: rgba(192, 132, 252, 0.10);
+    --rpi: #3b82f6;
+    --rpi-glow: rgba(59, 130, 246, 0.10);
+    --rpi-border: rgba(59, 130, 246, 0.25);
     --gold: #d4a44c;
     --gold-glow: rgba(212, 164, 76, 0.12);
     --gold-border: rgba(212, 164, 76, 0.25);
@@ -362,10 +365,7 @@
   </p>
 </div>
 
-<!-- TABS -->
-<div class="tab-bar">
-  <div class="tab-btn active" onclick="switchTab('prospects')">The Opportunities</div>
-</div>
+<!-- TABS removed per JDM 2026-04-18 — only one section, no tab button needed -->
 
 <!-- ════════════════════════════════════════════════════════════════ -->
 <!-- PROSPECTS TAB                                                   -->
@@ -375,7 +375,7 @@
 <section style="padding-bottom: 0;">
   <div class="container">
     <h2>Three Paths In. <span class="accent">One Outcome.</span></h2>
-    <p class="section-sub" style="margin-bottom: 0;">Every path leads to the same place: inside The Machine. The only question is how you get there.</p>
+    <p class="section-sub" style="margin-bottom: 0; font-size: 20px; color: var(--text); line-height: 1.75;">Every path leads to the same place: <strong style="color: var(--money);">inside The Machine.</strong> The only question is <em>how you get there.</em></p>
   </div>
 </section>
 
@@ -414,7 +414,7 @@
         <h3>Here's How You Get to the Higher Income</h3>
         <p class="story-scenario">Same agent. Good at what they do. But they've hit a ceiling. $200K&ndash;$250K and stuck. They're not a builder &mdash; they don't want to recruit, manage a team, or build infrastructure. There's only so many hours in a day. Without scale, the income doesn't move.</p>
         <div class="story-outcome">
-          <p>DAVID. shows up: "Merge with us. You're wearing the RPI jersey now. Your clients go into toMachina. Your service load goes to our Service Division. Your compliance goes to the OS. You don't build anything &mdash; The Machine is already built. You just got 20 hours a week back, and every one of them is revenue-producing. You can keep selling Joe Advisor &mdash; or you can sell Retirement Protectors, Inc., and everything that comes with it. The time and the money you're looking for? You can't get there on your own. You can get there with us."</p>
+          <p>DAVID. shows up: "Merge with us. You're wearing the RPI jersey now. Your clients go into toMachina. Your service load goes to our Service Division. Your compliance goes to the OS. You don't build anything &mdash; The Machine is already built. You just got 20 hours a week back, and every one of them is revenue-producing. You can keep selling Joe Advisor &mdash; or you can sell Retirement Protectors, Inc., and everything that comes with it. The time and the money you're looking for? You can't get there on your own. But we can get there TOGETHER."</p>
         </div>
         <div class="impact">
           <div class="impact-label">Their Impact &mdash; Year 1 &rarr; Year 3</div>
@@ -432,7 +432,7 @@
         <h3>The Retiring Agent</h3>
         <p class="story-scenario">30 years in the business. 500 clients. ~$100K recurring. Mostly Medicare + life. Ready to retire but can't stomach selling to a stranger who'll churn the book. They want someone who'll actually take care of their people.</p>
         <div class="story-outcome">
-          <p>DAVID. shows up: "We acquire your book. Your clients get an MDJ on day one &mdash; they&rsquo;ll get BETTER service than they&rsquo;re getting now. You get a clean exit with a fair multiple. And you can walk away knowing your life&rsquo;s work is protected."</p>
+          <p>DAVID. shows up: "We acquire your book. Your clients get a dedicated service team with direct access day one. You get a clean exit with a fair multiple. And you can walk away knowing your life&rsquo;s work is protected."</p>
         </div>
         <div class="impact">
           <div class="impact-label">Their Impact &mdash; At Close</div>
@@ -508,7 +508,7 @@
       <div class="story-card">
         <div class="story-type">Carrier Prospect</div>
         <h3>Facing Relentless Sales Pressures</h3>
-        <p class="story-scenario">National Life / Annuity / Medicare carrier. Established independent agent distribution model. Facing relentless sales pressures across:<br><br>
+        <p class="story-scenario">National Life / Annuity / Medicare carrier. Facing relentless sales pressures across:<br><br>
         &bull; Product competitiveness<br>
         &bull; Compensation structures<br>
         &bull; Field support<br>
@@ -532,7 +532,7 @@
       <div class="story-card">
         <div class="story-type">Carrier Prospect</div>
         <h3>Facing Downward In-Force Servicing Profit</h3>
-        <p class="story-scenario">Same national Life / Annuity / Medicare carrier. Established independent agent distribution model. Facing downward profit metrics on the In-Force SERVICING block of business:<br><br>
+        <p class="story-scenario">Same national Life / Annuity / Medicare carrier. Facing downward profit metrics on the In-Force SERVICING block of business:<br><br>
         &bull; Finding good employees<br>
         &bull; Keeping good employees<br>
         &bull; Technology requirements<br>
@@ -559,23 +559,23 @@
 
 </div><!-- /tab-prospects -->
 
-<!-- #WeAreDAVID CLOSING PITCH -->
+<!-- #WeAreDAVID CLOSING PITCH — pillar order per JDM 2026-04-18: DAVID green (1) → toMachina purple (2) → RPI blue (3) -->
 <section style="background: var(--money-glow); border-top: 2px solid var(--money-border);">
   <div class="container">
     <h2 style="text-align: center;">#We<span class="accent">Are</span>DAVID</h2>
-    <p class="section-sub" style="margin: 0 auto 48px; text-align: center;">Three things make DAVID different. Together they're a real partnership &mdash; not a "partnership" in name only.</p>
+    <p class="section-sub" style="margin: 0 auto 48px; text-align: center;">Three things make DAVID different. Together they form a <strong style="color: var(--money);">"TRUE Partnership."</strong></p>
     <div class="stream-grid">
-      <div class="stream-card">
-        <h4>Independently Owned</h4>
-        <p>Owned by active retail producers. ELITE W-2 sales and service staff. Health, retirement, and investment businesses under one roof. Wholesale volume with a retail footprint &mdash; that's RPI.</p>
+      <div class="stream-card" style="border-top-color: var(--money);">
+        <h4 style="color: var(--money);">Full Vertical Integration</h4>
+        <p>Incentive alignment from the client to the carrier. Everyone in the value chain is on the same team, with the same data, with the same outcome on the line &mdash; that's <strong style="color: var(--money);">DAVID.</strong></p>
       </div>
-      <div class="stream-card">
-        <h4>AI-Native Platform</h4>
-        <p>Ground-up built tech, data, and infrastructure. Full lifecycle management from new business through customer service. Directly integrated with your core systems &mdash; that's toMachina.</p>
+      <div class="stream-card" style="border-top-color: var(--machine);">
+        <h4 style="color: var(--machine);">Ai- NATIVE Platform</h4>
+        <p>Ground-up built tech, data, and infrastructure. Full lifecycle management from new business through customer service. Directly integrated with your core systems &mdash; that's <strong style="color: var(--machine);">toMachina.</strong></p>
       </div>
-      <div class="stream-card">
-        <h4>Full Vertical Integration</h4>
-        <p>Incentive alignment from the client to the carrier. Everyone in the value chain is on the same team, with the same data, with the same outcome on the line.</p>
+      <div class="stream-card" style="border-top-color: var(--rpi);">
+        <h4 style="color: var(--rpi);">Independently Owned</h4>
+        <p>Owned by active retail producers. ELITE W-2 sales and service staff. Health, retirement, and investment businesses under one roof. Wholesale volume with a retail footprint &mdash; that's <strong style="color: var(--rpi);">RPI.</strong></p>
       </div>
     </div>
     <div class="punchline" style="margin-top: 48px;">
@@ -608,6 +608,120 @@ function switchSub(sub) {
   document.querySelector('.sub-tab[onclick*="' + sub + '"]').classList.add('active');
 }
 </script>
+
+<!-- FLOATING CONTACT BUTTON (per JDM 2026-04-18) — routes by URL path -->
+<style>
+  .cxb-btn {
+    position: fixed; bottom: 24px; right: 24px; z-index: 9999;
+    padding: 14px 28px; border-radius: 100px;
+    background: linear-gradient(135deg, #f0c060 0%, #d4a44c 60%, #a07830 100%);
+    color: #08080c; border: none;
+    font-family: Inter, -apple-system, sans-serif;
+    font-size: 13px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase;
+    cursor: pointer; box-shadow: 0 6px 24px rgba(0,0,0,0.55), 0 0 0 1px rgba(212,164,76,0.4);
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .cxb-btn:hover { transform: translateY(-2px) scale(1.03); box-shadow: 0 10px 28px rgba(0,0,0,0.65), 0 0 0 1px rgba(240,192,96,0.6); }
+  .cxb-overlay {
+    display: none; position: fixed; inset: 0; z-index: 10000;
+    background: rgba(0,0,0,0.78); backdrop-filter: blur(4px);
+    align-items: center; justify-content: center; padding: 20px;
+  }
+  .cxb-overlay.open { display: flex; }
+  .cxb-modal {
+    width: 100%; max-width: 480px; background: #0f0f16; color: #e8e8f2;
+    border: 1px solid #252536; border-radius: 16px; padding: 32px;
+    font-family: Inter, -apple-system, sans-serif;
+    box-shadow: 0 20px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(212,164,76,0.2);
+    position: relative;
+  }
+  .cxb-modal h3 { font-size: 22px; font-weight: 800; margin: 0 0 6px; letter-spacing: -0.5px; }
+  .cxb-modal p.cxb-sub { font-size: 13px; color: #8a8aa2; margin: 0 0 20px; line-height: 1.6; }
+  .cxb-modal label { display: block; font-size: 11px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: #8a8aa2; margin: 14px 0 6px; }
+  .cxb-modal input, .cxb-modal textarea {
+    width: 100%; padding: 10px 12px; border-radius: 8px;
+    background: #08080c; border: 1px solid #252536; color: #e8e8f2;
+    font-family: inherit; font-size: 14px; box-sizing: border-box;
+  }
+  .cxb-modal input:focus, .cxb-modal textarea:focus { outline: none; border-color: #d4a44c; }
+  .cxb-modal textarea { resize: vertical; min-height: 80px; }
+  .cxb-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+  .cxb-cancel { padding: 10px 18px; border-radius: 8px; background: transparent; border: 1px solid #252536; color: #8a8aa2; cursor: pointer; font-family: inherit; font-weight: 600; }
+  .cxb-submit { padding: 10px 22px; border-radius: 8px; background: #d4a44c; border: none; color: #08080c; cursor: pointer; font-family: inherit; font-weight: 800; letter-spacing: 0.5px; }
+  .cxb-close {
+    position: absolute; top: 12px; right: 12px; width: 32px; height: 32px;
+    border-radius: 50%; border: 1px solid #252536; background: transparent;
+    color: #8a8aa2; font-size: 18px; cursor: pointer; line-height: 1;
+  }
+  .cxb-audience-tag {
+    display: inline-block; padding: 4px 12px; border-radius: 100px;
+    background: rgba(212,164,76,0.12); border: 1px solid rgba(212,164,76,0.4);
+    color: #d4a44c; font-size: 10px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  @media (max-width: 480px) {
+    .cxb-btn { bottom: 16px; right: 16px; padding: 12px 20px; font-size: 12px; }
+    .cxb-modal { padding: 24px; }
+  }
+</style>
+<button class="cxb-btn" id="cxb-trigger" aria-label="Contact AgentX">&#x2709; Contact</button>
+<div class="cxb-overlay" id="cxb-overlay" role="dialog" aria-modal="true" aria-labelledby="cxb-title">
+  <div class="cxb-modal">
+    <button class="cxb-close" id="cxb-close" aria-label="Close">&times;</button>
+    <div class="cxb-audience-tag" id="cxb-tag">Routing: general</div>
+    <h3 id="cxb-title">Let's Talk.</h3>
+    <p class="cxb-sub">Drop your info and we'll route you to the right person on our team within one business day.</p>
+    <form id="cxb-form">
+      <label for="cxb-name">Name</label>
+      <input type="text" id="cxb-name" name="name" required autocomplete="name">
+      <label for="cxb-email">Email</label>
+      <input type="email" id="cxb-email" name="email" required autocomplete="email">
+      <label for="cxb-company">Company (optional)</label>
+      <input type="text" id="cxb-company" name="company" autocomplete="organization">
+      <label for="cxb-msg">What brings you here?</label>
+      <textarea id="cxb-msg" name="message" placeholder="A sentence or two is plenty."></textarea>
+      <div class="cxb-actions">
+        <button type="button" class="cxb-cancel" id="cxb-cancel">Cancel</button>
+        <button type="submit" class="cxb-submit">Send</button>
+      </div>
+    </form>
+  </div>
+</div>
+<script>
+(function(){
+  var path = (location.pathname + location.href).toLowerCase();
+  var audience = 'general';
+  if (path.indexOf('agentx-framework') >= 0 || path.match(/\/$/)) audience = 'strategic';
+  else if (path.indexOf('david') >= 0) audience = 'david';
+  else if (path.indexOf('tomachina') >= 0) audience = 'platform';
+  else if (path.indexOf('rpi') >= 0) audience = 'rpi';
+  document.getElementById('cxb-tag').textContent = 'Routing: ' + audience;
+  function open(){ document.getElementById('cxb-overlay').classList.add('open'); }
+  function close(){ document.getElementById('cxb-overlay').classList.remove('open'); }
+  document.getElementById('cxb-trigger').addEventListener('click', open);
+  document.getElementById('cxb-close').addEventListener('click', close);
+  document.getElementById('cxb-cancel').addEventListener('click', close);
+  document.getElementById('cxb-overlay').addEventListener('click', function(e){
+    if (e.target.id === 'cxb-overlay') close();
+  });
+  document.getElementById('cxb-form').addEventListener('submit', function(e){
+    e.preventDefault();
+    var f = e.target;
+    var subject = encodeURIComponent('[AgentX ' + audience.toUpperCase() + '] Contact from ' + f.name.value);
+    var body = encodeURIComponent(
+      'Name: ' + f.name.value + '\n' +
+      'Email: ' + f.email.value + '\n' +
+      'Company: ' + (f.company.value || '-') + '\n' +
+      'Audience: ' + audience + '\n' +
+      'Source URL: ' + location.href + '\n\n' +
+      'Message:\n' + (f.message.value || '(none)')
+    );
+    window.location.href = 'mailto:josh@retireprotected.com?subject=' + subject + '&body=' + body;
+    setTimeout(close, 300);
+  });
+})();
+</script>
+<!-- /FLOATING CONTACT BUTTON -->
 
 </body>
 </html>
